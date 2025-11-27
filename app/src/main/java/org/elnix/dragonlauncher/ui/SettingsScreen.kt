@@ -219,7 +219,10 @@ fun SettingsScreen(onBack: () -> Unit) {
                                 var angle = Math.toDegrees(atan2(dx.toDouble(), dy.toDouble()))
                                 if (angle < 0) angle += 360.0
 
-                                selected.angleDeg = angle
+                                val index = points.indexOf(selected)
+                                if (index >= 0) {
+                                    points[index] = selected.copy(angleDeg = angle)
+                                }
                                 recomposeTrigger++
                             },
                             onDragEnd = {
