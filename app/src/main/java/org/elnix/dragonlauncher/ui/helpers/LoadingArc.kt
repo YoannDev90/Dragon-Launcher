@@ -7,7 +7,6 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.PaintingStyle.Companion.Stroke
 import androidx.compose.ui.graphics.StrokeCap
 import androidx.compose.ui.graphics.drawscope.Stroke
 
@@ -15,13 +14,13 @@ import androidx.compose.ui.graphics.drawscope.Stroke
 fun HoldToActivateArc(
     center: Offset?,
     progress: Float,     // 0f..1f
-    radius: Float = 150f
+    radius: Float = 200f
 ) {
     if (center == null || progress <= 0f) return
 
     Canvas(modifier = Modifier.fillMaxSize()) {
         drawArc(
-            color = Color(0xFFAF2CE5),
+            color = Color.hsv(progress * 360f, 1f, 1f),
             startAngle = -90f,
             sweepAngle = 360f * progress,
             useCenter = false,

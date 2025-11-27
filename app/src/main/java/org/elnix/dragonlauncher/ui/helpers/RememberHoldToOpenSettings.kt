@@ -16,7 +16,7 @@ import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 
 @Composable
-fun RememberHoldToOpenSettings(
+fun rememberHoldToOpenSettings(
     onSettings: () -> Unit,
     holdDelay: Long = 500,     // ms before arc appears
     loadDuration: Long = 1000, // ms to fill arc

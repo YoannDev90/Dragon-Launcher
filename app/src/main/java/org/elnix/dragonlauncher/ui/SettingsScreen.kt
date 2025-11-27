@@ -16,6 +16,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.systemBars
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
+import androidx.compose.material.icons.filled.Settings
 import androidx.compose.material3.Button
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
@@ -59,7 +60,7 @@ import kotlin.math.sin
 
 private const val MIN_ANGLE_GAP = 18.0       // minimum separation between points (°)
 private const val POINT_RADIUS_PX = 30f
-private const val TOUCH_THRESHOLD_PX = 48f
+private const val TOUCH_THRESHOLD_PX = 100f
 
 // Colors for different action types
 private fun actionColor(action: SwipeActionSerializable?): Color =
@@ -88,9 +89,11 @@ data class UiSwipePoint(
 // --------------------------
 
 @Composable
-fun SettingsScreen(onBack: () -> Unit) {
+fun SettingsScreen(
+    onAdvSettings: () -> Unit,
+    onBack: () -> Unit
+) {
     val ctx = LocalContext.current
-//    val scope = rememberCoroutineScope()
 
     var radius by remember { mutableFloatStateOf(0f) }
     var center by remember { mutableStateOf(Offset.Zero) }
@@ -123,7 +126,8 @@ fun SettingsScreen(onBack: () -> Unit) {
                         SwipePointSerializable(
                             id = uiPoint.id,
                             angleDeg = uiPoint.angleDeg,
-                            action = uiPoint.action
+                            action = uiPoint.action,
+                            circleNumber = 0
                         )
                     }
                 )
@@ -139,17 +143,30 @@ fun SettingsScreen(onBack: () -> Unit) {
             .padding(WindowInsets.systemBars.asPaddingValues())
     ) {
 
-        IconButton(onClick = onBack) {
-            Icon(
-                imageVector = Icons.AutoMirrored.Filled.ArrowBack,
-                contentDescription = "Back",
-                tint = Color.White
-            )
+        Row(
+            modifier = Modifier.fillMaxWidth(),
+            horizontalArrangement = Arrangement.SpaceBetween
+        ){
+            IconButton(onClick = onBack) {
+                Icon(
+                    imageVector = Icons.AutoMirrored.Filled.ArrowBack,
+                    contentDescription = "Back",
+                    tint = Color.White
+                )
+            }
+
+            IconButton(onClick = onAdvSettings) {
+                Icon(
+                    imageVector = Icons.Default.Settings,
+                    contentDescription = "Settings",
+                    tint = Color.White
+                )
+            }
         }
 
-        points.forEach {
-            Text(it.toString(), color = actionColor(it.action))
-        }
+//        points.forEach {
+//            Text(it.toString(), color = actionColor(it.action))
+//        }
 
         Box(
             modifier = Modifier
@@ -167,6 +184,7 @@ fun SettingsScreen(onBack: () -> Unit) {
             // --------------------------
             key(recomposeTrigger) {
                 Canvas(Modifier.fillMaxSize()) {
+
                     drawCircle(
                         color = Color(0x92FF0000),
                         radius = radius,
@@ -174,13 +192,33 @@ fun SettingsScreen(onBack: () -> Unit) {
                         style = Stroke(3f)
                     )
 
-                    points.forEach { p ->
+                    val selected = points.find { it.id == selectedPointId }
+
+                    // 1. draw all non-selected first
+                    points.filter { it.id != selectedPointId }.forEach { p ->
                         val px = center.x + radius * sin(Math.toRadians(p.angleDeg)).toFloat()
                         val py = center.y - radius * cos(Math.toRadians(p.angleDeg)).toFloat()
 
                         drawCircle(
                             color = actionColor(p.action),
-                            radius = POINT_RADIUS_PX + if (p.id == selectedPointId) 5 else 0,
+                            radius = POINT_RADIUS_PX,
+                            center = Offset(px, py)
+                        )
+                        drawCircle(
+                            color = Color.Black,
+                            radius = POINT_RADIUS_PX - 4,
+                            center = Offset(px, py)
+                        )
+                    }
+
+                    // 2. then draw selected on top
+                    selected?.let { p ->
+                        val px = center.x + radius * sin(Math.toRadians(p.angleDeg)).toFloat()
+                        val py = center.y - radius * cos(Math.toRadians(p.angleDeg)).toFloat()
+
+                        drawCircle(
+                            color = actionColor(p.action),
+                            radius = POINT_RADIUS_PX + 5,
                             center = Offset(px, py)
                         )
                         drawCircle(
@@ -191,6 +229,7 @@ fun SettingsScreen(onBack: () -> Unit) {
                     }
                 }
             }
+
 
             // --------------------------
             // DRAG HANDLING
@@ -205,8 +244,10 @@ fun SettingsScreen(onBack: () -> Unit) {
                                 var best = Float.MAX_VALUE
 
                                 points.forEach { p ->
-                                    val px = center.x + radius * sin(Math.toRadians(p.angleDeg)).toFloat()
-                                    val py = center.y - radius * cos(Math.toRadians(p.angleDeg)).toFloat()
+                                    val px =
+                                        center.x + radius * sin(Math.toRadians(p.angleDeg)).toFloat()
+                                    val py =
+                                        center.y - radius * cos(Math.toRadians(p.angleDeg)).toFloat()
                                     val dist = hypot(offset.x - px, offset.y - py)
                                     if (dist < best) {
                                         best = dist
@@ -222,7 +263,8 @@ fun SettingsScreen(onBack: () -> Unit) {
                             },
                             onDrag = { change, _ ->
                                 change.consume()
-                                val selected = points.find { it.id == selectedPointId } ?: return@detectDragGestures
+                                val selected = points.find { it.id == selectedPointId }
+                                    ?: return@detectDragGestures
 
                                 val dx = change.position.x - center.x
                                 val dy = center.y - change.position.y
@@ -246,19 +288,26 @@ fun SettingsScreen(onBack: () -> Unit) {
                             onTap = { offset ->
                                 // check if tapped on a point
                                 var tapped: UiSwipePoint? = null
-                                var d = Float.MAX_VALUE
+                                var best = Float.MAX_VALUE
 
                                 points.forEach { p ->
-                                    val px = center.x + radius * sin(Math.toRadians(p.angleDeg)).toFloat()
-                                    val py = center.y - radius * cos(Math.toRadians(p.angleDeg)).toFloat()
+                                    val px =
+                                        center.x + radius * sin(Math.toRadians(p.angleDeg)).toFloat()
+                                    val py =
+                                        center.y - radius * cos(Math.toRadians(p.angleDeg)).toFloat()
                                     val dist = hypot(offset.x - px, offset.y - py)
-                                    if (dist < d) {
-                                        d = dist
+                                    if (dist < best) {
+                                        best = dist
                                         tapped = p
                                     }
                                 }
 
-                                selectedPointId = if (d <= TOUCH_THRESHOLD_PX) tapped?.id else null
+                                selectedPointId =
+                                    if (best <= TOUCH_THRESHOLD_PX) {
+                                        if (selectedPointId == tapped?.id) {
+                                            null
+                                        } else tapped?.id
+                                    } else null
                             }
                         )
                     }

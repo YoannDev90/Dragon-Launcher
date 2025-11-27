@@ -6,6 +6,7 @@ import java.lang.reflect.Type
 
 // Keep the same data classes, no @Serializable needed
 data class SwipePointSerializable(
+    val circleNumber: Int,
     val angleDeg: Double,
     val action: SwipeActionSerializable? = null,
     val id: String? = null

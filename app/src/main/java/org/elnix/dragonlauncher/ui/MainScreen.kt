@@ -23,10 +23,8 @@ import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.layout.onSizeChanged
 import androidx.compose.ui.unit.IntSize
 import androidx.compose.ui.graphics.Color
-import kotlinx.coroutines.delay
-import kotlinx.coroutines.launch
 import org.elnix.dragonlauncher.ui.helpers.HoldToActivateArc
-import org.elnix.dragonlauncher.ui.helpers.RememberHoldToOpenSettings
+import org.elnix.dragonlauncher.ui.helpers.rememberHoldToOpenSettings
 
 @Composable
 fun MainScreen(
@@ -39,7 +37,7 @@ fun MainScreen(
     var isDragging by remember { mutableStateOf(false) }
     var size by remember { mutableStateOf(IntSize.Zero) }
 
-    val hold = RememberHoldToOpenSettings(
+    val hold = rememberHoldToOpenSettings(
         onSettings = onLongPress3Sec
     )
 
