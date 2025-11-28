@@ -12,6 +12,7 @@ import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.asPaddingValues
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.imePadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.systemBars
 import androidx.compose.material.icons.Icons
@@ -26,7 +27,6 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.key
-import androidx.compose.runtime.mutableFloatStateOf
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateOf
@@ -49,16 +49,12 @@ import org.elnix.dragonlauncher.data.UiCircle
 import org.elnix.dragonlauncher.data.UiSwipePoint
 import org.elnix.dragonlauncher.data.datastore.SwipeDataStore
 import org.elnix.dragonlauncher.ui.helpers.AddPointDialog
-import org.elnix.dragonlauncher.ui.utils.circles.addCircle
 import org.elnix.dragonlauncher.ui.utils.circles.autoSeparate
 import org.elnix.dragonlauncher.ui.utils.circles.randomFreeAngle
-import org.elnix.dragonlauncher.ui.utils.circles.removeCircle
 import org.elnix.dragonlauncher.ui.utils.circles.updatePointPosition
 import java.util.UUID
-import kotlin.math.atan2
 import kotlin.math.cos
 import kotlin.math.hypot
-import kotlin.math.min
 import kotlin.math.sin
 
 // Config
@@ -124,18 +120,24 @@ fun SettingsScreen(
         }
     }
 
-    LaunchedEffect(recomposeTrigger) {
-        SwipeDataStore.save(
-            ctx,
-            points.map { uiPoint ->
-                SwipePointSerializable(
-                    id = uiPoint.id,
-                    angleDeg = uiPoint.angleDeg,
-                    action = uiPoint.action,
-                    circleNumber = uiPoint.circleNumber
+
+    // Save
+    LaunchedEffect(Unit, recomposeTrigger) {
+        snapshotFlow { points.toList() }
+            .distinctUntilChanged()
+            .collect { list ->
+                SwipeDataStore.save(
+                    ctx,
+                    list.map {
+                        SwipePointSerializable(
+                            id = it.id,
+                            angleDeg = it.angleDeg,
+                            action = it.action,
+                            circleNumber = it.circleNumber
+                        )
+                    }
                 )
             }
-        )
     }
 
 
@@ -145,6 +147,7 @@ fun SettingsScreen(
             .fillMaxSize()
             .background(MaterialTheme.colorScheme.background)
             .padding(WindowInsets.systemBars.asPaddingValues())
+            .imePadding()
     ) {
 
         Row(
@@ -328,7 +331,10 @@ fun SettingsScreen(
 
     if (showAddDialog) {
         AddPointDialog(
-            onDismiss = { showAddDialog = false },
+            onDismiss = {
+                @Suppress("AssignedValueIsNeverRead")
+                showAddDialog = false
+            },
             onActionSelected = { action ->
                 val circleNumber = 0
                 val newAngle = randomFreeAngle(points)
@@ -343,6 +349,7 @@ fun SettingsScreen(
                 points.add(point)
                 autoSeparate(points, circleNumber)
 
+                @Suppress("AssignedValueIsNeverRead")
                 showAddDialog = false
             }
         )

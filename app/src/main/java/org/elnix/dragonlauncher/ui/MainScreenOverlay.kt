@@ -1,9 +1,13 @@
 package org.elnix.dragonlauncher.ui
 
+import androidx.compose.animation.core.animateDpAsState
+import androidx.compose.animation.core.animateFloatAsState
+import androidx.compose.animation.core.tween
 import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.layout.*
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableDoubleStateOf
@@ -12,6 +16,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.geometry.Rect
 import androidx.compose.ui.geometry.Size
@@ -24,9 +29,9 @@ import androidx.compose.ui.unit.IntSize
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import kotlin.math.atan2
-import kotlin.math.cos
-import kotlin.math.sin
 import androidx.compose.ui.text.font.FontWeight
+import org.elnix.dragonlauncher.data.SwipeActionSerializable
+import org.elnix.dragonlauncher.data.SwipePointSerializable
 import org.elnix.dragonlauncher.data.datastore.SettingsStore
 import kotlin.math.hypot
 
@@ -35,7 +40,9 @@ fun MainScreenOverlay(
     start: Offset?,
     current: Offset?,
     isDragging: Boolean,
-    surface: IntSize
+    surface: IntSize,
+    points: List<SwipePointSerializable>,
+    onLaunch: (SwipeActionSerializable?) -> Unit
 ) {
     val ctx = LocalContext.current
 
@@ -90,7 +97,6 @@ fun MainScreenOverlay(
         lineColor = if (angleLineColor != null) angleLineColor!!
                     else if (rgbLine) Color.hsv(angle0to360.toFloat(),1f,1f)
                     else Color.Red
-
     } else {
         dx = 0f; dy = 0f
         dist = 0f
@@ -102,6 +108,69 @@ fun MainScreenOverlay(
 
     val sweepAngle = (cumulativeAngle % 360).toFloat()
 
+
+    // Launch app logic
+
+    // -- For displaying the banner --
+    var hoveredAction by remember { mutableStateOf<SwipeActionSerializable?>(null) }
+    var bannerVisible by remember { mutableStateOf(false) }
+
+    // Distance thresholds for 3 circles
+    val circleR1 = 90f
+    val circleR2 = 180f
+    val circleR3 = 260f
+
+    // Safe zone = dragging returns close to origin → cancel
+    val cancelZone = 40f
+
+    // The chosen swipe action
+    var currentAction: SwipeActionSerializable? by remember { mutableStateOf(null) }
+
+    if (start != null && current != null && isDragging) {
+
+        val targetCircle =
+            when {
+                dist < circleR1 -> 1
+                dist < circleR2 -> 2
+                else -> 3
+            }
+
+        val closestPoint =
+            points.filter { it.circleNumber == targetCircle }
+                .minByOrNull {
+                    val d = kotlin.math.abs(it.angleDeg - angle0to360)
+                    minOf(d, 360 - d)
+                }
+
+        currentAction = if (dist > cancelZone) closestPoint?.action else null
+
+        hoveredAction = currentAction
+        bannerVisible = currentAction != null
+    } else if (!isDragging) {
+        bannerVisible = false
+    }
+
+    val alpha by animateFloatAsState(
+        targetValue = if (bannerVisible) 1f else 0f,
+        animationSpec = tween(150)
+    )
+    val offsetY by animateDpAsState(
+        targetValue = if (bannerVisible) 0.dp else (-20).dp,
+        animationSpec = tween(150)
+    )
+
+    LaunchedEffect(isDragging) {
+        if (!isDragging) {
+            if (currentAction != null) {
+                onLaunch(currentAction)
+            }
+            hoveredAction = null
+            currentAction = null
+            bannerVisible = false
+        }
+    }
+
+
     Box(Modifier.fillMaxSize()) {
 
         Column(
@@ -110,28 +179,30 @@ fun MainScreenOverlay(
                 .align(Alignment.TopStart)
         ) {
             if (debugInfos) {
-                Text("start = ${start?.let { "%.1f, %.1f".format(it.x, it.y) } ?: "—"}",
+                Text(
+                    text = "start = ${start?.let { "%.1f, %.1f".format(it.x, it.y) } ?: "—"}",
                     color = Color.White, fontSize = 14.sp, fontWeight = FontWeight.Medium)
-                Text("current = ${current?.let { "%.1f, %.1f".format(it.x, it.y) } ?: "—"}",
+                Text(
+                    text = "current = ${current?.let { "%.1f, %.1f".format(it.x, it.y) } ?: "—"}",
                     color = Color.White, fontSize = 14.sp)
                 Text(
-                    "dx = %.1f   dy = %.1f".format(dx, dy),
+                    text = "dx = %.1f   dy = %.1f".format(dx, dy),
                     color = Color.White, fontSize = 14.sp
                 )
                 Text(
-                    "dist = %.1f".format(dist),
+                    text = "dist = %.1f".format(dist),
                     color = Color.White, fontSize = 14.sp
                 )
                 Text(
-                    "angle raw = %.1f°".format(angleDeg),
+                    text = "angle raw = %.1f°".format(angleDeg),
                     color = Color.White, fontSize = 14.sp
                 )
                 Text(
-                    "angle 0–360 = %.1f°".format(angle0to360),
+                    text = "angle 0–360 = %.1f°".format(angle0to360),
                     color = Color.White, fontSize = 14.sp
                 )
                 Text(
-                    "drag = $isDragging, size = ${surface.width}×${surface.height}",
+                    text = "drag = $isDragging, size = ${surface.width}×${surface.height}",
                     color = Color.White, fontSize = 12.sp
                 )
             }
@@ -188,4 +259,22 @@ fun MainScreenOverlay(
             }
         }
     }
+    if (hoveredAction != null) {
+        Box(
+            Modifier
+                .fillMaxWidth()
+                .offset(y = offsetY)
+                .padding(top = 20.dp)
+                .alpha(alpha),
+            contentAlignment = Alignment.TopCenter
+        ) {
+            Text(
+                text = hoveredAction.toString(),   // name of action
+                color = Color.White,
+                fontSize = 18.sp,
+                fontWeight = FontWeight.Bold
+            )
+        }
+    }
+
 }

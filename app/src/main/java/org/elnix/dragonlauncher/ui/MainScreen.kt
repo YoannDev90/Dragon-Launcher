@@ -26,8 +26,10 @@ import androidx.compose.ui.layout.onSizeChanged
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.IntSize
 import org.elnix.dragonlauncher.data.datastore.SettingsStore
+import org.elnix.dragonlauncher.data.datastore.SwipeDataStore
 import org.elnix.dragonlauncher.ui.helpers.HoldToActivateArc
 import org.elnix.dragonlauncher.ui.helpers.rememberHoldToOpenSettings
+import org.elnix.dragonlauncher.ui.utils.actions.launchSwipeAction
 
 @Composable
 fun MainScreen(
@@ -47,6 +49,8 @@ fun MainScreen(
     val defaultColor = Color.Red
     val rgbLoading by SettingsStore.getRGBLoading(ctx)
         .collectAsState(initial = true)
+
+    val points by SwipeDataStore.getPointsFlow(ctx).collectAsState(emptyList())
 
     // To prevent the user from exiting the app on back, since it's a launcher
     BackHandler { }
@@ -93,7 +97,14 @@ fun MainScreen(
             .onSizeChanged { size = it }
             .then(hold.pointerModifier)
     ) {
-        MainScreenOverlay(start, current, isDragging, size)
+        MainScreenOverlay(
+            start = start,
+            current = current,
+            isDragging = isDragging,
+            surface = size,
+            points =points,
+            onLaunch = { launchSwipeAction(ctx, it) }
+        )
 
         HoldToActivateArc(
             center = hold.centerProvider(),

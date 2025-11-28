@@ -24,6 +24,15 @@ object SwipeDataStore {
             .first()
     }
 
+    fun getPointsFlow(ctx: Context) =
+        ctx.swipeDataStore.data
+            .map { prefs ->
+                prefs[POINTS]?.let { json ->
+                    SwipeJson.decode(json)
+                } ?: emptyList()
+            }
+
+
     suspend fun save(ctx: Context, points: List<SwipePointSerializable>) {
         ctx.swipeDataStore.edit { prefs ->
             prefs[POINTS] = SwipeJson.encode(points)
