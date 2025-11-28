@@ -44,25 +44,26 @@ import androidx.compose.ui.unit.dp
 import kotlinx.coroutines.flow.distinctUntilChanged
 import org.elnix.dragonlauncher.data.SwipeActionSerializable
 import org.elnix.dragonlauncher.data.SwipePointSerializable
+import org.elnix.dragonlauncher.data.UiCircle
+import org.elnix.dragonlauncher.data.UiSwipePoint
 import org.elnix.dragonlauncher.data.datastore.SwipeDataStore
 import org.elnix.dragonlauncher.ui.helpers.AddPointDialog
+import org.elnix.dragonlauncher.ui.utils.circles.addCircle
+import org.elnix.dragonlauncher.ui.utils.circles.autoSeparate
+import org.elnix.dragonlauncher.ui.utils.circles.randomFreeAngle
+import org.elnix.dragonlauncher.ui.utils.circles.removeCircle
 import java.util.UUID
-import kotlin.math.abs
 import kotlin.math.atan2
 import kotlin.math.cos
 import kotlin.math.hypot
 import kotlin.math.min
 import kotlin.math.sin
 
-// --------------------------
-// CONFIG
-// --------------------------
-
-private const val MIN_ANGLE_GAP = 18.0       // minimum separation between points (°)
+// Config
+const val MIN_ANGLE_GAP = 18.0
 private const val POINT_RADIUS_PX = 30f
 private const val TOUCH_THRESHOLD_PX = 100f
 
-// Colors for different action types
 private fun actionColor(action: SwipeActionSerializable?): Color =
     when (action) {
         is SwipeActionSerializable.LaunchApp -> Color(0xFF55AAFF)
@@ -73,20 +74,6 @@ private fun actionColor(action: SwipeActionSerializable?): Color =
         else -> Color.Red
     }
 
-// --------------------------
-// DATA MODEL (internal)
-// --------------------------
-
-data class UiSwipePoint(
-    var id: String,
-    var angleDeg: Double,
-    var action: SwipeActionSerializable?,
-    var isSelected: Boolean = false
-)
-
-// --------------------------
-// MAIN SCREEN
-// --------------------------
 
 @Composable
 fun SettingsScreen(
@@ -95,27 +82,50 @@ fun SettingsScreen(
 ) {
     val ctx = LocalContext.current
 
-    var radius by remember { mutableFloatStateOf(0f) }
+//    var radius by remember { mutableFloatStateOf(0f) }
     var center by remember { mutableStateOf(Offset.Zero) }
 
     val points: SnapshotStateList<UiSwipePoint> = remember { mutableStateListOf() }
+    val circles: SnapshotStateList<UiCircle> = remember { mutableStateListOf() }
     var selectedPointId by remember { mutableStateOf<String?>(null) }
-
-
     var showAddDialog by remember { mutableStateOf(false) }
-
     var recomposeTrigger by remember { mutableIntStateOf(0) }
 
+    // Load
     LaunchedEffect(Unit) {
         val saved = SwipeDataStore.getPoints(ctx)
         points.clear()
         points.addAll(saved.map {
-            UiSwipePoint(it.id ?: UUID.randomUUID().toString(), it.angleDeg, it.action)
+            UiSwipePoint(
+                it.id ?: UUID.randomUUID().toString(),
+                it.angleDeg,
+                it.action,
+                it.circleNumber
+            )
         })
+
+        // ensure circles list contains required number of circles
+        circles.clear()
+
+        val maxCircleIndex = points.maxOfOrNull { it.circleNumber } ?: 0
+        repeat(maxCircleIndex + 1) { index ->
+            circles.add(
+                UiCircle(
+                    id = circles.size + 1,
+                    radius = 200f + (index * 140f),
+                    points = mutableStateListOf()
+                )
+            )
+        }
+
+        // assign points into circles
+        points.forEach { p ->
+            val circle = circles.getOrNull(p.circleNumber)
+            circle?.points?.add(p)
+        }
     }
 
-
-    // Save ONLY when points actually change
+    // Save only on changes
     LaunchedEffect(points) {
         snapshotFlow { points.toList() }
             .distinctUntilChanged()
@@ -127,13 +137,12 @@ fun SettingsScreen(
                             id = uiPoint.id,
                             angleDeg = uiPoint.angleDeg,
                             action = uiPoint.action,
-                            circleNumber = 0
+                            circleNumber = uiPoint.circleNumber
                         )
                     }
                 )
             }
     }
-
 
 
     Column(
@@ -146,27 +155,15 @@ fun SettingsScreen(
         Row(
             modifier = Modifier.fillMaxWidth(),
             horizontalArrangement = Arrangement.SpaceBetween
-        ){
+        ) {
             IconButton(onClick = onBack) {
-                Icon(
-                    imageVector = Icons.AutoMirrored.Filled.ArrowBack,
-                    contentDescription = "Back",
-                    tint = Color.White
-                )
+                Icon(Icons.AutoMirrored.Filled.ArrowBack, null, tint = Color.White)
             }
 
             IconButton(onClick = onAdvSettings) {
-                Icon(
-                    imageVector = Icons.Default.Settings,
-                    contentDescription = "Settings",
-                    tint = Color.White
-                )
+                Icon(Icons.Default.Settings, null, tint = Color.White)
             }
         }
-
-//        points.forEach {
-//            Text(it.toString(), color = actionColor(it.action))
-//        }
 
         Box(
             modifier = Modifier
@@ -174,30 +171,32 @@ fun SettingsScreen(
                 .weight(1f)
                 .padding(12.dp)
                 .onSizeChanged {
-                    radius = (min(it.width, it.height) * 0.35f)
+//                    radius = (min(it.width, it.height) * 0.35f)
                     center = Offset(it.width / 2f, it.height / 2f)
                 }
         ) {
 
             // --------------------------
-            // DRAWING
+            // DRAWING (REWRITTEN)
             // --------------------------
             key(recomposeTrigger) {
                 Canvas(Modifier.fillMaxSize()) {
 
-                    drawCircle(
-                        color = Color(0x92FF0000),
-                        radius = radius,
-                        center = center,
-                        style = Stroke(3f)
-                    )
+                    // 1. Draw all circles
+                    circles.forEach { circle ->
+                        drawCircle(
+                            color = Color(0x55FFFFFF),
+                            radius = circle.radius,
+                            center = center,
+                            style = Stroke(4f)
+                        )
+                    }
 
-                    val selected = points.find { it.id == selectedPointId }
-
-                    // 1. draw all non-selected first
+                    // 2. Draw all non-selected points
                     points.filter { it.id != selectedPointId }.forEach { p ->
-                        val px = center.x + radius * sin(Math.toRadians(p.angleDeg)).toFloat()
-                        val py = center.y - radius * cos(Math.toRadians(p.angleDeg)).toFloat()
+                        val circle = circles.getOrNull(p.circleNumber) ?: return@forEach
+                        val px = center.x + circle.radius * sin(Math.toRadians(p.angleDeg)).toFloat()
+                        val py = center.y - circle.radius * cos(Math.toRadians(p.angleDeg)).toFloat()
 
                         drawCircle(
                             color = actionColor(p.action),
@@ -211,10 +210,12 @@ fun SettingsScreen(
                         )
                     }
 
-                    // 2. then draw selected on top
+                    // 3. Selected point drawn last
+                    val selected = points.find { it.id == selectedPointId }
                     selected?.let { p ->
-                        val px = center.x + radius * sin(Math.toRadians(p.angleDeg)).toFloat()
-                        val py = center.y - radius * cos(Math.toRadians(p.angleDeg)).toFloat()
+                        val circle = circles.getOrNull(p.circleNumber) ?: return@let
+                        val px = center.x + circle.radius * sin(Math.toRadians(p.angleDeg)).toFloat()
+                        val py = center.y - circle.radius * cos(Math.toRadians(p.angleDeg)).toFloat()
 
                         drawCircle(
                             color = actionColor(p.action),
@@ -232,7 +233,7 @@ fun SettingsScreen(
 
 
             // --------------------------
-            // DRAG HANDLING
+            // DRAG / TAP HANDLING (UPDATED FOR MULTI-CIRCLE)
             // --------------------------
             Box(
                 Modifier
@@ -244,27 +245,30 @@ fun SettingsScreen(
                                 var best = Float.MAX_VALUE
 
                                 points.forEach { p ->
+                                    val circle = circles.getOrNull(p.circleNumber) ?: return@forEach
                                     val px =
-                                        center.x + radius * sin(Math.toRadians(p.angleDeg)).toFloat()
+                                        center.x + circle.radius * sin(Math.toRadians(p.angleDeg)).toFloat()
                                     val py =
-                                        center.y - radius * cos(Math.toRadians(p.angleDeg)).toFloat()
+                                        center.y - circle.radius * cos(Math.toRadians(p.angleDeg)).toFloat()
                                     val dist = hypot(offset.x - px, offset.y - py)
+
                                     if (dist < best) {
                                         best = dist
                                         closest = p
                                     }
                                 }
 
-                                selectedPointId = if (best <= TOUCH_THRESHOLD_PX) {
-                                    closest?.id
-                                } else {
-                                    null
-                                }
+                                selectedPointId =
+                                    if (best <= TOUCH_THRESHOLD_PX) closest?.id else null
                             },
                             onDrag = { change, _ ->
                                 change.consume()
-                                val selected = points.find { it.id == selectedPointId }
-                                    ?: return@detectDragGestures
+
+                                val selected = points.find { it.id == selectedPointId } ?: return@detectDragGestures
+
+                                // All points that are part of the same circle
+                                val sameCirclePoints = points.filter { it.circleNumber == selected.circleNumber }
+                                if (sameCirclePoints.isEmpty()) return@detectDragGestures
 
                                 val dx = change.position.x - center.x
                                 val dy = center.y - change.position.y
@@ -275,10 +279,11 @@ fun SettingsScreen(
                                 if (idx >= 0) {
                                     points[idx] = selected.copy(angleDeg = angle)
                                 }
+
                                 recomposeTrigger++
                             },
                             onDragEnd = {
-                                autoSeparate(points)
+                                autoSeparate(points, points.find { it.id == selectedPointId }?.circleNumber ?: return@detectDragGestures)
                                 selectedPointId = null
                             }
                         )
@@ -286,16 +291,17 @@ fun SettingsScreen(
                     .pointerInput(Unit) {
                         detectTapGestures(
                             onTap = { offset ->
-                                // check if tapped on a point
                                 var tapped: UiSwipePoint? = null
                                 var best = Float.MAX_VALUE
 
                                 points.forEach { p ->
+                                    val circle = circles.getOrNull(p.circleNumber) ?: return@forEach
                                     val px =
-                                        center.x + radius * sin(Math.toRadians(p.angleDeg)).toFloat()
+                                        center.x + circle.radius * sin(Math.toRadians(p.angleDeg)).toFloat()
                                     val py =
-                                        center.y - radius * cos(Math.toRadians(p.angleDeg)).toFloat()
+                                        center.y - circle.radius * cos(Math.toRadians(p.angleDeg)).toFloat()
                                     val dist = hypot(offset.x - px, offset.y - py)
+
                                     if (dist < best) {
                                         best = dist
                                         tapped = p
@@ -303,17 +309,15 @@ fun SettingsScreen(
                                 }
 
                                 selectedPointId =
-                                    if (best <= TOUCH_THRESHOLD_PX) {
-                                        if (selectedPointId == tapped?.id) {
-                                            null
-                                        } else tapped?.id
-                                    } else null
+                                    if (best <= TOUCH_THRESHOLD_PX)
+                                        if (selectedPointId == tapped?.id) null else tapped?.id
+                                    else null
                             }
                         )
                     }
             )
-
         }
+
 
         Row(
             Modifier.fillMaxWidth(),
@@ -322,7 +326,6 @@ fun SettingsScreen(
             Button(onClick = { showAddDialog = true }) {
                 Text("Add point")
             }
-
 
             Button(
                 enabled = selectedPointId != null,
@@ -336,86 +339,48 @@ fun SettingsScreen(
                 Text("Remove point")
             }
         }
+
+        Row(
+            Modifier.fillMaxWidth(),
+            horizontalArrangement = Arrangement.SpaceAround
+        ) {
+            Button(
+                onClick = { addCircle(circles) },
+                enabled = circles.size < 3
+            ) {
+                Text("Add circle")
+            }
+
+            Button(
+                enabled = circles.size > 1,
+                onClick = {
+                    removeCircle(circles, circles.last().id)
+                }
+            ) {
+                Text("Remove last circle")
+            }
+        }
     }
 
-    // --------------------------
-    // ADD POINT DIALOG
-    // --------------------------
     if (showAddDialog) {
         AddPointDialog(
             onDismiss = { showAddDialog = false },
             onActionSelected = { action ->
+                val circleNumber = 0
                 val newAngle = randomFreeAngle(points)
-                points.add(
-                    UiSwipePoint(
-                        id = UUID.randomUUID().toString(),
-                        angleDeg = newAngle,
-                        action = action
-                    )
+
+                val point = UiSwipePoint(
+                    id = UUID.randomUUID().toString(),
+                    angleDeg = newAngle,
+                    action = action,
+                    circleNumber = circleNumber
                 )
-                autoSeparate(points)
+
+                points.add(point)
+                autoSeparate(points, circleNumber)
+
                 showAddDialog = false
             }
         )
-    }
-}
-
-// --------------------------
-// ANGLE MANAGEMENT
-// --------------------------
-
-private fun randomFreeAngle(list: List<UiSwipePoint>): Double {
-    if (list.isEmpty()) return (0..359).random().toDouble()
-
-    repeat(200) {
-        val a = (0..359).random().toDouble()
-        if (list.none { absAngleDiff(it.angleDeg, a) < MIN_ANGLE_GAP }) return a
-    }
-
-    // fallback: pick biggest gap
-    val sorted = list.map { it.angleDeg }.sorted()
-    var bestA = 0.0
-    var bestDist = -1.0
-
-    for (i in sorted.indices) {
-        val a1 = sorted[i]
-        val a2 = sorted[(i + 1) % sorted.size]
-        val gap = ((a2 - a1 + 360) % 360)
-        if (gap > bestDist) {
-            bestDist = gap
-            bestA = (a1 + gap / 2) % 360
-        }
-    }
-    return bestA
-}
-
-private fun absAngleDiff(a: Double, b: Double): Double {
-    val diff = abs(a - b)
-    return min(diff, 360 - diff)
-}
-
-private fun autoSeparate(points: SnapshotStateList<UiSwipePoint>) {
-    if (points.size <= 1) return
-
-    for (i in 0 until 20) {
-        var adjusted = false
-
-        for (i in points.indices) {
-            for (j in i + 1 until points.size) {
-
-                val p1 = points[i]
-                val p2 = points[j]
-                val diff = absAngleDiff(p1.angleDeg, p2.angleDeg)
-
-                if (diff < MIN_ANGLE_GAP) {
-                    val mid = (p1.angleDeg + p2.angleDeg) / 2
-                    p1.angleDeg = (mid - MIN_ANGLE_GAP / 2 + 360) % 360
-                    p2.angleDeg = (mid + MIN_ANGLE_GAP / 2 + 360) % 360
-                    adjusted = true
-                }
-            }
-        }
-
-        if (!adjusted) break
     }
 }

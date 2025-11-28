@@ -48,6 +48,4 @@ fun AdvancedSettingsScreen(
         label = { Text("Angle line color") },
         modifier = Modifier
     )
-
-
 }
