@@ -83,7 +83,6 @@ fun SettingsScreen(
 ) {
     val ctx = LocalContext.current
 
-//    var radius by remember { mutableFloatStateOf(0f) }
     var center by remember { mutableStateOf(Offset.Zero) }
 
     val points: SnapshotStateList<UiSwipePoint> = remember { mutableStateListOf() }
@@ -105,11 +104,9 @@ fun SettingsScreen(
             )
         })
 
-        // ensure circles list contains required number of circles
         circles.clear()
 
-        val maxCircleIndex = points.maxOfOrNull { it.circleNumber } ?: 0
-        repeat(maxCircleIndex + 1) { index ->
+        repeat(3) { index ->
             circles.add(
                 UiCircle(
                     id = index,
@@ -126,24 +123,20 @@ fun SettingsScreen(
         }
     }
 
-    // Save only on changes
-    LaunchedEffect(points) {
-        snapshotFlow { points.toList() }
-            .distinctUntilChanged()
-            .collect { current ->
-                SwipeDataStore.save(
-                    ctx,
-                    current.map { uiPoint ->
-                        SwipePointSerializable(
-                            id = uiPoint.id,
-                            angleDeg = uiPoint.angleDeg,
-                            action = uiPoint.action,
-                            circleNumber = uiPoint.circleNumber
-                        )
-                    }
+    LaunchedEffect(recomposeTrigger) {
+        SwipeDataStore.save(
+            ctx,
+            points.map { uiPoint ->
+                SwipePointSerializable(
+                    id = uiPoint.id,
+                    angleDeg = uiPoint.angleDeg,
+                    action = uiPoint.action,
+                    circleNumber = uiPoint.circleNumber
                 )
             }
+        )
     }
+
 
 
     Column(
@@ -171,10 +164,7 @@ fun SettingsScreen(
                 .fillMaxSize()
                 .weight(1f)
                 .padding(12.dp)
-                .onSizeChanged {
-//                    radius = (min(it.width, it.height) * 0.35f)
-                    center = Offset(it.width / 2f, it.height / 2f)
-                }
+                .onSizeChanged { center = Offset(it.width / 2f, it.height / 2f) }
         ) {
 
             // --------------------------
@@ -274,7 +264,6 @@ fun SettingsScreen(
                                 val p = points.find { it.id == selectedPointId } ?: return@detectDragGestures
                                 updatePointPosition(p, circles, center, change.position)
                                 recomposeTrigger++
-
                             },
                             onDragEnd = {
                                 val p = points.find { it.id == selectedPointId } ?: return@detectDragGestures
@@ -332,27 +321,6 @@ fun SettingsScreen(
                 }
             ) {
                 Text("Remove point")
-            }
-        }
-
-        Row(
-            Modifier.fillMaxWidth(),
-            horizontalArrangement = Arrangement.SpaceAround
-        ) {
-            Button(
-                onClick = { addCircle(circles) },
-                enabled = circles.size < 3
-            ) {
-                Text("Add circle")
-            }
-
-            Button(
-                enabled = circles.size > 1,
-                onClick = {
-                    removeCircle(circles, circles.last().id)
-                }
-            ) {
-                Text("Remove last circle")
             }
         }
     }
