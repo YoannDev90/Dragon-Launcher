@@ -92,7 +92,7 @@ fun SettingsScreen(
     var showAddDialog by remember { mutableStateOf(false) }
     var recomposeTrigger by remember { mutableIntStateOf(0) }
 
-    val circleColor = MaterialTheme.colorScheme.primary.copy(0.5f)
+    val circleColor = Color(0xFF600000)
 
     var bannerVisible by remember { mutableStateOf(false) }
     val alpha by animateFloatAsState(
@@ -208,10 +208,17 @@ fun SettingsScreen(
                         val py = center.y - circle.radius * cos(Math.toRadians(p.angleDeg)).toFloat()
 
                         drawCircle(
+                            color = circleColor,
+                            radius = POINT_RADIUS_PX + 4,
+                            center = Offset(px, py)
+                        )
+
+                        drawCircle(
                             color = Color.Black,
                             radius = POINT_RADIUS_PX,
                             center = Offset(px, py)
                         )
+
                         drawImage(
                             image = actionIconBitmap(
                                 action = p.action,
@@ -231,13 +238,14 @@ fun SettingsScreen(
                         val py = center.y - circle.radius * cos(Math.toRadians(p.angleDeg)).toFloat()
 
                         drawCircle(
-                            color = actionColor(p.action),
-                            radius = POINT_RADIUS_PX + 5,
+                            color = circleColor,
+                            radius = POINT_RADIUS_PX + 4,
                             center = Offset(px, py)
                         )
+
                         drawCircle(
                             color = Color.Black,
-                            radius = POINT_RADIUS_PX - 2,
+                            radius = POINT_RADIUS_PX,
                             center = Offset(px, py)
                         )
                         drawImage(
@@ -279,6 +287,7 @@ fun SettingsScreen(
 
                                 selectedPoint =
                                     if (best <= TOUCH_THRESHOLD_PX) closest else null
+                                bannerVisible = selectedPoint != null
                             },
                             onDrag = { change, _ ->
                                 change.consume()
@@ -296,14 +305,12 @@ fun SettingsScreen(
                             onDragEnd = {
                                 val p = points.find { it.id == selectedPoint?.id } ?: return@detectDragGestures
                                 autoSeparate(points, p.circleNumber)
-                                selectedPoint = null
                             }
                         )
                     }
                     .pointerInput(Unit) {
                         detectTapGestures(
                             onTap = { offset ->
-                                bannerVisible = false
                                 var tapped: UiSwipePoint? = null
                                 var best = Float.MAX_VALUE
 
