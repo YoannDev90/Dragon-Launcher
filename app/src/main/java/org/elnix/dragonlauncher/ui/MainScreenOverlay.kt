@@ -9,6 +9,7 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.material3.Icon
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.SnackbarDefaults.actionColor
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -180,6 +181,7 @@ fun MainScreenOverlay(
         }
     }
 
+    val circleColor = MaterialTheme.colorScheme.primary.copy(0.5f)
 
     Box(Modifier.fillMaxSize()) {
 
@@ -279,7 +281,7 @@ fun MainScreenOverlay(
 
                 hoveredAction?.let { action ->
                     drawCircle(
-                        color = Color(0x55FFFFFF),
+                        color = circleColor,
                         radius = 200f + (targetCircle * 140f),
                         center = start,
                         style = Stroke(4f)
