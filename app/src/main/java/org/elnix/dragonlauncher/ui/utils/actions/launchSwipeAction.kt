@@ -7,7 +7,7 @@ import android.provider.Settings
 import org.elnix.dragonlauncher.data.SwipeActionSerializable
 import androidx.core.net.toUri
 
-fun launchSwipeAction(ctx: Context, action: SwipeActionSerializable?) {
+fun launchSwipeAction(ctx: Context, action: SwipeActionSerializable?, onAppDrawer: () -> Unit) {
     if (action == null) return
     when (action) {
 
@@ -32,7 +32,7 @@ fun launchSwipeAction(ctx: Context, action: SwipeActionSerializable?) {
         }
 
         SwipeActionSerializable.OpenAppDrawer -> {
-            TODO()
+            onAppDrawer()
         }
     }
 }

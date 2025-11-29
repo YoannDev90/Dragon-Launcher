@@ -337,13 +337,15 @@ fun MainScreenOverlay(
             contentAlignment = Alignment.TopCenter
         ) {
             Row(
-                horizontalArrangement = Arrangement.Center
+                horizontalArrangement = Arrangement.spacedBy(5.dp),
+                verticalAlignment = Alignment.CenterVertically,
             ) {
                 if (showLaunchingAppIcon) {
                     Icon(
                         painter = actionIcon(currentAction),
                         contentDescription = actionLabel(currentAction),
-                        tint = actionColor(currentAction)
+                        tint = actionTint(currentAction),
+                        modifier = Modifier.size(22.dp)
                     )
                 }
                 if (showLaunchingAppLabel) {
@@ -358,3 +360,9 @@ fun MainScreenOverlay(
         }
     }
 }
+
+fun actionTint(action: SwipeActionSerializable): Color =
+    when (action) {
+        is SwipeActionSerializable.LaunchApp -> Color.Unspecified
+        else -> actionColor(action)
+    }

@@ -33,6 +33,7 @@ import org.elnix.dragonlauncher.ui.utils.actions.launchSwipeAction
 
 @Composable
 fun MainScreen(
+    onAppDrawer: () -> Unit,
     onLongPress3Sec: () -> Unit
 ) {
     val ctx = LocalContext.current
@@ -103,7 +104,7 @@ fun MainScreen(
             isDragging = isDragging,
             surface = size,
             points =points,
-            onLaunch = { launchSwipeAction(ctx, it) }
+            onLaunch = { launchSwipeAction(ctx, it) { onAppDrawer} }
         )
 
         HoldToActivateArc(

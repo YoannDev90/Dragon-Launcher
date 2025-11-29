@@ -47,6 +47,11 @@
             android:exported="false"
             android:theme="@style/Theme.DragonLauncher" />
 
+        <activity
+            android:name=".AppDrawerActivity"
+            android:exported="false"
+            android:theme="@style/Theme.DragonLauncher" />
+
     </application>
 
 </manifest>

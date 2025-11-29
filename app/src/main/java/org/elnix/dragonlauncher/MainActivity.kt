@@ -17,6 +17,8 @@ class MainActivity : ComponentActivity() {
         enableEdgeToEdge()
         setContent {
             val navigateToSettings = remember { mutableStateOf(false) }
+            val navigateToAppDrawer = remember { mutableStateOf(false) }
+
 
             LaunchedEffect(navigateToSettings.value) {
                 if (navigateToSettings.value) {
@@ -25,8 +27,18 @@ class MainActivity : ComponentActivity() {
                 }
             }
 
+            LaunchedEffect(navigateToAppDrawer.value) {
+                if (navigateToAppDrawer.value) {
+                    startActivity(Intent(this@MainActivity, AppDrawerActivity::class.java))
+                    navigateToAppDrawer.value = false
+                }
+            }
+
             DragonLauncherTheme {
                 MainScreen(
+                    onAppDrawer = {
+                        navigateToAppDrawer.value = true
+                    },
                     onLongPress3Sec = {
                         navigateToSettings.value = true
                     }
