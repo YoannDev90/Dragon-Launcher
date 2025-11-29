@@ -43,6 +43,7 @@ fun WelcomeScreen(
         modifier = Modifier
             .fillMaxSize()
             .background(MaterialTheme.colorScheme.background)
+            .padding(WindowInsets().asPaddingValues())
             .padding(24.dp)
     ) {
         Column(
