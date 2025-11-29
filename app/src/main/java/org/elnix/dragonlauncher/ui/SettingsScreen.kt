@@ -1,5 +1,8 @@
 package org.elnix.dragonlauncher.ui
 
+import androidx.compose.animation.core.animateDpAsState
+import androidx.compose.animation.core.animateFloatAsState
+import androidx.compose.animation.core.tween
 import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.background
 import androidx.compose.foundation.gestures.detectDragGestures
@@ -12,7 +15,9 @@ import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.asPaddingValues
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.systemBars
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
@@ -33,16 +38,20 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.runtime.snapshotFlow
 import androidx.compose.runtime.snapshots.SnapshotStateList
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.layout.onSizeChanged
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.IntSize
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import kotlinx.coroutines.flow.distinctUntilChanged
 import org.elnix.dragonlauncher.data.SwipeActionSerializable
 import org.elnix.dragonlauncher.data.SwipePointSerializable
@@ -51,7 +60,9 @@ import org.elnix.dragonlauncher.data.UiSwipePoint
 import org.elnix.dragonlauncher.data.datastore.SwipeDataStore
 import org.elnix.dragonlauncher.ui.helpers.AddPointDialog
 import org.elnix.dragonlauncher.utils.actions.actionColor
+import org.elnix.dragonlauncher.utils.actions.actionIcon
 import org.elnix.dragonlauncher.utils.actions.actionIconBitmap
+import org.elnix.dragonlauncher.utils.actions.actionLabel
 import org.elnix.dragonlauncher.utils.circles.autoSeparate
 import org.elnix.dragonlauncher.utils.circles.randomFreeAngle
 import org.elnix.dragonlauncher.utils.circles.updatePointPosition
@@ -77,11 +88,21 @@ fun SettingsScreen(
 
     val points: SnapshotStateList<UiSwipePoint> = remember { mutableStateListOf() }
     val circles: SnapshotStateList<UiCircle> = remember { mutableStateListOf() }
-    var selectedPointId by remember { mutableStateOf<String?>(null) }
+    var selectedPoint by remember { mutableStateOf<UiSwipePoint?>(null) }
     var showAddDialog by remember { mutableStateOf(false) }
     var recomposeTrigger by remember { mutableIntStateOf(0) }
 
     val circleColor = MaterialTheme.colorScheme.primary.copy(0.5f)
+
+    var bannerVisible by remember { mutableStateOf(false) }
+    val alpha by animateFloatAsState(
+        targetValue = if (bannerVisible) 1f else 0f,
+        animationSpec = tween(150)
+    )
+    val offsetY by animateDpAsState(
+        targetValue = if (bannerVisible) 0.dp else (-20).dp,
+        animationSpec = tween(150)
+    )
 
     // Load
     LaunchedEffect(Unit) {
@@ -181,16 +202,11 @@ fun SettingsScreen(
                     }
 
                     // 2. Draw all non-selected points
-                    points.filter { it.id != selectedPointId }.forEach { p ->
+                    points.filter { it.id != selectedPoint?.id }.forEach { p ->
                         val circle = circles.getOrNull(p.circleNumber) ?: return@forEach
                         val px = center.x + circle.radius * sin(Math.toRadians(p.angleDeg)).toFloat()
                         val py = center.y - circle.radius * cos(Math.toRadians(p.angleDeg)).toFloat()
 
-//                        drawCircle(
-//                            color = actionColor(p.action),
-//                            radius = POINT_RADIUS_PX,
-//                            center = Offset(px, py)
-//                        )
                         drawCircle(
                             color = Color.Black,
                             radius = POINT_RADIUS_PX,
@@ -208,7 +224,7 @@ fun SettingsScreen(
                     }
 
                     // 3. Selected point drawn last
-                    val selected = points.find { it.id == selectedPointId }
+                    val selected = points.find { it.id == selectedPoint?.id }
                     selected?.let { p ->
                         val circle = circles.getOrNull(p.circleNumber) ?: return@let
                         val px = center.x + circle.radius * sin(Math.toRadians(p.angleDeg)).toFloat()
@@ -261,32 +277,33 @@ fun SettingsScreen(
                                     }
                                 }
 
-                                selectedPointId =
-                                    if (best <= TOUCH_THRESHOLD_PX) closest?.id else null
+                                selectedPoint =
+                                    if (best <= TOUCH_THRESHOLD_PX) closest else null
                             },
                             onDrag = { change, _ ->
                                 change.consume()
 
-                                val selected = points.find { it.id == selectedPointId } ?: return@detectDragGestures
+                                val selected = points.find { it.id == selectedPoint?.id } ?: return@detectDragGestures
 
                                 // All points that are part of the same circle
                                 val sameCirclePoints = points.filter { it.circleNumber == selected.circleNumber }
                                 if (sameCirclePoints.isEmpty()) return@detectDragGestures
 
-                                val p = points.find { it.id == selectedPointId } ?: return@detectDragGestures
+                                val p = points.find { it.id == selectedPoint?.id } ?: return@detectDragGestures
                                 updatePointPosition(p, circles, center, change.position)
                                 recomposeTrigger++
                             },
                             onDragEnd = {
-                                val p = points.find { it.id == selectedPointId } ?: return@detectDragGestures
+                                val p = points.find { it.id == selectedPoint?.id } ?: return@detectDragGestures
                                 autoSeparate(points, p.circleNumber)
-                                selectedPointId = null
+                                selectedPoint = null
                             }
                         )
                     }
                     .pointerInput(Unit) {
                         detectTapGestures(
                             onTap = { offset ->
+                                bannerVisible = false
                                 var tapped: UiSwipePoint? = null
                                 var best = Float.MAX_VALUE
 
@@ -304,10 +321,11 @@ fun SettingsScreen(
                                     }
                                 }
 
-                                selectedPointId =
+                                selectedPoint =
                                     if (best <= TOUCH_THRESHOLD_PX)
-                                        if (selectedPointId == tapped?.id) null else tapped?.id
+                                        if (selectedPoint?.id == tapped?.id) null else tapped
                                     else null
+                                bannerVisible = selectedPoint != null
                             }
                         )
                     }
@@ -324,12 +342,12 @@ fun SettingsScreen(
             }
 
             Button(
-                enabled = selectedPointId != null,
+                enabled = selectedPoint != null,
                 onClick = {
-                    val id = selectedPointId ?: return@Button
+                    val id = selectedPoint?.id ?: return@Button
                     val index = points.indexOfFirst { it.id == id }
                     if (index >= 0) points.removeAt(index)
-                    selectedPointId = null
+                    selectedPoint = null
                 }
             ) {
                 Text("Remove point")
@@ -361,5 +379,35 @@ fun SettingsScreen(
                 showAddDialog = false
             }
         )
+    }
+
+    if (selectedPoint != null) {
+        val currentAction = selectedPoint!!.action
+        Box(
+            Modifier
+                .fillMaxWidth()
+                .offset(y = offsetY)
+                .padding(top = 20.dp)
+                .alpha(alpha),
+            contentAlignment = Alignment.TopCenter
+        ) {
+            Row(
+                horizontalArrangement = Arrangement.spacedBy(5.dp),
+                verticalAlignment = Alignment.CenterVertically,
+            ) {
+                Icon(
+                    painter = actionIcon(currentAction),
+                    contentDescription = actionLabel(currentAction),
+                    tint = actionTint(currentAction),
+                    modifier = Modifier.size(22.dp)
+                )
+                Text(
+                    text = actionLabel(currentAction),
+                    color = actionColor(currentAction),
+                    fontSize = 18.sp,
+                    fontWeight = FontWeight.Bold
+                )
+            }
+        }
     }
 }
