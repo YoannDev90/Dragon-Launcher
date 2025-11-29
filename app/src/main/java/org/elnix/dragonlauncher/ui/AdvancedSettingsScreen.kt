@@ -46,10 +46,14 @@ fun AdvancedSettingsScreen(
     val rgbLine by SettingsStore.getRGBLine(ctx)
         .collectAsState(initial = true)
 
-
     val debugInfos by SettingsStore.getDebugInfos(ctx)
+        .collectAsState(initial = false)
+
+    val showLaunchingAppLabel by SettingsStore.getShowLaunchingAppLabel(ctx)
         .collectAsState(initial = true)
 
+    val showLaunchingAppIcon by SettingsStore.getShowLaunchingAppIcon(ctx)
+        .collectAsState(initial = true)
 
 //    val angleLineColor by SettingsStore.getAngleLineColor(ctx)
 //        .collectAsState(initial = null)
@@ -91,6 +95,16 @@ fun AdvancedSettingsScreen(
             rgbLine,
             "RGB line selector",
         ) { scope.launch { SettingsStore.setRGBLine(ctx, it) } }
+
+        SwitchRow(
+            showLaunchingAppLabel,
+            "Show App label",
+        ) { scope.launch { SettingsStore.setShowLaunchingAppLabel(ctx, it) } }
+
+        SwitchRow(
+            showLaunchingAppIcon,
+            "Show App icon",
+        ) { scope.launch { SettingsStore.setShowLaunchingAppIcon(ctx, it) } }
 
 
 

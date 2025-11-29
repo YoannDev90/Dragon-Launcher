@@ -59,13 +59,15 @@ fun MainScreenOverlay(
 
     val rgbLine by SettingsStore.getRGBLine(ctx)
         .collectAsState(initial = true)
-
     val debugInfos by SettingsStore.getDebugInfos(ctx)
         .collectAsState(initial = true)
-
-
     val angleLineColor by SettingsStore.getAngleLineColor(ctx)
         .collectAsState(initial = null)
+    val showLaunchingAppLabel by SettingsStore.getShowLaunchingAppLabel(ctx)
+        .collectAsState(initial = true)
+
+    val showLaunchingAppIcon by SettingsStore.getShowLaunchingAppIcon(ctx)
+        .collectAsState(initial = true)
 
 
     var lastAngle by remember { mutableStateOf<Double?>(null) }
@@ -324,9 +326,9 @@ fun MainScreenOverlay(
             }
         }
     }
-    if (hoveredAction != null) {
+    if (hoveredAction != null && (showLaunchingAppLabel || showLaunchingAppIcon)) {
         val currentAction = hoveredAction!!
-        Box(
+            Box(
             Modifier
                 .fillMaxWidth()
                 .offset(y = offsetY)
@@ -336,20 +338,23 @@ fun MainScreenOverlay(
         ) {
             Row(
                 horizontalArrangement = Arrangement.Center
-            ){
-//                Icon(
-//                    painter = actionIcon(currentAction),
-//                    contentDescription = actionLabel(currentAction),
-////                    tint = actionColor(currentAction)
-//                )
-                Text(
-                    text = actionLabel(currentAction),
-                    color = actionColor(currentAction),
-                    fontSize = 18.sp,
-                    fontWeight = FontWeight.Bold
-                )
+            ) {
+                if (showLaunchingAppIcon) {
+                    Icon(
+                        painter = actionIcon(currentAction),
+                        contentDescription = actionLabel(currentAction),
+                        tint = actionColor(currentAction)
+                    )
+                }
+                if (showLaunchingAppLabel) {
+                    Text(
+                        text = actionLabel(currentAction),
+                        color = actionColor(currentAction),
+                        fontSize = 18.sp,
+                        fontWeight = FontWeight.Bold
+                    )
+                }
             }
         }
     }
-
 }

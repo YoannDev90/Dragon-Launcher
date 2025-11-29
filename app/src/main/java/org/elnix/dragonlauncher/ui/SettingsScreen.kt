@@ -79,6 +79,8 @@ fun SettingsScreen(
     var showAddDialog by remember { mutableStateOf(false) }
     var recomposeTrigger by remember { mutableIntStateOf(0) }
 
+    val circleColor = MaterialTheme.colorScheme.primary.copy(0.5f)
+
     // Load
     LaunchedEffect(Unit) {
         val saved = SwipeDataStore.getPoints(ctx)
@@ -171,7 +173,7 @@ fun SettingsScreen(
                     // 1. Draw all circles
                     circles.forEach { circle ->
                         drawCircle(
-                            color = Color(0x55FFFFFF),
+                            color = circleColor,
                             radius = circle.radius,
                             center = center,
                             style = Stroke(4f)
