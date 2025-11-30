@@ -7,6 +7,7 @@ import android.provider.Settings
 import android.util.Log
 import android.view.accessibility.AccessibilityManager
 import android.widget.Toast
+import org.elnix.dragonlauncher.utils.showToast
 
 object SystemControl {
 
@@ -24,7 +25,6 @@ object SystemControl {
             Intent(Settings.ACTION_ACCESSIBILITY_SETTINGS)
                 .addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
         )
-        Toast.makeText(ctx, "Please enable accessibility settings to use that feature", Toast.LENGTH_LONG)
     }
 
     private fun getService(ctx: Context): SystemControlService? {

@@ -5,6 +5,7 @@ import android.content.Intent
 import androidx.core.net.toUri
 import org.elnix.dragonlauncher.data.SwipeActionSerializable
 import org.elnix.dragonlauncher.services.SystemControl
+import org.elnix.dragonlauncher.utils.showToast
 
 
 /**
@@ -45,6 +46,7 @@ fun launchSwipeAction(
 
         SwipeActionSerializable.NotificationShade -> {
             if (!SystemControl.isServiceEnabled(ctx)) {
+                ctx.showToast("Please enable accessibility settings to use that feature")
                 SystemControl.openServiceSettings(ctx)
                 return
             }
