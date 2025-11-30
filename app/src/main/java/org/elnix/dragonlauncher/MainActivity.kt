@@ -6,6 +6,7 @@ import android.view.WindowManager
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
+import androidx.activity.viewModels
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
@@ -22,8 +23,13 @@ import org.elnix.dragonlauncher.data.stores.UiSettingsStore
 import org.elnix.dragonlauncher.ui.MainScreen
 import org.elnix.dragonlauncher.ui.theme.DragonLauncherTheme
 import org.elnix.dragonlauncher.data.stores.ColorSettingsStore
+import org.elnix.dragonlauncher.utils.AppDrawerViewModel
+import kotlin.getValue
 
 class MainActivity : ComponentActivity() {
+
+    private val viewModel : AppDrawerViewModel by viewModels()
+
     override fun onCreate(savedInstanceState: Bundle?) {
 
         // Use hardware acceleration
@@ -57,6 +63,12 @@ class MainActivity : ComponentActivity() {
                 }
             }
         }
+
+        // Load apps on app start, not each times entering the drawer
+        lifecycleScope.launch {
+            viewModel.loadApps()
+        }
+
 
         enableEdgeToEdge()
         setContent {

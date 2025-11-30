@@ -53,6 +53,11 @@ class AppDrawerActivity : ComponentActivity() {
             }
         }
 
+        lifecycleScope.launch {
+            viewModel.loadApps()
+        }
+
+
         setContent {
             // Colors
             val ctx = LocalContext.current

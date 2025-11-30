@@ -34,14 +34,10 @@ class AppDrawerViewModel(application: Application) : AndroidViewModel(applicatio
     @Suppress("PrivatePropertyName")
     private val DATASTORE_KEY = stringPreferencesKey("cached_apps_json")
 
-    init {
-        viewModelScope.launch {
-            loadApps()
-        }
-    }
 
-    private suspend fun loadApps() {
-        // 1️⃣ Load cached apps from DataStore
+
+    suspend fun loadApps() {
+        // Load cached apps first
         val cachedJson = ctx.appDrawerDataStore.data
             .map { it[DATASTORE_KEY] }
             .firstOrNull()
@@ -51,25 +47,34 @@ class AppDrawerViewModel(application: Application) : AndroidViewModel(applicatio
             _apps.value = gson.fromJson(cachedJson, type)
         }
 
-        // 2️⃣ Refresh from PackageManager asynchronously
+        // Refresh in background
         viewModelScope.launch {
-            val installedApps = pm.getInstalledApplications(PackageManager.GET_META_DATA)
-                .map { appInfo ->
-                    AppModel(
-                        name = appInfo.loadLabel(pm).toString(),
-                        packageName = appInfo.packageName,
-                        isSystem = (appInfo.flags and ApplicationInfo.FLAG_SYSTEM) != 0
-                    )
-                }
-                .sortedBy { it.name.lowercase() }
-
-            _apps.value = installedApps
-
-            // 3️⃣ Save to DataStore as JSON
-            val json = gson.toJson(installedApps)
-            ctx.appDrawerDataStore.edit { prefs ->
-                prefs[DATASTORE_KEY] = json
-            }
+            reloadApps()
         }
     }
+
+    /**
+     * Reloads apps fresh from PackageManager.
+     * Saves updated list into DataStore.
+     * This is used by the BroadcastReceiver.
+     */
+    suspend fun reloadApps() {
+        val installedApps = pm.getInstalledApplications(PackageManager.GET_META_DATA)
+            .map { appInfo ->
+                AppModel(
+                    name = appInfo.loadLabel(pm).toString(),
+                    packageName = appInfo.packageName,
+                    isSystem = (appInfo.flags and ApplicationInfo.FLAG_SYSTEM) != 0
+                )
+            }
+            .sortedBy { it.name.lowercase() }
+
+        _apps.value = installedApps
+
+        val json = gson.toJson(installedApps)
+        ctx.appDrawerDataStore.edit { prefs ->
+            prefs[DATASTORE_KEY] = json
+        }
+    }
+
 }
