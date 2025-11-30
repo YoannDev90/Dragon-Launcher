@@ -24,7 +24,9 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
+import org.elnix.dragonlauncher.R
 import org.elnix.dragonlauncher.data.SwipeActionSerializable
 import org.elnix.dragonlauncher.ui.actionTint
 import org.elnix.dragonlauncher.utils.actions.actionColor
@@ -42,12 +44,12 @@ fun AddPointDialog(
 
     // All actions except those requiring special sub-dialogs
     val actions = listOf(
-        SwipeActionSerializable.OpenAppDrawer,
+        SwipeActionSerializable.LaunchApp(""),
+        SwipeActionSerializable.OpenUrl(""),
         SwipeActionSerializable.NotificationShade,
         SwipeActionSerializable.ControlPanel,
+        SwipeActionSerializable.OpenAppDrawer,
         SwipeActionSerializable.OpenDragonLauncherSettings,
-        SwipeActionSerializable.OpenUrl(""),
-        SwipeActionSerializable.LaunchApp("")
     )
 
     AlertDialog(
@@ -121,6 +123,17 @@ fun AddPointRow(
     action: SwipeActionSerializable,
     onSelected: () -> Unit
 ) {
+    val icon = when(action) {
+        is SwipeActionSerializable.LaunchApp -> painterResource(R.drawable.ic_app_grid)
+        else -> actionIcon(action)
+    }
+
+    val name = when(action) {
+        is SwipeActionSerializable.LaunchApp -> "Open App"
+        is SwipeActionSerializable.OpenUrl -> "Open Url"
+        else -> actionLabel(action)
+    }
+
     Row(
         modifier = Modifier
             .fillMaxWidth()
@@ -132,11 +145,11 @@ fun AddPointRow(
         verticalAlignment = Alignment.CenterVertically
     ) {
         Text(
-            text = actionLabel(action),
+            text = name,
             color = Color.White
         )
         Icon(
-            painter = actionIcon(action),
+            painter = icon,
             contentDescription = action.toString(),
             tint = actionTint(action),
             modifier = Modifier.size(30.dp)
