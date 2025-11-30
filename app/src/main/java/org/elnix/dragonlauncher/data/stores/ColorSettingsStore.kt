@@ -11,6 +11,7 @@ import kotlinx.coroutines.flow.map
 import org.elnix.dragonlauncher.data.ColorCustomisationMode
 import org.elnix.dragonlauncher.data.DefaultThemes
 import org.elnix.dragonlauncher.data.colorDatastore
+import org.elnix.dragonlauncher.data.defaultThemeName
 import org.elnix.dragonlauncher.data.getDefaultColorScheme
 import org.elnix.dragonlauncher.data.stores.ColorSettingsStore.setAngleLineColor
 import org.elnix.dragonlauncher.data.stores.ColorSettingsStore.setBackground
@@ -263,6 +264,7 @@ object ColorSettingsStore {
             prefs.remove(ON_ERROR_COLOR)
             prefs.remove(OUTLINE_COLOR)
             prefs.remove(ANGLE_LINE_COLOR)
+            prefs.remove(CIRCLE_COLOR)
 //            prefs.remove(EDIT_COLOR)
 //            prefs.remove(COMPLETE_COLOR)
 //            prefs.remove(SELECT_COLOR)
@@ -273,27 +275,32 @@ object ColorSettingsStore {
     }
     suspend fun getAll(ctx: Context): Map<String, Int> {
         val prefs = ctx.colorDatastore.data.first()
+        val colorMode = ColorModesSettingsStore.getColorCustomisationMode(ctx).first()
+        val defaultTheme = ColorModesSettingsStore.getDefaultTheme(ctx).first()
+
+        val default = if (colorMode == ColorCustomisationMode.DEFAULT) getDefaultColorScheme(ctx, defaultTheme)
+                     else AmoledDefault
         return buildMap {
-            prefs[PRIMARY_COLOR]?.let { put(PRIMARY_COLOR.name, it) }
-            prefs[ON_PRIMARY_COLOR]?.let { put(ON_PRIMARY_COLOR.name, it) }
-            prefs[SECONDARY_COLOR]?.let { put(SECONDARY_COLOR.name, it) }
-            prefs[ON_SECONDARY_COLOR]?.let { put(ON_SECONDARY_COLOR.name, it) }
-            prefs[TERTIARY_COLOR]?.let { put(TERTIARY_COLOR.name, it) }
-            prefs[ON_TERTIARY_COLOR]?.let { put(ON_TERTIARY_COLOR.name, it) }
-            prefs[BACKGROUND_COLOR]?.let { put(BACKGROUND_COLOR.name, it) }
-            prefs[ON_BACKGROUND_COLOR]?.let { put(ON_BACKGROUND_COLOR.name, it) }
-            prefs[SURFACE_COLOR]?.let { put(SURFACE_COLOR.name, it) }
-            prefs[ON_SURFACE_COLOR]?.let { put(ON_SURFACE_COLOR.name, it) }
-            prefs[ERROR_COLOR]?.let { put(ERROR_COLOR.name, it) }
-            prefs[ON_ERROR_COLOR]?.let { put(ON_ERROR_COLOR.name, it) }
-            prefs[OUTLINE_COLOR]?.let { put(OUTLINE_COLOR.name, it) }
-            prefs[ANGLE_LINE_COLOR]?.let { put(ANGLE_LINE_COLOR.name, it) }
-//            prefs[EDIT_COLOR]?.let { put(EDIT_COLOR.name, it) }
-//            prefs[COMPLETE_COLOR]?.let { put(COMPLETE_COLOR.name, it) }
-//            prefs[SELECT_COLOR]?.let { put(SELECT_COLOR.name, it) }
-//            prefs[NOTE_TYPE_TEXT]?.let { put(NOTE_TYPE_TEXT.name, it) }
-//            prefs[NOTE_TYPE_CHECKLIST]?.let { put(NOTE_TYPE_CHECKLIST.name, it) }
-//            prefs[NOTE_TYPE_DRAWING]?.let { put(NOTE_TYPE_DRAWING.name, it) }
+            fun putIfNonDefault(key: String, value: Int?, default: Color) {
+                if (value != null && value != default.toArgb()) {
+                    put(key, value)
+                }
+            }
+
+            putIfNonDefault(ON_PRIMARY_COLOR.name,     prefs[ON_PRIMARY_COLOR],     default.OnPrimary)
+            putIfNonDefault(SECONDARY_COLOR.name,      prefs[SECONDARY_COLOR],      default.Secondary)
+            putIfNonDefault(ON_SECONDARY_COLOR.name,   prefs[ON_SECONDARY_COLOR],   default.OnSecondary)
+            putIfNonDefault(TERTIARY_COLOR.name,       prefs[TERTIARY_COLOR],       default.Tertiary)
+            putIfNonDefault(ON_TERTIARY_COLOR.name,    prefs[ON_TERTIARY_COLOR],    default.OnTertiary)
+            putIfNonDefault(BACKGROUND_COLOR.name,     prefs[BACKGROUND_COLOR],     default.Background)
+            putIfNonDefault(ON_BACKGROUND_COLOR.name,  prefs[ON_BACKGROUND_COLOR],  default.OnBackground)
+            putIfNonDefault(SURFACE_COLOR.name,        prefs[SURFACE_COLOR],        default.Surface)
+            putIfNonDefault(ON_SURFACE_COLOR.name,     prefs[ON_SURFACE_COLOR],     default.OnSurface)
+            putIfNonDefault(ERROR_COLOR.name,          prefs[ERROR_COLOR],          default.Error)
+            putIfNonDefault(ON_ERROR_COLOR.name,       prefs[ON_ERROR_COLOR],       default.OnError)
+            putIfNonDefault(OUTLINE_COLOR.name,        prefs[OUTLINE_COLOR],        default.Outline)
+            putIfNonDefault(ANGLE_LINE_COLOR.name,     prefs[ANGLE_LINE_COLOR],     default.AngleLineColor)
+            putIfNonDefault(CIRCLE_COLOR.name,         prefs[CIRCLE_COLOR],         default.CircleColor)
         }
     }
 
@@ -313,6 +320,7 @@ object ColorSettingsStore {
             data[ON_ERROR_COLOR.name]?.let { prefs[ON_ERROR_COLOR] = it }
             data[OUTLINE_COLOR.name]?.let { prefs[OUTLINE_COLOR] = it }
             data[ANGLE_LINE_COLOR.name]?.let { prefs[ANGLE_LINE_COLOR] = it }
+            data[CIRCLE_COLOR.name]?.let { prefs[CIRCLE_COLOR] = it }
 //            data[EDIT_COLOR.name]?.let { prefs[EDIT_COLOR] = it }
 //            data[COMPLETE_COLOR.name]?.let { prefs[COMPLETE_COLOR] = it }
 //            data[SELECT_COLOR.name]?.let { prefs[SELECT_COLOR] = it }

@@ -79,7 +79,7 @@ object SettingsBackupManager {
                     ColorModesSettingsStore.setAll(ctx, jsonToMapString(it))
                 }
 
-                // ------------------ COLOR - MAYBE LATER ------------------
+                // ------------------ COLORS ------------------
                 obj.optJSONObject("color")?.let {
                     ColorSettingsStore.setAll(ctx, jsonToMapInt(it))
                 }
