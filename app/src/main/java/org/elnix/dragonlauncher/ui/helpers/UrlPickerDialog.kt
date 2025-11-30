@@ -20,7 +20,7 @@ fun UrlInputDialog(
     onDismiss: () -> Unit,
     onUrlSelected: (SwipeActionSerializable.OpenUrl) -> Unit
 ) {
-    var text by remember { mutableStateOf("") }
+    var text by remember { mutableStateOf("https://") }
     var error by remember { mutableStateOf(false) }
 
     AlertDialog(
