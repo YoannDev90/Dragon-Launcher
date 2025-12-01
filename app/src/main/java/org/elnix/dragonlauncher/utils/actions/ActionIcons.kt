@@ -9,6 +9,7 @@ import androidx.compose.ui.graphics.ImageBitmap
 import androidx.compose.ui.graphics.asAndroidBitmap
 import androidx.compose.ui.graphics.asImageBitmap
 import androidx.compose.ui.graphics.painter.BitmapPainter
+import androidx.compose.ui.graphics.painter.Painter
 import androidx.compose.ui.graphics.toArgb
 import androidx.compose.ui.res.painterResource
 import androidx.core.content.ContextCompat
@@ -17,18 +18,29 @@ import org.elnix.dragonlauncher.R
 import org.elnix.dragonlauncher.data.SwipeActionSerializable
 
 @Composable
+fun appIcon(
+    packageName: String,
+    icons: Map<String, ImageBitmap>? = null
+): Painter {
+    val cached = icons?.get(packageName)
+    return if (cached != null) {
+        BitmapPainter(cached)
+    } else {
+        painterResource(R.drawable.ic_app_default)
+    }
+}
+
+@Composable
 fun actionIcon(
     action: SwipeActionSerializable,
     icons: Map<String, ImageBitmap>? = null
-) = when (action) {
-    is SwipeActionSerializable.LaunchApp -> {
-        val cached = icons?.get(action.packageName)
-        if (cached != null) {
-            BitmapPainter(cached)
-        } else {
-            painterResource(R.drawable.ic_app_default)
-        }
-    }
+): Painter = when (action) {
+
+    is SwipeActionSerializable.LaunchApp ->
+        appIcon(
+            packageName = action.packageName,
+            icons = icons
+        )
 
     is SwipeActionSerializable.OpenUrl ->
         painterResource(R.drawable.ic_action_web)
@@ -42,8 +54,10 @@ fun actionIcon(
     SwipeActionSerializable.OpenAppDrawer ->
         painterResource(R.drawable.ic_action_drawer)
 
-    SwipeActionSerializable.OpenDragonLauncherSettings -> painterResource(R.drawable.dragon_launcher_foreground)
+    SwipeActionSerializable.OpenDragonLauncherSettings ->
+        painterResource(R.drawable.dragon_launcher_foreground)
 }
+
 
 
 fun actionIconBitmap(

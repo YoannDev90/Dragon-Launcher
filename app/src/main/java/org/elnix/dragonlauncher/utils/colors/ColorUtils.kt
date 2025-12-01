@@ -61,11 +61,11 @@ object AppObjectsColors {
     }
 
     @Composable
-    fun buttonColors(): ButtonColors {
+    fun buttonColors(containerColor: Color? = null): ButtonColors {
         val colors = MaterialTheme.colorScheme
         return ButtonDefaults.buttonColors(
-            containerColor = colors.primary ,
-            contentColor =   colors.onPrimary
+            containerColor = containerColor ?: colors.primary,
+            contentColor = colors.onPrimary
         )
     }
 
