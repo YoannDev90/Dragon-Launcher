@@ -1,6 +1,5 @@
 package org.elnix.dragonlauncher
 
-import android.content.Intent
 import android.os.Bundle
 import android.view.WindowManager
 import androidx.activity.ComponentActivity
@@ -10,8 +9,6 @@ import androidx.activity.viewModels
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
 import androidx.compose.ui.platform.LocalContext
 import androidx.core.view.WindowCompat
 import androidx.core.view.WindowInsetsCompat
@@ -21,19 +18,20 @@ import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
 import org.elnix.dragonlauncher.data.SwipeActionSerializable
 import org.elnix.dragonlauncher.data.SwipePointSerializable
-import org.elnix.dragonlauncher.data.stores.UiSettingsStore
-import org.elnix.dragonlauncher.ui.MainScreen
-import org.elnix.dragonlauncher.ui.theme.DragonLauncherTheme
 import org.elnix.dragonlauncher.data.stores.ColorSettingsStore
 import org.elnix.dragonlauncher.data.stores.PrivateSettingsStore
 import org.elnix.dragonlauncher.data.stores.SwipeSettingsStore
+import org.elnix.dragonlauncher.data.stores.UiSettingsStore
+import org.elnix.dragonlauncher.ui.MainAppUi
+import org.elnix.dragonlauncher.ui.settings.backup.BackupViewModel
+import org.elnix.dragonlauncher.ui.theme.DragonLauncherTheme
 import org.elnix.dragonlauncher.utils.AppDrawerViewModel
 import java.util.UUID
-import kotlin.getValue
 
 class MainActivity : ComponentActivity() {
 
-    private val viewModel : AppDrawerViewModel by viewModels()
+    private val appsViewModel : AppDrawerViewModel by viewModels()
+    private val backupViewModel : BackupViewModel by viewModels()
 
     override fun onCreate(savedInstanceState: Bundle?) {
 
@@ -69,19 +67,13 @@ class MainActivity : ComponentActivity() {
             }
         }
 
-        // Load apps on app start, not each times entering the drawer
-        lifecycleScope.launch {
-            viewModel.loadApps()
-        }
-
-
         enableEdgeToEdge()
         setContent {
             val ctx = LocalContext.current
 
-            val navigateToSettings = remember { mutableStateOf(false) }
-            val navigateToAppDrawer = remember { mutableStateOf(false) }
-            val navigateToWelcomeScreen = remember { mutableStateOf(false) }
+//            val navigateToSettings = remember { mutableStateOf(false) }
+//            val navigateToAppDrawer = remember { mutableStateOf(false) }
+//            val navigateToWelcomeScreen = remember { mutableStateOf(false) }
 
             val hasInitialized by PrivateSettingsStore.getHasInitialized(ctx)
                 .collectAsState(initial = true)
@@ -114,26 +106,26 @@ class MainActivity : ComponentActivity() {
                 }
             }
 
-            LaunchedEffect(navigateToSettings.value) {
-                if (navigateToSettings.value) {
-                    startActivity(Intent(this@MainActivity, SettingsActivity::class.java))
-                    navigateToSettings.value = false
-                }
-            }
-
-            LaunchedEffect(navigateToAppDrawer.value) {
-                if (navigateToAppDrawer.value) {
-                    startActivity(Intent(this@MainActivity, AppDrawerActivity::class.java))
-                    navigateToAppDrawer.value = false
-                }
-            }
-
-            LaunchedEffect(navigateToWelcomeScreen.value) {
-                if (navigateToWelcomeScreen.value) {
-                    startActivity(Intent(this@MainActivity, WelcomeActivity::class.java))
-                    navigateToWelcomeScreen.value = false
-                }
-            }
+//            LaunchedEffect(navigateToSettings.value) {
+//                if (navigateToSettings.value) {
+//                    startActivity(Intent(this@MainActivity, SettingsActivity::class.java))
+//                    navigateToSettings.value = false
+//                }
+//            }
+//
+//            LaunchedEffect(navigateToAppDrawer.value) {
+//                if (navigateToAppDrawer.value) {
+//                    startActivity(Intent(this@MainActivity, AppDrawerActivity::class.java))
+//                    navigateToAppDrawer.value = false
+//                }
+//            }
+//
+//            LaunchedEffect(navigateToWelcomeScreen.value) {
+//                if (navigateToWelcomeScreen.value) {
+//                    startActivity(Intent(this@MainActivity, WelcomeActivity::class.java))
+//                    navigateToWelcomeScreen.value = false
+//                }
+//            }
 
             // Colors
 
@@ -188,16 +180,10 @@ class MainActivity : ComponentActivity() {
 //                customNoteTypeCheckList = customNoteTypeChecklist,
 //                customNoteTypeDrawing = customNoteTypeDrawing
             ) {
-                MainScreen(
-                    onAppDrawer = {
-                        navigateToAppDrawer.value = true
-                    },
-                    onGoWelcome = {
-                        navigateToWelcomeScreen.value = true
-                    },
-                    onLongPress3Sec = {
-                        navigateToSettings.value = true
-                    }
+
+                MainAppUi(
+                    backupViewModel = backupViewModel,
+                    appsViewModel = appsViewModel
                 )
             }
         }

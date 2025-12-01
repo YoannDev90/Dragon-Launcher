@@ -3,7 +3,6 @@ package org.elnix.dragonlauncher.ui
 import androidx.compose.animation.core.animateDpAsState
 import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.animation.core.tween
-import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
@@ -29,7 +28,6 @@ import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.ContentCopy
 import androidx.compose.material.icons.filled.Remove
 import androidx.compose.material.icons.filled.Settings
-import androidx.compose.material3.Button
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
@@ -93,7 +91,7 @@ private const val TOUCH_THRESHOLD_PX = 100f
 @Suppress("AssignedValueIsNeverRead")
 @Composable
 fun SettingsScreen(
-    viewModel: AppDrawerViewModel,
+    appsViewModel: AppDrawerViewModel,
     onAdvSettings: () -> Unit,
     onBack: () -> Unit
 ) {
@@ -438,7 +436,7 @@ fun SettingsScreen(
 
     if (showAddDialog) {
         AddPointDialog(
-            viewModel = viewModel,
+            viewModel = appsViewModel,
             onDismiss = {
                 @Suppress("AssignedValueIsNeverRead")
                 showAddDialog = false

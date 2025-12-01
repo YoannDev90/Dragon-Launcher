@@ -10,7 +10,7 @@ class PackageReceiver : BroadcastReceiver() {
     override fun onReceive(context: Context, intent: Intent) {
         val vm = (context.applicationContext as MyApplication).appViewModel
         vm.viewModelScope.launch {
-            vm.reloadApps()
+            vm.reloadApps(context)
         }
     }
 }

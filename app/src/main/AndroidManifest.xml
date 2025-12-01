@@ -9,7 +9,9 @@
         </intent>
     </queries>
 
-<!--    <uses-permission android:name="android.permission.BROADCAST_CLOSE_SYSTEM_DIALOGS" />-->
+
+    <uses-permission android:name="android.permission.QUERY_ALL_PACKAGES"
+        tools:ignore="PackageVisibilityPolicy,QueryAllPackagesPermission" />
     <uses-permission android:name="android.permission.EXPAND_STATUS_BAR" />
     <uses-permission android:name="android.permission.REQUEST_DELETE_PACKAGES" />
 
@@ -44,28 +46,6 @@
             </intent-filter>
 
         </activity>
-
-        <activity
-            android:name=".SettingsActivity"
-            android:exported="false"
-            android:theme="@style/Theme.DragonLauncher" />
-
-        <activity
-            android:name=".AdvancedSettingsActivity"
-            android:exported="false"
-            android:theme="@style/Theme.DragonLauncher" />
-
-        <activity
-            android:name=".AppDrawerActivity"
-            android:exported="false"
-            android:windowSoftInputMode="adjustResize"
-            android:theme="@style/Theme.DragonLauncher" />
-
-        <activity
-            android:name=".WelcomeActivity"
-            android:exported="false"
-            android:theme="@style/Theme.DragonLauncher" />
-
 
         <service
             android:name=".services.SystemControlService"

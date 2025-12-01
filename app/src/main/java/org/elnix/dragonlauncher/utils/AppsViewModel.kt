@@ -11,6 +11,7 @@ import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.viewModelScope
 import com.google.gson.Gson
 import com.google.gson.reflect.TypeToken
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.launch
 import org.elnix.dragonlauncher.ui.drawer.AppModel
@@ -35,21 +36,26 @@ class AppDrawerViewModel(application: Application) : AndroidViewModel(applicatio
     private val DATASTORE_KEY = stringPreferencesKey("cached_apps_json")
 
 
+    init {
+        loadApps()
+    }
 
-    suspend fun loadApps() {
-        // Load cached apps first
-        val cachedJson = ctx.appDrawerDataStore.data
-            .map { it[DATASTORE_KEY] }
-            .firstOrNull()
+    private fun loadApps() {
+        viewModelScope.launch(Dispatchers.IO) {
+            // Load cached apps first
+            val cachedJson = ctx.appDrawerDataStore.data
+                .map { it[DATASTORE_KEY] }
+                .firstOrNull()
 
-        if (!cachedJson.isNullOrEmpty()) {
-            val type = object : TypeToken<List<AppModel>>() {}.type
-            _apps.value = gson.fromJson(cachedJson, type)
-        }
+            if (!cachedJson.isNullOrEmpty()) {
+                val type = object : TypeToken<List<AppModel>>() {}.type
+                _apps.value = gson.fromJson(cachedJson, type)
+            }
 
-        // Refresh in background
-        viewModelScope.launch {
-            reloadApps()
+            // Refresh in background
+            viewModelScope.launch {
+                reloadApps(ctx)
+            }
         }
     }
 
@@ -58,7 +64,7 @@ class AppDrawerViewModel(application: Application) : AndroidViewModel(applicatio
      * Saves updated list into DataStore.
      * This is used by the BroadcastReceiver.
      */
-    suspend fun reloadApps() {
+    suspend fun reloadApps(ctx: Context) {
         val installedApps = pm.getInstalledApplications(PackageManager.GET_META_DATA)
             .map { appInfo ->
                 AppModel(
@@ -76,5 +82,4 @@ class AppDrawerViewModel(application: Application) : AndroidViewModel(applicatio
             prefs[DATASTORE_KEY] = json
         }
     }
-
 }

@@ -1,0 +1,91 @@
+package org.elnix.dragonlauncher.ui
+
+import androidx.compose.runtime.Composable
+import androidx.navigation.compose.NavHost
+import androidx.navigation.compose.composable
+import androidx.navigation.compose.rememberNavController
+import org.elnix.dragonlauncher.ui.drawer.AppDrawerScreen
+import org.elnix.dragonlauncher.ui.settings.appearance.AppearanceTab
+import org.elnix.dragonlauncher.ui.settings.appearance.ColorSelectorTab
+import org.elnix.dragonlauncher.ui.settings.backup.BackupTab
+import org.elnix.dragonlauncher.ui.settings.backup.BackupViewModel
+import org.elnix.dragonlauncher.ui.settings.debug.DebugTab
+import org.elnix.dragonlauncher.ui.settings.language.LanguageTab
+import org.elnix.dragonlauncher.ui.welcome.WelcomeScreen
+import org.elnix.dragonlauncher.utils.AppDrawerViewModel
+
+// -------------------- SETTINGS --------------------
+
+object SETTINGS {
+    const val ROOT = "settings"
+    const val ADVANCED_ROOT = "settings/advanced"
+    const val APPEARANCE = "settings/advanced/appearance"
+    const val COLORS = "settings/advanced/appearance/colors"
+//    const val CUSTOMISATION = "settings/customisation"
+    const val BACKUP = "settings/advanced/backup"
+    const val DEBUG = "/advanced/debug"
+    const val LANGUAGE = "settings/advanced/language"
+}
+
+object ROUTES {
+    const val MAIN = "main"
+    const val DRAWER = "drawer"
+    const val WELCOME = "welcome"
+}
+
+@Composable
+fun MainAppUi(
+    backupViewModel: BackupViewModel,
+    appsViewModel: AppDrawerViewModel
+) {
+
+    val navController = rememberNavController()
+
+    fun goSettingsRoot() =  navController.navigate(SETTINGS.ROOT)
+    fun goAdvSettingsRoot() =  navController.navigate(SETTINGS.ADVANCED_ROOT)
+    fun goMainScreen() = navController.navigate(ROUTES.MAIN)
+    fun goDrawer() = navController.navigate(ROUTES.DRAWER)
+    fun goWelcome() = navController.navigate(ROUTES.WELCOME)
+
+    NavHost(
+        navController = navController,
+        startDestination = ROUTES.MAIN
+    ) {
+        // Main App (LauncherScreen + Drawer)
+        composable(ROUTES.MAIN) {
+            MainScreen(
+                onAppDrawer = { goDrawer() },
+                onGoWelcome = { goWelcome() },
+                onLongPress3Sec = { goSettingsRoot() }
+            )
+        }
+
+        composable(ROUTES.DRAWER) { AppDrawerScreen(appsViewModel, true ) { goMainScreen() } }
+
+
+        // Settings + Welcome
+
+        composable(ROUTES.WELCOME) {
+            WelcomeScreen(
+                onEnterSettings = { goSettingsRoot() },
+                onEnterApp = { goMainScreen() }
+            )
+        }
+
+        composable(SETTINGS.ROOT) {
+            SettingsScreen(
+                appsViewModel = appsViewModel,
+                onAdvSettings = { goAdvSettingsRoot() },
+                onBack = { goMainScreen() }
+            )
+        }
+        composable(SETTINGS.ADVANCED_ROOT) { AdvancedSettingsScreen(navController) { goSettingsRoot() } }
+
+
+        composable(SETTINGS.APPEARANCE) { AppearanceTab(navController) { goAdvSettingsRoot() } }
+        composable(SETTINGS.COLORS) { ColorSelectorTab { goAdvSettingsRoot() } }
+        composable(SETTINGS.DEBUG) { DebugTab(navController) { goAdvSettingsRoot() } }
+        composable(SETTINGS.LANGUAGE) { LanguageTab { goAdvSettingsRoot() } }
+        composable(SETTINGS.BACKUP) { BackupTab(backupViewModel) { goAdvSettingsRoot() } }
+    }
+}
