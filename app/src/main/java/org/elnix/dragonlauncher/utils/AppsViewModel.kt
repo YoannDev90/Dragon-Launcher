@@ -4,6 +4,8 @@ import android.app.Application
 import android.content.Context
 import android.content.pm.ApplicationInfo
 import android.content.pm.PackageManager
+import androidx.compose.ui.graphics.ImageBitmap
+import androidx.core.content.ContextCompat
 import androidx.datastore.preferences.core.edit
 import androidx.datastore.preferences.core.stringPreferencesKey
 import androidx.datastore.preferences.preferencesDataStore
@@ -14,13 +16,19 @@ import com.google.gson.reflect.TypeToken
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.launch
+import org.elnix.dragonlauncher.R
 import org.elnix.dragonlauncher.ui.drawer.AppModel
+import org.elnix.dragonlauncher.utils.actions.loadDrawableAsBitmap
 
 val Context.appDrawerDataStore by preferencesDataStore("app_drawer")
 
 class AppDrawerViewModel(application: Application) : AndroidViewModel(application) {
 
     private val _apps = MutableStateFlow<List<AppModel>>(emptyList())
+    private val _icons = MutableStateFlow<Map<String, ImageBitmap>>(emptyMap())
+    val icons: StateFlow<Map<String, ImageBitmap>> = _icons
+
+
     val allApps: StateFlow<List<AppModel>> = _apps.asStateFlow()
     val userApps: StateFlow<List<AppModel>> = _apps.map { list ->
         list.filter { !it.isSystem }
@@ -77,9 +85,25 @@ class AppDrawerViewModel(application: Application) : AndroidViewModel(applicatio
 
         _apps.value = installedApps
 
+        // --- ICON CACHE BUILD ---
+        val iconMap = installedApps.associate { app ->
+            val drawable = try {
+                pm.getApplicationIcon(app.packageName)
+            } catch (_: Exception) {
+                ContextCompat.getDrawable(ctx, R.drawable.ic_app_default)!!
+            }
+
+            val bmp = loadDrawableAsBitmap(drawable, 48, 48)
+            app.packageName to bmp
+        }
+
+        _icons.value = iconMap
+
+        // Save list into datastore
         val json = gson.toJson(installedApps)
         ctx.appDrawerDataStore.edit { prefs ->
             prefs[DATASTORE_KEY] = json
         }
     }
+
 }

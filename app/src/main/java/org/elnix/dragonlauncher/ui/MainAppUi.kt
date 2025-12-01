@@ -1,9 +1,13 @@
 package org.elnix.dragonlauncher.ui
 
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
+import androidx.compose.ui.platform.LocalContext
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
+import org.elnix.dragonlauncher.data.stores.UiSettingsStore
 import org.elnix.dragonlauncher.ui.drawer.AppDrawerScreen
 import org.elnix.dragonlauncher.ui.settings.appearance.AppearanceTab
 import org.elnix.dragonlauncher.ui.settings.appearance.ColorSelectorTab
@@ -38,8 +42,12 @@ fun MainAppUi(
     backupViewModel: BackupViewModel,
     appsViewModel: AppDrawerViewModel
 ) {
-
+    val ctx = LocalContext.current
     val navController = rememberNavController()
+
+    val showAppIconsInDrawer by UiSettingsStore.getShowAppIconsInDrawer(ctx)
+        .collectAsState(initial = true)
+
 
     fun goSettingsRoot() =  navController.navigate(SETTINGS.ROOT)
     fun goAdvSettingsRoot() =  navController.navigate(SETTINGS.ADVANCED_ROOT)
@@ -54,13 +62,14 @@ fun MainAppUi(
         // Main App (LauncherScreen + Drawer)
         composable(ROUTES.MAIN) {
             MainScreen(
+                appsViewModel = appsViewModel,
                 onAppDrawer = { goDrawer() },
                 onGoWelcome = { goWelcome() },
                 onLongPress3Sec = { goSettingsRoot() }
             )
         }
 
-        composable(ROUTES.DRAWER) { AppDrawerScreen(appsViewModel, true ) { goMainScreen() } }
+        composable(ROUTES.DRAWER) { AppDrawerScreen(appsViewModel, showAppIconsInDrawer) { goMainScreen() } }
 
 
         // Settings + Welcome

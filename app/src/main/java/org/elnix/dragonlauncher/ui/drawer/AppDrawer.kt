@@ -48,12 +48,13 @@ import org.elnix.dragonlauncher.utils.actions.launchSwipeAction
 @OptIn(ExperimentalComposeUiApi::class)
 @Composable
 fun AppDrawerScreen(
-    viewModel: AppDrawerViewModel,
+    appsViewModel: AppDrawerViewModel,
     showIcons: Boolean,
     onClose: () -> Unit
 ) {
     val ctx = LocalContext.current
-    val apps by viewModel.userApps.collectAsState()
+    val apps by appsViewModel.userApps.collectAsState()
+    val icons by appsViewModel.icons.collectAsState()
 
     val autoLaunchSingleMatch by UiSettingsStore.getAutoLaunchSingleMatch(ctx)
         .collectAsState(initial = true)
@@ -122,6 +123,7 @@ fun AppDrawerScreen(
                 AppItem(
                     app = app,
                     showIcons = showIcons,
+                    icons = icons,
                     onClick = { launchSwipeAction(ctx, app.action); onClose() },
                     onLongClick = { dialogApp = app }
                 )

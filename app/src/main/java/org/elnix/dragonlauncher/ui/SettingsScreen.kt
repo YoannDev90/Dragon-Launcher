@@ -59,6 +59,7 @@ import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.IntSize
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.lifecycle.viewmodel.compose.viewModel
 import kotlinx.coroutines.flow.distinctUntilChanged
 import org.elnix.dragonlauncher.data.SwipeActionSerializable
 import org.elnix.dragonlauncher.data.SwipePointSerializable
@@ -96,6 +97,8 @@ fun SettingsScreen(
     onBack: () -> Unit
 ) {
     val ctx = LocalContext.current
+
+    val icons by appsViewModel.icons.collectAsState()
 
     val circleColor by ColorSettingsStore.getCircleColor(ctx)
         .collectAsState(initial = AmoledDefault.CircleColor)
@@ -436,7 +439,7 @@ fun SettingsScreen(
 
     if (showAddDialog) {
         AddPointDialog(
-            viewModel = appsViewModel,
+            appsViewModel = appsViewModel,
             onDismiss = {
                 @Suppress("AssignedValueIsNeverRead")
                 showAddDialog = false
@@ -477,7 +480,7 @@ fun SettingsScreen(
                 verticalAlignment = Alignment.CenterVertically,
             ) {
                 Icon(
-                    painter = actionIcon(currentAction),
+                    painter = actionIcon(currentAction, icons),
                     contentDescription = actionLabel(currentAction),
                     tint = actionTint(currentAction),
                     modifier = Modifier.size(22.dp)

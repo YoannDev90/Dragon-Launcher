@@ -19,6 +19,7 @@ object UiSettingsStore {
         val showAppLaunchPreviewCircle: Boolean = true,
         val fullscreen: Boolean = true,
         val autoOpenSingleMatch: Boolean = true,
+        val showAppIconsInDrawer: Boolean = true
     )
 
 
@@ -70,6 +71,13 @@ object UiSettingsStore {
         ctx.uiDatastore.edit { it[AUTO_LAUNCH_SINGLE_MATCH] = enabled }
     }
 
+    private val SHOW_APP_ICONS_IN_DRAWER = booleanPreferencesKey("show_app_icons_in_drawer")
+    fun getShowAppIconsInDrawer(ctx: Context): Flow<Boolean> =
+        ctx.uiDatastore.data.map { it[SHOW_APP_ICONS_IN_DRAWER] ?: true }
+    suspend fun setShowAppIconsInDrawer(ctx: Context, enabled: Boolean) {
+        ctx.uiDatastore.edit { it[SHOW_APP_ICONS_IN_DRAWER] = enabled }
+    }
+
     suspend fun resetAll(ctx: Context) {
         ctx.uiDatastore.edit { prefs ->
             prefs.remove(RGB_LOADING)
@@ -79,6 +87,7 @@ object UiSettingsStore {
             prefs.remove(SHOW_APP_LAUNCH_PREVIEW)
             prefs.remove(FULLSCREEN)
             prefs.remove(AUTO_LAUNCH_SINGLE_MATCH)
+            prefs.remove(SHOW_APP_ICONS_IN_DRAWER)
         }
     }
 
@@ -101,6 +110,7 @@ object UiSettingsStore {
             putIfNonDefault(SHOW_APP_LAUNCH_PREVIEW.name, prefs[SHOW_APP_LAUNCH_PREVIEW], defaults.showAppLaunchPreviewCircle)
             putIfNonDefault(FULLSCREEN.name, prefs[FULLSCREEN], defaults.fullscreen)
             putIfNonDefault(AUTO_LAUNCH_SINGLE_MATCH.name, prefs[AUTO_LAUNCH_SINGLE_MATCH], defaults.autoOpenSingleMatch)
+            putIfNonDefault(SHOW_APP_ICONS_IN_DRAWER.name, prefs[SHOW_APP_ICONS_IN_DRAWER], defaults.showAppIconsInDrawer)
         }
     }
 
@@ -134,6 +144,10 @@ object UiSettingsStore {
 
             backup[AUTO_LAUNCH_SINGLE_MATCH.name]?.let {
                 prefs[AUTO_LAUNCH_SINGLE_MATCH] = it.toBoolean()
+            }
+
+            backup[SHOW_APP_ICONS_IN_DRAWER.name]?.let {
+                prefs[SHOW_APP_ICONS_IN_DRAWER] = it.toBoolean()
             }
         }
     }

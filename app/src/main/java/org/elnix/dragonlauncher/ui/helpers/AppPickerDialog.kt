@@ -19,8 +19,10 @@ import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
+import org.elnix.dragonlauncher.R
 import org.elnix.dragonlauncher.data.SwipeActionSerializable
 import org.elnix.dragonlauncher.utils.AppDrawerViewModel
 import org.elnix.dragonlauncher.utils.actions.actionIcon
@@ -32,6 +34,7 @@ fun AppPickerDialog(
     onAppSelected: (SwipeActionSerializable.LaunchApp) -> Unit
 ) {
     val apps by viewModel.userApps.collectAsState()
+    val icons by viewModel.icons.collectAsState()
 
     AlertDialog(
         onDismissRequest = onDismiss,
@@ -55,7 +58,7 @@ fun AppPickerDialog(
                                 .padding(8.dp)
                         ) {
                             Image(
-                                painter = actionIcon(app.action),
+                                painter = actionIcon(app.action, icons),
                                 contentDescription = app.name,
                                 modifier = Modifier.size(48.dp)
                             )

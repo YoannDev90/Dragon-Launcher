@@ -24,6 +24,7 @@ import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.geometry.Rect
 import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.ImageBitmap
 import androidx.compose.ui.graphics.StrokeCap
 import androidx.compose.ui.graphics.drawscope.Fill
 import androidx.compose.ui.graphics.drawscope.Stroke
@@ -36,7 +37,6 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.IntOffset
 import org.elnix.dragonlauncher.data.SwipeActionSerializable
 import org.elnix.dragonlauncher.data.SwipePointSerializable
-import org.elnix.dragonlauncher.data.UiSwipePoint
 import org.elnix.dragonlauncher.data.stores.ColorSettingsStore
 import org.elnix.dragonlauncher.data.stores.DebugSettingsStore
 import org.elnix.dragonlauncher.data.stores.UiSettingsStore
@@ -51,6 +51,7 @@ import kotlin.math.sin
 
 @Composable
 fun MainScreenOverlay(
+    icons: Map<String, ImageBitmap>,
     start: Offset?,
     current: Offset?,
     isDragging: Boolean,
@@ -360,7 +361,7 @@ fun MainScreenOverlay(
             ) {
                 if (showLaunchingAppIcon) {
                     Icon(
-                        painter = actionIcon(currentAction),
+                        painter = actionIcon(currentAction, icons),
                         contentDescription = actionLabel(currentAction),
                         tint = actionTint(currentAction),
                         modifier = Modifier.size(22.dp)

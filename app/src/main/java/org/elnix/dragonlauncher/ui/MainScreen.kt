@@ -31,15 +31,19 @@ import org.elnix.dragonlauncher.data.stores.SwipeSettingsStore
 import org.elnix.dragonlauncher.data.stores.UiSettingsStore
 import org.elnix.dragonlauncher.ui.helpers.HoldToActivateArc
 import org.elnix.dragonlauncher.ui.helpers.rememberHoldToOpenSettings
+import org.elnix.dragonlauncher.utils.AppDrawerViewModel
 import org.elnix.dragonlauncher.utils.actions.launchSwipeAction
 
 @Composable
 fun MainScreen(
+    appsViewModel: AppDrawerViewModel,
     onAppDrawer: () -> Unit,
     onGoWelcome: () -> Unit,
     onLongPress3Sec: () -> Unit
 ) {
     val ctx = LocalContext.current
+
+    val icons by appsViewModel.icons.collectAsState()
 
     var start by remember { mutableStateOf<Offset?>(null) }
     var current by remember { mutableStateOf<Offset?>(null) }
@@ -109,6 +113,7 @@ fun MainScreen(
             .then(hold.pointerModifier)
     ) {
         MainScreenOverlay(
+            icons = icons,
             start = start,
             current = current,
             isDragging = isDragging,

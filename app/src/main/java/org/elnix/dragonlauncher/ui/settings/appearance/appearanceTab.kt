@@ -49,6 +49,9 @@ fun AppearanceTab(
     val autoLaunchSingleMatch by UiSettingsStore.getAutoLaunchSingleMatch(ctx)
         .collectAsState(initial = true)
 
+    val showAppIconsInDrawer by UiSettingsStore.getShowAppIconsInDrawer(ctx)
+        .collectAsState(initial = true)
+
 
     SettingsLazyHeader(
         title = stringResource(R.string.appearance),
@@ -121,6 +124,13 @@ fun AppearanceTab(
                 autoLaunchSingleMatch,
                 "Auto Launch Single Match",
             ) { scope.launch { UiSettingsStore.setAutoLaunchSingleMatch(ctx, it) } }
+        }
+
+        item {
+            SwitchRow(
+                showAppIconsInDrawer,
+                "Show App Icons in Drawer",
+            ) { scope.launch { UiSettingsStore.setShowAppIconsInDrawer(ctx, it) } }
         }
     }
 }

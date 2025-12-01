@@ -9,9 +9,7 @@ import androidx.compose.ui.graphics.ImageBitmap
 import androidx.compose.ui.graphics.asAndroidBitmap
 import androidx.compose.ui.graphics.asImageBitmap
 import androidx.compose.ui.graphics.painter.BitmapPainter
-import androidx.compose.ui.graphics.painter.Painter
 import androidx.compose.ui.graphics.toArgb
-import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.core.content.ContextCompat
 import androidx.core.graphics.drawable.toBitmap
@@ -19,35 +17,32 @@ import org.elnix.dragonlauncher.R
 import org.elnix.dragonlauncher.data.SwipeActionSerializable
 
 @Composable
-fun actionIcon(action: SwipeActionSerializable): Painter {
-    val ctx = LocalContext.current
-    val pm = ctx.packageManager
-
-    return when (action) {
-
-        is SwipeActionSerializable.LaunchApp -> {
-            try {
-                val icon = pm.getApplicationIcon(action.packageName)
-                BitmapPainter(icon.toBitmap().asImageBitmap())
-            } catch (_: Exception) {
-                painterResource(R.drawable.ic_app_default)
-            }
+fun actionIcon(
+    action: SwipeActionSerializable,
+    icons: Map<String, ImageBitmap>? = null
+) = when (action) {
+    is SwipeActionSerializable.LaunchApp -> {
+        val cached = icons?.get(action.packageName)
+        if (cached != null) {
+            BitmapPainter(cached)
+        } else {
+            painterResource(R.drawable.ic_app_default)
         }
-
-        is SwipeActionSerializable.OpenUrl ->
-            painterResource(R.drawable.ic_action_web)
-
-        SwipeActionSerializable.NotificationShade ->
-            painterResource(R.drawable.ic_action_notification)
-
-        SwipeActionSerializable.ControlPanel ->
-            painterResource(R.drawable.ic_action_grid)
-
-        SwipeActionSerializable.OpenAppDrawer ->
-            painterResource(R.drawable.ic_action_drawer)
-
-        SwipeActionSerializable.OpenDragonLauncherSettings -> painterResource(R.drawable.dragon_launcher_foreground)
     }
+
+    is SwipeActionSerializable.OpenUrl ->
+        painterResource(R.drawable.ic_action_web)
+
+    SwipeActionSerializable.NotificationShade ->
+        painterResource(R.drawable.ic_action_notification)
+
+    SwipeActionSerializable.ControlPanel ->
+        painterResource(R.drawable.ic_action_grid)
+
+    SwipeActionSerializable.OpenAppDrawer ->
+        painterResource(R.drawable.ic_action_drawer)
+
+    SwipeActionSerializable.OpenDragonLauncherSettings -> painterResource(R.drawable.dragon_launcher_foreground)
 }
 
 
@@ -125,7 +120,7 @@ private fun loadDrawableResAsBitmap(context: Context, resId: Int): ImageBitmap {
 }
 
 @Suppress("SameParameterValue")
-private fun loadDrawableAsBitmap(
+fun loadDrawableAsBitmap(
     drawable: android.graphics.drawable.Drawable,
     width: Int,
     height: Int
