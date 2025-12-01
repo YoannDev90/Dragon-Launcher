@@ -58,7 +58,7 @@ object UiSettingsStore {
 
     private val FULLSCREEN = booleanPreferencesKey("fullscreen")
     fun getFullscreen(ctx: Context): Flow<Boolean> =
-        ctx.uiDatastore.data.map { it[FULLSCREEN] ?: false }
+        ctx.uiDatastore.data.map { it[FULLSCREEN] ?: true }
     suspend fun setFullscreen(ctx: Context, enabled: Boolean) {
         ctx.uiDatastore.edit { it[FULLSCREEN] = enabled }
     }
