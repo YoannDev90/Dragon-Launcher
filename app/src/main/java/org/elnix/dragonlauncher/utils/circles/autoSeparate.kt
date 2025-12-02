@@ -2,19 +2,18 @@ package org.elnix.dragonlauncher.utils.circles
 
 import org.elnix.dragonlauncher.data.UiSwipePoint
 import org.elnix.dragonlauncher.ui.MIN_ANGLE_GAP
-import kotlin.collections.filter
 import kotlin.math.abs
-import kotlin.math.max
 import kotlin.math.min
 
 fun autoSeparate(
     points: MutableList<UiSwipePoint>,
-    circleNumber: Int
+    circleNumber: Int,
+    draggedPoint: UiSwipePoint
 ) {
     repeat(20) {
         val pts = points
             .filter { it.circleNumber == circleNumber }
-            .sortedBy { it.angleDeg }
+            .sortedBy { normalizeAngle(it.angleDeg) }
 
         if (pts.size <= 1) return
 
@@ -29,22 +28,37 @@ fun autoSeparate(
                 val b = normalizeAngle(p2.angleDeg)
 
                 val diff = absAngleDiff(a, b)
-                if (diff < MIN_ANGLE_GAP) {
+                if (diff < MIN_ANGLE_GAP[circleNumber]) {
 
+                    if (draggedPoint.id == p1.id || draggedPoint.id == p2.id) {
+                        // Check if dragged point crossed midpoint
+                        val mid = normalizeAngle(a + signedAngleDiff(a, b) / 2.0)
+                        val draggedAngle = normalizeAngle(draggedPoint.angleDeg)
+
+                        val shouldSwap = if (draggedPoint.id == p1.id) {
+                            // p1 was dragged - swap only if it crossed rightward past p2
+                            signedAngleDiff(a, b) > 0 && draggedAngle > mid
+                        } else {
+                            // p2 was dragged - swap only if it crossed leftward past p1
+                            signedAngleDiff(a, b) < 0 && draggedAngle < mid
+                        }
+
+                        if (shouldSwap) {
+                            val temp = p1.angleDeg
+                            p1.angleDeg = p2.angleDeg
+                            p2.angleDeg = temp
+                            adjusted = true
+                            continue  // Skip normal separation for this pair
+                        }
+                    }
+
+                    // Normal separation (no swap, just push apart)
                     val signed = signedAngleDiff(a, b)
                     val mid = normalizeAngle(a + signed / 2.0)
-                    val halfGap = MIN_ANGLE_GAP / 2.0
+                    val halfGap = MIN_ANGLE_GAP[circleNumber] / 2.0
 
-                    val leftAngle  = normalizeAngle(mid - halfGap)
-                    val rightAngle = normalizeAngle(mid + halfGap)
-
-                    if (signed > 0) {
-                        p2.angleDeg = leftAngle
-                        p1.angleDeg = rightAngle
-                    } else {
-                        p1.angleDeg = leftAngle
-                        p2.angleDeg = rightAngle
-                    }
+                    p1.angleDeg = normalizeAngle(mid - halfGap)
+                    p2.angleDeg = normalizeAngle(mid + halfGap)
 
                     adjusted = true
                 }
@@ -54,6 +68,7 @@ fun autoSeparate(
         if (!adjusted) return
     }
 }
+
 
 /** Normalize angle into [0,360) */
 private fun normalizeAngle(a: Double): Double {

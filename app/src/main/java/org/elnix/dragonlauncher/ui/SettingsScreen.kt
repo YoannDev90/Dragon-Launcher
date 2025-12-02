@@ -60,7 +60,6 @@ import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.IntSize
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import androidx.lifecycle.viewmodel.compose.viewModel
 import kotlinx.coroutines.flow.distinctUntilChanged
 import org.elnix.dragonlauncher.data.SwipeActionSerializable
 import org.elnix.dragonlauncher.data.SwipePointSerializable
@@ -85,7 +84,12 @@ import kotlin.math.hypot
 import kotlin.math.sin
 
 // Config
-const val MIN_ANGLE_GAP = 18.0
+val MIN_ANGLE_GAP = listOf(
+    27.0,
+    16.0,
+    11.0
+)
+
 private const val POINT_RADIUS_PX = 40f
 private const val TOUCH_THRESHOLD_PX = 100f
 
@@ -324,7 +328,7 @@ fun SettingsScreen(
                             },
                             onDragEnd = {
                                 val p = points.find { it.id == selectedPoint?.id } ?: return@detectDragGestures
-                                autoSeparate(points, p.circleNumber)
+                                autoSeparate(points, p.circleNumber, p)
                             }
                         )
                     }
@@ -414,8 +418,8 @@ fun SettingsScreen(
                     .clip(CircleShape)
                     .clickable(removeEnabled) {
                         selectedPoint?.let { point ->
-                            val circleNumber = 0
-                            val newAngle = randomFreeAngle(points)
+                            val circleNumber = point.circleNumber
+                            val newAngle = randomFreeAngle(circleNumber,points)
 
                             val point = UiSwipePoint(
                                 id = UUID.randomUUID().toString(),
@@ -425,7 +429,7 @@ fun SettingsScreen(
                             )
 
                             points.add(point)
-                            autoSeparate(points, circleNumber)
+                            autoSeparate(points, circleNumber, point)
                         }
                     }
                     .background(Color(0xFFE19807).copy(if (removeEnabled) 0.2f else 0f))
@@ -448,7 +452,7 @@ fun SettingsScreen(
             },
             onActionSelected = { action ->
                 val circleNumber = 0
-                val newAngle = randomFreeAngle(points)
+                val newAngle = randomFreeAngle(circleNumber, points)
 
                 val point = UiSwipePoint(
                     id = UUID.randomUUID().toString(),
@@ -458,7 +462,7 @@ fun SettingsScreen(
                 )
 
                 points.add(point)
-                autoSeparate(points, circleNumber)
+                autoSeparate(points, circleNumber, point)
 
                 @Suppress("AssignedValueIsNeverRead")
                 showAddDialog = false
