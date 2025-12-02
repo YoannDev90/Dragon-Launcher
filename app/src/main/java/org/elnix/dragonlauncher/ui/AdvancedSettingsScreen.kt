@@ -94,6 +94,7 @@ fun AdvancedSettingsScreen(
                 SwipeSettingsStore.resetAll(ctx)
                 LanguageSettingsStore.resetAll(ctx)
                 ColorModesSettingsStore.resetAll(ctx)
+                ColorSettingsStore.resetAll(ctx)
                 DrawerSettingsStore.resetAll(ctx)
             }
         }
