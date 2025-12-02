@@ -10,75 +10,119 @@ import org.elnix.dragonlauncher.data.drawerDataStore
 
 object DrawerSettingsStore {
 
-    data class DrawerSettingsBackup(
+    // -------------------------------------------------------------------------
+    // Backup data class
+    // -------------------------------------------------------------------------
+    private data class DrawerSettingsBackup(
         val autoOpenSingleMatch: Boolean = true,
         val showAppIconsInDrawer: Boolean = true,
         val searchBarBottom: Boolean = true
     )
 
+    private val defaults = DrawerSettingsBackup()
 
-    private val AUTO_LAUNCH_SINGLE_MATCH = booleanPreferencesKey("auto_launch_single_match")
+    // -------------------------------------------------------------------------
+    // Keys
+    // -------------------------------------------------------------------------
+    private val AUTO_OPEN_SINGLE_MATCH =
+        booleanPreferencesKey(defaults.autoOpenSingleMatch.toString())
+
+    private val SHOW_APP_ICONS_IN_DRAWER =
+        booleanPreferencesKey(defaults.showAppIconsInDrawer.toString())
+
+    private val SEARCH_BAR_BOTTOM =
+        booleanPreferencesKey(defaults.searchBarBottom.toString())
+
+    // -------------------------------------------------------------------------
+    // Accessors + Mutators
+    // -------------------------------------------------------------------------
     fun getAutoLaunchSingleMatch(ctx: Context): Flow<Boolean> =
-        ctx.drawerDataStore.data.map { it[AUTO_LAUNCH_SINGLE_MATCH] ?: true }
+        ctx.drawerDataStore.data.map { prefs ->
+            prefs[AUTO_OPEN_SINGLE_MATCH] ?: defaults.autoOpenSingleMatch
+        }
+
     suspend fun setAutoLaunchSingleMatch(ctx: Context, enabled: Boolean) {
-        ctx.drawerDataStore.edit { it[AUTO_LAUNCH_SINGLE_MATCH] = enabled }
+        ctx.drawerDataStore.edit { it[AUTO_OPEN_SINGLE_MATCH] = enabled }
     }
 
-    private val SHOW_APP_ICONS_IN_DRAWER = booleanPreferencesKey("show_app_icons_in_drawer")
     fun getShowAppIconsInDrawer(ctx: Context): Flow<Boolean> =
-        ctx.drawerDataStore.data.map { it[SHOW_APP_ICONS_IN_DRAWER] ?: true }
+        ctx.drawerDataStore.data.map { prefs ->
+            prefs[SHOW_APP_ICONS_IN_DRAWER] ?: defaults.showAppIconsInDrawer
+        }
+
     suspend fun setShowAppIconsInDrawer(ctx: Context, enabled: Boolean) {
         ctx.drawerDataStore.edit { it[SHOW_APP_ICONS_IN_DRAWER] = enabled }
     }
 
-    private val SEARCH_BAR_BOTTOM = booleanPreferencesKey("search_bar_bottom")
     fun getSearchBarBottom(ctx: Context): Flow<Boolean> =
-        ctx.drawerDataStore.data.map { it[SEARCH_BAR_BOTTOM] ?: true }
+        ctx.drawerDataStore.data.map { prefs ->
+            prefs[SEARCH_BAR_BOTTOM] ?: defaults.searchBarBottom
+        }
+
     suspend fun setSearchBarBottom(ctx: Context, enabled: Boolean) {
         ctx.drawerDataStore.edit { it[SEARCH_BAR_BOTTOM] = enabled }
     }
 
-
-
+    // -------------------------------------------------------------------------
+    // Reset
+    // -------------------------------------------------------------------------
     suspend fun resetAll(ctx: Context) {
         ctx.drawerDataStore.edit { prefs ->
-            prefs.remove(AUTO_LAUNCH_SINGLE_MATCH)
+            prefs.remove(AUTO_OPEN_SINGLE_MATCH)
             prefs.remove(SHOW_APP_ICONS_IN_DRAWER)
             prefs.remove(SEARCH_BAR_BOTTOM)
         }
     }
 
+    // -------------------------------------------------------------------------
+    // Backup export
+    // -------------------------------------------------------------------------
     suspend fun getAll(ctx: Context): Map<String, Boolean> {
         val prefs = ctx.drawerDataStore.data.first()
-        val defaults = DrawerSettingsBackup()
 
         return buildMap {
 
-            fun putIfNonDefault(key: String, value: Boolean?, default: Any?) {
-                if (value != null && value != default) {
+            fun putIfNonDefault(key: String, value: Boolean?, defaultVal: Boolean) {
+                if (value != null && value != defaultVal) {
                     put(key, value)
                 }
             }
 
-            putIfNonDefault(AUTO_LAUNCH_SINGLE_MATCH.name, prefs[AUTO_LAUNCH_SINGLE_MATCH], defaults.autoOpenSingleMatch)
-            putIfNonDefault(SHOW_APP_ICONS_IN_DRAWER.name, prefs[SHOW_APP_ICONS_IN_DRAWER], defaults.showAppIconsInDrawer)
-            putIfNonDefault(SEARCH_BAR_BOTTOM.name, prefs[SEARCH_BAR_BOTTOM], defaults.searchBarBottom)
+            putIfNonDefault(
+                defaults.autoOpenSingleMatch.toString(),
+                prefs[AUTO_OPEN_SINGLE_MATCH],
+                defaults.autoOpenSingleMatch
+            )
+
+            putIfNonDefault(
+                defaults.showAppIconsInDrawer.toString(),
+                prefs[SHOW_APP_ICONS_IN_DRAWER],
+                defaults.showAppIconsInDrawer
+            )
+
+            putIfNonDefault(
+                defaults.searchBarBottom.toString(),
+                prefs[SEARCH_BAR_BOTTOM],
+                defaults.searchBarBottom
+            )
         }
     }
 
-
+    // -------------------------------------------------------------------------
+    // Backup import
+    // -------------------------------------------------------------------------
     suspend fun setAll(ctx: Context, backup: Map<String, Boolean>) {
         ctx.drawerDataStore.edit { prefs ->
 
-            backup[AUTO_LAUNCH_SINGLE_MATCH.name]?.let {
-                prefs[AUTO_LAUNCH_SINGLE_MATCH] = it
+            backup[defaults.autoOpenSingleMatch.toString()]?.let {
+                prefs[AUTO_OPEN_SINGLE_MATCH] = it
             }
 
-            backup[SHOW_APP_ICONS_IN_DRAWER.name]?.let {
+            backup[defaults.showAppIconsInDrawer.toString()]?.let {
                 prefs[SHOW_APP_ICONS_IN_DRAWER] = it
             }
 
-            backup[SEARCH_BAR_BOTTOM.name]?.let {
+            backup[defaults.searchBarBottom.toString()]?.let {
                 prefs[SEARCH_BAR_BOTTOM] = it
             }
         }

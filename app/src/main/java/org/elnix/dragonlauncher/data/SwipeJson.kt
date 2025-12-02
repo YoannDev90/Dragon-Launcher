@@ -72,9 +72,16 @@ object SwipeJson {
         .registerTypeAdapter(SwipeActionSerializable::class.java, SwipeActionAdapter())
         .create()
 
+    private val gsonPretty: Gson = GsonBuilder()
+        .setPrettyPrinting()
+        .registerTypeAdapter(SwipeActionSerializable::class.java, SwipeActionAdapter())
+        .create()
+
     private val listType = object : TypeToken<List<SwipePointSerializable>>() {}.type
 
     fun encode(points: List<SwipePointSerializable>): String = gson.toJson(points, listType)
+
+    fun encodePretty(points: List<SwipePointSerializable>): String = gsonPretty.toJson(points, listType)
 
     fun decode(jsonString: String): List<SwipePointSerializable> {
         if (jsonString.isBlank()) return emptyList()

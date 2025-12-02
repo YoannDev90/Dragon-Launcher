@@ -10,72 +10,112 @@ import org.elnix.dragonlauncher.data.debugDatastore
 
 object DebugSettingsStore {
 
-    data class DebugSettingsBackup(
+    // -------------------------------------------------------------------------
+    // Backup data class
+    // -------------------------------------------------------------------------
+    private data class DebugSettingsBackup(
         val debugEnabled: Boolean = false,
         val debugInfos: Boolean = false,
         val forceAppLanguageSelector: Boolean = false
     )
 
-    private val DEBUG_INFOS = booleanPreferencesKey("debug_infos")
-    private val DEBUG_ENABLED = booleanPreferencesKey("debug_enabled")
-    private val FORCE_APP_LANGUAGE_SELECTOR = booleanPreferencesKey("force_app_language_selector")
+    private val defaults = DebugSettingsBackup()
 
-    fun getDebugInfos(ctx: Context): Flow<Boolean> =
-        ctx.debugDatastore.data.map { it[DEBUG_INFOS] ?: false }
+    // -------------------------------------------------------------------------
+    // Keys
+    // -------------------------------------------------------------------------
+    private val DEBUG_ENABLED = booleanPreferencesKey(defaults.debugEnabled.toString())
+    private val DEBUG_INFOS = booleanPreferencesKey(defaults.debugInfos.toString())
+    private val FORCE_APP_LANGUAGE_SELECTOR =
+        booleanPreferencesKey(defaults.forceAppLanguageSelector.toString())
 
-    suspend fun setDebugInfos(ctx: Context, enabled: Boolean) {
-        ctx.debugDatastore.edit { it[DEBUG_INFOS] = enabled }
-    }
-
+    // -------------------------------------------------------------------------
+    // Accessors + Mutators
+    // -------------------------------------------------------------------------
     fun getDebugEnabled(ctx: Context): Flow<Boolean> =
-        ctx.debugDatastore.data.map { it[DEBUG_ENABLED] ?: false }
+        ctx.debugDatastore.data.map { prefs ->
+            prefs[DEBUG_ENABLED] ?: defaults.debugEnabled
+        }
 
     suspend fun setDebugEnabled(ctx: Context, enabled: Boolean) {
         ctx.debugDatastore.edit { it[DEBUG_ENABLED] = enabled }
     }
 
+    fun getDebugInfos(ctx: Context): Flow<Boolean> =
+        ctx.debugDatastore.data.map { prefs ->
+            prefs[DEBUG_INFOS] ?: defaults.debugInfos
+        }
+
+    suspend fun setDebugInfos(ctx: Context, enabled: Boolean) {
+        ctx.debugDatastore.edit { it[DEBUG_INFOS] = enabled }
+    }
+
     fun getForceAppLanguageSelector(ctx: Context): Flow<Boolean> =
-        ctx.debugDatastore.data.map { it[FORCE_APP_LANGUAGE_SELECTOR] ?: false }
+        ctx.debugDatastore.data.map { prefs ->
+            prefs[FORCE_APP_LANGUAGE_SELECTOR] ?: defaults.forceAppLanguageSelector
+        }
 
     suspend fun setForceAppLanguageSelector(ctx: Context, enabled: Boolean) {
         ctx.debugDatastore.edit { it[FORCE_APP_LANGUAGE_SELECTOR] = enabled }
     }
 
+    // -------------------------------------------------------------------------
+    // Reset
+    // -------------------------------------------------------------------------
     suspend fun resetAll(ctx: Context) {
         ctx.debugDatastore.edit { prefs ->
-            prefs.remove(DEBUG_INFOS)
             prefs.remove(DEBUG_ENABLED)
+            prefs.remove(DEBUG_INFOS)
             prefs.remove(FORCE_APP_LANGUAGE_SELECTOR)
         }
     }
 
+    // -------------------------------------------------------------------------
+    // Backup export
+    // -------------------------------------------------------------------------
     suspend fun getAll(ctx: Context): Map<String, Boolean> {
         val prefs = ctx.debugDatastore.data.first()
-        val defaults = DebugSettingsBackup()
+
         return buildMap {
-            fun putIfNonDefault(key: String, value: Boolean?, default: Any?) {
-                if (value != null && value != default) {
+
+            fun putIfNonDefault(key: String, value: Boolean?, defaultVal: Boolean) {
+                if (value != null && value != defaultVal) {
                     put(key, value)
                 }
             }
 
-            putIfNonDefault(DEBUG_INFOS.name, prefs[DEBUG_INFOS], defaults.debugInfos)
-            putIfNonDefault(DEBUG_ENABLED.name, prefs[DEBUG_ENABLED], defaults.debugEnabled)
-            putIfNonDefault(FORCE_APP_LANGUAGE_SELECTOR.name, prefs[FORCE_APP_LANGUAGE_SELECTOR], defaults.forceAppLanguageSelector)
+            putIfNonDefault(
+                defaults.debugEnabled.toString(),
+                prefs[DEBUG_ENABLED],
+                defaults.debugEnabled
+            )
+
+            putIfNonDefault(
+                defaults.debugInfos.toString(),
+                prefs[DEBUG_INFOS],
+                defaults.debugInfos
+            )
+
+            putIfNonDefault(
+                defaults.forceAppLanguageSelector.toString(),
+                prefs[FORCE_APP_LANGUAGE_SELECTOR],
+                defaults.forceAppLanguageSelector
+            )
         }
     }
 
+    // -------------------------------------------------------------------------
+    // Backup import
+    // -------------------------------------------------------------------------
     suspend fun setAll(ctx: Context, backup: Map<String, Boolean>) {
         ctx.debugDatastore.edit { prefs ->
-            backup[DEBUG_ENABLED.name]?.let {
+            backup[defaults.debugEnabled.toString()]?.let {
                 prefs[DEBUG_ENABLED] = it
             }
-
-            backup[DEBUG_INFOS.name]?.let {
+            backup[defaults.debugInfos.toString()]?.let {
                 prefs[DEBUG_INFOS] = it
             }
-
-            backup[FORCE_APP_LANGUAGE_SELECTOR.name]?.let {
+            backup[defaults.forceAppLanguageSelector.toString()]?.let {
                 prefs[FORCE_APP_LANGUAGE_SELECTOR] = it
             }
         }

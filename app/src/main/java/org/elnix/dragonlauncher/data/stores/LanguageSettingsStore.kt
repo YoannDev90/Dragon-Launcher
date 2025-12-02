@@ -7,10 +7,8 @@ import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.map
 import org.elnix.dragonlauncher.data.languageDatastore
 
-
 object LanguageSettingsStore {
     private val KEY_LANG = stringPreferencesKey("pref_app_language")
-
 
     suspend fun setLanguageTag(ctx: Context, tag: String?) {
         ctx.languageDatastore.edit { prefs ->
@@ -18,9 +16,8 @@ object LanguageSettingsStore {
         }
     }
 
-    suspend fun getLanguageTag(ctx: Context): String? {
-        return ctx.languageDatastore.data.map { it[KEY_LANG] }.first()
-    }
+    suspend fun getLanguageTag(ctx: Context): String? =
+        ctx.languageDatastore.data.first()[KEY_LANG]
 
     suspend fun resetAll(ctx: Context) {
         ctx.languageDatastore.edit { prefs ->

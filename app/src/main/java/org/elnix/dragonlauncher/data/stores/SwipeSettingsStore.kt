@@ -11,9 +11,9 @@ import org.elnix.dragonlauncher.data.swipeDataStore
 
 object SwipeSettingsStore {
 
-    data class SwipeBackup(
-        val pointsJson: String? = null
-    )
+//    data class SwipeBackup(
+//        val pointsJson: String? = null
+//    )
 
     private val POINTS = stringPreferencesKey("points_json")
 
@@ -43,30 +43,25 @@ object SwipeSettingsStore {
         }
     }
 
-    suspend fun getAll(ctx: Context): Map<String, Any> {
+    suspend fun getAll(ctx: Context): Map<String, String> {
         val prefs = ctx.swipeDataStore.data.first()
+        val raw = prefs[POINTS] ?: return emptyMap()
 
-        val points = prefs[POINTS]?.let { json ->
-            SwipeJson.decode(json)
-        } ?: emptyList()
+        val decoded = SwipeJson.decode(raw)
+        val pretty = SwipeJson.encodePretty(decoded)
 
-        return mapOf(
-            "points" to points
-        )
+        return mapOf("points" to pretty)
     }
 
-    suspend fun setAll(ctx: Context, backup: Map<String, Any>) {
+
+    suspend fun setAll(ctx: Context, backup: Map<String, String>) {
+        val pretty = backup["points"] ?: return
+
+        val decoded = SwipeJson.decode(pretty)
+        val compact = SwipeJson.encode(decoded)
+
         ctx.swipeDataStore.edit { prefs ->
-            val pointsList = backup["points"] as? List<*>
-            if (pointsList != null) {
-                // Re-encode list back to string for DataStore
-                @Suppress("UNCHECKED_CAST")
-                val typed = pointsList as List<SwipePointSerializable>
-                prefs[POINTS] = SwipeJson.encode(typed)
-            } else {
-                prefs.remove(POINTS)
-            }
+            prefs[POINTS] = compact
         }
     }
-
 }

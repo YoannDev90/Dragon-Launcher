@@ -12,7 +12,17 @@ import org.elnix.dragonlauncher.data.colorModeDatastore
 import org.elnix.dragonlauncher.data.helpers.ColorPickerMode
 
 object ColorModesSettingsStore {
-    private val COLOR_PICKER_MODE = stringPreferencesKey("color_picker_mode")
+
+
+    private data class ColorModesSettingsBackup(
+        val colorPickerMode: ColorPickerMode = ColorPickerMode.SLIDERS,
+        val colorCustomisationMode: ColorCustomisationMode = ColorCustomisationMode.DEFAULT,
+        val defaultTheme: DefaultThemes = DefaultThemes.AMOLED,
+    )
+    private val defaults = ColorModesSettingsBackup()
+
+
+    private val COLOR_PICKER_MODE = stringPreferencesKey(defaults::colorPickerMode.name)
     fun getColorPickerMode(ctx: Context): Flow<ColorPickerMode> =
         ctx.colorModeDatastore.data.map { prefs ->
             prefs[COLOR_PICKER_MODE]?.let { ColorPickerMode.valueOf(it) }
@@ -23,7 +33,7 @@ object ColorModesSettingsStore {
     }
 
 
-    private val COLOR_CUSTOMISATION_MODE = stringPreferencesKey("color_customisation_mode")
+    private val COLOR_CUSTOMISATION_MODE = stringPreferencesKey(defaults::colorCustomisationMode.name)
     fun getColorCustomisationMode(ctx: Context): Flow<ColorCustomisationMode> =
         ctx.colorModeDatastore.data.map { prefs ->
             prefs[COLOR_CUSTOMISATION_MODE]?.let { ColorCustomisationMode.valueOf(it) }
@@ -33,7 +43,7 @@ object ColorModesSettingsStore {
         ctx.colorModeDatastore.edit { it[COLOR_CUSTOMISATION_MODE] = state.name }
     }
 
-    private val DEFAULT_THEME = stringPreferencesKey("default_theme")
+    private val DEFAULT_THEME = stringPreferencesKey(defaults::defaultTheme.name)
     fun getDefaultTheme(ctx: Context): Flow<DefaultThemes> =
         ctx.colorModeDatastore.data.map { prefs ->
             prefs[DEFAULT_THEME]?.let { DefaultThemes.valueOf(it) }
@@ -54,17 +64,24 @@ object ColorModesSettingsStore {
     suspend fun getAll(ctx: Context): Map<String, String> {
         val prefs = ctx.colorModeDatastore.data.first()
         return buildMap {
-            prefs[COLOR_PICKER_MODE]?.let { put(COLOR_PICKER_MODE.name, it) }
-            prefs[COLOR_CUSTOMISATION_MODE]?.let { put(COLOR_CUSTOMISATION_MODE.name, it) }
-            prefs[DEFAULT_THEME]?.let { put(DEFAULT_THEME.name, it) }
+
+            fun putIfNonDefault(key: String, value: Any?, default: Any?) {
+                if (value != null && value != default) {
+                    put(key, value.toString())
+                }
+            }
+
+            putIfNonDefault(defaults::colorPickerMode.name, prefs[COLOR_PICKER_MODE], defaults::colorPickerMode)
+            putIfNonDefault(defaults::colorCustomisationMode.name, prefs[COLOR_CUSTOMISATION_MODE], defaults::colorPickerMode)
+            putIfNonDefault(defaults::defaultTheme.name, prefs[DEFAULT_THEME], defaults::defaultTheme)
         }
     }
 
     suspend fun setAll(ctx: Context, data: Map<String, String>) {
         ctx.colorModeDatastore.edit { prefs ->
-            data[COLOR_PICKER_MODE.name]?.let { prefs[COLOR_PICKER_MODE] = it }
-            data[COLOR_CUSTOMISATION_MODE.name]?.let { prefs[COLOR_CUSTOMISATION_MODE] = it }
-            data[DEFAULT_THEME.name]?.let { prefs[DEFAULT_THEME] = it }
+            data[defaults::colorPickerMode.name]?.let { prefs[COLOR_PICKER_MODE] = it }
+            data[defaults::colorCustomisationMode.name]?.let { prefs[COLOR_CUSTOMISATION_MODE] = it }
+            data[defaults::defaultTheme.name]?.let { prefs[DEFAULT_THEME] = it }
         }
     }
 }

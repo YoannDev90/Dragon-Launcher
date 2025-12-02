@@ -8,38 +8,44 @@ import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.map
 import org.elnix.dragonlauncher.data.privateSettingsStore
 
-
 object PrivateSettingsStore {
 
-    private data class PrivateBackup (
+    private data class PrivateSettingsBackup(
         val hasSeenWelcome: Boolean = false,
-        val hasInitialized: Boolean = false
+        val hasInitialized: Boolean = false,
     )
+    private val defaults = PrivateSettingsBackup()
 
-    private val HAS_SEEN_WELCOME = booleanPreferencesKey("has_seen_welcome")
-    private val HAS_INITIALIZED = booleanPreferencesKey("has_initialized")
+    private val HAS_SEEN_WELCOME = booleanPreferencesKey(defaults.hasSeenWelcome.toString())
+    private val HAS_INITIALIZED = booleanPreferencesKey(defaults.hasInitialized.toString())
+
     fun getHasSeenWelcome(ctx: Context): Flow<Boolean> =
-        ctx.privateSettingsStore.data.map { it[HAS_SEEN_WELCOME] ?: false }
-    suspend fun setHasSeenWelcome(ctx: Context, enabled: Boolean) {
-        ctx.privateSettingsStore.edit { it[HAS_SEEN_WELCOME] = enabled }
+        ctx.privateSettingsStore.data.map { prefs ->
+            prefs[HAS_SEEN_WELCOME] ?: defaults.hasSeenWelcome
+        }
+
+    suspend fun setHasSeenWelcome(ctx: Context, value: Boolean) {
+        ctx.privateSettingsStore.edit { it[HAS_SEEN_WELCOME] = value }
     }
 
     fun getHasInitialized(ctx: Context): Flow<Boolean> =
-        ctx.privateSettingsStore.data.map { it[HAS_INITIALIZED] ?: false }
-    suspend fun setHasInitialized(ctx: Context, enabled: Boolean) {
-        ctx.privateSettingsStore.edit { it[HAS_INITIALIZED] = enabled }
+        ctx.privateSettingsStore.data.map { prefs ->
+            prefs[HAS_INITIALIZED] ?: defaults.hasInitialized
+        }
+
+    suspend fun setHasInitialized(ctx: Context, value: Boolean) {
+        ctx.privateSettingsStore.edit { it[HAS_INITIALIZED] = value }
     }
 
     suspend fun resetAll(ctx: Context) {
-        ctx.privateSettingsStore.edit { preferences ->
-            preferences.remove(HAS_SEEN_WELCOME)
-            preferences.remove(HAS_INITIALIZED)
+        ctx.privateSettingsStore.edit { prefs ->
+            prefs.remove(HAS_SEEN_WELCOME)
+            prefs.remove(HAS_INITIALIZED)
         }
     }
 
     suspend fun getAll(ctx: Context): Map<String, String> {
         val prefs = ctx.privateSettingsStore.data.first()
-        val defaults = PrivateBackup()
 
         return buildMap {
             fun putIfNonDefault(key: String, value: Any?, default: Any?) {
@@ -48,19 +54,24 @@ object PrivateSettingsStore {
                 }
             }
 
-            putIfNonDefault(HAS_SEEN_WELCOME.name, prefs[HAS_SEEN_WELCOME], defaults.hasSeenWelcome)
-            putIfNonDefault(HAS_INITIALIZED.name, prefs[HAS_INITIALIZED], defaults.hasInitialized)
+            putIfNonDefault(defaults.hasSeenWelcome.toString(), prefs[HAS_SEEN_WELCOME], defaults.hasSeenWelcome)
+            putIfNonDefault(defaults.hasInitialized.toString(), prefs[HAS_INITIALIZED], defaults.hasInitialized)
         }
     }
 
-    suspend fun setAll(ctx: Context, backup: Map<String, Boolean>) {
+    suspend fun setAll(ctx: Context, data: Map<String, String>) {
         ctx.privateSettingsStore.edit { prefs ->
-            backup[HAS_SEEN_WELCOME.name]?.let { enabled ->
-                prefs[HAS_SEEN_WELCOME] = enabled
+
+            data[defaults.hasSeenWelcome.toString()]?.let { raw ->
+                runCatching { raw.toBooleanStrictOrNull() ?: false }
+                    .getOrNull()
+                    ?.let { prefs[HAS_SEEN_WELCOME] = it }
             }
 
-            backup[HAS_INITIALIZED.name]?.let { enabled ->
-                prefs[HAS_INITIALIZED] = enabled
+            data[defaults.hasInitialized.toString()]?.let { raw ->
+                runCatching { raw.toBooleanStrictOrNull() ?: false }
+                    .getOrNull()
+                    ?.let { prefs[HAS_INITIALIZED] = it }
             }
         }
     }
