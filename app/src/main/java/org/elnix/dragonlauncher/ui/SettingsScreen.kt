@@ -32,10 +32,8 @@ import androidx.compose.material.icons.filled.ChevronRight
 import androidx.compose.material.icons.filled.ContentCopy
 import androidx.compose.material.icons.filled.Grid3x3
 import androidx.compose.material.icons.filled.Remove
-import androidx.compose.material.icons.filled.RoundedCorner
 import androidx.compose.material.icons.filled.Settings
 import androidx.compose.material.icons.outlined.Grid3x3
-import androidx.compose.material.icons.outlined.RoundedCorner
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
@@ -559,19 +557,20 @@ fun SettingsScreen(
                 modifier = Modifier
                     .clip(CircleShape)
                     .clickable(aPointIsSelected) {
-                        selectedPoint?.let { point ->
-                            val circleNumber = point.circleNumber
+                        selectedPoint?.let { oldPoint ->
+                            val circleNumber = oldPoint.circleNumber
                             val newAngle = randomFreeAngle(circleNumber, points)
 
-                            val point = UiSwipePoint(
+                            val newPoint = UiSwipePoint(
                                 id = UUID.randomUUID().toString(),
                                 angleDeg = newAngle,
-                                action = point.action,
+                                action = oldPoint.action,
                                 circleNumber = circleNumber
                             )
 
-                            points.add(point)
-                            autoSeparate(points, circleNumber, point)
+                            points.add(newPoint)
+                            autoSeparate(points, circleNumber, newPoint)
+                            selectedPoint = newPoint
                         }
                     }
                     .background(Color(0xFFE19807).copy(if (aPointIsSelected) 0.2f else 0f))
