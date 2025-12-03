@@ -1,5 +1,6 @@
 package org.elnix.dragonlauncher.ui.welcome
 
+import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -35,6 +36,9 @@ fun WelcomeScreen(
     val pagerState = rememberPagerState(pageCount = { 3 })
     val scope = rememberCoroutineScope()
     val ctx = LocalContext.current
+
+    // Prevent the user to quit
+    BackHandler { }
 
     fun setHasSeen() {
         scope.launch { PrivateSettingsStore.setHasSeenWelcome(ctx, true) }
