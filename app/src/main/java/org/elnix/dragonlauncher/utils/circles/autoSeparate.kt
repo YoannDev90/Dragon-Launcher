@@ -71,7 +71,7 @@ fun autoSeparate(
 
 
 /** Normalize angle into [0,360) */
-private fun normalizeAngle(a: Double): Double {
+fun normalizeAngle(a: Double): Double {
     val v = a % 360.0
     return if (v < 0) v + 360.0 else v
 }

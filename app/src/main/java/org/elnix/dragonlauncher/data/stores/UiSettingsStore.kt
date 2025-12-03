@@ -21,6 +21,7 @@ object UiSettingsStore {
         val fullscreen: Boolean = true,
         val showAppCirclePreview: Boolean = true,
         val showAppLinePreview: Boolean = true,
+        val snapPoints: Boolean = true
     )
 
     private val defaults = UiSettingsBackup()
@@ -34,6 +35,7 @@ object UiSettingsStore {
         val FULLSCREEN = booleanPreferencesKey(UiSettingsBackup::fullscreen.name)
         val SHOW_CIRCLE_PREVIEW = booleanPreferencesKey(UiSettingsBackup::showAppCirclePreview.name)
         val SHOW_LINE_PREVIEW = booleanPreferencesKey(UiSettingsBackup::showAppLinePreview.name)
+        val SNAP_POINTS = booleanPreferencesKey(UiSettingsBackup::snapPoints.name)
 
         val ALL = listOf(
             RGB_LOADING,
@@ -43,7 +45,8 @@ object UiSettingsStore {
             SHOW_APP_LAUNCH_PREVIEW,
             FULLSCREEN,
             SHOW_CIRCLE_PREVIEW,
-            SHOW_LINE_PREVIEW
+            SHOW_LINE_PREVIEW,
+            SNAP_POINTS
         )
     }
 
@@ -103,6 +106,13 @@ object UiSettingsStore {
         ctx.uiDatastore.edit { it[Keys.SHOW_LINE_PREVIEW] = value }
     }
 
+    fun getSnapPoints(ctx: Context): Flow<Boolean> =
+        ctx.uiDatastore.data.map { it[Keys.SNAP_POINTS] ?: defaults.snapPoints }
+
+    suspend fun setSnapPoints(ctx: Context, value: Boolean) {
+        ctx.uiDatastore.edit { it[Keys.SNAP_POINTS] = value }
+    }
+
 
     suspend fun resetAll(ctx: Context) {
         ctx.uiDatastore.edit { prefs ->
@@ -128,6 +138,7 @@ object UiSettingsStore {
             putIfChanged(Keys.FULLSCREEN, defaults.fullscreen)
             putIfChanged(Keys.SHOW_CIRCLE_PREVIEW, defaults.showAppCirclePreview)
             putIfChanged(Keys.SHOW_LINE_PREVIEW, defaults.showAppLinePreview)
+            putIfChanged(Keys.SNAP_POINTS, defaults.snapPoints)
         }
     }
 
@@ -166,6 +177,7 @@ object UiSettingsStore {
             applyBoolean(Keys.FULLSCREEN)
             applyBoolean(Keys.SHOW_CIRCLE_PREVIEW)
             applyBoolean(Keys.SHOW_LINE_PREVIEW)
+            applyBoolean(Keys.SNAP_POINTS)
         }
     }
 }

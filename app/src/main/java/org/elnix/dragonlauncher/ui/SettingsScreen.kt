@@ -22,13 +22,20 @@ import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.systemBars
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.Add
+import androidx.compose.material.icons.filled.ChevronLeft
+import androidx.compose.material.icons.filled.ChevronRight
 import androidx.compose.material.icons.filled.ContentCopy
+import androidx.compose.material.icons.filled.Grid3x3
 import androidx.compose.material.icons.filled.Remove
+import androidx.compose.material.icons.filled.RoundedCorner
 import androidx.compose.material.icons.filled.Settings
+import androidx.compose.material.icons.outlined.Grid3x3
+import androidx.compose.material.icons.outlined.RoundedCorner
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
@@ -42,6 +49,7 @@ import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.runtime.snapshotFlow
 import androidx.compose.runtime.snapshots.SnapshotStateList
@@ -61,13 +69,16 @@ import androidx.compose.ui.unit.IntSize
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import kotlinx.coroutines.flow.distinctUntilChanged
+import kotlinx.coroutines.launch
 import org.elnix.dragonlauncher.data.SwipeActionSerializable
 import org.elnix.dragonlauncher.data.SwipePointSerializable
 import org.elnix.dragonlauncher.data.UiCircle
 import org.elnix.dragonlauncher.data.UiSwipePoint
 import org.elnix.dragonlauncher.data.stores.ColorSettingsStore
 import org.elnix.dragonlauncher.data.stores.SwipeSettingsStore
+import org.elnix.dragonlauncher.data.stores.UiSettingsStore
 import org.elnix.dragonlauncher.ui.helpers.AddPointDialog
+import org.elnix.dragonlauncher.ui.helpers.RepeatingPressButton
 import org.elnix.dragonlauncher.ui.theme.AmoledDefault
 import org.elnix.dragonlauncher.utils.AppDrawerViewModel
 import org.elnix.dragonlauncher.utils.actions.actionColor
@@ -75,9 +86,11 @@ import org.elnix.dragonlauncher.utils.actions.actionIcon
 import org.elnix.dragonlauncher.utils.actions.actionIconBitmap
 import org.elnix.dragonlauncher.utils.actions.actionLabel
 import org.elnix.dragonlauncher.utils.circles.autoSeparate
+import org.elnix.dragonlauncher.utils.circles.normalizeAngle
 import org.elnix.dragonlauncher.utils.circles.randomFreeAngle
 import org.elnix.dragonlauncher.utils.circles.updatePointPosition
 import org.elnix.dragonlauncher.utils.colors.adjustBrightness
+import java.math.RoundingMode
 import java.util.UUID
 import kotlin.math.cos
 import kotlin.math.hypot
@@ -102,17 +115,22 @@ fun SettingsScreen(
     onBack: () -> Unit
 ) {
     val ctx = LocalContext.current
+    val scope = rememberCoroutineScope()
 
     val icons by appsViewModel.icons.collectAsState()
 
     val circleColor by ColorSettingsStore.getCircleColor(ctx)
         .collectAsState(initial = AmoledDefault.CircleColor)
+    val snapPoints by UiSettingsStore.getSnapPoints(ctx) .collectAsState(initial = true)
 
     var center by remember { mutableStateOf(Offset.Zero) }
 
     val points: SnapshotStateList<UiSwipePoint> = remember { mutableStateListOf() }
     val circles: SnapshotStateList<UiCircle> = remember { mutableStateListOf() }
+
     var selectedPoint by remember { mutableStateOf<UiSwipePoint?>(null) }
+    val aPointIsSelected = selectedPoint != null
+
     var showAddDialog by remember { mutableStateOf(false) }
     var recomposeTrigger by remember { mutableIntStateOf(0) }
 
@@ -223,7 +241,6 @@ fun SettingsScreen(
                         }
                     }
                 }
-
         ) {
 
 
@@ -331,18 +348,22 @@ fun SettingsScreen(
                             onDrag = { change, _ ->
                                 change.consume()
 
-                                val selected = points.find { it.id == selectedPoint?.id } ?: return@detectDragGestures
+                                val selected = points.find { it.id == selectedPoint?.id }
+                                    ?: return@detectDragGestures
 
                                 // All points that are part of the same circle
-                                val sameCirclePoints = points.filter { it.circleNumber == selected.circleNumber }
+                                val sameCirclePoints =
+                                    points.filter { it.circleNumber == selected.circleNumber }
                                 if (sameCirclePoints.isEmpty()) return@detectDragGestures
 
-                                val p = points.find { it.id == selectedPoint?.id } ?: return@detectDragGestures
-                                updatePointPosition(p, circles, center, change.position)
+                                val p = points.find { it.id == selectedPoint?.id }
+                                    ?: return@detectDragGestures
+                                updatePointPosition(p, circles, center, change.position, snapPoints)
                                 recomposeTrigger++
                             },
                             onDragEnd = {
-                                val p = points.find { it.id == selectedPoint?.id } ?: return@detectDragGestures
+                                val p = points.find { it.id == selectedPoint?.id }
+                                    ?: return@detectDragGestures
                                 autoSeparate(points, p.circleNumber, p)
                             }
                         )
@@ -378,6 +399,114 @@ fun SettingsScreen(
             )
         }
 
+        Row(
+            Modifier
+                .fillMaxWidth()
+                .padding(20.dp),
+            horizontalArrangement = Arrangement.SpaceAround,
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            Icon(
+                imageVector = if (snapPoints) {
+                    Icons.Filled.Grid3x3
+                } else {
+                    Icons.Outlined.Grid3x3
+                },
+                contentDescription = "Snap to rounded angles",
+                tint = MaterialTheme.colorScheme.primary.copy(if (snapPoints) 1f else 0.5f),
+                modifier = Modifier
+                    .clip(CircleShape)
+                    .clickable {
+                        scope.launch {
+                            UiSettingsStore.setSnapPoints(ctx, !snapPoints)
+                        }
+                    }
+                    .background(
+                        MaterialTheme.colorScheme.primary.copy(if (snapPoints) 0.2f else 0.1f)
+                    )
+                    .border(
+                        width = 1.dp,
+                        color = MaterialTheme.colorScheme.primary.copy(if (snapPoints) 1f else 0.5f),
+                        shape = CircleShape
+                    )
+                    .padding(15.dp)
+            )
+
+
+            RepeatingPressButton(
+                enabled = aPointIsSelected,
+                intervalMs = 35L,
+                onPress = {
+                    selectedPoint?.let {
+                        it.angleDeg = normalizeAngle(it.angleDeg + 1)
+                        if (snapPoints) it.angleDeg = it.angleDeg
+                            .toInt()
+                            .toDouble()
+                        autoSeparate(points, it.circleNumber, it)
+                        recomposeTrigger++
+                    }
+                }
+            ) {
+                Icon(
+                    imageVector = Icons.Default.ChevronLeft,
+                    contentDescription = "Move point to left",
+                    tint = Color(0xFF14E7EE).copy(if (aPointIsSelected) 1f else 0.2f),
+                    modifier = Modifier
+                        .clip(CircleShape)
+                        .background(Color(0xFF14E7EE).copy(if (aPointIsSelected) 0.2f else 0f))
+                        .border(
+                            width = 1.dp,
+                            color = Color(0xFF14E7EE).copy(if (aPointIsSelected) 1f else 0.2f),
+                            shape = CircleShape
+                        )
+                        .padding(15.dp)
+                )
+            }
+
+
+            val angleText = if (selectedPoint != null) {
+                "${selectedPoint?.angleDeg?.toBigDecimal()?.setScale(1, RoundingMode.UP)?.toDouble()}°"
+            } else {
+                ""
+            }
+
+            Text(
+                text = angleText,
+                color = MaterialTheme.colorScheme.onBackground,
+                fontSize = 18.sp,
+                modifier = Modifier.width(50.dp)
+            )
+
+            RepeatingPressButton(
+                enabled = aPointIsSelected,
+                intervalMs = 35L,
+                onPress = {
+                    selectedPoint?.let {
+                        it.angleDeg = normalizeAngle(it.angleDeg - 1)
+                        if (snapPoints) it.angleDeg = it.angleDeg
+                            .toInt()
+                            .toDouble()
+                        autoSeparate(points, it.circleNumber, it)
+                        recomposeTrigger++
+                    }
+                }
+            ) {
+                Icon(
+                    imageVector = Icons.Default.ChevronRight,
+                    contentDescription = "Move point to right",
+                    tint = Color(0xFF14E7EE).copy(if (aPointIsSelected) 1f else 0.2f),
+                    modifier = Modifier
+                        .clip(CircleShape)
+                        .background(Color(0xFF14E7EE).copy(if (aPointIsSelected) 0.2f else 0f))
+                        .border(
+                            width = 1.dp,
+                            color = Color(0xFF14E7EE).copy(if (aPointIsSelected) 1f else 0.2f),
+                            shape = CircleShape
+                        )
+                        .padding(15.dp)
+                )
+            }
+        }
 
         Row(
             Modifier
@@ -401,25 +530,23 @@ fun SettingsScreen(
                     .padding(25.dp)
             )
 
-            val removeEnabled = selectedPoint != null
-
             Icon(
                 imageVector = Icons.Default.Remove,
                 contentDescription = "Remove point",
-                tint = MaterialTheme.colorScheme.error.copy(if (removeEnabled) 1f else 0.2f),
+                tint = MaterialTheme.colorScheme.error.copy(if (aPointIsSelected) 1f else 0.2f),
                 modifier = Modifier
                     .clip(CircleShape)
-                    .clickable(removeEnabled) {
+                    .clickable(aPointIsSelected) {
                         selectedPoint?.id.let { id ->
                             val index = points.indexOfFirst { it.id == id }
                             if (index >= 0) points.removeAt(index)
                             selectedPoint = null
                         }
                     }
-                    .background(MaterialTheme.colorScheme.error.copy(if (removeEnabled) 0.2f else 0f))
+                    .background(MaterialTheme.colorScheme.error.copy(if (aPointIsSelected) 0.2f else 0f))
                     .border(
                         width = 1.dp,
-                        color = MaterialTheme.colorScheme.error.copy(if (removeEnabled) 1f else 0.2f),
+                        color = MaterialTheme.colorScheme.error.copy(if (aPointIsSelected) 1f else 0.2f),
                         shape = CircleShape
                     )
                     .padding(25.dp)
@@ -428,13 +555,13 @@ fun SettingsScreen(
             Icon(
                 imageVector = Icons.Default.ContentCopy,
                 contentDescription = "Copy point",
-                tint = Color(0xFFE19807).copy(if (removeEnabled) 1f else 0.2f),
+                tint = Color(0xFFE19807).copy(if (aPointIsSelected) 1f else 0.2f),
                 modifier = Modifier
                     .clip(CircleShape)
-                    .clickable(removeEnabled) {
+                    .clickable(aPointIsSelected) {
                         selectedPoint?.let { point ->
                             val circleNumber = point.circleNumber
-                            val newAngle = randomFreeAngle(circleNumber,points)
+                            val newAngle = randomFreeAngle(circleNumber, points)
 
                             val point = UiSwipePoint(
                                 id = UUID.randomUUID().toString(),
@@ -447,10 +574,10 @@ fun SettingsScreen(
                             autoSeparate(points, circleNumber, point)
                         }
                     }
-                    .background(Color(0xFFE19807).copy(if (removeEnabled) 0.2f else 0f))
+                    .background(Color(0xFFE19807).copy(if (aPointIsSelected) 0.2f else 0f))
                     .border(
                         width = 1.dp,
-                        color = Color(0xFFE19807).copy(if (removeEnabled) 1f else 0.2f),
+                        color = Color(0xFFE19807).copy(if (aPointIsSelected) 1f else 0.2f),
                         shape = CircleShape
                     )
                     .padding(25.dp)
@@ -486,7 +613,8 @@ fun SettingsScreen(
     }
 
     if (selectedPoint != null) {
-        val currentAction = selectedPoint!!.action
+        val currentPoint = selectedPoint!!
+        val currentAction = currentPoint.action
         Box(
             Modifier
                 .fillMaxWidth()
@@ -516,3 +644,4 @@ fun SettingsScreen(
         }
     }
 }
+
