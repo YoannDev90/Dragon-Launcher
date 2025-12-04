@@ -110,7 +110,7 @@ object DrawerSettingsStore {
 
     fun getInitialPage(ctx: Context): Flow<Int> =
         ctx.drawerDataStore.data.map { prefs ->
-            prefs[INITIAL_PAGE] ?: defaults.gridSize
+            prefs[INITIAL_PAGE] ?: defaults.initialPAge
         }
 
     suspend fun setInitialPage(ctx: Context, page: Int) {
