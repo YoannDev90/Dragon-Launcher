@@ -108,12 +108,20 @@ class AppDrawerViewModel(application: Application) : AndroidViewModel(applicatio
 
         _apps.value = installedApps
 
-        // --- ICON CACHE BUILD ---
         val iconMap = installedApps.associate { app ->
             val drawable = try {
-                pm.getApplicationIcon(app.packageName)
+                // Method 1: Use loadUnbadgedIcon() for launcher-style icons
+                val appInfo = pm.getApplicationInfo(app.packageName, PackageManager.GET_META_DATA)
+                appInfo.loadUnbadgedIcon(pm)
+
             } catch (_: Exception) {
-                ContextCompat.getDrawable(ctx, R.drawable.ic_app_default)!!
+                try {
+                    // Method 2: Fallback to adaptive icon with proper flags
+                    pm.getApplicationIcon(app.packageName)
+                } catch (e2: Exception) {
+                    // Method 3: Final fallback to default icon
+                    ContextCompat.getDrawable(ctx, R.drawable.ic_app_default)!!
+                }
             }
 
             val bmp = loadDrawableAsBitmap(drawable, 128, 128)
