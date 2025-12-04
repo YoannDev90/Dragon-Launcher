@@ -1,5 +1,5 @@
 <p align="center">
-<img src="https://github.com/Elnix90/Dragon-Launcher/blob/main/fastlane/metadata/android/en-US/images/icon.jpg" width="22%" alt="App icon"/>
+<img src="https://github.com/Elnix90/Dragon-Launcher/blob/main/fastlane/metadata/android/en-US/images/icon.png" width="22%" alt="App icon"/>
 
 # Dragon Launcher - Fast Gesture based android launcher
 </p>
