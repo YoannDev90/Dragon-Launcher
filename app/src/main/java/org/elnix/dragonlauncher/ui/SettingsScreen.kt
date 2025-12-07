@@ -79,7 +79,6 @@ import org.elnix.dragonlauncher.data.stores.SwipeSettingsStore
 import org.elnix.dragonlauncher.data.stores.UiSettingsStore
 import org.elnix.dragonlauncher.ui.helpers.AddPointDialog
 import org.elnix.dragonlauncher.ui.helpers.RepeatingPressButton
-import org.elnix.dragonlauncher.ui.helpers.SetDefaultLauncherBanner
 import org.elnix.dragonlauncher.ui.theme.AmoledDefault
 import org.elnix.dragonlauncher.utils.AppDrawerViewModel
 import org.elnix.dragonlauncher.utils.actions.actionColor
@@ -198,413 +197,406 @@ fun SettingsScreen(
 
     BackHandler { onBack() }
 
+
     Column(
-        modifier = Modifier
+        Modifier
             .fillMaxSize()
             .background(MaterialTheme.colorScheme.background)
+            .padding(WindowInsets.systemBars.asPaddingValues())
+            .padding(20.dp)
     ) {
 
-        if (showSetDefaultLauncherBanner && !isDefaultLauncher) { SetDefaultLauncherBanner() }
+        Row(
+            modifier = Modifier.fillMaxWidth(),
+            horizontalArrangement = Arrangement.SpaceBetween
+        ) {
+            IconButton(onClick = onBack) {
+                Icon(Icons.AutoMirrored.Filled.ArrowBack, null, tint = Color.White)
+            }
 
-        Column(
-            Modifier
+            IconButton(onClick = onAdvSettings) {
+                Icon(Icons.Default.Settings, null, tint = Color.White)
+            }
+        }
+
+        Box(
+            modifier = Modifier
                 .fillMaxSize()
-                .padding(WindowInsets.systemBars.asPaddingValues())
-                .padding(20.dp)
+                .weight(1f)
+                .padding(12.dp)
+                .onSizeChanged { size ->
+                    val w = size.width.toFloat()
+                    val h = size.height.toFloat()
+                    center = Offset(w / 2f, h / 2f)
+                    availableWidth = w - (POINT_RADIUS_PX * 2)  // Safe space for points + padding
+
+                    // Proportional radii: largest fits screen, others reduce evenly
+                    val baseRadius = availableWidth * 0.65f  // ~35% of screen width
+                    circles.clear()
+                    circles.add(
+                        UiCircle(
+                            id = 0,
+                            radius = baseRadius * 0.35f,
+                            points = mutableStateListOf()
+                        )
+                    )
+                    circles.add(
+                        UiCircle(
+                            id = 1,
+                            radius = baseRadius * 0.60f,
+                            points = mutableStateListOf()
+                        )
+                    )
+                    circles.add(
+                        UiCircle(
+                            id = 2,
+                            radius = baseRadius * 0.85f,
+                            points = mutableStateListOf()
+                        )
+                    )
+                }
         ) {
 
-            Row(
-                modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.SpaceBetween
-            ) {
-                IconButton(onClick = onBack) {
-                    Icon(Icons.AutoMirrored.Filled.ArrowBack, null, tint = Color.White)
-                }
 
-                IconButton(onClick = onAdvSettings) {
-                    Icon(Icons.Default.Settings, null, tint = Color.White)
+            key(recomposeTrigger) {
+                Canvas(Modifier.fillMaxSize()) {
+
+                    // 1. Draw all circles
+                    circles.forEach { circle ->
+                        drawCircle(
+                            color = circleColor ?: AmoledDefault.CircleColor,
+                            radius = circle.radius,
+                            center = center,
+                            style = Stroke(4f)
+                        )
+                    }
+
+                    // 2. Draw all non-selected points
+                    points.filter { it.id != selectedPoint?.id }.forEach { p ->
+                        val circle = circles.getOrNull(p.circleNumber) ?: return@forEach
+                        val px = center.x + circle.radius * sin(Math.toRadians(p.angleDeg)).toFloat()
+                        val py = center.y - circle.radius * cos(Math.toRadians(p.angleDeg)).toFloat()
+
+                        drawCircle(
+                            color = circleColor ?: AmoledDefault.CircleColor,
+                            radius = POINT_RADIUS_PX + 4,
+                            center = Offset(px, py)
+                        )
+
+                        drawCircle(
+                            color = Color.Black,
+                            radius = POINT_RADIUS_PX,
+                            center = Offset(px, py)
+                        )
+
+                        drawImage(
+                            image = actionIconBitmap(
+                                action = p.action,
+                                context = ctx,
+                                tintColor = actionColor(p.action)
+                            ),
+                            dstOffset = IntOffset(px.toInt() - 28, py.toInt() - 28),
+                            dstSize = IntSize(56, 56)
+                        )
+                    }
+
+                    // 3. Selected point drawn last
+                    val selected = points.find { it.id == selectedPoint?.id }
+                    selected?.let { p ->
+                        val circle = circles.getOrNull(p.circleNumber) ?: return@let
+                        val px = center.x + circle.radius * sin(Math.toRadians(p.angleDeg)).toFloat()
+                        val py = center.y - circle.radius * cos(Math.toRadians(p.angleDeg)).toFloat()
+
+                        drawCircle(
+                            color = (circleColor ?: AmoledDefault.CircleColor).adjustBrightness(2f),
+                            radius = POINT_RADIUS_PX + 10,
+                            center = Offset(px, py)
+                        )
+
+                        drawCircle(
+                            color = Color.Black,
+                            radius = POINT_RADIUS_PX,
+                            center = Offset(px, py)
+                        )
+                        drawImage(
+                            image = actionIconBitmap(
+                                action = p.action,
+                                context = ctx,
+                                tintColor = actionColor(p.action)
+                            ),
+                            dstOffset = IntOffset(px.toInt() - 28, py.toInt() - 28),
+                            dstSize = IntSize(56, 56)
+                        )
+                    }
                 }
             }
+
 
             Box(
-                modifier = Modifier
-                    .fillMaxSize()
-                    .weight(1f)
-                    .padding(12.dp)
-                    .onSizeChanged { size ->
-                        val w = size.width.toFloat()
-                        val h = size.height.toFloat()
-                        center = Offset(w / 2f, h / 2f)
-                        availableWidth = w - (POINT_RADIUS_PX * 2)  // Safe space for points + padding
+                Modifier
+                    .matchParentSize()
+                    .pointerInput(Unit) {
+                        detectDragGestures(
+                            onDragStart = { offset ->
+                                var closest: UiSwipePoint? = null
+                                var best = Float.MAX_VALUE
 
-                        // Proportional radii: largest fits screen, others reduce evenly
-                        val baseRadius = availableWidth * 0.65f  // ~35% of screen width
-                        circles.clear()
-                        circles.add(
-                            UiCircle(
-                                id = 0,
-                                radius = baseRadius * 0.35f,
-                                points = mutableStateListOf()
-                            )
-                        )
-                        circles.add(
-                            UiCircle(
-                                id = 1,
-                                radius = baseRadius * 0.60f,
-                                points = mutableStateListOf()
-                            )
-                        )
-                        circles.add(
-                            UiCircle(
-                                id = 2,
-                                radius = baseRadius * 0.85f,
-                                points = mutableStateListOf()
-                            )
+                                points.forEach { p ->
+                                    val circle = circles.getOrNull(p.circleNumber) ?: return@forEach
+                                    val px =
+                                        center.x + circle.radius * sin(Math.toRadians(p.angleDeg)).toFloat()
+                                    val py =
+                                        center.y - circle.radius * cos(Math.toRadians(p.angleDeg)).toFloat()
+                                    val dist = hypot(offset.x - px, offset.y - py)
+
+                                    if (dist < best) {
+                                        best = dist
+                                        closest = p
+                                    }
+                                }
+
+                                selectedPoint =
+                                    if (best <= TOUCH_THRESHOLD_PX) closest else null
+                                bannerVisible = selectedPoint != null
+                            },
+                            onDrag = { change, _ ->
+                                change.consume()
+
+                                val selected = points.find { it.id == selectedPoint?.id }
+                                    ?: return@detectDragGestures
+
+                                // All points that are part of the same circle
+                                val sameCirclePoints =
+                                    points.filter { it.circleNumber == selected.circleNumber }
+                                if (sameCirclePoints.isEmpty()) return@detectDragGestures
+
+                                val p = points.find { it.id == selectedPoint?.id }
+                                    ?: return@detectDragGestures
+                                updatePointPosition(p, circles, center, change.position, snapPoints)
+                                recomposeTrigger++
+                            },
+                            onDragEnd = {
+                                val p = points.find { it.id == selectedPoint?.id }
+                                    ?: return@detectDragGestures
+                                autoSeparate(points, p.circleNumber, p)
+                            }
                         )
                     }
-            ) {
+                    .pointerInput(Unit) {
+                        detectTapGestures(
+                            onTap = { offset ->
+                                var tapped: UiSwipePoint? = null
+                                var best = Float.MAX_VALUE
 
+                                points.forEach { p ->
+                                    val circle = circles.getOrNull(p.circleNumber) ?: return@forEach
+                                    val px =
+                                        center.x + circle.radius * sin(Math.toRadians(p.angleDeg)).toFloat()
+                                    val py =
+                                        center.y - circle.radius * cos(Math.toRadians(p.angleDeg)).toFloat()
+                                    val dist = hypot(offset.x - px, offset.y - py)
 
-                key(recomposeTrigger) {
-                    Canvas(Modifier.fillMaxSize()) {
+                                    if (dist < best) {
+                                        best = dist
+                                        tapped = p
+                                    }
+                                }
 
-                        // 1. Draw all circles
-                        circles.forEach { circle ->
-                            drawCircle(
-                                color = circleColor ?: AmoledDefault.CircleColor,
-                                radius = circle.radius,
-                                center = center,
-                                style = Stroke(4f)
-                            )
+                                selectedPoint =
+                                    if (best <= TOUCH_THRESHOLD_PX)
+                                        if (selectedPoint?.id == tapped?.id) null else tapped
+                                    else null
+                                bannerVisible = selectedPoint != null
+                            }
+                        )
+                    }
+            )
+        }
+
+        Row(
+            Modifier
+                .fillMaxWidth()
+                .padding(20.dp),
+            horizontalArrangement = Arrangement.SpaceAround,
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            Icon(
+                imageVector = if (snapPoints) {
+                    Icons.Filled.Grid3x3
+                } else {
+                    Icons.Outlined.Grid3x3
+                },
+                contentDescription = "Snap to rounded angles",
+                tint = MaterialTheme.colorScheme.primary.copy(if (snapPoints) 1f else 0.5f),
+                modifier = Modifier
+                    .clip(CircleShape)
+                    .clickable {
+                        scope.launch {
+                            UiSettingsStore.setSnapPoints(ctx, !snapPoints)
                         }
+                    }
+                    .background(
+                        MaterialTheme.colorScheme.primary.copy(if (snapPoints) 0.2f else 0.1f)
+                    )
+                    .border(
+                        width = 1.dp,
+                        color = MaterialTheme.colorScheme.primary.copy(if (snapPoints) 1f else 0.5f),
+                        shape = CircleShape
+                    )
+                    .padding(15.dp)
+            )
 
-                        // 2. Draw all non-selected points
-                        points.filter { it.id != selectedPoint?.id }.forEach { p ->
-                            val circle = circles.getOrNull(p.circleNumber) ?: return@forEach
-                            val px = center.x + circle.radius * sin(Math.toRadians(p.angleDeg)).toFloat()
-                            val py = center.y - circle.radius * cos(Math.toRadians(p.angleDeg)).toFloat()
 
-                            drawCircle(
-                                color = circleColor ?: AmoledDefault.CircleColor,
-                                radius = POINT_RADIUS_PX + 4,
-                                center = Offset(px, py)
-                            )
-
-                            drawCircle(
-                                color = Color.Black,
-                                radius = POINT_RADIUS_PX,
-                                center = Offset(px, py)
-                            )
-
-                            drawImage(
-                                image = actionIconBitmap(
-                                    action = p.action,
-                                    context = ctx,
-                                    tintColor = actionColor(p.action)
-                                ),
-                                dstOffset = IntOffset(px.toInt() - 28, py.toInt() - 28),
-                                dstSize = IntSize(56, 56)
-                            )
-                        }
-
-                        // 3. Selected point drawn last
-                        val selected = points.find { it.id == selectedPoint?.id }
-                        selected?.let { p ->
-                            val circle = circles.getOrNull(p.circleNumber) ?: return@let
-                            val px = center.x + circle.radius * sin(Math.toRadians(p.angleDeg)).toFloat()
-                            val py = center.y - circle.radius * cos(Math.toRadians(p.angleDeg)).toFloat()
-
-                            drawCircle(
-                                color = (circleColor ?: AmoledDefault.CircleColor).adjustBrightness(2f),
-                                radius = POINT_RADIUS_PX + 10,
-                                center = Offset(px, py)
-                            )
-
-                            drawCircle(
-                                color = Color.Black,
-                                radius = POINT_RADIUS_PX,
-                                center = Offset(px, py)
-                            )
-                            drawImage(
-                                image = actionIconBitmap(
-                                    action = p.action,
-                                    context = ctx,
-                                    tintColor = actionColor(p.action)
-                                ),
-                                dstOffset = IntOffset(px.toInt() - 28, py.toInt() - 28),
-                                dstSize = IntSize(56, 56)
-                            )
-                        }
+            RepeatingPressButton(
+                enabled = aPointIsSelected,
+                intervalMs = 35L,
+                onPress = {
+                    selectedPoint?.let {
+                        it.angleDeg = normalizeAngle(it.angleDeg + 1)
+                        if (snapPoints) it.angleDeg = it.angleDeg
+                            .toInt()
+                            .toDouble()
+                        autoSeparate(points, it.circleNumber, it)
+                        recomposeTrigger++
                     }
                 }
-
-
-                Box(
-                    Modifier
-                        .matchParentSize()
-                        .pointerInput(Unit) {
-                            detectDragGestures(
-                                onDragStart = { offset ->
-                                    var closest: UiSwipePoint? = null
-                                    var best = Float.MAX_VALUE
-
-                                    points.forEach { p ->
-                                        val circle = circles.getOrNull(p.circleNumber) ?: return@forEach
-                                        val px =
-                                            center.x + circle.radius * sin(Math.toRadians(p.angleDeg)).toFloat()
-                                        val py =
-                                            center.y - circle.radius * cos(Math.toRadians(p.angleDeg)).toFloat()
-                                        val dist = hypot(offset.x - px, offset.y - py)
-
-                                        if (dist < best) {
-                                            best = dist
-                                            closest = p
-                                        }
-                                    }
-
-                                    selectedPoint =
-                                        if (best <= TOUCH_THRESHOLD_PX) closest else null
-                                    bannerVisible = selectedPoint != null
-                                },
-                                onDrag = { change, _ ->
-                                    change.consume()
-
-                                    val selected = points.find { it.id == selectedPoint?.id }
-                                        ?: return@detectDragGestures
-
-                                    // All points that are part of the same circle
-                                    val sameCirclePoints =
-                                        points.filter { it.circleNumber == selected.circleNumber }
-                                    if (sameCirclePoints.isEmpty()) return@detectDragGestures
-
-                                    val p = points.find { it.id == selectedPoint?.id }
-                                        ?: return@detectDragGestures
-                                    updatePointPosition(p, circles, center, change.position, snapPoints)
-                                    recomposeTrigger++
-                                },
-                                onDragEnd = {
-                                    val p = points.find { it.id == selectedPoint?.id }
-                                        ?: return@detectDragGestures
-                                    autoSeparate(points, p.circleNumber, p)
-                                }
-                            )
-                        }
-                        .pointerInput(Unit) {
-                            detectTapGestures(
-                                onTap = { offset ->
-                                    var tapped: UiSwipePoint? = null
-                                    var best = Float.MAX_VALUE
-
-                                    points.forEach { p ->
-                                        val circle = circles.getOrNull(p.circleNumber) ?: return@forEach
-                                        val px =
-                                            center.x + circle.radius * sin(Math.toRadians(p.angleDeg)).toFloat()
-                                        val py =
-                                            center.y - circle.radius * cos(Math.toRadians(p.angleDeg)).toFloat()
-                                        val dist = hypot(offset.x - px, offset.y - py)
-
-                                        if (dist < best) {
-                                            best = dist
-                                            tapped = p
-                                        }
-                                    }
-
-                                    selectedPoint =
-                                        if (best <= TOUCH_THRESHOLD_PX)
-                                            if (selectedPoint?.id == tapped?.id) null else tapped
-                                        else null
-                                    bannerVisible = selectedPoint != null
-                                }
-                            )
-                        }
-                )
-            }
-
-            Row(
-                Modifier
-                    .fillMaxWidth()
-                    .padding(20.dp),
-                horizontalArrangement = Arrangement.SpaceAround,
-                verticalAlignment = Alignment.CenterVertically
             ) {
                 Icon(
-                    imageVector = if (snapPoints) {
-                        Icons.Filled.Grid3x3
-                    } else {
-                        Icons.Outlined.Grid3x3
-                    },
-                    contentDescription = "Snap to rounded angles",
-                    tint = MaterialTheme.colorScheme.primary.copy(if (snapPoints) 1f else 0.5f),
+                    imageVector = Icons.Default.ChevronLeft,
+                    contentDescription = "Move point to left",
+                    tint = Color(0xFF14E7EE).copy(if (aPointIsSelected) 1f else 0.2f),
                     modifier = Modifier
                         .clip(CircleShape)
-                        .clickable {
-                            scope.launch {
-                                UiSettingsStore.setSnapPoints(ctx, !snapPoints)
-                            }
-                        }
-                        .background(
-                            MaterialTheme.colorScheme.primary.copy(if (snapPoints) 0.2f else 0.1f)
-                        )
+                        .background(Color(0xFF14E7EE).copy(if (aPointIsSelected) 0.2f else 0f))
                         .border(
                             width = 1.dp,
-                            color = MaterialTheme.colorScheme.primary.copy(if (snapPoints) 1f else 0.5f),
+                            color = Color(0xFF14E7EE).copy(if (aPointIsSelected) 1f else 0.2f),
                             shape = CircleShape
                         )
                         .padding(15.dp)
                 )
-
-
-                RepeatingPressButton(
-                    enabled = aPointIsSelected,
-                    intervalMs = 35L,
-                    onPress = {
-                        selectedPoint?.let {
-                            it.angleDeg = normalizeAngle(it.angleDeg + 1)
-                            if (snapPoints) it.angleDeg = it.angleDeg
-                                .toInt()
-                                .toDouble()
-                            autoSeparate(points, it.circleNumber, it)
-                            recomposeTrigger++
-                        }
-                    }
-                ) {
-                    Icon(
-                        imageVector = Icons.Default.ChevronLeft,
-                        contentDescription = "Move point to left",
-                        tint = Color(0xFF14E7EE).copy(if (aPointIsSelected) 1f else 0.2f),
-                        modifier = Modifier
-                            .clip(CircleShape)
-                            .background(Color(0xFF14E7EE).copy(if (aPointIsSelected) 0.2f else 0f))
-                            .border(
-                                width = 1.dp,
-                                color = Color(0xFF14E7EE).copy(if (aPointIsSelected) 1f else 0.2f),
-                                shape = CircleShape
-                            )
-                            .padding(15.dp)
-                    )
-                }
-
-
-                val angleText = if (selectedPoint != null) {
-                    "${selectedPoint?.angleDeg?.toBigDecimal()?.setScale(1, RoundingMode.UP)?.toDouble()}°"
-                } else {
-                    ""
-                }
-
-                Text(
-                    text = angleText,
-                    color = MaterialTheme.colorScheme.onBackground,
-                    fontSize = 18.sp,
-                    modifier = Modifier.width(50.dp)
-                )
-
-                RepeatingPressButton(
-                    enabled = aPointIsSelected,
-                    intervalMs = 35L,
-                    onPress = {
-                        selectedPoint?.let {
-                            it.angleDeg = normalizeAngle(it.angleDeg - 1)
-                            if (snapPoints) it.angleDeg = it.angleDeg
-                                .toInt()
-                                .toDouble()
-                            autoSeparate(points, it.circleNumber, it)
-                            recomposeTrigger++
-                        }
-                    }
-                ) {
-                    Icon(
-                        imageVector = Icons.Default.ChevronRight,
-                        contentDescription = "Move point to right",
-                        tint = Color(0xFF14E7EE).copy(if (aPointIsSelected) 1f else 0.2f),
-                        modifier = Modifier
-                            .clip(CircleShape)
-                            .background(Color(0xFF14E7EE).copy(if (aPointIsSelected) 0.2f else 0f))
-                            .border(
-                                width = 1.dp,
-                                color = Color(0xFF14E7EE).copy(if (aPointIsSelected) 1f else 0.2f),
-                                shape = CircleShape
-                            )
-                            .padding(15.dp)
-                    )
-                }
             }
 
-            Row(
-                Modifier
-                    .fillMaxWidth()
-                    .padding(20.dp),
-                horizontalArrangement = Arrangement.SpaceAround
+
+            val angleText = if (selectedPoint != null) {
+                "${selectedPoint?.angleDeg?.toBigDecimal()?.setScale(1, RoundingMode.UP)?.toDouble()}°"
+            } else {
+                ""
+            }
+
+            Text(
+                text = angleText,
+                color = MaterialTheme.colorScheme.onBackground,
+                fontSize = 18.sp,
+                modifier = Modifier.width(50.dp)
+            )
+
+            RepeatingPressButton(
+                enabled = aPointIsSelected,
+                intervalMs = 35L,
+                onPress = {
+                    selectedPoint?.let {
+                        it.angleDeg = normalizeAngle(it.angleDeg - 1)
+                        if (snapPoints) it.angleDeg = it.angleDeg
+                            .toInt()
+                            .toDouble()
+                        autoSeparate(points, it.circleNumber, it)
+                        recomposeTrigger++
+                    }
+                }
             ) {
                 Icon(
-                    imageVector = Icons.Default.Add,
-                    contentDescription = "Add point",
-                    tint = MaterialTheme.colorScheme.primary,
+                    imageVector = Icons.Default.ChevronRight,
+                    contentDescription = "Move point to right",
+                    tint = Color(0xFF14E7EE).copy(if (aPointIsSelected) 1f else 0.2f),
                     modifier = Modifier
                         .clip(CircleShape)
-                        .clickable { showAddDialog = true }
-                        .background(MaterialTheme.colorScheme.primary.copy(0.2f))
+                        .background(Color(0xFF14E7EE).copy(if (aPointIsSelected) 0.2f else 0f))
                         .border(
                             width = 1.dp,
-                            color = MaterialTheme.colorScheme.primary.copy(0.5f),
+                            color = Color(0xFF14E7EE).copy(if (aPointIsSelected) 1f else 0.2f),
                             shape = CircleShape
                         )
-                        .padding(25.dp)
-                )
-
-                Icon(
-                    imageVector = Icons.Default.Remove,
-                    contentDescription = "Remove point",
-                    tint = MaterialTheme.colorScheme.error.copy(if (aPointIsSelected) 1f else 0.2f),
-                    modifier = Modifier
-                        .clip(CircleShape)
-                        .clickable(aPointIsSelected) {
-                            selectedPoint?.id.let { id ->
-                                val index = points.indexOfFirst { it.id == id }
-                                if (index >= 0) points.removeAt(index)
-                                selectedPoint = null
-                            }
-                        }
-                        .background(MaterialTheme.colorScheme.error.copy(if (aPointIsSelected) 0.2f else 0f))
-                        .border(
-                            width = 1.dp,
-                            color = MaterialTheme.colorScheme.error.copy(if (aPointIsSelected) 1f else 0.2f),
-                            shape = CircleShape
-                        )
-                        .padding(25.dp)
-                )
-
-                Icon(
-                    imageVector = Icons.Default.ContentCopy,
-                    contentDescription = "Copy point",
-                    tint = Color(0xFFE19807).copy(if (aPointIsSelected) 1f else 0.2f),
-                    modifier = Modifier
-                        .clip(CircleShape)
-                        .clickable(aPointIsSelected) {
-                            selectedPoint?.let { oldPoint ->
-                                val circleNumber = oldPoint.circleNumber
-                                val newAngle = randomFreeAngle(circleNumber, points)
-
-                                val newPoint = UiSwipePoint(
-                                    id = UUID.randomUUID().toString(),
-                                    angleDeg = newAngle,
-                                    action = oldPoint.action,
-                                    circleNumber = circleNumber
-                                )
-
-                                points.add(newPoint)
-                                autoSeparate(points, circleNumber, newPoint)
-                                selectedPoint = newPoint
-                            }
-                        }
-                        .background(Color(0xFFE19807).copy(if (aPointIsSelected) 0.2f else 0f))
-                        .border(
-                            width = 1.dp,
-                            color = Color(0xFFE19807).copy(if (aPointIsSelected) 1f else 0.2f),
-                            shape = CircleShape
-                        )
-                        .padding(25.dp)
+                        .padding(15.dp)
                 )
             }
+        }
+
+        Row(
+            Modifier
+                .fillMaxWidth()
+                .padding(20.dp),
+            horizontalArrangement = Arrangement.SpaceAround
+        ) {
+            Icon(
+                imageVector = Icons.Default.Add,
+                contentDescription = "Add point",
+                tint = MaterialTheme.colorScheme.primary,
+                modifier = Modifier
+                    .clip(CircleShape)
+                    .clickable { showAddDialog = true }
+                    .background(MaterialTheme.colorScheme.primary.copy(0.2f))
+                    .border(
+                        width = 1.dp,
+                        color = MaterialTheme.colorScheme.primary.copy(0.5f),
+                        shape = CircleShape
+                    )
+                    .padding(25.dp)
+            )
+
+            Icon(
+                imageVector = Icons.Default.Remove,
+                contentDescription = "Remove point",
+                tint = MaterialTheme.colorScheme.error.copy(if (aPointIsSelected) 1f else 0.2f),
+                modifier = Modifier
+                    .clip(CircleShape)
+                    .clickable(aPointIsSelected) {
+                        selectedPoint?.id.let { id ->
+                            val index = points.indexOfFirst { it.id == id }
+                            if (index >= 0) points.removeAt(index)
+                            selectedPoint = null
+                        }
+                    }
+                    .background(MaterialTheme.colorScheme.error.copy(if (aPointIsSelected) 0.2f else 0f))
+                    .border(
+                        width = 1.dp,
+                        color = MaterialTheme.colorScheme.error.copy(if (aPointIsSelected) 1f else 0.2f),
+                        shape = CircleShape
+                    )
+                    .padding(25.dp)
+            )
+
+            Icon(
+                imageVector = Icons.Default.ContentCopy,
+                contentDescription = "Copy point",
+                tint = Color(0xFFE19807).copy(if (aPointIsSelected) 1f else 0.2f),
+                modifier = Modifier
+                    .clip(CircleShape)
+                    .clickable(aPointIsSelected) {
+                        selectedPoint?.let { oldPoint ->
+                            val circleNumber = oldPoint.circleNumber
+                            val newAngle = randomFreeAngle(circleNumber, points)
+
+                            val newPoint = UiSwipePoint(
+                                id = UUID.randomUUID().toString(),
+                                angleDeg = newAngle,
+                                action = oldPoint.action,
+                                circleNumber = circleNumber
+                            )
+
+                            points.add(newPoint)
+                            autoSeparate(points, circleNumber, newPoint)
+                            selectedPoint = newPoint
+                        }
+                    }
+                    .background(Color(0xFFE19807).copy(if (aPointIsSelected) 0.2f else 0f))
+                    .border(
+                        width = 1.dp,
+                        color = Color(0xFFE19807).copy(if (aPointIsSelected) 1f else 0.2f),
+                        shape = CircleShape
+                    )
+                    .padding(25.dp)
+            )
         }
     }
 

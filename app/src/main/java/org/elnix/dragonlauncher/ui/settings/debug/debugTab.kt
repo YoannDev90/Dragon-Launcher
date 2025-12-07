@@ -117,7 +117,7 @@ fun DebugTab(
                 defaultValue = true
             ) {
                 scope.launch {
-                    PrivateSettingsStore.setShowSetDefaultLauncherBanner(ctx, it)
+                    PrivateSettingsStore.setShowSetDefaultLauncherBanner(ctx, !it)
                 }
             }
         }

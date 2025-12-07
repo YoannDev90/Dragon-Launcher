@@ -1,14 +1,26 @@
 package org.elnix.dragonlauncher.ui
 
+import androidx.compose.foundation.layout.padding
+import androidx.compose.material3.Scaffold
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
+import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
+import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.LifecycleEventObserver
+import androidx.lifecycle.compose.LocalLifecycleOwner
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import org.elnix.dragonlauncher.data.stores.DrawerSettingsStore
+import org.elnix.dragonlauncher.data.stores.PrivateSettingsStore
 import org.elnix.dragonlauncher.ui.drawer.AppDrawerScreen
+import org.elnix.dragonlauncher.ui.helpers.SetDefaultLauncherBanner
 import org.elnix.dragonlauncher.ui.settings.appearance.AppearanceTab
 import org.elnix.dragonlauncher.ui.settings.appearance.ColorSelectorTab
 import org.elnix.dragonlauncher.ui.settings.appearance.DrawerTab
@@ -18,6 +30,7 @@ import org.elnix.dragonlauncher.ui.settings.debug.DebugTab
 import org.elnix.dragonlauncher.ui.settings.language.LanguageTab
 import org.elnix.dragonlauncher.ui.welcome.WelcomeScreen
 import org.elnix.dragonlauncher.utils.AppDrawerViewModel
+import org.elnix.dragonlauncher.utils.isDefaultLauncher
 
 // -------------------- SETTINGS --------------------
 
@@ -65,6 +78,33 @@ fun MainAppUi(
     val initialPage by DrawerSettingsStore.getInitialPage(ctx)
         .collectAsState(initial = 0)
 
+
+    val showSetDefaultLauncherBanner by PrivateSettingsStore.getShowSetDefaultLauncherBanner(ctx)
+        .collectAsState(initial = true)
+
+
+    val lifecycleOwner = LocalLifecycleOwner.current
+    var isDefaultLauncher by remember { mutableStateOf(ctx.isDefaultLauncher) }
+
+    DisposableEffect(lifecycleOwner) {
+        val observer = LifecycleEventObserver { _, event ->
+            // The activity resumes when the user returns from the Home settings screen
+            if (event == Lifecycle.Event.ON_RESUME) {
+                // IMPORTANT: Re-check the status and update the state
+                isDefaultLauncher = ctx.isDefaultLauncher
+            }
+        }
+
+        // Add the observer to the lifecycle
+        lifecycleOwner.lifecycle.addObserver(observer)
+
+        // When the composable leaves the screen, remove the observer
+        onDispose {
+            lifecycleOwner.lifecycle.removeObserver(observer)
+        }
+    }
+
+
     fun goMainScreen() {
         navController.navigate(ROUTES.MAIN) {
             popUpTo(0) { inclusive = true }
@@ -76,56 +116,66 @@ fun MainAppUi(
     fun goDrawer() = navController.navigate(ROUTES.DRAWER)
     fun goWelcome() = navController.navigate(ROUTES.WELCOME)
 
-    NavHost(
-        navController = navController,
-        startDestination = ROUTES.MAIN
-    ) {
-        // Main App (LauncherScreen + Drawer)
-        composable(ROUTES.MAIN) {
-            MainScreen(
+
+    Scaffold(
+        topBar = {
+            if (showSetDefaultLauncherBanner && !isDefaultLauncher) {
+                SetDefaultLauncherBanner()
+            }
+        }
+    ) { paddingValues ->
+        NavHost(
+            navController = navController,
+            startDestination = ROUTES.MAIN,
+            modifier = Modifier.padding(paddingValues)
+        ) {
+            // Main App (LauncherScreen + Drawer)
+            composable(ROUTES.MAIN) {
+                MainScreen(
+                    appsViewModel = appsViewModel,
+                    onAppDrawer = { goDrawer() },
+                    onGoWelcome = { goWelcome() },
+                    onLongPress3Sec = { goSettingsRoot() }
+                )
+            }
+
+            composable(ROUTES.DRAWER) { AppDrawerScreen(
                 appsViewModel = appsViewModel,
-                onAppDrawer = { goDrawer() },
-                onGoWelcome = { goWelcome() },
-                onLongPress3Sec = { goSettingsRoot() }
-            )
+                initialPage = initialPage,
+                showIcons = showAppIconsInDrawer,
+                showLabels = showAppLabelsInDrawer,
+                autoShowKeyboard = autoShowKeyboardOnDrawer,
+                gridSize = gridSize,
+                searchBarBottom = searchBarBottom
+            ) { goMainScreen() } }
+
+
+            // Settings + Welcome
+
+            composable(ROUTES.WELCOME) {
+                WelcomeScreen(
+                    backupVm =  backupViewModel,
+                    onEnterSettings = { goSettingsRoot() },
+                    onEnterApp = { goMainScreen() }
+                )
+            }
+
+            composable(SETTINGS.ROOT) {
+                SettingsScreen(
+                    appsViewModel = appsViewModel,
+                    onAdvSettings = { goAdvSettingsRoot() },
+                    onBack = { goMainScreen() }
+                )
+            }
+            composable(SETTINGS.ADVANCED_ROOT) { AdvancedSettingsScreen(navController, onReset = { goMainScreen() } ) { goSettingsRoot() } }
+
+
+            composable(SETTINGS.APPEARANCE) { AppearanceTab(navController) { goAdvSettingsRoot() } }
+            composable(SETTINGS.DRAWER) { DrawerTab { goAdvSettingsRoot() } }
+            composable(SETTINGS.COLORS) { ColorSelectorTab { goAdvSettingsRoot() } }
+            composable(SETTINGS.DEBUG) { DebugTab(navController) { goAdvSettingsRoot() } }
+            composable(SETTINGS.LANGUAGE) { LanguageTab { goAdvSettingsRoot() } }
+            composable(SETTINGS.BACKUP) { BackupTab(backupViewModel) { goAdvSettingsRoot() } }
         }
-
-        composable(ROUTES.DRAWER) { AppDrawerScreen(
-            appsViewModel = appsViewModel,
-            initialPage = initialPage,
-            showIcons = showAppIconsInDrawer,
-            showLabels = showAppLabelsInDrawer,
-            autoShowKeyboard = autoShowKeyboardOnDrawer,
-            gridSize = gridSize,
-            searchBarBottom = searchBarBottom
-        ) { goMainScreen() } }
-
-
-        // Settings + Welcome
-
-        composable(ROUTES.WELCOME) {
-            WelcomeScreen(
-                backupVm =  backupViewModel,
-                onEnterSettings = { goSettingsRoot() },
-                onEnterApp = { goMainScreen() }
-            )
-        }
-
-        composable(SETTINGS.ROOT) {
-            SettingsScreen(
-                appsViewModel = appsViewModel,
-                onAdvSettings = { goAdvSettingsRoot() },
-                onBack = { goMainScreen() }
-            )
-        }
-        composable(SETTINGS.ADVANCED_ROOT) { AdvancedSettingsScreen(navController, onReset = { goMainScreen() } ) { goSettingsRoot() } }
-
-
-        composable(SETTINGS.APPEARANCE) { AppearanceTab(navController) { goAdvSettingsRoot() } }
-        composable(SETTINGS.DRAWER) { DrawerTab { goAdvSettingsRoot() } }
-        composable(SETTINGS.COLORS) { ColorSelectorTab { goAdvSettingsRoot() } }
-        composable(SETTINGS.DEBUG) { DebugTab(navController) { goAdvSettingsRoot() } }
-        composable(SETTINGS.LANGUAGE) { LanguageTab { goAdvSettingsRoot() } }
-        composable(SETTINGS.BACKUP) { BackupTab(backupViewModel) { goAdvSettingsRoot() } }
     }
 }
