@@ -96,6 +96,16 @@ fun MainScreenOverlay(
     var cumulativeAngle by remember { mutableDoubleStateOf(0.0) }   // continuous rotation without jumps
 
 
+    val circleR1 by UiSettingsStore.getFirstCircleDragDistance(ctx)
+        .collectAsState(initial = 400)
+    val circleR2 by UiSettingsStore.getSecondCircleDragDistance(ctx)
+        .collectAsState(initial = 700)
+    val cancelZone by UiSettingsStore.getCancelZoneDragDistance(ctx)
+        .collectAsState(initial = 150)
+
+
+    val dragRadii = listOf(cancelZone, circleR1, circleR2)
+
     val dx: Float
     val dy: Float
     val dist: Float
@@ -152,12 +162,6 @@ fun MainScreenOverlay(
     var hoveredAction by remember { mutableStateOf<SwipePointSerializable?>(null) }
     var bannerVisible by remember { mutableStateOf(false) }
 
-    // Distance thresholds for 3 circles
-    val circleR1 = 400f
-    val circleR2 = 700f
-
-    // Safe zone = dragging returns close to origin → cancel
-    val cancelZone = 150f
 
     // The chosen swipe action
     var currentAction: SwipePointSerializable? by remember { mutableStateOf(null) }
@@ -310,7 +314,7 @@ fun MainScreenOverlay(
                         if (showAppCirclePreview) {
                             drawCircle(
                                 color = circleColor ?: AmoledDefault.CircleColor,
-                                radius = 200f + (targetCircle * 140f),
+                                radius = dragRadii[targetCircle].toFloat(),
                                 center = start,
                                 style = Stroke(4f)
                             )
@@ -323,11 +327,7 @@ fun MainScreenOverlay(
                         if (point != null) {
 
                             // same circle radii as SettingsScreen
-                            val radius = when (point.circleNumber) {
-                                0 -> 200f
-                                1 -> 340f
-                                else -> 480f
-                            }
+                            val radius = dragRadii[targetCircle].toFloat()
 
                             // compute point position relative to origin
                             val px = start.x +

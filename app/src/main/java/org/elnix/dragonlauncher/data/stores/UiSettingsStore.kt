@@ -4,6 +4,7 @@ import android.content.Context
 import androidx.datastore.preferences.core.Preferences
 import androidx.datastore.preferences.core.booleanPreferencesKey
 import androidx.datastore.preferences.core.edit
+import androidx.datastore.preferences.core.intPreferencesKey
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.map
@@ -21,7 +22,10 @@ object UiSettingsStore {
         val fullscreen: Boolean = true,
         val showAppCirclePreview: Boolean = true,
         val showAppLinePreview: Boolean = true,
-        val snapPoints: Boolean = true
+        val snapPoints: Boolean = true,
+        val firstCircleDragDistance: Int = 400,
+        val secondCircleDragDistance: Int = 700,
+        val cancelZoneDragDistance: Int = 150
     )
 
     private val defaults = UiSettingsBackup()
@@ -36,6 +40,9 @@ object UiSettingsStore {
         val SHOW_CIRCLE_PREVIEW = booleanPreferencesKey(UiSettingsBackup::showAppCirclePreview.name)
         val SHOW_LINE_PREVIEW = booleanPreferencesKey(UiSettingsBackup::showAppLinePreview.name)
         val SNAP_POINTS = booleanPreferencesKey(UiSettingsBackup::snapPoints.name)
+        val FIRST_CIRCLE_DRAG_DISTANCE = intPreferencesKey(UiSettingsBackup::firstCircleDragDistance.name)
+        val SECOND_CIRCLE_DRAG_DISTANCE = intPreferencesKey(UiSettingsBackup::secondCircleDragDistance.name)
+        val CANCEL_ZONE_DRAG_DISTANCE = intPreferencesKey(UiSettingsBackup::cancelZoneDragDistance.name)
 
         val ALL = listOf(
             RGB_LOADING,
@@ -46,7 +53,10 @@ object UiSettingsStore {
             FULLSCREEN,
             SHOW_CIRCLE_PREVIEW,
             SHOW_LINE_PREVIEW,
-            SNAP_POINTS
+            SNAP_POINTS,
+            FIRST_CIRCLE_DRAG_DISTANCE,
+            SECOND_CIRCLE_DRAG_DISTANCE,
+            CANCEL_ZONE_DRAG_DISTANCE
         )
     }
 
@@ -114,6 +124,28 @@ object UiSettingsStore {
     }
 
 
+    fun getFirstCircleDragDistance(ctx: Context): Flow<Int> =
+        ctx.uiDatastore.data.map { it[Keys.FIRST_CIRCLE_DRAG_DISTANCE] ?: defaults.firstCircleDragDistance }
+
+    suspend fun setFirstCircleDragDistance(ctx: Context, value: Int) {
+        ctx.uiDatastore.edit { it[Keys.FIRST_CIRCLE_DRAG_DISTANCE] = value }
+    }
+
+    fun getSecondCircleDragDistance(ctx: Context): Flow<Int> =
+        ctx.uiDatastore.data.map { it[Keys.SECOND_CIRCLE_DRAG_DISTANCE] ?: defaults.secondCircleDragDistance }
+
+    suspend fun setSecondCircleDragDistance(ctx: Context, value: Int) {
+        ctx.uiDatastore.edit { it[Keys.SECOND_CIRCLE_DRAG_DISTANCE] = value }
+    }
+
+    fun getCancelZoneDragDistance(ctx: Context): Flow<Int> =
+        ctx.uiDatastore.data.map { it[Keys.CANCEL_ZONE_DRAG_DISTANCE] ?: defaults.cancelZoneDragDistance }
+
+    suspend fun setCancelZoneDragDistance(ctx: Context, value: Int) {
+        ctx.uiDatastore.edit { it[Keys.CANCEL_ZONE_DRAG_DISTANCE] = value }
+    }
+
+
     suspend fun resetAll(ctx: Context) {
         ctx.uiDatastore.edit { prefs ->
             Keys.ALL.forEach { prefs.remove(it) }
@@ -130,6 +162,11 @@ object UiSettingsStore {
                 if (v != null && v != default) put(key.name, v)
             }
 
+            fun putIfChanged(key: Preferences.Key<Int>, default: Int) {
+                val v = prefs[key]
+                if (v != null && v != default) put(key.name, v)
+            }
+
             putIfChanged(Keys.RGB_LOADING, defaults.rgbLoading)
             putIfChanged(Keys.RGB_LINE, defaults.rgbLine)
             putIfChanged(Keys.SHOW_LAUNCHING_APP_LABEL, defaults.showLaunchingAppLabel)
@@ -139,6 +176,10 @@ object UiSettingsStore {
             putIfChanged(Keys.SHOW_CIRCLE_PREVIEW, defaults.showAppCirclePreview)
             putIfChanged(Keys.SHOW_LINE_PREVIEW, defaults.showAppLinePreview)
             putIfChanged(Keys.SNAP_POINTS, defaults.snapPoints)
+
+            putIfChanged(Keys.FIRST_CIRCLE_DRAG_DISTANCE, defaults.firstCircleDragDistance)
+            putIfChanged(Keys.SECOND_CIRCLE_DRAG_DISTANCE, defaults.secondCircleDragDistance)
+            putIfChanged(Keys.CANCEL_ZONE_DRAG_DISTANCE, defaults.cancelZoneDragDistance)
         }
     }
 
@@ -169,6 +210,29 @@ object UiSettingsStore {
                 prefs[key] = boolValue
             }
 
+            fun applyInt(key: Preferences.Key<Int>) {
+                val raw = backup[key.name] ?: return
+
+                val intValue = when (raw) {
+                    is Int -> raw
+                    is String -> raw.toIntOrNull()
+                        ?: throw BackupTypeException(
+                            key.name,
+                            expected = "Int",
+                            actual = "String",
+                            value = raw
+                        )
+                    else -> throw BackupTypeException(
+                        key.name,
+                        expected = "Int",
+                        actual = raw::class.simpleName,
+                        value = raw
+                    )
+                }
+
+                prefs[key] = intValue
+            }
+
             applyBoolean(Keys.RGB_LOADING)
             applyBoolean(Keys.RGB_LINE)
             applyBoolean(Keys.SHOW_LAUNCHING_APP_LABEL)
@@ -178,6 +242,10 @@ object UiSettingsStore {
             applyBoolean(Keys.SHOW_CIRCLE_PREVIEW)
             applyBoolean(Keys.SHOW_LINE_PREVIEW)
             applyBoolean(Keys.SNAP_POINTS)
+
+            applyInt(Keys.FIRST_CIRCLE_DRAG_DISTANCE)
+            applyInt(Keys.SECOND_CIRCLE_DRAG_DISTANCE)
+            applyInt(Keys.CANCEL_ZONE_DRAG_DISTANCE)
         }
     }
 }
