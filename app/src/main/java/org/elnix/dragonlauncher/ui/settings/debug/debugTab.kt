@@ -24,7 +24,8 @@ import org.elnix.dragonlauncher.ui.helpers.settings.SettingsLazyHeader
 @Composable
 fun DebugTab(
     navController: NavController,
-    onBack: (() -> Unit)
+    onShowWelcome: () -> Unit,
+    onBack: () -> Unit
 ) {
     val scope = rememberCoroutineScope()
     val ctx = LocalContext.current
@@ -84,12 +85,13 @@ fun DebugTab(
         item {
             Button(
                 onClick = {
-                    scope.launch {
-                        PrivateSettingsStore.setHasSeenWelcome(
-                            ctx,
-                            !hasSeenWelcome
-                        )
-                    }
+                    onShowWelcome()
+//                    scope.launch {
+//                        PrivateSettingsStore.setHasSeenWelcome(
+//                            ctx,
+//                            !hasSeenWelcome
+//                        )
+//                    }
                 },
                 modifier = Modifier.fillMaxWidth()
             ) {

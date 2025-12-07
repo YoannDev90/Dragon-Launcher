@@ -17,6 +17,7 @@ import androidx.lifecycle.compose.LocalLifecycleOwner
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
+import androidx.navigation.compose.currentBackStackEntryAsState
 import org.elnix.dragonlauncher.data.stores.DrawerSettingsStore
 import org.elnix.dragonlauncher.data.stores.PrivateSettingsStore
 import org.elnix.dragonlauncher.ui.drawer.AppDrawerScreen
@@ -117,11 +118,17 @@ fun MainAppUi(
     fun goWelcome() = navController.navigate(ROUTES.WELCOME)
 
 
+    val navBackStackEntry by navController.currentBackStackEntryAsState()
+    val currentRoute = navBackStackEntry?.destination?.route
+
+
+    val showBanner = showSetDefaultLauncherBanner &&
+            !isDefaultLauncher &&
+            currentRoute != ROUTES.WELCOME
+
     Scaffold(
         topBar = {
-            if (showSetDefaultLauncherBanner && !isDefaultLauncher) {
-                SetDefaultLauncherBanner()
-            }
+            if (showBanner) { SetDefaultLauncherBanner() }
         }
     ) { paddingValues ->
         NavHost(
@@ -173,7 +180,7 @@ fun MainAppUi(
             composable(SETTINGS.APPEARANCE) { AppearanceTab(navController) { goAdvSettingsRoot() } }
             composable(SETTINGS.DRAWER) { DrawerTab { goAdvSettingsRoot() } }
             composable(SETTINGS.COLORS) { ColorSelectorTab { goAdvSettingsRoot() } }
-            composable(SETTINGS.DEBUG) { DebugTab(navController) { goAdvSettingsRoot() } }
+            composable(SETTINGS.DEBUG) { DebugTab(navController, { goWelcome() } ) { goAdvSettingsRoot() } }
             composable(SETTINGS.LANGUAGE) { LanguageTab { goAdvSettingsRoot() } }
             composable(SETTINGS.BACKUP) { BackupTab(backupViewModel) { goAdvSettingsRoot() } }
         }
