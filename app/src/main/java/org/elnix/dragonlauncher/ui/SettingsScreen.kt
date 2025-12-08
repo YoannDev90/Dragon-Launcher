@@ -695,8 +695,8 @@ fun SettingsScreen(
                 SliderWithLabel(
                     label = stringResource(R.string.circleR1),
                     value = circleR1,
-                    valueRange = 50f..1000f,
-                    showValue = true,
+                    valueRange = 0f..1000f,
+                    showValue = false,
                     color = circleColors[0],
                     onReset = { scope.launch {UiSettingsStore.setFirstCircleDragDistance(ctx, 400) } }
                 ) {
@@ -706,10 +706,10 @@ fun SettingsScreen(
                 SliderWithLabel(
                     label = stringResource(R.string.circleR2),
                     value = circleR2,
-                    valueRange = 50f..1000f,
-                    showValue = true,
+                    valueRange = 0f..1000f,
+                    showValue = false,
                     color = circleColors[1],
-                    onReset = { scope.launch {UiSettingsStore.setFirstCircleDragDistance(ctx, 700) } }
+                    onReset = { scope.launch {UiSettingsStore.setSecondCircleDragDistance(ctx, 700) } }
                 ) {
                     scope.launch { UiSettingsStore.setSecondCircleDragDistance(ctx, it) }
                 }
@@ -717,8 +717,8 @@ fun SettingsScreen(
                 SliderWithLabel(
                     label = stringResource(R.string.cancelZone),
                     value = cancelZone,
-                    valueRange = 50f..1000f,
-                    showValue = true,
+                    valueRange = 0f..1000f,
+                    showValue = false,
                     color = circleColors[2],
                     onReset = { scope.launch {UiSettingsStore.setCancelZoneDragDistance(ctx, 150) } }
                 ) {
@@ -761,6 +761,7 @@ fun SettingsScreen(
                 .fillMaxWidth()
                 .offset(y = offsetY)
                 .padding(WindowInsets.systemBars.asPaddingValues())
+                .padding(top = 50.dp)
                 .padding(20.dp)
                 .alpha(alpha),
             contentAlignment = Alignment.TopCenter
