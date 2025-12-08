@@ -22,6 +22,7 @@ object UiSettingsStore {
         val fullscreen: Boolean = true,
         val showAppCirclePreview: Boolean = true,
         val showAppLinePreview: Boolean = true,
+        val showAppAnglePreview: Boolean = true,
         val snapPoints: Boolean = true,
         val firstCircleDragDistance: Int = 400,
         val secondCircleDragDistance: Int = 700,
@@ -39,6 +40,7 @@ object UiSettingsStore {
         val FULLSCREEN = booleanPreferencesKey(UiSettingsBackup::fullscreen.name)
         val SHOW_CIRCLE_PREVIEW = booleanPreferencesKey(UiSettingsBackup::showAppCirclePreview.name)
         val SHOW_LINE_PREVIEW = booleanPreferencesKey(UiSettingsBackup::showAppLinePreview.name)
+        val SHOW_ANGLE_PREVIEW = booleanPreferencesKey("show_app_angle_preview")
         val SNAP_POINTS = booleanPreferencesKey(UiSettingsBackup::snapPoints.name)
         val FIRST_CIRCLE_DRAG_DISTANCE = intPreferencesKey(UiSettingsBackup::firstCircleDragDistance.name)
         val SECOND_CIRCLE_DRAG_DISTANCE = intPreferencesKey(UiSettingsBackup::secondCircleDragDistance.name)
@@ -53,6 +55,7 @@ object UiSettingsStore {
             FULLSCREEN,
             SHOW_CIRCLE_PREVIEW,
             SHOW_LINE_PREVIEW,
+            SHOW_ANGLE_PREVIEW,
             SNAP_POINTS,
             FIRST_CIRCLE_DRAG_DISTANCE,
             SECOND_CIRCLE_DRAG_DISTANCE,
@@ -116,6 +119,13 @@ object UiSettingsStore {
         ctx.uiDatastore.edit { it[Keys.SHOW_LINE_PREVIEW] = value }
     }
 
+    fun getShowAnglePreview(ctx: Context): Flow<Boolean> =
+        ctx.uiDatastore.data.map { it[Keys.SHOW_ANGLE_PREVIEW] ?: defaults.showAppAnglePreview }
+
+    suspend fun setShowAnglePreview(ctx: Context, value: Boolean) {
+        ctx.uiDatastore.edit { it[Keys.SHOW_ANGLE_PREVIEW] = value }
+    }
+
     fun getSnapPoints(ctx: Context): Flow<Boolean> =
         ctx.uiDatastore.data.map { it[Keys.SNAP_POINTS] ?: defaults.snapPoints }
 
@@ -175,6 +185,7 @@ object UiSettingsStore {
             putIfChanged(Keys.FULLSCREEN, defaults.fullscreen)
             putIfChanged(Keys.SHOW_CIRCLE_PREVIEW, defaults.showAppCirclePreview)
             putIfChanged(Keys.SHOW_LINE_PREVIEW, defaults.showAppLinePreview)
+            putIfChanged(Keys.SHOW_ANGLE_PREVIEW, defaults.showAppAnglePreview)
             putIfChanged(Keys.SNAP_POINTS, defaults.snapPoints)
 
             putIfChanged(Keys.FIRST_CIRCLE_DRAG_DISTANCE, defaults.firstCircleDragDistance)
@@ -241,6 +252,7 @@ object UiSettingsStore {
             applyBoolean(Keys.FULLSCREEN)
             applyBoolean(Keys.SHOW_CIRCLE_PREVIEW)
             applyBoolean(Keys.SHOW_LINE_PREVIEW)
+            applyBoolean(Keys.SHOW_ANGLE_PREVIEW)
             applyBoolean(Keys.SNAP_POINTS)
 
             applyInt(Keys.FIRST_CIRCLE_DRAG_DISTANCE)

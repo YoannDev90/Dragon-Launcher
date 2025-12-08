@@ -52,6 +52,8 @@ fun AppearanceTab(
     val showAppLinePreview by UiSettingsStore.getShowLinePreview(ctx)
         .collectAsState(initial = true)
 
+    val showAppAnglePreview by UiSettingsStore.getShowAnglePreview(ctx)
+        .collectAsState(initial = true)
 
     SettingsLazyHeader(
         title = stringResource(R.string.appearance),
@@ -131,6 +133,13 @@ fun AppearanceTab(
                 showAppLinePreview,
                 "Show App line preview",
             ) { scope.launch { UiSettingsStore.setShowLinePreview(ctx, it) } }
+        }
+
+        item {
+            SwitchRow(
+                showAppAnglePreview,
+                "Show App Angle preview",
+            ) { scope.launch { UiSettingsStore.setShowAnglePreview(ctx, it) } }
         }
     }
 }
