@@ -138,7 +138,7 @@ fun AppearanceTab(
         item {
             SwitchRow(
                 showAppAnglePreview,
-                "Show App Angle preview",
+                "Show App Angle preview (if you hate it)",
             ) { scope.launch { UiSettingsStore.setShowAnglePreview(ctx, it) } }
         }
     }
