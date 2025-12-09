@@ -1,13 +1,11 @@
 package org.elnix.dragonlauncher.services
 
-import android.annotation.SuppressLint
+import android.accessibilityservice.AccessibilityService
 import android.content.Context
 import android.content.Intent
 import android.provider.Settings
 import android.util.Log
 import android.view.accessibility.AccessibilityManager
-import android.widget.Toast
-import org.elnix.dragonlauncher.utils.showToast
 
 object SystemControl {
 
@@ -84,5 +82,16 @@ object SystemControl {
             // Fallback to notifications if quick settings fails
             expandNotifications(ctx)
         }
+    }
+
+
+    fun lockScreen(ctx: Context) {
+        if (!isServiceEnabled(ctx)) {
+            openServiceSettings(ctx)
+            return
+        }
+        SystemControlService.INSTANCE?.performGlobalAction(
+            AccessibilityService.GLOBAL_ACTION_LOCK_SCREEN
+        )
     }
 }

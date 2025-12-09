@@ -58,6 +58,7 @@ fun AddPointDialog(
         SwipeActionSerializable.NotificationShade,
         SwipeActionSerializable.ControlPanel,
         SwipeActionSerializable.OpenAppDrawer,
+        SwipeActionSerializable.Lock,
         SwipeActionSerializable.OpenDragonLauncherSettings,
     )
 
