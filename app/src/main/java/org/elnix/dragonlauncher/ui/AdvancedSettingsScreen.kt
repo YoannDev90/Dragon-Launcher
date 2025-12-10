@@ -21,6 +21,7 @@ import androidx.compose.material.icons.filled.GridOn
 import androidx.compose.material.icons.filled.Language
 import androidx.compose.material.icons.filled.ReportProblem
 import androidx.compose.material.icons.filled.Restore
+import androidx.compose.material.icons.filled.SettingsSuggest
 import androidx.compose.material.icons.filled.Update
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
@@ -148,6 +149,22 @@ fun AdvancedSettingsScreen(
                 navController.navigate(SETTINGS.DRAWER)
             }
         }
+
+
+        item {
+            SettingsItem(
+                title = stringResource(R.string.android_settings),
+                icon = Icons.Default.SettingsSuggest,
+                leadIcon = Icons.AutoMirrored.Filled.Launch
+            ) {
+                val packageName = ctx.packageName
+                val intent = Intent(Settings.ACTION_APPLICATION_DETAILS_SETTINGS).apply {
+                    data = Uri.fromParts("package", packageName, null)
+                }
+                ctx.startActivity(intent)
+            }
+        }
+
 
         item {
             if (isDebugModeEnabled) {

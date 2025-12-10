@@ -86,4 +86,5 @@
     <string name="circleR1">First Circle Drag</string>
     <string name="circleR2">Second CIrcle Drag</string>
     <string name="cancelZone">Cancel Zone Drag</string>
+    <string name="android_settings">Android Settings</string>
 </resources>
