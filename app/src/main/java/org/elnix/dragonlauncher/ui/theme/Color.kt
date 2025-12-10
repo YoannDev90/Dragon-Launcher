@@ -27,7 +27,7 @@ object AmoledDefault : ThemeColors {
     override val LauncherSettingsColor = Color.Red
     override val LockColor = Color(0xFF555555)
     override val OpenFileColor = Color(0xFF00FFF7)
-
+    override val ReloadColor = Color(0xFF886300)
 }
 
 object DarkDefault : ThemeColors {
@@ -61,7 +61,7 @@ object DarkDefault : ThemeColors {
     override val LauncherSettingsColor = Color.Red
     override val LockColor = Color(0xFF555555)
     override val OpenFileColor = Color(0xFF00FFF7)
-
+    override val ReloadColor = Color(0xFF886300)
 }
 
 
@@ -89,5 +89,5 @@ object LightDefault : ThemeColors {
     override val LauncherSettingsColor = Color.Red
     override val LockColor = Color(0xFF555555)
     override val OpenFileColor = Color(0xFF00FFF7)
-
+    override val ReloadColor = Color(0xFF886300)
 }

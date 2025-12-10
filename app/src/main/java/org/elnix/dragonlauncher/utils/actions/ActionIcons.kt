@@ -59,6 +59,7 @@ fun actionIcon(
 
     SwipeActionSerializable.Lock -> painterResource(R.drawable.ic_action_lock)
     is SwipeActionSerializable.OpenFile -> painterResource(R.drawable.ic_action_open_file)
+    SwipeActionSerializable.ReloadApps -> painterResource(R.drawable.ic_action_reload)
 }
 
 
@@ -103,6 +104,7 @@ private fun createUntintedBitmap(action: SwipeActionSerializable, context: Conte
 
         SwipeActionSerializable.Lock -> loadDrawableResAsBitmap(context, R.drawable.ic_action_lock)
         is SwipeActionSerializable.OpenFile -> loadDrawableResAsBitmap(context, R.drawable.ic_action_open_file)
+        SwipeActionSerializable.ReloadApps -> loadDrawableResAsBitmap(context, R.drawable.ic_action_reload)
     }
 }
 

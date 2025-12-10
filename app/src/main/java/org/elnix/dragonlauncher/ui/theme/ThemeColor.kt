@@ -29,4 +29,5 @@ interface ThemeColors {
     val LauncherSettingsColor: Color
     val LockColor: Color
     val OpenFileColor: Color
+    val ReloadColor: Color
 }

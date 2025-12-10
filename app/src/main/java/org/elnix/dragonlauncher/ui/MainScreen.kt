@@ -145,6 +145,7 @@ fun MainScreen(
                     action = it?.action,
                     useAccessibilityInsteadOfContextToExpandActionPanel = useAccessibilityInsteadOfContextToExpandActionPanel,
                     onAskWhatMethodToUseToOpenQuickActions = { showMethodDialog = true },
+                    onReloadApps = { scope.launch { appsViewModel.reloadApps(ctx) } },
                     onReselectFile = { showFilePicker = it },
                     onAppSettings = onLongPress3Sec,
                     onAppDrawer = onAppDrawer

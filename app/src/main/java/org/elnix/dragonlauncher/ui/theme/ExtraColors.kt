@@ -14,6 +14,7 @@ data class ExtraColors(
     val launcherSettings: Color,
     val lock: Color,
     val openFile: Color,
+    val reload: Color
 )
 
 
@@ -29,6 +30,7 @@ val LocalExtraColors = staticCompositionLocalOf {
         openAppDrawer = AmoledDefault.OpenAppDrawerColor,
         launcherSettings = AmoledDefault.LauncherSettingsColor,
         lock = AmoledDefault.LockColor,
-        openFile = AmoledDefault.OpenFileColor
+        openFile = AmoledDefault.OpenFileColor,
+        reload = AmoledDefault.ReloadColor
     )
 }

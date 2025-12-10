@@ -17,5 +17,6 @@ fun actionColor(
         SwipeActionSerializable.OpenDragonLauncherSettings -> extra.launcherSettings
         SwipeActionSerializable.Lock -> extra.lock
         is SwipeActionSerializable.OpenFile -> extra.openFile
+        is SwipeActionSerializable.ReloadApps -> extra.reload
         null -> Color.Unspecified
     }

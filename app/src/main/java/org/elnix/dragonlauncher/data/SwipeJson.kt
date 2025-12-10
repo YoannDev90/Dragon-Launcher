@@ -34,6 +34,7 @@ sealed class SwipeActionSerializable {
     object OpenAppDrawer : SwipeActionSerializable()
     object  OpenDragonLauncherSettings: SwipeActionSerializable()
     object Lock: SwipeActionSerializable()
+    object ReloadApps: SwipeActionSerializable()
 }
 
 // Gson type adapter for sealed class
@@ -64,6 +65,7 @@ class SwipeActionAdapter : JsonSerializer<SwipeActionSerializable>, JsonDeserial
             SwipeActionSerializable.OpenAppDrawer -> obj.addProperty("type", "OpenAppDrawer")
             SwipeActionSerializable.OpenDragonLauncherSettings -> obj.addProperty("type", "OpenDragonLauncherSettings")
             SwipeActionSerializable.Lock -> obj.addProperty("type", "Lock")
+            SwipeActionSerializable.ReloadApps -> obj.addProperty("type", "ReloadApps")
         }
         return obj
     }
@@ -87,6 +89,7 @@ class SwipeActionAdapter : JsonSerializer<SwipeActionSerializable>, JsonDeserial
             "OpenAppDrawer" -> SwipeActionSerializable.OpenAppDrawer
             "OpenDragonLauncherSettings" -> SwipeActionSerializable.OpenDragonLauncherSettings
             "Lock" -> SwipeActionSerializable.Lock
+            "ReloadApps" -> SwipeActionSerializable.ReloadApps
             else -> null
         }
     }

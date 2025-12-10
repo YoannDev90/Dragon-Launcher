@@ -69,6 +69,7 @@ fun DragonLauncherTheme(
     customLauncherSettingsColor: Color? = null,
     customLockColor: Color? = null,
     customOpenFileColor: Color? = null,
+    customReloadAppsColor: Color? = null,
 
     content: @Composable () -> Unit
 ) {
@@ -103,9 +104,9 @@ fun DragonLauncherTheme(
     val launcherSettings = customLauncherSettingsColor ?: AmoledDefault.LauncherSettingsColor
     val lock = customLockColor ?: AmoledDefault.LockColor
     val openFile = customOpenFileColor ?: AmoledDefault.OpenFileColor
+    val reloadApps = customReloadAppsColor ?: AmoledDefault.ReloadColor
 
 
-// Add to ExtraColors
     val extraColors = ExtraColors(
         angleLine,
         circle,
@@ -116,7 +117,8 @@ fun DragonLauncherTheme(
         openAppDrawer,
         launcherSettings,
         lock,
-        openFile
+        openFile,
+        reloadApps
     )
 
 

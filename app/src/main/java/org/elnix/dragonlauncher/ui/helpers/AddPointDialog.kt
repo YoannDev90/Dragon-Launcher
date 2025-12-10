@@ -3,13 +3,14 @@ package org.elnix.dragonlauncher.ui.helpers
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Icon
@@ -60,6 +61,7 @@ fun AddPointDialog(
         SwipeActionSerializable.ControlPanel,
         SwipeActionSerializable.OpenAppDrawer,
         SwipeActionSerializable.Lock,
+        SwipeActionSerializable.ReloadApps,
         SwipeActionSerializable.OpenDragonLauncherSettings,
     )
 
@@ -75,10 +77,13 @@ fun AddPointDialog(
         confirmButton = {},
         title = { Text("Choose action") },
         text = {
-            Column {
-
+            LazyColumn(
+                modifier = Modifier
+                    .height(320.dp)
+                    .clip(RoundedCornerShape(12.dp))
+            ) {
                 // Loop through all actions
-                actions.forEach { action ->
+                items(actions) { action ->
                     when (action) {
 
                         // Open App → requires AppPicker

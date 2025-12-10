@@ -40,5 +40,6 @@ fun actionLabel(action: SwipeActionSerializable): String {
 
         SwipeActionSerializable.Lock -> "Lock"
         is SwipeActionSerializable.OpenFile -> getFilePathFromUri(ctx, action.uri.toUri())
+        SwipeActionSerializable.ReloadApps -> "Reload Apps"
     }
 }

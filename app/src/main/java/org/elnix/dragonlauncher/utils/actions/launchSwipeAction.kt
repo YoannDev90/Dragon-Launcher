@@ -21,6 +21,7 @@ fun launchSwipeAction(
     action: SwipeActionSerializable?,
     useAccessibilityInsteadOfContextToExpandActionPanel: Boolean = false,
     onAskWhatMethodToUseToOpenQuickActions: (() -> Unit)? = null,
+    onReloadApps: (() -> Unit)? = null,
     onReselectFile: (() -> Unit)? = null,
     onAppSettings: (() -> Unit)? = null,
     onAppDrawer: (() -> Unit)? = null
@@ -111,5 +112,7 @@ fun launchSwipeAction(
 //                Log.e("OpenFile", e.toString())
             }
         }
+
+        SwipeActionSerializable.ReloadApps -> onReloadApps?.invoke()
     }
 }

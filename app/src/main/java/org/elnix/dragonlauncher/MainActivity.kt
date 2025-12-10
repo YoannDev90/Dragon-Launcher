@@ -76,7 +76,6 @@ class MainActivity : ComponentActivity() {
             }
         }
 
-//        enableEdgeToEdge()
         setContent {
             val ctx = LocalContext.current
 
@@ -144,6 +143,7 @@ class MainActivity : ComponentActivity() {
             val launcherSettingsColor by ColorSettingsStore.getLauncherSettingsColor(ctx).collectAsState(initial = null)
             val lockColor by ColorSettingsStore.getLockColor(ctx).collectAsState(initial = null)
             val openFileColor by ColorSettingsStore.getOpenFileColor(ctx).collectAsState(initial = null)
+            val reloadColor by ColorSettingsStore.getReloadColor(ctx).collectAsState(initial = null)
 
 
             DragonLauncherTheme(
@@ -171,6 +171,7 @@ class MainActivity : ComponentActivity() {
                 customLauncherSettingsColor = launcherSettingsColor,
                 customLockColor = lockColor,
                 customOpenFileColor = openFileColor,
+                customReloadAppsColor = reloadColor
             ) {
 
                 val navController = rememberNavController()

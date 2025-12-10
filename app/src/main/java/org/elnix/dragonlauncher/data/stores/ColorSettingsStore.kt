@@ -34,6 +34,7 @@ import org.elnix.dragonlauncher.data.stores.ColorSettingsStore.setOpenFileColor
 import org.elnix.dragonlauncher.data.stores.ColorSettingsStore.setOpenUrlColor
 import org.elnix.dragonlauncher.data.stores.ColorSettingsStore.setOutline
 import org.elnix.dragonlauncher.data.stores.ColorSettingsStore.setPrimary
+import org.elnix.dragonlauncher.data.stores.ColorSettingsStore.setReloadColor
 import org.elnix.dragonlauncher.data.stores.ColorSettingsStore.setSecondary
 import org.elnix.dragonlauncher.data.stores.ColorSettingsStore.setSurface
 import org.elnix.dragonlauncher.data.stores.ColorSettingsStore.setTertiary
@@ -67,6 +68,7 @@ object ColorSettingsStore {
     private val LOCK_COLOR = intPreferencesKey("lock_color")
     private val OPEN_FILE_COLOR = intPreferencesKey("open_file_color")
 
+    private val RELOAD_COLOR = intPreferencesKey("reload_color")
 
 
     // ------------------------------------------
@@ -238,6 +240,13 @@ object ColorSettingsStore {
         ctx.colorDatastore.edit { it[OPEN_FILE_COLOR] = color.toArgb() }
     }
 
+    fun getReloadColor(ctx: Context) =
+        ctx.colorDatastore.data.map { it[RELOAD_COLOR]?.let { c -> Color(c) } }
+
+    suspend fun setReloadColor(ctx: Context, color: Color) {
+        ctx.colorDatastore.edit { it[RELOAD_COLOR] = color.toArgb() }
+    }
+
 
 
 
@@ -284,6 +293,7 @@ object ColorSettingsStore {
         setLauncherSettingsColor(ctx, random())
         setLockColor(ctx, random())
         setOpenFileColor(ctx, random())
+        setReloadColor(ctx, random())
     }
 
     suspend fun resetAll(ctx: Context) {
@@ -312,6 +322,7 @@ object ColorSettingsStore {
             prefs.remove(LAUNCHER_SETTINGS_COLOR)
             prefs.remove(LOCK_COLOR)
             prefs.remove(OPEN_FILE_COLOR)
+            prefs.remove(RELOAD_COLOR)
         }
     }
 
@@ -353,6 +364,8 @@ object ColorSettingsStore {
             putIfNonDefault(LAUNCHER_SETTINGS_COLOR.name, prefs[LAUNCHER_SETTINGS_COLOR], default.LauncherSettingsColor)
             putIfNonDefault(LOCK_COLOR.name,              prefs[LOCK_COLOR],              default.LockColor)
             putIfNonDefault(OPEN_FILE_COLOR.name,         prefs[OPEN_FILE_COLOR],         default.OpenFileColor)
+            putIfNonDefault(RELOAD_COLOR.name,            prefs[RELOAD_COLOR],            default.ReloadColor)
+
         }
     }
 
@@ -384,17 +397,17 @@ object ColorSettingsStore {
                     ANGLE_LINE_COLOR.name     -> setInt(ANGLE_LINE_COLOR, value)
                     CIRCLE_COLOR.name         -> setInt(CIRCLE_COLOR, value)
 
-                    LAUNCH_APP_COLOR.name        -> setInt(LAUNCH_APP_COLOR, value)
-                    OPEN_URL_COLOR.name          -> setInt(OPEN_URL_COLOR, value)
+                    LAUNCH_APP_COLOR.name         -> setInt(LAUNCH_APP_COLOR, value)
+                    OPEN_URL_COLOR.name           -> setInt(OPEN_URL_COLOR, value)
                     NOTIFICATION_SHADE_COLOR.name -> setInt(NOTIFICATION_SHADE_COLOR, value)
-                    CONTROL_PANEL_COLOR.name     -> setInt(CONTROL_PANEL_COLOR, value)
-                    OPEN_APP_DRAWER_COLOR.name   -> setInt(OPEN_APP_DRAWER_COLOR, value)
-                    LAUNCHER_SETTINGS_COLOR.name -> setInt(LAUNCHER_SETTINGS_COLOR, value)
-                    LOCK_COLOR.name              -> setInt(LOCK_COLOR, value)
-                    OPEN_FILE_COLOR.name         -> setInt(OPEN_FILE_COLOR, value)
+                    CONTROL_PANEL_COLOR.name      -> setInt(CONTROL_PANEL_COLOR, value)
+                    OPEN_APP_DRAWER_COLOR.name    -> setInt(OPEN_APP_DRAWER_COLOR, value)
+                    LAUNCHER_SETTINGS_COLOR.name  -> setInt(LAUNCHER_SETTINGS_COLOR, value)
+                    LOCK_COLOR.name               -> setInt(LOCK_COLOR, value)
+                    OPEN_FILE_COLOR.name          -> setInt(OPEN_FILE_COLOR, value)
+                    RELOAD_COLOR.name             -> setInt(RELOAD_COLOR, value)
                 }
             }
-
         }
     }
 }
@@ -425,4 +438,5 @@ private suspend fun applyThemeColors(ctx: Context, colors: ThemeColors) {
     setLauncherSettingsColor(ctx, colors.LauncherSettingsColor)
     setLockColor(ctx, colors.LockColor)
     setOpenFileColor(ctx, colors.OpenFileColor)
+    setReloadColor(ctx, colors.ReloadColor)
 }
