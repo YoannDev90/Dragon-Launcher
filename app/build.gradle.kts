@@ -14,8 +14,8 @@ android {
         applicationId = "org.elnix.dragonlauncher"
         minSdk = 27
         targetSdk = 36
-        versionCode = 9
-        versionName = "1.1.5"
+        versionCode = 10
+        versionName = "1.1.6"
     }
 
     signingConfigs {
