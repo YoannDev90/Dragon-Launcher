@@ -20,6 +20,7 @@ import org.elnix.dragonlauncher.data.stores.PrivateSettingsStore
 import org.elnix.dragonlauncher.ui.helpers.SwitchRow
 import org.elnix.dragonlauncher.ui.helpers.TextDivider
 import org.elnix.dragonlauncher.ui.helpers.settings.SettingsLazyHeader
+import org.elnix.dragonlauncher.utils.colors.AppObjectsColors
 
 @Composable
 fun DebugTab(
@@ -37,8 +38,10 @@ fun DebugTab(
         .collectAsState(initial = false)
 
 
-    val hasSeenWelcome by PrivateSettingsStore.getHasSeenWelcome(ctx)
+    val useAccessibilityInsteadOfContextToExpandActionPanel by PrivateSettingsStore
+        .getUseAccessibilityInsteadOfContextToExpandActionPanel(ctx)
         .collectAsState(initial = false)
+
     val hasInitialized by PrivateSettingsStore.getHasInitialized(ctx)
         .collectAsState(initial = true)
     val showSetDefaultLauncherBanner by PrivateSettingsStore.getShowSetDefaultLauncherBanner(ctx)
@@ -84,15 +87,8 @@ fun DebugTab(
 
         item {
             Button(
-                onClick = {
-                    onShowWelcome()
-//                    scope.launch {
-//                        PrivateSettingsStore.setHasSeenWelcome(
-//                            ctx,
-//                            !hasSeenWelcome
-//                        )
-//                    }
-                },
+                onClick = { onShowWelcome() },
+                colors = AppObjectsColors.buttonColors(),
                 modifier = Modifier.fillMaxWidth()
             ) {
                 Text(
@@ -143,7 +139,16 @@ fun DebugTab(
                 text = "Force app language selector",
                 enabled = Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU
             ) { scope.launch { DebugSettingsStore.setForceAppLanguageSelector(ctx, it) } }
-
+        }
+        item {
+            SwitchRow(
+                state = useAccessibilityInsteadOfContextToExpandActionPanel,
+                text = "useAccessibilityInsteadOfContextToExpandActionPanel"
+            ) {
+                scope.launch {
+                    PrivateSettingsStore.setUseAccessibilityInsteadOfContextToExpandActionPanel(ctx, !it)
+                }
+            }
         }
     }
 }
