@@ -338,21 +338,7 @@ fun MainScreenOverlay(
                                     radius * sin(Math.toRadians(point.angleDeg)).toFloat()
                             val py = start.y -
                                     radius * cos(Math.toRadians(point.angleDeg)).toFloat()
-
-
-                            if (showAppCirclePreview) {
-                                drawCircle(
-                                    color = circleColor ?: AmoledDefault.CircleColor,
-                                    radius = 44f,
-                                    center = Offset(px, py)
-                                )
-
-                                drawCircle(
-                                    color = backgroundColor,
-                                    radius = 40f,
-                                    center = Offset(px, py)
-                                )
-                            }
+                            
                             if (showAppLaunchPreview) {
 
                                 drawCircle(
