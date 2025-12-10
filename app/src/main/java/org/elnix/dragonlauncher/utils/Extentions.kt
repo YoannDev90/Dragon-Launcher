@@ -8,6 +8,7 @@ import android.content.Intent
 import android.content.pm.PackageManager
 import android.content.pm.ResolveInfo
 import android.net.Uri
+import android.os.Build
 import android.provider.AlarmClock
 import android.provider.CalendarContract
 import android.provider.Settings
@@ -185,3 +186,12 @@ fun openCalendar(context: Context) {
         }
     }
 }
+
+
+
+fun getVersionCode(ctx: Context): Int =
+    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P) {
+        ctx.packageManager.getPackageInfo(ctx.packageName, 0).longVersionCode.toInt()
+    } else {
+        ctx.packageManager.getPackageInfo(ctx.packageName, 0).versionCode
+    }

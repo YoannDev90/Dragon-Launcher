@@ -10,6 +10,12 @@ android {
         version = release(36)
     }
 
+//    sourceSets {
+//        getByName("main") {
+//            assets.srcDir("fastlane/metadata/android/en-US/changelogs")
+//        }
+//    }
+
     defaultConfig {
         applicationId = "org.elnix.dragonlauncher"
         minSdk = 27
@@ -40,7 +46,7 @@ android {
         release {
             isMinifyEnabled = true
             isShrinkResources = true
-            signingConfig = signingConfigs.getByName("release")
+//            signingConfig = signingConfigs.getByName("release")
             proguardFiles(
                 getDefaultProguardFile("proguard-android-optimize.txt"),
                 "proguard-rules.pro"
@@ -90,4 +96,17 @@ dependencies {
     implementation(libs.androidx.material.icons.extended)
     implementation(libs.androidx.navigation.compose)
     implementation(libs.reorderable)
+}
+
+
+tasks.register<Copy>("copyChangelogsToAssets") {
+    // Correct path: from project root fastlane/ to app/src/main/assets
+    from("../fastlane/metadata/android/en-US/changelogs")
+    into(file("src/main/assets/changelogs"))
+    include("*.txt")
+}
+
+// Use preBuild tasks instead of merge* (they exist in AGP)
+tasks.named("preBuild") {
+    dependsOn("copyChangelogsToAssets")
 }

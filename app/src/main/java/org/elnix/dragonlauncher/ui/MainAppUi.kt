@@ -1,13 +1,17 @@
 package org.elnix.dragonlauncher.ui
 
+import android.R.attr.versionCode
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Scaffold
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.produceState
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
@@ -18,6 +22,7 @@ import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.currentBackStackEntryAsState
+import kotlinx.coroutines.launch
 import org.elnix.dragonlauncher.data.stores.DrawerSettingsStore
 import org.elnix.dragonlauncher.data.stores.PrivateSettingsStore
 import org.elnix.dragonlauncher.ui.drawer.AppDrawerScreen
@@ -30,8 +35,12 @@ import org.elnix.dragonlauncher.ui.settings.backup.BackupViewModel
 import org.elnix.dragonlauncher.ui.settings.debug.DebugTab
 import org.elnix.dragonlauncher.ui.settings.language.LanguageTab
 import org.elnix.dragonlauncher.ui.welcome.WelcomeScreen
+import org.elnix.dragonlauncher.ui.whatsnew.ChangelogsScreen
+import org.elnix.dragonlauncher.ui.whatsnew.WhatsNewBottomSheet
 import org.elnix.dragonlauncher.utils.AppDrawerViewModel
+import org.elnix.dragonlauncher.utils.getVersionCode
 import org.elnix.dragonlauncher.utils.isDefaultLauncher
+import org.elnix.dragonlauncher.utils.loadChangelogs
 
 // -------------------- SETTINGS --------------------
 
@@ -44,6 +53,7 @@ object SETTINGS {
     const val BACKUP = "settings/advanced/backup"
     const val DEBUG = "/advanced/debug"
     const val LANGUAGE = "settings/advanced/language"
+    const val CHANGELOGS = "settings/advanced/changelogs"
 }
 
 object ROUTES {
@@ -52,6 +62,7 @@ object ROUTES {
     const val WELCOME = "welcome"
 }
 
+@Suppress("AssignedValueIsNeverRead")
 @Composable
 fun MainAppUi(
     backupViewModel: BackupViewModel,
@@ -59,6 +70,18 @@ fun MainAppUi(
     navController: NavHostController
 ) {
     val ctx = LocalContext.current
+    val scope = rememberCoroutineScope()
+
+    // Changelogs system
+    val lastSeenVersionCode by PrivateSettingsStore.getLastSeenVersionCode(ctx)
+        .collectAsState(initial = Int.MAX_VALUE)
+
+    val currentVersionCode = getVersionCode(ctx)
+    var showWhatsNewBottomSheet by remember { mutableStateOf(false) }
+
+    val updates by produceState(initialValue = emptyList()) {
+        value = loadChangelogs(ctx, versionCode)
+    }
 
     val showAppIconsInDrawer by DrawerSettingsStore.getShowAppIconsInDrawer(ctx)
         .collectAsState(initial = true)
@@ -86,6 +109,12 @@ fun MainAppUi(
 
     val lifecycleOwner = LocalLifecycleOwner.current
     var isDefaultLauncher by remember { mutableStateOf(ctx.isDefaultLauncher) }
+
+    LaunchedEffect(Unit, lastSeenVersionCode) {
+        if (lastSeenVersionCode < currentVersionCode) {
+            showWhatsNewBottomSheet = true
+        }
+    }
 
     DisposableEffect(lifecycleOwner) {
         val observer = LifecycleEventObserver { _, event ->
@@ -183,6 +212,16 @@ fun MainAppUi(
             composable(SETTINGS.DEBUG) { DebugTab(navController, { goWelcome() } ) { goAdvSettingsRoot() } }
             composable(SETTINGS.LANGUAGE) { LanguageTab { goAdvSettingsRoot() } }
             composable(SETTINGS.BACKUP) { BackupTab(backupViewModel) { goAdvSettingsRoot() } }
+            composable(SETTINGS.CHANGELOGS) { ChangelogsScreen { goAdvSettingsRoot() } }
+        }
+    }
+
+    if (showWhatsNewBottomSheet) {
+        WhatsNewBottomSheet(
+            updates = updates
+        ) {
+            showWhatsNewBottomSheet = false
+            scope.launch { PrivateSettingsStore.setLastSeenVersionCode(ctx, currentVersionCode) }
         }
     }
 }

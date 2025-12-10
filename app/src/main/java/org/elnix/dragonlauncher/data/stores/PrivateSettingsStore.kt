@@ -4,9 +4,11 @@ package org.elnix.dragonlauncher.data.stores
 import android.content.Context
 import androidx.datastore.preferences.core.booleanPreferencesKey
 import androidx.datastore.preferences.core.edit
+import androidx.datastore.preferences.core.intPreferencesKey
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
 import org.elnix.dragonlauncher.data.privateSettingsStore
+import org.elnix.dragonlauncher.data.uiDatastore
 
 object PrivateSettingsStore {
 
@@ -19,6 +21,7 @@ object PrivateSettingsStore {
         val showSetDefaultLauncherBanner: Boolean = true,
         val useAccessibilityInsteadOfContextToExpandActionPanel: Boolean = false,
         val showMethodAsking: Boolean = true,
+        val lastSeenVersionCode: Int = 0
     )
 
     private val defaults = PrivateSettingsBackup()
@@ -32,6 +35,7 @@ object PrivateSettingsStore {
         const val SHOW_SET_DEFAULT_LAUNCHER_BANNER = "showSetDefaultLauncherBanner"
         const val USE_ACCESSIBILITY_INSTEAD_OF_CONTEXT = "useAccessibilityInsteadOfContextToExpandActionPanel"
         const val SHOW_METHOD_ASKING = "showMethodAsking"
+        const val LAST_SEEN_VERSION_CODE = "lastSeenVersionCode"
     }
 
 
@@ -52,6 +56,8 @@ object PrivateSettingsStore {
 
     private val SHOW_METHOD_ASKING =
         booleanPreferencesKey(Keys.SHOW_METHOD_ASKING)
+
+    private val  LAST_SEEN_VERSION_CODE = intPreferencesKey(Keys.LAST_SEEN_VERSION_CODE)
 
     // ---------------------------------------------------------
     // Accessors
@@ -101,6 +107,13 @@ object PrivateSettingsStore {
         ctx.privateSettingsStore.edit { it[SHOW_METHOD_ASKING] = v }
     }
 
+    fun getLastSeenVersionCode(ctx: Context): Flow<Int> =
+        ctx.uiDatastore.data.map { it[LAST_SEEN_VERSION_CODE] ?: defaults.lastSeenVersionCode }
+
+    suspend fun setLastSeenVersionCode(ctx: Context, value: Int) {
+        ctx.uiDatastore.edit { it[LAST_SEEN_VERSION_CODE] = value }
+    }
+
     // ---------------------------------------------------------
     // Reset
     // ---------------------------------------------------------
@@ -111,68 +124,7 @@ object PrivateSettingsStore {
             prefs.remove(SHOW_SET_DEFAULT_LAUNCHER_BANNER)
             prefs.remove(USE_ACCESSIBILITY_INSTEAD_OF_CONTEXT)
             prefs.remove(SHOW_METHOD_ASKING)
+            prefs.remove(LAST_SEEN_VERSION_CODE)
         }
     }
-
-    // Disabled backup / import functions as they aren't meant to be used, cause those are private settings
-//    // ---------------------------------------------------------
-//    // Backup export
-//    // ---------------------------------------------------------
-//    suspend fun getAll(ctx: Context): Map<String, String> {
-//        val prefs = ctx.privateSettingsStore.data.first()
-//
-//        return buildMap {
-//            fun putIfNonDefault(key: String, value: Any?, default: Any?) {
-//                if (value != null && value != default) {
-//                    put(key, value.toString())
-//                }
-//            }
-//
-//            putIfNonDefault(
-//                Keys.HAS_SEEN_WELCOME,
-//                prefs[HAS_SEEN_WELCOME],
-//                defaults.hasSeenWelcome
-//            )
-//
-//            putIfNonDefault(
-//                Keys.HAS_INITIALIZED,
-//                prefs[HAS_INITIALIZED],
-//                defaults.hasInitialized
-//            )
-//        }
-//    }
-//
-//    // ---------------------------------------------------------
-//    // Backup import (strict, throws on wrong types)
-//    // ---------------------------------------------------------
-//    suspend fun setAll(ctx: Context, backup: Map<String, String>) {
-//        ctx.privateSettingsStore.edit { prefs ->
-//
-//            fun decodeBoolean(key: String, raw: String) {
-//                val cleaned = raw.trim().lowercase()
-//                val value = when (cleaned) {
-//                    "true" -> true
-//                    "false" -> false
-//                    else -> throw BackupTypeException(
-//                        key = key,
-//                        expected = "Boolean (true/false)",
-//                        actual = raw,
-//                        value = raw
-//                    )
-//                }
-//                // commit value based on key
-//                when (key) {
-//                    Keys.HAS_SEEN_WELCOME -> prefs[HAS_SEEN_WELCOME] = value
-//                    Keys.HAS_INITIALIZED -> prefs[HAS_INITIALIZED] = value
-//                }
-//            }
-//
-//            backup.forEach { (key, rawValue) ->
-//                when (key) {
-//                    Keys.HAS_SEEN_WELCOME,
-//                    Keys.HAS_INITIALIZED -> decodeBoolean(key, rawValue)
-//                }
-//            }
-//        }
-//    }
 }

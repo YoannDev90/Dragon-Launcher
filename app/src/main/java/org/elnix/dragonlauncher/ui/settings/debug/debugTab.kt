@@ -97,6 +97,20 @@ fun DebugTab(
             }
         }
 
+
+        item {
+            Button(
+                onClick = {
+                    scope.launch { PrivateSettingsStore.setLastSeenVersionCode(ctx, 0) }
+                },
+                colors = AppObjectsColors.buttonColors(),
+                modifier = Modifier.fillMaxWidth()
+            ) {
+                Text(
+                    text = "Show what's new sheet",
+                )
+            }
+        }
         item{
             SwitchRow(
                 state = hasInitialized,

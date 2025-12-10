@@ -84,7 +84,7 @@
     <string name="app_developer">Lead Developer</string>
     <string name="check_for_updates_text">Check for release on Github</string>
     <string name="app_drawer">App Drawer</string>
-    <string name="drawer_tab_text">Here you can customize apperance/behavior of you  app drawer</string>
+    <string name="drawer_tab_text">Here you can customize appearance/behavior of you  app drawer</string>
     <string name="set_default_launcher">Set as default launcher</string>
     <string name="close">Close</string>
     <string name="dragging_distance_selection">Dragging Distance Selection</string>
@@ -93,4 +93,7 @@
     <string name="circleR2">Second CIrcle Drag</string>
     <string name="cancelZone">Cancel Zone Drag</string>
     <string name="android_settings">Android Settings</string>
+    <string name="changelogs">Changelogs</string>
+    <string name="changelogs_help">The list of updates the app got since the first version</string>
+    <string name="whats_new">What\'s new</string>
 </resources>

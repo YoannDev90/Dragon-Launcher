@@ -14,6 +14,7 @@ import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.Launch
+import androidx.compose.material.icons.automirrored.filled.Notes
 import androidx.compose.material.icons.filled.BugReport
 import androidx.compose.material.icons.filled.Code
 import androidx.compose.material.icons.filled.ColorLens
@@ -179,6 +180,13 @@ fun AdvancedSettingsScreen(
 
 
         item { TextDivider(stringResource(R.string.about)) }
+
+        item {
+            SettingsItem(
+                title = stringResource(R.string.changelogs),
+                icon = Icons.AutoMirrored.Filled.Notes
+            ) { navController.navigate(SETTINGS.CHANGELOGS) }
+        }
 
         item {
             SettingsItem(
