@@ -2,6 +2,7 @@ package org.elnix.dragonlauncher.ui.settings.appearance
 
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ColorLens
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
@@ -13,6 +14,7 @@ import kotlinx.coroutines.launch
 import org.elnix.dragonlauncher.R
 import org.elnix.dragonlauncher.data.stores.UiSettingsStore
 import org.elnix.dragonlauncher.ui.SETTINGS
+import org.elnix.dragonlauncher.ui.helpers.SliderWithLabel
 import org.elnix.dragonlauncher.ui.helpers.SwitchRow
 import org.elnix.dragonlauncher.ui.helpers.TextDivider
 import org.elnix.dragonlauncher.ui.helpers.settings.SettingsItem
@@ -60,6 +62,10 @@ fun AppearanceTab(
 
     val linePreviewSnapToAction by UiSettingsStore.getLinePreviewSnapToAction(ctx)
         .collectAsState(initial = false)
+
+    val minAngleFromAPointToActivateIt by UiSettingsStore.getMinAngleFromAPointToActivateIt(ctx)
+        .collectAsState(initial = 0)
+
 
     SettingsLazyHeader(
         title = stringResource(R.string.appearance),
@@ -160,6 +166,19 @@ fun AppearanceTab(
                 linePreviewSnapToAction,
                 "Line Preview snap to action",
             ) { scope.launch { UiSettingsStore.setLinePreviewSnapToAction(ctx, it) } }
+        }
+
+        item {
+            SliderWithLabel(
+                label = "Min Distance to activate action (0 for infinite)",
+                value = minAngleFromAPointToActivateIt,
+                showValue = true,
+                valueRange = 0f..360f,
+                color = MaterialTheme.colorScheme.primary,
+                onReset = { scope.launch { UiSettingsStore.setMinAngleFromAPointToActivateIt(ctx, 0) } }
+            ) {
+                scope.launch { UiSettingsStore.setMinAngleFromAPointToActivateIt(ctx, it) }
+            }
         }
     }
 }

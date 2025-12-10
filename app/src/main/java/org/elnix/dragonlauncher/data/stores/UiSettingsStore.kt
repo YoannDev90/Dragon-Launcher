@@ -28,7 +28,8 @@ object UiSettingsStore {
         val secondCircleDragDistance: Int = 700,
         val cancelZoneDragDistance: Int = 150,
         val showAppPreviewIconCenterStartPosition: Boolean = false,
-        val linePreviewSnapToAction: Boolean = false
+        val linePreviewSnapToAction: Boolean = false,
+        val minAngleFromAPointToActivateIt: Int = 30
     )
 
     private val defaults = UiSettingsBackup()
@@ -48,9 +49,10 @@ object UiSettingsStore {
         val SECOND_CIRCLE_DRAG_DISTANCE = intPreferencesKey(UiSettingsBackup::secondCircleDragDistance.name)
         val CANCEL_ZONE_DRAG_DISTANCE = intPreferencesKey(UiSettingsBackup::cancelZoneDragDistance.name)
         val SHOW_APP_PREVIEW_ICON_CENTER_START_POSITION = booleanPreferencesKey("showAppPreviewIconCenterStartPosition")
-
-
         val LINE_PREVIEW_SNAP_TO_ACTION = booleanPreferencesKey("linePreviewSnapToAction")
+        val MIN_ANGLE_FROM_A_POINT_TO_ACTIVATE_IT = intPreferencesKey("minAngleFromAPointToActivateIt")
+
+
         val ALL = listOf(
             RGB_LOADING,
             RGB_LINE,
@@ -66,7 +68,8 @@ object UiSettingsStore {
             SECOND_CIRCLE_DRAG_DISTANCE,
             CANCEL_ZONE_DRAG_DISTANCE,
             SHOW_APP_PREVIEW_ICON_CENTER_START_POSITION,
-            LINE_PREVIEW_SNAP_TO_ACTION
+            LINE_PREVIEW_SNAP_TO_ACTION,
+            MIN_ANGLE_FROM_A_POINT_TO_ACTIVATE_IT
         )
     }
 
@@ -176,6 +179,12 @@ object UiSettingsStore {
         ctx.uiDatastore.edit { it[Keys.LINE_PREVIEW_SNAP_TO_ACTION] = value }
     }
 
+    fun getMinAngleFromAPointToActivateIt(ctx: Context): Flow<Int> =
+        ctx.uiDatastore.data.map { it[Keys.MIN_ANGLE_FROM_A_POINT_TO_ACTIVATE_IT] ?: defaults.minAngleFromAPointToActivateIt }
+
+    suspend fun setMinAngleFromAPointToActivateIt(ctx: Context, value: Int) {
+        ctx.uiDatastore.edit { it[Keys.MIN_ANGLE_FROM_A_POINT_TO_ACTIVATE_IT] = value }
+    }
 
     // --------------------------------
     // BACKUP / RESTORE / RESET
@@ -219,6 +228,7 @@ object UiSettingsStore {
             putIfChanged(Keys.FIRST_CIRCLE_DRAG_DISTANCE, defaults.firstCircleDragDistance)
             putIfChanged(Keys.SECOND_CIRCLE_DRAG_DISTANCE, defaults.secondCircleDragDistance)
             putIfChanged(Keys.CANCEL_ZONE_DRAG_DISTANCE, defaults.cancelZoneDragDistance)
+            putIfChanged(Keys.MIN_ANGLE_FROM_A_POINT_TO_ACTIVATE_IT, defaults.minAngleFromAPointToActivateIt)
         }
     }
 
@@ -288,6 +298,7 @@ object UiSettingsStore {
             applyInt(Keys.FIRST_CIRCLE_DRAG_DISTANCE)
             applyInt(Keys.SECOND_CIRCLE_DRAG_DISTANCE)
             applyInt(Keys.CANCEL_ZONE_DRAG_DISTANCE)
+            applyInt(Keys.MIN_ANGLE_FROM_A_POINT_TO_ACTIVATE_IT)
         }
     }
 }

@@ -35,6 +35,7 @@ import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.ImageBitmap
 import androidx.compose.ui.graphics.StrokeCap
+import androidx.compose.ui.graphics.drawscope.DrawScope
 import androidx.compose.ui.graphics.drawscope.Fill
 import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.platform.LocalContext
@@ -109,6 +110,8 @@ fun MainScreenOverlay(
         .collectAsState(initial = 700)
     val cancelZone by UiSettingsStore.getCancelZoneDragDistance(ctx)
         .collectAsState(initial = 150)
+    val minAngleFromAPointToActivateIt by UiSettingsStore.getMinAngleFromAPointToActivateIt(ctx)
+        .collectAsState(initial = 0)
 
 
     val dragRadii = listOf(cancelZone, circleR1, circleR2)
@@ -163,6 +166,8 @@ fun MainScreenOverlay(
 
     val sweepAngle = (cumulativeAngle % 360).toFloat()
 
+    var exposedClosest by remember { mutableStateOf<SwipePointSerializable?>(null) }
+    var exposedAsbAngle by remember { mutableStateOf<Double?>(null) }
 
     // Launch app logic
 
@@ -190,12 +195,30 @@ fun MainScreenOverlay(
                     minOf(d, 360 - d)
                 }
 
-        currentAction = if (dist > cancelZone) closestPoint else null
+        exposedClosest = closestPoint
+
+        val selectedPoint = closestPoint?.let { p ->
+            val d = kotlin.math.abs(p.angleDeg - angle0to360)
+            val shortest = minOf(d, 360 - d)
+            exposedAsbAngle = shortest
+
+            // If minAngle == 0 => no limit, always accept closest
+            if (minAngleFromAPointToActivateIt == 0 ||
+                shortest <= minAngleFromAPointToActivateIt
+            ) {
+                p
+            } else {
+                null
+            }
+        }
+
+        currentAction = if (dist > cancelZone) selectedPoint else null
 
         hoveredAction = currentAction
         bannerVisible = currentAction != null
     } else if (!isDragging) {
         bannerVisible = false
+        exposedClosest = null
     }
 
     val alpha by animateFloatAsState(
@@ -251,6 +274,18 @@ fun MainScreenOverlay(
                     color = Color.White, fontSize = 12.sp
                 )
                 Text(
+                    text = "closest point angle = ${exposedClosest?.angleDeg ?: "—"}",
+                    color = Color.White, fontSize = 12.sp
+                )
+                Text(
+                    text = "asb angle to closest point= $exposedAsbAngle",
+                    color = Color.White, fontSize = 12.sp
+                )
+                Text(
+                    text = "min angle gap = $minAngleFromAPointToActivateIt",
+                    color = Color.White, fontSize = 12.sp
+                )
+                Text(
                     text = "drag = $isDragging, size = ${surface.width}×${surface.height}",
                     color = Color.White, fontSize = 12.sp
                 )
@@ -279,32 +314,13 @@ fun MainScreenOverlay(
                     )
 
                     if (!(linePreviewSnapToAction && hoveredAction != null)) {
-//                        actionLine(
-//                            start = start,
-//                            end = current,
-//                            radius = circleRadius -2,
-//                            color = lineColor,
-//                            backgroundColor = backgroundColor
-//                        )
-                        drawLine(
-                            color = lineColor,
+                        actionLine(
+                            drawScope = this,
                             start = start,
                             end = current,
-                            strokeWidth = 4f,
-                            cap = StrokeCap.Round
-                        )
-
-                        drawCircle(
-                            color = backgroundColor,
-                            radius = circleRadius - 2,
-                            center = start
-                        )
-
-                        drawCircle(
+                            radius = circleRadius,
                             color = lineColor,
-                            radius = 8f,
-                            center = current,
-                            style = Fill
+                            backgroundColor = backgroundColor
                         )
                     }
                 }
@@ -363,32 +379,14 @@ fun MainScreenOverlay(
                         val py = start.y -
                                 radius * cos(Math.toRadians(point.angleDeg)).toFloat()
 
-                        // Draw actual selected point
-                        // find the matching SwipePointSerializable
-//                        val point = points.firstOrNull { it == point }
-//                        if (point != null) {
-
-
                         if (linePreviewSnapToAction) {
-                            drawLine(
-                                color = lineColor,
+                            actionLine(
+                                drawScope = this,
                                 start = start,
                                 end = Offset(px,py),
-                                strokeWidth = 4f,
-                                cap = StrokeCap.Round
-                            )
-
-                            drawCircle(
-                                color = backgroundColor,
-                                radius = circleRadius - 2,
-                                center = start
-                            )
-
-                            drawCircle(
+                                radius = circleRadius,
                                 color = lineColor,
-                                radius = 8f,
-                                center = current,
-                                style = Fill
+                                backgroundColor = backgroundColor
                             )
                         }
                         if (showAppLaunchPreview) {
@@ -414,12 +412,13 @@ fun MainScreenOverlay(
                                 dstSize = IntSize(56, 56)
                             )
                         }
-//                        }
                     }
                 }
             }
         }
     }
+
+
     if (hoveredAction != null && (showLaunchingAppLabel || showLaunchingAppIcon)) {
         val currentAction = hoveredAction!!.action!!
         Box(
@@ -453,7 +452,7 @@ fun MainScreenOverlay(
             }
         }
     }
-    // Debug to test calendar and alarms openning
+    // Debug to test calendar and alarms opening
 //    Row(
 //        modifier = Modifier.fillMaxWidth()
 //    ){
@@ -476,35 +475,35 @@ fun actionTint(action: SwipeActionSerializable): Color =
     }
 
 
-
-@Composable
 private fun actionLine(
+    drawScope: DrawScope,
     start: Offset,
     end: Offset,
     radius: Float,
     color: Color,
     backgroundColor: Color
 ) {
-    Canvas(modifier = Modifier.fillMaxSize()) {
-        drawLine(
-            color = color,
-            start = start,
-            end = end,
-            strokeWidth = 4f,
-            cap = StrokeCap.Round
-        )
+    // Draw the main line from start to end
+    drawScope.drawLine(
+        color = color,
+        start = start,
+        end = end,
+        strokeWidth = 4f,
+        cap = StrokeCap.Round
+    )
 
-        drawCircle(
-            color = backgroundColor,
-            radius = radius - 2,
-            center = start
-        )
+    // Fill the full circle in the center spot to empty it
+    drawScope.drawCircle(
+        color = backgroundColor,
+        radius = radius - 2,
+        center = start
+    )
 
-        drawCircle(
-            color = color,
-            radius = 8f,
-            center = end,
-            style = Fill
-        )
-    }
+    // Small circle at the end of the trail
+    drawScope.drawCircle(
+        color = color,
+        radius = 8f,
+        center = end,
+        style = Fill
+    )
 }
