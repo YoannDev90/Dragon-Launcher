@@ -4,6 +4,7 @@ import android.content.Intent
 import android.provider.Settings
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.WindowInsets
@@ -13,6 +14,7 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.systemBars
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.pager.HorizontalPager
 import androidx.compose.foundation.pager.rememberPagerState
@@ -42,10 +44,15 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import androidx.compose.ui.text.input.ImeAction
+import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.core.net.toUri
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.yield
+import org.elnix.dragonlauncher.data.helpers.DrawerActions
+import org.elnix.dragonlauncher.data.helpers.DrawerActions.CLOSE
+import org.elnix.dragonlauncher.data.helpers.DrawerActions.NONE
+import org.elnix.dragonlauncher.data.helpers.DrawerActions.TOGGLE_KB
 import org.elnix.dragonlauncher.data.stores.DrawerSettingsStore
 import org.elnix.dragonlauncher.ui.helpers.AppGrid
 import org.elnix.dragonlauncher.utils.AppDrawerViewModel
@@ -62,6 +69,10 @@ fun AppDrawerScreen(
     autoShowKeyboard: Boolean,
     gridSize: Int,
     searchBarBottom: Boolean,
+    leftAction: DrawerActions,
+    leftSize: Dp,
+    rightAction: DrawerActions,
+    rightSize: Dp,
     onClose: () -> Unit
 ) {
     val ctx = LocalContext.current
@@ -219,60 +230,87 @@ fun AppDrawerScreen(
     }
 
 
-    Row (
-        modifier = Modifier.fillMaxSize()
-    ){
-        Column(
-            modifier = Modifier
-                .fillMaxHeight()
-                .fillMaxWidth(0.8f)
-                .clickable(
-                    enabled = clickEmptySpaceToRaiseKeyboard,
-                    indication = null,
-                    interactionSource = null
-                ) {
-                    if (!isSearchFocused) {
-                        focusRequester.requestFocus()
-                        keyboardController?.show()
-                    } else {
-                        focusManager.clearFocus()
-                        keyboardController?.hide()
+    fun toggleKeyboard() {
+        if (!isSearchFocused) {
+            focusRequester.requestFocus()
+            keyboardController?.show()
+        } else {
+            focusManager.clearFocus()
+            keyboardController?.hide()
+        }
+    }
+
+    fun launchDrawerAction(actions: DrawerActions) {
+        when (actions) {
+            CLOSE -> onClose()
+            TOGGLE_KB -> toggleKeyboard()
+            NONE -> null // Do nothing on NONE action
+        }
+    }
+
+
+
+
+    Column(
+        modifier = Modifier
+            .fillMaxSize()
+            .background(MaterialTheme.colorScheme.background)
+            .clickable(
+                enabled = clickEmptySpaceToRaiseKeyboard,
+                indication = null,
+                interactionSource = null
+            ) { toggleKeyboard() }
+            .padding(WindowInsets.systemBars.asPaddingValues())
+    ) {
+
+        if (!searchBarBottom) {
+            DrawerTextInput()
+        }
+
+
+        Row (
+            modifier = Modifier.fillMaxSize()
+        ){
+            if ( leftAction != NONE ) {
+                Box(
+                    modifier = Modifier
+                        .fillMaxHeight()
+                        .width(leftSize)
+//                        .background(Color.Red)
+                        .clickable { launchDrawerAction(leftAction) }
+                )
+            }
+
+            Column(
+                modifier = Modifier
+                    .fillMaxHeight()
+                    .weight(1f)
+                    .padding(15.dp)
+            ) {
+                HorizontalPager(
+                    state = pagerState
+                ) { pageIndex ->
+
+                    val list = when (pageIndex) {
+                        0 -> filteredUser
+                        pages.indexOf("Work").takeIf { it > 0 } -> filteredWork
+                        pages.indexOf("System") -> filteredSystem
+                        else -> filteredAll
+                    }
+
+                    AppGrid(
+                        apps = list,
+                        icons = icons,
+                        gridSize = gridSize,
+                        txtColor = MaterialTheme.colorScheme.onSurface,
+                        showIcons = showIcons,
+                        showLabels = showLabels,
+                        onLongClick = { dialogApp = it }
+                    ) {
+                        launchSwipeAction(ctx, it.action)
+                        onClose()
                     }
                 }
-                .background(MaterialTheme.colorScheme.background)
-                .padding(WindowInsets.systemBars.asPaddingValues())
-                .padding(15.dp)
-        ) {
-
-
-            if (!searchBarBottom) {
-                DrawerTextInput()
-            }
-
-            HorizontalPager(
-                state = pagerState
-            ) { pageIndex ->
-
-                val list = when (pageIndex) {
-                    0 -> filteredUser
-                    pages.indexOf("Work").takeIf { it > 0 } -> filteredWork
-                    pages.indexOf("System") -> filteredSystem
-                    else -> filteredAll
-                }
-
-                AppGrid(
-                    apps = list,
-                    icons = icons,
-                    gridSize = gridSize,
-                    txtColor = MaterialTheme.colorScheme.onSurface,
-                    showIcons = showIcons,
-                    showLabels = showLabels,
-                    onLongClick = { dialogApp = it }
-                ) {
-                    launchSwipeAction(ctx, it.action)
-                    onClose()
-                }
-            }
 
 //        if (searchBarBottom) {
 //            Box(
@@ -284,6 +322,17 @@ fun AppDrawerScreen(
 //                DrawerTextInput()
 //            }
 //        }
+            }
+
+            if ( rightAction != NONE ) {
+                Box(
+                    modifier = Modifier
+                        .fillMaxHeight()
+                        .width(rightSize)
+//                        .background(Color.Red)
+                        .clickable { launchDrawerAction(rightAction) }
+                )
+            }
         }
     }
 

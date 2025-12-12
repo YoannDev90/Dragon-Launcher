@@ -15,7 +15,13 @@ import androidx.lifecycle.viewModelScope
 import com.google.gson.Gson
 import com.google.gson.reflect.TypeToken
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.flow.*
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.SharingStarted
+import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.firstOrNull
+import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 import org.elnix.dragonlauncher.R
 import org.elnix.dragonlauncher.ui.drawer.AppModel
@@ -26,7 +32,8 @@ val Context.appDrawerDataStore by preferencesDataStore("app_drawer")
 class AppDrawerViewModel(application: Application) : AndroidViewModel(application) {
 
     private val specialSystemApps = setOf(
-        "com.android.settings"
+        "com.android.settings",
+        "com.google.android.youtube"
     )
 
     private val _apps = MutableStateFlow<List<AppModel>>(emptyList())

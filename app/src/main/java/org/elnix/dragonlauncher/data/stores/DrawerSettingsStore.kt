@@ -4,12 +4,14 @@ import android.content.Context
 import androidx.datastore.preferences.core.booleanPreferencesKey
 import androidx.datastore.preferences.core.edit
 import androidx.datastore.preferences.core.intPreferencesKey
+import androidx.datastore.preferences.core.stringPreferencesKey
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.map
 import org.elnix.dragonlauncher.data.BackupTypeException
 import org.elnix.dragonlauncher.data.BaseSettingsStore
 import org.elnix.dragonlauncher.data.drawerDataStore
+import org.elnix.dragonlauncher.data.helpers.DrawerActions
 
 object DrawerSettingsStore : BaseSettingsStore() {
     override val name: String = "Drawer"
@@ -25,7 +27,9 @@ object DrawerSettingsStore : BaseSettingsStore() {
         val autoShowKeyboardOnDrawer: Boolean = true,
         val clickEmptySpaceToRaiseKeyboard: Boolean = false,
         val gridSize: Int = 6,
-        val initialPage: Int = 0
+        val initialPage: Int = 0,
+        val leftDrawerAction: DrawerActions = DrawerActions.TOGGLE_KB,
+        val rightDrawerAction: DrawerActions = DrawerActions.CLOSE,
     )
 
     private val defaults = DrawerSettingsBackup()
@@ -42,19 +46,20 @@ object DrawerSettingsStore : BaseSettingsStore() {
         const val CLICK_EMPTY_SPACE_TO_RAISE_KEYBOARD = "clickEmptySpaceToRaiseKeyboard"
         const val GRID_SIZE = "gridSize"
         const val INITIAL_PAGE = "initialPage"
+        const val LEFT_DRAWER_ACTION = "leftDrawerAction"
+        const val RIGHT_DRAWER_ACTION = "rightDrawerAction"
     }
 
     private val AUTO_OPEN_SINGLE_MATCH = booleanPreferencesKey(Keys.AUTO_OPEN_SINGLE_MATCH)
     private val SHOW_APP_ICONS_IN_DRAWER = booleanPreferencesKey(Keys.SHOW_APP_ICONS_IN_DRAWER)
     private val SHOW_APP_LABEL_IN_DRAWER = booleanPreferencesKey(Keys.SHOW_APP_LABEL_IN_DRAWER)
     private val SEARCH_BAR_BOTTOM = booleanPreferencesKey(Keys.SEARCH_BAR_BOTTOM)
-    private val AUTO_SHOW_KEYBOARD_ON_DRAWER =
-        booleanPreferencesKey(Keys.AUTO_SHOW_KEYBOARD_ON_DRAWER)
-    private val CLICK_EMPTY_SPACE_TO_RAISE_KEYBOARD =
-        booleanPreferencesKey(Keys.CLICK_EMPTY_SPACE_TO_RAISE_KEYBOARD)
-
+    private val AUTO_SHOW_KEYBOARD_ON_DRAWER = booleanPreferencesKey(Keys.AUTO_SHOW_KEYBOARD_ON_DRAWER)
+    private val CLICK_EMPTY_SPACE_TO_RAISE_KEYBOARD = booleanPreferencesKey(Keys.CLICK_EMPTY_SPACE_TO_RAISE_KEYBOARD)
     private val GRID_SIZE = intPreferencesKey(Keys.GRID_SIZE)
     private val INITIAL_PAGE = intPreferencesKey(Keys.INITIAL_PAGE)
+    private val LEFT_DRAWER_ACTION = stringPreferencesKey(Keys.LEFT_DRAWER_ACTION)
+    private val RIGHT_DRAWER_ACTION = stringPreferencesKey(Keys.RIGHT_DRAWER_ACTION)
 
     // -------------------------------------------------------------------------
     // Accessors + Mutators
@@ -119,6 +124,21 @@ object DrawerSettingsStore : BaseSettingsStore() {
         ctx.drawerDataStore.edit { it[INITIAL_PAGE] = page }
     }
 
+    fun getLeftDrawerAction(ctx: Context): Flow<DrawerActions> =
+        ctx.drawerDataStore.data.map { DrawerActions.valueOf(it[LEFT_DRAWER_ACTION] ?: defaults.leftDrawerAction.name) }
+
+    suspend fun setLeftDrawerAction(ctx: Context, action: DrawerActions) {
+        ctx.drawerDataStore.edit { it[LEFT_DRAWER_ACTION] = action.name }
+    }
+
+    fun getRightDrawerAction(ctx: Context): Flow<DrawerActions> =
+        ctx.drawerDataStore.data.map { DrawerActions.valueOf(it[RIGHT_DRAWER_ACTION] ?: defaults.rightDrawerAction.name) }
+
+    suspend fun setRightDrawerAction(ctx: Context, action: DrawerActions) {
+        ctx.drawerDataStore.edit { it[RIGHT_DRAWER_ACTION] = action.name }
+    }
+
+
     // -------------------------------------------------------------------------
     // Reset
     // -------------------------------------------------------------------------
@@ -132,6 +152,8 @@ object DrawerSettingsStore : BaseSettingsStore() {
             prefs.remove(CLICK_EMPTY_SPACE_TO_RAISE_KEYBOARD)
             prefs.remove(GRID_SIZE)
             prefs.remove(INITIAL_PAGE)
+            prefs.remove(LEFT_DRAWER_ACTION)
+            prefs.remove(RIGHT_DRAWER_ACTION)
         }
     }
 
@@ -157,6 +179,7 @@ object DrawerSettingsStore : BaseSettingsStore() {
             putIfNonDefault(Keys.CLICK_EMPTY_SPACE_TO_RAISE_KEYBOARD, prefs[CLICK_EMPTY_SPACE_TO_RAISE_KEYBOARD], defaults.clickEmptySpaceToRaiseKeyboard)
             putIfNonDefault(Keys.GRID_SIZE, prefs[GRID_SIZE], defaults.gridSize)
             putIfNonDefault(Keys.INITIAL_PAGE, prefs[INITIAL_PAGE], defaults.initialPage)
+            putIfNonDefault(Keys.LEFT_DRAWER_ACTION, prefs[LEFT_DRAWER_ACTION],  defaults.leftDrawerAction)
         }
     }
 
@@ -203,6 +226,20 @@ object DrawerSettingsStore : BaseSettingsStore() {
             }
         }
 
+
+        fun getDrawerActionStrict(key: String): DrawerActions {
+            val v = raw[key] ?: return when (key) {
+                Keys.LEFT_DRAWER_ACTION -> defaults.leftDrawerAction
+                Keys.RIGHT_DRAWER_ACTION -> defaults.rightDrawerAction
+                else -> throw BackupTypeException(key, "DrawerAction", null, null)
+            }
+
+            return when (v) {
+                is String -> DrawerActions.valueOf(v)
+                else -> throw BackupTypeException(key, "DrawerAction", v::class.simpleName, v)
+            }
+        }
+
         val backup = DrawerSettingsBackup(
             autoOpenSingleMatch = getBooleanStrict(Keys.AUTO_OPEN_SINGLE_MATCH),
             showAppIconsInDrawer = getBooleanStrict(Keys.SHOW_APP_ICONS_IN_DRAWER),
@@ -211,7 +248,9 @@ object DrawerSettingsStore : BaseSettingsStore() {
             autoShowKeyboardOnDrawer = getBooleanStrict(Keys.AUTO_SHOW_KEYBOARD_ON_DRAWER),
             clickEmptySpaceToRaiseKeyboard = getBooleanStrict(Keys.CLICK_EMPTY_SPACE_TO_RAISE_KEYBOARD),
             gridSize = getIntStrict(Keys.GRID_SIZE),
-            initialPage = getIntStrict(Keys.INITIAL_PAGE)
+            initialPage = getIntStrict(Keys.INITIAL_PAGE),
+            leftDrawerAction = getDrawerActionStrict(Keys.LEFT_DRAWER_ACTION),
+            rightDrawerAction = getDrawerActionStrict(Keys.RIGHT_DRAWER_ACTION)
         )
 
         ctx.drawerDataStore.edit { prefs ->
@@ -223,6 +262,8 @@ object DrawerSettingsStore : BaseSettingsStore() {
             prefs[CLICK_EMPTY_SPACE_TO_RAISE_KEYBOARD] = backup.clickEmptySpaceToRaiseKeyboard
             prefs[GRID_SIZE] = backup.gridSize
             prefs[INITIAL_PAGE] = backup.initialPage
+            prefs[LEFT_DRAWER_ACTION] = backup.leftDrawerAction.name
+            prefs[RIGHT_DRAWER_ACTION] = backup.rightDrawerAction.name
         }
     }
 }

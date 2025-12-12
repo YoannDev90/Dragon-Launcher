@@ -16,6 +16,7 @@ import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.unit.dp
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LifecycleEventObserver
 import androidx.lifecycle.compose.LocalLifecycleOwner
@@ -24,6 +25,7 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.currentBackStackEntryAsState
 import kotlinx.coroutines.launch
+import org.elnix.dragonlauncher.data.helpers.DrawerActions
 import org.elnix.dragonlauncher.data.stores.DrawerSettingsStore
 import org.elnix.dragonlauncher.data.stores.PrivateSettingsStore
 import org.elnix.dragonlauncher.ui.drawer.AppDrawerScreen
@@ -99,6 +101,16 @@ fun MainAppUi(
 //    val searchBarBottom by DrawerSettingsStore.getSearchBarBottom(ctx)
 //        .collectAsState(initial = true)
     val searchBarBottom = false
+
+
+    val leftDrawerAction by DrawerSettingsStore.getLeftDrawerAction(ctx)
+        .collectAsState(initial = DrawerActions.TOGGLE_KB)
+
+    val rightDrawerAction by DrawerSettingsStore.getRightDrawerAction(ctx)
+        .collectAsState(initial = DrawerActions.CLOSE)
+
+    val leftDrawerSize = 75.dp
+    val rightDrawerSize = 75.dp
 
     val initialPage by DrawerSettingsStore.getInitialPage(ctx)
         .collectAsState(initial = 0)
@@ -186,7 +198,11 @@ fun MainAppUi(
                 showLabels = showAppLabelsInDrawer,
                 autoShowKeyboard = autoShowKeyboardOnDrawer,
                 gridSize = gridSize,
-                searchBarBottom = searchBarBottom
+                searchBarBottom = searchBarBottom,
+                leftAction = leftDrawerAction,
+                leftSize = leftDrawerSize,
+                rightAction = rightDrawerAction,
+                rightSize = rightDrawerSize,
             ) { goMainScreen() } }
 
 
