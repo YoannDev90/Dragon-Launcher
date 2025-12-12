@@ -160,7 +160,7 @@ fun DebugTab(
                 text = "useAccessibilityInsteadOfContextToExpandActionPanel"
             ) {
                 scope.launch {
-                    PrivateSettingsStore.setUseAccessibilityInsteadOfContextToExpandActionPanel(ctx, !it)
+                    PrivateSettingsStore.setUseAccessibilityInsteadOfContextToExpandActionPanel(ctx, it)
                 }
             }
         }
