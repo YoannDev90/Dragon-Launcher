@@ -1,6 +1,7 @@
 package org.elnix.dragonlauncher.ui
 
 import android.R.attr.versionCode
+import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Scaffold
 import androidx.compose.runtime.Composable
@@ -154,6 +155,9 @@ fun MainAppUi(
     val showBanner = showSetDefaultLauncherBanner &&
             !isDefaultLauncher &&
             currentRoute != ROUTES.WELCOME
+
+
+    BackHandler { }
 
     Scaffold(
         topBar = {
