@@ -47,8 +47,11 @@ fun DebugTab(
     val showSetDefaultLauncherBanner by PrivateSettingsStore.getShowSetDefaultLauncherBanner(ctx)
         .collectAsState(initial = true)
 
-    val isForceSwitchToggled by DebugSettingsStore.getForceAppLanguageSelector(ctx).collectAsState(initial = false)
+    val isForceSwitchToggled by DebugSettingsStore.getForceAppLanguageSelector(ctx)
+        .collectAsState(initial = false)
 
+    val doNotRemindMeAgainNotificationsBehavior by PrivateSettingsStore.getShowMethodAsking(ctx)
+        .collectAsState(initial = true)
 
     SettingsLazyHeader(
         title = stringResource(R.string.debug),
@@ -154,6 +157,7 @@ fun DebugTab(
                 enabled = Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU
             ) { scope.launch { DebugSettingsStore.setForceAppLanguageSelector(ctx, it) } }
         }
+
         item {
             SwitchRow(
                 state = useAccessibilityInsteadOfContextToExpandActionPanel,
@@ -161,6 +165,17 @@ fun DebugTab(
             ) {
                 scope.launch {
                     PrivateSettingsStore.setUseAccessibilityInsteadOfContextToExpandActionPanel(ctx, it)
+                }
+            }
+        }
+
+        item {
+            SwitchRow(
+                state = doNotRemindMeAgainNotificationsBehavior,
+                text = "Ask me each times for the notifications / quick settings behavior"
+            ) {
+                scope.launch {
+                    PrivateSettingsStore.setShowMethodAsking(ctx, it)
                 }
             }
         }

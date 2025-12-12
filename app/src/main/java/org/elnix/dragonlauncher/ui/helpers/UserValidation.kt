@@ -63,7 +63,7 @@ fun UserValidation(
             ) {
                 if (cancelText != null) {
                     TextButton(
-                        onClick = onCancel,
+                        onClick = { onCancel(); ; if (doNotRemindMeAgain != null && doNotRemindMeAgainChecked) doNotRemindMeAgain() },
                         colors = AppObjectsColors.cancelButtonColors()
                     ) {
                         Text(
