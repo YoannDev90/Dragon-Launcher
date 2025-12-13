@@ -53,7 +53,7 @@ class WorkspaceViewModel(application: Application) : AndroidViewModel(applicatio
         )
 
 
-    private val _selectedWorkspaceId = MutableStateFlow("all")
+    private val _selectedWorkspaceId = MutableStateFlow("user")
     val selectedWorkspaceId: StateFlow<String> = _selectedWorkspaceId.asStateFlow()
 
     init {
