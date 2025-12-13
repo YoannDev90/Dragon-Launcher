@@ -40,7 +40,7 @@ fun Context.showToast(
         }
         is Int -> {
             try {
-                Toast.makeText(this, getString(message), duration).show()
+                Toast.makeText(this, message, duration).show()
             } catch (_: Exception) {
                 // Invalid resource ID, ignore
             }
