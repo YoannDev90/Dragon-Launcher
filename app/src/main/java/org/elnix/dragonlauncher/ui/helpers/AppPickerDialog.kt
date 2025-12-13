@@ -54,6 +54,8 @@ fun AppPickerDialog(
     appsViewModel: AppDrawerViewModel,
     workspaceViewModel: WorkspaceViewModel,
     gridSize: Int,
+    showIcons: Boolean,
+    showLabels: Boolean,
     onDismiss: () -> Unit,
     onAppSelected: (SwipeActionSerializable.LaunchApp) -> Unit
 ) {
@@ -200,8 +202,8 @@ fun AppPickerDialog(
                     icons = icons,
                     gridSize = gridSize,
                     txtColor = MaterialTheme.colorScheme.onSurface,
-                    showIcons = true,
-                    showLabels = true
+                    showIcons = showIcons,
+                    showLabels = showLabels
                 ) {
                     onAppSelected(SwipeActionSerializable.LaunchApp(it.packageName))
                     onDismiss()

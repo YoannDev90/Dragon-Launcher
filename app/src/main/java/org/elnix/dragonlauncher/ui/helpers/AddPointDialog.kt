@@ -69,6 +69,11 @@ fun AddPointDialog(
 
     val gridSize by DrawerSettingsStore.getGridSize(ctx)
         .collectAsState(initial = 1)
+    val showIcons by DrawerSettingsStore.getShowAppIconsInDrawer(ctx)
+        .collectAsState(initial = true)
+
+    val showLabels by DrawerSettingsStore.getShowAppLabelsInDrawer(ctx)
+        .collectAsState(initial = true)
 
     AlertDialog(
         onDismissRequest = onDismiss,
@@ -131,6 +136,8 @@ fun AddPointDialog(
             appsViewModel = appsViewModel,
             workspaceViewModel = workspaceViewModel,
             gridSize = gridSize,
+            showIcons = showIcons,
+            showLabels = showLabels,
             onDismiss = { showAppPicker = false },
             onAppSelected = {
                 onActionSelected(it)
