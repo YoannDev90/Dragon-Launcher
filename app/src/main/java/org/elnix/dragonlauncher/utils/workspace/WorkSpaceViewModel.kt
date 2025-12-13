@@ -2,6 +2,8 @@ package org.elnix.dragonlauncher.utils.workspace
 
 import android.annotation.SuppressLint
 import android.app.Application
+import android.graphics.Bitmap
+import android.util.Base64
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.viewModelScope
 import com.google.gson.Gson
@@ -20,11 +22,13 @@ import org.elnix.dragonlauncher.ui.drawer.WorkspaceState
 import org.elnix.dragonlauncher.ui.drawer.WorkspaceType
 import org.elnix.dragonlauncher.ui.drawer.defaultWorkspaces
 import org.json.JSONObject
+import java.io.ByteArrayOutputStream
 
 
 class WorkspaceViewModel(application: Application) : AndroidViewModel(application) {
 
     private val gson = Gson()
+
     @SuppressLint("StaticFieldLeak")
     private val ctx = application.applicationContext
 
@@ -132,7 +136,7 @@ class WorkspaceViewModel(application: Application) : AndroidViewModel(applicatio
     fun addAppToWorkspace(workspaceId: String, packageName: String) {
         _state.value = _state.value.copy(
             workspaces = _state.value.workspaces.map { ws ->
-                if (ws.id == workspaceId && ws.type == WorkspaceType.CUSTOM) {
+                if (ws.id == workspaceId) {
                     if (packageName in ws.appIds) ws
                     else ws.copy(appIds = ws.appIds + packageName)
                 } else ws
@@ -144,7 +148,7 @@ class WorkspaceViewModel(application: Application) : AndroidViewModel(applicatio
     fun removeAppFromWorkspace(workspaceId: String, packageName: String) {
         _state.value = _state.value.copy(
             workspaces = _state.value.workspaces.map { ws ->
-                if (ws.id == workspaceId && ws.type == WorkspaceType.CUSTOM) {
+                if (ws.id == workspaceId) {
                     ws.copy(appIds = ws.appIds - packageName)
                 } else ws
             }
@@ -160,12 +164,16 @@ class WorkspaceViewModel(application: Application) : AndroidViewModel(applicatio
         persist()
     }
 
-    fun setAppIcon(packageName: String, uri: String) {
+    fun setAppIcon(packageName: String, bitmap: Bitmap) {
+        val outputStream = ByteArrayOutputStream()
+        bitmap.compress(Bitmap.CompressFormat.PNG, 100, outputStream)
+        val b64 = Base64.encodeToString(outputStream.toByteArray(), Base64.DEFAULT)
+
         val prev = _state.value.appOverrides[packageName]
         _state.value = _state.value.copy(
             appOverrides = _state.value.appOverrides +
-                    (packageName to (prev?.copy(customIconUri = uri)
-                        ?: AppOverride(packageName, customIconUri = uri)))
+                    (packageName to (prev?.copy(customIconBase64 = b64)
+                        ?: AppOverride(packageName, customIconBase64 = b64)))
         )
         persist()
     }
@@ -178,5 +186,4 @@ class WorkspaceViewModel(application: Application) : AndroidViewModel(applicatio
         )
         persist()
     }
-
 }

@@ -14,6 +14,8 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.OpenInNew
 import androidx.compose.material.icons.filled.Delete
+import androidx.compose.material.icons.filled.Edit
+import androidx.compose.material.icons.filled.Image
 import androidx.compose.material.icons.filled.Settings
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Icon
@@ -27,130 +29,130 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import org.elnix.dragonlauncher.R
 
+private data class DialogEntry(
+    val label: String,
+    val icon: androidx.compose.ui.graphics.vector.ImageVector,
+    val backgroundColor: androidx.compose.ui.graphics.Color,
+    val iconTint: androidx.compose.ui.graphics.Color,
+    val onClick: () -> Unit
+)
+
 @Composable
 fun AppLongPressDialog(
     app: AppModel,
-    showNormalEntries: Boolean = true,
-    showWorkspaceEntries: Boolean = false,
-    onRemoveFromWorkspace: (() -> Unit)? = null,
+    // Normal
     onOpen: (() -> Unit)? = null,
     onSettings: (() -> Unit)? = null,
     onUninstall: (() -> Unit)? = null,
-    onDismiss: () -> Unit,
+    // Workspace
+    onRemoveFromWorkspace: (() -> Unit)? = null,
+    onRenameApp: (() -> Unit)? = null,
+    onChangeAppIcon: (() -> Unit)? = null,
+    onDismiss: () -> Unit
 ) {
 
-    // Ensure that the workspace entries are showed only if the lambdas aren't null, and vice versa for normal entries
-    require(
-        (onOpen != null && onSettings != null && onUninstall != null && showNormalEntries) ||
-        (onRemoveFromWorkspace != null && showWorkspaceEntries)
-    )
+    val entries = buildList {
+        onOpen?.let {
+            add(
+                DialogEntry(
+                    label = stringResource(R.string.open),
+                    icon = Icons.AutoMirrored.Filled.OpenInNew,
+                    backgroundColor = MaterialTheme.colorScheme.primaryContainer.copy(alpha = 0.1f),
+                    iconTint = MaterialTheme.colorScheme.primary,
+                    onClick = { onDismiss(); it() }
+                )
+            )
+        }
 
+        onSettings?.let {
+            add(
+                DialogEntry(
+                    label = stringResource(R.string.app_info),
+                    icon = Icons.Default.Settings,
+                    backgroundColor = MaterialTheme.colorScheme.secondaryContainer.copy(alpha = 0.1f),
+                    iconTint = MaterialTheme.colorScheme.primary,
+                    onClick = { onDismiss(); it() }
+                )
+            )
+        }
+
+        onUninstall?.let {
+            add(
+                DialogEntry(
+                    label = stringResource(R.string.uninstall),
+                    icon = Icons.Default.Delete,
+                    backgroundColor = MaterialTheme.colorScheme.errorContainer.copy(alpha = 0.1f),
+                    iconTint = MaterialTheme.colorScheme.error,
+                    onClick = { onDismiss(); it() }
+                )
+            )
+        }
+
+        onRenameApp?.let {
+            add(
+                DialogEntry(
+                    label = stringResource(R.string.rename_app),
+                    icon = Icons.Default.Edit,
+                    backgroundColor = MaterialTheme.colorScheme.secondaryContainer.copy(alpha = 0.1f),
+                    iconTint = MaterialTheme.colorScheme.primary,
+                    onClick = { onDismiss(); it() }
+                )
+            )
+        }
+
+        onChangeAppIcon?.let {
+            add(
+                DialogEntry(
+                    label = stringResource(R.string.change_app_icon),
+                    icon = Icons.Default.Image,
+                    backgroundColor = MaterialTheme.colorScheme.secondaryContainer.copy(alpha = 0.1f),
+                    iconTint = MaterialTheme.colorScheme.primary,
+                    onClick = { onDismiss(); it() }
+                )
+            )
+        }
+
+        onRemoveFromWorkspace?.let {
+            add(
+                DialogEntry(
+                    label = stringResource(R.string.remove_from_workspace),
+                    icon = Icons.Default.Delete,
+                    backgroundColor = MaterialTheme.colorScheme.errorContainer.copy(alpha = 0.1f),
+                    iconTint = MaterialTheme.colorScheme.error,
+                    onClick = { onDismiss(); it() }
+                )
+            )
+        }
+    }
 
     AlertDialog(
         title = { Text(app.name) },
         onDismissRequest = onDismiss,
         text = {
             Column(
-                modifier = Modifier
-                    .fillMaxWidth(),
-                verticalArrangement = Arrangement.spacedBy(5.dp)
+                modifier = Modifier.fillMaxWidth(),
+                verticalArrangement = Arrangement.spacedBy(6.dp)
             ) {
-                if (showNormalEntries) {
+                entries.forEach { entry ->
                     Row(
                         modifier = Modifier
                             .fillMaxWidth()
                             .clip(RoundedCornerShape(12.dp))
-                            .background(MaterialTheme.colorScheme.primaryContainer.copy(alpha = 0.1f))
-                            .clickable { onDismiss(); onOpen!!() }
+                            .background(entry.backgroundColor)
+                            .clickable { entry.onClick() }
                             .padding(16.dp),
-                        horizontalArrangement = Arrangement.Start,
                         verticalAlignment = Alignment.CenterVertically
                     ) {
                         Icon(
-                            imageVector = Icons.AutoMirrored.Filled.OpenInNew,
-                            contentDescription = "Open",
+                            imageVector = entry.icon,
+                            contentDescription = entry.label,
                             modifier = Modifier.size(24.dp),
-                            tint = MaterialTheme.colorScheme.primary
+                            tint = entry.iconTint
                         )
                         Spacer(modifier = Modifier.width(12.dp))
                         Text(
-                            text = "Open",
-                            style = MaterialTheme.typography.titleMedium,
-                            color = MaterialTheme.colorScheme.onSurface
-                        )
-                    }
-
-                    Row(
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .clip(RoundedCornerShape(12.dp))
-                            .background(MaterialTheme.colorScheme.secondaryContainer.copy(alpha = 0.1f))
-                            .clickable { onDismiss(); onSettings!!() }
-                            .padding(16.dp),
-                        horizontalArrangement = Arrangement.Start,
-                        verticalAlignment = Alignment.CenterVertically
-                    ) {
-                        Icon(
-                            imageVector = Icons.Default.Settings,
-                            contentDescription = "Settings",
-                            modifier = Modifier.size(24.dp),
-                            tint = MaterialTheme.colorScheme.primary
-                        )
-                        Spacer(modifier = Modifier.width(12.dp))
-                        Text(
-                            text =  "App Settings",
-                            style = MaterialTheme.typography.titleMedium,
-                            color = MaterialTheme.colorScheme.onSurface
-                        )
-                    }
-
-                    Row(
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .clip(RoundedCornerShape(12.dp))
-                            .background(MaterialTheme.colorScheme.errorContainer.copy(alpha = 0.1f))
-                            .clickable { onDismiss(); onUninstall!!() }
-                            .padding(16.dp),
-                        horizontalArrangement = Arrangement.Start,
-                        verticalAlignment = Alignment.CenterVertically
-                    ) {
-                        Icon(
-                            imageVector = Icons.Default.Delete,
-                            contentDescription = "Uninstall",
-                            modifier = Modifier.size(24.dp),
-                            tint = MaterialTheme.colorScheme.error
-                        )
-                        Spacer(modifier = Modifier.width(12.dp))
-                        Text(
-                            text = "Uninstall",
-                            style = MaterialTheme.typography.titleMedium,
-                            color = MaterialTheme.colorScheme.onSurface
-                        )
-                    }
-                }
-
-                if (showWorkspaceEntries) {
-                    Row(
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .clip(RoundedCornerShape(12.dp))
-                            .background(MaterialTheme.colorScheme.errorContainer.copy(alpha = 0.1f))
-                            .clickable { onDismiss(); onRemoveFromWorkspace!!() }
-                            .padding(16.dp),
-                        horizontalArrangement = Arrangement.Start,
-                        verticalAlignment = Alignment.CenterVertically
-                    ) {
-                        Icon(
-                            imageVector = Icons.Default.Delete,
-                            contentDescription = stringResource(R.string.remove_from_workspace),
-                            modifier = Modifier.size(24.dp),
-                            tint = MaterialTheme.colorScheme.error
-                        )
-                        Spacer(modifier = Modifier.width(12.dp))
-                        Text(
-                            text = stringResource(R.string.remove_from_workspace),
-                            style = MaterialTheme.typography.titleMedium,
-                            color = MaterialTheme.colorScheme.onSurface
+                            text = entry.label,
+                            style = MaterialTheme.typography.titleMedium
                         )
                     }
                 }

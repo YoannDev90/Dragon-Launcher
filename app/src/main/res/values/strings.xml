@@ -114,4 +114,11 @@
     <string name="search_apps">Search Apps</string>
     <string name="remove_from_workspace">Remove From Workspace</string>
     <string name="system_workspace_cant_edit">System Workspace, can\'t edit</string>
+    <string name="change_app_icon">Change App Icon</string>
+    <string name="app_info">App Info</string>
+    <string name="uninstall">Uninstall</string>
+    <string name="open">Open</string>
+    <string name="rename_app">Rename App</string>
+    <string name="icon_updated">Icon Updated</string>
+    <string name="icon_update_failed">Icon Update failed</string>
 </resources>

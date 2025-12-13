@@ -47,6 +47,7 @@ import org.elnix.dragonlauncher.data.helpers.DrawerActions
 import org.elnix.dragonlauncher.data.stores.DrawerSettingsStore
 import org.elnix.dragonlauncher.ui.helpers.AppGrid
 import org.elnix.dragonlauncher.utils.AppDrawerViewModel
+import org.elnix.dragonlauncher.utils.ImageUtils
 import org.elnix.dragonlauncher.utils.actions.launchSwipeAction
 import org.elnix.dragonlauncher.utils.workspace.WorkspaceViewModel
 
@@ -190,6 +191,15 @@ fun AppDrawerScreen(
                         }
                     }
 
+                    val iconsMerged = icons.toMutableMap()
+                    apps.forEach { app ->
+                        val base64 = overrides[app.packageName]?.customIconBase64
+                        if (base64 != null) {
+                            val bmp = ImageUtils.base64ToImageBitmap(base64)
+                            if (bmp != null) iconsMerged[app.packageName] = bmp
+                        }
+                    }
+
                     LaunchedEffect(filteredApps) {
                         if (autoLaunchSingleMatch && filteredApps.size == 1) {
                             launchSwipeAction(ctx, filteredApps.first().action)
@@ -199,7 +209,7 @@ fun AppDrawerScreen(
 
                     AppGrid(
                         apps = filteredApps,
-                        icons = icons,
+                        icons = iconsMerged,
                         gridSize = gridSize,
                         txtColor = MaterialTheme.colorScheme.onSurface,
                         showIcons = showIcons,

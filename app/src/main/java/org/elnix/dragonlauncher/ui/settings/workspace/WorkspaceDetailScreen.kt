@@ -2,6 +2,10 @@
 
 package org.elnix.dragonlauncher.ui.settings.workspace
 
+import android.content.Intent
+import android.provider.Settings
+import androidx.activity.compose.rememberLauncherForActivityResult
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
@@ -22,15 +26,17 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
+import androidx.core.net.toUri
 import kotlinx.coroutines.launch
 import org.elnix.dragonlauncher.R
 import org.elnix.dragonlauncher.ui.drawer.AppLongPressDialog
 import org.elnix.dragonlauncher.ui.drawer.AppModel
-import org.elnix.dragonlauncher.ui.drawer.WorkspaceType
 import org.elnix.dragonlauncher.ui.helpers.AppGrid
 import org.elnix.dragonlauncher.ui.helpers.AppPickerDialog
 import org.elnix.dragonlauncher.ui.helpers.settings.SettingsLazyHeader
 import org.elnix.dragonlauncher.utils.AppDrawerViewModel
+import org.elnix.dragonlauncher.utils.ImageUtils
+import org.elnix.dragonlauncher.utils.actions.launchSwipeAction
 import org.elnix.dragonlauncher.utils.showToast
 import org.elnix.dragonlauncher.utils.workspace.WorkspaceViewModel
 
@@ -56,11 +62,51 @@ fun WorkspaceDetailScreen(
 
     val icons by appsViewModel.icons.collectAsState()
 
+    val iconsMerged = icons.toMutableMap()
+    apps.forEach { app ->
+        val base64 = workspaceState.appOverrides[app.packageName]?.customIconBase64
+        if (base64 != null) {
+            val bmp = ImageUtils.base64ToImageBitmap(base64)
+            if (bmp != null) iconsMerged[app.packageName] = bmp
+        }
+    }
+
     var showAppPicker by remember { mutableStateOf(false) }
     var showDetailScreen by remember { mutableStateOf<AppModel?>(null) }
 
+    var showRenameAppDialog by remember { mutableStateOf(false) }
+    var renameTargetPackage by remember { mutableStateOf<String?>(null) }
+    var renameText by remember { mutableStateOf("") }
 
-    val isCustom = workspace.type == WorkspaceType.CUSTOM
+
+    var iconTargetPackage by remember { mutableStateOf<String?>(null) }
+
+    val pickImageLauncher = rememberLauncherForActivityResult(
+        ActivityResultContracts.OpenDocument()
+    ) { uri ->
+        val pkg = iconTargetPackage ?: return@rememberLauncherForActivityResult
+        if (uri != null) {
+            scope.launch {
+                try {
+                    val bitmap = ImageUtils.loadBitmap(ctx, uri)
+                    val cropped = ImageUtils.cropCenterSquare(bitmap)
+                    val resized = ImageUtils.resize(cropped, 192)
+
+                    // Save as Base64 now
+                    workspaceViewModel.setAppIcon(
+                        pkg,
+                        resized
+                    )
+                    // Optionally show toast
+                    ctx.showToast(R.string.icon_updated)
+                } catch (e: Exception) {
+                    e.printStackTrace()
+                    ctx.showToast(R.string.icon_update_failed)
+                }
+            }
+        }
+    }
+
 
 
     Box(Modifier.fillMaxSize()) {
@@ -72,26 +118,23 @@ fun WorkspaceDetailScreen(
             content = {
                 AppGrid(
                     apps = apps,
-                    icons = icons,
+                    icons = iconsMerged,
                     gridSize = gridSize,
                     txtColor = Color.White,
                     showIcons = showIcons,
                     showLabels = showLabels,
-                    onLongClick = if (isCustom) { { showDetailScreen = it } } else null,
-                    onClick = if (isCustom) { { app -> showDetailScreen = app } } else { _ -> }
+                    onLongClick = { showDetailScreen = it },
+                    onClick = { app -> showDetailScreen = app }
                 )
             }
         )
 
         FloatingActionButton(
-            onClick = {
-                if (isCustom) { showAppPicker = true }
-                else ctx.showToast(R.string.system_workspace_cant_edit)
-            },
+            onClick = { showAppPicker = true },
             modifier = Modifier
                 .align(Alignment.BottomEnd)
                 .padding(16.dp),
-            containerColor = if (isCustom) MaterialTheme.colorScheme.primary else Color.DarkGray
+            containerColor =  MaterialTheme.colorScheme.primary
         ) {
             Icon(Icons.Default.Add, null)
         }
@@ -116,8 +159,23 @@ fun WorkspaceDetailScreen(
         val app = showDetailScreen!!
         AppLongPressDialog(
             app = app,
-            showWorkspaceEntries = true,
-            showNormalEntries = false,
+            onOpen = {
+                launchSwipeAction(ctx, app.action)
+            },
+            onSettings = {
+                ctx.startActivity(
+                    Intent(Settings.ACTION_APPLICATION_DETAILS_SETTINGS).apply {
+                        data = "package:${app.packageName}".toUri()
+                    }
+                )
+            },
+            onUninstall = {
+                ctx.startActivity(
+                    Intent(Intent.ACTION_DELETE).apply {
+                        data = "package:${app.packageName}".toUri()
+                    }
+                )
+            },
             onRemoveFromWorkspace = {
                 scope.launch {
                     workspaceViewModel.removeAppFromWorkspace(
@@ -125,7 +183,40 @@ fun WorkspaceDetailScreen(
                         app.packageName
                     )
                 }
-            }
-        ) { showDetailScreen = null }
+            },
+            onRenameApp = {
+                renameText = app.name
+                renameTargetPackage = app.packageName
+                showRenameAppDialog = true
+            },
+            onChangeAppIcon = {
+                val pkg = app.packageName
+                iconTargetPackage = pkg
+                pickImageLauncher.launch(arrayOf("image/*"))
+            },
+            onDismiss = { showDetailScreen = null }
+        )
     }
+
+    RenameAppDialog(
+        visible = showRenameAppDialog,
+        title = ctx.getString(R.string.rename_app),
+        name = renameText,
+        onNameChange = { renameText = it },
+        onConfirm = {
+            val pkg = renameTargetPackage ?: return@RenameAppDialog
+
+            scope.launch {
+                workspaceViewModel.renameApp(
+                    packageName = pkg,
+                    name = renameText
+                )
+            }
+
+            showRenameAppDialog = false
+            showDetailScreen = null
+            renameTargetPackage = null
+        },
+        onDismiss = { showRenameAppDialog = false }
+    )
 }

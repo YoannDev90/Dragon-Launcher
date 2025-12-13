@@ -34,14 +34,17 @@ data class Workspace(
 data class AppOverride(
     val packageName: String,
     val customLabel: String? = null,
-    val customIconUri: String? = null
-)
+    val customIconBase64: String? = null)
 
 
 
+//data class WorkspaceState(
+//    val workspaces: List<Workspace>,
+//    val appOverrides: Map<String, AppOverride>
+//)
 data class WorkspaceState(
-    val workspaces: List<Workspace>,
-    val appOverrides: Map<String, AppOverride>
+    val workspaces: List<Workspace> = defaultWorkspaces,
+    val appOverrides: Map<String, AppOverride> = emptyMap()
 )
 
 fun resolveApp(
