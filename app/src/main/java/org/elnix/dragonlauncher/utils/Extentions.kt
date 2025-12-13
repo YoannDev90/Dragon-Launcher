@@ -1,12 +1,12 @@
 package org.elnix.dragonlauncher.utils
 
 import android.app.SearchManager
+import android.app.role.RoleManager
 import android.content.ClipData
 import android.content.ClipboardManager
 import android.content.Context
 import android.content.Intent
 import android.content.pm.PackageManager
-import android.content.pm.ResolveInfo
 import android.net.Uri
 import android.os.Build
 import android.provider.AlarmClock
@@ -72,20 +72,21 @@ fun Context.openUrl(url: String) {
 
 val Context.isDefaultLauncher: Boolean
     get() {
-        // 1. Create the Intent that represents the Home action
-        val intent = Intent(Intent.ACTION_MAIN).apply {
-            addCategory(Intent.CATEGORY_HOME)
-            addCategory(Intent.CATEGORY_DEFAULT)
+        return if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
+            val roleManager = getSystemService(Context.ROLE_SERVICE) as RoleManager
+            roleManager.isRoleHeld(RoleManager.ROLE_HOME)
+        } else {
+            val intent = Intent(Intent.ACTION_MAIN).apply {
+                addCategory(Intent.CATEGORY_HOME)
+            }
+
+            val resolveInfo = packageManager.resolveActivity(
+                intent,
+                PackageManager.MATCH_DEFAULT_ONLY
+            )
+
+            resolveInfo?.activityInfo?.packageName == packageName
         }
-
-        // 2. Resolve the activity that would handle this intent (the default Home activity)
-        val resolveInfo: ResolveInfo? = packageManager.resolveActivity(
-            intent,
-            PackageManager.MATCH_DEFAULT_ONLY // Only consider activities that are a full match (including categories)
-        )
-
-        // 3. Check if the resolved activity belongs to your application's package
-        return resolveInfo?.activityInfo?.packageName == packageName
     }
 
 
