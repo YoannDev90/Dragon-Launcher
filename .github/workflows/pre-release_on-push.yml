@@ -43,14 +43,19 @@ jobs:
         with:
           timeout_minutes: 10
           max_attempts: 3
-          command: ./gradlew assembleRelease
+          command: ./gradlew assembleRelease assembleUnminifiedRelease
 
-      # Rename APK
-      - name: Rename APK with version
+      - name: Rename APKs with version
         run: |
-          NEW="DragonLauncher-v${{ env.versionName }}-beta-${{ github.run_number }}.apk"
-          mv app/build/outputs/apk/release/app-release.apk "$NEW"
-          echo "APK_NAME=$NEW" >> $GITHUB_ENV
+          MIN="DragonLauncher-v${{ env.versionName }}-beta-${{ github.run_number }}.apk"
+          UNMIN="DragonLauncher-v${{ env.versionName }}-beta-${{ github.run_number }}-unminified.apk"
+          
+          mv app/build/outputs/apk/release/app-release.apk "$MIN"
+          mv app/build/outputs/apk/unminifiedRelease/app-unminifiedRelease.apk "$UNMIN"
+          
+          echo "APK_MIN=$MIN" >> $GITHUB_ENV
+          echo "APK_UNMIN=$UNMIN" >> $GITHUB_ENV
+      
 
       # Create tag before release
       - name: Create tag
@@ -66,6 +71,8 @@ jobs:
           tag_name: ${{ env.TAG_NAME }}
           name: "v${{ env.versionName }}-beta-${{ github.run_number }}"
           prerelease: true
-          files: ${{ env.APK_NAME }}
+          files: |
+            ${{ env.APK_MIN }}
+            ${{ env.APK_UNMIN }}
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

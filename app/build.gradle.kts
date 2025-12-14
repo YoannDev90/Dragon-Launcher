@@ -46,6 +46,12 @@ android {
                 "proguard-rules.pro"
             )
         }
+
+        create("unminifiedRelease") {
+            initWith(getByName("release"))
+            isMinifyEnabled = false
+            isShrinkResources = false
+        }
     }
     compileOptions {
         sourceCompatibility = JavaVersion.VERSION_17

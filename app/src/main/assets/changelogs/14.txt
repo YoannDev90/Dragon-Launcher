@@ -1,5 +1,5 @@
-1.1.0
-* Major 1.1.0 Update
+1.2.0
+* Major 1.2.0 Update
 * Workspaces update ! All the apps are nested inside workspaces, that can be fully customized
 * You can rename apps
 * You can change apps icons
