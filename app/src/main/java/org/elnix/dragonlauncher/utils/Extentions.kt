@@ -179,7 +179,7 @@ fun openCalendar(context: Context) {
         try {
             val intent = Intent(Intent.ACTION_MAIN).setClassName(
                 context,
-                "app.cclauncher.helper.FakeHomeActivity"
+                "org.elnix.dragonlauncher.MainActivity"
             )
             intent.addCategory(Intent.CATEGORY_APP_CALENDAR)
             context.startActivity(intent)
