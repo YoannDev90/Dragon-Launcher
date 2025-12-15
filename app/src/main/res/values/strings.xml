@@ -121,4 +121,5 @@
     <string name="rename_app">Rename App</string>
     <string name="icon_updated">Icon Updated</string>
     <string name="icon_update_failed">Icon Update failed</string>
+    <string name="none">None</string>
 </resources>

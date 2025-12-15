@@ -107,6 +107,9 @@ fun DrawerTab(
     val leftActionNotNone = leftDrawerAction != DrawerActions.NONE
     val rightActionNotNone = rightDrawerAction != DrawerActions.NONE
 
+    val leftActionNotDisabled = leftDrawerAction != DrawerActions.DISABLED
+    val rightActionNotDisabled = rightDrawerAction != DrawerActions.DISABLED
+
     SettingsLazyHeader(
         title = stringResource(R.string.app_drawer),
         onBack = onBack,
@@ -219,87 +222,93 @@ fun DrawerTab(
                 horizontalArrangement = Arrangement.Center
             ) {
 
-                // LEFT PANEL -----------------------------------------------------------
-                Box(
-                    modifier = Modifier
-                        .fillMaxHeight()
-                        .fillMaxWidth(localLeft)
-                        .background(MaterialTheme.colorScheme.primary.copy(if (leftActionNotNone) 1f else 0.5f)),
-                    contentAlignment = Alignment.Center
-                ) {
-                    if (leftActionNotNone) {
-                        Icon(
-                            imageVector = drawerActionIcon(leftDrawerAction),
-                            contentDescription = stringResource(R.string.left_drawer_action),
-                            tint = MaterialTheme.colorScheme.outline
-                        )
-                    }
-                }
-
-                // DRAG HANDLE LEFT -----------------------------------------------------
-                Box(
-                    modifier = Modifier
-                        .fillMaxHeight()
-                        .width(6.dp)
-                        .background(MaterialTheme.colorScheme.outline.copy(if (rightActionNotNone) 1f else 0.5f))
-                        .pointerInput(Unit) {
-                            detectDragGestures(
-                                onDrag = { change, drag ->
-                                    change.consume()
-                                    if (totalWidthPx > 0f) {
-                                        val deltaPercent = drag.x / totalWidthPx
-                                        localLeft = (localLeft + deltaPercent).coerceIn(0f, 1f)
-                                    }
-                                },
-                                onDragEnd = {
-                                    scope.launch {
-                                        DrawerSettingsStore.setLeftDrawerWidth(ctx, localLeft)
-                                    }
-                                }
+                if (leftActionNotDisabled) {
+                    // LEFT PANEL -----------------------------------------------------------
+                    Box(
+                        modifier = Modifier
+                            .fillMaxHeight()
+                            .fillMaxWidth(localLeft)
+                            .background(MaterialTheme.colorScheme.primary.copy(if (leftActionNotNone) 1f else 0.5f)),
+                        contentAlignment = Alignment.Center
+                    ) {
+                        if (leftActionNotNone) {
+                            Icon(
+                                imageVector = drawerActionIcon(leftDrawerAction),
+                                contentDescription = stringResource(R.string.left_drawer_action),
+                                tint = MaterialTheme.colorScheme.outline
                             )
                         }
-                )
+                    }
+
+                    // DRAG HANDLE LEFT -----------------------------------------------------
+                    Box(
+                        modifier = Modifier
+                            .fillMaxHeight()
+                            .width(6.dp)
+                            .background(MaterialTheme.colorScheme.outline.copy(if (rightActionNotNone) 1f else 0.5f))
+                            .pointerInput(Unit) {
+                                detectDragGestures(
+                                    onDrag = { change, drag ->
+                                        change.consume()
+                                        if (totalWidthPx > 0f) {
+                                            val deltaPercent = drag.x / totalWidthPx
+                                            localLeft = (localLeft + deltaPercent).coerceIn(0f, 1f)
+                                        }
+                                    },
+                                    onDragEnd = {
+                                        scope.launch {
+                                            DrawerSettingsStore.setLeftDrawerWidth(ctx, localLeft)
+                                        }
+                                    }
+                                )
+                            }
+                    )
+                }
 
                 Spacer(Modifier.weight(1f))
 
-                // DRAG HANDLE RIGHT ----------------------------------------------------
-                Box(
-                    modifier = Modifier
-                        .fillMaxHeight()
-                        .width(6.dp)
-                        .background(MaterialTheme.colorScheme.outline.copy(if (rightActionNotNone) 1f else 0.5f))
-                        .pointerInput(Unit) {
-                            detectDragGestures(
-                                onDrag = { change, drag ->
-                                    change.consume()
-                                    if (totalWidthPx > 0f) {
-                                        val deltaPercent = -drag.x / totalWidthPx // reversed
-                                        localRight = (localRight + deltaPercent).coerceIn(0f, 1f)
+                if (rightActionNotDisabled) {
+
+                    // DRAG HANDLE RIGHT ----------------------------------------------------
+                    Box(
+                        modifier = Modifier
+                            .fillMaxHeight()
+                            .width(6.dp)
+                            .background(MaterialTheme.colorScheme.outline.copy(if (rightActionNotNone) 1f else 0.5f))
+                            .pointerInput(Unit) {
+                                detectDragGestures(
+                                    onDrag = { change, drag ->
+                                        change.consume()
+                                        if (totalWidthPx > 0f) {
+                                            val deltaPercent = -drag.x / totalWidthPx // reversed
+                                            localRight =
+                                                (localRight + deltaPercent).coerceIn(0f, 1f)
+                                        }
+                                    },
+                                    onDragEnd = {
+                                        scope.launch {
+                                            DrawerSettingsStore.setRightDrawerWidth(ctx, localRight)
+                                        }
                                     }
-                                },
-                                onDragEnd = {
-                                    scope.launch {
-                                        DrawerSettingsStore.setRightDrawerWidth(ctx, localRight)
-                                    }
-                                }
+                                )
+                            }
+                    )
+
+                    // RIGHT PANEL ----------------------------------------------------------
+                    Box(
+                        modifier = Modifier
+                            .fillMaxHeight()
+                            .fillMaxWidth(localRight)
+                            .background(MaterialTheme.colorScheme.primary.copy(if (rightActionNotNone) 1f else 0.5f)),
+                        contentAlignment = Alignment.Center
+                    ) {
+                        if (rightActionNotNone) {
+                            Icon(
+                                imageVector = drawerActionIcon(rightDrawerAction),
+                                contentDescription = stringResource(R.string.right_drawer_action),
+                                tint = MaterialTheme.colorScheme.outline
                             )
                         }
-                )
-
-                // RIGHT PANEL ----------------------------------------------------------
-                Box(
-                    modifier = Modifier
-                        .fillMaxHeight()
-                        .fillMaxWidth(localRight)
-                        .background(MaterialTheme.colorScheme.primary.copy(if (rightActionNotNone) 1f else 0.5f)),
-                    contentAlignment = Alignment.Center
-                ) {
-                    if (rightActionNotNone) {
-                        Icon(
-                            imageVector = drawerActionIcon(rightDrawerAction),
-                            contentDescription = stringResource(R.string.right_drawer_action),
-                            tint = MaterialTheme.colorScheme.outline
-                        )
                     }
                 }
             }
@@ -307,20 +316,20 @@ fun DrawerTab(
 
         item {
             ActionSelectorRow(
-                options = DrawerActions.entries.filter { it != DrawerActions.NONE },
+                options = DrawerActions.entries.filter { it != DrawerActions.DISABLED },
                 selected = leftDrawerAction,
                 label = stringResource(R.string.left_drawer_action),
                 optionLabel = { drawerActionsLabel(ctx, it) },
                 onToggle = {
                     scope.launch {
-                        if (leftActionNotNone) {
-                            DrawerSettingsStore.setLeftDrawerAction(ctx, DrawerActions.NONE)
+                        if (leftActionNotDisabled) {
+                            DrawerSettingsStore.setLeftDrawerAction(ctx, DrawerActions.DISABLED)
                         } else {
                             DrawerSettingsStore.setLeftDrawerAction(ctx, DrawerActions.TOGGLE_KB)
                         }
                     }
                 },
-                toggled = leftDrawerAction != DrawerActions.NONE
+                toggled = leftDrawerAction != DrawerActions.DISABLED
             ) {
                 scope.launch { DrawerSettingsStore.setLeftDrawerAction(ctx, it) }
             }
@@ -328,20 +337,20 @@ fun DrawerTab(
 
         item {
             ActionSelectorRow(
-                options = DrawerActions.entries.filter { it != DrawerActions.NONE },
+                options = DrawerActions.entries.filter { it != DrawerActions.DISABLED },
                 selected = rightDrawerAction,
                 label = stringResource(R.string.right_drawer_action),
                 optionLabel = { drawerActionsLabel(ctx, it) },
                 onToggle = {
                     scope.launch {
-                        if (rightActionNotNone) {
-                            DrawerSettingsStore.setRightDrawerAction(ctx, DrawerActions.NONE)
+                        if (rightActionNotDisabled) {
+                            DrawerSettingsStore.setRightDrawerAction(ctx, DrawerActions.DISABLED)
                         } else {
                             DrawerSettingsStore.setRightDrawerAction(ctx, DrawerActions.CLOSE)
                         }
                     }
                 },
-                toggled = rightDrawerAction != DrawerActions.NONE
+                toggled = rightDrawerAction != DrawerActions.DISABLED
             ) {
                 scope.launch { DrawerSettingsStore.setRightDrawerAction(ctx, it) }
             }

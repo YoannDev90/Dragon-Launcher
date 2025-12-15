@@ -198,19 +198,21 @@ fun MainAppUi(
                 )
             }
 
-            composable(ROUTES.DRAWER) { AppDrawerScreen(
-                appsViewModel = appsViewModel,
-                workspaceViewModel = workspaceViewModel,
-                showIcons = showAppIconsInDrawer,
-                showLabels = showAppLabelsInDrawer,
-                autoShowKeyboard = autoShowKeyboardOnDrawer,
-                gridSize = gridSize,
-                searchBarBottom = searchBarBottom,
-                leftAction = leftDrawerAction,
-                leftWidth = leftDrawerWidth,
-                rightAction = rightDrawerAction,
-                rightWidth = rightDrawerWidth,
-            ) { goMainScreen() } }
+            composable(ROUTES.DRAWER) {
+                AppDrawerScreen(
+                    appsViewModel = appsViewModel,
+                    workspaceViewModel = workspaceViewModel,
+                    showIcons = showAppIconsInDrawer,
+                    showLabels = showAppLabelsInDrawer,
+                    autoShowKeyboard = autoShowKeyboardOnDrawer,
+                    gridSize = gridSize,
+                    searchBarBottom = searchBarBottom,
+                    leftAction = leftDrawerAction,
+                    leftWidth = leftDrawerWidth,
+                    rightAction = rightDrawerAction,
+                    rightWidth = rightDrawerWidth,
+                ) { goMainScreen() }
+            }
 
 
             // Settings + Welcome

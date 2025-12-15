@@ -127,6 +127,7 @@ fun AppDrawerScreen(
             DrawerActions.CLOSE -> onClose()
             DrawerActions.TOGGLE_KB -> toggleKeyboard()
             DrawerActions.NONE -> Unit
+            DrawerActions.DISABLED -> Unit
         }
     }
 
@@ -159,7 +160,7 @@ fun AppDrawerScreen(
 
         Row(modifier = Modifier.fillMaxSize()) {
 
-            if (leftAction != DrawerActions.NONE) {
+            if (leftAction != DrawerActions.DISABLED) {
                 Box(
                     modifier = Modifier
                         .fillMaxHeight()
@@ -222,7 +223,7 @@ fun AppDrawerScreen(
                 }
             }
 
-            if (rightAction != DrawerActions.NONE) {
+            if (rightAction != DrawerActions.DISABLED) {
                 Box(
                     modifier = Modifier
                         .fillMaxHeight()
