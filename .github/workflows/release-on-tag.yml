@@ -15,32 +15,35 @@ jobs:
         with:
           fetch-depth: 0
 
-      - name: Extract version from tag
-        id: version
-        run: |
-          TAG="${GITHUB_REF#refs/tags/}"
-          echo "VERSION=$TAG" >> $GITHUB_ENV
-          
+#      - name: Extract version from tag
+#        id: version
+#        run: |
+#          TAG="${GITHUB_REF#refs/tags/}"
+#          echo "VERSION=$TAG" >> $GITHUB_ENV
+#
 
-      - name: Read changelog file
+      - name: Read latest changelog
         id: changelog
         run: |
-          CHANGELOG_FILE="fastlane/metadata/android/en-US/changelogs/${{ env.VERSION_CODE }}.txt"
-          
-          if [ -f "$CHANGELOG_FILE" ]; then
-            # Parse format: first line=version, rest=changes (comma or * separated)
-            VERSION_NAME=$(head -n 1 "$CHANGELOG_FILE")
-            CHANGES=$(tail -n +2 "$CHANGELOG_FILE" | sed 's/^[ *]//g' | sed ':a;N;$!ba;s/,\n/\n/g' | sed 's/^/• /' | sed 's/$/\n/')
-          
-            # Format as markdown
-            FORMATTED="## $VERSION_NAME\n\n$CHANGES"
-            echo "changelog<<EOF" >> $GITHUB_OUTPUT
-            echo "$FORMATTED" >> $GITHUB_OUTPUT
-            echo "EOF" >> $GITHUB_OUTPUT
-            echo "has_changelog=true" >> $GITHUB_OUTPUT
-          else
-            echo "has_changelog=false" >> $GITHUB_OUTPUT
-          fi
+          DIR="fastlane/metadata/android/en-US/changelogs"
+
+          FILE=$(ls "$DIR"/*.txt | sed 's#.*/##' | sed 's/\.txt$//' | sort -n | tail -1)
+
+          CHANGELOG_FILE="$DIR/$FILE.txt"
+
+          echo "Using changelog: $CHANGELOG_FILE"
+
+          VERSION_NAME=$(head -n 1 "$CHANGELOG_FILE")
+          BODY=$(tail -n +2 "$CHANGELOG_FILE")
+
+          {
+            echo "changelog<<EOF"
+            echo "## $VERSION_NAME"
+            echo
+            echo "$BODY"
+            echo "EOF"
+          } >> "$GITHUB_OUTPUT"
+      
 
       - name: Set up JDK
         uses: actions/setup-java@v4
