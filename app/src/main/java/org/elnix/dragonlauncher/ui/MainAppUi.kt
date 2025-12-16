@@ -130,8 +130,11 @@ fun MainAppUi(
     val lifecycleOwner = LocalLifecycleOwner.current
     var isDefaultLauncher by remember { mutableStateOf(ctx.isDefaultLauncher) }
 
-    LaunchedEffect(Unit, lastSeenVersionCode) {
-        if (lastSeenVersionCode < currentVersionCode) {
+    val navBackStackEntry by navController.currentBackStackEntryAsState()
+    val currentRoute = navBackStackEntry?.destination?.route
+
+    LaunchedEffect(Unit, lastSeenVersionCode, currentRoute) {
+        if (lastSeenVersionCode < currentVersionCode && currentRoute != ROUTES.WELCOME) {
             showWhatsNewBottomSheet = true
         }
     }
@@ -167,8 +170,7 @@ fun MainAppUi(
     fun goWelcome() = navController.navigate(ROUTES.WELCOME)
 
 
-    val navBackStackEntry by navController.currentBackStackEntryAsState()
-    val currentRoute = navBackStackEntry?.destination?.route
+
 
 
     val showBanner = showSetDefaultLauncherBanner &&
