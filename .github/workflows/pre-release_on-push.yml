@@ -54,7 +54,7 @@ jobs:
           MIN="DragonLauncher-v${{ env.versionName }}-beta-${{ github.run_number }}.apk"
           UNMIN="DragonLauncher-v${{ env.versionName }}-beta-${{ github.run_number }}-unminified.apk"
           DEBUG="DragonLauncher-v${{ env.versionName }}-beta-${{ github.run_number }}-debuggable.apk"
-&
+
           mv app/build/outputs/apk/release/app-release.apk "$MIN"
           mv app/build/outputs/apk/unminifiedRelease/app-unminifiedRelease.apk "$UNMIN"
           mv app/build/outputs/apk/debuggableRelease/app-debuggableRelease.apk "$DEBUG"
