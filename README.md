@@ -1,4 +1,4 @@
-# ![App Icon](./fastlane/metadata/android/en-US/images/icon_small.png) Dragon Launcher - Fast Gesture based android launcher
+# ![App Icon](./fastlane/metadata/android/en-US/images/icon_rounded.png) Dragon Launcher - Fast Gesture based android launcher
 
 ### Dragon Launcher is a highly customizable Android launcher focused on speed and efficiency.
 
