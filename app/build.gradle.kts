@@ -59,12 +59,23 @@ android {
         release {
             isMinifyEnabled = true
             isShrinkResources = true
-            signingConfig = signingConfigs.getByName("release")
+
+            val hasSigning =
+                env("KEYSTORE_FILE") != null &&
+                        env("KEYSTORE_PASSWORD") != null &&
+                        env("KEY_ALIAS") != null &&
+                        env("KEY_PASSWORD") != null
+
+            if (hasSigning) {
+                signingConfig = signingConfigs.getByName("release")
+            }
+
             proguardFiles(
                 getDefaultProguardFile("proguard-android-optimize.txt"),
                 "proguard-rules.pro"
             )
         }
+
 
         create("unminifiedRelease") {
             initWith(getByName("release"))
