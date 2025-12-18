@@ -1,7 +1,10 @@
 package org.elnix.dragonlauncher
 
 import android.annotation.SuppressLint
+import android.content.Intent
+import android.content.IntentFilter
 import android.content.pm.ActivityInfo
+import android.os.Build
 import android.os.Bundle
 import android.view.WindowManager
 import androidx.activity.ComponentActivity
@@ -45,8 +48,19 @@ class MainActivity : ComponentActivity() {
     private var navControllerHolder = mutableStateOf<NavHostController?>(null)
 
 
+    private val packageReceiver = PackageReceiver()
+    private val filter = IntentFilter().apply {
+        addAction(Intent.ACTION_PACKAGE_ADDED)
+        addAction(Intent.ACTION_PACKAGE_REMOVED)
+        addDataScheme("package")
+    }
+
     @SuppressLint("SourceLockedOrientationActivity")
     override fun onCreate(savedInstanceState: Bundle?) {
+
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+            registerReceiver(packageReceiver, filter, RECEIVER_NOT_EXPORTED)
+        }
 
         // Use hardware acceleration
         window.setFlags(
@@ -212,5 +226,10 @@ class MainActivity : ComponentActivity() {
                 popUpTo(0) { inclusive = true }
             }
         }
+    }
+
+    override fun onDestroy() {
+        super.onDestroy()
+        unregisterReceiver(packageReceiver)
     }
 }
