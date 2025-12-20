@@ -100,6 +100,10 @@ fun MainScreen(
 
 
     fun launchAction(point: SwipePointSerializable?) {
+        isDragging = false
+        start = null
+        current = null
+
         launchSwipeAction(
             ctx = ctx,
             action = point?.action,
