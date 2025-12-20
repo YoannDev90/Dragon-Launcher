@@ -14,7 +14,6 @@ EOF
 fi
 
 CHANGELOG_FILE="$DIR/$FILE.txt"
-echo "Using changelog: $CHANGELOG_FILE"
 
 # Extract version and date, then process with awk
 awk '
