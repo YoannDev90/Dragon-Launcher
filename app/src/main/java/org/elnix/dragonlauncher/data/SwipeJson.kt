@@ -11,6 +11,7 @@ import com.google.gson.JsonSerializationContext
 import com.google.gson.JsonSerializer
 import com.google.gson.annotations.SerializedName
 import com.google.gson.reflect.TypeToken
+import kotlinx.serialization.Serializable
 import java.lang.reflect.Type
 
 // Keep the same data classes, no @Serializable needed
@@ -22,19 +23,20 @@ data class SwipePointSerializable(
 )
 
 // Use sealed class for actions
+@Serializable
 sealed class SwipeActionSerializable {
-    data class LaunchApp(val packageName: String) : SwipeActionSerializable()
-    data class OpenUrl(val url: String) : SwipeActionSerializable()
-    data class OpenFile(
+    @Serializable data class LaunchApp(val packageName: String) : SwipeActionSerializable()
+    @Serializable data class OpenUrl(val url: String) : SwipeActionSerializable()
+    @Serializable data class OpenFile(
         val uri: String,
         val mimeType: String? = null
     ) : SwipeActionSerializable()
-    object NotificationShade : SwipeActionSerializable()
-    object ControlPanel : SwipeActionSerializable()
-    object OpenAppDrawer : SwipeActionSerializable()
-    object  OpenDragonLauncherSettings: SwipeActionSerializable()
-    object Lock: SwipeActionSerializable()
-    object ReloadApps: SwipeActionSerializable()
+    @Serializable object NotificationShade : SwipeActionSerializable()
+    @Serializable object ControlPanel : SwipeActionSerializable()
+    @Serializable object OpenAppDrawer : SwipeActionSerializable()
+    @Serializable object  OpenDragonLauncherSettings: SwipeActionSerializable()
+    @Serializable object Lock: SwipeActionSerializable()
+    @Serializable object ReloadApps: SwipeActionSerializable()
 }
 
 // Gson type adapter for sealed class
@@ -60,12 +62,12 @@ class SwipeActionAdapter : JsonSerializer<SwipeActionSerializable>, JsonDeserial
                 obj.addProperty("uri", src.uri)
                 obj.addProperty("mimeType", src.mimeType)
             }
-            SwipeActionSerializable.NotificationShade -> obj.addProperty("type", "NotificationShade")
-            SwipeActionSerializable.ControlPanel -> obj.addProperty("type", "ControlPanel")
-            SwipeActionSerializable.OpenAppDrawer -> obj.addProperty("type", "OpenAppDrawer")
-            SwipeActionSerializable.OpenDragonLauncherSettings -> obj.addProperty("type", "OpenDragonLauncherSettings")
-            SwipeActionSerializable.Lock -> obj.addProperty("type", "Lock")
-            SwipeActionSerializable.ReloadApps -> obj.addProperty("type", "ReloadApps")
+            is SwipeActionSerializable.NotificationShade -> { obj.addProperty("type", "NotificationShade") }
+            is SwipeActionSerializable.ControlPanel -> { obj.addProperty("type", "ControlPanel") }
+            is SwipeActionSerializable.OpenAppDrawer -> { obj.addProperty("type", "OpenAppDrawer") }
+            is SwipeActionSerializable.OpenDragonLauncherSettings -> { obj.addProperty("type", "OpenDragonLauncherSettings") }
+            is SwipeActionSerializable.Lock -> { obj.addProperty("type", "Lock") }
+            is SwipeActionSerializable.ReloadApps -> { obj.addProperty("type", "ReloadApps") }
         }
         return obj
     }
@@ -117,6 +119,37 @@ object SwipeJson {
             gson.fromJson(jsonString, listType)
         } catch (_: Throwable) {
             emptyList()
+        }
+    }
+
+
+    // Kinda hacky but its the best way I managed to make it work
+    fun encodeAction(action: SwipeActionSerializable): String = when (action) {
+        is SwipeActionSerializable.LaunchApp ->
+            """{"type":"LaunchApp","packageName":"${action.packageName}"}"""
+        is SwipeActionSerializable.OpenUrl ->
+            """{"type":"OpenUrl","url":"${action.url}"}"""
+        is SwipeActionSerializable.OpenFile ->
+            """{"type":"OpenFile","uri":"${action.uri}","mimeType":${action.mimeType?.let { "\"$it\"" } ?: "null"}}"""
+        is SwipeActionSerializable.NotificationShade ->
+            """{"type":"NotificationShade"}"""
+        is SwipeActionSerializable.ControlPanel ->
+            """{"type":"ControlPanel"}"""
+        is SwipeActionSerializable.OpenAppDrawer ->
+            """{"type":"OpenAppDrawer"}"""
+        is SwipeActionSerializable.OpenDragonLauncherSettings ->
+            """{"type":"OpenDragonLauncherSettings"}"""
+        is SwipeActionSerializable.Lock ->
+            """{"type":"Lock"}"""
+        is SwipeActionSerializable.ReloadApps ->
+            """{"type":"ReloadApps"}"""
+    }
+    fun decodeAction(jsonString: String): SwipeActionSerializable? {
+        if (jsonString.isBlank() || jsonString == "{}") return null
+        return try {
+            gson.fromJson(jsonString, SwipeActionSerializable::class.java)
+        } catch (_: Throwable) {
+            null
         }
     }
 }

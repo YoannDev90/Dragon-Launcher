@@ -10,21 +10,31 @@ import kotlinx.coroutines.launch
 import org.elnix.dragonlauncher.R
 import org.elnix.dragonlauncher.data.stores.BehaviorSettingsStore
 import org.elnix.dragonlauncher.data.stores.UiSettingsStore
+import org.elnix.dragonlauncher.ui.helpers.CustomActionSelector
 import org.elnix.dragonlauncher.ui.helpers.SwitchRow
 import org.elnix.dragonlauncher.ui.helpers.settings.SettingsLazyHeader
+import org.elnix.dragonlauncher.utils.models.AppDrawerViewModel
+import org.elnix.dragonlauncher.utils.models.WorkspaceViewModel
 
 
 @Composable
-fun BehaviorTab(onBack: () -> Unit) {
+fun BehaviorTab(
+    appsViewModel: AppDrawerViewModel,
+    workspaceViewModel: WorkspaceViewModel,
+    onBack: () -> Unit
+) {
 
     val ctx = LocalContext.current
     val scope = rememberCoroutineScope()
 
-//    val requirePressingBackTwiceToExit by BehaviorSettingsStore.getRequirePressingBackTwiceToExit(ctx)
-//        .collectAsState(initial = true)
-//
-//    val doubleBAckFeedback by BehaviorSettingsStore.getDoubleBackFeedback(ctx)
-//        .collectAsState(initial = false)
+    val icons by appsViewModel.icons.collectAsState()
+
+
+    val backAction by BehaviorSettingsStore.getBackAction(ctx)
+        .collectAsState(initial = null)
+
+    val doubleClickAction by BehaviorSettingsStore.getDoubleClickAction(ctx)
+        .collectAsState(initial = null)
 
     val keepScreenOn by BehaviorSettingsStore.getKeepScreenOn(ctx)
         .collectAsState(initial = false)
@@ -47,32 +57,43 @@ fun BehaviorTab(onBack: () -> Unit) {
                 scope.launch { BehaviorSettingsStore.setKeepScreenOn(ctx, it) }
             }
         }
-//        item {
-//            SwitchRow(
-//                requirePressingBackTwiceToExit,
-//                stringResource(R.string.require_pressing_back_twice_to_exit),
-//            ) {
-//                scope.launch {
-//                    BehaviorSettingsStore.setRequirePressingBackTwiceToExit(ctx, it)
-//                    if (!it) BehaviorSettingsStore.setDoubleBackFeedback(ctx, false)
-//                }
-//            }
-//        }
-//
-//        if (requirePressingBackTwiceToExit || doubleBAckFeedback) {
-//            item {
-//                SwitchRow(
-//                    requirePressingBackTwiceToExit,
-//                    stringResource(R.string.double_back_press_feedback),
-//                ) {
-//                    scope.launch {
-//                        BehaviorSettingsStore.setDoubleBackFeedback(
-//                            ctx,
-//                            it
-//                        )
-//                    }
-//                }
-//            }
-//        }
+
+        item {
+            CustomActionSelector(
+                appsViewModel = appsViewModel,
+                workspaceViewModel = workspaceViewModel,
+                icons = icons,
+                currentAction = backAction,
+                label = stringResource(R.string.back_action),
+                onToggle = {
+                    scope.launch {
+                        BehaviorSettingsStore.setBackAction(ctx, null)
+                    }
+                }
+            ) {
+                scope.launch {
+                    BehaviorSettingsStore.setBackAction(ctx, it)
+                }
+            }
+        }
+
+        item {
+            CustomActionSelector(
+                appsViewModel = appsViewModel,
+                workspaceViewModel = workspaceViewModel,
+                icons = icons,
+                currentAction = doubleClickAction,
+                label = stringResource(R.string.double_click_action),
+                onToggle = {
+                    scope.launch {
+                        BehaviorSettingsStore.setDoubleClickAction(ctx, null)
+                    }
+                }
+            ) {
+                scope.launch {
+                    BehaviorSettingsStore.setDoubleClickAction(ctx, it)
+                }
+            }
+        }
     }
 }

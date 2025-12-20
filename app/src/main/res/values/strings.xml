@@ -132,4 +132,6 @@
     <string name="require_pressing_back_twice_to_exit">Require pressing Back twice to exit</string>
     <string name="double_back_press_feedback">Double back press feedback (Toast)</string>
     <string name="keep_screen_on">Keep Screen On</string>
+    <string name="back_action">Back Action</string>
+    <string name="double_click_action">Double Click Action</string>
 </resources>

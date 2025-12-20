@@ -46,6 +46,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import org.elnix.dragonlauncher.data.SwipeActionSerializable
 import org.elnix.dragonlauncher.data.SwipePointSerializable
+import org.elnix.dragonlauncher.data.stores.BehaviorSettingsStore
 import org.elnix.dragonlauncher.data.stores.ColorSettingsStore
 import org.elnix.dragonlauncher.data.stores.DebugSettingsStore
 import org.elnix.dragonlauncher.data.stores.UiSettingsStore
@@ -98,7 +99,6 @@ fun MainScreenOverlay(
         .collectAsState(initial = false)
     val linePreviewSnapToAction by UiSettingsStore.getLinePreviewSnapToAction(ctx)
         .collectAsState(initial = false)
-
 
     val backgroundColor = MaterialTheme.colorScheme.background
     val extraColors = LocalExtraColors.current
@@ -244,6 +244,7 @@ fun MainScreenOverlay(
             bannerVisible = false
         }
     }
+
 
     Box(Modifier.fillMaxSize()) {
 

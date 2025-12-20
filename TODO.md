@@ -34,5 +34,6 @@
 - [ ] Show beta tag in version number
 - [x] Open Obtainium when checking updates (if installed)
 - [ ] Auto Backup Feature
-- [ ] Add 'Special actions' for back, double, maybe triple click
+- [x] Add 'Special actions' for back, double, maybe triple click
 - [ ] Add 'keep screen on' option (in future behavior tab)
+- [ ] Add toggle bluetooth, wifi, data, etc actions

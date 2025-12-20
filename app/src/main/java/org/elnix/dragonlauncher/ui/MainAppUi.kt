@@ -238,7 +238,7 @@ fun MainAppUi(
             composable(SETTINGS.ADVANCED_ROOT) { AdvancedSettingsScreen(appViewModel, navController, onReset = { goMainScreen() } ) { goSettingsRoot() } }
 
             composable(SETTINGS.APPEARANCE) { AppearanceTab(navController) { goAdvSettingsRoot() } }
-            composable(SETTINGS.BEHAVIOR)   { BehaviorTab { goAdvSettingsRoot() } }
+            composable(SETTINGS.BEHAVIOR)   { BehaviorTab(appViewModel, workspaceViewModel) { goAdvSettingsRoot() } }
             composable(SETTINGS.DRAWER)     { DrawerTab(appViewModel) { goAdvSettingsRoot() } }
             composable(SETTINGS.COLORS)     { ColorSelectorTab { goAdvSettingsRoot() } }
             composable(SETTINGS.DEBUG)      { DebugTab(navController, onShowWelcome = { goWelcome() } ) { goAdvSettingsRoot() } }

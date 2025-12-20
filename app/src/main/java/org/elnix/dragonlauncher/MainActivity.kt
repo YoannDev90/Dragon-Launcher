@@ -8,7 +8,6 @@ import android.os.Build
 import android.os.Bundle
 import android.view.WindowManager
 import androidx.activity.ComponentActivity
-import androidx.activity.compose.BackHandler
 import androidx.activity.compose.setContent
 import androidx.activity.viewModels
 import androidx.compose.runtime.LaunchedEffect
@@ -113,7 +112,7 @@ class MainActivity : ComponentActivity() {
             val ctx = LocalContext.current
 
             // To prevent the user from exiting the app on back, since it's a launcher
-            BackHandler { }
+//            BackHandler { }
 
             // May be used in the future for some quit action / operation
 //            DoubleBackToExit()

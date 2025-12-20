@@ -1,5 +1,6 @@
 package org.elnix.dragonlauncher.ui
 
+import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.background
 import androidx.compose.foundation.gestures.awaitEachGesture
 import androidx.compose.foundation.gestures.awaitFirstDown
@@ -15,6 +16,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableLongStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
@@ -28,6 +30,7 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.IntSize
 import kotlinx.coroutines.launch
 import org.elnix.dragonlauncher.data.SwipePointSerializable
+import org.elnix.dragonlauncher.data.stores.BehaviorSettingsStore
 import org.elnix.dragonlauncher.data.stores.PrivateSettingsStore
 import org.elnix.dragonlauncher.data.stores.SwipeSettingsStore
 import org.elnix.dragonlauncher.data.stores.UiSettingsStore
@@ -51,10 +54,17 @@ fun MainScreen(
 
     var showFilePicker: SwipePointSerializable? by remember { mutableStateOf(null) }
     var showMethodDialog by remember { mutableStateOf(false) }
+    var lastClickTime by remember { mutableLongStateOf(0L) }
 
 
     val showMethodAsking by PrivateSettingsStore.getShowMethodAsking(ctx)
         .collectAsState(initial = false)
+
+    val doubleClickAction by BehaviorSettingsStore.getDoubleClickAction(ctx)
+        .collectAsState(initial = null)
+
+    val backAction by BehaviorSettingsStore.getBackAction(ctx)
+        .collectAsState(initial = null)
 
 
     val icons by appsViewModel.icons.collectAsState()
@@ -84,7 +94,33 @@ fun MainScreen(
         if (!hasSeenWelcome) onGoWelcome()
     }
 
+    LaunchedEffect(Unit) { lastClickTime = 0 }
+
     val points by SwipeSettingsStore.getPointsFlow(ctx).collectAsState(emptyList())
+
+
+    fun launchAction(point: SwipePointSerializable?) {
+        launchSwipeAction(
+            ctx = ctx,
+            action = point?.action,
+            useAccessibilityInsteadOfContextToExpandActionPanel = useAccessibilityInsteadOfContextToExpandActionPanel,
+            onAskWhatMethodToUseToOpenQuickActions = { showMethodDialog = true },
+            onReloadApps = { scope.launch { appsViewModel.reloadApps(ctx) } },
+            onReselectFile = { showFilePicker = point },
+            onAppSettings = onLongPress3Sec,
+            onAppDrawer = onAppDrawer
+        )
+    }
+
+    BackHandler(backAction != null) {
+        launchAction(
+            SwipePointSerializable(
+                circleNumber = 0,
+                angleDeg = 0.toDouble(),
+                action = backAction
+            )
+        )
+    }
 
 
     Box(
@@ -94,7 +130,6 @@ fun MainScreen(
             .padding(WindowInsets.systemBars.asPaddingValues())
             .imePadding()
             .pointerInput(Unit) {
-
                 awaitEachGesture {
                     val down = awaitFirstDown()
                     start = down.position
@@ -102,6 +137,23 @@ fun MainScreen(
                     isDragging = true
 
                     val pointerId = down.id
+
+                    val currentTime = System.currentTimeMillis()
+                    val diff = currentTime - lastClickTime
+                    if (diff < 500) {
+                        doubleClickAction?.let { action ->
+                            launchAction(
+                                SwipePointSerializable(
+                                    circleNumber = 0,
+                                    angleDeg = 0.toDouble(),
+                                    action = action
+                                )
+                            )
+                            isDragging = false
+                            return@awaitEachGesture
+                        }
+                    }
+                    lastClickTime = currentTime
 
                     while (true) {
                         val event = awaitPointerEvent()
@@ -130,16 +182,6 @@ fun MainScreen(
             .then(hold.pointerModifier)
     ) {
 
-
-
-
-
-
-
-
-
-
-
         MainScreenOverlay(
             icons = icons,
             start = start,
@@ -147,18 +189,7 @@ fun MainScreen(
             isDragging = isDragging,
             surface = size,
             points = points,
-            onLaunch = {
-                launchSwipeAction(
-                    ctx = ctx,
-                    action = it?.action,
-                    useAccessibilityInsteadOfContextToExpandActionPanel = useAccessibilityInsteadOfContextToExpandActionPanel,
-                    onAskWhatMethodToUseToOpenQuickActions = { showMethodDialog = true },
-                    onReloadApps = { scope.launch { appsViewModel.reloadApps(ctx) } },
-                    onReselectFile = { showFilePicker = it },
-                    onAppSettings = onLongPress3Sec,
-                    onAppDrawer = onAppDrawer
-                )
-            }
+            onLaunch = { launchAction(it) }
         )
 
         HoldToActivateArc(
