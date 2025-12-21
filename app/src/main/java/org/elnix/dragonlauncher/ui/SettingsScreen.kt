@@ -23,6 +23,8 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
+import androidx.compose.material.icons.automirrored.filled.Redo
+import androidx.compose.material.icons.automirrored.filled.Undo
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.ChangeCircle
 import androidx.compose.material.icons.filled.ChevronLeft
@@ -93,14 +95,16 @@ import org.elnix.dragonlauncher.utils.actions.actionLabel
 import org.elnix.dragonlauncher.utils.circles.autoSeparate
 import org.elnix.dragonlauncher.utils.circles.normalizeAngle
 import org.elnix.dragonlauncher.utils.circles.randomFreeAngle
-import org.elnix.dragonlauncher.utils.circles.updatePointPosition
 import org.elnix.dragonlauncher.utils.colors.adjustBrightness
 import org.elnix.dragonlauncher.utils.models.AppDrawerViewModel
 import org.elnix.dragonlauncher.utils.models.WorkspaceViewModel
 import java.math.RoundingMode
 import java.util.UUID
+import kotlin.math.abs
+import kotlin.math.atan2
 import kotlin.math.cos
 import kotlin.math.hypot
+import kotlin.math.round
 import kotlin.math.sin
 
 // Config
@@ -120,6 +124,7 @@ data class CircleData(
 private const val POINT_RADIUS_PX = 40f
 private const val TOUCH_THRESHOLD_PX = 100f
 
+private const val SNAP_STEP_DEG = 15.0
 
 @Suppress("AssignedValueIsNeverRead")
 @Composable
@@ -186,6 +191,98 @@ fun SettingsScreen(
     val backgroundColor = MaterialTheme.colorScheme.background
     val extraColors = LocalExtraColors.current
 
+
+    var undoStack by remember { mutableStateOf<List<List<UiSwipePoint>>>(emptyList()) }
+    var redoStack by remember { mutableStateOf<List<List<UiSwipePoint>>>(emptyList()) }
+
+    fun snapshotPoints(): List<UiSwipePoint> = points.map { it.copy() }
+
+    fun applyChange(mutator: () -> Unit) {
+        // Save current state into undo before mutation
+        undoStack = undoStack + listOf(snapshotPoints())
+        // Any new user change invalidates redo history
+        redoStack = emptyList()
+        // Now apply the change
+        mutator()
+    }
+
+    fun undo() {
+        if (undoStack.isEmpty()) return
+
+        // Current state goes to redo
+        redoStack = redoStack + listOf(snapshotPoints())
+
+        // Pop last from undo and set it as current
+        val last = undoStack.last()
+        undoStack = undoStack.dropLast(1)
+
+        points.clear()
+        points.addAll(last.map { it.copy() })
+
+        selectedPoint = points.find { it.id == (selectedPoint?.id ?: "") }
+    }
+
+    fun redo() {
+        if (redoStack.isEmpty()) return
+
+        // Current state goes back to undo
+        undoStack = undoStack + listOf(snapshotPoints())
+
+        val last = redoStack.last()
+        redoStack = redoStack.dropLast(1)
+
+        points.clear()
+        points.addAll(last.map { it.copy() })
+
+        selectedPoint = points.find { it.id == (selectedPoint?.id ?: "") }
+    }
+
+
+    fun updatePointPosition(
+        point: UiSwipePoint,
+        circles: SnapshotStateList<UiCircle>,
+        center: Offset,
+        pos: Offset,
+        snap: Boolean
+    ) {
+        var haveToApplyToStack = false
+
+        // 1. Compute raw angle from center -> pos
+        val dx = pos.x - center.x
+        val dy = center.y - pos.y
+        var angle = Math.toDegrees(atan2(dx.toDouble(), dy.toDouble()))
+        if (angle < 0) angle += 360.0
+
+        // 2. Apply snapping if enabled
+        val finalAngle = if (snap) {
+            round(angle / SNAP_STEP_DEG) * SNAP_STEP_DEG
+        } else {
+            angle
+        }
+
+        if (point.angleDeg != finalAngle) {
+            haveToApplyToStack = true
+        }
+
+        // 3. Find nearest circle based on radius
+        val distFromCenter = hypot(dx, dy)
+        val closest = circles.minByOrNull { c -> abs(c.radius - distFromCenter) }
+            ?: return
+
+        // 4. Reassign to new circle if needed
+        if (point.circleNumber != closest.id) {
+            val oldCircle = circles.find { it.id == point.circleNumber }
+            oldCircle?.points?.removeIf { it.id == point.id }
+
+            closest.points.add(point)
+            haveToApplyToStack = true
+        }
+
+        if (haveToApplyToStack) applyChange {
+            point.angleDeg = finalAngle
+            point.circleNumber = closest.id
+        }
+    }
 
     // Load
     LaunchedEffect(Unit) {
@@ -502,30 +599,46 @@ fun SettingsScreen(
             }
         }
 
-        Icon(
-            imageVector = if (isCircleDistanceMode) {
-                Icons.Filled.ChangeCircle
-            } else {
-                Icons.Outlined.ChangeCircle
-            },
-            contentDescription = "Toggle drag circle editing",
-            tint = MaterialTheme.colorScheme.primary.copy(if (isCircleDistanceMode) 1f else 0.5f),
-            modifier = Modifier
-                .clip(CircleShape)
-                .clickable {
-                    isCircleDistanceMode = !isCircleDistanceMode
-                    selectedPoint = null
+        Row(
+            horizontalArrangement = Arrangement.SpaceEvenly,
+            modifier = Modifier.fillMaxWidth()
+        ){
+            Icon(
+                imageVector = if (isCircleDistanceMode) {
+                    Icons.Filled.ChangeCircle
+                } else {
+                    Icons.Outlined.ChangeCircle
+                },
+                contentDescription = "Toggle drag circle editing",
+                tint = MaterialTheme.colorScheme.primary.copy(if (isCircleDistanceMode) 1f else 0.5f),
+                modifier = Modifier
+                    .clip(CircleShape)
+                    .clickable {
+                        isCircleDistanceMode = !isCircleDistanceMode
+                        selectedPoint = null
+                    }
+                    .background(
+                        MaterialTheme.colorScheme.primary.copy(if (isCircleDistanceMode) 0.2f else 0.1f)
+                    )
+                    .border(
+                        width = 1.dp,
+                        color = MaterialTheme.colorScheme.primary.copy(if (isCircleDistanceMode) 1f else 0.5f),
+                        shape = CircleShape
+                    )
+                    .padding(15.dp)
+            )
+
+            if (!isCircleDistanceMode) {
+                IconButton(onClick = { undo() }, enabled = undoStack.isNotEmpty()) {
+                    Icon(Icons.AutoMirrored.Filled.Undo, contentDescription = "Undo")
                 }
-                .background(
-                    MaterialTheme.colorScheme.primary.copy(if (isCircleDistanceMode) 0.2f else 0.1f)
-                )
-                .border(
-                    width = 1.dp,
-                    color = MaterialTheme.colorScheme.primary.copy(if (isCircleDistanceMode) 1f else 0.5f),
-                    shape = CircleShape
-                )
-                .padding(15.dp)
-        )
+
+                IconButton(onClick = { redo() }, enabled = redoStack.isNotEmpty()) {
+                    Icon(Icons.AutoMirrored.Filled.Redo, contentDescription = "Redo")
+                }
+            }
+
+        }
 
         if (!isCircleDistanceMode) {
             Row(
@@ -568,12 +681,14 @@ fun SettingsScreen(
                     intervalMs = 35L,
                     onPress = {
                         selectedPoint?.let {
-                            it.angleDeg = normalizeAngle(it.angleDeg + 1)
-                            if (snapPoints) it.angleDeg = it.angleDeg
-                                .toInt()
-                                .toDouble()
-                            autoSeparate(points, it.circleNumber, it)
-                            recomposeTrigger++
+                            applyChange {
+                                it.angleDeg = normalizeAngle(it.angleDeg + 1)
+                                if (snapPoints) it.angleDeg = it.angleDeg
+                                    .toInt()
+                                    .toDouble()
+                                autoSeparate(points, it.circleNumber, it)
+                                recomposeTrigger++
+                            }
                         }
                     }
                 ) {
@@ -617,12 +732,14 @@ fun SettingsScreen(
                     intervalMs = 35L,
                     onPress = {
                         selectedPoint?.let {
-                            it.angleDeg = normalizeAngle(it.angleDeg - 1)
-                            if (snapPoints) it.angleDeg = it.angleDeg
-                                .toInt()
-                                .toDouble()
-                            autoSeparate(points, it.circleNumber, it)
-                            recomposeTrigger++
+                            applyChange {
+                                it.angleDeg = normalizeAngle(it.angleDeg - 1)
+                                if (snapPoints) it.angleDeg = it.angleDeg
+                                    .toInt()
+                                    .toDouble()
+                                autoSeparate(points, it.circleNumber, it)
+                                recomposeTrigger++
+                            }
                         }
                     }
                 ) {
@@ -674,7 +791,11 @@ fun SettingsScreen(
                         .clickable(aPointIsSelected) {
                             selectedPoint?.id.let { id ->
                                 val index = points.indexOfFirst { it.id == id }
-                                if (index >= 0) points.removeAt(index)
+                                if (index >= 0) {
+                                    applyChange {
+                                        points.removeAt(index)
+                                    }
+                                }
                                 selectedPoint = null
                             }
                         }
@@ -705,8 +826,10 @@ fun SettingsScreen(
                                     circleNumber = circleNumber
                                 )
 
-                                points.add(newPoint)
-                                autoSeparate(points, circleNumber, newPoint)
+                                applyChange {
+                                    points.add(newPoint)
+                                    autoSeparate(points, circleNumber, newPoint)
+                                }
                                 selectedPoint = newPoint
                             }
                         }
@@ -780,8 +903,10 @@ fun SettingsScreen(
                     circleNumber = circleNumber
                 )
 
-                points.add(point)
-                autoSeparate(points, circleNumber, point)
+                applyChange {
+                    points.add(point)
+                    autoSeparate(points, circleNumber, point)
+                }
 
                 showAddDialog = false
             }
