@@ -21,7 +21,7 @@
 - [ ] Fix quick action width
 - [x] Add reset options for renaming/app icons
 - [x] Add "snap circles" (not to drag distance)
-- [ ] Add undo/redo in settings
+- [x] Add undo/redo in settings
 - [x] Fix extra padding in fullscreen when swiping down
 - [x] Show user apps in drawer preview
 - [x] Improve backup/restore buttons: add icons
