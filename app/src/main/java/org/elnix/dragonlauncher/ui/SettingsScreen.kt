@@ -345,7 +345,7 @@ fun SettingsScreen(
             verticalAlignment = Alignment.CenterVertically
         ) {
             IconButton(onClick = onBack) {
-                Icon(Icons.AutoMirrored.Filled.ArrowBack, null, tint = MaterialTheme.colorScheme.onBackground)
+                Icon(Icons.Default.Home, null, tint = MaterialTheme.colorScheme.onBackground)
             }
 
             Text(
