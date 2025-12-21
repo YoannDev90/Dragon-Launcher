@@ -208,7 +208,10 @@ fun AppDrawerScreen(
                     modifier = Modifier
                         .fillMaxHeight()
                         .fillMaxWidth(leftWidth)
-                        .clickable { launchDrawerAction(leftAction) }
+                        .clickable(
+                            indication = null,
+                            interactionSource = null
+                        ) { launchDrawerAction(leftAction) }
                 )
             }
 
@@ -271,7 +274,10 @@ fun AppDrawerScreen(
                     modifier = Modifier
                         .fillMaxHeight()
                         .fillMaxWidth(rightWidth)
-                        .clickable { launchDrawerAction(rightAction) }
+                        .clickable(
+                            indication = null,
+                            interactionSource = null
+                        ) { launchDrawerAction(rightAction) }
                 )
             }
         }

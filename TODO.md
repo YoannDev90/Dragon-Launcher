@@ -26,7 +26,7 @@
 - [x] Show user apps in drawer preview
 - [ ] Improve backup/restore buttons: add icons and auto-backup option
 - [x] Make each "What's New" sheet clickable (open release link; long-click to copy)
-- [ ] Remove click indication from drawer panels
+- [x] Remove click indication from drawer panels
 - [ ] Correct incorrect width behavior
 - [x] Change toggle behavior: unchecked hides panel, add DISABLED action
 - [ ] Fix lag during reload; show loading indicator in app picker
