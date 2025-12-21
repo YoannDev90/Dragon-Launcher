@@ -135,9 +135,7 @@ fun MainAppUi(
     val currentRoute = navBackStackEntry?.destination?.route
 
     LaunchedEffect(Unit, lastSeenVersionCode, currentRoute) {
-        if (lastSeenVersionCode < currentVersionCode && currentRoute != ROUTES.WELCOME) {
-            showWhatsNewBottomSheet = true
-        }
+        showWhatsNewBottomSheet = lastSeenVersionCode < currentVersionCode && currentRoute != ROUTES.WELCOME
     }
 
     DisposableEffect(lifecycleOwner) {
