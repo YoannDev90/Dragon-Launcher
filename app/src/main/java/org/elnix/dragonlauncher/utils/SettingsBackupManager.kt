@@ -36,40 +36,39 @@ object SettingsBackupManager {
                         DataStoreName.SWIPE -> {
                             val pointsList = SwipeSettingsStore.getAll(ctx)
                             if (pointsList.isNotEmpty()) {
-                                put(store.backupKey, JSONArray(SwipeJson.encodePretty(pointsList)))
+                                put(store.backupKey!!, JSONArray(SwipeJson.encodePretty(pointsList)))
                             }
                         }
                         DataStoreName.DRAWER -> DrawerSettingsStore.getAll(ctx).takeIf { it.isNotEmpty() }?.let {
-                            put(store.backupKey, JSONObject(it))
+                            put(store.backupKey!!, JSONObject(it))
                         }
                         DataStoreName.COLOR_MODE -> ColorModesSettingsStore.getAll(ctx).takeIf { it.isNotEmpty() }?.let {
-                            put(store.backupKey, JSONObject(it))
+                            put(store.backupKey!!, JSONObject(it))
                         }
                         DataStoreName.COLOR -> ColorSettingsStore.getAll(ctx).takeIf { it.isNotEmpty() }?.let {
-                            put(store.backupKey, JSONObject(it))
-                        }
-                        DataStoreName.PRIVATE_SETTINGS -> DebugSettingsStore.getAll(ctx).takeIf { it.isNotEmpty() }?.let {
-                            put(store.backupKey, JSONObject(it))
+                            put(store.backupKey!!, JSONObject(it))
                         }
                         DataStoreName.LANGUAGE -> LanguageSettingsStore.getAll(ctx).takeIf { it.isNotEmpty() }?.let {
-                            put(store.backupKey, JSONObject(it))
+                            put(store.backupKey!!, JSONObject(it))
                         }
                         DataStoreName.UI -> UiSettingsStore.getAll(ctx).takeIf { it.isNotEmpty() }?.let {
-                            put(store.backupKey, JSONObject(it))
+                            put(store.backupKey!!, JSONObject(it))
                         }
                         DataStoreName.DEBUG -> DebugSettingsStore.getAll(ctx).takeIf { it.isNotEmpty() }?.let {
-                            put(store.backupKey, JSONObject(it))
+                            put(store.backupKey!!, JSONObject(it))
                         }
                         DataStoreName.WORKSPACES -> {
                             val obj = WorkspaceSettingsStore.getAll(ctx)
                             if (obj.length() > 0) {
-                                put(store.backupKey, obj)
+                                put(store.backupKey!!, obj)
                             }
                         }
                         DataStoreName.BEHAVIOR -> BehaviorSettingsStore.getAll(ctx).takeIf { it.isNotEmpty() }?.let {
-                            put(store.backupKey, JSONObject(it))
+                            put(store.backupKey!!, JSONObject(it))
                         }
+                        // Those 2 aren't meant to be backupable
                         DataStoreName.APPS -> {}
+                        DataStoreName.PRIVATE_SETTINGS -> {}
                     }
                 }
             }
@@ -192,9 +191,6 @@ object SettingsBackupManager {
                         DataStoreName.COLOR -> jsonObj.optJSONObject(store.backupKey)?.let {
                             ColorSettingsStore.setAll(ctx, jsonToIntMap(it))
                         }
-                        DataStoreName.PRIVATE_SETTINGS -> jsonObj.optJSONObject(store.backupKey)?.let {
-                            DebugSettingsStore.setAll(ctx, jsonToBooleanMap(it))
-                        }
                         DataStoreName.LANGUAGE -> jsonObj.optJSONObject(store.backupKey)?.let {
                             LanguageSettingsStore.setAll(ctx, jsonToStringMap(it))
                         }
@@ -211,6 +207,7 @@ object SettingsBackupManager {
                             BehaviorSettingsStore.setAll(ctx, jsonToStringMap(it))
                         }
                         DataStoreName.APPS -> {}
+                        DataStoreName.PRIVATE_SETTINGS -> {}
                     }
                 }
             }
