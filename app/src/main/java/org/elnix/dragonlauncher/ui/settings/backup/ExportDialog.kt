@@ -44,7 +44,7 @@ fun ExportSettingsDialog(
                 colors = AppObjectsColors.buttonColors()
             ) {
                 Text("Export")
-            }
+              }
         },
         dismissButton = {
             TextButton(

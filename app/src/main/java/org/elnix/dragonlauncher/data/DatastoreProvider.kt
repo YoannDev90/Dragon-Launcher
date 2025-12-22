@@ -3,6 +3,7 @@ package org.elnix.dragonlauncher.data
 import android.content.Context
 import androidx.datastore.preferences.preferencesDataStore
 import org.elnix.dragonlauncher.data.stores.AppsSettingsStore
+import org.elnix.dragonlauncher.data.stores.BackupSettingsStore
 import org.elnix.dragonlauncher.data.stores.BehaviorSettingsStore
 import org.elnix.dragonlauncher.data.stores.ColorModesSettingsStore
 import org.elnix.dragonlauncher.data.stores.ColorSettingsStore
@@ -25,7 +26,8 @@ enum class DataStoreName(val value: String, val backupKey: String?, val store: B
     DEBUG("debugDatastore", "debug", DebugSettingsStore),
     WORKSPACES("workspacesDataStore", "workspaces", WorkspaceSettingsStore),
     APPS("appsDatastore",null, AppsSettingsStore),
-    BEHAVIOR("behaviorDatastore", "behavior", BehaviorSettingsStore)
+    BEHAVIOR("behaviorDatastore", "behavior", BehaviorSettingsStore),
+    BACKUP("backupDatastore", "backup", BackupSettingsStore)
 }
 
 val Context.uiDatastore by preferencesDataStore(name = DataStoreName.UI.value)
@@ -39,3 +41,4 @@ val Context.debugDatastore by preferencesDataStore(name = DataStoreName.DEBUG.va
 val Context.workspaceDataStore by preferencesDataStore(name = DataStoreName.WORKSPACES.value)
 val Context.appDrawerDataStore by preferencesDataStore(name = DataStoreName.APPS.value)
 val Context.behaviorDataStore by preferencesDataStore(name = DataStoreName.BEHAVIOR.value)
+val Context.backupDatastore by preferencesDataStore(name = DataStoreName.BACKUP.value)

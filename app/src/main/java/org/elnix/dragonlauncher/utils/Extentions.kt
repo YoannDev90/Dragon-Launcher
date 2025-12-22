@@ -16,6 +16,9 @@ import android.util.Log
 import android.widget.Toast
 import androidx.core.net.toUri
 import org.elnix.dragonlauncher.R
+import java.text.SimpleDateFormat
+import java.util.Date
+import java.util.Locale
 
 /**
  * Functions from https://github.com/mlm-games/CCLauncher
@@ -26,7 +29,6 @@ import org.elnix.dragonlauncher.R
 /**
  * Show a toast message with flexible input types
  * @param message Can be a String, StringRes Int, or null
- * @param resId A resource Id, of a text
  * @param duration Toast duration (LENGTH_SHORT or LENGTH_LONG)
  */
 fun Context.showToast(
@@ -119,9 +121,18 @@ val Context.isDefaultLauncher: Boolean
 
 
 
-fun Context.hasUriPermission(uri: Uri): Boolean {
+fun Context.hasUriReadPermission(uri: Uri): Boolean {
     val perms = contentResolver.persistedUriPermissions
     return perms.any { it.uri == uri && it.isReadPermission }
+}
+
+fun Context.hasUriReadWritePermission(uri: Uri): Boolean {
+    val perms = contentResolver.persistedUriPermissions
+    return perms.any { perm ->
+        perm.uri == uri &&
+                perm.isReadPermission &&
+                perm.isWritePermission
+    }
 }
 
 
@@ -198,3 +209,21 @@ fun getVersionCode(ctx: Context): Int =
         @Suppress("DEPRECATION")
         ctx.packageManager.getPackageInfo(ctx.packageName, 0).versionCode
     }
+
+
+
+fun Long.formatDateTime(): String {
+    return SimpleDateFormat("MMM dd, yyyy HH:mm:ss", Locale.getDefault())
+        .format(Date(this))
+}
+
+fun Long.timeAgo(): String {
+    val seconds = (System.currentTimeMillis() - this) / 1000
+    return when {
+        seconds < 60 -> "${seconds}s ago"
+        seconds < 3600 -> "${seconds / 60}m ago"
+        seconds < 86400 -> "${seconds / 3600}h ago"
+        seconds < 2592000 -> "${seconds / 86400}d ago"
+        else -> "${seconds / 2592000}mo ago"
+    }
+}

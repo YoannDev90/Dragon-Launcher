@@ -3,10 +3,13 @@ package org.elnix.dragonlauncher.utils
 import android.content.Context
 import android.net.Uri
 import android.util.Log
+import androidx.core.net.toUri
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.withContext
 import org.elnix.dragonlauncher.data.DataStoreName
 import org.elnix.dragonlauncher.data.SwipeJson
+import org.elnix.dragonlauncher.data.stores.BackupSettingsStore
 import org.elnix.dragonlauncher.data.stores.BehaviorSettingsStore
 import org.elnix.dragonlauncher.data.stores.ColorModesSettingsStore
 import org.elnix.dragonlauncher.data.stores.ColorSettingsStore
@@ -18,11 +21,54 @@ import org.elnix.dragonlauncher.data.stores.UiSettingsStore
 import org.elnix.dragonlauncher.data.stores.WorkspaceSettingsStore
 import org.json.JSONArray
 import org.json.JSONObject
-import java.io.OutputStreamWriter
+import java.io.FileOutputStream
 
 object SettingsBackupManager {
 
     private const val TAG = "SettingsBackupManager"
+
+    /**
+     * Automatic backup to pre-selected file
+     */
+    // In SettingsBackupManager.triggerBackup()
+    suspend fun triggerBackup(ctx: Context) {
+        if (!BackupSettingsStore.getAutoBackupEnabled(ctx).first()) {
+            Log.w(TAG, "Auto-backup disabled")
+            return
+        }
+
+        try {
+            val uriString = BackupSettingsStore.getAutoBackupUri(ctx).first()
+            if (uriString.isNullOrBlank()) {  // FIXED: catches "" too
+                Log.w(TAG, "No backup URI set")
+                return
+            }
+
+            val uri = uriString.toUri()
+            val path = getFilePathFromUri(ctx, uri)
+
+            if (!ctx.hasUriReadWritePermission(uri)) {
+                Log.e(TAG, "URI permission expired!")
+                ctx.showToast("Auto-backup URI expired. Please reselect file.")
+                return
+            }
+
+            val selectedStores = BackupSettingsStore.getBackupStores(ctx).first()
+                .mapNotNull { storeValue -> DataStoreName.entries.find { it.value == storeValue && it.backupKey != null } }
+
+            exportSettings(ctx, uri, selectedStores)
+
+            BackupSettingsStore.setLastBackupTime(ctx)
+            Log.i(TAG, "Auto-backup completed to $path")
+
+        } catch (e: Exception) {
+            Log.e(TAG, "Auto-backup failed", e)
+            if (e.message?.contains("permission") == true) {
+                ctx.showToast("URI permission lost. Reselect backup file.")
+            }
+        }
+    }
+
 
     /**
      * Exports only the requested stores.
@@ -66,6 +112,11 @@ object SettingsBackupManager {
                         DataStoreName.BEHAVIOR -> BehaviorSettingsStore.getAll(ctx).takeIf { it.isNotEmpty() }?.let {
                             put(store.backupKey!!, JSONObject(it))
                         }
+
+                        DataStoreName.BACKUP -> BackupSettingsStore.getAll(ctx).takeIf { it.isNotEmpty() }?.let {
+                            put(store.backupKey!!, JSONObject(it))
+                        }
+
                         // Those 2 aren't meant to be backupable
                         DataStoreName.APPS -> {}
                         DataStoreName.PRIVATE_SETTINGS -> {}
@@ -75,16 +126,17 @@ object SettingsBackupManager {
 
             Log.d(TAG, "Generated JSON: $json")
 
+            // Force overwriting file before printing json, to avoid strange corruption with not truncating json
             withContext(Dispatchers.IO) {
-                val output = ctx.contentResolver.openOutputStream(uri)
-                if (output == null) {
-                    Log.e(TAG, "Failed to open OutputStream - URI permission expired!")
-                    throw IllegalStateException("Cannot write to URI - permission expired")
-                }
-                output.use {
-                    OutputStreamWriter(it).use { writer ->
-                        writer.write(json.toString(2))
+                ctx.contentResolver.openFileDescriptor(uri, "wt")?.use { pfd ->
+                    FileOutputStream(pfd.fileDescriptor).use { fos ->
+                        fos.channel.truncate(0)
+                        fos.write(json.toString(2).toByteArray())
+                        fos.flush()
                     }
+                } ?: run {
+                    Log.e(TAG, "Failed to open FileDescriptor - URI permission expired!")
+                    throw IllegalStateException("Cannot write to URI - permission expired")
                 }
             }
 
@@ -95,72 +147,6 @@ object SettingsBackupManager {
             throw e
         }
     }
-
-//    /**
-//     * Imports only the requested stores from the backup JSON file.
-//     * @param requestedStores List of DataStoreName objects to restore.
-//     */
-//    suspend fun importSettings(ctx: Context, uri: Uri, requestedStores: List<DataStoreName>) {
-//        try {
-//            val json = withContext(Dispatchers.IO) {
-//                ctx.contentResolver.openInputStream(uri)?.bufferedReader()?.use { it.readText() }
-//            }
-//
-//            if (json.isNullOrBlank()) {
-//                Log.e(TAG, "Invalid or empty file")
-//                throw IllegalArgumentException("Invalid or empty file")
-//            }
-//
-//            Log.d(TAG, "Loaded JSON: $json")
-//            val obj = JSONObject(json)
-//
-//            withContext(Dispatchers.IO) {
-//                requestedStores.forEach { store ->
-//                    when (store) {
-//                        DataStoreName.SWIPE -> obj.optJSONArray(store.backupKey)?.let { jsonArr ->
-//                            val pointsString = jsonArr.toString()
-//                            val pointsList = SwipeJson.decode(pointsString)
-//                            SwipeSettingsStore.save(ctx, pointsList)
-//                        }
-//                        DataStoreName.DRAWER -> obj.optJSONObject(store.backupKey)?.let {
-//                            DrawerSettingsStore.setAll(ctx, jsonToStringMap(it))
-//                        }
-//                        DataStoreName.COLOR_MODE -> obj.optJSONObject(store.backupKey)?.let {
-//                            ColorModesSettingsStore.setAll(ctx, jsonToStringMap(it))
-//                        }
-//                        DataStoreName.COLOR -> obj.optJSONObject(store.backupKey)?.let {
-//                            ColorSettingsStore.setAll(ctx, jsonToIntMap(it))
-//                        }
-//                        DataStoreName.PRIVATE_SETTINGS -> obj.optJSONObject(store.backupKey)?.let {
-//                            DebugSettingsStore.setAll(ctx, jsonToBooleanMap(it))
-//                        }
-//                        DataStoreName.LANGUAGE -> obj.optJSONObject(store.backupKey)?.let {
-//                            LanguageSettingsStore.setAll(ctx, jsonToStringMap(it))
-//                        }
-//                        DataStoreName.UI -> obj.optJSONObject(store.backupKey)?.let {
-//                            UiSettingsStore.setAll(ctx, jsonToStringMap(it))
-//                        }
-//                        DataStoreName.DEBUG -> obj.optJSONObject(store.backupKey)?.let {
-//                            DebugSettingsStore.setAll(ctx, jsonToBooleanMap(it))
-//                        }
-//                        DataStoreName.WORKSPACES -> obj.optJSONObject(store.backupKey)?.let {
-//                            WorkspaceSettingsStore.setAll(ctx, it)
-//                        }
-//
-//                        DataStoreName.APPS -> null
-//                        DataStoreName.BEHAVIOR -> obj.optJSONObject(store.backupKey)?.let {
-//                            BehaviorSettingsStore.setAll(ctx, jsonToStringMap(it))
-//                        }
-//                    }
-//                }
-//            }
-//
-//            Log.i(TAG, "Import completed successfully.")
-//        } catch (e: Exception) {
-//            Log.e(TAG, "Error during import", e)
-//            throw e
-//        }
-//    }
 
     /**
      * Imports settings directly from parsed JSON (no file needed).
@@ -205,6 +191,9 @@ object SettingsBackupManager {
                         }
                         DataStoreName.BEHAVIOR -> jsonObj.optJSONObject(store.backupKey)?.let {
                             BehaviorSettingsStore.setAll(ctx, jsonToStringMap(it))
+                        }
+                        DataStoreName.BACKUP -> jsonObj.optJSONObject(store.backupKey)?.let {
+                            BackupSettingsStore.setAll(ctx, jsonToStringMap(it))
                         }
                         DataStoreName.APPS -> {}
                         DataStoreName.PRIVATE_SETTINGS -> {}

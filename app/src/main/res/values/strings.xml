@@ -25,7 +25,7 @@
     <string name="export_cancelled">Export Cancelled</string>
     <string name="import_cancelled">Import Cancelled</string>
     <string name="backup_restore">Backup / Restore</string>
-    <string name="backup_restore_text">Backup or restore the settings and the actions of the app</string>
+    <string name="backup_restore_text">Backup or restore the settings and the actions of the app, automatic backups are triggered automatically on each app launch / pause / quit or by pressing the \"Trigger\" button below</string>
     <string name="export_settings">Export Settings</string>
     <string name="import_settings">Import Settings</string>
     <string name="export_failed">Export Failed</string>
@@ -146,4 +146,12 @@
     <string name="home">Home</string>
     <string name="edit_point">Edit Point</string>
     <string name="choose_action">Choose Action</string>
+    <string name="debug_toast">Debug Toast</string>
+    <string name="automatic_backups">Automatic backups</string>
+    <string name="change">Change</string>
+    <string name="remove">Remove</string>
+    <string name="trigger_backup">Trigger Backup</string>
+    <string name="select_backup_file">Select backup file</string>
+    <string name="last_backup">Last backup</string>
+    <string name="backup_stores">Backup Stores</string>
 </resources>

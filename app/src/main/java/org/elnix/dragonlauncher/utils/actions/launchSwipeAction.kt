@@ -6,7 +6,7 @@ import androidx.core.net.toUri
 import org.elnix.dragonlauncher.data.SwipeActionSerializable
 import org.elnix.dragonlauncher.services.SystemControl
 import org.elnix.dragonlauncher.utils.expandQuickActionsDrawer
-import org.elnix.dragonlauncher.utils.hasUriPermission
+import org.elnix.dragonlauncher.utils.hasUriReadPermission
 import org.elnix.dragonlauncher.utils.showToast
 
 
@@ -89,7 +89,7 @@ fun launchSwipeAction(
             try {
                 val uri = action.uri.toUri()
 
-                if (!ctx.hasUriPermission(uri)) {
+                if (!ctx.hasUriReadPermission(uri)) {
                     ctx.showToast("Please reselect the file to allow access")
                     onReselectFile?.invoke()
                     return

@@ -15,6 +15,7 @@ import androidx.compose.material3.VerticalDivider
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.unit.dp
 import org.elnix.dragonlauncher.utils.colors.AppObjectsColors
 
@@ -32,11 +33,11 @@ fun SwitchRow(
     Row(
         modifier = Modifier
             .fillMaxWidth()
-            .clickable(enabled) { onCheck(!checked) }
+            .clip(RoundedCornerShape(12.dp))
             .background(
-                color = MaterialTheme.colorScheme.surface.copy(alpha = if (enabled) 1f else 0.5f),
-                shape = RoundedCornerShape(12.dp)
+                MaterialTheme.colorScheme.surface.copy(alpha = if (enabled) 1f else 0.5f)
             )
+            .clickable(enabled) { onCheck(!checked) }
             .padding(horizontal = 16.dp, vertical = 14.dp),
         verticalAlignment = Alignment.CenterVertically
     ) {

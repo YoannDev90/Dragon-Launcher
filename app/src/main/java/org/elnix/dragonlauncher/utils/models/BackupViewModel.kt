@@ -16,5 +16,6 @@ class BackupViewModel : ViewModel() {
 data class BackupResult(
     val export: Boolean,
     val error: Boolean,
+    val title: String,
     val message: String = ""
 )

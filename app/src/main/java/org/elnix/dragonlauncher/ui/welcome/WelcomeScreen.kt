@@ -80,7 +80,7 @@ fun WelcomeScreen(
                     BackupResult(
                         export = false,
                         error = true,
-                        message = ctx.getString(R.string.import_cancelled)
+                        title = ctx.getString(R.string.import_cancelled)
                     )
                 )
                 return@rememberLauncherForActivityResult
@@ -98,6 +98,7 @@ fun WelcomeScreen(
                             BackupResult(
                                 export = false,
                                 error = true,
+                                title = ctx.getString(R.string.import_failed),
                                 message = "Invalid or empty backup file"
                             )
                         )
@@ -112,6 +113,7 @@ fun WelcomeScreen(
                         BackupResult(
                             export = false,
                             error = true,
+                            title = ctx.getString(R.string.import_failed),
                             message = "Failed to read backup file: ${e.message}"
                         )
                     )
@@ -211,13 +213,20 @@ fun WelcomeScreen(
                     scope.launch {
                         try {
                             SettingsBackupManager.importSettingsFromJson(ctx, json , selectedStoresForImport)
-                            backupVm.setResult(BackupResult(export = false, error = false))
+                            backupVm.setResult(
+                                BackupResult(
+                                    export = false,
+                                    error = false,
+                                    title = ctx.getString(R.string.import_successful)
+                                )
+                            )
                             importJson = null
                         } catch (e: Exception) {
                             backupVm.setResult(
                                 BackupResult(
                                     export = false,
                                     error = true,
+                                    title = ctx.getString(R.string.import_failed),
                                     message = e.message ?: ""
                                 )
                             )

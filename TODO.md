@@ -1,12 +1,10 @@
 - [x] Correct angle text overlapping on settings screen
 - [x] Toolbar in drawer (auto-close)
-- [ ] Drag & drop items in settings
-- [ ] Disable circle/line switch
+- [ ] ~~Disable circle/line switch~~
 - [x] Prevent duplicate drops on the same circle; new items go on the last circle
 - [x] Rename apps
 - [x] Change app icons/colors
 - [x] Add double-click action
-- [ ] Open alarm/calendar apps
 - [ ] Show status bar (battery %, time)
 - [ ] ~~Require pressing Exit twice to leave fullscreen~~
 - [x] Remove changelog header text divider

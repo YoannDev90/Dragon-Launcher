@@ -14,7 +14,7 @@ import org.elnix.dragonlauncher.data.SwipeJson
 import org.elnix.dragonlauncher.data.behaviorDataStore
 
 object BehaviorSettingsStore : BaseSettingsStore() {
-    override val name: String = "Ui"
+    override val name: String = "Behavior"
 
     private data class UiSettingsBackup(
         val backAction: SwipeActionSerializable? = null,
@@ -24,7 +24,7 @@ object BehaviorSettingsStore : BaseSettingsStore() {
 
     private val defaults = UiSettingsBackup()
 
-    /*private*/ object Keys {
+    private object Keys {
         val BACK_ACTION = stringPreferencesKey("backAction")
         val DOUBLE_CLICK_ACTION = stringPreferencesKey("doubleClickAction")
         val KEEP_SCREEN_ON = booleanPreferencesKey("keepScreenOn")

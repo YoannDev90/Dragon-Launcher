@@ -21,7 +21,6 @@ import androidx.core.view.WindowInsetsControllerCompat
 import androidx.lifecycle.lifecycleScope
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.rememberNavController
-import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
 import org.elnix.dragonlauncher.data.SwipeActionSerializable
 import org.elnix.dragonlauncher.data.SwipePointSerializable
@@ -34,6 +33,7 @@ import org.elnix.dragonlauncher.ui.MainAppUi
 import org.elnix.dragonlauncher.ui.ROUTES
 import org.elnix.dragonlauncher.ui.SETTINGS
 import org.elnix.dragonlauncher.ui.theme.DragonLauncherTheme
+import org.elnix.dragonlauncher.utils.SettingsBackupManager
 import org.elnix.dragonlauncher.utils.models.AppDrawerViewModel
 import org.elnix.dragonlauncher.utils.models.AppLifecycleViewModel
 import org.elnix.dragonlauncher.utils.models.BackupViewModel
@@ -76,49 +76,41 @@ class MainActivity : ComponentActivity() {
 
         WindowCompat.setDecorFitsSystemWindows(window, false)
 
-        val controller = WindowInsetsControllerCompat(window, window.decorView)
+        setContent {
+            val ctx = LocalContext.current
 
-        lifecycleScope.launch {
-            BehaviorSettingsStore.getKeepScreenOn(this@MainActivity).collectLatest { enabled ->
-                if (enabled) {
+            // May be used in the future for some quit action / operation
+//            DoubleBackToExit()
+
+
+            val keepScreenOn by BehaviorSettingsStore.getKeepScreenOn(ctx).collectAsState(false)
+            val fullscreen by UiSettingsStore.getFullscreen(ctx).collectAsState(false)
+            val hasInitialized by PrivateSettingsStore.getHasInitialized(ctx).collectAsState(initial = true)
+
+
+            val window = this@MainActivity.window
+            val controller = WindowInsetsControllerCompat(window, window.decorView)
+
+            LaunchedEffect(keepScreenOn) {
+                if (keepScreenOn) {
                     window.addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON)
                 } else {
                     window.clearFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON)
                 }
             }
-        }
 
-        lifecycleScope.launch {
-            UiSettingsStore.getFullscreen(this@MainActivity).collectLatest { enabled ->
-                if (enabled) {
-                    controller.hide(
-                        WindowInsetsCompat.Type.statusBars() or
-                                WindowInsetsCompat.Type.navigationBars()
-                    )
-                    controller.systemBarsBehavior =
-                        WindowInsetsControllerCompat.BEHAVIOR_SHOW_TRANSIENT_BARS_BY_SWIPE
+            LaunchedEffect(fullscreen) {
+                if (fullscreen) {
+                    controller.hide(WindowInsetsCompat.Type.systemBars())
+                    controller.systemBarsBehavior = WindowInsetsControllerCompat.BEHAVIOR_SHOW_TRANSIENT_BARS_BY_SWIPE
                 } else {
-                    controller.show(
-                        WindowInsetsCompat.Type.statusBars() or
-                                WindowInsetsCompat.Type.navigationBars()
-                    )
-                    controller.systemBarsBehavior =
-                        WindowInsetsControllerCompat.BEHAVIOR_DEFAULT
+                    controller.show(WindowInsetsCompat.Type.systemBars())
                 }
             }
-        }
 
-        setContent {
-            val ctx = LocalContext.current
-
-            // To prevent the user from exiting the app on back, since it's a launcher
-//            BackHandler { }
-
-            // May be used in the future for some quit action / operation
-//            DoubleBackToExit()
-
-            val hasInitialized by PrivateSettingsStore.getHasInitialized(ctx)
-                .collectAsState(initial = true)
+//            LaunchedEffect(debugToast) {
+//                SettingsBackupManager.triggerBackup(ctx, debugToast)
+//            }
 
             LaunchedEffect(hasInitialized) {
                 if (!hasInitialized) {
@@ -228,10 +220,16 @@ class MainActivity : ComponentActivity() {
     override fun onPause() {
         super.onPause()
         appLifecycleViewModel.onPause()
+        lifecycleScope.launch {
+            SettingsBackupManager.triggerBackup(this@MainActivity)
+        }
     }
 
     override fun onResume() {
         super.onResume()
+        lifecycleScope.launch {
+            SettingsBackupManager.triggerBackup(this@MainActivity)
+        }
 
         val currentRoute = navControllerHolder.value
             ?.currentBackStackEntry
@@ -250,5 +248,8 @@ class MainActivity : ComponentActivity() {
         super.onDestroy()
         unregisterReceiver(packageReceiver)
         window.clearFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON)
+        lifecycleScope.launch {
+            SettingsBackupManager.triggerBackup(this@MainActivity)
+        }
     }
 }
