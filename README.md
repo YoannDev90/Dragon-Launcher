@@ -42,9 +42,6 @@ You can customize your list of fast access apps easily in the settings, and also
   <img src="https://github.com/Elnix90/Dragon-Launcher/blob/main/fastlane/metadata/android/en-US/images/phoneScreenshots/10.jpg" width="22%" alt="App ScreenShot 10"/>
 </p>
 
-
-<!--[![Get it on Obtainium](https://fdroid.gitlab.io/obtainium-badges/obtainium.svg)](https://github.com/ImranR98/Obtainium)-->
-
 ## Usage
 
 * **Long click 3 seconds to access settings**
