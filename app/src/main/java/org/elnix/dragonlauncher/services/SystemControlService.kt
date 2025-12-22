@@ -33,6 +33,11 @@ class SystemControlService : AccessibilityService() {
 //        performGlobalAction(GLOBAL_ACTION_QUICK_SETTINGS)
 //    }
 
+    fun openRecentApps() {
+        performGlobalAction(GLOBAL_ACTION_RECENTS)
+    }
+
+
     companion object {
         var INSTANCE: SystemControlService? = null
     }

@@ -174,6 +174,7 @@ class MainActivity : ComponentActivity() {
             val lockColor by ColorSettingsStore.getLockColor(ctx).collectAsState(initial = null)
             val openFileColor by ColorSettingsStore.getOpenFileColor(ctx).collectAsState(initial = null)
             val reloadColor by ColorSettingsStore.getReloadColor(ctx).collectAsState(initial = null)
+            val openRecentAppsColor by ColorSettingsStore.getOpenRecentApps(ctx).collectAsState(initial = null)
 
 
             DragonLauncherTheme(
@@ -201,7 +202,8 @@ class MainActivity : ComponentActivity() {
                 customLauncherSettingsColor = launcherSettingsColor,
                 customLockColor = lockColor,
                 customOpenFileColor = openFileColor,
-                customReloadAppsColor = reloadColor
+                customReloadAppsColor = reloadColor,
+                customOpenRecentAppsColor = openRecentAppsColor
             ) {
 
                 val navController = rememberNavController()

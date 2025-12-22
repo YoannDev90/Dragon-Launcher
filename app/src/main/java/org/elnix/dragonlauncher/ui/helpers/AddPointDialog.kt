@@ -65,7 +65,8 @@ fun AddPointDialog(
         SwipeActionSerializable.OpenAppDrawer,
         SwipeActionSerializable.Lock,
         SwipeActionSerializable.ReloadApps,
-        SwipeActionSerializable.OpenDragonLauncherSettings,
+        SwipeActionSerializable.OpenRecentApps,
+        SwipeActionSerializable.OpenDragonLauncherSettings
     )
 
     val gridSize by DrawerSettingsStore.getGridSize(ctx)

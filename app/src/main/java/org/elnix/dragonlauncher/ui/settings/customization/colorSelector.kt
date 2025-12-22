@@ -102,6 +102,7 @@ fun ColorSelectorTab(
     val lockColor by ColorSettingsStore.getLockColor(ctx).collectAsState(initial = null)
     val openFileColor by ColorSettingsStore.getOpenFileColor(ctx).collectAsState(initial = null)
     val reloadColor by ColorSettingsStore.getReloadColor(ctx).collectAsState(initial = null)
+    val openRecentAppsColor by ColorSettingsStore.getOpenRecentApps(ctx).collectAsState(initial = null)
 
     val colorCustomisationMode by ColorModesSettingsStore.getColorCustomisationMode(ctx).collectAsState(initial = ColorCustomisationMode.DEFAULT)
     val selectedDefaultTheme by ColorModesSettingsStore.getDefaultTheme(ctx).collectAsState(initial = DefaultThemes.DARK)
@@ -438,6 +439,13 @@ fun ColorSelectorTab(
                         defaultColor = AmoledDefault.ReloadColor,
                         currentColor = reloadColor ?: LocalExtraColors.current.reload
                     ) { scope.launch { ColorSettingsStore.setReloadColor(ctx, it) } }
+                }
+                item {
+                    ColorPickerRow(
+                        label = stringResource(R.string.open_recent_apps_color),
+                        defaultColor = AmoledDefault.OpenRecentAppsColor,
+                        currentColor = openRecentAppsColor ?: LocalExtraColors.current.openRecentApps
+                    ) { scope.launch { ColorSettingsStore.setOpenRecentApps(ctx, it) } }
                 }
             }
 

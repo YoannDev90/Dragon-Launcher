@@ -18,5 +18,6 @@ fun actionColor(
         SwipeActionSerializable.Lock -> extra.lock
         is SwipeActionSerializable.OpenFile -> extra.openFile
         is SwipeActionSerializable.ReloadApps -> extra.reload
+        SwipeActionSerializable.OpenRecentApps -> extra.openRecentApps
         null -> Color.Unspecified
     }

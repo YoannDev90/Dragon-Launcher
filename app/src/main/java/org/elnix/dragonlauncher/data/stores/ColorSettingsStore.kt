@@ -69,9 +69,8 @@ object ColorSettingsStore : BaseSettingsStore() {
     private val LAUNCHER_SETTINGS_COLOR = intPreferencesKey("launcher_settings_color")
     private val LOCK_COLOR = intPreferencesKey("lock_color")
     private val OPEN_FILE_COLOR = intPreferencesKey("open_file_color")
-
     private val RELOAD_COLOR = intPreferencesKey("reload_color")
-
+    private val OPEN_RECENT_APPS = intPreferencesKey("open_recent_apps")
 
     // ------------------------------------------
     //            NORMAL COLORS
@@ -249,7 +248,12 @@ object ColorSettingsStore : BaseSettingsStore() {
         ctx.colorDatastore.edit { it[RELOAD_COLOR] = color.toArgb() }
     }
 
+    fun getOpenRecentApps(ctx: Context) =
+        ctx.colorDatastore.data.map { it[OPEN_RECENT_APPS]?.let { c -> Color(c) } }
 
+    suspend fun setOpenRecentApps(ctx: Context, color: Color) {
+        ctx.colorDatastore.edit { it[OPEN_RECENT_APPS] = color.toArgb() }
+    }
 
 
 
@@ -296,6 +300,7 @@ object ColorSettingsStore : BaseSettingsStore() {
         setLockColor(ctx, random())
         setOpenFileColor(ctx, random())
         setReloadColor(ctx, random())
+        setOpenRecentApps(ctx, random())
     }
 
     override suspend fun resetAll(ctx: Context) {
@@ -325,6 +330,7 @@ object ColorSettingsStore : BaseSettingsStore() {
             prefs.remove(LOCK_COLOR)
             prefs.remove(OPEN_FILE_COLOR)
             prefs.remove(RELOAD_COLOR)
+            prefs.remove(OPEN_RECENT_APPS)
         }
     }
 
@@ -367,6 +373,7 @@ object ColorSettingsStore : BaseSettingsStore() {
             putIfNonDefault(LOCK_COLOR.name,              prefs[LOCK_COLOR],              default.LockColor)
             putIfNonDefault(OPEN_FILE_COLOR.name,         prefs[OPEN_FILE_COLOR],         default.OpenFileColor)
             putIfNonDefault(RELOAD_COLOR.name,            prefs[RELOAD_COLOR],            default.ReloadColor)
+            putIfNonDefault(OPEN_RECENT_APPS.name,        prefs[OPEN_RECENT_APPS],        default.OpenRecentAppsColor)
 
         }
     }
@@ -408,6 +415,7 @@ object ColorSettingsStore : BaseSettingsStore() {
                     LOCK_COLOR.name               -> setInt(LOCK_COLOR, value)
                     OPEN_FILE_COLOR.name          -> setInt(OPEN_FILE_COLOR, value)
                     RELOAD_COLOR.name             -> setInt(RELOAD_COLOR, value)
+                    OPEN_RECENT_APPS.name         -> setInt(OPEN_RECENT_APPS, value)
                 }
             }
         }

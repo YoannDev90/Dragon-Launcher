@@ -30,4 +30,5 @@ interface ThemeColors {
     val LockColor: Color
     val OpenFileColor: Color
     val ReloadColor: Color
+    val OpenRecentAppsColor: Color
 }

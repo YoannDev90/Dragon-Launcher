@@ -2,7 +2,9 @@ package org.elnix.dragonlauncher.utils.actions
 
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.stringResource
 import androidx.core.net.toUri
+import org.elnix.dragonlauncher.R
 import org.elnix.dragonlauncher.data.SwipeActionSerializable
 import org.elnix.dragonlauncher.utils.getFilePathFromUri
 
@@ -41,5 +43,6 @@ fun actionLabel(action: SwipeActionSerializable): String {
         SwipeActionSerializable.Lock -> "Lock"
         is SwipeActionSerializable.OpenFile -> getFilePathFromUri(ctx, action.uri.toUri())
         SwipeActionSerializable.ReloadApps -> "Reload Apps"
+        SwipeActionSerializable.OpenRecentApps -> stringResource(R.string.recent_apps)
     }
 }

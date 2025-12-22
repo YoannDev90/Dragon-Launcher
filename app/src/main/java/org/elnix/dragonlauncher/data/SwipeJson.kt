@@ -37,6 +37,8 @@ sealed class SwipeActionSerializable {
     @Serializable object  OpenDragonLauncherSettings: SwipeActionSerializable()
     @Serializable object Lock: SwipeActionSerializable()
     @Serializable object ReloadApps: SwipeActionSerializable()
+
+    @Serializable object OpenRecentApps: SwipeActionSerializable()
 }
 
 // Gson type adapter for sealed class
@@ -68,6 +70,7 @@ class SwipeActionAdapter : JsonSerializer<SwipeActionSerializable>, JsonDeserial
             is SwipeActionSerializable.OpenDragonLauncherSettings -> { obj.addProperty("type", "OpenDragonLauncherSettings") }
             is SwipeActionSerializable.Lock -> { obj.addProperty("type", "Lock") }
             is SwipeActionSerializable.ReloadApps -> { obj.addProperty("type", "ReloadApps") }
+            is SwipeActionSerializable.OpenRecentApps -> { obj.addProperty("type", "OpenRecentApps") }
         }
         return obj
     }
@@ -92,6 +95,7 @@ class SwipeActionAdapter : JsonSerializer<SwipeActionSerializable>, JsonDeserial
             "OpenDragonLauncherSettings" -> SwipeActionSerializable.OpenDragonLauncherSettings
             "Lock" -> SwipeActionSerializable.Lock
             "ReloadApps" -> SwipeActionSerializable.ReloadApps
+            "OpenRecentApps" -> SwipeActionSerializable.OpenRecentApps
             else -> null
         }
     }
@@ -143,6 +147,8 @@ object SwipeJson {
             """{"type":"Lock"}"""
         is SwipeActionSerializable.ReloadApps ->
             """{"type":"ReloadApps"}"""
+        is SwipeActionSerializable.OpenRecentApps ->
+            """{"type":"OpenRecentApps"}"""
     }
     fun decodeAction(jsonString: String): SwipeActionSerializable? {
         if (jsonString.isBlank() || jsonString == "{}") return null

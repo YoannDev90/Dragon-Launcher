@@ -114,5 +114,13 @@ fun launchSwipeAction(
         }
 
         SwipeActionSerializable.ReloadApps -> onReloadApps?.invoke()
+        SwipeActionSerializable.OpenRecentApps -> {
+            if (!SystemControl.isServiceEnabled(ctx)) {
+                ctx.showToast("Please enable accessibility settings to use that feature")
+                SystemControl.openServiceSettings(ctx)
+                return
+            }
+            SystemControl.openRecentApps(ctx)
+        }
     }
 }

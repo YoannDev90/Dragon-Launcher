@@ -6,6 +6,7 @@ import android.content.Intent
 import android.provider.Settings
 import android.util.Log
 import android.view.accessibility.AccessibilityManager
+import org.elnix.dragonlauncher.utils.showToast
 
 object SystemControl {
 
@@ -94,4 +95,14 @@ object SystemControl {
             AccessibilityService.GLOBAL_ACTION_LOCK_SCREEN
         )
     }
+
+    fun openRecentApps(ctx: Context) {
+        if (!isServiceEnabled(ctx)) {
+            ctx.showToast("Please enable accessibility settings to use that feature")
+            openServiceSettings(ctx)
+            return
+        }
+        SystemControlService.INSTANCE?.openRecentApps()
+    }
+
 }
