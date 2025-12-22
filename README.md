@@ -9,6 +9,8 @@
 [![GitHub release](https://img.shields.io/github/v/release/Elnix90/Dragon-Launcher.svg?include_prereleases&style=flat-square)](https://github.com/Elnix90/Dragon-Launcher/releases/latest)
 [![GitHub downloads](https://img.shields.io/github/downloads/Elnix90/Dragon-Launcher/total.svg?style=flat-square)](https://github.com/Elnix90/Dragon-Launcher/releases)
 
+[<img src="https://raw.githubusercontent.com/Kunzisoft/Github-badge/main/get-it-on-github.png" alt='Get it on GitHub' height="80">](https://github.com/Elnix90/Dragon-Launcher/releases/latest)
+[<img src="https://gitlab.com/IzzyOnDroid/repo/-/raw/master/assets/IzzyOnDroid.png" alt="Get it on IzzyOnDroid" height="80">](https://apt.izzysoft.de/fdroid/index/apk/org.elnix.dragonlauncher)
 </div>
 
 
@@ -27,11 +29,7 @@ You can customize your list of fast access apps easily in the settings, and also
 ## Screenshots
 
 <p align="center">
-  <img src="metadata/images/demo.gif" width="400" alt="App demo animation"/>
-</p>
-
-
-<p align="center">
+  <img src="metadata/images/demo.gif" width="22%" alt="App demo animation"/>
   <img src="https://github.com/Elnix90/Dragon-Launcher/blob/main/fastlane/metadata/android/en-US/images/phoneScreenshots/1.jpg" width="22%" alt="App ScreenShot 1"/>
   <img src="https://github.com/Elnix90/Dragon-Launcher/blob/main/fastlane/metadata/android/en-US/images/phoneScreenshots/2.jpg" width="22%" alt="App ScreenShot 2"/>
   <img src="https://github.com/Elnix90/Dragon-Launcher/blob/main/fastlane/metadata/android/en-US/images/phoneScreenshots/3.jpg" width="22%" alt="App ScreenShot 3"/>
@@ -44,17 +42,13 @@ You can customize your list of fast access apps easily in the settings, and also
   <img src="https://github.com/Elnix90/Dragon-Launcher/blob/main/fastlane/metadata/android/en-US/images/phoneScreenshots/10.jpg" width="22%" alt="App ScreenShot 10"/>
 </p>
 
-## Installation
 
-[![Get it on Obtainium](https://fdroid.gitlab.io/obtainium-badges/obtainium.svg)](https://github.com/ImranR98/Obtainium)
-
-
-Get the lastest version on github: [last release](https://github.com/Elnix90/Dragon-Launcher/releases/latest)
+<!--[![Get it on Obtainium](https://fdroid.gitlab.io/obtainium-badges/obtainium.svg)](https://github.com/ImranR98/Obtainium)-->
 
 ## Usage
 
 * **Long click 3 seconds to access settings**
-* Tap or long-press apps to quickly launch, view options, or uninstall.
+* Tap or long-press apps to quickly launch, view options, or uninstall on drawer
 * Customize gestures and visual settings via the Settings menu.
 
 
