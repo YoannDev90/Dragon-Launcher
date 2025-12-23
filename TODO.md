@@ -39,3 +39,4 @@
 - [x] DO not show what's new on welcome screen
 - [X] Add privacy welcome screen
 - [ ] Allow preview theme, add multiple images  for the theme
+- [ ] Add / rewove circles
