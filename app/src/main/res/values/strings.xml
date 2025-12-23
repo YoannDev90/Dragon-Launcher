@@ -156,4 +156,8 @@
     <string name="backup_stores">Backup Stores</string>
     <string name="recent_apps">Recent apps</string>
     <string name="open_recent_apps_color">Open Recent Apps Color</string>
+    <string name="left_padding">Left Padding</string>
+    <string name="right_padding">Right Padding</string>
+    <string name="up_padding">Top Padding</string>
+    <string name="down_padding">Bottom Padding</string>
 </resources>

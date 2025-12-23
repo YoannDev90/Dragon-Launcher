@@ -7,6 +7,7 @@ import androidx.compose.foundation.gestures.awaitFirstDown
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.imePadding
+import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -24,6 +25,7 @@ import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.layout.onSizeChanged
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.IntSize
+import androidx.compose.ui.unit.dp
 import kotlinx.coroutines.launch
 import org.elnix.dragonlauncher.data.SwipePointSerializable
 import org.elnix.dragonlauncher.data.stores.BehaviorSettingsStore
@@ -61,6 +63,18 @@ fun MainScreen(
 
     val backAction by BehaviorSettingsStore.getBackAction(ctx)
         .collectAsState(initial = null)
+
+    val leftPadding by BehaviorSettingsStore.getLeftPadding(ctx)
+        .collectAsState(initial = 0)
+
+    val rightPadding by BehaviorSettingsStore.getRightPadding(ctx)
+        .collectAsState(initial = 0)
+
+    val upPadding by BehaviorSettingsStore.getUpPadding(ctx)
+        .collectAsState(initial = 0)
+
+    val downPadding by BehaviorSettingsStore.getDownPadding(ctx)
+        .collectAsState(initial = 0)
 
 
     val icons by appsViewModel.icons.collectAsState()
@@ -127,6 +141,12 @@ fun MainScreen(
         modifier = Modifier
             .fillMaxSize()
             .background(MaterialTheme.colorScheme.background)
+            .padding(
+                start = leftPadding.dp,
+                top = upPadding.dp,
+                end = rightPadding.dp,
+                bottom = downPadding.dp
+            )
             .imePadding()
             .pointerInput(Unit) {
                 awaitEachGesture {

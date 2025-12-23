@@ -1,6 +1,5 @@
 package org.elnix.dragonlauncher.ui.helpers
 
-import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -9,6 +8,7 @@ import androidx.compose.foundation.layout.wrapContentWidth
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Restore
 import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Slider
 import androidx.compose.material3.Text
@@ -103,12 +103,15 @@ fun SliderWithLabel(
             }
 
             if (onReset != null) {
-                Icon(
-                    imageVector = Icons.Default.Restore,
-                    contentDescription = "Reset",
-                    tint = MaterialTheme.colorScheme.primary,
-                    modifier = Modifier.clickable { onReset() }
-                )
+                IconButton(
+                    onClick = onReset
+                ) {
+                    Icon(
+                        imageVector = Icons.Default.Restore,
+                        contentDescription = "Reset",
+                        tint = MaterialTheme.colorScheme.primary
+                    )
+                }
             }
         }
 
@@ -116,6 +119,73 @@ fun SliderWithLabel(
             value = value.toFloat(),
             onValueChange = { floatValue ->
                 onChange(floatValue.roundToInt())
+            },
+            valueRange = valueRange,
+            steps = 100,
+            colors = AppObjectsColors.sliderColors(color)
+        )
+    }
+}
+
+
+@Composable
+fun SliderWithLabel(
+    label: String? = null,
+    value: Int,
+    valueRange: ClosedFloatingPointRange<Float>,
+    color: Color,
+    showValue: Boolean,
+    onReset: (() -> Unit)? = null,
+    onChange: (Int) -> Unit,
+    onDragStateChange: ((Boolean) -> Unit)? = null
+) {
+    Column(
+        modifier = Modifier
+            .fillMaxWidth(),
+        verticalArrangement = Arrangement.spacedBy(5.dp),
+        horizontalAlignment = Alignment.CenterHorizontally
+    ) {
+        Row(
+            modifier = Modifier
+                .wrapContentWidth(),
+            horizontalArrangement = Arrangement.spacedBy(5.dp),
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            if (label != null) {
+                Text(
+                    text = label,
+                    color = color
+                )
+            }
+
+            if (showValue) {
+                Text(
+                    text = value.toString(),
+                    color = color
+                )
+            }
+
+            if (onReset != null) {
+                IconButton(
+                    onClick = onReset
+                ) {
+                    Icon(
+                        imageVector = Icons.Default.Restore,
+                        contentDescription = "Reset",
+                        tint = MaterialTheme.colorScheme.primary
+                    )
+                }
+            }
+        }
+
+        Slider(
+            value = value.toFloat(),
+            onValueChange = { floatValue ->
+                onChange(floatValue.roundToInt())
+                onDragStateChange?.invoke(true)
+            },
+            onValueChangeFinished = {
+                onDragStateChange?.invoke(false)
             },
             valueRange = valueRange,
             steps = 100,
