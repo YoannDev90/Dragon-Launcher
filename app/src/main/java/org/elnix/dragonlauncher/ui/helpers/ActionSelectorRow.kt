@@ -155,6 +155,7 @@ fun <T> ActionSelector(
                             verticalAlignment = Alignment.CenterVertically,
                             modifier = Modifier
                                 .fillMaxWidth()
+                                .clip(RoundedCornerShape(12.dp))
                                 .padding(horizontal = 4.dp)
                                 .clickable {
                                     onSelected(option)
@@ -163,7 +164,10 @@ fun <T> ActionSelector(
                         ) {
                             RadioButton(
                                 selected = (selected == option),
-                                onClick = { onSelected(option) },
+                                onClick = {
+                                    onSelected(option)
+                                    onDismiss()
+                                },
                                 colors = AppObjectsColors.radioButtonColors()
                             )
                             Text(

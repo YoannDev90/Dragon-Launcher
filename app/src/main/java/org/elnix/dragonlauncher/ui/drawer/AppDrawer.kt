@@ -53,6 +53,7 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.yield
 import org.elnix.dragonlauncher.R
 import org.elnix.dragonlauncher.data.helpers.DrawerActions
+import org.elnix.dragonlauncher.data.helpers.DrawerEnterActions
 import org.elnix.dragonlauncher.data.stores.DrawerSettingsStore
 import org.elnix.dragonlauncher.ui.helpers.AppGrid
 import org.elnix.dragonlauncher.ui.settings.workspace.RenameAppDialog
@@ -60,6 +61,7 @@ import org.elnix.dragonlauncher.utils.ImageUtils
 import org.elnix.dragonlauncher.utils.actions.launchSwipeAction
 import org.elnix.dragonlauncher.utils.models.AppDrawerViewModel
 import org.elnix.dragonlauncher.utils.models.WorkspaceViewModel
+import org.elnix.dragonlauncher.utils.openSearch
 import org.elnix.dragonlauncher.utils.showToast
 
 @Suppress("AssignedValueIsNeverRead")
@@ -104,6 +106,11 @@ fun AppDrawerScreen(
     val clickEmptySpaceToRaiseKeyboard by DrawerSettingsStore
         .getClickEmptySpaceToRaiseKeyboard(ctx)
         .collectAsState(initial = false)
+
+    val drawerEnterAction by DrawerSettingsStore.getDrawerEnterAction(ctx)
+        .collectAsState(initial = DrawerEnterActions.CLEAR)
+
+    var haveToLaunchFirstApp by remember { mutableStateOf(false) }
 
     var searchQuery by remember { mutableStateOf("") }
     var dialogApp by remember { mutableStateOf<AppModel?>(null) }
@@ -186,7 +193,17 @@ fun AppDrawerScreen(
             searchQuery = searchQuery,
             onSearchChanged = { searchQuery = it },
             modifier = Modifier.focusRequester(focusRequester),
-            onEnterPressed = { searchQuery = "" },
+            onEnterPressed = {
+                when (drawerEnterAction) {
+                    DrawerEnterActions.CLOSE_DRAWER -> onClose()
+                    DrawerEnterActions.CLEAR -> searchQuery = ""
+                    DrawerEnterActions.SEARCH_WEB -> {
+                        if (searchQuery.isNotBlank()) ctx.openSearch(searchQuery)
+                    }
+                    DrawerEnterActions.OPEN_FIRST_APP -> haveToLaunchFirstApp = true
+                    DrawerEnterActions.NOTHING -> {}
+                }
+            },
             onFocusStateChanged = { isSearchFocused = it }
         )
     }
@@ -199,7 +216,7 @@ fun AppDrawerScreen(
                 modifier = Modifier.fillMaxSize(),
                 contentScale = ContentScale.Crop
             )
-        } ?: ctx.showToast("No wallpaper yet, please select one")
+        }
     }
 
     Column(
@@ -269,6 +286,13 @@ fun AppDrawerScreen(
 
                     LaunchedEffect(filteredApps) {
                         if (autoLaunchSingleMatch && filteredApps.size == 1 && searchQuery.isNotEmpty()) {
+                            launchSwipeAction(ctx, filteredApps.first().action)
+                            onClose()
+                        }
+                    }
+
+                    LaunchedEffect(haveToLaunchFirstApp) {
+                        if (haveToLaunchFirstApp) {
                             launchSwipeAction(ctx, filteredApps.first().action)
                             onClose()
                         }

@@ -34,8 +34,10 @@ import androidx.compose.ui.unit.dp
 import kotlinx.coroutines.launch
 import org.elnix.dragonlauncher.R
 import org.elnix.dragonlauncher.data.helpers.DrawerActions
+import org.elnix.dragonlauncher.data.helpers.DrawerEnterActions
 import org.elnix.dragonlauncher.data.helpers.drawerActionIcon
 import org.elnix.dragonlauncher.data.helpers.drawerActionsLabel
+import org.elnix.dragonlauncher.data.helpers.drawerEnterActionLabel
 import org.elnix.dragonlauncher.data.stores.DrawerSettingsStore
 import org.elnix.dragonlauncher.ui.helpers.ActionSelectorRow
 import org.elnix.dragonlauncher.ui.helpers.GridSizeSlider
@@ -85,8 +87,11 @@ fun DrawerTab(
 
     val leftDrawerWidth by DrawerSettingsStore.getLeftDrawerWidth(ctx)
         .collectAsState(initial = 0.1f)
-    val rightDrawerWidth  by DrawerSettingsStore.getRightDrawerWidth(ctx)
+    val rightDrawerWidth by DrawerSettingsStore.getRightDrawerWidth(ctx)
         .collectAsState(initial = 0.1f)
+
+    val drawerEnterAction by DrawerSettingsStore.getDrawerEnterAction(ctx)
+        .collectAsState(initial = DrawerEnterActions.CLEAR)
 
     var totalWidthPx by remember { mutableFloatStateOf(0f) }
 
@@ -342,6 +347,33 @@ fun DrawerTab(
                 toggled = rightDrawerAction != DrawerActions.DISABLED
             ) {
                 scope.launch { DrawerSettingsStore.setRightDrawerAction(ctx, it) }
+            }
+        }
+
+        item {
+            ActionSelectorRow(
+                options = DrawerEnterActions.entries.filter { it != DrawerEnterActions.NOTHING },
+                selected = drawerEnterAction,
+                label = stringResource(R.string.right_drawer_action),
+                optionLabel = { drawerEnterActionLabel(ctx, it) },
+                onToggle = {
+                    scope.launch {
+                        if (drawerEnterAction == DrawerEnterActions.NOTHING) {
+                            DrawerSettingsStore.setDrawerEnterAction(
+                                ctx,
+                                DrawerEnterActions.CLEAR
+                            )
+                        } else {
+                            DrawerSettingsStore.setDrawerEnterAction(
+                                ctx,
+                                DrawerEnterActions.NOTHING
+                            )
+                        }
+                    }
+                },
+                toggled = drawerEnterAction != DrawerEnterActions.NOTHING
+            ) {
+                scope.launch { DrawerSettingsStore.setDrawerEnterAction(ctx, it) }
             }
         }
     }

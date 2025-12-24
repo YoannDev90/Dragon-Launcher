@@ -1,5 +1,6 @@
 package org.elnix.dragonlauncher.utils
 
+import android.app.SearchManager
 import android.app.role.RoleManager
 import android.content.ClipData
 import android.content.ClipboardManager
@@ -133,11 +134,11 @@ fun Context.hasUriReadWritePermission(uri: Uri): Boolean {
 
 
 
-//fun openSearch(context: Context) {
-//    val intent = Intent(Intent.ACTION_WEB_SEARCH)
-//    intent.putExtra(SearchManager.QUERY, "")
-//    context.startActivity(intent)
-//}
+fun Context.openSearch(query: String) {
+    val intent = Intent(Intent.ACTION_WEB_SEARCH)
+    intent.putExtra(SearchManager.QUERY, query)
+    startActivity(intent)
+}
 
 //@SuppressLint("WrongConstant")
 fun expandQuickActionsDrawer(context: Context) {
