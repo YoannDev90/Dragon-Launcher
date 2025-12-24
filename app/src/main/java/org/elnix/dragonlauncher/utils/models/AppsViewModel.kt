@@ -121,12 +121,15 @@ class AppDrawerViewModel(application: Application) : AndroidViewModel(applicatio
                 val isEnabled = enabledState == PackageManager.COMPONENT_ENABLED_STATE_ENABLED ||
                 enabledState == PackageManager.COMPONENT_ENABLED_STATE_DEFAULT
 
+                val isSystem = (appInfo.flags and ApplicationInfo.FLAG_SYSTEM) != 0 &&
+                        (appInfo.flags and ApplicationInfo.FLAG_UPDATED_SYSTEM_APP) == 0
+
 
                 AppModel(
                     name = appInfo.loadLabel(pm).toString(),
                     packageName = appInfo.packageName,
                     isEnabled = isEnabled,
-                    isSystem = (appInfo.flags and ApplicationInfo.FLAG_SYSTEM) != 0,
+                    isSystem = isSystem,
                     isWorkProfile = isWorkProfile
                 )
             }
