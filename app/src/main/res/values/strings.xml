@@ -173,4 +173,8 @@
     <string name="main_blur_amount">Main screen wallpaper blur amount</string>
     <string name="drawer_blur_amount">Drawer screen wallpaper blur amount</string>
     <string name="show_all_actions_on_current_circle">Show all actions in current circle</string>
+    <string name="what_method_to_open_quick_actions">What method to open the quick actions?</string>
+    <string name="did_the_notif_or_quick_actions">Did the quick actions open or was it the notifications?</string>
+    <string name="quick_actions">Quick Actions</string>
+    <string name="notifications">Notitifactions</string>
 </resources>

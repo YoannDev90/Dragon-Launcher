@@ -26,8 +26,10 @@ import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.layout.onSizeChanged
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.IntSize
 import kotlinx.coroutines.launch
+import org.elnix.dragonlauncher.R
 import org.elnix.dragonlauncher.data.SwipePointSerializable
 import org.elnix.dragonlauncher.data.stores.BehaviorSettingsStore
 import org.elnix.dragonlauncher.data.stores.PrivateSettingsStore
@@ -58,8 +60,10 @@ fun MainScreen(
     var lastClickTime by remember { mutableLongStateOf(0L) }
 
 
-    val showMethodAsking by PrivateSettingsStore.getShowMethodAsking(ctx)
-        .collectAsState(initial = false)
+//    val showMethodAsking by PrivateSettingsStore.getShowMethodAsking(ctx)
+//        .collectAsState(initial = false)
+    // Removed hacky popup on notifications, use debug on my phone to open quick settings
+    val showMethodAsking = false
 
     val doubleClickAction by BehaviorSettingsStore.getDoubleClickAction(ctx)
         .collectAsState(initial = null)
@@ -100,7 +104,7 @@ fun MainScreen(
 
     val useAccessibilityInsteadOfContextToExpandActionPanel by PrivateSettingsStore
         .getUseAccessibilityInsteadOfContextToExpandActionPanel(ctx)
-        .collectAsState(initial = false)
+        .collectAsState(initial = true)
 
 
     LaunchedEffect(hasSeenWelcome) {
@@ -281,10 +285,10 @@ fun MainScreen(
 
     if (showMethodDialog and showMethodAsking) {
         UserValidation(
-            title = "What method to open the quick actions?",
-            message = "Did the quick actions open or was it the notifications?",
-            validateText = "Quick Actions",
-            cancelText = "Notifications",
+            title = stringResource(R.string.what_method_to_open_quick_actions),
+            message = stringResource(R.string.did_the_notif_or_quick_actions),
+            validateText = stringResource(R.string.quick_actions),
+            cancelText = stringResource(R.string.notifications),
             canDismissByOuterClick = false,
             doNotRemindMeAgain = {
                 scope.launch {
@@ -294,14 +298,14 @@ fun MainScreen(
             onCancel = {
                 // The simple ctx method didn't work, so forced to use the accessibility method, that doesn't work well on my phone
                 scope.launch {
-                    PrivateSettingsStore.setUseAccessibilityInsteadOfContextToExpandActionPanel(ctx, true)
+                    PrivateSettingsStore.setUseAccessibilityInsteadOfContextToExpandActionPanel(ctx, false)
                 }
                 showMethodDialog = false
             },
             onAgree = {
                 // The simple ctx method worked, keep it
                 scope.launch {
-                    PrivateSettingsStore.setUseAccessibilityInsteadOfContextToExpandActionPanel(ctx, false)
+                    PrivateSettingsStore.setUseAccessibilityInsteadOfContextToExpandActionPanel(ctx, true)
                 }
                 showMethodDialog = false
             }

@@ -21,7 +21,7 @@ object PrivateSettingsStore : BaseSettingsStore() {
         val hasSeenWelcome: Boolean = false,
         val hasInitialized: Boolean = false,
         val showSetDefaultLauncherBanner: Boolean = true,
-        val useAccessibilityInsteadOfContextToExpandActionPanel: Boolean = false,
+        val useAccessibilityInsteadOfContextToExpandActionPanel: Boolean = true,
         val showMethodAsking: Boolean = true,
         val lastSeenVersionCode: Int = 0
     )
