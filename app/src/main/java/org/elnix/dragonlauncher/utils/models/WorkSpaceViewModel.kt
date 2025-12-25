@@ -172,25 +172,15 @@ class WorkspaceViewModel(application: Application) : AndroidViewModel(applicatio
             workspaces = _state.value.workspaces.map { ws ->
                 if (ws.id != workspaceId) return@map ws
 
-                val inApps = packageName in ws.appIds
-                val inRemoved = ws.removedAppIds?.contains(packageName) == true
+                val removed = ws.removedAppIds ?: emptySet()
 
-                // Checks if the app is in the removed list, and if this is the case, it remove the app from it, while adding the app to the appIds list
-                when {
-                    inApps && inRemoved ->
-                        ws.copy(removedAppIds = ws.removedAppIds - packageName)
-
-                    !inApps && inRemoved ->
-                        ws.copy(
-                            removedAppIds = ws.removedAppIds - packageName,
-                            appIds = ws.appIds + packageName
-                        )
-
-                    !inApps ->
-                        ws.copy(appIds = ws.appIds + packageName)
-
-                    else -> ws
-                }
+                ws.copy(
+                    appIds = ws.appIds + packageName,
+                    removedAppIds = if (packageName in removed)
+                        removed - packageName
+                    else
+                        ws.removedAppIds
+                )
             }
         )
         persist()
@@ -205,7 +195,7 @@ class WorkspaceViewModel(application: Application) : AndroidViewModel(applicatio
                 // remove the app packageName from appsIds, and add it to removedAppIDs
                 ws.copy(
                     appIds = ws.appIds - packageName,
-                    removedAppIds = ws.removedAppIds?.plus(packageName)
+                    removedAppIds =  (ws.removedAppIds ?: emptyList()) + packageName
                 )
             }
         )
