@@ -3,14 +3,15 @@ package org.elnix.dragonlauncher.ui.helpers
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.lazy.grid.GridCells
+import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
+import androidx.compose.foundation.lazy.grid.items
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Icon
@@ -29,6 +30,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import org.elnix.dragonlauncher.R
 import org.elnix.dragonlauncher.data.SwipeActionSerializable
@@ -81,10 +83,13 @@ fun AddPointDialog(
         confirmButton = {},
         title = { Text(stringResource(R.string.choose_action)) },
         text = {
-            LazyColumn(
+            LazyVerticalGrid(
                 modifier = Modifier
                     .height(320.dp)
-                    .clip(RoundedCornerShape(12.dp))
+                    .clip(RoundedCornerShape(12.dp)),
+                columns = GridCells.Fixed(2),
+                verticalArrangement = Arrangement.spacedBy(5.dp),
+                horizontalArrangement = Arrangement.spacedBy(5.dp)
             ) {
                 // Loop through all actions
                 items(actions) { action ->
@@ -92,7 +97,7 @@ fun AddPointDialog(
 
                         // Open App → requires AppPicker
                         is SwipeActionSerializable.LaunchApp -> {
-                            AddPointRow(
+                            AddPointColumn(
                                 action = action,
                                 onSelected = { showAppPicker = true }
                             )
@@ -101,7 +106,7 @@ fun AddPointDialog(
 
                         // Open URL → requires URL dialog
                         is SwipeActionSerializable.OpenUrl -> {
-                            AddPointRow(
+                            AddPointColumn(
                                 action = action,
                                 onSelected = { showUrlInput = true }
                             )
@@ -110,7 +115,7 @@ fun AddPointDialog(
 
                         // Open File picker to choose a file
                         is SwipeActionSerializable.OpenFile -> {
-                            AddPointRow(
+                            AddPointColumn(
                                 action = action,
                                 onSelected = { showFilePicker = true }
                             )
@@ -119,7 +124,7 @@ fun AddPointDialog(
 
                         // Direct actions
                         else -> {
-                            AddPointRow(
+                            AddPointColumn(
                                 action = action,
                                 onSelected = { onActionSelected(action) }
                             )
@@ -170,7 +175,7 @@ fun AddPointDialog(
 
 
 @Composable
-fun AddPointRow(
+fun AddPointColumn(
     action: SwipeActionSerializable,
     onSelected: () -> Unit
 ) {
@@ -189,19 +194,20 @@ fun AddPointRow(
         else -> actionLabel(action)
     }
 
-    Row(
+    Column(
         modifier = Modifier
             .fillMaxWidth()
             .clip(RoundedCornerShape(12.dp))
             .background(actionColor(action, extraColors).copy(0.5f))
             .clickable { onSelected() }
             .padding(12.dp),
-        horizontalArrangement = Arrangement.SpaceBetween,
-        verticalAlignment = Alignment.CenterVertically
+        horizontalAlignment = Alignment.CenterHorizontally,
+        verticalArrangement = Arrangement.Center
     ) {
         Text(
             text = name,
-            color = Color.White
+            color = Color.White,
+            textAlign = TextAlign.Center
         )
         Icon(
             painter = icon,
