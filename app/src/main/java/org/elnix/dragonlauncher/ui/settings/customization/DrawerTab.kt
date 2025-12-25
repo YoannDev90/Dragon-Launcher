@@ -138,13 +138,13 @@ fun DrawerTab(
             ) { scope.launch { DrawerSettingsStore.setClickEmptySpaceToRaiseKeyboard(ctx, it) } }
         }
 
-        item {
-            SwitchRow(
-                searchBarBottom,
-                "Search bar ${if (searchBarBottom) "Bottom" else "Top"}",
-                enabled = false
-            ) { scope.launch { DrawerSettingsStore.setSearchBarBottom(ctx, it) } }
-        }
+//        item {
+//            SwitchRow(
+//                searchBarBottom,
+//                "Search bar ${if (searchBarBottom) "Bottom" else "Top"}",
+//                enabled = false
+//            ) { scope.launch { DrawerSettingsStore.setSearchBarBottom(ctx, it) } }
+//        }
 
         item { TextDivider(stringResource(R.string.appearance)) }
 
