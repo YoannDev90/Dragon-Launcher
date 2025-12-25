@@ -133,14 +133,16 @@ fun MainScreen(
         )
     }
 
-    BackHandler(backAction != null) {
-        launchAction(
-            SwipePointSerializable(
-                circleNumber = 0,
-                angleDeg = 0.toDouble(),
-                action = backAction
+    BackHandler {
+        if (backAction != null){
+            launchAction(
+                SwipePointSerializable(
+                    circleNumber = 0,
+                    angleDeg = 0.toDouble(),
+                    action = backAction
+                )
             )
-        )
+        }
     }
 
 

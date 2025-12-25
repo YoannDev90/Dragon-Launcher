@@ -1,6 +1,10 @@
 package org.elnix.dragonlauncher.ui
 
 import android.R.attr.versionCode
+import android.content.Intent
+import androidx.activity.compose.rememberLauncherForActivityResult
+import androidx.activity.result.contract.ActivityResultContracts
+import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Scaffold
 import androidx.compose.runtime.Composable
@@ -15,6 +19,7 @@ import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
+import androidx.core.net.toUri
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LifecycleEventObserver
 import androidx.lifecycle.compose.LocalLifecycleOwner
@@ -26,10 +31,12 @@ import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.navArgument
 import kotlinx.coroutines.launch
 import org.elnix.dragonlauncher.data.helpers.DrawerActions
+import org.elnix.dragonlauncher.data.stores.BackupSettingsStore
 import org.elnix.dragonlauncher.data.stores.DrawerSettingsStore
 import org.elnix.dragonlauncher.data.stores.PrivateSettingsStore
 import org.elnix.dragonlauncher.data.stores.WallpaperSettingsStore
 import org.elnix.dragonlauncher.ui.drawer.AppDrawerScreen
+import org.elnix.dragonlauncher.ui.helpers.ReselectAutoBackupBanner
 import org.elnix.dragonlauncher.ui.helpers.SetDefaultLauncherBanner
 import org.elnix.dragonlauncher.ui.settings.backup.BackupTab
 import org.elnix.dragonlauncher.ui.settings.customization.AppearanceTab
@@ -45,6 +52,7 @@ import org.elnix.dragonlauncher.ui.welcome.WelcomeScreen
 import org.elnix.dragonlauncher.ui.whatsnew.ChangelogsScreen
 import org.elnix.dragonlauncher.ui.whatsnew.WhatsNewBottomSheet
 import org.elnix.dragonlauncher.utils.getVersionCode
+import org.elnix.dragonlauncher.utils.hasUriReadWritePermission
 import org.elnix.dragonlauncher.utils.isDefaultLauncher
 import org.elnix.dragonlauncher.utils.loadChangelogs
 import org.elnix.dragonlauncher.utils.models.AppDrawerViewModel
@@ -144,6 +152,11 @@ fun MainAppUi(
     val navBackStackEntry by navController.currentBackStackEntryAsState()
     val currentRoute = navBackStackEntry?.destination?.route
 
+
+    val autoBackupUriString by BackupSettingsStore.getAutoBackupUri(ctx).collectAsState(initial = null)
+    val autoBackupUri = autoBackupUriString?.toUri()
+
+
     LaunchedEffect(Unit, lastSeenVersionCode, currentRoute) {
         showWhatsNewBottomSheet = lastSeenVersionCode < currentVersionCode && currentRoute != ROUTES.WELCOME
     }
@@ -183,15 +196,62 @@ fun MainAppUi(
 
 
 
-    val showBanner = showSetDefaultLauncherBanner &&
+    val showSetAsDefaultBanner = showSetDefaultLauncherBanner &&
             !isDefaultLauncher &&
             currentRoute != ROUTES.WELCOME
 
 
+    var hasAutoBackupPermission by remember {
+        mutableStateOf<Boolean?>(null)
+    }
+
+    LaunchedEffect(autoBackupUri) {
+        hasAutoBackupPermission = if (autoBackupUri == null) {
+            null
+        } else {
+            ctx.hasUriReadWritePermission(autoBackupUri)
+        }
+    }
+
+
+    val showReselectAutoBackupFile =
+        hasAutoBackupPermission == false &&
+                autoBackupUri != null &&
+                currentRoute != ROUTES.WELCOME
+
+
+
+    val autoBackupLauncher = rememberLauncherForActivityResult(
+        ActivityResultContracts.CreateDocument("application/json")
+    ) { uri ->
+        if (uri != null) {
+            ctx.contentResolver.takePersistableUriPermission(
+                uri,
+                Intent.FLAG_GRANT_READ_URI_PERMISSION or Intent.FLAG_GRANT_WRITE_URI_PERMISSION
+            )
+
+            hasAutoBackupPermission = true
+
+            scope.launch {
+                BackupSettingsStore.setAutoBackupUri(ctx, uri)
+                BackupSettingsStore.setAutoBackupEnabled(ctx, true)
+            }
+        }
+    }
+
 
     Scaffold(
         topBar = {
-            if (showBanner) { SetDefaultLauncherBanner() }
+            Column {
+                if (showSetAsDefaultBanner) {
+                    SetDefaultLauncherBanner()
+                }
+                if (showReselectAutoBackupFile) {
+                    ReselectAutoBackupBanner {
+                        autoBackupLauncher.launch("dragonlauncher-auto-backup.json")
+                    }
+                }
+            }
         }
     ) { paddingValues ->
         NavHost(

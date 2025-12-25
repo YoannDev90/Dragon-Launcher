@@ -182,4 +182,5 @@
     <string name="drawer_action_search_web">Search the web</string>
     <string name="drawer_action_open_first_app">Open first app</string>
     <string name="drawer_action_nothing">Nothing</string>
+    <string name="reselect_auto_backup_file">Reselect Auto backup file</string>
 </resources>
