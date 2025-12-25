@@ -185,4 +185,5 @@
     <string name="reselect_auto_backup_file">Reselect Auto backup file</string>
     <string name="transparency">Transparency</string>
     <string name="save">Save</string>
+    <string name="drawer_enter_key_action">Drawer enter key action</string>
 </resources>

@@ -354,7 +354,7 @@ fun DrawerTab(
             ActionSelectorRow(
                 options = DrawerEnterActions.entries.filter { it != DrawerEnterActions.NOTHING },
                 selected = drawerEnterAction,
-                label = stringResource(R.string.right_drawer_action),
+                label = stringResource(R.string.drawer_enter_key_action),
                 optionLabel = { drawerEnterActionLabel(ctx, it) },
                 onToggle = {
                     scope.launch {
