@@ -87,7 +87,7 @@ import org.elnix.dragonlauncher.data.UiSwipePoint
 import org.elnix.dragonlauncher.data.stores.ColorSettingsStore
 import org.elnix.dragonlauncher.data.stores.SwipeSettingsStore
 import org.elnix.dragonlauncher.data.stores.UiSettingsStore
-import org.elnix.dragonlauncher.ui.helpers.AddPointDialog
+import org.elnix.dragonlauncher.ui.components.dialogs.AddPointDialog
 import org.elnix.dragonlauncher.ui.helpers.RepeatingPressButton
 import org.elnix.dragonlauncher.ui.helpers.SliderWithLabel
 import org.elnix.dragonlauncher.ui.helpers.actionsInCircle
@@ -441,7 +441,8 @@ fun SettingsScreen(
                                 backgroundColor = backgroundColor,
                                 colorAction = actionColor(p.action, extraColors),
                                 px = px, py = py,
-                                ctx = ctx
+                                ctx = ctx,
+                                icons = icons
                             )
                         }
 
@@ -465,6 +466,7 @@ fun SettingsScreen(
                             )
                             drawImage(
                                 image = actionIconBitmap(
+                                    icons = icons,
                                     action = p.action,
                                     context = ctx,
                                     tintColor = actionColor(p.action, extraColors)

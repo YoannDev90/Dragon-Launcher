@@ -2,6 +2,7 @@ package org.elnix.dragonlauncher.ui.settings.customization
 
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ColorLens
+import androidx.compose.material.icons.filled.Palette
 import androidx.compose.material.icons.filled.Wallpaper
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
@@ -94,6 +95,14 @@ fun AppearanceTab(
                 icon = Icons.Default.Wallpaper
             ) { navController.navigate(SETTINGS.WALLPAPER) }
         }
+
+        item {
+            SettingsItem(
+                title = stringResource(R.string.icon_pack),
+                icon = Icons.Default.Palette
+            ) { navController.navigate(SETTINGS.ICON_PACK) }
+        }
+
 
         item { TextDivider(stringResource(R.string.app_display)) }
 

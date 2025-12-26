@@ -5,11 +5,16 @@ import androidx.datastore.preferences.core.Preferences
 import androidx.datastore.preferences.core.booleanPreferencesKey
 import androidx.datastore.preferences.core.edit
 import androidx.datastore.preferences.core.intPreferencesKey
+import androidx.datastore.preferences.core.stringPreferencesKey
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.first
+import kotlinx.coroutines.flow.firstOrNull
 import kotlinx.coroutines.flow.map
-import org.elnix.dragonlauncher.data.BackupTypeException
 import org.elnix.dragonlauncher.data.BaseSettingsStore
+import org.elnix.dragonlauncher.data.appDrawerDataStore
+import org.elnix.dragonlauncher.data.getBooleanStrict
+import org.elnix.dragonlauncher.data.getIntStrict
+import org.elnix.dragonlauncher.data.stores.UiSettingsStore.Keys.ICON_PACK_KEY
 import org.elnix.dragonlauncher.data.uiDatastore
 
 object UiSettingsStore : BaseSettingsStore() {
@@ -20,11 +25,11 @@ object UiSettingsStore : BaseSettingsStore() {
         val rgbLine: Boolean = true,
         val showLaunchingAppLabel: Boolean = true,
         val showLaunchingAppIcon: Boolean = true,
-        val showAppLaunchPreviewCircle: Boolean = true,
+        val showAppLaunchPreview: Boolean = true,
         val fullscreen: Boolean = true,
-        val showAppCirclePreview: Boolean = true,
-        val showAppLinePreview: Boolean = true,
-        val showAppAnglePreview: Boolean = true,
+        val showCirclePreview: Boolean = true,
+        val showLinePreview: Boolean = true,
+        val showAnglePreview: Boolean = true,
         val snapPoints: Boolean = true,
         val firstCircleDragDistance: Int = 400,
         val secondCircleDragDistance: Int = 700,
@@ -32,7 +37,8 @@ object UiSettingsStore : BaseSettingsStore() {
         val showAppPreviewIconCenterStartPosition: Boolean = false,
         val linePreviewSnapToAction: Boolean = false,
         val minAngleFromAPointToActivateIt: Int = 30,
-        val showAllActionsOnCurrentCircle: Boolean = false
+        val showAllActionsOnCurrentCircle: Boolean = false,
+        val iconPackKey: String? = null
     )
 
     private val defaults = UiSettingsBackup()
@@ -42,10 +48,10 @@ object UiSettingsStore : BaseSettingsStore() {
         val RGB_LINE = booleanPreferencesKey(UiSettingsBackup::rgbLine.name)
         val SHOW_LAUNCHING_APP_LABEL = booleanPreferencesKey(UiSettingsBackup::showLaunchingAppLabel.name)
         val SHOW_LAUNCHING_APP_ICON = booleanPreferencesKey(UiSettingsBackup::showLaunchingAppIcon.name)
-        val SHOW_APP_LAUNCH_PREVIEW = booleanPreferencesKey(UiSettingsBackup::showAppLaunchPreviewCircle.name)
+        val SHOW_APP_LAUNCH_PREVIEW = booleanPreferencesKey(UiSettingsBackup::showAppLaunchPreview.name)
         val FULLSCREEN = booleanPreferencesKey(UiSettingsBackup::fullscreen.name)
-        val SHOW_CIRCLE_PREVIEW = booleanPreferencesKey(UiSettingsBackup::showAppCirclePreview.name)
-        val SHOW_LINE_PREVIEW = booleanPreferencesKey(UiSettingsBackup::showAppLinePreview.name)
+        val SHOW_CIRCLE_PREVIEW = booleanPreferencesKey(UiSettingsBackup::showCirclePreview.name)
+        val SHOW_LINE_PREVIEW = booleanPreferencesKey(UiSettingsBackup::showLinePreview.name)
         val SHOW_ANGLE_PREVIEW = booleanPreferencesKey("show_app_angle_preview")
         val SNAP_POINTS = booleanPreferencesKey(UiSettingsBackup::snapPoints.name)
         val FIRST_CIRCLE_DRAG_DISTANCE = intPreferencesKey(UiSettingsBackup::firstCircleDragDistance.name)
@@ -55,6 +61,8 @@ object UiSettingsStore : BaseSettingsStore() {
         val LINE_PREVIEW_SNAP_TO_ACTION = booleanPreferencesKey("linePreviewSnapToAction")
         val MIN_ANGLE_FROM_A_POINT_TO_ACTIVATE_IT = intPreferencesKey("minAngleFromAPointToActivateIt")
         val SHOW_ALL_ACTIONS_ON_CURRENT_CIRCLE = booleanPreferencesKey("showAllActionsOnCurrentCircle")
+        val ICON_PACK_KEY = stringPreferencesKey("selected_icon_pack")
+
 
 
         val ALL = listOf(
@@ -74,7 +82,8 @@ object UiSettingsStore : BaseSettingsStore() {
             SHOW_APP_PREVIEW_ICON_CENTER_START_POSITION,
             LINE_PREVIEW_SNAP_TO_ACTION,
             MIN_ANGLE_FROM_A_POINT_TO_ACTIVATE_IT,
-            SHOW_ALL_ACTIONS_ON_CURRENT_CIRCLE
+            SHOW_ALL_ACTIONS_ON_CURRENT_CIRCLE,
+            ICON_PACK_KEY
         )
     }
 
@@ -107,7 +116,7 @@ object UiSettingsStore : BaseSettingsStore() {
     }
 
     fun getShowAppLaunchPreview(ctx: Context): Flow<Boolean> =
-        ctx.uiDatastore.data.map { it[Keys.SHOW_APP_LAUNCH_PREVIEW] ?: defaults.showAppLaunchPreviewCircle }
+        ctx.uiDatastore.data.map { it[Keys.SHOW_APP_LAUNCH_PREVIEW] ?: defaults.showAppLaunchPreview }
 
     suspend fun setShowAppLaunchPreview(ctx: Context, value: Boolean) {
         ctx.uiDatastore.edit { it[Keys.SHOW_APP_LAUNCH_PREVIEW] = value }
@@ -121,21 +130,21 @@ object UiSettingsStore : BaseSettingsStore() {
     }
 
     fun getShowCirclePreview(ctx: Context): Flow<Boolean> =
-        ctx.uiDatastore.data.map { it[Keys.SHOW_CIRCLE_PREVIEW] ?: defaults.showAppCirclePreview }
+        ctx.uiDatastore.data.map { it[Keys.SHOW_CIRCLE_PREVIEW] ?: defaults.showCirclePreview }
 
     suspend fun setShowCirclePreview(ctx: Context, value: Boolean) {
         ctx.uiDatastore.edit { it[Keys.SHOW_CIRCLE_PREVIEW] = value }
     }
 
     fun getShowLinePreview(ctx: Context): Flow<Boolean> =
-        ctx.uiDatastore.data.map { it[Keys.SHOW_LINE_PREVIEW] ?: defaults.showAppLinePreview }
+        ctx.uiDatastore.data.map { it[Keys.SHOW_LINE_PREVIEW] ?: defaults.showLinePreview }
 
     suspend fun setShowLinePreview(ctx: Context, value: Boolean) {
         ctx.uiDatastore.edit { it[Keys.SHOW_LINE_PREVIEW] = value }
     }
 
     fun getShowAnglePreview(ctx: Context): Flow<Boolean> =
-        ctx.uiDatastore.data.map { it[Keys.SHOW_ANGLE_PREVIEW] ?: defaults.showAppAnglePreview }
+        ctx.uiDatastore.data.map { it[Keys.SHOW_ANGLE_PREVIEW] ?: defaults.showAnglePreview }
 
     suspend fun setShowAnglePreview(ctx: Context, value: Boolean) {
         ctx.uiDatastore.edit { it[Keys.SHOW_ANGLE_PREVIEW] = value }
@@ -198,6 +207,23 @@ object UiSettingsStore : BaseSettingsStore() {
         ctx.uiDatastore.edit { it[Keys.SHOW_ALL_ACTIONS_ON_CURRENT_CIRCLE] = value }
     }
 
+
+    suspend fun getIconPack(ctx: Context): String? {
+        return ctx.appDrawerDataStore.data
+            .map { it[ICON_PACK_KEY] }
+            .firstOrNull()
+    }
+
+    suspend fun setIconPack(ctx: Context, packName: String?) {
+        ctx.appDrawerDataStore.edit { prefs ->
+            if (packName == null) {
+                prefs.remove(ICON_PACK_KEY)
+            } else {
+                prefs[ICON_PACK_KEY] = packName
+            }
+        }
+    }
+
     // --------------------------------
     // BACKUP / RESTORE / RESET
     // --------------------------------
@@ -228,11 +254,11 @@ object UiSettingsStore : BaseSettingsStore() {
             putIfChanged(Keys.RGB_LINE, defaults.rgbLine)
             putIfChanged(Keys.SHOW_LAUNCHING_APP_LABEL, defaults.showLaunchingAppLabel)
             putIfChanged(Keys.SHOW_LAUNCHING_APP_ICON, defaults.showLaunchingAppIcon)
-            putIfChanged(Keys.SHOW_APP_LAUNCH_PREVIEW, defaults.showAppLaunchPreviewCircle)
+            putIfChanged(Keys.SHOW_APP_LAUNCH_PREVIEW, defaults.showAppLaunchPreview)
             putIfChanged(Keys.FULLSCREEN, defaults.fullscreen)
-            putIfChanged(Keys.SHOW_CIRCLE_PREVIEW, defaults.showAppCirclePreview)
-            putIfChanged(Keys.SHOW_LINE_PREVIEW, defaults.showAppLinePreview)
-            putIfChanged(Keys.SHOW_ANGLE_PREVIEW, defaults.showAppAnglePreview)
+            putIfChanged(Keys.SHOW_CIRCLE_PREVIEW, defaults.showCirclePreview)
+            putIfChanged(Keys.SHOW_LINE_PREVIEW, defaults.showLinePreview)
+            putIfChanged(Keys.SHOW_ANGLE_PREVIEW, defaults.showAnglePreview)
             putIfChanged(Keys.SNAP_POINTS, defaults.snapPoints)
             putIfChanged(Keys.SHOW_APP_PREVIEW_ICON_CENTER_START_POSITION, defaults.showAppPreviewIconCenterStartPosition)
             putIfChanged(Keys.LINE_PREVIEW_SNAP_TO_ACTION, defaults.linePreviewSnapToAction)
@@ -248,71 +274,32 @@ object UiSettingsStore : BaseSettingsStore() {
 
     suspend fun setAll(ctx: Context, backup: Map<String, Any?>) {
         ctx.uiDatastore.edit { prefs ->
-
-            fun applyBoolean(key: Preferences.Key<Boolean>) {
-                val raw = backup[key.name] ?: return
-
-                val boolValue = when (raw) {
-                    is Boolean -> raw
-                    is String -> raw.toBooleanStrictOrNull()
-                        ?: throw BackupTypeException(
-                            key.name,
-                            expected = "Boolean",
-                            actual = "String",
-                            value = raw
-                        )
-                    else -> throw BackupTypeException(
-                        key.name,
-                        expected = "Boolean",
-                        actual = raw::class.simpleName,
-                        value = raw
-                    )
-                }
-
-                prefs[key] = boolValue
+            fun putBool(key: Preferences.Key<Boolean>, def: Boolean) {
+                prefs[key] = getBooleanStrict(backup, key, def)
+            }
+            fun putInt(key: Preferences.Key<Int>, def: Int) {
+                prefs[key] = getIntStrict(backup, key, def)
             }
 
-            fun applyInt(key: Preferences.Key<Int>) {
-                val raw = backup[key.name] ?: return
+            putBool(Keys.RGB_LOADING, defaults.rgbLoading)
+            putBool(Keys.RGB_LINE, defaults.rgbLine)
+            putBool(Keys.SHOW_LAUNCHING_APP_LABEL, defaults.showLaunchingAppLabel)
+            putBool(Keys.SHOW_LAUNCHING_APP_ICON, defaults.showLaunchingAppIcon)
+            putBool(Keys.SHOW_APP_LAUNCH_PREVIEW, defaults.showAppLaunchPreview)
+            putBool(Keys.FULLSCREEN, defaults.fullscreen)
+            putBool(Keys.SHOW_CIRCLE_PREVIEW, defaults.showCirclePreview)
+            putBool(Keys.SHOW_LINE_PREVIEW, defaults.showLinePreview)
+            putBool(Keys.SHOW_ANGLE_PREVIEW, defaults.showAnglePreview)
+            putBool(Keys.SNAP_POINTS, defaults.snapPoints)
+            putBool(Keys.SHOW_APP_PREVIEW_ICON_CENTER_START_POSITION, defaults.showAppPreviewIconCenterStartPosition)
+            putBool(Keys.LINE_PREVIEW_SNAP_TO_ACTION, defaults.linePreviewSnapToAction)
+            putBool(Keys.SHOW_ALL_ACTIONS_ON_CURRENT_CIRCLE, defaults.showAllActionsOnCurrentCircle)
 
-                val intValue = when (raw) {
-                    is Int -> raw
-                    is String -> raw.toIntOrNull()
-                        ?: throw BackupTypeException(
-                            key.name,
-                            expected = "Int",
-                            actual = "String",
-                            value = raw
-                        )
-                    else -> throw BackupTypeException(
-                        key.name,
-                        expected = "Int",
-                        actual = raw::class.simpleName,
-                        value = raw
-                    )
-                }
-
-                prefs[key] = intValue
-            }
-
-            applyBoolean(Keys.RGB_LOADING)
-            applyBoolean(Keys.RGB_LINE)
-            applyBoolean(Keys.SHOW_LAUNCHING_APP_LABEL)
-            applyBoolean(Keys.SHOW_LAUNCHING_APP_ICON)
-            applyBoolean(Keys.SHOW_APP_LAUNCH_PREVIEW)
-            applyBoolean(Keys.FULLSCREEN)
-            applyBoolean(Keys.SHOW_CIRCLE_PREVIEW)
-            applyBoolean(Keys.SHOW_LINE_PREVIEW)
-            applyBoolean(Keys.SHOW_ANGLE_PREVIEW)
-            applyBoolean(Keys.SNAP_POINTS)
-            applyBoolean(Keys.SHOW_APP_PREVIEW_ICON_CENTER_START_POSITION)
-            applyBoolean(Keys.LINE_PREVIEW_SNAP_TO_ACTION)
-            applyBoolean(Keys.SHOW_ALL_ACTIONS_ON_CURRENT_CIRCLE)
-
-            applyInt(Keys.FIRST_CIRCLE_DRAG_DISTANCE)
-            applyInt(Keys.SECOND_CIRCLE_DRAG_DISTANCE)
-            applyInt(Keys.CANCEL_ZONE_DRAG_DISTANCE)
-            applyInt(Keys.MIN_ANGLE_FROM_A_POINT_TO_ACTIVATE_IT)
+            putInt(Keys.FIRST_CIRCLE_DRAG_DISTANCE, defaults.firstCircleDragDistance)
+            putInt(Keys.SECOND_CIRCLE_DRAG_DISTANCE, defaults.secondCircleDragDistance)
+            putInt(Keys.CANCEL_ZONE_DRAG_DISTANCE, defaults.cancelZoneDragDistance)
+            putInt(Keys.MIN_ANGLE_FROM_A_POINT_TO_ACTIVATE_IT, defaults.minAngleFromAPointToActivateIt)
         }
     }
+
 }

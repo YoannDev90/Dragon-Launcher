@@ -66,11 +66,12 @@ fun actionIcon(
 
 
 fun actionIconBitmap(
+    icons: Map<String, ImageBitmap>,
     action: SwipeActionSerializable,
     context: Context,
     tintColor: Color
 ): ImageBitmap {
-    val bitmap = createUntintedBitmap(action, context)
+    val bitmap = createUntintedBitmap(action, context, icons)
     return if (action is SwipeActionSerializable.LaunchApp || action is SwipeActionSerializable.OpenDragonLauncherSettings) {
         bitmap
     } else {
@@ -78,11 +79,11 @@ fun actionIconBitmap(
     }
 }
 
-private fun createUntintedBitmap(action: SwipeActionSerializable, context: Context): ImageBitmap {
+private fun createUntintedBitmap(action: SwipeActionSerializable, context: Context, icons: Map<String, ImageBitmap>): ImageBitmap {
     return when (action) {
         is SwipeActionSerializable.LaunchApp -> {
             try {
-                loadDrawableAsBitmap(
+                icons[action.packageName] ?: loadDrawableAsBitmap(
                     context.packageManager.getApplicationIcon(action.packageName),
                     48,
                     48

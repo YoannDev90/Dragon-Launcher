@@ -16,7 +16,6 @@ import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.material3.Icon
-import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -103,7 +102,7 @@ fun MainScreenOverlay(
     val showAllActionsOnCurrentCircle by UiSettingsStore.getShowAllActionsOnCurrentCircle(ctx)
         .collectAsState(initial = false)
 
-    val backgroundColor = MaterialTheme.colorScheme.background
+//    val backgroundColor = MaterialTheme.colorScheme.background
     val extraColors = LocalExtraColors.current
 
 
@@ -419,7 +418,8 @@ fun MainScreenOverlay(
                                     backgroundColor = null, // Null for now to erase bg (maybe settings later)
                                     colorAction = actionColor(p.action, extraColors),
                                     px = px, py = py,
-                                    ctx = ctx
+                                    ctx = ctx,
+                                    icons = icons
                                 )
                             }
                         }
@@ -433,7 +433,8 @@ fun MainScreenOverlay(
                                 ctx = ctx,
                                 backgroundColor = null, // Null for now to erase bg (maybe settings later)
                                 colorAction = colorAction,
-                                circleColor = circleColor ?: AmoledDefault.CircleColor
+                                circleColor = circleColor ?: AmoledDefault.CircleColor,
+                                icons = icons
                             )
                         }
                     }
@@ -452,7 +453,8 @@ fun MainScreenOverlay(
                         drawBorder = false,
                         backgroundColor = null, // Null for now to erase bg (maybe settings later)
                         colorAction = colorAction,
-                        circleColor = circleColor ?: AmoledDefault.CircleColor
+                        circleColor = circleColor ?: AmoledDefault.CircleColor,
+                        icons = icons
                     )
                 }
             }

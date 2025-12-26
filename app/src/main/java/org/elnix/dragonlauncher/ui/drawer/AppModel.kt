@@ -8,6 +8,7 @@ data class AppModel(
     val isEnabled: Boolean,
     val isSystem: Boolean,
     val isWorkProfile: Boolean,
+    val isLaunchable: Boolean?,
     val settings: Map<String, Any> = emptyMap()
 ) {
     val action = SwipeActionSerializable.LaunchApp(packageName)
@@ -53,13 +54,15 @@ fun resolveApp(
 }
 
 
+// I disable non-user workspaces by default, enable it if you need it (only used for nerds) (those who download my app are btw :) )
 val defaultWorkspaces = listOf(
-    Workspace("user", "User", WorkspaceType.USER, listOf(
-        "com.android.settings",
-        "com.google.android.youtube"
-    ), emptyList(), true),
-    Workspace("system", "System", WorkspaceType.SYSTEM, emptyList(), emptyList(), true),
-    Workspace("all", "All", WorkspaceType.ALL, emptyList(), emptyList(),  true),
-    // I set work profile disabled by default, enable it if you need it
+    Workspace("user", "User", WorkspaceType.USER, emptyList(), emptyList(), true),
+    Workspace("system", "System", WorkspaceType.SYSTEM, emptyList(), emptyList(), false),
+    Workspace("all", "All", WorkspaceType.ALL, emptyList(), emptyList(),  false),
     Workspace("work", "Work", WorkspaceType.WORK, emptyList(), emptyList(),  false)
 )
+
+
+
+data class IconPackInfo(val packageName: String, val name: String)
+data class IconMapping(val component: String, val drawable: String)

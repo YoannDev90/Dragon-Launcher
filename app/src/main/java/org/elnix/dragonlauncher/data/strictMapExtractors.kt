@@ -21,6 +21,20 @@ fun getBooleanStrict(
     }
 }
 
+fun getIntStrict(
+    raw: Map<String, Any?>,
+    key: Preferences.Key<Int>,
+    def: Int
+): Int {
+    val v = raw[key.name] ?: return def
+    return when (v) {
+        is Int -> v
+        is Number -> v.toInt()
+        is String -> v.toIntOrNull()
+            ?: throw BackupTypeException(key.name, "Int", "String", v)
+        else -> throw BackupTypeException(key.name, "Int", v::class.simpleName, v)
+    }
+}
 fun getFloatStrict(
     raw: Map<String, Any?>,
     key: Preferences.Key<Float>,
@@ -41,6 +55,19 @@ fun getStringStrict(
     key: Preferences.Key<String>,
     def: String
 ): String {
+    val v = raw[key.name] ?: return def
+    return when (v) {
+        is String -> v
+        else -> throw BackupTypeException(key.name, "String", v::class.simpleName, v)
+    }
+}
+
+
+fun getNullableStringStrict(
+    raw: Map<String, Any?>,
+    key: Preferences.Key<String>,
+    def: String?
+): String? {
     val v = raw[key.name] ?: return def
     return when (v) {
         is String -> v

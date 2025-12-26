@@ -27,11 +27,13 @@ import kotlinx.coroutines.launch
 import org.burnoutcrew.reorderable.ReorderableItem
 import org.burnoutcrew.reorderable.rememberReorderableLazyListState
 import org.elnix.dragonlauncher.R
+import org.elnix.dragonlauncher.ui.components.dialogs.CreateOrEditWorkspaceDialog
+import org.elnix.dragonlauncher.ui.components.dialogs.UserValidation
 import org.elnix.dragonlauncher.ui.drawer.Workspace
-import org.elnix.dragonlauncher.ui.helpers.UserValidation
+import org.elnix.dragonlauncher.ui.drawer.WorkspaceType
 import org.elnix.dragonlauncher.ui.helpers.settings.SettingsLazyHeader
-import org.elnix.dragonlauncher.utils.workspace.WorkspaceAction
 import org.elnix.dragonlauncher.utils.models.WorkspaceViewModel
+import org.elnix.dragonlauncher.utils.workspace.WorkspaceAction
 
 
 @Composable
@@ -44,7 +46,7 @@ fun WorkspaceListScreen(
     val state by workspaceViewModel.state.collectAsState()
 
     var showCreateDialog by remember { mutableStateOf(false) }
-    var renameTarget by remember { mutableStateOf<String?>(null) }
+    var renameTarget by remember { mutableStateOf<Workspace?>(null) }
     var nameBuffer by remember { mutableStateOf("") }
 
     var showDeleteConfirm by remember { mutableStateOf<Workspace?>(null) }
@@ -95,7 +97,7 @@ fun WorkspaceListScreen(
                         onAction = { action ->
                             when (action) {
                                 WorkspaceAction.Rename -> {
-                                    renameTarget = ws.id
+                                    renameTarget = ws
                                     nameBuffer = ws.name
                                 }
                                 WorkspaceAction.Delete -> { showDeleteConfirm = ws }
@@ -123,6 +125,7 @@ fun WorkspaceListScreen(
         visible = showCreateDialog,
         title = stringResource(R.string.create_workspace),
         name = nameBuffer,
+        type = WorkspaceType.CUSTOM,
         onNameChange = { nameBuffer = it },
         onConfirm = { selectedType ->
             scope.launch { workspaceViewModel.createWorkspace(nameBuffer.trim(), selectedType) }
@@ -135,11 +138,18 @@ fun WorkspaceListScreen(
         visible = renameTarget != null,
         title = stringResource(R.string.rename_workspace),
         name = nameBuffer,
+        type = renameTarget?.type,
         onNameChange = { nameBuffer = it },
         onConfirm = { selectedType ->
             val targetId = renameTarget
             if (targetId != null && nameBuffer.isNotBlank()) {
-                scope.launch { workspaceViewModel.editWorkspace(targetId, nameBuffer.trim(), selectedType) }
+                scope.launch {
+                    workspaceViewModel.editWorkspace(
+                        targetId.id,
+                        nameBuffer.trim(),
+                        selectedType
+                    )
+                }
             }
             renameTarget = null
         },

@@ -31,7 +31,7 @@ import org.burnoutcrew.reorderable.ReorderableLazyListState
 import org.burnoutcrew.reorderable.detectReorderAfterLongPress
 import org.burnoutcrew.reorderable.reorderable
 import org.elnix.dragonlauncher.R
-import org.elnix.dragonlauncher.ui.helpers.UserValidation
+import org.elnix.dragonlauncher.ui.components.dialogs.UserValidation
 
 @Suppress("AssignedValueIsNeverRead")
 @Composable

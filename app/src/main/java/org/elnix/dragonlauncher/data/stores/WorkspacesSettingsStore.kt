@@ -3,7 +3,6 @@ package org.elnix.dragonlauncher.data.stores
 import android.content.Context
 import androidx.datastore.preferences.core.edit
 import androidx.datastore.preferences.core.stringPreferencesKey
-import com.google.gson.Gson
 import kotlinx.coroutines.flow.first
 import org.elnix.dragonlauncher.data.BaseSettingsStore
 import org.elnix.dragonlauncher.data.workspaceDataStore
@@ -14,8 +13,6 @@ import org.json.JSONObject
 object WorkspaceSettingsStore : BaseSettingsStore() {
 
     override val name: String = "Workspaces"
-
-    private val gson = Gson()
 
     private object Keys {
         const val WORKSPACE_STATE = "workspace_state"

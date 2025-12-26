@@ -44,6 +44,7 @@ import org.elnix.dragonlauncher.ui.settings.customization.AppearanceTab
 import org.elnix.dragonlauncher.ui.settings.customization.BehaviorTab
 import org.elnix.dragonlauncher.ui.settings.customization.ColorSelectorTab
 import org.elnix.dragonlauncher.ui.settings.customization.DrawerTab
+import org.elnix.dragonlauncher.ui.settings.customization.IconPackTab
 import org.elnix.dragonlauncher.ui.settings.customization.WallpaperTab
 import org.elnix.dragonlauncher.ui.settings.debug.DebugTab
 import org.elnix.dragonlauncher.ui.settings.language.LanguageTab
@@ -66,7 +67,8 @@ object SETTINGS {
     const val ROOT = "settings"
     const val ADVANCED_ROOT = "settings/advanced"
     const val APPEARANCE = "settings/advanced/appearance"
-    const val WALLPAPER = "settings/advanced/wallpaper"
+    const val WALLPAPER = "settings/advanced/appearance/wallpaper"
+    const val ICON_PACK = "settings/advanced/appearance/icon_pack"
     const val BEHAVIOR = "settings/advanced/behavior"
     const val COLORS = "settings/advanced/appearance/colors"
     const val DRAWER = "settings/advanced/drawer"
@@ -314,6 +316,7 @@ fun MainAppUi(
 
             composable(SETTINGS.APPEARANCE) { AppearanceTab(navController) { goAdvSettingsRoot() } }
             composable(SETTINGS.WALLPAPER)  { WallpaperTab { goAppearance() } }
+            composable(SETTINGS.ICON_PACK)  { IconPackTab(appViewModel) { goAppearance() } }
             composable(SETTINGS.BEHAVIOR)   { BehaviorTab(appViewModel, workspaceViewModel) { goAdvSettingsRoot() } }
             composable(SETTINGS.DRAWER)     { DrawerTab(appViewModel) { goAdvSettingsRoot() } }
             composable(SETTINGS.COLORS)     { ColorSelectorTab { goAppearance() } }

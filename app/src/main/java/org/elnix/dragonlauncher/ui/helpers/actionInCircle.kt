@@ -4,6 +4,7 @@ import android.content.Context
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.BlendMode
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.ImageBitmap
 import androidx.compose.ui.graphics.drawscope.DrawScope
 import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.unit.IntOffset
@@ -22,6 +23,7 @@ fun actionsInCircle(
     colorAction: Color,
     backgroundColor: Color? = null,
     drawBorder: Boolean = true,
+    icons: Map<String, ImageBitmap>
 ) {
 
     // if no background color provided, erases the background
@@ -54,6 +56,7 @@ fun actionsInCircle(
 
     drawScope.drawImage(
         image = actionIconBitmap(
+            icons = icons,
             action = action,
             context = ctx,
             tintColor = colorAction

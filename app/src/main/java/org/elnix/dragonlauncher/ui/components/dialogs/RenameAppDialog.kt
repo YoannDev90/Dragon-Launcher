@@ -1,4 +1,4 @@
-package org.elnix.dragonlauncher.ui.settings.workspace
+package org.elnix.dragonlauncher.ui.components.dialogs
 
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.shape.RoundedCornerShape

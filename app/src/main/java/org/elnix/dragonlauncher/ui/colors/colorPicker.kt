@@ -55,7 +55,7 @@ import org.elnix.dragonlauncher.data.helpers.ColorPickerMode
 import org.elnix.dragonlauncher.data.helpers.colorPickerText
 import org.elnix.dragonlauncher.data.stores.ColorModesSettingsStore.getColorPickerMode
 import org.elnix.dragonlauncher.data.stores.ColorModesSettingsStore.setColorPickerMode
-import org.elnix.dragonlauncher.ui.components.CustomAlertDialog
+import org.elnix.dragonlauncher.ui.components.dialogs.CustomAlertDialog
 import org.elnix.dragonlauncher.ui.components.ValidateCancelButtons
 import org.elnix.dragonlauncher.ui.helpers.SliderWithLabel
 import org.elnix.dragonlauncher.utils.colors.adjustBrightness

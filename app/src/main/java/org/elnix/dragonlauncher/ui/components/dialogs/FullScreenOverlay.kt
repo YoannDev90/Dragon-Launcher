@@ -1,4 +1,4 @@
-package org.elnix.dragonlauncher.ui.components
+package org.elnix.dragonlauncher.ui.components.dialogs
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable

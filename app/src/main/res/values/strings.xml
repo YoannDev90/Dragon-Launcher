@@ -186,4 +186,9 @@
     <string name="transparency">Transparency</string>
     <string name="save">Save</string>
     <string name="drawer_enter_key_action">Drawer enter key action</string>
+    <string name="icon_pack">Icon packs</string>
+    <string name="icon_pack_help">Select an icon pack to customize your app icons. Install icon packs from your store first.</string>
+    <string name="no_icon_pack_found">No icon pack found</string>
+    <string name="default_no_icon_pack">Default (No icon pack)</string>
+    <string name="use_original_app_icon">Use original app icons</string>
 </resources>
