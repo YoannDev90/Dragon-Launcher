@@ -93,6 +93,9 @@ fun DrawerTab(
     val drawerEnterAction by DrawerSettingsStore.getDrawerEnterAction(ctx)
         .collectAsState(initial = DrawerEnterActions.CLEAR)
 
+    val scrollDownToCloseDrawerOnTop by DrawerSettingsStore.getScrollDownToCloseDrawerOnTop(ctx)
+        .collectAsState(initial = true)
+
     var totalWidthPx by remember { mutableFloatStateOf(0f) }
 
     var localLeft by remember { mutableFloatStateOf(leftDrawerWidth) }
@@ -136,6 +139,13 @@ fun DrawerTab(
                 clickEmptySpaceToRaiseKeyboard,
                 "Tap Empty Space to Raise Keyboard",
             ) { scope.launch { DrawerSettingsStore.setClickEmptySpaceToRaiseKeyboard(ctx, it) } }
+        }
+
+        item {
+            SwitchRow(
+                scrollDownToCloseDrawerOnTop,
+                stringResource(R.string.scroll_down_drawer),
+            ) { scope.launch { DrawerSettingsStore.setScrollDownToCloseDrawerOnTop(ctx, it) } }
         }
 
 //        item {

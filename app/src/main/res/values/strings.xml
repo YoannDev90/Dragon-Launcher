@@ -191,4 +191,5 @@
     <string name="no_icon_pack_found">No icon pack found</string>
     <string name="default_no_icon_pack">Default (No icon pack)</string>
     <string name="use_original_app_icon">Use original app icons</string>
+    <string name="scroll_down_drawer">Scroll down to close drawer</string>
 </resources>

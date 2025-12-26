@@ -55,8 +55,8 @@ import org.elnix.dragonlauncher.R
 import org.elnix.dragonlauncher.data.helpers.DrawerActions
 import org.elnix.dragonlauncher.data.helpers.DrawerEnterActions
 import org.elnix.dragonlauncher.data.stores.DrawerSettingsStore
-import org.elnix.dragonlauncher.ui.helpers.AppGrid
 import org.elnix.dragonlauncher.ui.components.dialogs.RenameAppDialog
+import org.elnix.dragonlauncher.ui.helpers.AppGrid
 import org.elnix.dragonlauncher.utils.ImageUtils
 import org.elnix.dragonlauncher.utils.actions.launchSwipeAction
 import org.elnix.dragonlauncher.utils.models.AppDrawerViewModel
@@ -109,6 +109,12 @@ fun AppDrawerScreen(
 
     val drawerEnterAction by DrawerSettingsStore.getDrawerEnterAction(ctx)
         .collectAsState(initial = DrawerEnterActions.CLEAR)
+
+    val scrollDownToCloseDrawerOnTop by DrawerSettingsStore.getScrollDownToCloseDrawerOnTop(ctx)
+        .collectAsState(initial = true)
+
+
+
 
     var haveToLaunchFirstApp by remember { mutableStateOf(false) }
 
@@ -305,7 +311,8 @@ fun AppDrawerScreen(
                         txtColor = MaterialTheme.colorScheme.onSurface,
                         showIcons = showIcons,
                         showLabels = showLabels,
-                        onLongClick = { dialogApp = it }
+                        onLongClick = { dialogApp = it },
+                        onClose = if (scrollDownToCloseDrawerOnTop) onClose else null
                     ) {
                         launchSwipeAction(ctx, it.action)
                         onClose()
