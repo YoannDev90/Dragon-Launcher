@@ -22,7 +22,7 @@ fun actionsInCircle(
     circleColor: Color,
     colorAction: Color,
     backgroundColor: Color? = null,
-    drawBorder: Boolean = true,
+    drawBorder: Boolean,
     icons: Map<String, ImageBitmap>
 ) {
 

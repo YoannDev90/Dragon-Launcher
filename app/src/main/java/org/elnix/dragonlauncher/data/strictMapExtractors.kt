@@ -74,3 +74,15 @@ fun getNullableStringStrict(
         else -> throw BackupTypeException(key.name, "String", v::class.simpleName, v)
     }
 }
+
+
+
+fun MutableMap<String, Any>.putIfNonDefault(
+    key: Preferences.Key<*>,
+    value: Any?,
+    def: Any
+) {
+    if (value != null && value != def) {
+        put(key.name, value.toString())
+    }
+}

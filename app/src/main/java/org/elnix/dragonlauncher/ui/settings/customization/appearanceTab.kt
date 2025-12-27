@@ -71,6 +71,9 @@ fun AppearanceTab(
     val showAllActionsOnCurrentCircle by UiSettingsStore.getShowAllActionsOnCurrentCircle(ctx)
         .collectAsState(initial = false)
 
+    val showActionIconBorder by UiSettingsStore.getShowActionIconBorder(ctx)
+        .collectAsState(initial = false)
+
     SettingsLazyHeader(
         title = stringResource(R.string.appearance),
         onBack = onBack,
@@ -187,12 +190,6 @@ fun AppearanceTab(
             ) { scope.launch { UiSettingsStore.setLinePreviewSnapToAction(ctx, it) } }
         }
 
-        item {
-            SwitchRow(
-                state = showAllActionsOnCurrentCircle,
-                text = stringResource(R.string.show_all_actions_on_current_circle),
-            ) { scope.launch { UiSettingsStore.setShowAllActionsOnCurrentCircle(ctx, it) } }
-        }
 
         item {
             SliderWithLabel(
@@ -205,6 +202,19 @@ fun AppearanceTab(
             ) {
                 scope.launch { UiSettingsStore.setMinAngleFromAPointToActivateIt(ctx, it) }
             }
+        }
+        item {
+            SwitchRow(
+                state = showAllActionsOnCurrentCircle,
+                text = stringResource(R.string.show_all_actions_on_current_circle),
+            ) { scope.launch { UiSettingsStore.setShowAllActionsOnCurrentCircle(ctx, it) } }
+        }
+
+        item {
+            SwitchRow(
+                state = showActionIconBorder,
+                text = stringResource(R.string.show_actions_icon_border),
+            ) { scope.launch { UiSettingsStore.setShowActionIconBorder(ctx, it) } }
         }
     }
 }

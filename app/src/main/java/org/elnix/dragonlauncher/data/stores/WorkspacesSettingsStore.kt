@@ -6,8 +6,6 @@ import androidx.datastore.preferences.core.stringPreferencesKey
 import kotlinx.coroutines.flow.first
 import org.elnix.dragonlauncher.data.BaseSettingsStore
 import org.elnix.dragonlauncher.data.workspaceDataStore
-import org.elnix.dragonlauncher.ui.drawer.WorkspaceState
-import org.elnix.dragonlauncher.ui.drawer.defaultWorkspaces
 import org.json.JSONObject
 
 object WorkspaceSettingsStore : BaseSettingsStore() {

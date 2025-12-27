@@ -1,7 +1,6 @@
 package org.elnix.dragonlauncher.data.stores
 
 import android.content.Context
-import androidx.datastore.preferences.core.Preferences
 import androidx.datastore.preferences.core.booleanPreferencesKey
 import androidx.datastore.preferences.core.edit
 import androidx.datastore.preferences.core.floatPreferencesKey
@@ -17,6 +16,7 @@ import org.elnix.dragonlauncher.data.getBooleanStrict
 import org.elnix.dragonlauncher.data.getFloatStrict
 import org.elnix.dragonlauncher.data.getIntStrict
 import org.elnix.dragonlauncher.data.helpers.DrawerActions
+import org.elnix.dragonlauncher.data.putIfNonDefault
 import org.elnix.dragonlauncher.data.stores.DrawerSettingsStore.Keys.AUTO_OPEN_SINGLE_MATCH
 import org.elnix.dragonlauncher.data.stores.DrawerSettingsStore.Keys.AUTO_SHOW_KEYBOARD_ON_DRAWER
 import org.elnix.dragonlauncher.data.stores.DrawerSettingsStore.Keys.CLICK_EMPTY_SPACE_TO_RAISE_KEYBOARD
@@ -223,16 +223,11 @@ object DrawerSettingsStore : BaseSettingsStore() {
     // -------------------------------------------------------------------------
     // Backup export
     // -------------------------------------------------------------------------
-    suspend fun getAll(ctx: Context): Map<String, String> {
+    suspend fun getAll(ctx: Context): Map<String, Any> {
         val prefs = ctx.drawerDataStore.data.first()
 
         return buildMap {
 
-            fun putIfNonDefault(key: Preferences.Key<*>, value: Any?, def: Any) {
-                if (value != null && value != def) {
-                    put(key.name, value.toString())
-                }
-            }
 
             putIfNonDefault(
                 AUTO_OPEN_SINGLE_MATCH,

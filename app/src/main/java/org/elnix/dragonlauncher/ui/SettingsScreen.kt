@@ -142,6 +142,9 @@ fun SettingsScreen(
         .collectAsState(initial = AmoledDefault.CircleColor)
     val snapPoints by UiSettingsStore.getSnapPoints(ctx).collectAsState(initial = true)
 
+    val showActionIconBorder by UiSettingsStore.getShowActionIconBorder(ctx)
+        .collectAsState(initial = false)
+
     var center by remember { mutableStateOf(Offset.Zero) }
 
     val points: SnapshotStateList<UiSwipePoint> = remember { mutableStateListOf() }
@@ -436,7 +439,8 @@ fun SettingsScreen(
                                 colorAction = actionColor(p.action, extraColors),
                                 px = px, py = py,
                                 ctx = ctx,
-                                icons = icons
+                                icons = icons,
+                                drawBorder = showActionIconBorder
                             )
                         }
 
@@ -461,7 +465,8 @@ fun SettingsScreen(
                                 colorAction = actionColor(p.action, extraColors),
                                 px = px, py = py,
                                 ctx = ctx,
-                                icons = icons
+                                icons = icons,
+                                drawBorder = showActionIconBorder
                             )
                         }
                     }

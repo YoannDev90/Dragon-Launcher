@@ -95,6 +95,8 @@ fun MainScreenOverlay(
         .collectAsState(initial = false)
     val showAllActionsOnCurrentCircle by UiSettingsStore.getShowAllActionsOnCurrentCircle(ctx)
         .collectAsState(initial = false)
+    val showActionIconBorder by UiSettingsStore.getShowActionIconBorder(ctx)
+        .collectAsState(initial = false)
 
 //    val backgroundColor = MaterialTheme.colorScheme.background
     val extraColors = LocalExtraColors.current
@@ -413,7 +415,8 @@ fun MainScreenOverlay(
                                     colorAction = actionColor(p.action, extraColors),
                                     px = px, py = py,
                                     ctx = ctx,
-                                    icons = icons
+                                    icons = icons,
+                                    drawBorder = showActionIconBorder
                                 )
                             }
                         }
@@ -428,7 +431,8 @@ fun MainScreenOverlay(
                                 backgroundColor = null, // Null for now to erase bg (maybe settings later)
                                 colorAction = colorAction,
                                 circleColor = circleColor ?: AmoledDefault.CircleColor,
-                                icons = icons
+                                icons = icons,
+                                drawBorder = showActionIconBorder
                             )
                         }
                     }

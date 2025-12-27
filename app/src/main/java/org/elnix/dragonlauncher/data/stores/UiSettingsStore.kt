@@ -1,7 +1,6 @@
 package org.elnix.dragonlauncher.data.stores
 
 import android.content.Context
-import androidx.datastore.preferences.core.Preferences
 import androidx.datastore.preferences.core.booleanPreferencesKey
 import androidx.datastore.preferences.core.edit
 import androidx.datastore.preferences.core.intPreferencesKey
@@ -14,7 +13,26 @@ import org.elnix.dragonlauncher.data.BaseSettingsStore
 import org.elnix.dragonlauncher.data.appDrawerDataStore
 import org.elnix.dragonlauncher.data.getBooleanStrict
 import org.elnix.dragonlauncher.data.getIntStrict
+import org.elnix.dragonlauncher.data.putIfNonDefault
+import org.elnix.dragonlauncher.data.stores.UiSettingsStore.Keys.CANCEL_ZONE_DRAG_DISTANCE
+import org.elnix.dragonlauncher.data.stores.UiSettingsStore.Keys.FIRST_CIRCLE_DRAG_DISTANCE
+import org.elnix.dragonlauncher.data.stores.UiSettingsStore.Keys.FULLSCREEN
 import org.elnix.dragonlauncher.data.stores.UiSettingsStore.Keys.ICON_PACK_KEY
+import org.elnix.dragonlauncher.data.stores.UiSettingsStore.Keys.LINE_PREVIEW_SNAP_TO_ACTION
+import org.elnix.dragonlauncher.data.stores.UiSettingsStore.Keys.MIN_ANGLE_FROM_A_POINT_TO_ACTIVATE_IT
+import org.elnix.dragonlauncher.data.stores.UiSettingsStore.Keys.RGB_LINE
+import org.elnix.dragonlauncher.data.stores.UiSettingsStore.Keys.RGB_LOADING
+import org.elnix.dragonlauncher.data.stores.UiSettingsStore.Keys.SECOND_CIRCLE_DRAG_DISTANCE
+import org.elnix.dragonlauncher.data.stores.UiSettingsStore.Keys.SHOW_ACTION_ICON_BORDER
+import org.elnix.dragonlauncher.data.stores.UiSettingsStore.Keys.SHOW_ALL_ACTIONS_ON_CURRENT_CIRCLE
+import org.elnix.dragonlauncher.data.stores.UiSettingsStore.Keys.SHOW_ANGLE_PREVIEW
+import org.elnix.dragonlauncher.data.stores.UiSettingsStore.Keys.SHOW_APP_LAUNCH_PREVIEW
+import org.elnix.dragonlauncher.data.stores.UiSettingsStore.Keys.SHOW_APP_PREVIEW_ICON_CENTER_START_POSITION
+import org.elnix.dragonlauncher.data.stores.UiSettingsStore.Keys.SHOW_CIRCLE_PREVIEW
+import org.elnix.dragonlauncher.data.stores.UiSettingsStore.Keys.SHOW_LAUNCHING_APP_ICON
+import org.elnix.dragonlauncher.data.stores.UiSettingsStore.Keys.SHOW_LAUNCHING_APP_LABEL
+import org.elnix.dragonlauncher.data.stores.UiSettingsStore.Keys.SHOW_LINE_PREVIEW
+import org.elnix.dragonlauncher.data.stores.UiSettingsStore.Keys.SNAP_POINTS
 import org.elnix.dragonlauncher.data.uiDatastore
 
 object UiSettingsStore : BaseSettingsStore() {
@@ -38,7 +56,8 @@ object UiSettingsStore : BaseSettingsStore() {
         val linePreviewSnapToAction: Boolean = false,
         val minAngleFromAPointToActivateIt: Int = 30,
         val showAllActionsOnCurrentCircle: Boolean = false,
-        val iconPackKey: String? = null
+        val iconPackKey: String? = null,
+        val showActionIconBorder: Boolean = true
     )
 
     private val defaults = UiSettingsBackup()
@@ -62,7 +81,7 @@ object UiSettingsStore : BaseSettingsStore() {
         val MIN_ANGLE_FROM_A_POINT_TO_ACTIVATE_IT = intPreferencesKey("minAngleFromAPointToActivateIt")
         val SHOW_ALL_ACTIONS_ON_CURRENT_CIRCLE = booleanPreferencesKey("showAllActionsOnCurrentCircle")
         val ICON_PACK_KEY = stringPreferencesKey("selected_icon_pack")
-
+        val SHOW_ACTION_ICON_BORDER = booleanPreferencesKey("showActionIconBorder")
 
 
         val ALL = listOf(
@@ -83,130 +102,137 @@ object UiSettingsStore : BaseSettingsStore() {
             LINE_PREVIEW_SNAP_TO_ACTION,
             MIN_ANGLE_FROM_A_POINT_TO_ACTIVATE_IT,
             SHOW_ALL_ACTIONS_ON_CURRENT_CIRCLE,
-            ICON_PACK_KEY
+            ICON_PACK_KEY,
+            SHOW_ACTION_ICON_BORDER
         )
     }
 
     fun getRGBLoading(ctx: Context): Flow<Boolean> =
-        ctx.uiDatastore.data.map { it[Keys.RGB_LOADING] ?: defaults.rgbLoading }
+        ctx.uiDatastore.data.map { it[RGB_LOADING] ?: defaults.rgbLoading }
 
     suspend fun setRGBLoading(ctx: Context, value: Boolean) {
-        ctx.uiDatastore.edit { it[Keys.RGB_LOADING] = value }
+        ctx.uiDatastore.edit { it[RGB_LOADING] = value }
     }
 
     fun getRGBLine(ctx: Context): Flow<Boolean> =
-        ctx.uiDatastore.data.map { it[Keys.RGB_LINE] ?: defaults.rgbLine }
+        ctx.uiDatastore.data.map { it[RGB_LINE] ?: defaults.rgbLine }
 
     suspend fun setRGBLine(ctx: Context, value: Boolean) {
-        ctx.uiDatastore.edit { it[Keys.RGB_LINE] = value }
+        ctx.uiDatastore.edit { it[RGB_LINE] = value }
     }
 
     fun getShowLaunchingAppLabel(ctx: Context): Flow<Boolean> =
-        ctx.uiDatastore.data.map { it[Keys.SHOW_LAUNCHING_APP_LABEL] ?: defaults.showLaunchingAppLabel }
+        ctx.uiDatastore.data.map { it[SHOW_LAUNCHING_APP_LABEL] ?: defaults.showLaunchingAppLabel }
 
     suspend fun setShowLaunchingAppLabel(ctx: Context, value: Boolean) {
-        ctx.uiDatastore.edit { it[Keys.SHOW_LAUNCHING_APP_LABEL] = value }
+        ctx.uiDatastore.edit { it[SHOW_LAUNCHING_APP_LABEL] = value }
     }
 
     fun getShowLaunchingAppIcon(ctx: Context): Flow<Boolean> =
-        ctx.uiDatastore.data.map { it[Keys.SHOW_LAUNCHING_APP_ICON] ?: defaults.showLaunchingAppIcon }
+        ctx.uiDatastore.data.map { it[SHOW_LAUNCHING_APP_ICON] ?: defaults.showLaunchingAppIcon }
 
     suspend fun setShowLaunchingAppIcon(ctx: Context, value: Boolean) {
-        ctx.uiDatastore.edit { it[Keys.SHOW_LAUNCHING_APP_ICON] = value }
+        ctx.uiDatastore.edit { it[SHOW_LAUNCHING_APP_ICON] = value }
     }
 
     fun getShowAppLaunchPreview(ctx: Context): Flow<Boolean> =
-        ctx.uiDatastore.data.map { it[Keys.SHOW_APP_LAUNCH_PREVIEW] ?: defaults.showAppLaunchPreview }
+        ctx.uiDatastore.data.map { it[SHOW_APP_LAUNCH_PREVIEW] ?: defaults.showAppLaunchPreview }
 
     suspend fun setShowAppLaunchPreview(ctx: Context, value: Boolean) {
-        ctx.uiDatastore.edit { it[Keys.SHOW_APP_LAUNCH_PREVIEW] = value }
+        ctx.uiDatastore.edit { it[SHOW_APP_LAUNCH_PREVIEW] = value }
     }
 
     fun getFullscreen(ctx: Context): Flow<Boolean> =
-        ctx.uiDatastore.data.map { it[Keys.FULLSCREEN] ?: defaults.fullscreen }
+        ctx.uiDatastore.data.map { it[FULLSCREEN] ?: defaults.fullscreen }
 
     suspend fun setFullscreen(ctx: Context, value: Boolean) {
-        ctx.uiDatastore.edit { it[Keys.FULLSCREEN] = value }
+        ctx.uiDatastore.edit { it[FULLSCREEN] = value }
     }
 
     fun getShowCirclePreview(ctx: Context): Flow<Boolean> =
-        ctx.uiDatastore.data.map { it[Keys.SHOW_CIRCLE_PREVIEW] ?: defaults.showCirclePreview }
+        ctx.uiDatastore.data.map { it[SHOW_CIRCLE_PREVIEW] ?: defaults.showCirclePreview }
 
     suspend fun setShowCirclePreview(ctx: Context, value: Boolean) {
-        ctx.uiDatastore.edit { it[Keys.SHOW_CIRCLE_PREVIEW] = value }
+        ctx.uiDatastore.edit { it[SHOW_CIRCLE_PREVIEW] = value }
     }
 
     fun getShowLinePreview(ctx: Context): Flow<Boolean> =
-        ctx.uiDatastore.data.map { it[Keys.SHOW_LINE_PREVIEW] ?: defaults.showLinePreview }
+        ctx.uiDatastore.data.map { it[SHOW_LINE_PREVIEW] ?: defaults.showLinePreview }
 
     suspend fun setShowLinePreview(ctx: Context, value: Boolean) {
-        ctx.uiDatastore.edit { it[Keys.SHOW_LINE_PREVIEW] = value }
+        ctx.uiDatastore.edit { it[SHOW_LINE_PREVIEW] = value }
     }
 
     fun getShowAnglePreview(ctx: Context): Flow<Boolean> =
-        ctx.uiDatastore.data.map { it[Keys.SHOW_ANGLE_PREVIEW] ?: defaults.showAnglePreview }
+        ctx.uiDatastore.data.map { it[SHOW_ANGLE_PREVIEW] ?: defaults.showAnglePreview }
 
     suspend fun setShowAnglePreview(ctx: Context, value: Boolean) {
-        ctx.uiDatastore.edit { it[Keys.SHOW_ANGLE_PREVIEW] = value }
+        ctx.uiDatastore.edit { it[SHOW_ANGLE_PREVIEW] = value }
     }
 
     fun getSnapPoints(ctx: Context): Flow<Boolean> =
-        ctx.uiDatastore.data.map { it[Keys.SNAP_POINTS] ?: defaults.snapPoints }
+        ctx.uiDatastore.data.map { it[SNAP_POINTS] ?: defaults.snapPoints }
 
     suspend fun setSnapPoints(ctx: Context, value: Boolean) {
-        ctx.uiDatastore.edit { it[Keys.SNAP_POINTS] = value }
+        ctx.uiDatastore.edit { it[SNAP_POINTS] = value }
     }
 
 
     fun getFirstCircleDragDistance(ctx: Context): Flow<Int> =
-        ctx.uiDatastore.data.map { it[Keys.FIRST_CIRCLE_DRAG_DISTANCE] ?: defaults.firstCircleDragDistance }
+        ctx.uiDatastore.data.map { it[FIRST_CIRCLE_DRAG_DISTANCE] ?: defaults.firstCircleDragDistance }
 
     suspend fun setFirstCircleDragDistance(ctx: Context, value: Int) {
-        ctx.uiDatastore.edit { it[Keys.FIRST_CIRCLE_DRAG_DISTANCE] = value }
+        ctx.uiDatastore.edit { it[FIRST_CIRCLE_DRAG_DISTANCE] = value }
     }
 
     fun getSecondCircleDragDistance(ctx: Context): Flow<Int> =
-        ctx.uiDatastore.data.map { it[Keys.SECOND_CIRCLE_DRAG_DISTANCE] ?: defaults.secondCircleDragDistance }
+        ctx.uiDatastore.data.map { it[SECOND_CIRCLE_DRAG_DISTANCE] ?: defaults.secondCircleDragDistance }
 
     suspend fun setSecondCircleDragDistance(ctx: Context, value: Int) {
-        ctx.uiDatastore.edit { it[Keys.SECOND_CIRCLE_DRAG_DISTANCE] = value }
+        ctx.uiDatastore.edit { it[SECOND_CIRCLE_DRAG_DISTANCE] = value }
     }
 
     fun getCancelZoneDragDistance(ctx: Context): Flow<Int> =
-        ctx.uiDatastore.data.map { it[Keys.CANCEL_ZONE_DRAG_DISTANCE] ?: defaults.cancelZoneDragDistance }
+        ctx.uiDatastore.data.map { it[CANCEL_ZONE_DRAG_DISTANCE] ?: defaults.cancelZoneDragDistance }
 
     suspend fun setCancelZoneDragDistance(ctx: Context, value: Int) {
-        ctx.uiDatastore.edit { it[Keys.CANCEL_ZONE_DRAG_DISTANCE] = value }
+        ctx.uiDatastore.edit { it[CANCEL_ZONE_DRAG_DISTANCE] = value }
     }
 
     fun getShowAppPreviewIconCenterStartPosition(ctx: Context): Flow<Boolean> =
-        ctx.uiDatastore.data.map { it[Keys.SHOW_APP_PREVIEW_ICON_CENTER_START_POSITION] ?: defaults.showAppPreviewIconCenterStartPosition }
+        ctx.uiDatastore.data.map { it[SHOW_APP_PREVIEW_ICON_CENTER_START_POSITION] ?: defaults.showAppPreviewIconCenterStartPosition }
 
     suspend fun setShowAppPreviewIconCenterStartPosition(ctx: Context, value: Boolean) {
-        ctx.uiDatastore.edit { it[Keys.SHOW_APP_PREVIEW_ICON_CENTER_START_POSITION] = value }
+        ctx.uiDatastore.edit { it[SHOW_APP_PREVIEW_ICON_CENTER_START_POSITION] = value }
     }
 
     fun getLinePreviewSnapToAction(ctx: Context): Flow<Boolean> =
-        ctx.uiDatastore.data.map { it[Keys.LINE_PREVIEW_SNAP_TO_ACTION] ?: defaults.linePreviewSnapToAction }
+        ctx.uiDatastore.data.map { it[LINE_PREVIEW_SNAP_TO_ACTION] ?: defaults.linePreviewSnapToAction }
 
     suspend fun setLinePreviewSnapToAction(ctx: Context, value: Boolean) {
-        ctx.uiDatastore.edit { it[Keys.LINE_PREVIEW_SNAP_TO_ACTION] = value }
+        ctx.uiDatastore.edit { it[LINE_PREVIEW_SNAP_TO_ACTION] = value }
     }
 
     fun getMinAngleFromAPointToActivateIt(ctx: Context): Flow<Int> =
-        ctx.uiDatastore.data.map { it[Keys.MIN_ANGLE_FROM_A_POINT_TO_ACTIVATE_IT] ?: defaults.minAngleFromAPointToActivateIt }
+        ctx.uiDatastore.data.map { it[MIN_ANGLE_FROM_A_POINT_TO_ACTIVATE_IT] ?: defaults.minAngleFromAPointToActivateIt }
 
     suspend fun setMinAngleFromAPointToActivateIt(ctx: Context, value: Int) {
-        ctx.uiDatastore.edit { it[Keys.MIN_ANGLE_FROM_A_POINT_TO_ACTIVATE_IT] = value }
+        ctx.uiDatastore.edit { it[MIN_ANGLE_FROM_A_POINT_TO_ACTIVATE_IT] = value }
     }
 
     fun getShowAllActionsOnCurrentCircle(ctx: Context): Flow<Boolean> =
-        ctx.uiDatastore.data.map { it[Keys.SHOW_ALL_ACTIONS_ON_CURRENT_CIRCLE] ?: defaults.showAllActionsOnCurrentCircle }
+        ctx.uiDatastore.data.map { it[SHOW_ALL_ACTIONS_ON_CURRENT_CIRCLE] ?: defaults.showAllActionsOnCurrentCircle }
 
     suspend fun setShowAllActionsOnCurrentCircle(ctx: Context, value: Boolean) {
-        ctx.uiDatastore.edit { it[Keys.SHOW_ALL_ACTIONS_ON_CURRENT_CIRCLE] = value }
+        ctx.uiDatastore.edit { it[SHOW_ALL_ACTIONS_ON_CURRENT_CIRCLE] = value }
     }
 
+    fun getShowActionIconBorder(ctx: Context): Flow<Boolean> =
+        ctx.uiDatastore.data.map { it[Keys.SHOW_ACTION_ICON_BORDER] ?: defaults.showActionIconBorder }
+
+    suspend fun setShowActionIconBorder(ctx: Context, value: Boolean) {
+        ctx.uiDatastore.edit { it[Keys.SHOW_ACTION_ICON_BORDER] = value }
+    }
 
     suspend fun getIconPack(ctx: Context): String? {
         return ctx.appDrawerDataStore.data
@@ -240,66 +266,206 @@ object UiSettingsStore : BaseSettingsStore() {
 
         return buildMap {
 
-            fun putIfChanged(key: Preferences.Key<Boolean>, default: Boolean) {
-                val v = prefs[key]
-                if (v != null && v != default) put(key.name, v)
-            }
+            putIfNonDefault(
+                RGB_LOADING,
+                prefs[RGB_LOADING],
+                defaults.rgbLoading
+            )
 
-            fun putIfChanged(key: Preferences.Key<Int>, default: Int) {
-                val v = prefs[key]
-                if (v != null && v != default) put(key.name, v)
-            }
+            putIfNonDefault(
+                RGB_LINE,
+                prefs[RGB_LINE],
+                defaults.rgbLine
+            )
 
-            putIfChanged(Keys.RGB_LOADING, defaults.rgbLoading)
-            putIfChanged(Keys.RGB_LINE, defaults.rgbLine)
-            putIfChanged(Keys.SHOW_LAUNCHING_APP_LABEL, defaults.showLaunchingAppLabel)
-            putIfChanged(Keys.SHOW_LAUNCHING_APP_ICON, defaults.showLaunchingAppIcon)
-            putIfChanged(Keys.SHOW_APP_LAUNCH_PREVIEW, defaults.showAppLaunchPreview)
-            putIfChanged(Keys.FULLSCREEN, defaults.fullscreen)
-            putIfChanged(Keys.SHOW_CIRCLE_PREVIEW, defaults.showCirclePreview)
-            putIfChanged(Keys.SHOW_LINE_PREVIEW, defaults.showLinePreview)
-            putIfChanged(Keys.SHOW_ANGLE_PREVIEW, defaults.showAnglePreview)
-            putIfChanged(Keys.SNAP_POINTS, defaults.snapPoints)
-            putIfChanged(Keys.SHOW_APP_PREVIEW_ICON_CENTER_START_POSITION, defaults.showAppPreviewIconCenterStartPosition)
-            putIfChanged(Keys.LINE_PREVIEW_SNAP_TO_ACTION, defaults.linePreviewSnapToAction)
-            putIfChanged(Keys.SHOW_ALL_ACTIONS_ON_CURRENT_CIRCLE, defaults.showAllActionsOnCurrentCircle)
+            putIfNonDefault(
+                SHOW_LAUNCHING_APP_LABEL,
+                prefs[SHOW_LAUNCHING_APP_LABEL],
+                defaults.showLaunchingAppLabel
+            )
 
-            putIfChanged(Keys.FIRST_CIRCLE_DRAG_DISTANCE, defaults.firstCircleDragDistance)
-            putIfChanged(Keys.SECOND_CIRCLE_DRAG_DISTANCE, defaults.secondCircleDragDistance)
-            putIfChanged(Keys.CANCEL_ZONE_DRAG_DISTANCE, defaults.cancelZoneDragDistance)
-            putIfChanged(Keys.MIN_ANGLE_FROM_A_POINT_TO_ACTIVATE_IT, defaults.minAngleFromAPointToActivateIt)
+            putIfNonDefault(
+                SHOW_LAUNCHING_APP_ICON,
+                prefs[SHOW_LAUNCHING_APP_ICON],
+                defaults.showLaunchingAppIcon
+            )
+
+            putIfNonDefault(
+                SHOW_APP_LAUNCH_PREVIEW,
+                prefs[SHOW_APP_LAUNCH_PREVIEW],
+                defaults.showAppLaunchPreview
+            )
+
+            putIfNonDefault(
+                FULLSCREEN,
+                prefs[FULLSCREEN],
+                defaults.fullscreen
+            )
+
+            putIfNonDefault(
+                SHOW_CIRCLE_PREVIEW,
+                prefs[SHOW_CIRCLE_PREVIEW],
+                defaults.showCirclePreview
+            )
+
+            putIfNonDefault(
+                SHOW_LINE_PREVIEW,
+                prefs[SHOW_LINE_PREVIEW],
+                defaults.showLinePreview
+            )
+
+            putIfNonDefault(
+                SHOW_ANGLE_PREVIEW,
+                prefs[SHOW_ANGLE_PREVIEW],
+                defaults.showAnglePreview
+            )
+
+            putIfNonDefault(
+                SNAP_POINTS,
+                prefs[SNAP_POINTS],
+                defaults.snapPoints
+            )
+
+            putIfNonDefault(
+                SHOW_APP_PREVIEW_ICON_CENTER_START_POSITION,
+                prefs[SHOW_APP_PREVIEW_ICON_CENTER_START_POSITION],
+                defaults.showAppPreviewIconCenterStartPosition
+            )
+
+            putIfNonDefault(
+                LINE_PREVIEW_SNAP_TO_ACTION,
+                prefs[LINE_PREVIEW_SNAP_TO_ACTION],
+                defaults.linePreviewSnapToAction
+            )
+
+            putIfNonDefault(
+                SHOW_ALL_ACTIONS_ON_CURRENT_CIRCLE,
+                prefs[SHOW_ALL_ACTIONS_ON_CURRENT_CIRCLE],
+                defaults.showAllActionsOnCurrentCircle
+            )
+
+            putIfNonDefault(
+                FIRST_CIRCLE_DRAG_DISTANCE,
+                prefs[FIRST_CIRCLE_DRAG_DISTANCE],
+                defaults.firstCircleDragDistance
+            )
+
+            putIfNonDefault(
+                SECOND_CIRCLE_DRAG_DISTANCE,
+                prefs[SECOND_CIRCLE_DRAG_DISTANCE],
+                defaults.secondCircleDragDistance
+            )
+
+            putIfNonDefault(
+                CANCEL_ZONE_DRAG_DISTANCE,
+                prefs[CANCEL_ZONE_DRAG_DISTANCE],
+                defaults.cancelZoneDragDistance
+            )
+
+            putIfNonDefault(
+                MIN_ANGLE_FROM_A_POINT_TO_ACTIVATE_IT,
+                prefs[MIN_ANGLE_FROM_A_POINT_TO_ACTIVATE_IT],
+                defaults.minAngleFromAPointToActivateIt
+            )
+
+            putIfNonDefault(
+                SHOW_ACTION_ICON_BORDER,
+                prefs[SHOW_ACTION_ICON_BORDER],
+                defaults.showActionIconBorder
+            )
         }
     }
+
 
 
     suspend fun setAll(ctx: Context, backup: Map<String, Any?>) {
         ctx.uiDatastore.edit { prefs ->
-            fun putBool(key: Preferences.Key<Boolean>, def: Boolean) {
-                prefs[key] = getBooleanStrict(backup, key, def)
-            }
-            fun putInt(key: Preferences.Key<Int>, def: Int) {
-                prefs[key] = getIntStrict(backup, key, def)
-            }
 
-            putBool(Keys.RGB_LOADING, defaults.rgbLoading)
-            putBool(Keys.RGB_LINE, defaults.rgbLine)
-            putBool(Keys.SHOW_LAUNCHING_APP_LABEL, defaults.showLaunchingAppLabel)
-            putBool(Keys.SHOW_LAUNCHING_APP_ICON, defaults.showLaunchingAppIcon)
-            putBool(Keys.SHOW_APP_LAUNCH_PREVIEW, defaults.showAppLaunchPreview)
-            putBool(Keys.FULLSCREEN, defaults.fullscreen)
-            putBool(Keys.SHOW_CIRCLE_PREVIEW, defaults.showCirclePreview)
-            putBool(Keys.SHOW_LINE_PREVIEW, defaults.showLinePreview)
-            putBool(Keys.SHOW_ANGLE_PREVIEW, defaults.showAnglePreview)
-            putBool(Keys.SNAP_POINTS, defaults.snapPoints)
-            putBool(Keys.SHOW_APP_PREVIEW_ICON_CENTER_START_POSITION, defaults.showAppPreviewIconCenterStartPosition)
-            putBool(Keys.LINE_PREVIEW_SNAP_TO_ACTION, defaults.linePreviewSnapToAction)
-            putBool(Keys.SHOW_ALL_ACTIONS_ON_CURRENT_CIRCLE, defaults.showAllActionsOnCurrentCircle)
+            prefs[RGB_LOADING] =
+                getBooleanStrict(backup, RGB_LOADING, defaults.rgbLoading)
 
-            putInt(Keys.FIRST_CIRCLE_DRAG_DISTANCE, defaults.firstCircleDragDistance)
-            putInt(Keys.SECOND_CIRCLE_DRAG_DISTANCE, defaults.secondCircleDragDistance)
-            putInt(Keys.CANCEL_ZONE_DRAG_DISTANCE, defaults.cancelZoneDragDistance)
-            putInt(Keys.MIN_ANGLE_FROM_A_POINT_TO_ACTIVATE_IT, defaults.minAngleFromAPointToActivateIt)
+            prefs[RGB_LINE] =
+                getBooleanStrict(backup, RGB_LINE, defaults.rgbLine)
+
+            prefs[SHOW_LAUNCHING_APP_LABEL] =
+                getBooleanStrict(backup, SHOW_LAUNCHING_APP_LABEL, defaults.showLaunchingAppLabel)
+
+            prefs[SHOW_LAUNCHING_APP_ICON] =
+                getBooleanStrict(backup, SHOW_LAUNCHING_APP_ICON, defaults.showLaunchingAppIcon)
+
+            prefs[SHOW_APP_LAUNCH_PREVIEW] =
+                getBooleanStrict(backup, SHOW_APP_LAUNCH_PREVIEW, defaults.showAppLaunchPreview)
+
+            prefs[FULLSCREEN] =
+                getBooleanStrict(backup, FULLSCREEN, defaults.fullscreen)
+
+            prefs[SHOW_CIRCLE_PREVIEW] =
+                getBooleanStrict(backup, SHOW_CIRCLE_PREVIEW, defaults.showCirclePreview)
+
+            prefs[SHOW_LINE_PREVIEW] =
+                getBooleanStrict(backup, SHOW_LINE_PREVIEW, defaults.showLinePreview)
+
+            prefs[SHOW_ANGLE_PREVIEW] =
+                getBooleanStrict(backup, SHOW_ANGLE_PREVIEW, defaults.showAnglePreview)
+
+            prefs[SNAP_POINTS] =
+                getBooleanStrict(backup, SNAP_POINTS, defaults.snapPoints)
+
+            prefs[SHOW_APP_PREVIEW_ICON_CENTER_START_POSITION] =
+                getBooleanStrict(
+                    backup,
+                    SHOW_APP_PREVIEW_ICON_CENTER_START_POSITION,
+                    defaults.showAppPreviewIconCenterStartPosition
+                )
+
+            prefs[SHOW_ACTION_ICON_BORDER] =
+                getBooleanStrict(
+                    backup,
+                    SHOW_ACTION_ICON_BORDER,
+                    defaults.showActionIconBorder
+                )
+
+            prefs[LINE_PREVIEW_SNAP_TO_ACTION] =
+                getBooleanStrict(
+                    backup,
+                    LINE_PREVIEW_SNAP_TO_ACTION,
+                    defaults.linePreviewSnapToAction
+                )
+
+            prefs[SHOW_ALL_ACTIONS_ON_CURRENT_CIRCLE] =
+                getBooleanStrict(
+                    backup,
+                    SHOW_ALL_ACTIONS_ON_CURRENT_CIRCLE,
+                    defaults.showAllActionsOnCurrentCircle
+                )
+
+            prefs[FIRST_CIRCLE_DRAG_DISTANCE] =
+                getIntStrict(
+                    backup,
+                    FIRST_CIRCLE_DRAG_DISTANCE,
+                    defaults.firstCircleDragDistance
+                )
+
+            prefs[SECOND_CIRCLE_DRAG_DISTANCE] =
+                getIntStrict(
+                    backup,
+                    SECOND_CIRCLE_DRAG_DISTANCE,
+                    defaults.secondCircleDragDistance
+                )
+
+            prefs[CANCEL_ZONE_DRAG_DISTANCE] =
+                getIntStrict(
+                    backup,
+                    CANCEL_ZONE_DRAG_DISTANCE,
+                    defaults.cancelZoneDragDistance
+                )
+
+            prefs[MIN_ANGLE_FROM_A_POINT_TO_ACTIVATE_IT] =
+                getIntStrict(
+                    backup,
+                    MIN_ANGLE_FROM_A_POINT_TO_ACTIVATE_IT,
+                    defaults.minAngleFromAPointToActivateIt
+                )
         }
     }
-
 }
