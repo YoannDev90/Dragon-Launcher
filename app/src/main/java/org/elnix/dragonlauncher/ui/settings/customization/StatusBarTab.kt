@@ -2,7 +2,10 @@ package org.elnix.dragonlauncher.ui.settings.customization
 
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.WindowInsets
+import androidx.compose.foundation.layout.asPaddingValues
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.systemBars
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Restore
 import androidx.compose.material3.Icon
@@ -18,6 +21,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextDecoration
+import androidx.compose.ui.unit.dp
 import kotlinx.coroutines.launch
 import org.elnix.dragonlauncher.R
 import org.elnix.dragonlauncher.data.stores.StatusBarSettingsStore
@@ -37,6 +41,10 @@ fun StatusBarTab(
 ) {
     val ctx = LocalContext.current
     val scope = rememberCoroutineScope()
+
+    val systemInsets = WindowInsets.systemBars.asPaddingValues()
+
+    val isRealFullscreen = systemInsets.calculateTopPadding() == 0.dp
 
     val showStatusBar by StatusBarSettingsStore.getShowStatusBar(ctx)
         .collectAsState(initial = true)
@@ -75,18 +83,20 @@ fun StatusBarTab(
 
     Column{
 
-        StatusBar(
-            backgroundColor = statusBarBackground,
-            textColor = statusBarText,
-            showTime = showTime,
-            showDate = showDate,
-            timeFormatter = timeFormatter,
-            dateFormatter = dateFormatter,
-            showNotifications = showNotifications,
-            showBattery = showBattery,
-            showConnectivity = showConnectivity,
-            showNextAlarm = showNextAlarm
-        )
+        if (showStatusBar && isRealFullscreen) {
+            StatusBar(
+                backgroundColor = statusBarBackground,
+                textColor = statusBarText,
+                showTime = showTime,
+                showDate = showDate,
+                timeFormatter = timeFormatter,
+                dateFormatter = dateFormatter,
+                showNotifications = showNotifications,
+                showBattery = showBattery,
+                showConnectivity = showConnectivity,
+                showNextAlarm = showNextAlarm
+            )
+        }
 
         SettingsLazyHeader(
             title = stringResource(R.string.status_bar),
