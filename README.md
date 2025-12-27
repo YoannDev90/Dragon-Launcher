@@ -16,8 +16,12 @@
 
 ## Features
 
-The main Idea of this launcher is to launch your apps via gestures.
-You can customize your list of fast access apps easily in the settings, and also use the app drawer to pick an app and launch it automatically
+### The main Idea of this launcher is to launch your apps via gestures.
+ * You can customize your list of fast access apps easily in the settings
+ * Use the app drawer to pick an app and launch it automatically
+ * Icon Packs support
+ * Change wallpaper, apply blur, separate wallpaper on drawer / main screen
+ * Customize each colors separately for every little action / surface
 
 
 ## Privacy & security

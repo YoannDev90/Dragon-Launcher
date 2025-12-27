@@ -11,11 +11,7 @@ on:
         - '**.kt'
         - '**.kts'
         - '**.java'
-#    paths-ignore:
-#      - fastlane/**
-#      - README.md
-#      - TODO.md
-#      - metadata/**
+
 
 jobs:
   build:
