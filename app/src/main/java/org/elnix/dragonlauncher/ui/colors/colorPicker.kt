@@ -55,9 +55,10 @@ import org.elnix.dragonlauncher.data.helpers.ColorPickerMode
 import org.elnix.dragonlauncher.data.helpers.colorPickerText
 import org.elnix.dragonlauncher.data.stores.ColorModesSettingsStore.getColorPickerMode
 import org.elnix.dragonlauncher.data.stores.ColorModesSettingsStore.setColorPickerMode
-import org.elnix.dragonlauncher.ui.components.dialogs.CustomAlertDialog
 import org.elnix.dragonlauncher.ui.components.ValidateCancelButtons
+import org.elnix.dragonlauncher.ui.components.dialogs.CustomAlertDialog
 import org.elnix.dragonlauncher.ui.helpers.SliderWithLabel
+import org.elnix.dragonlauncher.utils.colors.AppObjectsColors
 import org.elnix.dragonlauncher.utils.colors.adjustBrightness
 import org.elnix.dragonlauncher.utils.colors.randomColor
 import org.elnix.dragonlauncher.utils.copyToClipboard
@@ -72,19 +73,25 @@ fun ColorPickerRow(
     currentColor: Color,
     randomColorButton: Boolean = true,
     resetButton: Boolean = true,
-    backgroundColor: Color = MaterialTheme.colorScheme.surface,
     maxLuminance: Float = 1f,
     onColorPicked: (Color) -> Unit
 ) {
+    val ctx = LocalContext.current
+
     var showPicker by remember { mutableStateOf(false) }
     var actualColor by remember { mutableStateOf(currentColor) }
 
     val modifier = if (showLabel) Modifier.fillMaxWidth() else Modifier.wrapContentWidth()
+
+    val savedMode by getColorPickerMode(ctx).collectAsState(initial = ColorPickerMode.SLIDERS)
+    val initialPage = remember(savedMode) { ColorPickerMode.entries.indexOf(savedMode) }
+
+
     Row(
        modifier = modifier
            .clickable(enabled) { showPicker = true }
            .background(
-               color = backgroundColor.copy(if (enabled) 1f else 0.5f),
+               color = MaterialTheme.colorScheme.surface.copy(if (enabled) 1f else 0.5f),
                shape = RoundedCornerShape(12.dp)
            )
            .padding(horizontal = 16.dp, vertical = 14.dp),
@@ -110,10 +117,10 @@ fun ColorPickerRow(
                 Icon(
                     imageVector = Icons.Default.Shuffle,
                     contentDescription = "Random color",
-                    tint = MaterialTheme.colorScheme.outline,
+                    tint = MaterialTheme.colorScheme.onSurface,
                     modifier = Modifier
                         .clip(CircleShape)
-                        .background(backgroundColor.adjustBrightness(0.8f))
+                        .background(MaterialTheme.colorScheme.surface.adjustBrightness(0.8f))
                         .padding(5.dp)
                         .clickable(enabled) { onColorPicked(randomColor(minLuminance = 0.2f, maxLuminance = maxLuminance)) }
                 )
@@ -125,10 +132,10 @@ fun ColorPickerRow(
                 Icon(
                     imageVector = Icons.Default.Restore,
                     contentDescription = "Reset color",
-                    tint = MaterialTheme.colorScheme.outline,
+                    tint = MaterialTheme.colorScheme.onSurface,
                     modifier = Modifier
                         .clip(CircleShape)
-                        .background(backgroundColor.adjustBrightness(0.8f))
+                        .background(MaterialTheme.colorScheme.surface.adjustBrightness(0.8f))
                         .padding(5.dp)
                         .clickable(enabled) { onColorPicked(defaultColor) }
                 )
@@ -157,7 +164,7 @@ fun ColorPickerRow(
                 Icon(
                     imageVector = Icons.Default.Restore,
                     contentDescription = "Reset Color",
-                    tint = MaterialTheme.colorScheme.outline,
+                    tint = MaterialTheme.colorScheme.onSurface,
                     modifier = Modifier
                         .clip(CircleShape)
                         .padding(8.dp)
@@ -173,6 +180,7 @@ fun ColorPickerRow(
             text = {
                 ColorPicker(
                     color = actualColor,
+                    initialPage = initialPage,
                     onColorSelected = { actualColor = it }
                 )
             },
@@ -195,6 +203,7 @@ fun ColorPickerRow(
 @Composable
 private fun ColorPicker(
     color: Color,
+    initialPage: Int,
     onColorSelected: (Color) -> Unit
 ) {
     val ctx = LocalContext.current
@@ -202,8 +211,6 @@ private fun ColorPicker(
 
     val pickerModes = ColorPickerMode.entries
     // Synchronize pager state with stored mode
-    val savedMode by getColorPickerMode(ctx).collectAsState(initial = ColorPickerMode.SLIDERS)
-    val initialPage = remember(savedMode) { pickerModes.indexOf(savedMode) }
     val pagerState = rememberPagerState(initialPage = initialPage) { pickerModes.size }
 
     var hexText by remember { mutableStateOf(toHexWithAlpha(color)) }
@@ -311,6 +318,9 @@ private fun ColorPicker(
                     }
                 },
                 label = { Text("HEX") },
+                colors = AppObjectsColors.outlinedTextFieldColors(
+                    backgroundColor = MaterialTheme.colorScheme.surface
+                ),
                 singleLine = true,
                 modifier = Modifier.weight(1f)
             )
@@ -318,7 +328,11 @@ private fun ColorPicker(
             IconButton(
                 onClick = {
                     context.copyToClipboard(hexText)
-                }
+                },
+                colors = AppObjectsColors.iconButtonColors(
+                    backgroundColor = MaterialTheme.colorScheme.surface,
+                    contentColor = MaterialTheme.colorScheme.onSurface
+                )
             ) {
                 Icon(
                     imageVector = Icons.Default.ContentCopy,
@@ -336,7 +350,11 @@ private fun ColorPicker(
                             }
                         }
                     }
-                }
+                },
+                colors = AppObjectsColors.iconButtonColors(
+                    backgroundColor = MaterialTheme.colorScheme.surface,
+                    contentColor = MaterialTheme.colorScheme.onSurface
+                )
             ) {
                 Icon(
                     imageVector = Icons.Default.ContentPaste,

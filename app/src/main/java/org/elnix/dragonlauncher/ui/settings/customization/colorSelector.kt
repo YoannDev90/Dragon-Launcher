@@ -52,8 +52,8 @@ import org.elnix.dragonlauncher.data.defaultThemeName
 import org.elnix.dragonlauncher.data.stores.ColorModesSettingsStore
 import org.elnix.dragonlauncher.data.stores.ColorSettingsStore
 import org.elnix.dragonlauncher.ui.colors.ColorPickerRow
-import org.elnix.dragonlauncher.ui.helpers.TextDivider
 import org.elnix.dragonlauncher.ui.components.dialogs.UserValidation
+import org.elnix.dragonlauncher.ui.helpers.TextDivider
 import org.elnix.dragonlauncher.ui.helpers.settings.SettingsLazyHeader
 import org.elnix.dragonlauncher.ui.theme.AmoledDefault
 import org.elnix.dragonlauncher.ui.theme.LocalExtraColors
@@ -208,7 +208,7 @@ fun ColorSelectorTab(
                     Icon(
                         imageVector = Icons.Default.Restore,
                         contentDescription = stringResource(R.string.reset),
-                        tint = MaterialTheme.colorScheme.outline,
+                        tint = MaterialTheme.colorScheme.onPrimary,
                         modifier = Modifier
                             .clip(CircleShape)
                             .padding(5.dp)

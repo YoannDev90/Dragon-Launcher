@@ -1,6 +1,7 @@
 package org.elnix.dragonlauncher.ui.settings.customization
 
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.asPaddingValues
@@ -182,18 +183,19 @@ fun StatusBarTab(
             }
 
             item {
-                Column {
-                    Text(
-                        text = stringResource(R.string.time_format_title),
-                        style = MaterialTheme.typography.titleMedium,
-                        color = MaterialTheme.colorScheme.onSurface
-                    )
+                Column(verticalArrangement = Arrangement.spacedBy(5.dp)) {
                     Text(
                         text = stringResource(R.string.time_format_examples),
                         style = MaterialTheme.typography.bodySmall,
-                        color = MaterialTheme.colorScheme.onSurfaceVariant
+                        color = MaterialTheme.colorScheme.onBackground
                     )
                     OutlinedTextField(
+                        label = {
+                            Text(
+                                text = stringResource(R.string.time_format_title),
+                                color = MaterialTheme.colorScheme.onBackground
+                            )
+                        },
                         value = timeFormatter,
                         onValueChange = { newValue ->
                             scope.launch {
@@ -236,18 +238,18 @@ fun StatusBarTab(
 
 
             item {
-                Column {
-                    Text(
-                        text = stringResource(R.string.date_format_title),
-                        style = MaterialTheme.typography.titleMedium,
-                        color = MaterialTheme.colorScheme.onSurface
-                    )
+                Column(verticalArrangement = Arrangement.spacedBy(5.dp)) {
                     Text(
                         text = stringResource(R.string.date_format_examples),
-                        style = MaterialTheme.typography.bodySmall,
-                        color = MaterialTheme.colorScheme.onSurfaceVariant
+                        color = MaterialTheme.colorScheme.onBackground
                     )
                     OutlinedTextField(
+                        label = {
+                            Text(
+                                text = stringResource(R.string.date_format_title),
+                                color = MaterialTheme.colorScheme.onBackground
+                            )
+                        },
                         value = dateFormatter,
                         onValueChange = { newValue ->
                             scope.launch {

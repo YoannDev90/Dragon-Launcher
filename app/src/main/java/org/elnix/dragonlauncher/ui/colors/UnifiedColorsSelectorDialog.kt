@@ -14,10 +14,8 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import org.elnix.dragonlauncher.utils.colors.AppObjectsColors
-import org.elnix.dragonlauncher.utils.colors.adjustBrightness
 
 /**
  * Generic color selector dialog for multiple color entries
@@ -50,7 +48,6 @@ fun UnifiedColorsSelectorDialog(
                         label = entry.label,
                         defaultColor = entry.defaultColor,
                         currentColor = colorStates[index].value,
-                        backgroundColor = MaterialTheme.colorScheme.surface.adjustBrightness(0.7f),
                         onColorPicked = { colorStates[index].value = it }
                     )
                 }
