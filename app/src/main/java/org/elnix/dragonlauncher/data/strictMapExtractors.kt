@@ -63,19 +63,6 @@ fun getStringStrict(
 }
 
 
-fun getNullableStringStrict(
-    raw: Map<String, Any?>,
-    key: Preferences.Key<String>,
-    def: String?
-): String? {
-    val v = raw[key.name] ?: return def
-    return when (v) {
-        is String -> v
-        else -> throw BackupTypeException(key.name, "String", v::class.simpleName, v)
-    }
-}
-
-
 
 fun MutableMap<String, Any>.putIfNonDefault(
     key: Preferences.Key<*>,

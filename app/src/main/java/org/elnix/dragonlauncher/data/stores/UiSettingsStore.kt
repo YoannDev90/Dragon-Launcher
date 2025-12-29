@@ -13,16 +13,14 @@ import org.elnix.dragonlauncher.data.BaseSettingsStore
 import org.elnix.dragonlauncher.data.appDrawerDataStore
 import org.elnix.dragonlauncher.data.getBooleanStrict
 import org.elnix.dragonlauncher.data.getIntStrict
+import org.elnix.dragonlauncher.data.getStringStrict
 import org.elnix.dragonlauncher.data.putIfNonDefault
-import org.elnix.dragonlauncher.data.stores.UiSettingsStore.Keys.CANCEL_ZONE_DRAG_DISTANCE
-import org.elnix.dragonlauncher.data.stores.UiSettingsStore.Keys.FIRST_CIRCLE_DRAG_DISTANCE
 import org.elnix.dragonlauncher.data.stores.UiSettingsStore.Keys.FULLSCREEN
 import org.elnix.dragonlauncher.data.stores.UiSettingsStore.Keys.ICON_PACK_KEY
 import org.elnix.dragonlauncher.data.stores.UiSettingsStore.Keys.LINE_PREVIEW_SNAP_TO_ACTION
 import org.elnix.dragonlauncher.data.stores.UiSettingsStore.Keys.MIN_ANGLE_FROM_A_POINT_TO_ACTIVATE_IT
 import org.elnix.dragonlauncher.data.stores.UiSettingsStore.Keys.RGB_LINE
 import org.elnix.dragonlauncher.data.stores.UiSettingsStore.Keys.RGB_LOADING
-import org.elnix.dragonlauncher.data.stores.UiSettingsStore.Keys.SECOND_CIRCLE_DRAG_DISTANCE
 import org.elnix.dragonlauncher.data.stores.UiSettingsStore.Keys.SHOW_ACTION_ICON_BORDER
 import org.elnix.dragonlauncher.data.stores.UiSettingsStore.Keys.SHOW_ALL_ACTIONS_ON_CURRENT_CIRCLE
 import org.elnix.dragonlauncher.data.stores.UiSettingsStore.Keys.SHOW_ANGLE_PREVIEW
@@ -49,9 +47,6 @@ object UiSettingsStore : BaseSettingsStore() {
         val showLinePreview: Boolean = true,
         val showAnglePreview: Boolean = true,
         val snapPoints: Boolean = true,
-        val firstCircleDragDistance: Int = 400,
-        val secondCircleDragDistance: Int = 700,
-        val cancelZoneDragDistance: Int = 150,
         val showAppPreviewIconCenterStartPosition: Boolean = false,
         val linePreviewSnapToAction: Boolean = false,
         val minAngleFromAPointToActivateIt: Int = 30,
@@ -73,9 +68,6 @@ object UiSettingsStore : BaseSettingsStore() {
         val SHOW_LINE_PREVIEW = booleanPreferencesKey(UiSettingsBackup::showLinePreview.name)
         val SHOW_ANGLE_PREVIEW = booleanPreferencesKey("show_app_angle_preview")
         val SNAP_POINTS = booleanPreferencesKey(UiSettingsBackup::snapPoints.name)
-        val FIRST_CIRCLE_DRAG_DISTANCE = intPreferencesKey(UiSettingsBackup::firstCircleDragDistance.name)
-        val SECOND_CIRCLE_DRAG_DISTANCE = intPreferencesKey(UiSettingsBackup::secondCircleDragDistance.name)
-        val CANCEL_ZONE_DRAG_DISTANCE = intPreferencesKey(UiSettingsBackup::cancelZoneDragDistance.name)
         val SHOW_APP_PREVIEW_ICON_CENTER_START_POSITION = booleanPreferencesKey("showAppPreviewIconCenterStartPosition")
         val LINE_PREVIEW_SNAP_TO_ACTION = booleanPreferencesKey("linePreviewSnapToAction")
         val MIN_ANGLE_FROM_A_POINT_TO_ACTIVATE_IT = intPreferencesKey("minAngleFromAPointToActivateIt")
@@ -95,9 +87,6 @@ object UiSettingsStore : BaseSettingsStore() {
             SHOW_LINE_PREVIEW,
             SHOW_ANGLE_PREVIEW,
             SNAP_POINTS,
-            FIRST_CIRCLE_DRAG_DISTANCE,
-            SECOND_CIRCLE_DRAG_DISTANCE,
-            CANCEL_ZONE_DRAG_DISTANCE,
             SHOW_APP_PREVIEW_ICON_CENTER_START_POSITION,
             LINE_PREVIEW_SNAP_TO_ACTION,
             MIN_ANGLE_FROM_A_POINT_TO_ACTIVATE_IT,
@@ -175,28 +164,6 @@ object UiSettingsStore : BaseSettingsStore() {
 
     suspend fun setSnapPoints(ctx: Context, value: Boolean) {
         ctx.uiDatastore.edit { it[SNAP_POINTS] = value }
-    }
-
-
-    fun getFirstCircleDragDistance(ctx: Context): Flow<Int> =
-        ctx.uiDatastore.data.map { it[FIRST_CIRCLE_DRAG_DISTANCE] ?: defaults.firstCircleDragDistance }
-
-    suspend fun setFirstCircleDragDistance(ctx: Context, value: Int) {
-        ctx.uiDatastore.edit { it[FIRST_CIRCLE_DRAG_DISTANCE] = value }
-    }
-
-    fun getSecondCircleDragDistance(ctx: Context): Flow<Int> =
-        ctx.uiDatastore.data.map { it[SECOND_CIRCLE_DRAG_DISTANCE] ?: defaults.secondCircleDragDistance }
-
-    suspend fun setSecondCircleDragDistance(ctx: Context, value: Int) {
-        ctx.uiDatastore.edit { it[SECOND_CIRCLE_DRAG_DISTANCE] = value }
-    }
-
-    fun getCancelZoneDragDistance(ctx: Context): Flow<Int> =
-        ctx.uiDatastore.data.map { it[CANCEL_ZONE_DRAG_DISTANCE] ?: defaults.cancelZoneDragDistance }
-
-    suspend fun setCancelZoneDragDistance(ctx: Context, value: Int) {
-        ctx.uiDatastore.edit { it[CANCEL_ZONE_DRAG_DISTANCE] = value }
     }
 
     fun getShowAppPreviewIconCenterStartPosition(ctx: Context): Flow<Boolean> =
@@ -345,29 +312,16 @@ object UiSettingsStore : BaseSettingsStore() {
             )
 
             putIfNonDefault(
-                FIRST_CIRCLE_DRAG_DISTANCE,
-                prefs[FIRST_CIRCLE_DRAG_DISTANCE],
-                defaults.firstCircleDragDistance
-            )
-
-            putIfNonDefault(
-                SECOND_CIRCLE_DRAG_DISTANCE,
-                prefs[SECOND_CIRCLE_DRAG_DISTANCE],
-                defaults.secondCircleDragDistance
-            )
-
-            putIfNonDefault(
-                CANCEL_ZONE_DRAG_DISTANCE,
-                prefs[CANCEL_ZONE_DRAG_DISTANCE],
-                defaults.cancelZoneDragDistance
-            )
-
-            putIfNonDefault(
                 MIN_ANGLE_FROM_A_POINT_TO_ACTIVATE_IT,
                 prefs[MIN_ANGLE_FROM_A_POINT_TO_ACTIVATE_IT],
                 defaults.minAngleFromAPointToActivateIt
             )
 
+            putIfNonDefault(
+                ICON_PACK_KEY,
+                prefs[ICON_PACK_KEY],
+                ""
+            )
             putIfNonDefault(
                 SHOW_ACTION_ICON_BORDER,
                 prefs[SHOW_ACTION_ICON_BORDER],
@@ -439,26 +393,9 @@ object UiSettingsStore : BaseSettingsStore() {
                     defaults.showAllActionsOnCurrentCircle
                 )
 
-            prefs[FIRST_CIRCLE_DRAG_DISTANCE] =
-                getIntStrict(
-                    backup,
-                    FIRST_CIRCLE_DRAG_DISTANCE,
-                    defaults.firstCircleDragDistance
-                )
+            prefs[ICON_PACK_KEY] =
+                getStringStrict(backup, ICON_PACK_KEY, "")
 
-            prefs[SECOND_CIRCLE_DRAG_DISTANCE] =
-                getIntStrict(
-                    backup,
-                    SECOND_CIRCLE_DRAG_DISTANCE,
-                    defaults.secondCircleDragDistance
-                )
-
-            prefs[CANCEL_ZONE_DRAG_DISTANCE] =
-                getIntStrict(
-                    backup,
-                    CANCEL_ZONE_DRAG_DISTANCE,
-                    defaults.cancelZoneDragDistance
-                )
 
             prefs[MIN_ANGLE_FROM_A_POINT_TO_ACTIVATE_IT] =
                 getIntStrict(
