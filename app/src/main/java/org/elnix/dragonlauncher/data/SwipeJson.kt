@@ -33,14 +33,14 @@ data class CircleNest(
      *  By default the id 0 is the first nest that is available,
      *  I'll try to make the old system importable, to avoid breaking changes like empty actions circle
      */
-    val id: Int = 0,
+    @SerializedName("id") val id: Int = 0,
     /**
      * Holds the cancel zone (index -1), and the circle numbers for each drag distances
      * for all the circles in the nest (index positive integer)
      * the key is the circle number, made for allowing not ascending order drag distances
      * For the last one, the drag distance has no limit, it's not even counted
      */
-    val dragDistances: Map<Int, Int> = mapOf(
+    @SerializedName("dragDistances") val dragDistances: Map<Int, Int> = mapOf(
         -1 to 150,
         0 to 400,
         1 to 700,
@@ -51,7 +51,7 @@ data class CircleNest(
      * The id of the nest that holds this one, used for drawing correctly the outer circles
      * And also to navigate across nests
      */
-    val parentId: Int = 0
+    @SerializedName("parentId") val parentId: Int = 0
 )
 
 // Use sealed class for actions

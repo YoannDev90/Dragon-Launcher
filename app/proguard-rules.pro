@@ -51,3 +51,17 @@
 #    <fields>;
 #    <init>(...);
 #}
+
+
+# Gson essentials
+-keepattributes Signature
+-keepattributes *Annotation*
+
+# Keep CircleNest structure
+-keep class org.elnix.dragonlauncher.data.CircleNest { <fields>; }
+
+
+# Keep adapters
+-keep class org.elnix.dragonlauncher.data.SwipeActionAdapter { *; }
+-keep class * implements com.google.gson.JsonSerializer
+-keep class * implements com.google.gson.JsonDeserializer
