@@ -221,4 +221,5 @@
     <string name="workspace_defaults">All apps</string>
     <string name="workspace_added">Added apps</string>
     <string name="workspace_removed">Hidden apps</string>
+    <string name="padding">Padding</string>
 </resources>

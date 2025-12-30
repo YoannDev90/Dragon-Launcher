@@ -27,6 +27,7 @@ import kotlinx.coroutines.launch
 import org.elnix.dragonlauncher.R
 import org.elnix.dragonlauncher.data.stores.StatusBarSettingsStore
 import org.elnix.dragonlauncher.ui.colors.ColorPickerRow
+import org.elnix.dragonlauncher.ui.helpers.SliderWithLabel
 import org.elnix.dragonlauncher.ui.helpers.SwitchRow
 import org.elnix.dragonlauncher.ui.helpers.TextDivider
 import org.elnix.dragonlauncher.ui.helpers.settings.SettingsLazyHeader
@@ -48,7 +49,7 @@ fun StatusBarTab(
     val isRealFullscreen = systemInsets.calculateTopPadding() == 0.dp
 
     val showStatusBar by StatusBarSettingsStore.getShowStatusBar(ctx)
-        .collectAsState(initial = true)
+        .collectAsState(initial = false)
 
     val statusBarBackground by StatusBarSettingsStore.getBarBackgroundColor(ctx)
         .collectAsState(initial = Color.Transparent)
@@ -57,7 +58,7 @@ fun StatusBarTab(
         .collectAsState(initial = MaterialTheme.colorScheme.onBackground)
 
     val showTime by StatusBarSettingsStore.getShowTime(ctx)
-        .collectAsState(initial = true)
+        .collectAsState(initial = false)
 
     val showDate by StatusBarSettingsStore.getShowDate(ctx)
         .collectAsState(initial = false)
@@ -72,13 +73,20 @@ fun StatusBarTab(
         .collectAsState(initial = false)
 
     val showBattery by StatusBarSettingsStore.getShowBattery(ctx)
-        .collectAsState(initial = true)
+        .collectAsState(initial = false)
 
     val showConnectivity by StatusBarSettingsStore.getShowConnectivity(ctx)
         .collectAsState(initial = false)
 
     val showNextAlarm by StatusBarSettingsStore.getShowNextAlarm(ctx)
-        .collectAsState(true)
+        .collectAsState(false)
+
+    val leftPadding by StatusBarSettingsStore.getLeftPadding(ctx)
+        .collectAsState(initial = 0)
+
+    val rightPadding by StatusBarSettingsStore.getRightPadding(ctx)
+        .collectAsState(initial = 0)
+
 
 
 
@@ -95,7 +103,9 @@ fun StatusBarTab(
                 showNotifications = showNotifications,
                 showBattery = showBattery,
                 showConnectivity = showConnectivity,
-                showNextAlarm = showNextAlarm
+                showNextAlarm = showNextAlarm,
+                leftPadding = leftPadding,
+                rightPadding = rightPadding
             )
         }
 
@@ -317,6 +327,35 @@ fun StatusBarTab(
                     subText = "Kinda buggy RN, so working so well, but you can try"
                 ) {
                     scope.launch { StatusBarSettingsStore.setShowConnectivity(ctx, it) }
+                }
+            }
+
+            item { TextDivider(stringResource(R.string.padding)) }
+
+
+            item {
+                SliderWithLabel(
+                    label = stringResource(R.string.left_padding),
+                    value = leftPadding,
+                    showValue = true,
+                    valueRange = 0f..200f,
+                    color = MaterialTheme.colorScheme.primary,
+                    onReset = { scope.launch { StatusBarSettingsStore.setLeftPadding(ctx, 0) } }
+                ) {
+                    scope.launch{ StatusBarSettingsStore.setLeftPadding(ctx, it ) }
+                }
+            }
+
+            item {
+                SliderWithLabel(
+                    label = stringResource(R.string.right_padding),
+                    value = rightPadding,
+                    showValue = true,
+                    valueRange = 0f..200f,
+                    color = MaterialTheme.colorScheme.primary,
+                    onReset = { scope.launch { StatusBarSettingsStore.setRightPadding(ctx, 0) } }
+                ) {
+                    scope.launch{ StatusBarSettingsStore.setRightPadding(ctx, it ) }
                 }
             }
         }

@@ -118,7 +118,7 @@ fun MainScreen(
     /* ───────────── status bar things ───────────── */
 
     val showStatusBar by StatusBarSettingsStore.getShowStatusBar(ctx)
-        .collectAsState(initial = true)
+        .collectAsState(initial = false)
 
     val statusBarBackground by StatusBarSettingsStore.getBarBackgroundColor(ctx)
         .collectAsState(initial = Color.Transparent)
@@ -127,7 +127,7 @@ fun MainScreen(
         .collectAsState(initial = MaterialTheme.colorScheme.onBackground)
 
     val showTime by StatusBarSettingsStore.getShowTime(ctx)
-        .collectAsState(initial = true)
+        .collectAsState(initial = false)
 
     val showDate by StatusBarSettingsStore.getShowDate(ctx)
         .collectAsState(initial = false)
@@ -139,15 +139,22 @@ fun MainScreen(
         .collectAsState("MMM dd")
 
     val showNotifications by StatusBarSettingsStore.getShowNotifications(ctx)
-        .collectAsState(initial = true)
+        .collectAsState(initial = false)
 
     val showBattery by StatusBarSettingsStore.getShowBattery(ctx)
-        .collectAsState(initial = true)
+        .collectAsState(initial = false)
 
     val showConnectivity by StatusBarSettingsStore.getShowConnectivity(ctx)
-        .collectAsState(initial = true)
+        .collectAsState(initial = false)
+
     val showNextAlarm by StatusBarSettingsStore.getShowNextAlarm(ctx)
-        .collectAsState(true)
+        .collectAsState(false)
+
+    val leftStatusBarPadding by StatusBarSettingsStore.getLeftPadding(ctx)
+        .collectAsState(initial = 0)
+
+    val rightStatusBarPadding by StatusBarSettingsStore.getRightPadding(ctx)
+        .collectAsState(initial = 0)
 
 
 
@@ -301,7 +308,9 @@ fun MainScreen(
                 showNotifications = showNotifications,
                 showBattery = showBattery,
                 showConnectivity = showConnectivity,
-                showNextAlarm = showNextAlarm
+                showNextAlarm = showNextAlarm,
+                leftPadding = leftStatusBarPadding,
+                rightPadding = rightStatusBarPadding
             )
         }
 

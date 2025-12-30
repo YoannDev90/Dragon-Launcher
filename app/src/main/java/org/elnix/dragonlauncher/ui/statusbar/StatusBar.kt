@@ -23,14 +23,21 @@ fun StatusBar(
     showNotifications: Boolean,
     showBattery: Boolean,
     showConnectivity: Boolean,
-    showNextAlarm: Boolean
+    showNextAlarm: Boolean,
+    leftPadding: Int,
+    rightPadding: Int
 ) {
     Row(
         modifier = Modifier
             .fillMaxWidth()
             .background(backgroundColor)
-            .padding(horizontal = 8.dp, vertical = 4.dp),
-        verticalAlignment = Alignment.CenterVertically
+            .padding(
+                start = leftPadding.dp,
+                top = 2.dp,
+                end = rightPadding.dp,
+                bottom = 2.dp
+            ),
+        verticalAlignment = Alignment.CenterVertically,
     ) {
 
         StatusBarClock(
