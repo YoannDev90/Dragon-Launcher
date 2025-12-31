@@ -276,6 +276,7 @@ fun SettingsScreen(
         redoStack = emptyList()
         // Now apply the change
         mutator()
+        recomposeTrigger++
     }
 
     fun undo() {
