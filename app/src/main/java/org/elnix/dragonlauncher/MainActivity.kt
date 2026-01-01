@@ -432,8 +432,14 @@ class MainActivity : ComponentActivity() {
     }
 
 
+    override fun onStart() {
+        super.onStart()
+        appWidgetHost.startListening()
+    }
+
     override fun onStop() {
         super.onStop()
         appWidgetHost.stopListening()
     }
+
 }

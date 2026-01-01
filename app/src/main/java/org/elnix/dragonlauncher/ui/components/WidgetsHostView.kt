@@ -61,6 +61,12 @@ fun WidgetHostView(
                     )
                 )
             }
+        },
+        update = {
+            val info = appWidgetManager.getAppWidgetInfo(widgetInfo.id)
+            if (info != null) {
+                hostView.setAppWidget(widgetInfo.id, info)
+            }
         }
     )
 }
