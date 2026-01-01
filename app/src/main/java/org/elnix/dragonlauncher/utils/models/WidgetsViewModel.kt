@@ -221,19 +221,19 @@ class WidgetsViewModel(
 
                 when (corner) {
                     ResizeCorner.Left -> {
-                        newSpanX = (widget.spanX - deltaSpanX).coerceAtLeast(0.5f)
+                        newSpanX = (widget.spanX - deltaSpanX).coerceAtLeast(1.5f)
                         posDeltaX = deltaPosX  // Compensate position to keep left edge fixed
                     }
                     ResizeCorner.Right -> {
-                        newSpanX = (widget.spanX + deltaSpanX).coerceAtLeast(0.5f)
+                        newSpanX = (widget.spanX + deltaSpanX).coerceAtLeast(1.5f)
                         // Right edge extends naturally
                     }
                     ResizeCorner.Top -> {
-                        newSpanY = (widget.spanY - deltaSpanY).coerceAtLeast(0.5f)
+                        newSpanY = (widget.spanY - deltaSpanY).coerceAtLeast(1.5f)
                         posDeltaY = deltaPosY  // Compensate position to keep top edge fixed
                     }
                     ResizeCorner.Bottom -> {
-                        newSpanY = (widget.spanY + deltaSpanY).coerceAtLeast(0.5f)
+                        newSpanY = (widget.spanY + deltaSpanY).coerceAtLeast(1.5f)
                         // Bottom edge extends naturally
                     }
                 }
@@ -287,11 +287,11 @@ class WidgetsViewModel(
 
     private fun calculateSpanX(minWidthDp: Float): Float {
         val cellWidthDp = 100
-        return (minWidthDp / cellWidthDp).coerceAtLeast(1f)
+        return (minWidthDp / cellWidthDp).coerceAtLeast(1.5f)
     }
 
     private fun calculateSpanY(minHeightDp: Float): Float {
         val cellHeightDp = 100
-        return (minHeightDp / cellHeightDp).coerceAtLeast(1f)
+        return (minHeightDp / cellHeightDp).coerceAtLeast(1.5f)
     }
 }
