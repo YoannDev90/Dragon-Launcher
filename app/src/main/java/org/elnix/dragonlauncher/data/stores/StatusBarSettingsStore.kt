@@ -45,8 +45,10 @@ object StatusBarSettingsStore : BaseSettingsStore<Map<String, Any?>>() {
         val showBattery: Boolean = true,
         val showConnectivity: Boolean = false,
         val showNextAlarm: Boolean = true,
-        val leftPadding: Int = 0,
-        val rightPadding: Int = 0
+        val leftPadding: Int = 5,
+        val rightPadding: Int = 5,
+        val topPadding: Int = 2,
+        val bottomPadding: Int = 2
     )
 
     private val defaults = SettingsBackup()
@@ -66,6 +68,8 @@ object StatusBarSettingsStore : BaseSettingsStore<Map<String, Any?>>() {
         val LEFT_PADDING = intPreferencesKey(SettingsBackup::leftPadding.name)
         val RIGHT_PADDING = intPreferencesKey(SettingsBackup::rightPadding.name)
 
+        val TOP_PADDING = intPreferencesKey(SettingsBackup::topPadding.name)
+        val BOTTOM_PADDING = intPreferencesKey(SettingsBackup::bottomPadding.name)
         val ALL = listOf(
             SHOW_STATUS_BAR,
             BAR_BACKGROUND_COLOR,
@@ -79,7 +83,9 @@ object StatusBarSettingsStore : BaseSettingsStore<Map<String, Any?>>() {
             SHOW_CONNECTIVITY,
             SHOW_NEXT_ALARM,
             LEFT_PADDING,
-            RIGHT_PADDING
+            RIGHT_PADDING,
+            TOP_PADDING,
+            BOTTOM_PADDING
         )
     }
 
@@ -193,6 +199,22 @@ object StatusBarSettingsStore : BaseSettingsStore<Map<String, Any?>>() {
         ctx.statusBarDatastore.edit { it[Keys.RIGHT_PADDING] = value }
     }
 
+
+    fun getTopPadding(ctx: Context): Flow<Int> =
+        ctx.statusBarDatastore.data.map { it[Keys.TOP_PADDING] ?: defaults.topPadding }
+
+    suspend fun setTopPadding(ctx: Context, value: Int) {
+        ctx.statusBarDatastore.edit { it[Keys.TOP_PADDING] = value }
+    }
+
+
+    fun getBottomPadding(ctx: Context): Flow<Int> =
+        ctx.statusBarDatastore.data.map { it[Keys.BOTTOM_PADDING] ?: defaults.bottomPadding }
+
+    suspend fun setBottomPadding(ctx: Context, value: Int) {
+        ctx.statusBarDatastore.edit { it[Keys.BOTTOM_PADDING] = value }
+    }
+
     /* ───────────── reset / backup ───────────── */
 
     override suspend fun resetAll(ctx: Context) {
@@ -219,6 +241,8 @@ object StatusBarSettingsStore : BaseSettingsStore<Map<String, Any?>>() {
             putIfNonDefault(SHOW_NEXT_ALARM, prefs[SHOW_NEXT_ALARM], defaults.showNextAlarm)
             putIfNonDefault(Keys.LEFT_PADDING, prefs[Keys.LEFT_PADDING], defaults.leftPadding)
             putIfNonDefault(Keys.RIGHT_PADDING, prefs[Keys.RIGHT_PADDING], defaults.rightPadding)
+            putIfNonDefault(Keys.TOP_PADDING, prefs[Keys.TOP_PADDING], defaults.topPadding)
+            putIfNonDefault(Keys.BOTTOM_PADDING, prefs[Keys.BOTTOM_PADDING], defaults.bottomPadding)
         }
     }
 
@@ -262,6 +286,12 @@ object StatusBarSettingsStore : BaseSettingsStore<Map<String, Any?>>() {
 
             prefs[Keys.RIGHT_PADDING] =
                 getIntStrict(value, Keys.RIGHT_PADDING, defaults.rightPadding)
+
+            prefs[Keys.TOP_PADDING] =
+                getIntStrict(value, Keys.TOP_PADDING, defaults.topPadding)
+
+            prefs[Keys.BOTTOM_PADDING] =
+                getIntStrict(value, Keys.BOTTOM_PADDING, defaults.bottomPadding)
         }
     }
 }

@@ -166,11 +166,16 @@ fun MainScreen(
         .collectAsState(false)
 
     val leftStatusBarPadding by StatusBarSettingsStore.getLeftPadding(ctx)
-        .collectAsState(initial = 0)
+        .collectAsState(initial = 5)
 
     val rightStatusBarPadding by StatusBarSettingsStore.getRightPadding(ctx)
-        .collectAsState(initial = 0)
+        .collectAsState(initial = 5)
 
+    val topStatusBarPadding by StatusBarSettingsStore.getTopPadding(ctx)
+        .collectAsState(initial = 2)
+
+    val bottomStatusBarPadding by StatusBarSettingsStore.getBottomPadding(ctx)
+        .collectAsState(initial = 2)
 
 
     val systemInsets = WindowInsets.systemBars.asPaddingValues()
@@ -372,7 +377,9 @@ fun MainScreen(
                 showConnectivity = showConnectivity,
                 showNextAlarm = showNextAlarm,
                 leftPadding = leftStatusBarPadding,
-                rightPadding = rightStatusBarPadding
+                rightPadding = rightStatusBarPadding,
+                topPadding = topStatusBarPadding,
+                bottomPadding = bottomStatusBarPadding
             )
         }
 

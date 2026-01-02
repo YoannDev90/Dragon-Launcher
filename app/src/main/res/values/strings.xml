@@ -160,6 +160,8 @@
     <string name="go_parent_nest_color">Go Parent Nest Color</string>
     <string name="left_padding">Left Padding</string>
     <string name="right_padding">Right Padding</string>
+    <string name="top_padding">Top Padding</string>
+    <string name="bottom_padding">Bottom Padding</string>
     <string name="up_padding">Top Padding</string>
     <string name="down_padding">Bottom Padding</string>
     <string name="wallpaper">Wallpaper</string>

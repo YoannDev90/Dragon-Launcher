@@ -82,11 +82,16 @@ fun StatusBarTab(
         .collectAsState(false)
 
     val leftPadding by StatusBarSettingsStore.getLeftPadding(ctx)
-        .collectAsState(initial = 0)
+        .collectAsState(initial = 5)
 
     val rightPadding by StatusBarSettingsStore.getRightPadding(ctx)
-        .collectAsState(initial = 0)
+        .collectAsState(initial = 5)
 
+    val topPadding by StatusBarSettingsStore.getTopPadding(ctx)
+        .collectAsState(initial = 2)
+
+    val bottomPadding by StatusBarSettingsStore.getBottomPadding(ctx)
+        .collectAsState(initial = 2)
 
 
 
@@ -105,7 +110,9 @@ fun StatusBarTab(
                 showConnectivity = showConnectivity,
                 showNextAlarm = showNextAlarm,
                 leftPadding = leftPadding,
-                rightPadding = rightPadding
+                rightPadding = rightPadding,
+                topPadding = topPadding,
+                bottomPadding = bottomPadding
             )
         }
 
@@ -340,7 +347,7 @@ fun StatusBarTab(
                     showValue = true,
                     valueRange = 0f..200f,
                     color = MaterialTheme.colorScheme.primary,
-                    onReset = { scope.launch { StatusBarSettingsStore.setLeftPadding(ctx, 0) } }
+                    onReset = { scope.launch { StatusBarSettingsStore.setLeftPadding(ctx, 5) } }
                 ) {
                     scope.launch{ StatusBarSettingsStore.setLeftPadding(ctx, it ) }
                 }
@@ -353,9 +360,35 @@ fun StatusBarTab(
                     showValue = true,
                     valueRange = 0f..200f,
                     color = MaterialTheme.colorScheme.primary,
-                    onReset = { scope.launch { StatusBarSettingsStore.setRightPadding(ctx, 0) } }
+                    onReset = { scope.launch { StatusBarSettingsStore.setRightPadding(ctx, 5) } }
                 ) {
                     scope.launch{ StatusBarSettingsStore.setRightPadding(ctx, it ) }
+                }
+            }
+
+            item {
+                SliderWithLabel(
+                    label = stringResource(R.string.top_padding),
+                    value = topPadding,
+                    showValue = true,
+                    valueRange = 0f..200f,
+                    color = MaterialTheme.colorScheme.primary,
+                    onReset = { scope.launch { StatusBarSettingsStore.setTopPadding(ctx, 2) } }
+                ) {
+                    scope.launch{ StatusBarSettingsStore.setTopPadding(ctx, it ) }
+                }
+            }
+
+            item {
+                SliderWithLabel(
+                    label = stringResource(R.string.bottom_padding),
+                    value = bottomPadding,
+                    showValue = true,
+                    valueRange = 0f..200f,
+                    color = MaterialTheme.colorScheme.primary,
+                    onReset = { scope.launch { StatusBarSettingsStore.setBottomPadding(ctx, 2) } }
+                ) {
+                    scope.launch{ StatusBarSettingsStore.setBottomPadding(ctx, it ) }
                 }
             }
         }

@@ -25,7 +25,9 @@ fun StatusBar(
     showConnectivity: Boolean,
     showNextAlarm: Boolean,
     leftPadding: Int,
-    rightPadding: Int
+    rightPadding: Int,
+    topPadding: Int,
+    bottomPadding: Int
 ) {
     Row(
         modifier = Modifier
@@ -33,9 +35,9 @@ fun StatusBar(
             .background(backgroundColor)
             .padding(
                 start = leftPadding.dp,
-                top = 2.dp,
+                top = topPadding.dp,
                 end = rightPadding.dp,
-                bottom = 2.dp
+                bottom = bottomPadding.dp
             ),
         verticalAlignment = Alignment.CenterVertically,
     ) {
