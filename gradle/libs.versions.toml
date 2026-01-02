@@ -16,6 +16,7 @@ uiGraphics = "1.9.5"
 foundationLayout = "1.9.5"
 datastore = "1.2.0"
 appcompat = "1.7.1"
+glanceAppwidget = "1.1.1"
 
 
 [libraries]
@@ -42,6 +43,7 @@ material = { module = "com.google.android.material:material", version.ref = "mat
 material3 = { module = "androidx.compose.material3:material3" }
 reorderable = { group = "org.burnoutcrew.composereorderable", name = "reorderable", version.ref = "reorderable" }
 androidx-appcompat = { group = "androidx.appcompat", name = "appcompat", version.ref = "appcompat" }
+androidx-glance-appwidget = { group = "androidx.glance", name = "glance-appwidget", version.ref = "glanceAppwidget" }
 
 
 [plugins]
