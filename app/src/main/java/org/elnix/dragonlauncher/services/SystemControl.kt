@@ -1,14 +1,19 @@
 package org.elnix.dragonlauncher.services
 
 import android.accessibilityservice.AccessibilityService
+import android.app.admin.DeviceAdminReceiver
+import android.app.admin.DevicePolicyManager
+import android.content.ComponentName
 import android.content.Context
 import android.content.Intent
 import android.provider.Settings
 import android.util.Log
 import android.view.accessibility.AccessibilityManager
+import org.elnix.dragonlauncher.utils.ACCESSIBILITY_TAG
 import org.elnix.dragonlauncher.utils.showToast
 
 object SystemControl {
+
 
     fun isServiceEnabled(ctx: Context): Boolean {
         val enabled = Settings.Secure.getString(
@@ -55,7 +60,7 @@ object SystemControl {
 //                return
 //            }
 //        } catch (e: Exception) {
-//            Log.e("SystemControl", "Reflection failed", e)
+//            Log.e(ACCESSIBILITY_TAG, "Reflection failed", e)
 //        }
 
         // Fallback: Accessibility intent (no permissions needed)
@@ -65,7 +70,7 @@ object SystemControl {
 //            }
 //            ctx.startActivity(intent)
 //        } catch (e: Exception) {
-//            Log.e("SystemControl", "Intent fallback failed", e)
+//            Log.e(ACCESSIBILITY_TAG, "Intent fallback failed", e)
 //        }
         SystemControlService.INSTANCE?.openNotificationShade()
     }
@@ -79,7 +84,7 @@ object SystemControl {
             val method = statusBarManagerClass.getMethod("expandSettingsPanel")
             method.invoke(statusBarService)
         } catch (e: Exception) {
-            Log.e("SystemControl", "Reflection failed", e)
+            Log.e(ACCESSIBILITY_TAG, "Reflection failed", e)
             // Fallback to notifications if quick settings fails
             expandNotifications(ctx)
         }
@@ -105,4 +110,65 @@ object SystemControl {
         SystemControlService.INSTANCE?.openRecentApps()
     }
 
+    fun isDeviceAdminActive(ctx: Context): Boolean {
+        val dpm = ctx.getSystemService(Context.DEVICE_POLICY_SERVICE) as DevicePolicyManager
+        val component = ComponentName(ctx, DeviceAdminReceiver::class.java)
+        return dpm.isAdminActive(component)
+    }
+
+    fun openDeviceAdminSettings(ctx: Context) {
+        val intent = Intent(DevicePolicyManager.ACTION_ADD_DEVICE_ADMIN).apply {
+            val component = ComponentName(ctx, DeviceAdminReceiver::class.java)
+            putExtra(DevicePolicyManager.EXTRA_DEVICE_ADMIN, component)
+            putExtra(DevicePolicyManager.EXTRA_ADD_EXPLANATION, "Prevent app kills & ensure persistence")
+            addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+        }
+        ctx.startActivity(intent)
+    }
+
+    fun activateDeviceAdmin(ctx: Context) {
+        if (isDeviceAdminActive(ctx)) {
+            ctx.showToast("Device Admin already active")
+            return
+        }
+
+        val componentName = ComponentName(ctx, org.elnix.dragonlauncher.services.DeviceAdminReceiver::class.java)
+        Log.d(ACCESSIBILITY_TAG, "component name: $componentName")
+
+
+        val intent = Intent(DevicePolicyManager.ACTION_ADD_DEVICE_ADMIN).apply {
+            putExtra(DevicePolicyManager.EXTRA_DEVICE_ADMIN, componentName)
+            putExtra(DevicePolicyManager.EXTRA_ADD_EXPLANATION,
+                "Required for persistence on Xiaomi - prevents battery kills")
+            addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+        }
+
+        Log.d(ACCESSIBILITY_TAG, "intent: $intent")
+
+
+        // Verify component exists (common APK issue)
+        val adminReceiver = ctx.packageManager.getReceiverInfo(componentName, 0)
+        Log.d(ACCESSIBILITY_TAG, "Admin receiver found: ${adminReceiver.packageName}")
+
+        try {
+            ctx.startActivity(intent)
+        } catch (e: Exception) {
+            Log.e(ACCESSIBILITY_TAG, "Admin activation failed", e)
+            ctx.showToast("Failed to open admin settings - check manifest")
+        }
+    }
+
+    fun launchDragon(ctx: Context) {
+        val intent = Intent(Intent.ACTION_MAIN).apply {
+            addCategory(Intent.CATEGORY_HOME)
+            flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TOP
+            setPackage(ctx.packageName)
+        }
+        try {
+            ctx.startActivity(intent)
+        } catch (e: Exception) {
+            Log.e(ACCESSIBILITY_TAG, "Launch failed", e)
+            ctx.showToast("Failed to launch Dragon Launcher")
+        }
+    }
 }

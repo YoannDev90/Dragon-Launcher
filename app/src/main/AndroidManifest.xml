@@ -17,6 +17,9 @@
 
     <uses-permission android:name="android.permission.BIND_APPWIDGET" />
 
+    <uses-permission android:name="android.permission.BIND_DEVICE_ADMIN" />
+    <uses-permission android:name="android.permission.GET_TASKS" tools:ignore="GetTasks" />
+
     <application
         android:name=".MyApplication"
         android:localeConfig="@xml/locales_config"
@@ -62,6 +65,23 @@
                 android:resource="@xml/system_control_accessibility" />
         </service>
 
+        <receiver
+            android:name=".services.DeviceAdminReceiver"
+            android:label="@string/device_admin_label"
+            android:description="@string/device_admin_description"
+            android:permission="android.permission.BIND_DEVICE_ADMIN"
+            android:exported="true">
+
+            <meta-data
+                android:name="android.app.device_admin"
+                android:resource="@xml/device_admin_policies" />
+
+            <intent-filter>
+                <action android:name="android.app.action.DEVICE_ADMIN_ENABLED" />
+                <action android:name="android.app.action.DEVICE_ADMIN_DISABLED" />
+                <action android:name="android.app.action.DEVICE_ADMIN_DISABLE_REQUESTED" />
+            </intent-filter>
+        </receiver>
 
         <receiver
             android:name=".PackageReceiver"

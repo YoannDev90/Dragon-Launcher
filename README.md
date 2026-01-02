@@ -60,10 +60,19 @@
 * **No** data collection
 * Dragon Launcher has no even access to internet -> it cannot steal your data
 * No intrusive permissions requested for the app to work
-  * Uses Accessibility permissions (optionally) to:
-    1. Expand notifications panel (needed by android)
-    2. Lock screen
-    3. Open recent apps
+* Uses Accessibility permissions (optionally) to:
+  1. Expand notifications panel (needed by android)
+     - Uses accessibility to expand the notifications panel
+     - Expanding the quick actions / notifications isn't required on some android version, there is a hidden settings in the debug tab, to change the way it opens the quick actions, cause on my phone, the notifications action opens que quick actions
+  2. Lock screen (needed by android)
+     - It uses accessibility to lock the screen, as you pressed the lock button
+  3. Open recent apps (needed by android)
+     - You can choose to open the recent apps, just like when you click on the Square button, or do the recent apps gesture
+  4. Auto launch Dragon on system launcher detected (used by some Xiaomi users that cannot set another default launcher without loosing the gesture navigation)
+     - It will launch Dragon Launcher when the accessibility detects that you entered your system launcher, for a default launcher-like experience when it cannot be set as android default (configurable in debug settings)
+* Can set the Launcher as device admin
+  * used for some OEMs o prevent it from killing the app, especially on Xiaomi/ HyperOS devices that have really strong battery optimisation features
+  * used also for users that need the previous auto launch on system launcher, to prevent the accessibility services to be killed
 * All data stored locally (you can backup manually or use the auto backup feature)
 
 ---

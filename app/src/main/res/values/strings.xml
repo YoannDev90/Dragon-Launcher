@@ -1,6 +1,6 @@
 <resources>
     <string name="app_name">Dragon Launcher</string>
-    <string name="accessibility_service_description">Allows DragonLauncher to open the notification shade, quick settings panel and open recent apps</string>
+    <string name="accessibility_service_description">Allows DragonLauncher to open the notification shade, quick settings panel, open recent apps and check for current activity (for xiaomi users that cannot set Dragon as default launcher without loosing gesture navigation</string>
     <string name="help">Help</string>
     <string name="back">Back</string>
     <string name="reset_default_settings">Reset default settings</string>
@@ -250,4 +250,6 @@
     <string name="move_point_to_left">Move point to left</string>
     <string name="toggle_drag_cdistances_editing">Toggle drag circle editing</string>
     <string name="center_selected_floating_app">Center selected floating app / widget</string>
+    <string name="device_admin_description">Used to prevent Xiaomi to kill the app</string>
+    <string name="device_admin_label">Dragon Launcher</string>
 </resources>

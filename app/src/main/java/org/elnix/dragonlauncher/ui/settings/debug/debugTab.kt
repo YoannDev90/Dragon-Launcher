@@ -1,8 +1,10 @@
 package org.elnix.dragonlauncher.ui.settings.debug
 
 import android.os.Build
+import android.util.Log
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -16,7 +18,9 @@ import androidx.compose.material3.Button
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedButton
+import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
@@ -43,10 +47,14 @@ import org.elnix.dragonlauncher.data.DataStoreName
 import org.elnix.dragonlauncher.data.stores.AppsSettingsStore
 import org.elnix.dragonlauncher.data.stores.DebugSettingsStore
 import org.elnix.dragonlauncher.data.stores.PrivateSettingsStore
+import org.elnix.dragonlauncher.services.SystemControl
+import org.elnix.dragonlauncher.services.SystemControl.activateDeviceAdmin
+import org.elnix.dragonlauncher.services.SystemControl.isDeviceAdminActive
 import org.elnix.dragonlauncher.ui.helpers.SwitchRow
 import org.elnix.dragonlauncher.ui.helpers.TextDivider
 import org.elnix.dragonlauncher.ui.helpers.settings.SettingsLazyHeader
 import org.elnix.dragonlauncher.utils.colors.AppObjectsColors
+import org.elnix.dragonlauncher.utils.detectSystemLauncher
 import org.elnix.dragonlauncher.utils.models.AppsViewModel
 
 @Composable
@@ -87,6 +95,12 @@ fun DebugTab(
         .collectAsState(initial = true)
 
 
+    val systemLauncherPackageName by DebugSettingsStore.getSystemLauncherPackageName(ctx)
+        .collectAsState("")
+    val autoRaiseDragonOnSystemLauncher by DebugSettingsStore.getAutoRaiseDragonOnSystemLauncher(ctx)
+        .collectAsState(false)
+    var pendingSystemLauncher by remember { mutableStateOf<String?>(null) }
+
     val settingsStores = DataStoreName.entries.map { it.store }
 
     var isAppCacheExpanded by remember { mutableStateOf(false) }
@@ -113,7 +127,7 @@ fun DebugTab(
         resetText = null
     ) {
 
-        item{
+        item {
             SwitchRow(
                 state = isDebugModeEnabled,
                 text = "Activate Debug Mode",
@@ -128,7 +142,7 @@ fun DebugTab(
 
         item { TextDivider("Debug things") }
 
-        item{
+        item {
             SwitchRow(
                 state = debugInfos,
                 text = "Show debug infos",
@@ -140,7 +154,7 @@ fun DebugTab(
             }
         }
 
-        item{
+        item {
             SwitchRow(
                 state = settingsDebugInfos,
                 text = "Show debug infos in settings page",
@@ -152,7 +166,7 @@ fun DebugTab(
             }
         }
 
-        item{
+        item {
             SwitchRow(
                 state = widgetsDebugInfos,
                 text = "Show debug infos in widgets page",
@@ -164,7 +178,7 @@ fun DebugTab(
             }
         }
 
-        item{
+        item {
             SwitchRow(
                 state = workspaceDebugInfos,
                 text = "Show debug infos in workspace page",
@@ -203,7 +217,7 @@ fun DebugTab(
                 )
             }
         }
-        item{
+        item {
             SwitchRow(
                 state = hasInitialized,
                 text = "Has initialized"
@@ -214,7 +228,7 @@ fun DebugTab(
             }
         }
 
-        item{
+        item {
             SwitchRow(
                 state = !showSetDefaultLauncherBanner,
                 text = "Hide set default launcher banner",
@@ -241,7 +255,7 @@ fun DebugTab(
             }
 
             SwitchRow(
-                state = isForceSwitchToggled ,
+                state = isForceSwitchToggled,
                 text = "Force app language selector",
                 enabled = Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU
             ) { scope.launch { DebugSettingsStore.setForceAppLanguageSelector(ctx, it) } }
@@ -253,7 +267,10 @@ fun DebugTab(
                 text = "useAccessibilityInsteadOfContextToExpandActionPanel"
             ) {
                 scope.launch {
-                    PrivateSettingsStore.setUseAccessibilityInsteadOfContextToExpandActionPanel(ctx, it)
+                    PrivateSettingsStore.setUseAccessibilityInsteadOfContextToExpandActionPanel(
+                        ctx,
+                        it
+                    )
                 }
             }
         }
@@ -332,10 +349,11 @@ fun DebugTab(
                 Text(
                     text = buildAnnotatedString {
                         append("Reset ")
-                        withStyle(style = SpanStyle(
-                            fontWeight = FontWeight.Bold,
-                            textDecoration = TextDecoration.Underline
-                        ),
+                        withStyle(
+                            style = SpanStyle(
+                                fontWeight = FontWeight.Bold,
+                                textDecoration = TextDecoration.Underline
+                            ),
                         ) {
                             append(store.name)
                         }
@@ -345,5 +363,109 @@ fun DebugTab(
             }
         }
 
+        item {
+            TextButton(
+                onClick = { SystemControl.openServiceSettings((ctx)) }
+            ) {
+                Text("Open Service settings")
+            }
+            ActivateDeviceAdminButton()
+
+        }
+
+
+        item {
+            SwitchRow(
+                state = autoRaiseDragonOnSystemLauncher,
+                text = "Auto launch Dragon on system launcher (needs accessibility enabled)",
+            ) {
+                scope.launch {
+                    DebugSettingsStore.setAutoRaiseDragonOnSystemLauncher(ctx, it)
+                }
+            }
+        }
+
+
+        item {
+            Column {
+                Row(
+                    horizontalArrangement = Arrangement.spacedBy(5.dp)
+                ) {
+                    Button(
+                        onClick = {
+                            pendingSystemLauncher = detectSystemLauncher(ctx)
+                        },
+                        modifier = Modifier.weight(1f)
+                    ) {
+                        Text("Detect System launcher")
+                    }
+                    Button(
+                        onClick = {
+                            scope.launch {
+                                DebugSettingsStore.setSystemLauncherPackageName(
+                                    ctx,
+                                    pendingSystemLauncher
+                                )
+                            }
+                        },
+                        enabled = pendingSystemLauncher != null
+                    ) {
+                        Text("Set")
+                    }
+                }
+
+                if (pendingSystemLauncher != null) {
+                    Text(
+                        buildAnnotatedString {
+                            append("Your system launcher: ")
+                            withStyle(style = SpanStyle(textDecoration = TextDecoration.Underline)) {
+                                append(pendingSystemLauncher)
+                            }
+                        }
+                    )
+                } else {
+                    Text("No system launcher detected")
+                }
+            }
+        }
+        item {
+            OutlinedTextField(
+                label = {
+                    Text(
+                        text = "Your system launcher package name",
+                        color = MaterialTheme.colorScheme.onBackground
+                    )
+                },
+                value = systemLauncherPackageName,
+                onValueChange = { newValue ->
+                    scope.launch {
+                        DebugSettingsStore.setSystemLauncherPackageName(ctx, newValue)
+                    }
+                },
+                singleLine = true,
+                modifier = Modifier.fillMaxWidth(),
+                colors = AppObjectsColors.outlinedTextFieldColors()
+            )
+        }
+    }
+}
+
+
+@Composable
+fun ActivateDeviceAdminButton() {
+    val context = LocalContext.current
+    val isActive = remember { mutableStateOf(isDeviceAdminActive(context)) }
+
+    TextButton(
+        onClick = {
+            Log.d("Compose", "Button clicked - context: ${context.packageName}")
+            activateDeviceAdmin(context)
+            isActive.value = isDeviceAdminActive(context)
+        }
+    ) {
+        Text(
+            if (isActive.value) "Device Admin ✓ Active"
+            else "Activate Device Admin"
+        )
     }
 }
