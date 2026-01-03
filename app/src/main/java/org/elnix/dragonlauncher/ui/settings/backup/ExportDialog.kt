@@ -19,6 +19,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import org.elnix.dragonlauncher.data.DataStoreName
+import org.elnix.dragonlauncher.data.allStores
 import org.elnix.dragonlauncher.utils.colors.AppObjectsColors
 
 @Composable
@@ -26,7 +27,6 @@ fun ExportSettingsDialog(
     onDismiss: () -> Unit,
     onConfirm: (selectedStores: List<DataStoreName>) -> Unit
 ) {
-    val allStores = DataStoreName.entries.filter { it.backupKey != null }
 
     val selected = remember(allStores) {
         mutableStateMapOf<DataStoreName, Boolean>().apply {
@@ -67,7 +67,7 @@ fun ExportSettingsDialog(
                             ),
                         horizontalArrangement = Arrangement.SpaceBetween
                     ) {
-                        Text(store.backupKey!!.replaceFirstChar { it.uppercase() })
+                        Text(store.store.name)
                         Checkbox(
                             checked = selected[store] ?: true,
                             onCheckedChange = null
