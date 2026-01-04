@@ -1,7 +1,6 @@
 package org.elnix.dragonlauncher.utils
 
 import android.content.Context
-import android.content.Intent
 import android.content.pm.ApplicationInfo
 import android.content.pm.LauncherApps
 import android.content.pm.PackageInfo
@@ -9,6 +8,7 @@ import android.content.pm.PackageManager
 import android.content.pm.ShortcutInfo
 import android.graphics.drawable.Drawable
 import android.os.Build
+import android.os.UserManager
 import androidx.annotation.RequiresApi
 import androidx.compose.ui.graphics.ImageBitmap
 import androidx.core.content.ContextCompat
@@ -29,48 +29,60 @@ class PackageManagerCompat(private val pm: PackageManager, private val ctx: Cont
 
 
     fun getAllApps(): List<AppModel> {
-        // 1. Get all installed package infos (includes non-launchable, system, etc.)
-        val allPackages = getInstalledPackages(PackageManager.GET_META_DATA)
+        val userManager = ctx.getSystemService(Context.USER_SERVICE) as UserManager
+        val allUsers = userManager.userProfiles
 
-        // 2. Build a quick lookup set of launchable package names
-        val launchIntent = Intent(Intent.ACTION_MAIN).apply { addCategory(Intent.CATEGORY_LAUNCHER) }
-        val launchablePackages = pm.queryIntentActivities(launchIntent, 0)
-            .mapNotNull { it.activityInfo?.applicationInfo?.packageName }
-            .toSet()
+        val allApps = mutableListOf<AppModel>()
 
-        // 3. Map all packages into AppModel including a "launchable" field
-        return allPackages.mapNotNull { pkgInfo ->
-            val appInfo = pkgInfo.applicationInfo ?: return@mapNotNull null
-            val pkgName = appInfo.packageName
+        allUsers.forEach { userHandle ->
 
-            if (!isAppEnabled(pkgName)) return@mapNotNull null
+            val isWorkProfile =
+                Build.VERSION.SDK_INT >= Build.VERSION_CODES.N &&
+                        userHandle != android.os.Process.myUserHandle()
 
-            val label = try {
-                appInfo.loadLabel(pm).toString()
-            } catch (_: Exception) {
-                pkgName
+
+            val launcherApps = ctx.getSystemService(LauncherApps::class.java)
+
+            val activities = launcherApps
+                ?.getActivityList(null, userHandle)
+                ?: emptyList()
+
+            activities.forEach { activity ->
+                val appInfo = activity.applicationInfo
+                val pkgName = appInfo.packageName
+
+                if (!isAppEnabled(pkgName)) return@forEach
+
+                val label = activity.label?.toString() ?: pkgName
+
+                allApps +=  AppModel(
+                    name = label,
+                    packageName = pkgName,
+                    userId = userHandle.hashCode(),
+                    isEnabled = true,
+                    isSystem = isSystemApp(appInfo),
+                    isWorkProfile = isWorkProfile,
+                    isLaunchable = true
+                )
             }
-
-            val isLaunchable = launchablePackages.contains(pkgName)
-
-            AppModel(
-                name = label,
-                packageName = pkgName,
-                isEnabled = true,
-                isSystem = isSystemApp(appInfo),
-                isWorkProfile = false, // TODO later, RN nobody uses work profile
-                isLaunchable = isLaunchable
-            )
         }
-            .distinctBy { it.packageName }
-            .sortedBy { it.name.lowercase() }
+
+        return allApps
+            .distinctBy { "${it.packageName}_${it.userId}" }
+            .sortedWith(compareBy<AppModel> { it.isWorkProfile }.thenBy { it.name.lowercase() })
     }
 
 
 
     private fun isAppEnabled(pkgName: String): Boolean {
-        return pm.getApplicationEnabledSetting(pkgName) != PackageManager.COMPONENT_ENABLED_STATE_DISABLED
+        return try {
+            pm.getApplicationEnabledSetting(pkgName) !=
+                    PackageManager.COMPONENT_ENABLED_STATE_DISABLED
+        } catch (_: Exception) {
+            true
+        }
     }
+
 
     private fun isSystemApp(appInfo: ApplicationInfo): Boolean {
         val isSystem = (appInfo.flags and ApplicationInfo.FLAG_SYSTEM) != 0

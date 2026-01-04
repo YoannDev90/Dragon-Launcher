@@ -48,7 +48,7 @@ import org.elnix.dragonlauncher.data.helpers.workspaceViewMode
 import org.elnix.dragonlauncher.data.stores.DebugSettingsStore
 import org.elnix.dragonlauncher.ui.components.dialogs.AppPickerDialog
 import org.elnix.dragonlauncher.ui.components.dialogs.RenameAppDialog
-import org.elnix.dragonlauncher.ui.drawer.AppLongPressDialog
+import org.elnix.dragonlauncher.ui.components.dialogs.AppLongPressDialog
 import org.elnix.dragonlauncher.ui.drawer.AppModel
 import org.elnix.dragonlauncher.ui.helpers.AppGrid
 import org.elnix.dragonlauncher.ui.helpers.settings.SettingsLazyHeader

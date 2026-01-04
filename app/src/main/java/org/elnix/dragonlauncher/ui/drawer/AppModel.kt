@@ -10,7 +10,8 @@ data class AppModel(
     @SerializedName("d") val isSystem: Boolean,
     @SerializedName("e") val isWorkProfile: Boolean,
     @SerializedName("f") val isLaunchable: Boolean?,
-    @SerializedName("g") val settings: Map<String, Any> = emptyMap()
+    @SerializedName("g") val settings: Map<String, Any> = emptyMap(),
+    @SerializedName("i") val userId: Int? = 0
 ) {
     val action = SwipeActionSerializable.LaunchApp(packageName)
 }

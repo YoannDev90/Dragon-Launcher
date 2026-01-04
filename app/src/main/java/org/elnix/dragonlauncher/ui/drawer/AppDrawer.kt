@@ -56,6 +56,7 @@ import kotlinx.coroutines.yield
 import org.elnix.dragonlauncher.R
 import org.elnix.dragonlauncher.data.helpers.DrawerActions
 import org.elnix.dragonlauncher.data.stores.DrawerSettingsStore
+import org.elnix.dragonlauncher.ui.components.dialogs.AppLongPressDialog
 import org.elnix.dragonlauncher.ui.components.dialogs.RenameAppDialog
 import org.elnix.dragonlauncher.ui.helpers.AppGrid
 import org.elnix.dragonlauncher.utils.ImageUtils
@@ -362,7 +363,7 @@ fun AppDrawerScreen(
                 onClose()
             },
             onRemoveFromWorkspace = {
-                workspaceId?.let{
+                workspaceId?.let {
                     scope.launch {
                         workspaceViewModel.removeAppFromWorkspace(
                             it,

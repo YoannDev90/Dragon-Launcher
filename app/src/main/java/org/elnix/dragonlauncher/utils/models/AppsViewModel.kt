@@ -176,12 +176,14 @@ class AppsViewModel(application: Application) : AndroidViewModel(application) {
         withContext(Dispatchers.IO) {
             AppsSettingsStore.saveCachedApps(ctx, gson.toJson(apps))
         }
-        logE("AppsVm", "Reloaded packages.")
+
+        val workNumber = apps.filter { it.isWorkProfile }.size
+        logE("AppsVm", "Reloaded packages, $workNumber apps are in the work profile")
     }
 
 
     private fun loadIcons(apps: List<AppModel>): Map<String, ImageBitmap> =
-        runBlocking(Dispatchers.IO) {  // Off main thread
+        runBlocking(Dispatchers.IO) {
             apps.associate { app ->
                 val packIconName = getCachedIconMapping(app.packageName)
                 val drawable = packIconName?.let { loadIconFromPack(selectedIconPack.value?.packageName, it) }
