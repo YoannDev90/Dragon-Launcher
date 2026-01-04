@@ -306,7 +306,7 @@ class MainActivity : ComponentActivity() {
                 }
             }
 
-            LaunchedEffect(fullscreen) {
+            LaunchedEffect(Unit, fullscreen) {
                 if (fullscreen) {
                     controller.hide(WindowInsetsCompat.Type.systemBars())
                     controller.systemBarsBehavior = WindowInsetsControllerCompat.BEHAVIOR_SHOW_TRANSIENT_BARS_BY_SWIPE

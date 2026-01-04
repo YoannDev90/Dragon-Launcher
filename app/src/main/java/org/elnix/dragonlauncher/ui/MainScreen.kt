@@ -294,7 +294,6 @@ fun MainScreen(
                         )
 
                         if (!allowed) {
-                            down.consume()
                             continue
                         }
 
