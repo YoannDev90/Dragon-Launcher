@@ -19,6 +19,7 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
 import androidx.compose.ui.platform.LocalContext
 import androidx.core.view.WindowCompat
 import androidx.core.view.WindowInsetsCompat
@@ -44,7 +45,6 @@ import org.elnix.dragonlauncher.utils.logs.DragonLogManager
 import org.elnix.dragonlauncher.utils.logs.logD
 import org.elnix.dragonlauncher.utils.logs.logW
 import org.elnix.dragonlauncher.utils.models.AppLifecycleViewModel
-import org.elnix.dragonlauncher.utils.models.AppsViewModel
 import org.elnix.dragonlauncher.utils.models.BackupViewModel
 import org.elnix.dragonlauncher.utils.models.FloatingAppsViewModel
 import org.elnix.dragonlauncher.utils.models.WorkspaceViewModel
@@ -54,7 +54,6 @@ import java.util.UUID
 class MainActivity : ComponentActivity() {
 
     private val appLifecycleViewModel : AppLifecycleViewModel by viewModels()
-    private val appsViewModel : AppsViewModel by viewModels()
     private val backupViewModel : BackupViewModel by viewModels()
     private val workspaceViewModel : WorkspaceViewModel by viewModels()
     private val floatingAppsViewModel : FloatingAppsViewModel by viewModels()
@@ -285,6 +284,10 @@ class MainActivity : ComponentActivity() {
 
         setContent {
             val ctx = LocalContext.current
+
+            val appsViewModel = remember(ctx) {
+                (ctx.applicationContext as MyApplication).appsViewModel
+            }
 
             // May be used in the future for some quit action / operation
 //            DoubleBackToExit()

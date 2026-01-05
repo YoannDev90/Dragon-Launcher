@@ -10,12 +10,14 @@ import org.elnix.dragonlauncher.data.stores.LanguageSettingsStore
 import org.elnix.dragonlauncher.utils.models.AppsViewModel
 
 class MyApplication : Application() {
-    val appViewModel by lazy {
-        AppsViewModel(this)
-    }
+
+    lateinit var appsViewModel: AppsViewModel
+
 
     override fun onCreate() {
         super.onCreate()
+
+        appsViewModel = AppsViewModel(this)
 
         CoroutineScope(Dispatchers.Default).launch {
             val tag = LanguageSettingsStore.getLanguageTag(this@MyApplication)

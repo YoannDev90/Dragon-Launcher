@@ -30,46 +30,66 @@ class PackageManagerCompat(private val pm: PackageManager, private val ctx: Cont
 
     fun getAllApps(): List<AppModel> {
         val userManager = ctx.getSystemService(Context.USER_SERVICE) as UserManager
-        val allUsers = userManager.userProfiles
+        val launcherApps = ctx.getSystemService(LauncherApps::class.java)
+        val pm = ctx.packageManager
 
-        val allApps = mutableListOf<AppModel>()
+        val result = mutableListOf<AppModel>()
 
-        allUsers.forEach { userHandle ->
+        userManager.userProfiles.forEach { userHandle ->
+            val isWorkProfile = userHandle != android.os.Process.myUserHandle()
+            val userId = userHandle.hashCode()
 
-            val isWorkProfile =
-                Build.VERSION.SDK_INT >= Build.VERSION_CODES.N &&
-                        userHandle != android.os.Process.myUserHandle()
-
-
-            val launcherApps = ctx.getSystemService(LauncherApps::class.java)
-
+            /* ────────── 1. Launchable apps (LauncherApps) ────────── */
             val activities = launcherApps
                 ?.getActivityList(null, userHandle)
                 ?: emptyList()
 
             activities.forEach { activity ->
                 val appInfo = activity.applicationInfo
-                val pkgName = appInfo.packageName
+                val pkg = appInfo.packageName
 
-                if (!isAppEnabled(pkgName)) return@forEach
+                if (!isAppEnabled(pkg)) return@forEach
 
-                val label = activity.label?.toString() ?: pkgName
-
-                allApps +=  AppModel(
-                    name = label,
-                    packageName = pkgName,
-                    userId = userHandle.hashCode(),
+                result += AppModel(
+                    name = activity.label?.toString() ?: pkg,
+                    packageName = pkg,
+                    userId = userId,
                     isEnabled = true,
                     isSystem = isSystemApp(appInfo),
                     isWorkProfile = isWorkProfile,
                     isLaunchable = true
                 )
             }
+
+
+             /* ────────── 2. Non-launchable system apps (PackageManager) ────────── */
+            pm.getInstalledApplications(PackageManager.GET_META_DATA)
+                .forEach { appInfo ->
+                    val pkg = appInfo.packageName
+
+                    // Skip apps already added via LauncherApps
+                    if (result.any { it.packageName == pkg && it.userId == userId }) return@forEach
+
+                    // Only add enabled system apps
+                    if (!isSystemApp(appInfo)) return@forEach
+                    if (!appInfo.enabled) return@forEach
+
+                    val label = pm.getApplicationLabel(appInfo).toString()
+
+                    result += AppModel(
+                        name = label,
+                        packageName = pkg,
+                        userId = userId,
+                        isEnabled = true,
+                        isSystem = true,
+                        isWorkProfile = isWorkProfile,
+                        isLaunchable = false
+                    )
+                }
         }
 
-        return allApps
+        return result
             .distinctBy { "${it.packageName}_${it.userId}" }
-            .sortedWith(compareBy<AppModel> { it.isWorkProfile }.thenBy { it.name.lowercase() })
     }
 
 

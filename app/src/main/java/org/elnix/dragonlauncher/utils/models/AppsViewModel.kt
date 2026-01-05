@@ -12,7 +12,6 @@ import androidx.lifecycle.viewModelScope
 import com.google.gson.Gson
 import com.google.gson.reflect.TypeToken
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
@@ -42,8 +41,6 @@ import org.xmlpull.v1.XmlPullParser
 
 
 class AppsViewModel(application: Application) : AndroidViewModel(application) {
-
-
 
     private val _apps = MutableStateFlow<List<AppModel>>(emptyList())
     val allApps: StateFlow<List<AppModel>> = _apps.asStateFlow()
@@ -106,23 +103,23 @@ class AppsViewModel(application: Application) : AndroidViewModel(application) {
         overrides: Map<String, AppOverride>,
         getOnlyAdded: Boolean = false,
         getOnlyRemoved: Boolean = false
-    ): Flow<List<AppModel>> {
+    ): StateFlow<List<AppModel>> {
 
         require(!(getOnlyAdded && getOnlyRemoved))
 
         // May be null cause I added the removed app ids lately, so some user may still have the old app model without it
         val removed = workspace.removedAppIds ?: emptyList()
 
-        return allApps.map { list ->
+        return _apps.map { list ->
             when {
                 getOnlyAdded -> list.filter { it.packageName in workspace.appIds }
                 getOnlyRemoved -> list.filter { it.packageName in removed }
                 else -> {
                     val base = when (workspace.type) {
                         WorkspaceType.ALL, WorkspaceType.CUSTOM -> list
-                        WorkspaceType.USER -> list.filter { !it.isSystem && !it.isWorkProfile && it.isLaunchable == true }
+                        WorkspaceType.USER -> list.filter { !it.isWorkProfile && it.isLaunchable == true }
                         WorkspaceType.SYSTEM -> list.filter { it.isSystem }
-                        WorkspaceType.WORK -> list.filter { it.isWorkProfile }
+                        WorkspaceType.WORK -> list.filter { it.isWorkProfile && it.isLaunchable == true }
                     }
 
                     val added = list.filter { it.packageName in workspace.appIds }
@@ -136,7 +133,11 @@ class AppsViewModel(application: Application) : AndroidViewModel(application) {
                         .map { resolveApp(it, overrides) }
                 }
             }
-        }
+        }.stateIn(
+            viewModelScope,
+            SharingStarted.Eagerly,
+            emptyList()
+        )
     }
 
 
@@ -145,6 +146,8 @@ class AppsViewModel(application: Application) : AndroidViewModel(application) {
     private fun loadApps() {
         viewModelScope.launch(Dispatchers.IO) {
             val cachedJson = AppsSettingsStore.getCachedApps(ctx)
+
+            logD(APPS_TAG, "Loading Apps...")
 
             if (!cachedJson.isNullOrEmpty()) {
                 try {
@@ -168,23 +171,25 @@ class AppsViewModel(application: Application) : AndroidViewModel(application) {
      * This is used by the BroadcastReceiver.
      */
     suspend fun reloadApps(ctx: Context) {
-        val apps = withContext(Dispatchers.IO) {
-            pmCompat.getAllApps()
-        }
-
-        _apps.value = apps
-        _icons.value = loadIcons(apps)
-
         try{
+
+            val apps = withContext(Dispatchers.IO) {
+                pmCompat.getAllApps()
+            }
+
+            _apps.value = apps.toList()
+            _icons.value = loadIcons(apps)
+
+
             withContext(Dispatchers.IO) {
                 AppsSettingsStore.saveCachedApps(ctx, gson.toJson(apps))
             }
+
+            logE(APPS_TAG, "Reloaded packages, ${apps.filter { it.isLaunchable == true }.size} total apps")
+
         } catch (e: Exception) {
             logE(APPS_TAG, e.toString())
         }
-
-        val workNumber = apps.filter { it.isWorkProfile }.size
-        logE(APPS_TAG, "Reloaded packages, $workNumber apps are in the work profile")
     }
 
 

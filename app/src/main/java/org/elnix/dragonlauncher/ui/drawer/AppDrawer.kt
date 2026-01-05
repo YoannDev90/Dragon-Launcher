@@ -29,7 +29,6 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.key
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
@@ -49,9 +48,11 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.unit.dp
 import androidx.core.net.toUri
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.yield
 import org.elnix.dragonlauncher.R
+import org.elnix.dragonlauncher.data.SwipeActionSerializable
 import org.elnix.dragonlauncher.data.helpers.DrawerActions
 import org.elnix.dragonlauncher.data.stores.DrawerSettingsStore
 import org.elnix.dragonlauncher.ui.components.dialogs.AppLongPressDialog
@@ -91,6 +92,8 @@ fun AppDrawerScreen(
     val overrides = workspaceState.appOverrides
 
     val allApps by appsViewModel.allApps.collectAsState()
+
+
 
     val selectedWorkspaceId by workspaceViewModel.selectedWorkspaceId.collectAsState()
     val initialIndex = workspaces.indexOfFirst { it.id == selectedWorkspaceId }
@@ -211,6 +214,16 @@ fun AppDrawerScreen(
         )
     }
 
+    fun launchApp(action: SwipeActionSerializable) {
+        try {
+            launchSwipeAction(ctx, action)
+            onClose()
+        } catch (e: Exception) {
+            onClose()
+            ctx.showToast("Error: ${e.message}")
+        }
+    }
+
     if (useWallpaper) {
         wallpaper?.let { bmp ->
             Image(
@@ -260,60 +273,53 @@ fun AppDrawerScreen(
                     .fillMaxHeight()
                     .weight(1f)
             ) {
+                HorizontalPager(
+                    state = pagerState,
+                    key = { it.hashCode() }
+                ) { pageIndex ->
 
-                HorizontalPager(state = pagerState) { pageIndex ->
-                    key(allApps) {
-                        val workspace = workspaces[pageIndex]
+                    val workspace = workspaces[pageIndex]
 
-                        val apps by appsViewModel
-                            .appsForWorkspace(workspace, overrides)
-                            .collectAsState(initial = emptyList())
+                    val apps by appsViewModel
+                        .appsForWorkspace(workspace, overrides)
+                        .collectAsStateWithLifecycle(emptyList())
 
-                        val filteredApps by remember(searchQuery, apps) {
-                            derivedStateOf {
-                                if (searchQuery.isBlank()) apps
-                                else apps.filter {
-                                    it.name.contains(searchQuery, ignoreCase = true)
-                                }
+                    val filteredApps by remember(searchQuery, apps) {
+                        derivedStateOf {
+                            if (searchQuery.isBlank()) apps
+                            else apps.filter {
+                                it.name.contains(searchQuery, ignoreCase = true)
                             }
                         }
+                    }
 
-                        val iconsMerged = icons.toMutableMap()
-                        apps.forEach { app ->
-                            val base64 = overrides[app.packageName]?.customIconBase64
-                            if (base64 != null) {
-                                val bmp = ImageUtils.base64ToImageBitmap(base64)
-                                if (bmp != null) iconsMerged[app.packageName] = bmp
-                            }
+                    val iconsMerged = icons.toMutableMap()
+                    apps.forEach { app ->
+                        val base64 = overrides[app.packageName]?.customIconBase64
+                        if (base64 != null) {
+                            val bmp = ImageUtils.base64ToImageBitmap(base64)
+                            if (bmp != null) iconsMerged[app.packageName] = bmp
                         }
+                    }
 
-                        LaunchedEffect(filteredApps) {
-                            if (autoLaunchSingleMatch && filteredApps.size == 1 && searchQuery.isNotEmpty()) {
-                                launchSwipeAction(ctx, filteredApps.first().action)
-                                onClose()
-                            }
+                    LaunchedEffect(haveToLaunchFirstApp, filteredApps) {
+                        if ((autoLaunchSingleMatch && filteredApps.size == 1 && searchQuery.isNotEmpty()) || haveToLaunchFirstApp) {
+                            launchApp(filteredApps.first().action)
                         }
+                    }
 
-                        LaunchedEffect(haveToLaunchFirstApp) {
-                            if (haveToLaunchFirstApp) {
-                                launchSwipeAction(ctx, filteredApps.first().action)
-                                onClose()
-                            }
-                        }
 
-                        AppGrid(
-                            apps = filteredApps,
-                            icons = iconsMerged,
-                            gridSize = gridSize,
-                            txtColor = MaterialTheme.colorScheme.onSurface,
-                            showIcons = showIcons,
-                            showLabels = showLabels,
-                            onLongClick = { dialogApp = it },
-                            onClose = if (scrollDownToCloseDrawerOnTop) onClose else null
-                        ) {
-                            launchSwipeAction(ctx, it.action)
-                            onClose()
-                        }
+                    AppGrid(
+                        apps = filteredApps,
+                        icons = iconsMerged,
+                        gridSize = gridSize,
+                        txtColor = MaterialTheme.colorScheme.onSurface,
+                        showIcons = showIcons,
+                        showLabels = showLabels,
+                        onLongClick = { dialogApp = it },
+                        onClose = if (scrollDownToCloseDrawerOnTop) onClose else null
+                    ) {
+                        launchApp(it.action)
                     }
                 }
             }
@@ -340,10 +346,7 @@ fun AppDrawerScreen(
         AppLongPressDialog(
             app = app,
             onDismiss = { dialogApp = null },
-            onOpen = {
-                launchSwipeAction(ctx, app.action)
-                onClose()
-            },
+            onOpen = { launchApp(app.action) },
             onSettings = {
                 ctx.startActivity(
                     Intent(Settings.ACTION_APPLICATION_DETAILS_SETTINGS).apply {

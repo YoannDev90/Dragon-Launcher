@@ -14,6 +14,7 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowRight
 import androidx.compose.material.icons.automirrored.filled.Notes
 import androidx.compose.material.icons.filled.ArrowDropDown
+import androidx.compose.material.icons.filled.Settings
 import androidx.compose.material3.Button
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
@@ -157,6 +158,16 @@ fun DebugTab(
                 navController.navigate(SETTINGS.LOGS)
             }
         }
+
+        item {
+            SettingsItem(
+                title = "Settings debug json",
+                icon = Icons.Default.Settings
+            ) {
+                navController.navigate(SETTINGS.SETTINGS_JSON)
+            }
+        }
+
 
         item {
             SwitchRow(

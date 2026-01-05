@@ -94,14 +94,13 @@ val defaultChoosableActions = listOf(
     SwipeActionSerializable.OpenDragonLauncherSettings
 )
 
+
+/*  ─────────────  Tags constants  ─────────────  */
 const val TAG = "DragonLauncherDebug"
 const val APPS_TAG = "AppsVm"
 const val ICONS_TAG = "IconsDebug"
 const val BACKUP_TAG = "SettingsBackupManager"
-
-
 const val TAGSwipe = "SwipeDebug"
 const val WIDGET_TAG = "WidgetsDebug"
-
 const val FLOATING_APPS_TAG = "FloatingAppsDebug"
 const val ACCESSIBILITY_TAG = "SystemControl"
