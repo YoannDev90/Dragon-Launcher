@@ -236,4 +236,10 @@
     <string name="ghosted">Ignorado</string>
     <string name="foreground">Primeiro plano</string>
     <string name="app_label_icon_overlay_top_padding">Etiqueta/ícone do app sobrepõe o preenchimento superior</string>
+    <string name="show_launching_app_icon">Mostrar ícone do aplicativo</string>
+    <string name="show_launching_app_label">Exibir Rótulo do App</string>
+    <string name="clock_action">Ação do Relógio</string>
+    <string name="date_action">Ação de Data</string>
+    <string name="opens_alarmclock_app">Abre o aplicativo alarmClock</string>
+    <string name="opens_calendar_app">Abre o aplicativo de calendário</string>
 </resources>

@@ -284,22 +284,22 @@ fun openAlarmApp(ctx: Context) {
 }
 
 
-fun openCalendar(context: Context) {
+fun openCalendar(ctx: Context) {
     try {
         val calendarUri = CalendarContract.CONTENT_URI
             .buildUpon()
             .appendPath("time")
             .build()
-        context.startActivity(Intent(Intent.ACTION_VIEW, calendarUri))
+        ctx.startActivity(Intent(Intent.ACTION_VIEW, calendarUri))
     } catch (e: Exception) {
         e.printStackTrace()
         try {
             val intent = Intent(Intent.ACTION_MAIN).setClassName(
-                context,
+                ctx,
                 "org.elnix.dragonlauncher.MainActivity"
             )
             intent.addCategory(Intent.CATEGORY_APP_CALENDAR)
-            context.startActivity(intent)
+            ctx.startActivity(intent)
         } catch (e: Exception) {
             e.printStackTrace()
         }

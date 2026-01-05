@@ -131,48 +131,6 @@ fun FloatingAppsTab(
     val showStatusBar by StatusBarSettingsStore.getShowStatusBar(ctx)
         .collectAsState(initial = false)
 
-    val statusBarBackground by StatusBarSettingsStore.getBarBackgroundColor(ctx)
-        .collectAsState(initial = Color.Transparent)
-
-    val statusBarText by StatusBarSettingsStore.getBarTextColor(ctx)
-        .collectAsState(initial = MaterialTheme.colorScheme.onBackground)
-
-    val showTime by StatusBarSettingsStore.getShowTime(ctx)
-        .collectAsState(initial = false)
-
-    val showDate by StatusBarSettingsStore.getShowDate(ctx)
-        .collectAsState(initial = false)
-
-    val timeFormatter by StatusBarSettingsStore.getTimeFormatter(ctx)
-        .collectAsState("HH:mm:ss")
-
-    val dateFormatter by StatusBarSettingsStore.getDateFormatter(ctx)
-        .collectAsState("MMM dd")
-
-    val showNotifications by StatusBarSettingsStore.getShowNotifications(ctx)
-        .collectAsState(initial = false)
-
-    val showBattery by StatusBarSettingsStore.getShowBattery(ctx)
-        .collectAsState(initial = false)
-
-    val showConnectivity by StatusBarSettingsStore.getShowConnectivity(ctx)
-        .collectAsState(initial = false)
-
-    val showNextAlarm by StatusBarSettingsStore.getShowNextAlarm(ctx)
-        .collectAsState(false)
-
-    val leftPadding by StatusBarSettingsStore.getLeftPadding(ctx)
-        .collectAsState(initial = 5)
-
-    val rightPadding by StatusBarSettingsStore.getRightPadding(ctx)
-        .collectAsState(initial = 5)
-
-    val topPadding by StatusBarSettingsStore.getTopPadding(ctx)
-        .collectAsState(initial = 2)
-
-    val bottomPadding by StatusBarSettingsStore.getBottomPadding(ctx)
-        .collectAsState(initial = 2)
-
     /** ───────────────────────────────────────────────────────────────── */
 
 
@@ -180,20 +138,8 @@ fun FloatingAppsTab(
 
         if (showStatusBar && isRealFullscreen) {
             StatusBar(
-                backgroundColor = statusBarBackground,
-                textColor = statusBarText,
-                showTime = showTime,
-                showDate = showDate,
-                timeFormatter = timeFormatter,
-                dateFormatter = dateFormatter,
-                showNotifications = showNotifications,
-                showBattery = showBattery,
-                showConnectivity = showConnectivity,
-                showNextAlarm = showNextAlarm,
-                leftPadding = leftPadding,
-                rightPadding = rightPadding,
-                topPadding = topPadding,
-                bottomPadding = bottomPadding
+                onDateAction = {},
+                onClockAction = {}
             )
         }
 

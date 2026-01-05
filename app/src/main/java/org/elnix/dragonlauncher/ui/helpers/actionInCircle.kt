@@ -65,7 +65,9 @@ fun actionsInCircle(
                 icons = icons,
                 action = action,
                 ctx = ctx,
-                tintColor = colorAction
+                tintColor = colorAction,
+                width = 56,
+                height = 56
             ),
             dstOffset = IntOffset(px.toInt() - 28, py.toInt() - 28),
             dstSize = IntSize(56, 56)

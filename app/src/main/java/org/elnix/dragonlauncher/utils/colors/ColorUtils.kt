@@ -53,7 +53,13 @@ object AppObjectsColors {
             checkedBorderColor = Color.Transparent,
             uncheckedThumbColor = colors.onSurface,
             uncheckedTrackColor = colors.background,
-            uncheckedBorderColor = Color.Transparent
+            uncheckedBorderColor = Color.Transparent,
+            disabledCheckedThumbColor = colors.onSurface.adjustBrightness(0.5f),
+            disabledCheckedTrackColor = colors.primary.adjustBrightness(0.5f),
+            disabledCheckedBorderColor = Color.Transparent,
+            disabledUncheckedThumbColor = colors.onSurface.adjustBrightness(0.5f),
+            disabledUncheckedTrackColor = colors.background,
+            disabledUncheckedBorderColor = Color.Transparent,
         )
     }
 

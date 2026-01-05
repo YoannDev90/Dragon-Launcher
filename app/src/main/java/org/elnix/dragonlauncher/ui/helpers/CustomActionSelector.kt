@@ -20,6 +20,7 @@ import androidx.compose.material3.Switch
 import androidx.compose.material3.Text
 import androidx.compose.material3.VerticalDivider
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -28,13 +29,12 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.ImageBitmap
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import org.elnix.dragonlauncher.data.SwipeActionSerializable
-import org.elnix.dragonlauncher.ui.actionTint
 import org.elnix.dragonlauncher.ui.components.dialogs.AddPointDialog
 import org.elnix.dragonlauncher.ui.theme.LocalExtraColors
 import org.elnix.dragonlauncher.utils.actions.actionColor
@@ -49,8 +49,8 @@ import org.elnix.dragonlauncher.utils.models.WorkspaceViewModel
 fun CustomActionSelector(
     appsViewModel: AppsViewModel,
     workspaceViewModel: WorkspaceViewModel,
-    icons: Map<String, ImageBitmap>,
     currentAction: SwipeActionSerializable?,
+    nullText: String? = null,
     enabled: Boolean = true,
     switchEnabled: Boolean = true,
     label: String? = null,
@@ -62,12 +62,15 @@ fun CustomActionSelector(
     val extraColors = LocalExtraColors.current
     val ctx = LocalContext.current
 
+    val icons by appsViewModel.icons.collectAsState()
+
     var showDialog by remember { mutableStateOf(false) }
 
     val baseModifier = if (label != null) Modifier.fillMaxWidth() else Modifier.wrapContentWidth()
 
     val toggled = currentAction != null
 
+    val actionColor = actionColor(currentAction, extraColors).copy(if (enabled) 1f else 0.5f)
     Row(
         verticalAlignment = Alignment.CenterVertically,
         horizontalArrangement = if (label != null) Arrangement.SpaceBetween else Arrangement.Center,
@@ -101,26 +104,35 @@ fun CustomActionSelector(
                         icons = icons,
                         action = currentAction,
                         ctx = ctx,
-                        tintColor = actionColor(currentAction, extraColors)
+                        tintColor = actionColor
                     ),
                     contentDescription = actionLabel(currentAction),
-                    tint = actionTint(currentAction, extraColors),
+                    tint = Color.Unspecified,
                     modifier = Modifier.size(22.dp)
                 )
 
                 Text(
                     text = actionLabel(currentAction),
-                    color = actionColor(currentAction, extraColors),
+                    color = actionColor,
                     fontSize = 18.sp,
                     fontWeight = FontWeight.Bold
                 )
             }
+        } else if (nullText != null) {
+            Text(
+                text = nullText,
+                color = textColor.copy(0.7f),
+                fontSize = 14.sp,
+                textAlign = TextAlign.Right,
+                modifier = Modifier
+                    .weight(1f)
+                    .padding(start = 12.dp)            )
         }
 
         Row(
             verticalAlignment = Alignment.CenterVertically,
             modifier = Modifier
-                .clickable(enabled = switchEnabled) {
+                .clickable(switchEnabled) {
                     if (toggled) showDialog = true
                     else onToggle(false)
                 }

@@ -6,6 +6,7 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -14,6 +15,8 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import kotlinx.coroutines.delay
+import org.elnix.dragonlauncher.data.SwipeActionSerializable
+import org.elnix.dragonlauncher.data.stores.StatusBarSettingsStore
 import org.elnix.dragonlauncher.utils.openAlarmApp
 import org.elnix.dragonlauncher.utils.openCalendar
 import java.time.LocalTime
@@ -25,9 +28,17 @@ fun StatusBarClock(
     showDate: Boolean,
     textColor: Color,
     timeFormatter: String,
-    dateFormatter: String
+    dateFormatter: String,
+    onClockAction: (SwipeActionSerializable) -> Unit,
+    onDateAction: (SwipeActionSerializable) -> Unit
 ) {
     val ctx = LocalContext.current
+
+    val clockAction by StatusBarSettingsStore.getClockAction(ctx)
+        .collectAsState(null)
+
+    val dateAction by StatusBarSettingsStore.getDateAction(ctx)
+        .collectAsState(null)
 
     val timeFormat = remember(timeFormatter) {
         try {
@@ -82,7 +93,7 @@ fun StatusBarClock(
                 color = textColor,
                 style = MaterialTheme.typography.bodyMedium,
                 modifier = Modifier.clickable {
-                    openAlarmApp(ctx)
+                    clockAction?.let { onClockAction(it) } ?: openAlarmApp(ctx)
                 }
             )
         }
@@ -101,7 +112,7 @@ fun StatusBarClock(
                 color = textColor,
                 style = MaterialTheme.typography.bodyMedium,
                 modifier = Modifier.clickable {
-                    openCalendar(ctx)
+                    dateAction?.let { onDateAction(it) } ?: openCalendar(ctx)
                 }
             )
         }

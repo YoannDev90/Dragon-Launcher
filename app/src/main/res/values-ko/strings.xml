@@ -236,4 +236,10 @@
     <string name="ghosted">고스트</string>
     <string name="foreground">전경</string>
     <string name="app_label_icon_overlay_top_padding">앱 라벨/아이콘 오버레이 상단 패딩</string>
+    <string name="show_launching_app_icon">앱 아이콘 보기</string>
+    <string name="show_launching_app_label">앱 라벨 표시하기</string>
+    <string name="clock_action">시계 동작</string>
+    <string name="date_action">날짜 작전</string>
+    <string name="opens_alarmclock_app">알람시계 앱 열기</string>
+    <string name="opens_calendar_app">캘린더 앱 열기</string>
 </resources>

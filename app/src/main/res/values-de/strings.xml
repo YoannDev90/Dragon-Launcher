@@ -236,4 +236,10 @@
     <string name="ghosted">Geghostet</string>
     <string name="foreground">Vordergrund</string>
     <string name="app_label_icon_overlay_top_padding">App-Label/Icon-Overlay oben Polsterung</string>
+    <string name="show_launching_app_icon">App-Symbol anzeigen</string>
+    <string name="show_launching_app_label">Show App Label</string>
+    <string name="clock_action">Uhrenaktion</string>
+    <string name="date_action">Datumsaktion</string>
+    <string name="opens_alarmclock_app">Öffnet die AlarmClock-App</string>
+    <string name="opens_calendar_app">Öffnet Kalender-App</string>
 </resources>

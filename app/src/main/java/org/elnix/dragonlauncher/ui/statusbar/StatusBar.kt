@@ -6,38 +6,76 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
+import org.elnix.dragonlauncher.data.SwipeActionSerializable
+import org.elnix.dragonlauncher.data.stores.StatusBarSettingsStore
 
 @Composable
 fun StatusBar(
-    backgroundColor: Color,
-    textColor: Color,
-    showTime: Boolean,
-    showDate: Boolean,
-    timeFormatter: String,
-    dateFormatter: String,
-    showNotifications: Boolean,
-    showBattery: Boolean,
-    showConnectivity: Boolean,
-    showNextAlarm: Boolean,
-    leftPadding: Int,
-    rightPadding: Int,
-    topPadding: Int,
-    bottomPadding: Int
+    onClockAction: (SwipeActionSerializable) -> Unit,
+    onDateAction: (SwipeActionSerializable) -> Unit
 ) {
+    val ctx = LocalContext.current
+
+    val statusBarBackground by StatusBarSettingsStore.getBarBackgroundColor(ctx)
+        .collectAsState(initial = Color.Transparent)
+
+    val statusBarText by StatusBarSettingsStore.getBarTextColor(ctx)
+        .collectAsState(initial = MaterialTheme.colorScheme.onBackground)
+
+    val showTime by StatusBarSettingsStore.getShowTime(ctx)
+        .collectAsState(initial = false)
+
+    val showDate by StatusBarSettingsStore.getShowDate(ctx)
+        .collectAsState(initial = false)
+
+    val timeFormatter by StatusBarSettingsStore.getTimeFormatter(ctx)
+        .collectAsState("HH:mm")
+
+    val dateFormatter by StatusBarSettingsStore.getDateFormatter(ctx)
+        .collectAsState("MMM dd")
+
+    val showNotifications by StatusBarSettingsStore.getShowNotifications(ctx)
+        .collectAsState(initial = false)
+
+    val showBattery by StatusBarSettingsStore.getShowBattery(ctx)
+        .collectAsState(initial = false)
+
+    val showConnectivity by StatusBarSettingsStore.getShowConnectivity(ctx)
+        .collectAsState(initial = false)
+
+    val showNextAlarm by StatusBarSettingsStore.getShowNextAlarm(ctx)
+        .collectAsState(false)
+
+    val leftStatusBarPadding by StatusBarSettingsStore.getLeftPadding(ctx)
+        .collectAsState(initial = 5)
+
+    val rightStatusBarPadding by StatusBarSettingsStore.getRightPadding(ctx)
+        .collectAsState(initial = 5)
+
+    val topStatusBarPadding by StatusBarSettingsStore.getTopPadding(ctx)
+        .collectAsState(initial = 2)
+
+    val bottomStatusBarPadding by StatusBarSettingsStore.getBottomPadding(ctx)
+        .collectAsState(initial = 2)
+
     Row(
         modifier = Modifier
             .fillMaxWidth()
-            .background(backgroundColor)
+            .background(statusBarBackground)
             .padding(
-                start = leftPadding.dp,
-                top = topPadding.dp,
-                end = rightPadding.dp,
-                bottom = bottomPadding.dp
+                start = leftStatusBarPadding.dp,
+                top = topStatusBarPadding.dp,
+                end = rightStatusBarPadding.dp,
+                bottom = bottomStatusBarPadding.dp
             ),
         verticalAlignment = Alignment.CenterVertically,
     ) {
@@ -47,13 +85,15 @@ fun StatusBar(
             showDate = showDate,
             timeFormatter = timeFormatter,
             dateFormatter = dateFormatter,
-            textColor = textColor
+            textColor = statusBarText,
+            onClockAction = onClockAction,
+            onDateAction = onDateAction
         )
 
         Spacer(modifier = Modifier.weight(1f))
 
         if (showNextAlarm) {
-            StatusBarNextAlarm(textColor = textColor)
+            StatusBarNextAlarm(statusBarText)
             Spacer(modifier = Modifier.width(6.dp))
         }
 
@@ -63,12 +103,12 @@ fun StatusBar(
         }
 
         if (showConnectivity) {
-            StatusBarConnectivity(textColor)
+            StatusBarConnectivity(statusBarText)
             Spacer(modifier = Modifier.width(6.dp))
         }
 
         if (showBattery) {
-            StatusBarBattery(textColor)
+            StatusBarBattery(statusBarText)
         }
     }
 }

@@ -40,6 +40,7 @@ import androidx.compose.ui.unit.dp
 import kotlinx.coroutines.launch
 import org.elnix.dragonlauncher.R
 import org.elnix.dragonlauncher.data.SwipePointSerializable
+import org.elnix.dragonlauncher.data.dummySwipePoint
 import org.elnix.dragonlauncher.data.helpers.FloatingAppObject
 import org.elnix.dragonlauncher.data.stores.BehaviorSettingsStore
 import org.elnix.dragonlauncher.data.stores.DebugSettingsStore
@@ -139,52 +140,13 @@ fun MainScreen(
     val showStatusBar by StatusBarSettingsStore.getShowStatusBar(ctx)
         .collectAsState(initial = false)
 
-    val statusBarBackground by StatusBarSettingsStore.getBarBackgroundColor(ctx)
-        .collectAsState(initial = Color.Transparent)
-
-    val statusBarText by StatusBarSettingsStore.getBarTextColor(ctx)
-        .collectAsState(initial = MaterialTheme.colorScheme.onBackground)
-
-    val showTime by StatusBarSettingsStore.getShowTime(ctx)
-        .collectAsState(initial = false)
-
-    val showDate by StatusBarSettingsStore.getShowDate(ctx)
-        .collectAsState(initial = false)
-
-    val timeFormatter by StatusBarSettingsStore.getTimeFormatter(ctx)
-        .collectAsState("HH:mm")
-
-    val dateFormatter by StatusBarSettingsStore.getDateFormatter(ctx)
-        .collectAsState("MMM dd")
-
-    val showNotifications by StatusBarSettingsStore.getShowNotifications(ctx)
-        .collectAsState(initial = false)
-
-    val showBattery by StatusBarSettingsStore.getShowBattery(ctx)
-        .collectAsState(initial = false)
-
-    val showConnectivity by StatusBarSettingsStore.getShowConnectivity(ctx)
-        .collectAsState(initial = false)
-
-    val showNextAlarm by StatusBarSettingsStore.getShowNextAlarm(ctx)
-        .collectAsState(false)
-
-    val leftStatusBarPadding by StatusBarSettingsStore.getLeftPadding(ctx)
-        .collectAsState(initial = 5)
-
-    val rightStatusBarPadding by StatusBarSettingsStore.getRightPadding(ctx)
-        .collectAsState(initial = 5)
-
-    val topStatusBarPadding by StatusBarSettingsStore.getTopPadding(ctx)
-        .collectAsState(initial = 2)
-
-    val bottomStatusBarPadding by StatusBarSettingsStore.getBottomPadding(ctx)
-        .collectAsState(initial = 2)
-
-
     val systemInsets = WindowInsets.systemBars.asPaddingValues()
 
     val isRealFullscreen = systemInsets.calculateTopPadding() == 0.dp
+
+    /* ────────────────────────────────────────────── */
+
+
 
     LaunchedEffect(hasSeenWelcome) {
         if (!hasSeenWelcome) onGoWelcome()
@@ -241,11 +203,7 @@ fun MainScreen(
             nestNavigation.goBack()
         } else if (backAction != null) {
             launchAction(
-                SwipePointSerializable(
-                    circleNumber = 0,
-                    angleDeg = 0.toDouble(),
-                    action = backAction
-                )
+                dummySwipePoint(backAction)
             )
         }
     }
@@ -320,11 +278,7 @@ fun MainScreen(
                         if (diff < 500) {
                             doubleClickAction?.let { action ->
                                 launchAction(
-                                    SwipePointSerializable(
-                                        circleNumber = 0,
-                                        angleDeg = 0.toDouble(),
-                                        action = action
-                                    )
+                                    dummySwipePoint(action)
                                 )
                                 isDragging = false
                                 continue
@@ -391,20 +345,8 @@ fun MainScreen(
 
         if (showStatusBar && isRealFullscreen) {
             StatusBar(
-                backgroundColor = statusBarBackground,
-                textColor = statusBarText,
-                showTime = showTime,
-                showDate = showDate,
-                timeFormatter = timeFormatter,
-                dateFormatter = dateFormatter,
-                showNotifications = showNotifications,
-                showBattery = showBattery,
-                showConnectivity = showConnectivity,
-                showNextAlarm = showNextAlarm,
-                leftPadding = leftStatusBarPadding,
-                rightPadding = rightStatusBarPadding,
-                topPadding = topStatusBarPadding,
-                bottomPadding = bottomStatusBarPadding
+                onClockAction = { launchAction(dummySwipePoint(it)) },
+                onDateAction = { launchAction( dummySwipePoint(it)) }
             )
         }
 

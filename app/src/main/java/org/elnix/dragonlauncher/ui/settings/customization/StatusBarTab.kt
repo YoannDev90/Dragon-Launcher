@@ -27,6 +27,7 @@ import kotlinx.coroutines.launch
 import org.elnix.dragonlauncher.R
 import org.elnix.dragonlauncher.data.stores.StatusBarSettingsStore
 import org.elnix.dragonlauncher.ui.colors.ColorPickerRow
+import org.elnix.dragonlauncher.ui.helpers.CustomActionSelector
 import org.elnix.dragonlauncher.ui.helpers.SliderWithLabel
 import org.elnix.dragonlauncher.ui.helpers.SwitchRow
 import org.elnix.dragonlauncher.ui.helpers.TextDivider
@@ -35,10 +36,14 @@ import org.elnix.dragonlauncher.ui.statusbar.StatusBar
 import org.elnix.dragonlauncher.utils.colors.AppObjectsColors
 import org.elnix.dragonlauncher.utils.isValidDateFormat
 import org.elnix.dragonlauncher.utils.isValidTimeFormat
+import org.elnix.dragonlauncher.utils.models.AppsViewModel
+import org.elnix.dragonlauncher.utils.models.WorkspaceViewModel
 import org.elnix.dragonlauncher.utils.openUrl
 
 @Composable
 fun StatusBarTab(
+    appsViewModel: AppsViewModel,
+    workspaceViewModel: WorkspaceViewModel,
     onBack: () -> Unit
 ) {
     val ctx = LocalContext.current
@@ -93,26 +98,19 @@ fun StatusBarTab(
     val bottomPadding by StatusBarSettingsStore.getBottomPadding(ctx)
         .collectAsState(initial = 2)
 
+    val clockAction by StatusBarSettingsStore.getClockAction(ctx)
+        .collectAsState(null)
+
+    val dateAction by StatusBarSettingsStore.getDateAction(ctx)
+        .collectAsState(null)
 
 
     Column{
 
         if (showStatusBar && isRealFullscreen) {
             StatusBar(
-                backgroundColor = statusBarBackground,
-                textColor = statusBarText,
-                showTime = showTime,
-                showDate = showDate,
-                timeFormatter = timeFormatter,
-                dateFormatter = dateFormatter,
-                showNotifications = showNotifications,
-                showBattery = showBattery,
-                showConnectivity = showConnectivity,
-                showNextAlarm = showNextAlarm,
-                leftPadding = leftPadding,
-                rightPadding = rightPadding,
-                topPadding = topPadding,
-                bottomPadding = bottomPadding
+                onDateAction = {},
+                onClockAction = {}
             )
         }
 
@@ -200,6 +198,27 @@ fun StatusBarTab(
             }
 
             item {
+                CustomActionSelector(
+                    appsViewModel = appsViewModel,
+                    workspaceViewModel = workspaceViewModel,
+                    currentAction = clockAction,
+                    label = stringResource(R.string.clock_action),
+                    nullText = stringResource(R.string.opens_alarmclock_app),
+                    enabled = showTime,
+                    switchEnabled = showTime,
+                    onToggle = {
+                        scope.launch {
+                            StatusBarSettingsStore.setClockAction(ctx, null)
+                        }
+                    }
+                ) {
+                    scope.launch {
+                        StatusBarSettingsStore.setClockAction(ctx, it)
+                    }
+                }
+            }
+
+            item {
                 Column(verticalArrangement = Arrangement.spacedBy(5.dp)) {
                     Text(
                         text = stringResource(R.string.time_format_examples),
@@ -207,12 +226,8 @@ fun StatusBarTab(
                         color = MaterialTheme.colorScheme.onBackground
                     )
                     OutlinedTextField(
-                        label = {
-                            Text(
-                                text = stringResource(R.string.time_format_title),
-                                color = MaterialTheme.colorScheme.onBackground
-                            )
-                        },
+                        enabled = showTime,
+                        label = { Text(stringResource(R.string.time_format_title),) },
                         value = timeFormatter,
                         onValueChange = { newValue ->
                             scope.launch {
@@ -229,7 +244,6 @@ fun StatusBarTab(
                             Icon(
                                 imageVector = Icons.Default.Restore,
                                 contentDescription = stringResource(R.string.reset),
-                                tint = MaterialTheme.colorScheme.primary,
                                 modifier = Modifier.clickable {
                                     scope.launch {
                                         StatusBarSettingsStore.setTimeFormatter(ctx, "HH:mm:ss")
@@ -253,19 +267,39 @@ fun StatusBarTab(
                 }
             }
 
+            item {
+                CustomActionSelector(
+                    appsViewModel = appsViewModel,
+                    workspaceViewModel = workspaceViewModel,
+                    currentAction = dateAction,
+                    label = stringResource(R.string.date_action),
+                    nullText = stringResource(R.string.opens_calendar_app),
+                    enabled = showDate,
+                    switchEnabled = showDate,
+                    onToggle = {
+                        scope.launch {
+                            StatusBarSettingsStore.setDateAction(ctx, null)
+                        }
+                    }
+                ) {
+                    scope.launch {
+                        StatusBarSettingsStore.setDateAction(ctx, it)
+                    }
+                }
+            }
+
 
             item {
                 Column(verticalArrangement = Arrangement.spacedBy(5.dp)) {
                     Text(
                         text = stringResource(R.string.date_format_examples),
+                        style = MaterialTheme.typography.bodySmall,
                         color = MaterialTheme.colorScheme.onBackground
                     )
                     OutlinedTextField(
+                        enabled = showDate,
                         label = {
-                            Text(
-                                text = stringResource(R.string.date_format_title),
-                                color = MaterialTheme.colorScheme.onBackground
-                            )
+                            Text(stringResource(R.string.date_format_title),)
                         },
                         value = dateFormatter,
                         onValueChange = { newValue ->
@@ -283,7 +317,6 @@ fun StatusBarTab(
                             Icon(
                                 imageVector = Icons.Default.Restore,
                                 contentDescription = stringResource(R.string.reset),
-                                tint = MaterialTheme.colorScheme.primary,
                                 modifier = Modifier.clickable {
                                     scope.launch {
                                         StatusBarSettingsStore.setDateFormatter(ctx, "MMM dd")

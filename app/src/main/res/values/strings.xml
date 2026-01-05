@@ -238,4 +238,8 @@
     <string name="app_label_icon_overlay_top_padding">App label/icon overlay top padding</string>
     <string name="show_launching_app_icon">Show App icon</string>
     <string name="show_launching_app_label">Show App Label</string>
+    <string name="clock_action">Clock Action</string>
+    <string name="date_action">Date Action</string>
+    <string name="opens_alarmclock_app">Opens alarmClock app</string>
+    <string name="opens_calendar_app">Opens calendar app</string>
 </resources>

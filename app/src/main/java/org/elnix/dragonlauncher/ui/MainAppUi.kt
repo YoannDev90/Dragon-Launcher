@@ -357,7 +357,7 @@ fun MainAppUi(
             composable(SETTINGS.APPEARANCE)    { AppearanceTab(navController) { goAdvSettingsRoot() } }
             composable(SETTINGS.WALLPAPER)     { WallpaperTab { goAppearance() } }
             composable(SETTINGS.ICON_PACK)     { IconPackTab(appsViewModel) { goAppearance() } }
-            composable(SETTINGS.STATUS_BAR)    { StatusBarTab { goAppearance() } }
+            composable(SETTINGS.STATUS_BAR)    { StatusBarTab(appsViewModel, workspaceViewModel) { goAppearance() } }
             composable(SETTINGS.THEME)         { ThemesTab { goAppearance() } }
             composable(SETTINGS.FLOATING_APPS) {
                 FloatingAppsTab(

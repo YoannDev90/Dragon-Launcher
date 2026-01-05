@@ -236,4 +236,10 @@
     <string name="ghosted">भूत</string>
     <string name="foreground">अग्रभूमि</string>
     <string name="app_label_icon_overlay_top_padding">ऐप लेबल/आइकन ओवरले टॉप पैडिंग</string>
+    <string name="show_launching_app_icon">ऐप आइकन दिखाएं</string>
+    <string name="show_launching_app_label">ऐप लेबल दिखाएं</string>
+    <string name="clock_action">घड़ी की कार्रवाई</string>
+    <string name="date_action">दिनांक कार्रवाई</string>
+    <string name="opens_alarmclock_app">अलार्मक्लॉक ऐप खोलता है</string>
+    <string name="opens_calendar_app">कैलेंडर ऐप खोलता है</string>
 </resources>

@@ -36,8 +36,6 @@ fun BehaviorTab(
     val ctx = LocalContext.current
     val scope = rememberCoroutineScope()
 
-    val icons by appsViewModel.icons.collectAsState()
-
     val backAction by BehaviorSettingsStore.getBackAction(ctx).collectAsState(initial = null)
     val doubleClickAction by BehaviorSettingsStore.getDoubleClickAction(ctx).collectAsState(initial = null)
     val keepScreenOn by BehaviorSettingsStore.getKeepScreenOn(ctx).collectAsState(initial = false)
@@ -71,7 +69,6 @@ fun BehaviorTab(
             CustomActionSelector(
                 appsViewModel = appsViewModel,
                 workspaceViewModel = workspaceViewModel,
-                icons = icons,
                 currentAction = backAction,
                 label = stringResource(R.string.back_action),
                 onToggle = {
@@ -90,7 +87,6 @@ fun BehaviorTab(
             CustomActionSelector(
                 appsViewModel = appsViewModel,
                 workspaceViewModel = workspaceViewModel,
-                icons = icons,
                 currentAction = doubleClickAction,
                 label = stringResource(R.string.double_click_action),
                 onToggle = {

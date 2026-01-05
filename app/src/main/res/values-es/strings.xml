@@ -236,4 +236,10 @@
     <string name="ghosted">Fantasma</string>
     <string name="foreground">Primer plano</string>
     <string name="app_label_icon_overlay_top_padding">Etiqueta/iconos de la app superponiendo el relleno superior</string>
+    <string name="show_launching_app_icon">Icono de mostrar la app</string>
+    <string name="show_launching_app_label">Etiqueta de la app de mostrar</string>
+    <string name="clock_action">Mecanismo del reloj</string>
+    <string name="date_action">Acción de fechas</string>
+    <string name="opens_alarmclock_app">Abre la app alarma</string>
+    <string name="opens_calendar_app">Abre la app de calendario</string>
 </resources>

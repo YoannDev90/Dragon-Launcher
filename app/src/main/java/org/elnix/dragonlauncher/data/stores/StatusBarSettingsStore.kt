@@ -11,6 +11,9 @@ import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.map
 import org.elnix.dragonlauncher.data.BaseSettingsStore
+import org.elnix.dragonlauncher.data.SwipeActionSerializable
+import org.elnix.dragonlauncher.data.SwipeJson
+import org.elnix.dragonlauncher.data.behaviorDataStore
 import org.elnix.dragonlauncher.data.getBooleanStrict
 import org.elnix.dragonlauncher.data.getIntStrict
 import org.elnix.dragonlauncher.data.getStringStrict
@@ -18,7 +21,12 @@ import org.elnix.dragonlauncher.data.putIfNonDefault
 import org.elnix.dragonlauncher.data.statusBarDatastore
 import org.elnix.dragonlauncher.data.stores.StatusBarSettingsStore.Keys.BAR_BACKGROUND_COLOR
 import org.elnix.dragonlauncher.data.stores.StatusBarSettingsStore.Keys.BAR_TEXT_COLOR
+import org.elnix.dragonlauncher.data.stores.StatusBarSettingsStore.Keys.BOTTOM_PADDING
+import org.elnix.dragonlauncher.data.stores.StatusBarSettingsStore.Keys.CLOCK_ACTION
+import org.elnix.dragonlauncher.data.stores.StatusBarSettingsStore.Keys.DATE_ACTION
 import org.elnix.dragonlauncher.data.stores.StatusBarSettingsStore.Keys.DATE_FORMATTER
+import org.elnix.dragonlauncher.data.stores.StatusBarSettingsStore.Keys.LEFT_PADDING
+import org.elnix.dragonlauncher.data.stores.StatusBarSettingsStore.Keys.RIGHT_PADDING
 import org.elnix.dragonlauncher.data.stores.StatusBarSettingsStore.Keys.SHOW_BATTERY
 import org.elnix.dragonlauncher.data.stores.StatusBarSettingsStore.Keys.SHOW_CONNECTIVITY
 import org.elnix.dragonlauncher.data.stores.StatusBarSettingsStore.Keys.SHOW_DATE
@@ -27,6 +35,7 @@ import org.elnix.dragonlauncher.data.stores.StatusBarSettingsStore.Keys.SHOW_NOT
 import org.elnix.dragonlauncher.data.stores.StatusBarSettingsStore.Keys.SHOW_STATUS_BAR
 import org.elnix.dragonlauncher.data.stores.StatusBarSettingsStore.Keys.SHOW_TIME
 import org.elnix.dragonlauncher.data.stores.StatusBarSettingsStore.Keys.TIME_FORMATTER
+import org.elnix.dragonlauncher.data.stores.StatusBarSettingsStore.Keys.TOP_PADDING
 import org.elnix.dragonlauncher.ui.theme.AmoledDefault
 
 object StatusBarSettingsStore : BaseSettingsStore<Map<String, Any?>>() {
@@ -48,7 +57,9 @@ object StatusBarSettingsStore : BaseSettingsStore<Map<String, Any?>>() {
         val leftPadding: Int = 5,
         val rightPadding: Int = 5,
         val topPadding: Int = 2,
-        val bottomPadding: Int = 2
+        val bottomPadding: Int = 2,
+        val clockAction: SwipeActionSerializable? = null,
+        val dateAction: SwipeActionSerializable? = null
     )
 
     private val defaults = SettingsBackup()
@@ -67,9 +78,11 @@ object StatusBarSettingsStore : BaseSettingsStore<Map<String, Any?>>() {
         val SHOW_NEXT_ALARM = booleanPreferencesKey("showNextAlarm")
         val LEFT_PADDING = intPreferencesKey(SettingsBackup::leftPadding.name)
         val RIGHT_PADDING = intPreferencesKey(SettingsBackup::rightPadding.name)
-
         val TOP_PADDING = intPreferencesKey(SettingsBackup::topPadding.name)
         val BOTTOM_PADDING = intPreferencesKey(SettingsBackup::bottomPadding.name)
+        val CLOCK_ACTION = stringPreferencesKey(SettingsBackup::clockAction.name)
+        val DATE_ACTION = stringPreferencesKey(SettingsBackup::dateAction.name)
+
         val ALL = listOf(
             SHOW_STATUS_BAR,
             BAR_BACKGROUND_COLOR,
@@ -85,7 +98,9 @@ object StatusBarSettingsStore : BaseSettingsStore<Map<String, Any?>>() {
             LEFT_PADDING,
             RIGHT_PADDING,
             TOP_PADDING,
-            BOTTOM_PADDING
+            BOTTOM_PADDING,
+            CLOCK_ACTION,
+            DATE_ACTION
         )
     }
 
@@ -186,34 +201,60 @@ object StatusBarSettingsStore : BaseSettingsStore<Map<String, Any?>>() {
     }
 
     fun getLeftPadding(ctx: Context): Flow<Int> =
-        ctx.statusBarDatastore.data.map { it[Keys.LEFT_PADDING] ?: defaults.leftPadding }
+        ctx.statusBarDatastore.data.map { it[LEFT_PADDING] ?: defaults.leftPadding }
 
     suspend fun setLeftPadding(ctx: Context, value: Int) {
-        ctx.statusBarDatastore.edit { it[Keys.LEFT_PADDING] = value }
+        ctx.statusBarDatastore.edit { it[LEFT_PADDING] = value }
     }
 
     fun getRightPadding(ctx: Context): Flow<Int> =
-        ctx.statusBarDatastore.data.map { it[Keys.RIGHT_PADDING] ?: defaults.rightPadding }
+        ctx.statusBarDatastore.data.map { it[RIGHT_PADDING] ?: defaults.rightPadding }
 
     suspend fun setRightPadding(ctx: Context, value: Int) {
-        ctx.statusBarDatastore.edit { it[Keys.RIGHT_PADDING] = value }
+        ctx.statusBarDatastore.edit { it[RIGHT_PADDING] = value }
     }
 
 
     fun getTopPadding(ctx: Context): Flow<Int> =
-        ctx.statusBarDatastore.data.map { it[Keys.TOP_PADDING] ?: defaults.topPadding }
+        ctx.statusBarDatastore.data.map { it[TOP_PADDING] ?: defaults.topPadding }
 
     suspend fun setTopPadding(ctx: Context, value: Int) {
-        ctx.statusBarDatastore.edit { it[Keys.TOP_PADDING] = value }
+        ctx.statusBarDatastore.edit { it[TOP_PADDING] = value }
     }
 
 
     fun getBottomPadding(ctx: Context): Flow<Int> =
-        ctx.statusBarDatastore.data.map { it[Keys.BOTTOM_PADDING] ?: defaults.bottomPadding }
+        ctx.statusBarDatastore.data.map { it[BOTTOM_PADDING] ?: defaults.bottomPadding }
 
     suspend fun setBottomPadding(ctx: Context, value: Int) {
-        ctx.statusBarDatastore.edit { it[Keys.BOTTOM_PADDING] = value }
+        ctx.statusBarDatastore.edit { it[BOTTOM_PADDING] = value }
     }
+
+
+    fun getClockAction(ctx: Context): Flow<SwipeActionSerializable?> =
+        ctx.behaviorDataStore.data.map {
+            it[CLOCK_ACTION]?.takeIf { s -> s.isNotBlank() }?.let(SwipeJson::decodeAction)
+        }
+
+    suspend fun setClockAction(ctx: Context, value: SwipeActionSerializable?) {
+        ctx.behaviorDataStore.edit {
+            if (value != null) it[CLOCK_ACTION] = SwipeJson.encodeAction(value)
+            else it.remove(CLOCK_ACTION)
+        }
+    }
+
+    fun getDateAction(ctx: Context): Flow<SwipeActionSerializable?> =
+        ctx.behaviorDataStore.data.map {
+            it[DATE_ACTION]?.takeIf { s -> s.isNotBlank() }?.let(SwipeJson::decodeAction)
+        }
+
+    suspend fun setDateAction(ctx: Context, value: SwipeActionSerializable?) {
+        ctx.behaviorDataStore.edit {
+            if (value != null) it[DATE_ACTION] = SwipeJson.encodeAction(value)
+            else it.remove(DATE_ACTION)
+        }
+    }
+
 
     /* ───────────── reset / backup ───────────── */
 
@@ -239,10 +280,12 @@ object StatusBarSettingsStore : BaseSettingsStore<Map<String, Any?>>() {
             putIfNonDefault(SHOW_BATTERY, prefs[SHOW_BATTERY], defaults.showBattery)
             putIfNonDefault(SHOW_CONNECTIVITY, prefs[SHOW_CONNECTIVITY], defaults.showConnectivity)
             putIfNonDefault(SHOW_NEXT_ALARM, prefs[SHOW_NEXT_ALARM], defaults.showNextAlarm)
-            putIfNonDefault(Keys.LEFT_PADDING, prefs[Keys.LEFT_PADDING], defaults.leftPadding)
-            putIfNonDefault(Keys.RIGHT_PADDING, prefs[Keys.RIGHT_PADDING], defaults.rightPadding)
-            putIfNonDefault(Keys.TOP_PADDING, prefs[Keys.TOP_PADDING], defaults.topPadding)
-            putIfNonDefault(Keys.BOTTOM_PADDING, prefs[Keys.BOTTOM_PADDING], defaults.bottomPadding)
+            putIfNonDefault(LEFT_PADDING, prefs[LEFT_PADDING], defaults.leftPadding)
+            putIfNonDefault(RIGHT_PADDING, prefs[RIGHT_PADDING], defaults.rightPadding)
+            putIfNonDefault(TOP_PADDING, prefs[TOP_PADDING], defaults.topPadding)
+            putIfNonDefault(BOTTOM_PADDING, prefs[BOTTOM_PADDING], defaults.bottomPadding)
+            putIfNonDefault(DATE_ACTION, prefs[DATE_ACTION], defaults.dateAction)
+            putIfNonDefault(CLOCK_ACTION, prefs[CLOCK_ACTION], defaults.clockAction)
         }
     }
 
@@ -281,17 +324,31 @@ object StatusBarSettingsStore : BaseSettingsStore<Map<String, Any?>>() {
             prefs[SHOW_NEXT_ALARM] =
                 getBooleanStrict(value, SHOW_NEXT_ALARM, defaults.showNextAlarm)
 
-            prefs[Keys.LEFT_PADDING] =
-                getIntStrict(value, Keys.LEFT_PADDING, defaults.leftPadding)
+            prefs[LEFT_PADDING] =
+                getIntStrict(value, LEFT_PADDING, defaults.leftPadding)
 
-            prefs[Keys.RIGHT_PADDING] =
-                getIntStrict(value, Keys.RIGHT_PADDING, defaults.rightPadding)
+            prefs[RIGHT_PADDING] =
+                getIntStrict(value, RIGHT_PADDING, defaults.rightPadding)
 
-            prefs[Keys.TOP_PADDING] =
-                getIntStrict(value, Keys.TOP_PADDING, defaults.topPadding)
+            prefs[TOP_PADDING] =
+                getIntStrict(value, TOP_PADDING, defaults.topPadding)
 
-            prefs[Keys.BOTTOM_PADDING] =
-                getIntStrict(value, Keys.BOTTOM_PADDING, defaults.bottomPadding)
+            prefs[BOTTOM_PADDING] =
+                getIntStrict(value, BOTTOM_PADDING, defaults.bottomPadding)
+
+            prefs[CLOCK_ACTION] =
+                getStringStrict(
+                    value,
+                    CLOCK_ACTION,
+                    defaults.clockAction.toString()
+                )
+
+            prefs[DATE_ACTION] =
+                getStringStrict(
+                    value,
+                    DATE_ACTION,
+                    defaults.dateAction.toString()
+                )
         }
     }
 }

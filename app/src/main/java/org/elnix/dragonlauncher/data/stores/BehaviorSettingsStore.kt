@@ -63,17 +63,17 @@ object BehaviorSettingsStore : BaseSettingsStore<Map<String, Any?>>() {
             it[BACK_ACTION]?.takeIf { s -> s.isNotBlank() }?.let(SwipeJson::decodeAction)
         }
 
-    fun getDoubleClickAction(ctx: Context): Flow<SwipeActionSerializable?> =
-        ctx.behaviorDataStore.data.map {
-            it[DOUBLE_CLICK_ACTION]?.takeIf { s -> s.isNotBlank() }?.let(SwipeJson::decodeAction)
-        }
-
     suspend fun setBackAction(ctx: Context, value: SwipeActionSerializable?) {
         ctx.behaviorDataStore.edit {
             if (value != null) it[BACK_ACTION] = SwipeJson.encodeAction(value)
             else it.remove(BACK_ACTION)
         }
     }
+
+    fun getDoubleClickAction(ctx: Context): Flow<SwipeActionSerializable?> =
+        ctx.behaviorDataStore.data.map {
+            it[DOUBLE_CLICK_ACTION]?.takeIf { s -> s.isNotBlank() }?.let(SwipeJson::decodeAction)
+        }
 
     suspend fun setDoubleClickAction(ctx: Context, value: SwipeActionSerializable?) {
         ctx.behaviorDataStore.edit {

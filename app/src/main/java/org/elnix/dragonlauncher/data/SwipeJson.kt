@@ -25,6 +25,15 @@ data class SwipePointSerializable(
     @SerializedName("e") val nestId: Int? = 0
 )
 
+fun dummySwipePoint(action: SwipeActionSerializable?) =
+    SwipePointSerializable(
+        circleNumber = 0,
+        angleDeg = 0.0,
+        action = action,
+        id = null,
+        nestId = 0
+    )
+
 /**
  * New CircleNest system, where every bloc of circles is contained inside one of those*
  * This way, we can navigate across those nests, to achieve more actions, using the jump actions

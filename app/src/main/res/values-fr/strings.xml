@@ -236,4 +236,10 @@
     <string name="ghosted">Ghosté</string>
     <string name="foreground">Premier plan</string>
     <string name="app_label_icon_overlay_top_padding">Rembourrage supérieur superposé à l’étiquette/icône de l’application</string>
+    <string name="show_launching_app_icon">Afficher l’icône de l’application</string>
+    <string name="show_launching_app_label">Afficher l’étiquette de l’application</string>
+    <string name="clock_action">Mécanisme d’horloge</string>
+    <string name="date_action">Date Action</string>
+    <string name="opens_alarmclock_app">Ouvre l’application AlarmClock</string>
+    <string name="opens_calendar_app">Ouvre l’application calendrier</string>
 </resources>
