@@ -13,16 +13,105 @@ import com.google.gson.JsonSerializer
 import com.google.gson.annotations.SerializedName
 import com.google.gson.reflect.TypeToken
 import kotlinx.serialization.Serializable
+import org.elnix.dragonlauncher.data.helpers.CornerRadiusSerializable
+import org.elnix.dragonlauncher.data.helpers.CustomIconSerializable
 import org.elnix.dragonlauncher.utils.logs.logE
 import java.lang.reflect.Type
 
-// Keep the same data classes, no @Serializable needed
+
+/**
+ * Serializable model representing a single swipe point on a radial / circular UI.
+ *
+ * This object is intentionally compact and fully nullable-extensible to allow
+ * backward-compatible evolution of visual, behavioral, and interaction features.
+ *
+ * All visual values are interpreted by the rendering layer (Compose / Canvas / View).
+ */
 data class SwipePointSerializable(
-    @SerializedName("a") val circleNumber: Int,
-    @SerializedName("b") val angleDeg: Double,
-    @SerializedName("c") val action: SwipeActionSerializable? = null,
-    @SerializedName("d") val id: String? = null,
-    @SerializedName("e") val nestId: Int? = 0
+
+    /** Index of the circle (ring) this swipe point belongs to. */
+    @SerializedName("a")
+    val circleNumber: Int,
+
+    /** Angular position in degrees (0–360), clockwise, relative to the circle center. */
+    @SerializedName("b")
+    val angleDeg: Double,
+
+    /** Optional action executed when the swipe point is triggered. */
+    @SerializedName("c")
+    val action: SwipeActionSerializable? = null,
+
+    /** Stable unique identifier for persistence, diffing, and migrations. */
+    @SerializedName("d")
+    val id: String? = null,
+
+    /** Optional nesting/group identifier for hierarchical or contextual swipe layouts. */
+    @SerializedName("e")
+    val nestId: Int? = 0,
+
+    /** Fully customizable icon definition overriding default visuals. */
+    @SerializedName("f")
+    val customIcon: CustomIconSerializable? = null,
+
+    /** Border thickness (dp) when the swipe point is not selected. */
+    @SerializedName("g")
+    val borderStroke: Float? = null,
+
+    /** Border thickness (dp) when the swipe point is selected or active. */
+    @SerializedName("h")
+    val borderStrokeSelected: Float? = null,
+
+    /** Border color in ARGB format when not selected. */
+    @SerializedName("i")
+    val borderColor: Long? = null,
+
+    /** Border color in ARGB format when selected. */
+    @SerializedName("j")
+    val borderColorSelected: Long? = null,
+
+    /** Background fill color (ARGB) in normal state. */
+    @SerializedName("k")
+    val backgroundColor: Long? = null,
+
+    /** Background fill color (ARGB) in selected state. */
+    @SerializedName("l")
+    val backgroundColorSelected: Long? = null,
+
+    /** Global opacity multiplier (0.0 – 1.0) applied to the whole swipe point. */
+    @SerializedName("m")
+    val opacity: Float? = null,
+
+    /** Global scale factor applied after layout but before rendering. */
+    @SerializedName("n")
+    val scale: Float? = null,
+
+    /** Optional user-defined display name (labels, accessibility, debug UI). */
+    @SerializedName("o")
+    val customName: String? = null,
+
+    /** Per-corner radius definition for the swipe point container. */
+    @SerializedName("p")
+    val cornerRadius: CornerRadiusSerializable? = null,
+
+    /** Explicit size override (dp). If null, renderer decides. */
+    @SerializedName("q")
+    val sizeDp: Float? = null,
+
+    /** Inner padding (dp) between border and content. */
+    @SerializedName("r")
+    val paddingDp: Float? = null,
+
+    /** Enables haptic feedback when the swipe point is activated. */
+    @SerializedName("s")
+    val haptic: Boolean? = null,
+
+    /** Enables sound feedback when the swipe point is activated. */
+    @SerializedName("t")
+    val sound: Boolean? = null,
+
+    /** Whether this swipe point is interactable and rendered as enabled. */
+    @SerializedName("u")
+    val enabled: Boolean? = null
 )
 
 fun dummySwipePoint(action: SwipeActionSerializable?) =
