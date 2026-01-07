@@ -7,7 +7,6 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.ImageBitmap
 import androidx.compose.ui.graphics.drawscope.DrawScope
 import androidx.compose.ui.graphics.drawscope.Stroke
-import androidx.compose.ui.graphics.toArgb
 import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.IntSize
 import org.elnix.dragonlauncher.R
@@ -28,7 +27,8 @@ fun actionsInCircle(
     ctx: Context,
     circleColor: Color,
     colorAction: Color,
-    icons: Map<String, ImageBitmap>
+    icons: Map<String, ImageBitmap>,
+    preventBgErasing: Boolean = false
 ) {
     val action = point.action
 
@@ -46,7 +46,7 @@ fun actionsInCircle(
 
     if (action !is SwipeActionSerializable.OpenCircleNest) {
         // if no background color provided, erases the background
-        val eraseBg = point.backgroundColor == null || point.backgroundColor == Color.Transparent.toArgb()
+        val eraseBg = backgroundColor == Color.Transparent && !preventBgErasing
 
         // Erases the color, instead of putting it, that lets the wallpaper pass trough
         if (eraseBg) {
