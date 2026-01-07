@@ -242,4 +242,15 @@
     <string name="date_action">Date Action</string>
     <string name="opens_alarmclock_app">Opens alarmClock app</string>
     <string name="opens_calendar_app">Opens calendar app</string>
+    <string name="edit_icon">Edit Icon</string>
+    <string name="border_stroke">Border Stroke</string>
+    <string name="border_stroke_selected">Border Stroke Selected</string>
+    <string name="border_color">Border Color</string>
+    <string name="border_color_selected">Border Color Selected</string>
+    <string name="background_color_selected">Background Color Selected</string>
+    <string name="opacity">Opacity %</string>
+    <string name="custom_name">Custom name</string>
+    <string name="edit_action">Edit Action</string>
+    <string name="border_background_selected">Border Background Selected</string>
+    <string name="custom_action_color">Custom Action Color</string>
 </resources>

@@ -175,7 +175,7 @@ fun MainScreenOverlay(
     // Launch app logic
 
     // -- For displaying the banner --
-    var hoveredAction by remember { mutableStateOf<SwipePointSerializable?>(null) }
+    var hoveredPoint by remember { mutableStateOf<SwipePointSerializable?>(null) }
     var bannerVisible by remember { mutableStateOf(false) }
 
 
@@ -220,7 +220,7 @@ fun MainScreenOverlay(
         currentAction = selectedPoint
 //        currentAction = if (dist > dragRadii[0]) selectedPoint else null
 
-        hoveredAction = currentAction
+        hoveredPoint = currentAction
         bannerVisible = currentAction != null
     } else if (!isDragging) {
         bannerVisible = false
@@ -241,7 +241,7 @@ fun MainScreenOverlay(
             if (currentAction != null) {
                 onLaunch(currentAction)
             }
-            hoveredAction = null
+            hoveredPoint = null
             currentAction = null
             bannerVisible = false
         }
@@ -307,7 +307,7 @@ fun MainScreenOverlay(
             }
         }
 
-        val colorAction = if (hoveredAction != null) actionColor(hoveredAction!!.action, extraColors) else Color.Unspecified
+        val colorAction = if (hoveredPoint != null) actionColor(hoveredPoint!!.action, extraColors) else Color.Unspecified
 
 
 
@@ -333,7 +333,7 @@ fun MainScreenOverlay(
                         style = Stroke(width = 3f)
                     )
 
-                    if (!(linePreviewSnapToAction && hoveredAction != null)) {
+                    if (!(linePreviewSnapToAction && hoveredPoint != null)) {
                         actionLine(
                             drawScope = this,
                             start = start,
@@ -368,8 +368,7 @@ fun MainScreenOverlay(
                 }
 
                 if (showAppCirclePreview || showAppLinePreview || showAppLaunchPreview) {
-                    hoveredAction?.let { point ->
-                        val action = point.action!!
+                    hoveredPoint?.let { point ->
 
                         // same circle radii as SettingsScreen
                         val radius = dragRadii[targetCircle -1]!!.toFloat()
@@ -415,15 +414,13 @@ fun MainScreenOverlay(
                                 actionsInCircle(
                                     selected = false,
                                     drawScope = this,
-                                    action = p.action!!,
+                                    point = p,
                                     nests = nests,
                                     circleColor = circleColor,
-                                    backgroundColor = null, // Null for now to erase bg (maybe settings later)
                                     colorAction = actionColor(p.action, extraColors),
                                     px = px, py = py,
                                     ctx = ctx,
-                                    icons = icons,
-                                    drawBorder = showActionIconBorder
+                                    icons = icons
                                 )
                             }
                         }
@@ -433,15 +430,13 @@ fun MainScreenOverlay(
                             actionsInCircle(
                                 selected = true,
                                 drawScope = this,
-                                action = action,
+                                point = point,
                                 nests = nests,
                                 px = px, py = py,
                                 ctx = ctx,
-                                backgroundColor = null, // Null for now to erase bg (maybe settings later)
                                 colorAction = colorAction,
                                 circleColor = circleColor,
-                                icons = icons,
-                                drawBorder = showActionIconBorder
+                                icons = icons
                             )
                         }
                     }
@@ -449,18 +444,16 @@ fun MainScreenOverlay(
 
 
                 // Show the current selected app in the center of the circle
-                if (showAppPreviewIconCenterStartPosition && hoveredAction != null) {
-                    val currentAction = hoveredAction!!.action!!
+                if (showAppPreviewIconCenterStartPosition && hoveredPoint != null) {
+                    val currentPoint = hoveredPoint!!
 
                     actionsInCircle(
                         selected = false,
                         drawScope = this,
-                        action = currentAction,
+                        point = currentPoint,
                         nests = nests,
                         px = start.x, py = start.y,
                         ctx = ctx,
-                        drawBorder = false,
-                        backgroundColor = null, // Null for now to erase bg (maybe settings later)
                         colorAction = colorAction,
                         circleColor = circleColor,
                         icons = icons
@@ -473,8 +466,8 @@ fun MainScreenOverlay(
 
 
     // Label on top of the screen to indicate the launching app
-    if (hoveredAction != null && (showLaunchingAppLabel || showLaunchingAppIcon)) {
-        val currentAction = hoveredAction!!.action!!
+    if (hoveredPoint != null && (showLaunchingAppLabel || showLaunchingAppIcon)) {
+        val currentAction = hoveredPoint!!.action
         val label = actionLabel(currentAction)
         AppPreviewTitle(
             offsetY = offsetY,

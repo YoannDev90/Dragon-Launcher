@@ -2,7 +2,9 @@ package org.elnix.dragonlauncher.utils.actions
 
 import android.content.Context
 import android.graphics.Canvas
+import androidx.compose.foundation.Image
 import androidx.compose.runtime.Composable
+import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.ImageBitmap
 import androidx.compose.ui.graphics.asAndroidBitmap
@@ -10,6 +12,7 @@ import androidx.compose.ui.graphics.asImageBitmap
 import androidx.compose.ui.graphics.painter.BitmapPainter
 import androidx.compose.ui.graphics.painter.Painter
 import androidx.compose.ui.graphics.toArgb
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.core.content.ContextCompat
 import androidx.core.graphics.createBitmap
@@ -17,6 +20,7 @@ import androidx.core.graphics.drawable.toBitmap
 import org.elnix.dragonlauncher.R
 import org.elnix.dragonlauncher.data.SwipeActionSerializable
 import org.elnix.dragonlauncher.data.targetPackage
+import org.elnix.dragonlauncher.ui.theme.LocalExtraColors
 import org.elnix.dragonlauncher.utils.loadShortcutIcon
 
 @Composable
@@ -32,6 +36,30 @@ fun appIcon(
     }
 }
 
+
+@Composable
+fun ActionIcon(
+    action: SwipeActionSerializable,
+    icons: Map<String, ImageBitmap>,
+    modifier: Modifier = Modifier,
+    size: Int = 48
+) {
+    val ctx = LocalContext.current
+    val extraColors = LocalExtraColors.current
+
+    Image(
+        painter = BitmapPainter(actionIconBitmap(
+            icons = icons,
+            action = action,
+            ctx = ctx,
+            tintColor = actionColor(action, extraColors),
+            width = size,
+            height = size
+        )),
+        contentDescription = null,
+        modifier = modifier
+    )
+}
 
 fun actionIconBitmap(
     icons: Map<String, ImageBitmap>,

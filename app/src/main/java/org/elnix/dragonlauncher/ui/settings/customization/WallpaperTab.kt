@@ -329,6 +329,7 @@ fun WallpaperTab(onBack: () -> Unit) {
                     value = tempBlurRadius,
                     color = MaterialTheme.colorScheme.primary,
                     showValue = true,
+                    valueRange = 0f..1f,
                     onChange = { radius ->
                         tempBlurRadius = radius
                         originalBitmap?.let { orig ->

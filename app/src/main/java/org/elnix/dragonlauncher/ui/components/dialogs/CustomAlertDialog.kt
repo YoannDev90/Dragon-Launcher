@@ -31,16 +31,24 @@ fun CustomAlertDialog(
     text: @Composable (() -> Unit)? = null,
     shape: Shape = RoundedCornerShape(12.dp),
     containerColor: Color= MaterialTheme.colorScheme.surface,
+    imePadding: Boolean = true,
+    scroll: Boolean = true,
     alignment: Alignment = Alignment.BottomCenter
 ) {
     FullScreenOverlay(
         onDismissRequest = onDismissRequest,
+        imePadding = imePadding,
         alignment = alignment
     ) {
         Column(
             modifier = modifier
                 .fillMaxWidth()
-                .verticalScroll(rememberScrollState())
+                .then(
+                    if (scroll) {
+                        Modifier.verticalScroll(rememberScrollState())
+                    }
+                    else Modifier
+                )
                 .clip(shape)
                 .background(containerColor),
             horizontalAlignment = Alignment.CenterHorizontally

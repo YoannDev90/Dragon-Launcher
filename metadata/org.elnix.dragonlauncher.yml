@@ -1,6 +1,6 @@
 Categories:
   - System
-License: MIT
+License: GPL-3.0-only
 AuthorName: Elnix90
 AuthorEmail: elnix91@gmail.com
 SourceCode: https://github.com/Elnix90/Dragon-Launcher
@@ -54,5 +54,11 @@ Builds:
   - versionName: 2.0.0
     versionCode: 23
     commit: v2.0.0
+    gradle:
+      - yes
+
+  - versionName: 2.0.2
+    versionCode: 25
+    commit: 16243b53eb4dfced5b6bd89b9488fdb20301d50e
     gradle:
       - yes

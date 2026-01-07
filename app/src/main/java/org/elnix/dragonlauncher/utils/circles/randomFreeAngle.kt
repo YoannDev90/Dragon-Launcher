@@ -1,10 +1,10 @@
 package org.elnix.dragonlauncher.utils.circles
 
+import org.elnix.dragonlauncher.data.SwipePointSerializable
 import org.elnix.dragonlauncher.data.UiCircle
-import org.elnix.dragonlauncher.data.UiSwipePoint
 import org.elnix.dragonlauncher.ui.minAngleGapForCircle
 
-fun randomFreeAngle(circle: UiCircle?, list: List<UiSwipePoint>): Double? {
+fun randomFreeAngle(circle: UiCircle?, list: List<SwipePointSerializable>): Double? {
 
     val circleRadius = circle?.radius ?: return null
 

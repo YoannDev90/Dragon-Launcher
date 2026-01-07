@@ -205,7 +205,7 @@ fun AppearanceTab(
                 label = stringResource(R.string.app_label_icon_overlay_top_padding),
                 value = appLabelIconOverlayTopPadding,
                 showValue = true,
-                valueRange = 0f..360f,
+                valueRange = 0..360,
                 color = MaterialTheme.colorScheme.primary,
                 onReset = { scope.launch { UiSettingsStore.setAppLabelIconOverlayTopPadding(ctx, 30) } },
                 onChange = {
@@ -265,7 +265,7 @@ fun AppearanceTab(
                 label = stringResource(R.string.min_dist_to_activate_action),
                 value = minAngleFromAPointToActivateIt,
                 showValue = true,
-                valueRange = 0f..360f,
+                valueRange = 0..360,
                 color = MaterialTheme.colorScheme.primary,
                 onReset = { scope.launch { UiSettingsStore.setMinAngleFromAPointToActivateIt(ctx, 30) } }
             ) {

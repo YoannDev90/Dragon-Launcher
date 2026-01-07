@@ -14,6 +14,7 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Slider
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -23,83 +24,43 @@ import org.elnix.dragonlauncher.utils.colors.AppObjectsColors
 import kotlin.math.roundToInt
 
 /**
- * Basic float slider for simple value adjustment (0f..1f range).
+ * Internal slider implementation shared by all SliderWithLabel overloads.
  *
- * @param value Current slider value (0f..1f)
- * @param color Primary color for slider and text
+ * This function operates purely on Float values, as required by Material Slider.
+ * Public overloads are responsible for:
+ * - Type conversion (Int ↔ Float)
+ * - Step calculation
+ * - Value formatting
+ *
+ * @param modifier Modifier applied to the root column
  * @param label Optional label displayed above the slider
- * @param showValue Whether to display current value next to label
+ * @param value Current slider value as Float
+ * @param valueRange Allowed slider range
+ * @param steps Number of discrete steps (0 for continuous)
+ * @param color Primary color for slider and text
+ * @param showValue Whether to display the formatted value next to the label
+ * @param valueText Pre-formatted value string to display
+ * @param onReset Optional reset button callback
+ * @param onDragStateChange Optional callback invoked with true on drag start
+ *                          and false on drag end
  * @param onChange Callback invoked when slider value changes
  */
 @Composable
-fun SliderWithLabel(
+private fun SliderWithLabelInternal(
+    modifier: Modifier,
+    label: String?,
     value: Float,
+    valueRange: ClosedFloatingPointRange<Float>,
+    steps: Int,
     color: Color,
-    label: String? = null,
-    showValue: Boolean = true,
+    showValue: Boolean,
+    valueText: String,
+    onReset: (() -> Unit)?,
+    onDragStateChange: ((Boolean) -> Unit)?,
     onChange: (Float) -> Unit
 ) {
     Column(
-        modifier = Modifier
-            .fillMaxWidth(),
-        verticalArrangement = Arrangement.spacedBy(5.dp),
-        horizontalAlignment = Alignment.CenterHorizontally
-    ) {
-        Row(
-            modifier = Modifier
-                .wrapContentWidth(),
-            horizontalArrangement = Arrangement.spacedBy(5.dp),
-            verticalAlignment = Alignment.CenterVertically
-        ) {
-            if (label != null) {
-                Text(
-                    text = label,
-                    color = color
-                )
-            }
-
-            if (showValue) {
-                Text(
-                    text = (value * 255).toInt().toString(),
-                    color = color
-                )
-            }
-        }
-
-        Slider(
-            value = value,
-            onValueChange = onChange,
-            valueRange = 0f..1f,
-            steps = 254,
-            colors = AppObjectsColors.sliderColors(color),
-            modifier = Modifier.height(25.dp)
-        )
-    }
-}
-
-/**
- * Percentage-based float slider (0%..100%) with drag state tracking.
- *
- * @param label Label displayed above the slider
- * @param value Current slider value (0f..1f, displays as 0%..100%)
- * @param color Primary color for slider and text
- * @param showValue Whether to display percentage value next to label
- * @param onChange Callback invoked during drag (new value 0f..1f)
- * @param onDragStateChange Callback for drag start (true) / end (false)
- */
-@Composable
-fun SliderWithLabel(
-    modifier: Modifier = Modifier,
-    label: String,
-    value: Float,
-    color: Color,
-    showValue: Boolean = true,
-    onChange: (Float) -> Unit,
-    onDragStateChange: (Boolean) -> Unit
-) {
-    Column(
-        modifier = modifier
-            .fillMaxWidth(),
+        modifier = modifier.fillMaxWidth(),
         verticalArrangement = Arrangement.spacedBy(5.dp),
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
@@ -108,78 +69,24 @@ fun SliderWithLabel(
             horizontalArrangement = Arrangement.spacedBy(5.dp),
             verticalAlignment = Alignment.CenterVertically
         ) {
-            Text(text = label, color = color)
-            if (showValue) Text(text = "${(value * 100).toInt()}%", color = color)
-        }
-
-        Slider(
-            value = value,
-            onValueChange = { newValue ->
-                onChange(newValue)
-                onDragStateChange(true)
-            },
-            onValueChangeFinished = { onDragStateChange(false) },
-            valueRange = 0f..1f,
-            steps = 99,
-            colors = AppObjectsColors.sliderColors(color),
-            modifier = Modifier.height(25.dp)
-        )
-    }
-}
-
-
-/**
- * Integer slider for discrete values without drag state tracking.
- * @param label Optional label displayed above the slider
- * @param value Current slider value (integer)
- * @param valueRange Range of allowed values (converted to float for slider)
- * @param color Primary color for slider and text
- * @param showValue Whether to display current value next to label
- * @param onReset Optional reset button callback
- * @param onChange Callback invoked when slider value changes (integer)
- */
-@Composable
-fun SliderWithLabel(
-    label: String? = null,
-    value: Int,
-    valueRange: ClosedFloatingPointRange<Float>,
-    color: Color,
-    showValue: Boolean,
-    onReset: (() -> Unit)? = null,
-    onChange: (Int) -> Unit
-) {
-    Column(
-        modifier = Modifier
-            .fillMaxWidth(),
-        verticalArrangement = Arrangement.spacedBy(5.dp),
-        horizontalAlignment = Alignment.CenterHorizontally
-    ) {
-        Row(
-            modifier = Modifier
-                .wrapContentWidth(),
-            horizontalArrangement = Arrangement.spacedBy(5.dp),
-            verticalAlignment = Alignment.CenterVertically
-        ) {
             if (label != null) {
                 Text(
                     text = label,
                     color = color,
                     textAlign = TextAlign.Center,
-                    modifier = Modifier.weight(1f)
+                    modifier = Modifier.weight(1f, fill = false)
                 )
             }
 
             if (showValue) {
                 Text(
-                    text = value.toString(),
+                    text = valueText,
                     color = color
                 )
             }
 
             if (onReset != null) {
-                IconButton(
-                    onClick = onReset
-                ) {
+                IconButton(onClick = onReset) {
                     Icon(
                         imageVector = Icons.Default.Restore,
                         contentDescription = "Reset",
@@ -190,93 +97,122 @@ fun SliderWithLabel(
         }
 
         Slider(
-            value = value.toFloat(),
-            onValueChange = { floatValue ->
-                onChange(floatValue.roundToInt())
-            },
-            valueRange = valueRange,
-            steps = 100,
-            colors = AppObjectsColors.sliderColors(color),
-            modifier = Modifier.height(25.dp)
-        )
-    }
-}
-
-/**
- * Integer slider with drag state tracking and optional reset.
- *
- * @param label Optional label displayed above the slider
- * @param value Current slider value (integer)
- * @param valueRange Range of allowed values (converted to float for slider)
- * @param color Primary color for slider and text
- * @param showValue Whether to display current value next to label
- * @param onReset Optional reset button callback
- * @param onChange Callback invoked during drag (integer value)
- * @param onDragStateChange Optional callback for drag start/end states
- */
-@Composable
-fun SliderWithLabel(
-    label: String? = null,
-    value: Int,
-    valueRange: ClosedFloatingPointRange<Float>,
-    color: Color,
-    showValue: Boolean,
-    onReset: (() -> Unit)? = null,
-    onChange: (Int) -> Unit,
-    onDragStateChange: ((Boolean) -> Unit)? = null
-) {
-    Column(
-        modifier = Modifier
-            .fillMaxWidth(),
-        verticalArrangement = Arrangement.spacedBy(5.dp),
-        horizontalAlignment = Alignment.CenterHorizontally
-    ) {
-        Row(
-            modifier = Modifier
-                .wrapContentWidth(),
-            horizontalArrangement = Arrangement.spacedBy(5.dp),
-            verticalAlignment = Alignment.CenterVertically
-        ) {
-            if (label != null) {
-                Text(
-                    text = label,
-                    color = color
-                )
-            }
-
-            if (showValue) {
-                Text(
-                    text = value.toString(),
-                    color = color
-                )
-            }
-
-            if (onReset != null) {
-                IconButton(
-                    onClick = onReset
-                ) {
-                    Icon(
-                        imageVector = Icons.Default.Restore,
-                        contentDescription = "Reset",
-                        tint = MaterialTheme.colorScheme.primary
-                    )
-                }
-            }
-        }
-
-        Slider(
-            value = value.toFloat(),
-            onValueChange = { floatValue ->
-                onChange(floatValue.roundToInt())
+            value = value,
+            onValueChange = {
+                onChange(it)
                 onDragStateChange?.invoke(true)
             },
             onValueChangeFinished = {
                 onDragStateChange?.invoke(false)
             },
             valueRange = valueRange,
-            steps = 100,
+            steps = steps,
             colors = AppObjectsColors.sliderColors(color),
             modifier = Modifier.height(25.dp)
         )
     }
+}
+
+/**
+ * SliderWithLabel overload for integer values.
+ *
+ * This slider allows selecting **every integer value in the given range**
+ * without rounding issues. Internally, the slider uses Float values, but
+ * step count and conversion ensure perfect integer snapping.
+ *
+ * @param modifier Modifier applied to the slider container
+ * @param label Optional label displayed above the slider
+ * @param value Current integer value
+ * @param valueRange Allowed integer range (inclusive)
+ * @param color Primary color for slider and text
+ * @param showValue Whether to display the current value next to the label
+ * @param onReset Optional reset button callback
+ * @param onDragStateChange Optional callback for drag start/end
+ * @param onChange Callback invoked when the value changes
+ */
+@Composable
+fun SliderWithLabel(
+    modifier: Modifier = Modifier,
+    label: String? = null,
+    value: Int,
+    valueRange: IntRange,
+    color: Color,
+    showValue: Boolean = true,
+    onReset: (() -> Unit)? = null,
+    onDragStateChange: ((Boolean) -> Unit)? = null,
+    onChange: (Int) -> Unit
+) {
+    val floatRange = remember(valueRange) {
+        valueRange.first.toFloat()..valueRange.last.toFloat()
+    }
+
+    val steps = remember(valueRange) {
+        // Number of discrete selectable values minus endpoints
+        (valueRange.last - valueRange.first).coerceAtLeast(0)
+    }
+
+    SliderWithLabelInternal(
+        modifier = modifier,
+        label = label,
+        value = value.toFloat(),
+        valueRange = floatRange,
+        steps = steps,
+        color = color,
+        showValue = showValue,
+        valueText = value.toString(),
+        onReset = onReset,
+        onDragStateChange = onDragStateChange
+    ) { floatValue ->
+        onChange(floatValue.roundToInt())
+    }
+}
+
+/**
+ * SliderWithLabel overload for floating-point values.
+ *
+ * This slider operates in continuous mode unless a custom range implies
+ * discrete behavior. The displayed value is formatted to the requested
+ * number of decimal places.
+ *
+ * @param modifier Modifier applied to the slider container
+ * @param label Optional label displayed above the slider
+ * @param value Current float value
+ * @param valueRange Allowed float range
+ * @param color Primary color for slider and text
+ * @param showValue Whether to display the formatted value next to the label
+ * @param decimals Number of decimal places shown in the value text
+ * @param onReset Optional reset button callback
+ * @param onDragStateChange Optional callback for drag start/end
+ * @param onChange Callback invoked when the value changes
+ */
+@Composable
+fun SliderWithLabel(
+    modifier: Modifier = Modifier,
+    label: String? = null,
+    value: Float,
+    valueRange: ClosedFloatingPointRange<Float>,
+    color: Color,
+    showValue: Boolean = true,
+    decimals: Int = 2,
+    onReset: (() -> Unit)? = null,
+    onDragStateChange: ((Boolean) -> Unit)? = null,
+    onChange: (Float) -> Unit
+) {
+    val valueText = remember(value, decimals) {
+        "%.${decimals}f".format(value)
+    }
+
+    SliderWithLabelInternal(
+        modifier = modifier,
+        label = label,
+        value = value,
+        valueRange = valueRange,
+        steps = 0,
+        color = color,
+        showValue = showValue,
+        valueText = valueText,
+        onReset = onReset,
+        onDragStateChange = onDragStateChange,
+        onChange = onChange
+    )
 }

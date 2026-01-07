@@ -227,7 +227,7 @@ fun StatusBarTab(
                     )
                     OutlinedTextField(
                         enabled = showTime,
-                        label = { Text(stringResource(R.string.time_format_title),) },
+                        label = { Text(stringResource(R.string.time_format_title)) },
                         value = timeFormatter,
                         onValueChange = { newValue ->
                             scope.launch {
@@ -299,7 +299,7 @@ fun StatusBarTab(
                     OutlinedTextField(
                         enabled = showDate,
                         label = {
-                            Text(stringResource(R.string.date_format_title),)
+                            Text(stringResource(R.string.date_format_title))
                         },
                         value = dateFormatter,
                         onValueChange = { newValue ->
@@ -378,7 +378,7 @@ fun StatusBarTab(
                     label = stringResource(R.string.left_padding),
                     value = leftPadding,
                     showValue = true,
-                    valueRange = 0f..200f,
+                    valueRange = 0..200,
                     color = MaterialTheme.colorScheme.primary,
                     onReset = { scope.launch { StatusBarSettingsStore.setLeftPadding(ctx, 5) } }
                 ) {
@@ -391,7 +391,7 @@ fun StatusBarTab(
                     label = stringResource(R.string.right_padding),
                     value = rightPadding,
                     showValue = true,
-                    valueRange = 0f..200f,
+                    valueRange = 0..200,
                     color = MaterialTheme.colorScheme.primary,
                     onReset = { scope.launch { StatusBarSettingsStore.setRightPadding(ctx, 5) } }
                 ) {
@@ -404,7 +404,7 @@ fun StatusBarTab(
                     label = stringResource(R.string.top_padding),
                     value = topPadding,
                     showValue = true,
-                    valueRange = 0f..200f,
+                    valueRange = 0..200,
                     color = MaterialTheme.colorScheme.primary,
                     onReset = { scope.launch { StatusBarSettingsStore.setTopPadding(ctx, 2) } }
                 ) {
@@ -417,7 +417,7 @@ fun StatusBarTab(
                     label = stringResource(R.string.bottom_padding),
                     value = bottomPadding,
                     showValue = true,
-                    valueRange = 0f..200f,
+                    valueRange = 0..200,
                     color = MaterialTheme.colorScheme.primary,
                     onReset = { scope.launch { StatusBarSettingsStore.setBottomPadding(ctx, 2) } }
                 ) {

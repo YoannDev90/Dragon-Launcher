@@ -16,23 +16,24 @@ import kotlinx.serialization.Serializable
 import org.elnix.dragonlauncher.utils.logs.logE
 import java.lang.reflect.Type
 
-// Keep the same data classes, no @Serializable needed
-data class SwipePointSerializable(
-    @SerializedName("a") val circleNumber: Int,
-    @SerializedName("b") val angleDeg: Double,
-    @SerializedName("c") val action: SwipeActionSerializable? = null,
-    @SerializedName("d") val id: String? = null,
-    @SerializedName("e") val nestId: Int? = 0
-)
 
 fun dummySwipePoint(action: SwipeActionSerializable?) =
     SwipePointSerializable(
         circleNumber = 0,
         angleDeg = 0.0,
-        action = action,
+        action = action ?: SwipeActionSerializable.OpenDragonLauncherSettings,
         id = null,
         nestId = 0
     )
+
+val defaultSwipePointsValues = dummySwipePoint(null).copy(
+    borderStroke = 4f,
+    borderStrokeSelected = 8f,
+    opacity = 1f,
+    cornerRadius = null,
+    paddingDp = 0,
+    haptic = false
+)
 
 /**
  * New CircleNest system, where every bloc of circles is contained inside one of those*

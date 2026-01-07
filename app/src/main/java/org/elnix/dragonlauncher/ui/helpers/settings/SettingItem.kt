@@ -19,6 +19,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import org.elnix.dragonlauncher.R
@@ -35,6 +36,7 @@ fun SettingsItem(
     comingSoon: Boolean = false,
     icon: Any? = null,
     leadIcon: Any? = null,
+    backgroundColor: Color = MaterialTheme.colorScheme.surface,
     onLongClick: (() -> Unit)? = null,
     onClick: () -> Unit
 ) {
@@ -47,7 +49,7 @@ fun SettingsItem(
                 onLongClick = onLongClick,
                 onClick = onClick
             )
-            .background(MaterialTheme.colorScheme.surface.copy(if (enabled) 1f else 0.5f))
+            .background(backgroundColor.copy(if (enabled) 1f else 0.5f))
             .padding(horizontal = 16.dp, vertical = 14.dp),
         verticalAlignment = Alignment.CenterVertically,
         horizontalArrangement = Arrangement.SpaceBetween

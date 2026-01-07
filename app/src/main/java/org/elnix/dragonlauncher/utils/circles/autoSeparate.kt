@@ -1,16 +1,16 @@
 package org.elnix.dragonlauncher.utils.circles
 
+import org.elnix.dragonlauncher.data.SwipePointSerializable
 import org.elnix.dragonlauncher.data.UiCircle
-import org.elnix.dragonlauncher.data.UiSwipePoint
 import org.elnix.dragonlauncher.ui.minAngleGapForCircle
 import kotlin.math.abs
 import kotlin.math.min
 
 fun autoSeparate(
-    points: MutableList<UiSwipePoint>,
+    points: MutableList<SwipePointSerializable>,
     nestId: Int,
     circle: UiCircle?,
-    draggedPoint: UiSwipePoint
+    draggedPoint: SwipePointSerializable
 ) {
     val circleNumber = circle?.id ?: return
 

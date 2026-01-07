@@ -74,6 +74,7 @@ fun ColorPickerRow(
     randomColorButton: Boolean = true,
     resetButton: Boolean = true,
     maxLuminance: Float = 1f,
+    backgroundColor: Color = MaterialTheme.colorScheme.surface,
     onColorPicked: (Color) -> Unit
 ) {
     val ctx = LocalContext.current
@@ -91,7 +92,7 @@ fun ColorPickerRow(
        modifier = modifier
            .clickable(enabled) { showPicker = true }
            .background(
-               color = MaterialTheme.colorScheme.surface.copy(if (enabled) 1f else 0.5f),
+               color = backgroundColor.copy(if (enabled) 1f else 0.5f),
                shape = RoundedCornerShape(12.dp)
            )
            .padding(horizontal = 16.dp, vertical = 14.dp),
@@ -120,7 +121,7 @@ fun ColorPickerRow(
                     tint = MaterialTheme.colorScheme.onSurface,
                     modifier = Modifier
                         .clip(CircleShape)
-                        .background(MaterialTheme.colorScheme.surface.adjustBrightness(0.8f))
+                        .background(backgroundColor.adjustBrightness(0.8f))
                         .padding(5.dp)
                         .clickable(enabled) { onColorPicked(randomColor(minLuminance = 0.2f, maxLuminance = maxLuminance)) }
                 )
@@ -135,7 +136,7 @@ fun ColorPickerRow(
                     tint = MaterialTheme.colorScheme.onSurface,
                     modifier = Modifier
                         .clip(CircleShape)
-                        .background(MaterialTheme.colorScheme.surface.adjustBrightness(0.8f))
+                        .background(backgroundColor.adjustBrightness(0.8f))
                         .padding(5.dp)
                         .clickable(enabled) { onColorPicked(defaultColor) }
                 )
@@ -192,7 +193,7 @@ fun ColorPickerRow(
                     showPicker = false
                 }
             },
-            containerColor = MaterialTheme.colorScheme.surface,
+            containerColor = backgroundColor,
             alignment = Alignment.Center
         )
     }
@@ -296,6 +297,7 @@ private fun ColorPicker(
             showValue = false,
             value = color.alpha,
             color = MaterialTheme.colorScheme.primary,
+            valueRange = 0f..1f
         ) { alpha -> onColorSelected(color.copy(alpha = alpha)) }
 
         Spacer(Modifier.height(15.dp))
