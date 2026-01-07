@@ -3,6 +3,7 @@
 package org.elnix.dragonlauncher.ui.components.dialogs
 
 import androidx.compose.foundation.Canvas
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
@@ -13,6 +14,7 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -37,10 +39,13 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.geometry.center
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.painter.BitmapPainter
 import androidx.compose.ui.graphics.toArgb
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import org.elnix.dragonlauncher.R
 import org.elnix.dragonlauncher.data.SwipePointSerializable
 import org.elnix.dragonlauncher.data.defaultSwipePointsValues
@@ -49,10 +54,11 @@ import org.elnix.dragonlauncher.ui.colors.ColorPickerRow
 import org.elnix.dragonlauncher.ui.components.ValidateCancelButtons
 import org.elnix.dragonlauncher.ui.helpers.SliderWithLabel
 import org.elnix.dragonlauncher.ui.helpers.actionsInCircle
-import org.elnix.dragonlauncher.ui.helpers.settings.SettingsItem
 import org.elnix.dragonlauncher.ui.theme.AmoledDefault
 import org.elnix.dragonlauncher.ui.theme.LocalExtraColors
 import org.elnix.dragonlauncher.utils.actions.actionColor
+import org.elnix.dragonlauncher.utils.actions.actionIconBitmap
+import org.elnix.dragonlauncher.utils.actions.actionLabel
 import org.elnix.dragonlauncher.utils.colors.AppObjectsColors
 import org.elnix.dragonlauncher.utils.colors.adjustBrightness
 import org.elnix.dragonlauncher.utils.models.AppsViewModel
@@ -83,6 +89,10 @@ fun EditPointDialog(
     val backgroundSurfaceColor = MaterialTheme.colorScheme.surface.adjustBrightness(0.7f)
 
     val currentActionColor = actionColor(editPoint.action, extraColors)
+
+    val label = actionLabel(editPoint.action)
+    val actionColor = actionColor(editPoint.action, extraColors)
+
 
     CustomAlertDialog(
         modifier = Modifier.padding(16.dp),
@@ -213,12 +223,75 @@ fun EditPointDialog(
                     .verticalScroll(rememberScrollState())
             ) {
 
-                SettingsItem(
-                    title = stringResource(R.string.edit_action),
-                    leadIcon = Icons.Default.Edit,
-                    backgroundColor = backgroundSurfaceColor
+                Row(
+                    modifier = Modifier
+                        .fillMaxWidth(),
+                    verticalAlignment = Alignment.CenterVertically,
+                    horizontalArrangement = Arrangement.spacedBy(15.dp)
                 ) {
-                    showEditActionDialog = true
+                    Row(
+                        modifier = Modifier
+                            .weight(1f)
+                            .clip(RoundedCornerShape(12.dp))
+                            .background(backgroundSurfaceColor)
+                            .clickable {
+                                showEditActionDialog = true
+                            }
+                            .padding(12.dp),
+                        verticalAlignment = Alignment.CenterVertically,
+                        horizontalArrangement = Arrangement.spacedBy(12.dp)
+                    ) {
+                        Image(
+                            painter = BitmapPainter(
+                                actionIconBitmap(
+                                    icons,
+                                    editPoint.action,
+                                    ctx,
+                                    tintColor = actionColor
+                                )
+                            ),
+                            contentDescription = label,
+                            modifier = Modifier.size(22.dp)
+                        )
+
+                        Text(
+                            text = label,
+                            color = actionColor,
+                            fontSize = 18.sp,
+                            fontWeight = FontWeight.Bold
+                        )
+
+                        Spacer(Modifier.weight(1f))
+                        Icon(
+                            imageVector = Icons.Default.Edit,
+                            contentDescription = stringResource(R.string.edit_action),
+                            tint = MaterialTheme.colorScheme.primary
+                        )
+                    }
+
+                    Row(
+                        modifier = Modifier
+                            .weight(1f)
+                            .clip(RoundedCornerShape(12.dp))
+                            .background(backgroundSurfaceColor)
+                            .clickable {
+                                showEditIconDialog = true
+                            }
+                            .padding(12.dp),
+                        verticalAlignment = Alignment.CenterVertically,
+                        horizontalArrangement = Arrangement.spacedBy(12.dp)
+                    ) {
+                        Text(
+                            text = stringResource(R.string.edit_icon)
+                        )
+                        Spacer(Modifier.weight(1f))
+
+                        Icon(
+                            imageVector = Icons.Default.Edit,
+                            contentDescription = stringResource(R.string.edit_action),
+                            tint = MaterialTheme.colorScheme.primary,
+                        )
+                    }
                 }
 
                 TextField(
@@ -346,7 +419,7 @@ fun EditPointDialog(
                     modifier = Modifier
                         .fillMaxWidth()
                         .clip(RoundedCornerShape(12.dp))
-                        .clickable {
+                        .clickable(false) {
                             if (editPoint.haptic == null) editPoint.haptic = true
                             else editPoint.haptic = !editPoint.haptic!!
 
@@ -354,15 +427,18 @@ fun EditPointDialog(
                         .padding(8.dp)
                 ) {
                     Checkbox(
+                        enabled = false,
                         checked = editPoint.haptic
                             ?: defaultSwipePointsValues.haptic!!,
                         onCheckedChange = {
                             editPoint.haptic = it
-                        }
+                        },
+                        colors = AppObjectsColors.checkboxColors()
                     )
 
                     Text(
-                        text = "Haptic feedback"
+                        text = "Haptic feedback",
+                        color = MaterialTheme.colorScheme.onSurface.adjustBrightness(0.7f)
                     )
                 }
             }
