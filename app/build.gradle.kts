@@ -43,6 +43,11 @@ android {
             dimension = "channel"
             versionNameSuffix = "-beta"
         }
+        create("fdroid") {
+            dimension = "channel"
+            versionNameSuffix = ""
+            signingConfig = null
+        }
     }
 
     signingConfigs {
