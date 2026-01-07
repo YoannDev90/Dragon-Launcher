@@ -1,3 +1,5 @@
+@file:Suppress("AssignedValueIsNeverRead")
+
 package org.elnix.dragonlauncher.ui.components.dialogs
 
 import androidx.compose.foundation.layout.Column
@@ -24,32 +26,33 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.toArgb
-import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import org.elnix.dragonlauncher.R
-import org.elnix.dragonlauncher.data.SwipeActionSerializable
 import org.elnix.dragonlauncher.data.SwipePointSerializable
 import org.elnix.dragonlauncher.data.defaultSwipePointsValues
 import org.elnix.dragonlauncher.ui.colors.ColorPickerRow
 import org.elnix.dragonlauncher.ui.components.ValidateCancelButtons
 import org.elnix.dragonlauncher.ui.helpers.SliderWithLabel
+import org.elnix.dragonlauncher.ui.helpers.settings.SettingsItem
 import org.elnix.dragonlauncher.ui.theme.LocalExtraColors
 import org.elnix.dragonlauncher.utils.actions.ActionIcon
 import org.elnix.dragonlauncher.utils.colors.AppObjectsColors
 import org.elnix.dragonlauncher.utils.models.AppsViewModel
+import org.elnix.dragonlauncher.utils.models.WorkspaceViewModel
 
 @Composable
 fun EditPointDialog(
-    point: SwipePointSerializable,
     appsViewModel: AppsViewModel,
+    workspaceViewModel: WorkspaceViewModel,
+    point: SwipePointSerializable,
     onDismiss: () -> Unit,
     onConfirm: (SwipePointSerializable) -> Unit
 ) {
-    val ctx = LocalContext.current
 
     var editPoint by remember { mutableStateOf(point) }
     var showEditIconDialog by remember { mutableStateOf(false) }
+    var showEditActionDialog by remember { mutableStateOf(false) }
 
     val icons by appsViewModel.icons.collectAsState()
 
@@ -68,6 +71,13 @@ fun EditPointDialog(
                 modifier = Modifier
             ) {
 
+                SettingsItem(
+                    title = stringResource(R.string.edit_action),
+                    leadIcon = Icons.Default.Edit
+                ) {
+                    showEditActionDialog = true
+                }
+
                 /**
                  * Icon Row; preview it and edit button at right that opens the icon editor
                  */
@@ -77,7 +87,7 @@ fun EditPointDialog(
                         .padding(10.dp)
                 ) {
                     ActionIcon(
-                        action = editPoint.action ?: SwipeActionSerializable.OpenDragonLauncherSettings,
+                        action = editPoint.action,
                         icons = icons,
                         modifier = Modifier
                             .size(50.dp),
@@ -223,5 +233,15 @@ fun EditPointDialog(
 
     if (showEditIconDialog) {
         IconPickerDialog { TODO() }
+    }
+    if (showEditActionDialog) {
+        AddPointDialog(
+            appsViewModel = appsViewModel,
+            workspaceViewModel = workspaceViewModel,
+            onDismiss = { showEditActionDialog = false },
+        ) { selectedAction ->
+            editPoint = editPoint.copy(action = selectedAction)
+            showEditActionDialog = false
+        }
     }
 }

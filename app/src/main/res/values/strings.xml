@@ -250,4 +250,5 @@
     <string name="background_color_selected">Background Color Selected</string>
     <string name="opacity">Opacity %</string>
     <string name="custom_name">Custom name</string>
+    <string name="edit_action">Edit Action</string>
 </resources>

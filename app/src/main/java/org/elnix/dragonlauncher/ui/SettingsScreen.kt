@@ -85,13 +85,13 @@ import org.elnix.dragonlauncher.data.CircleNest
 import org.elnix.dragonlauncher.data.SwipeActionSerializable
 import org.elnix.dragonlauncher.data.SwipePointSerializable
 import org.elnix.dragonlauncher.data.UiCircle
-import org.elnix.dragonlauncher.data.UiSwipePoint
 import org.elnix.dragonlauncher.data.stores.ColorSettingsStore
 import org.elnix.dragonlauncher.data.stores.DebugSettingsStore
 import org.elnix.dragonlauncher.data.stores.SwipeSettingsStore
 import org.elnix.dragonlauncher.data.stores.UiSettingsStore
 import org.elnix.dragonlauncher.ui.components.AppPreviewTitle
 import org.elnix.dragonlauncher.ui.components.dialogs.AddPointDialog
+import org.elnix.dragonlauncher.ui.components.dialogs.EditPointDialog
 import org.elnix.dragonlauncher.ui.components.dialogs.UserValidation
 import org.elnix.dragonlauncher.ui.helpers.CircleIconButton
 import org.elnix.dragonlauncher.ui.helpers.RepeatingPressButton
@@ -102,6 +102,7 @@ import org.elnix.dragonlauncher.ui.theme.LocalExtraColors
 import org.elnix.dragonlauncher.ui.theme.addRemoveCirclesColor
 import org.elnix.dragonlauncher.ui.theme.copyColor
 import org.elnix.dragonlauncher.ui.theme.moveColor
+import org.elnix.dragonlauncher.utils.SWIPE_TAG
 import org.elnix.dragonlauncher.utils.TAG
 import org.elnix.dragonlauncher.utils.actions.actionColor
 import org.elnix.dragonlauncher.utils.actions.actionLabel
@@ -165,20 +166,20 @@ fun SettingsScreen(
 
     var center by remember { mutableStateOf(Offset.Zero) }
 
-    val points: SnapshotStateList<UiSwipePoint> = remember { mutableStateListOf() }
+    val points: SnapshotStateList<SwipePointSerializable> = remember { mutableStateListOf() }
 
 
     val circles: SnapshotStateList<UiCircle> = remember { mutableStateListOf() }
 
-    var selectedPoint by remember { mutableStateOf<UiSwipePoint?>(null) }
+    var selectedPoint by remember { mutableStateOf<SwipePointSerializable?>(null) }
     var lastSelectedCircle by remember { mutableIntStateOf(0) }
     val aPointIsSelected = selectedPoint != null
 
     var showAddDialog by remember { mutableStateOf(false) }
-    var showEditDialog by remember { mutableStateOf<UiSwipePoint?>(null) }
+    var showEditDialog by remember { mutableStateOf<SwipePointSerializable?>(null) }
     var recomposeTrigger by remember { mutableIntStateOf(0) }
 
-    var showDeleteNestDialog by remember { mutableStateOf<UiSwipePoint?>(null) }
+    var showDeleteNestDialog by remember { mutableStateOf<SwipePointSerializable?>(null) }
 
 
     /**
@@ -266,10 +267,10 @@ fun SettingsScreen(
     val extraColors = LocalExtraColors.current
 
 
-    var undoStack by remember { mutableStateOf<List<List<UiSwipePoint>>>(emptyList()) }
-    var redoStack by remember { mutableStateOf<List<List<UiSwipePoint>>>(emptyList()) }
+    var undoStack by remember { mutableStateOf<List<List<SwipePointSerializable>>>(emptyList()) }
+    var redoStack by remember { mutableStateOf<List<List<SwipePointSerializable>>>(emptyList()) }
 
-    fun snapshotPoints(): List<UiSwipePoint> = points.map { it.copy() }
+    fun snapshotPoints(): List<SwipePointSerializable> = points.map { it.copy() }
 
     fun applyChange(mutator: () -> Unit) {
         // Save current state into undo before mutation
@@ -314,7 +315,7 @@ fun SettingsScreen(
 
 
     fun updatePointPosition(
-        point: UiSwipePoint,
+        point: SwipePointSerializable,
         circles: SnapshotStateList<UiCircle>,
         center: Offset,
         pos: Offset,
@@ -355,15 +356,24 @@ fun SettingsScreen(
     LaunchedEffect(Unit) {
         val saved = SwipeSettingsStore.getPoints(ctx)
         points.clear()
-        points.addAll(saved.map {
-            UiSwipePoint(
-                it.id ?: UUID.randomUUID().toString(),
-                it.angleDeg,
-                it.action ?: SwipeActionSerializable.ControlPanel,
-                it.circleNumber,
-                it.nestId ?: 0
-            )
-        })
+        try {
+            points.addAll(saved)
+        } catch (e: NullPointerException) {
+            logE(SWIPE_TAG, "Error loading swipe points: $e")
+            ctx.showToast("Error loading swipe points: $e")
+
+            // Fallback load them the old way
+            try {
+                saved.map {
+                    @Suppress("USELESS_ELVIS")
+                    points.add(
+                        it.copy(action = it.action ?: SwipeActionSerializable.OpenDragonLauncherSettings)
+                    )
+                }
+            } catch (e: Exception) {
+                logE(SWIPE_TAG, "Fallback loading also failed, clearing all points: $e")
+            }
+        }
     }
 
 
@@ -372,18 +382,7 @@ fun SettingsScreen(
         snapshotFlow { points.toList() }
             .distinctUntilChanged()
             .collect { list ->
-                SwipeSettingsStore.savePoints(
-                    ctx,
-                    list.map {
-                        SwipePointSerializable(
-                            id = it.id,
-                            angleDeg = it.angleDeg,
-                            action = it.action,
-                            circleNumber = it.circleNumber,
-                            nestId = it.nestId
-                        )
-                    }
-                )
+                SwipeSettingsStore.savePoints(ctx, list)
             }
     }
 
@@ -541,7 +540,7 @@ fun SettingsScreen(
                         .pointerInput(Unit) {
                             detectDragGestures(
                                 onDragStart = { offset ->
-                                    var closest: UiSwipePoint? = null
+                                    var closest: SwipePointSerializable? = null
                                     var best = Float.MAX_VALUE
 
                                     // Can only select points on the same nest
@@ -603,7 +602,7 @@ fun SettingsScreen(
                         .pointerInput(Unit) {
                             detectTapGestures(
                                 onTap = { offset ->
-                                    var tapped: UiSwipePoint? = null
+                                    var tapped: SwipePointSerializable? = null
                                     var best = Float.MAX_VALUE
 
                                     logD(TAG, currentFilteredPoints.toString())
@@ -896,7 +895,7 @@ fun SettingsScreen(
                                 return@CircleIconButton
                             }
 
-                        val newPoint = UiSwipePoint(
+                        val newPoint = SwipePointSerializable(
                             id = UUID.randomUUID().toString(),
                             angleDeg = newAngle,
                             action = oldPoint.action,
@@ -1030,7 +1029,7 @@ fun SettingsScreen(
                         label = if (index == -1) stringResource(R.string.cancel_zone)
                         else "${stringResource(R.string.circle)}: $index",
                         value = distance,
-                        valueRange = 0f..1000f,
+                        valueRange = 0..1000,
                         showValue = false,
                         color = MaterialTheme.colorScheme.primary,
                         onReset = {
@@ -1080,7 +1079,7 @@ fun SettingsScreen(
                     pendingNestUpdate = nests + CircleNest(id = finalAction.nestId, parentId = nestId)
                 }
 
-                val point = UiSwipePoint(
+                val point = SwipePointSerializable(
                     id = UUID.randomUUID().toString(),
                     angleDeg = newAngle,
                     action = finalAction,
@@ -1101,21 +1100,30 @@ fun SettingsScreen(
     }
 
     if (showEditDialog != null) {
-        val editPoint = showEditDialog
+        val editPoint = showEditDialog!!
 
-        AddPointDialog(
+        EditPointDialog(
             appsViewModel = appsViewModel,
             workspaceViewModel = workspaceViewModel,
-            onDismiss = { showEditDialog = null },
-            onActionSelected = { action ->
-
-                applyChange {
-                    points.find { it.id == editPoint?.id }?.action = action
-                }
-
+            point = editPoint,
+            onDismiss = {
                 showEditDialog = null
+            },
+        ) { newPoint ->
+            if (newPoint.action is SwipeActionSerializable.OpenCircleNest) {
+                // If changing to nest action, create the nest
+                pendingNestUpdate = nests + CircleNest(id = newPoint.nestId ?: 0, parentId = nestId)
             }
-        )
+
+            applyChange {
+                val index = points.indexOfFirst { it.id == editPoint.id }
+                if (index >= 0) {
+                    points[index] = newPoint
+                }
+            }
+            recomposeTrigger++
+            showEditDialog = null
+        }
     }
 
     if (showDeleteNestDialog != null) {

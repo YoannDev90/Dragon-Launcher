@@ -105,7 +105,7 @@ fun BehaviorTab(
             SliderWithLabel(
                 label = stringResource(R.string.left_padding),
                 value = leftPadding,
-                valueRange = 0f..300f,
+                valueRange = 0..300,
                 color = MaterialTheme.colorScheme.primary,
                 showValue = true,
                 onReset = {
@@ -128,7 +128,7 @@ fun BehaviorTab(
             SliderWithLabel(
                 label = stringResource(R.string.right_padding),
                 value = rightPadding,
-                valueRange = 0f..300f,
+                valueRange = 0..300,
                 color = MaterialTheme.colorScheme.primary,
                 showValue = true,
                 onReset = {
@@ -151,7 +151,7 @@ fun BehaviorTab(
             SliderWithLabel(
                 label = stringResource(R.string.up_padding),
                 value = upPadding,
-                valueRange = 0f..300f,
+                valueRange = 0..300,
                 color = MaterialTheme.colorScheme.primary,
                 showValue = true,
                 onReset = {
@@ -174,7 +174,7 @@ fun BehaviorTab(
             SliderWithLabel(
                 label = stringResource(R.string.down_padding),
                 value = downPadding,
-                valueRange = 0f..300f,
+                valueRange = 0..300,
                 color = MaterialTheme.colorScheme.primary,
                 showValue = true,
                 onReset = {

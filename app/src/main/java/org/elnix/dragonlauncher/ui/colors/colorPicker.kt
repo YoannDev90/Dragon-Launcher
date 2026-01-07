@@ -296,6 +296,7 @@ private fun ColorPicker(
             showValue = false,
             value = color.alpha,
             color = MaterialTheme.colorScheme.primary,
+            valueRange = 0f..1f
         ) { alpha -> onColorSelected(color.copy(alpha = alpha)) }
 
         Spacer(Modifier.height(15.dp))

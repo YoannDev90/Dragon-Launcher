@@ -99,7 +99,8 @@ fun SliderColorPicker(
         SliderWithLabel(
             label = "Red :",
             value = red,
-            color = Color.Red
+            color = Color.Red,
+            valueRange = 0f..1f
         ) {
             red = it
             pushCurrentColor()
@@ -108,7 +109,8 @@ fun SliderColorPicker(
         SliderWithLabel(
             label = "Green :",
             value = green,
-            color = Color.Green
+            color = Color.Green,
+            valueRange = 0f..1f
         ) {
             green = it
             pushCurrentColor()
@@ -117,7 +119,8 @@ fun SliderColorPicker(
         SliderWithLabel(
             label = "Blue :",
             value = blue,
-            color = Color.Blue
+            color = Color.Blue,
+            valueRange = 0f..1f
         ) {
             blue = it
             pushCurrentColor()
