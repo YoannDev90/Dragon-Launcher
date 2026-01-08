@@ -92,7 +92,9 @@ fun AppPickerDialog(
 
                 Row(
                     horizontalArrangement = Arrangement.spacedBy(5.dp),
-                    verticalAlignment = Alignment.CenterVertically
+                    verticalAlignment = Alignment.CenterVertically,
+                    modifier = Modifier
+                        .height(75.dp)
                 ) {
                     if (!isSearchBarEnabled) {
                         Text(
