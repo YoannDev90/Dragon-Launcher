@@ -161,6 +161,10 @@ fun SettingsScreen(
     val snapPoints by UiSettingsStore.getSnapPoints(ctx).collectAsState(initial = true)
     val autoSeparatePoints by UiSettingsStore.getAutoSeparatePoints(ctx).collectAsState(initial = true)
 
+    val appLabelOverlaySize by UiSettingsStore.getAppLabelOverlaySize(ctx)
+        .collectAsState(initial = 18)
+    val appIconOverlaySize by UiSettingsStore.getAppIconOverlaySize(ctx)
+        .collectAsState(initial = 22)
 
     val settingsDebugInfos by DebugSettingsStore.getSettingsDebugInfos(ctx)
         .collectAsState(initial = false)
@@ -1171,6 +1175,8 @@ fun SettingsScreen(
             pointIcons = pointIcons,
             point = currentPoint,
             topPadding = 80.dp,
+            labelSize = appLabelOverlaySize,
+            iconSize = appIconOverlaySize,
             showLabel = true,
             showIcon = true
         )

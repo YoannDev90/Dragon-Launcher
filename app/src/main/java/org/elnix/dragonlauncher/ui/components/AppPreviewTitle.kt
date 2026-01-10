@@ -31,6 +31,8 @@ fun AppPreviewTitle(
     pointIcons: Map<String, ImageBitmap>,
     point: SwipePointSerializable,
     topPadding: Dp = 60.dp,
+    labelSize: Int,
+    iconSize: Int,
     showLabel: Boolean,
     showIcon: Boolean
 ) {
@@ -58,7 +60,7 @@ fun AppPreviewTitle(
                         Image(
                             bitmap = it,
                             contentDescription = null,
-                            modifier = Modifier.size(22.dp)
+                            modifier = Modifier.size(iconSize.dp)
                         )
                     }
                 }
@@ -66,7 +68,7 @@ fun AppPreviewTitle(
                     Text(
                         text = label,
                         color = actionColor(action, extraColors, point.customActionColor?.let { Color(it) }),
-                        fontSize = 18.sp,
+                        fontSize = labelSize.sp,
                         fontWeight = FontWeight.Bold
                     )
                 }

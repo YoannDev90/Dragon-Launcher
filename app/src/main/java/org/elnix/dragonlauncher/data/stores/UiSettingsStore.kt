@@ -16,7 +16,9 @@ import org.elnix.dragonlauncher.data.getBooleanStrict
 import org.elnix.dragonlauncher.data.getIntStrict
 import org.elnix.dragonlauncher.data.getStringStrict
 import org.elnix.dragonlauncher.data.putIfNonDefault
+import org.elnix.dragonlauncher.data.stores.UiSettingsStore.Keys.APP_ICON_OVERLAY_SIZE
 import org.elnix.dragonlauncher.data.stores.UiSettingsStore.Keys.APP_LABEL_ICON_OVERLAY_TOP_PADDING
+import org.elnix.dragonlauncher.data.stores.UiSettingsStore.Keys.APP_LABEL_OVERLAY_SIZE
 import org.elnix.dragonlauncher.data.stores.UiSettingsStore.Keys.AUTO_SEPARATE_POINTS
 import org.elnix.dragonlauncher.data.stores.UiSettingsStore.Keys.FULLSCREEN
 import org.elnix.dragonlauncher.data.stores.UiSettingsStore.Keys.ICON_PACK_KEY
@@ -56,7 +58,9 @@ object UiSettingsStore : BaseSettingsStore<Map<String, Any?>>() {
         val showAllActionsOnCurrentCircle: Boolean = false,
         val iconPackKey: String? = null,
         val showActionIconBorder: Boolean = true,
-        val appLabelIconOverlayTopPadding: Int = 30
+        val appLabelIconOverlayTopPadding: Int = 30,
+        val appLabelOverlaySize: Int = 18,
+        val appIconOverlaySize: Int = 22
     )
 
     private val defaults = UiSettingsBackup()
@@ -78,9 +82,11 @@ object UiSettingsStore : BaseSettingsStore<Map<String, Any?>>() {
         val MIN_ANGLE_FROM_A_POINT_TO_ACTIVATE_IT = intPreferencesKey("minAngleFromAPointToActivateIt")
         val SHOW_ALL_ACTIONS_ON_CURRENT_CIRCLE = booleanPreferencesKey("showAllActionsOnCurrentCircle")
         val ICON_PACK_KEY = stringPreferencesKey("selected_icon_pack")
-
         val APP_LABEL_ICON_OVERLAY_TOP_PADDING =
             intPreferencesKey("appLabelIconOverlayTopPadding")
+        val APP_LABEL_OVERLAY_SIZE = intPreferencesKey("appLabelOverlaySize")
+        val APP_ICON_OVERLAY_SIZE = intPreferencesKey("appIconOverlaySize")
+
 
         val ALL = listOf(
             RGB_LOADING,
@@ -99,7 +105,9 @@ object UiSettingsStore : BaseSettingsStore<Map<String, Any?>>() {
             MIN_ANGLE_FROM_A_POINT_TO_ACTIVATE_IT,
             SHOW_ALL_ACTIONS_ON_CURRENT_CIRCLE,
             ICON_PACK_KEY,
-            APP_LABEL_ICON_OVERLAY_TOP_PADDING
+            APP_LABEL_ICON_OVERLAY_TOP_PADDING,
+            APP_LABEL_OVERLAY_SIZE,
+            APP_ICON_OVERLAY_SIZE
         )
     }
 
@@ -232,6 +240,18 @@ object UiSettingsStore : BaseSettingsStore<Map<String, Any?>>() {
     fun getAppLabelIconOverlayTopPadding(ctx: Context): Flow<Int> =
         ctx.behaviorDataStore.data.map { it[APP_LABEL_ICON_OVERLAY_TOP_PADDING] ?: defaults.appLabelIconOverlayTopPadding }
 
+    fun getAppLabelOverlaySize(ctx: Context): Flow<Int> =
+        ctx.behaviorDataStore.data.map { it[APP_LABEL_OVERLAY_SIZE] ?: defaults.appLabelOverlaySize }
+
+    suspend fun setAppLabelOverlaySize(ctx: Context, value: Int) {
+        ctx.behaviorDataStore.edit { it[APP_LABEL_OVERLAY_SIZE] = value }
+    }
+
+    suspend fun setAppIconOverlaySize(ctx: Context, value: Int) {
+        ctx.behaviorDataStore.edit { it[APP_ICON_OVERLAY_SIZE] = value }
+    }
+    fun getAppIconOverlaySize(ctx: Context): Flow<Int> =
+        ctx.behaviorDataStore.data.map { it[APP_ICON_OVERLAY_SIZE] ?: defaults.appIconOverlaySize }
 
 
     // --------------------------------
@@ -351,6 +371,19 @@ object UiSettingsStore : BaseSettingsStore<Map<String, Any?>>() {
                 prefs[APP_LABEL_ICON_OVERLAY_TOP_PADDING],
                 defaults.appLabelIconOverlayTopPadding
             )
+
+            putIfNonDefault(
+                APP_LABEL_OVERLAY_SIZE,
+                prefs[APP_LABEL_OVERLAY_SIZE],
+                defaults.appLabelOverlaySize
+            )
+
+            putIfNonDefault(
+                APP_ICON_OVERLAY_SIZE,
+                prefs[APP_ICON_OVERLAY_SIZE],
+                defaults.appIconOverlaySize
+            )
+
         }
     }
 
@@ -429,6 +462,20 @@ object UiSettingsStore : BaseSettingsStore<Map<String, Any?>>() {
                     value,
                     APP_LABEL_ICON_OVERLAY_TOP_PADDING,
                     defaults.appLabelIconOverlayTopPadding
+                )
+
+            prefs[APP_LABEL_OVERLAY_SIZE] =
+                getIntStrict(
+                    value,
+                    APP_LABEL_OVERLAY_SIZE,
+                    defaults.appLabelOverlaySize
+                )
+
+            prefs[APP_ICON_OVERLAY_SIZE] =
+                getIntStrict(
+                    value,
+                    APP_ICON_OVERLAY_SIZE,
+                    defaults.appIconOverlaySize
                 )
         }
     }

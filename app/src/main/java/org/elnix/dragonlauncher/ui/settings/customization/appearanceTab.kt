@@ -3,6 +3,11 @@ package org.elnix.dragonlauncher.ui.settings.customization
 import androidx.compose.animation.core.animateDpAsState
 import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.animation.core.tween
+import androidx.compose.foundation.background
+import androidx.compose.foundation.border
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ColorLens
 import androidx.compose.material.icons.filled.Palette
@@ -18,7 +23,8 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
-import androidx.compose.ui.graphics.ImageBitmap
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
@@ -35,10 +41,13 @@ import org.elnix.dragonlauncher.ui.helpers.SwitchRow
 import org.elnix.dragonlauncher.ui.helpers.TextDivider
 import org.elnix.dragonlauncher.ui.helpers.settings.SettingsItem
 import org.elnix.dragonlauncher.ui.helpers.settings.SettingsLazyHeader
+import org.elnix.dragonlauncher.utils.colors.adjustBrightness
+import org.elnix.dragonlauncher.utils.models.AppsViewModel
 
 
 @Composable
 fun AppearanceTab(
+    appsViewModel: AppsViewModel,
     navController: NavController,
     onBack: () -> Unit
 ) {
@@ -87,18 +96,23 @@ fun AppearanceTab(
 
     val appLabelIconOverlayTopPadding by UiSettingsStore.getAppLabelIconOverlayTopPadding(ctx)
         .collectAsState(initial = 30)
-    var isDraggingAppLabelIcon by remember { mutableStateOf(false) }
+    val appLabelOverlaySize by UiSettingsStore.getAppLabelOverlaySize(ctx)
+        .collectAsState(initial = 18)
+    val appIconOverlaySize by UiSettingsStore.getAppIconOverlaySize(ctx)
+        .collectAsState(initial = 22)
+
+    var isDraggingAppPreviewOverlays by remember { mutableStateOf(false) }
 
     val alpha by animateFloatAsState(
-        targetValue = if (isDraggingAppLabelIcon) 1f else 0f,
+        targetValue = if (isDraggingAppPreviewOverlays) 1f else 0f,
         animationSpec = tween(150)
     )
     val offsetY by animateDpAsState(
-        targetValue = if (isDraggingAppLabelIcon) 0.dp else (-20).dp,
+        targetValue = if (isDraggingAppPreviewOverlays) 0.dp else (-20).dp,
         animationSpec = tween(150)
     )
 
-    val icons = emptyMap<String, ImageBitmap>()
+    val icons by appsViewModel.pointIcons.collectAsState()
 
 
     SettingsLazyHeader(
@@ -197,20 +211,83 @@ fun AppearanceTab(
         }
 
         item {
-            SliderWithLabel(
-                label = stringResource(R.string.app_label_icon_overlay_top_padding),
-                value = appLabelIconOverlayTopPadding,
-                showValue = true,
-                valueRange = 0..360,
-                color = MaterialTheme.colorScheme.primary,
-                onReset = { scope.launch { UiSettingsStore.setAppLabelIconOverlayTopPadding(ctx, 30) } },
-                onChange = {
-                    scope.launch { UiSettingsStore.setAppLabelIconOverlayTopPadding(ctx, it) }
-                },
-                onDragStateChange = {
-                    isDraggingAppLabelIcon = it
-                }
-            )
+            Column(
+                modifier = Modifier
+                    .clip(RoundedCornerShape(12.dp))
+                    .background(MaterialTheme.colorScheme.surface.adjustBrightness(0.7f))
+                    .border(
+                        1.dp,
+                        MaterialTheme.colorScheme.primary.adjustBrightness(0.2f),
+                        RoundedCornerShape(12.dp)
+                    )
+                    .padding(8.dp)
+            ) {
+                SliderWithLabel(
+                    label = stringResource(R.string.app_label_icon_overlay_top_padding),
+                    value = appLabelIconOverlayTopPadding,
+                    showValue = true,
+                    valueRange = 0..360,
+                    color = MaterialTheme.colorScheme.primary,
+                    onReset = {
+                        scope.launch {
+                            UiSettingsStore.setAppLabelIconOverlayTopPadding(
+                                ctx,
+                                18
+                            )
+                        }
+                    },
+                    onChange = {
+                        scope.launch { UiSettingsStore.setAppLabelIconOverlayTopPadding(ctx, it) }
+                    },
+                    onDragStateChange = {
+                        isDraggingAppPreviewOverlays = it
+                    }
+                )
+
+                SliderWithLabel(
+                    label = stringResource(R.string.app_label_size),
+                    value = appLabelOverlaySize,
+                    showValue = true,
+                    valueRange = 0..70,
+                    color = MaterialTheme.colorScheme.primary,
+                    onReset = {
+                        scope.launch {
+                            UiSettingsStore.setAppLabelOverlaySize(
+                                ctx,
+                                22
+                            )
+                        }
+                    },
+                    onChange = {
+                        scope.launch { UiSettingsStore.setAppLabelOverlaySize(ctx, it) }
+                    },
+                    onDragStateChange = {
+                        isDraggingAppPreviewOverlays = it
+                    }
+                )
+
+                SliderWithLabel(
+                    label = stringResource(R.string.app_icon_size),
+                    value = appIconOverlaySize,
+                    showValue = true,
+                    valueRange = 0..70,
+                    color = MaterialTheme.colorScheme.primary,
+                    onReset = {
+                        scope.launch {
+                            UiSettingsStore.setAppIconOverlaySize(
+                                ctx,
+                                30
+                            )
+                        }
+                    },
+                    onChange = {
+                        scope.launch { UiSettingsStore.setAppIconOverlaySize(ctx, it) }
+                    },
+                    onDragStateChange = {
+                        isDraggingAppPreviewOverlays = it
+                    }
+                )
+            }
         }
 
         item {
@@ -280,13 +357,18 @@ fun AppearanceTab(
         }
     }
 
-    if (isDraggingAppLabelIcon) {
+    if (isDraggingAppPreviewOverlays) {
         AppPreviewTitle(
             offsetY = offsetY,
             alpha = alpha,
             pointIcons = icons,
-            point = dummySwipePoint(SwipeActionSerializable.OpenDragonLauncherSettings),
+            point = dummySwipePoint(SwipeActionSerializable.OpenDragonLauncherSettings).copy(
+                customName = "Preview",
+                id = icons.keys.random() // Kinda funny so I'll keep it :)
+            ),
             topPadding = appLabelIconOverlayTopPadding.dp,
+            labelSize = appLabelOverlaySize,
+            iconSize = appIconOverlaySize,
             showLabel = showLaunchingAppLabel,
             showIcon = showLaunchingAppIcon
         )

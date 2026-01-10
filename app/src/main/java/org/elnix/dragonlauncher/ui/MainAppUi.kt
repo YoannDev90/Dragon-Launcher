@@ -356,7 +356,7 @@ fun MainAppUi(
             }
             composable(SETTINGS.ADVANCED_ROOT) { AdvancedSettingsScreen(appsViewModel, navController, onReset = { goMainScreen() } ) { goSettingsRoot() } }
 
-            composable(SETTINGS.APPEARANCE)    { AppearanceTab(navController) { goAdvSettingsRoot() } }
+            composable(SETTINGS.APPEARANCE)    { AppearanceTab(appsViewModel, navController) { goAdvSettingsRoot() } }
             composable(SETTINGS.WALLPAPER)     { WallpaperTab { goAppearance() } }
             composable(SETTINGS.ICON_PACK)     { IconPackTab(appsViewModel) { goAppearance() } }
             composable(SETTINGS.STATUS_BAR)    { StatusBarTab(appsViewModel, workspaceViewModel) { goAppearance() } }
