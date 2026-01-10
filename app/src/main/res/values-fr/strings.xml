@@ -243,18 +243,23 @@
     <string name="opens_alarmclock_app">Ouvre l’application AlarmClock</string>
     <string name="opens_calendar_app">Ouvre l’application calendrier</string>
     <string name="edit_icon">Editer l\'icône</string>
+    <string name="border_stroke">Contour de bordure</string>
     <string name="border_stroke_selected">Contour de bordure sélectionnée</string>
     <string name="border_color">Couleur de bordure</string>
+    <string name="border_color_selected">Couleur de bordure sélectionnée</string>
     <string name="background_color_selected">Couleur d\'arrière plan sélectionnée</string>
     <string name="opacity">Opacité %</string>
     <string name="custom_name">Nom personnalisé</string>
     <string name="edit_action">Editer l\'action</string>
+    <string name="border_background_selected">Bordure d\'arrière plan sélectionnée</string>
+    <string name="custom_action_color">Personnaliser la couleur de l\'action</string>
+    <string name="icon_editor">Éditeur d’icônes</string>
     <string name="pick_image">Sélectionner une image</string>
     <string name="pick_from_icon_pack">Sélectionner depuis un pack d\'icônes</string>
     <string name="no_custom_icon">Pas d\'icône personnalisé</string>
     <string name="no_search_match">Pas de résultat de recherche</string>
-    <string name="border_background_selected">Bordure d\'arrière plan sélectionnée</string>
-    <string name="custom_action_color">Personnaliser la couleur de l\'action</string>
-    <string name="border_stroke">Contour de bordure</string>
-    <string name="border_color_selected">Couleur de bordure sélectionnée</string>
+    <string name="size">Taille</string>
+    <string name="rotation">Rotation</string>
+    <string name="scale_x">Échelle X</string>
+    <string name="scale_y">Gamme Y</string>
 </resources>

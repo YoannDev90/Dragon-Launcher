@@ -242,4 +242,24 @@
     <string name="date_action">दिनांक कार्रवाई</string>
     <string name="opens_alarmclock_app">अलार्मक्लॉक ऐप खोलता है</string>
     <string name="opens_calendar_app">कैलेंडर ऐप खोलता है</string>
+    <string name="edit_icon">आइकन संपादित करें</string>
+    <string name="border_stroke">बॉर्डर स्ट्रोक</string>
+    <string name="border_stroke_selected">बॉर्डर स्ट्रोक चयनित</string>
+    <string name="border_color">सीमा का रंग</string>
+    <string name="border_color_selected">बॉर्डर रंग चयनित</string>
+    <string name="background_color_selected">पृष्ठभूमि रंग चयनित</string>
+    <string name="opacity">अस्पष्टता %</string>
+    <string name="custom_name">कस्टम नाम</string>
+    <string name="edit_action">कार्रवाई संपादित करें</string>
+    <string name="border_background_selected">बॉर्डर पृष्ठभूमि चयनित</string>
+    <string name="custom_action_color">कस्टम एक्शन रंग</string>
+    <string name="icon_editor">आइकन संपादक</string>
+    <string name="pick_image">छवि चुनें</string>
+    <string name="pick_from_icon_pack">आइकन पैक में से चुनें</string>
+    <string name="no_custom_icon">कोई कस्टम आइकन नहीं</string>
+    <string name="no_search_match">कोई खोज मिलान नहीं</string>
+    <string name="size">आकार वाला</string>
+    <string name="rotation">रोटेशन</string>
+    <string name="scale_x">स्केल एक्स</string>
+    <string name="scale_y">स्केल Y</string>
 </resources>

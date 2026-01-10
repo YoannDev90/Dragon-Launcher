@@ -242,4 +242,24 @@
     <string name="date_action">日付の行動</string>
     <string name="opens_alarmclock_app">alarmClockアプリを開く</string>
     <string name="opens_calendar_app">カレンダーアプリを開く</string>
+    <string name="edit_icon">編集アイコン</string>
+    <string name="border_stroke">ボーダーストローク</string>
+    <string name="border_stroke_selected">ボーダーストロークの選択</string>
+    <string name="border_color">国境の色</string>
+    <string name="border_color_selected">ボーダーカラーの選択</string>
+    <string name="background_color_selected">背景色の選択</string>
+    <string name="opacity">不透明度%</string>
+    <string name="custom_name">カスタム名称</string>
+    <string name="edit_action">編集アクション</string>
+    <string name="border_background_selected">ボーダーバックグラウンド選択</string>
+    <string name="custom_action_color">カスタムアクションカラー</string>
+    <string name="icon_editor">アイコンエディター</string>
+    <string name="pick_image">画像を選んでください</string>
+    <string name="pick_from_icon_pack">アイコンパックから選んでください</string>
+    <string name="no_custom_icon">カスタムアイコンはありません</string>
+    <string name="no_search_match">検索マッチなし</string>
+    <string name="size">サイズ</string>
+    <string name="rotation">回転</string>
+    <string name="scale_x">スケールX</string>
+    <string name="scale_y">スケールY</string>
 </resources>

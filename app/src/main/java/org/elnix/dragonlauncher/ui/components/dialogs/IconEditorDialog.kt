@@ -337,7 +337,7 @@ fun IconEditorDialog(
                     ) {
                         selectedIcon = (selectedIcon ?: CustomIconSerializable()).copy(opacity = it)
                     }
-                    &
+
                     // Rotation
                     SliderWithLabel(
                         label = stringResource(R.string.rotation),

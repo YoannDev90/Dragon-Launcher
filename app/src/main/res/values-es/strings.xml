@@ -242,4 +242,24 @@
     <string name="date_action">Acción de fechas</string>
     <string name="opens_alarmclock_app">Abre la app alarma</string>
     <string name="opens_calendar_app">Abre la app de calendario</string>
+    <string name="edit_icon">Icono de edición</string>
+    <string name="border_stroke">Trazo de Borde</string>
+    <string name="border_stroke_selected">Trazo de borde seleccionado</string>
+    <string name="border_color">Color del borde</string>
+    <string name="border_color_selected">Color del borde seleccionado</string>
+    <string name="background_color_selected">Color de fondo seleccionado</string>
+    <string name="opacity">Porcentaje de opacidad</string>
+    <string name="custom_name">Nombre personalizado</string>
+    <string name="edit_action">Acción de edición</string>
+    <string name="border_background_selected">Antecedentes de la frontera seleccionados</string>
+    <string name="custom_action_color">Color de acción personalizado</string>
+    <string name="icon_editor">Editor de iconos</string>
+    <string name="pick_image">Elige la imagen</string>
+    <string name="pick_from_icon_pack">Elige del paquete de iconos</string>
+    <string name="no_custom_icon">Sin icono personalizado</string>
+    <string name="no_search_match">Sin búsqueda</string>
+    <string name="size">Tamaño</string>
+    <string name="rotation">Rotación</string>
+    <string name="scale_x">Escala X</string>
+    <string name="scale_y">Escala Y</string>
 </resources>
