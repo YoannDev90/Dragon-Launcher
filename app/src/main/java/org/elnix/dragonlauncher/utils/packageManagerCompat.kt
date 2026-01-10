@@ -111,14 +111,55 @@ class PackageManagerCompat(private val pm: PackageManager, private val ctx: Cont
                 (appInfo.packageName.startsWith("com.android.") || appInfo.packageName.startsWith("android"))
     }
 
-    fun getAppIcon(pkgName: String): Drawable {
+//    fun getAppIcon(pkgName: String): Drawable {
+//        return try {
+//            val appInfo = pm.getApplicationInfo(pkgName, 0)
+//            appInfo.loadUnbadgedIcon(pm)
+//        } catch (_: Exception) {
+//            ContextCompat.getDrawable(ctx, R.drawable.ic_app_default)!!
+//        }
+//    }
+
+    fun getAppIcon(
+        packageName: String,
+        userId: Int
+    ): Drawable {
+        val launcherApps = ctx.getSystemService(LauncherApps::class.java)
+        val userManager = ctx.getSystemService(UserManager::class.java)
+
+        val userHandle = userManager.userProfiles
+            .firstOrNull { it.hashCode() == userId }
+            ?: android.os.Process.myUserHandle()
+
         return try {
-            val appInfo = pm.getApplicationInfo(pkgName, 0)
+            // ─── WORK PROFILE OR ANY NON-CURRENT USER ───
+            if (userHandle != android.os.Process.myUserHandle() && launcherApps != null) {
+
+                // Try launcher activity icon first (correct & badged)
+                val activities = launcherApps.getActivityList(packageName, userHandle)
+                if (!activities.isNullOrEmpty()) {
+                    return activities[0].getBadgedIcon(0)
+                }
+
+                // Fallback: application icon via LauncherApps
+                val appInfo = launcherApps.getApplicationInfo(
+                    packageName,
+                    0,
+                    userHandle
+                )
+                return appInfo.loadUnbadgedIcon(pm)
+            }
+
+            // ─── PERSONAL PROFILE ───
+            val appInfo = pm.getApplicationInfo(packageName, 0)
             appInfo.loadUnbadgedIcon(pm)
-        } catch (_: Exception) {
+
+        } catch (e: Exception) {
+            logE(TAG, "Failed to load icon for $packageName (userId=$userId)", e)
             ContextCompat.getDrawable(ctx, R.drawable.ic_app_default)!!
         }
     }
+
 
     fun getResourcesForApplication(pkgName: String): android.content.res.Resources {
         return pm.getResourcesForApplication(pkgName)

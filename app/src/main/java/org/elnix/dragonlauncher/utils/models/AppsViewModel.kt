@@ -311,7 +311,7 @@ class AppsViewModel(application: Application) : AndroidViewModel(application) {
             apps.associate { app ->
                 val packIconName = getCachedIconMapping(app.packageName)
                 val drawable = packIconName?.let { loadIconFromPack(selectedIconPack.value?.packageName, it) }
-                val finalDrawable = drawable ?: pmCompat.getAppIcon(app.packageName)
+                val finalDrawable = drawable ?: pmCompat.getAppIcon(app.packageName, app.userId ?: 0)
                 app.packageName to loadDrawableAsBitmap(finalDrawable, 128, 128)
             }
         }

@@ -908,6 +908,11 @@ fun SettingsScreen(
                             nestId = nestId
                         )
 
+                        appsViewModel.reloadPointIcon(
+                            ctx = ctx,
+                            point = newPoint,
+                        )
+
                         applyChange {
                             points.add(newPoint)
                             autoSeparate(
@@ -1092,7 +1097,10 @@ fun SettingsScreen(
                     nestId = nestId
                 )
 
-
+                appsViewModel.reloadPointIcon(
+                    ctx = ctx,
+                    point = point,
+                )
 
                 applyChange {
                     points.add(point)

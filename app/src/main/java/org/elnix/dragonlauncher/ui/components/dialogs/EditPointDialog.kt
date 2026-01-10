@@ -95,7 +95,6 @@ fun EditPointDialog(
         appsViewModel.reloadPointIcon(
             ctx = ctx,
             point = editPoint,
-//            tint = actionColor(editPoint.action, extraColors)
         )
     }
 
