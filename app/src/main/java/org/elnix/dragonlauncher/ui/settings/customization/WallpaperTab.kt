@@ -54,6 +54,7 @@ import org.elnix.dragonlauncher.ui.colors.ColorPickerRow
 import org.elnix.dragonlauncher.ui.helpers.ActionSelector
 import org.elnix.dragonlauncher.ui.helpers.SliderWithLabel
 import org.elnix.dragonlauncher.ui.helpers.SwitchRow
+import org.elnix.dragonlauncher.ui.helpers.TextDivider
 import org.elnix.dragonlauncher.ui.helpers.settings.SettingsLazyHeader
 import org.elnix.dragonlauncher.utils.ImageUtils
 import org.elnix.dragonlauncher.utils.WallpaperHelper
@@ -294,7 +295,9 @@ fun WallpaperTab(onBack: () -> Unit) {
                 verticalAlignment = Alignment.CenterVertically
             ) {
                 Button(
-                    modifier = Modifier.weight(1f).fillMaxHeight(),
+                    modifier = Modifier
+                        .weight(1f)
+                        .fillMaxHeight(),
                     onClick = { imagePicker.launch(arrayOf("image/*")) },
                     colors = AppObjectsColors.buttonColors()
                 ) {
@@ -302,7 +305,9 @@ fun WallpaperTab(onBack: () -> Unit) {
                 }
 
                 Button(
-                    modifier = Modifier.weight(1f).fillMaxHeight(),
+                    modifier = Modifier
+                        .weight(1f)
+                        .fillMaxHeight(),
                     onClick = {
                         originalBitmap = helper.createPlainWallpaperBitmap(ctx, plainColor)
                         previewBitmap = originalBitmap
@@ -354,6 +359,19 @@ fun WallpaperTab(onBack: () -> Unit) {
                         }
                     }
                 )
+            }
+        }
+
+        item { TextDivider(stringResource(R.string.experimental)) }
+
+        item {
+            Button(
+                onClick = {
+
+                },
+                colors = AppObjectsColors.buttonColors()
+            ) {
+                Text("Get current wallpaper")
             }
         }
     }

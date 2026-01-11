@@ -1,12 +1,16 @@
 package org.elnix.dragonlauncher.utils
 
 import android.app.ActivityManager
+import android.app.WallpaperManager
 import android.content.Context
 import android.content.Intent
+import android.graphics.Bitmap
+import android.graphics.Canvas
 import androidx.compose.runtime.Composable
 import java.time.LocalDate
 import java.time.LocalTime
 import java.time.format.DateTimeFormatter
+import androidx.core.graphics.createBitmap
 
 
 @Composable
@@ -72,3 +76,25 @@ fun detectSystemLauncher(ctx: Context): String? {
 
     return null  // No system launcher detected
 }
+
+
+//fun getSystemWallpaper(context: Context): Bitmap? {
+//    val wm = WallpaperManager.getInstance(context)
+//
+//    return try {
+//        if (wm.wallpaperInfo != null) {
+//            // Live wallpaper
+//            val metrics = context.resources.displayMetrics
+//            val bmp = createBitmap(metrics.widthPixels, metrics.heightPixels)
+//            val canvas = Canvas(bmp)
+//            wm.drawable?.setBounds(0, 0, canvas.width, canvas.height)
+//            wm.drawable?.draw(canvas)
+//            bmp
+//        } else {
+//            // Static wallpaper
+//            wm.getBitmap(WallpaperManager.FLAG_SYSTEM)
+//        }
+//    } catch (e: Exception) {
+//        null
+//    }
+//}

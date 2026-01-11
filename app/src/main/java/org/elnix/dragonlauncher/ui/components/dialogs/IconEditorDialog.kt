@@ -16,7 +16,9 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Check
 import androidx.compose.material.icons.filled.Close
@@ -129,10 +131,10 @@ fun IconEditorDialog(
 
     CustomAlertDialog(
         modifier = Modifier
-            .padding(24.dp)
-            .height(684.dp),
+            .padding(24.dp),
         onDismissRequest = onDismiss,
         imePadding = false,
+        scroll = false,
         alignment = Alignment.Center,
         title = {
             Row(
@@ -201,7 +203,9 @@ fun IconEditorDialog(
         text = {
             Column(
                 modifier = Modifier
-                    .fillMaxWidth(),
+                    .fillMaxWidth()
+                    .height(584.dp)
+                    .verticalScroll(rememberScrollState()),
                 verticalArrangement = Arrangement.spacedBy(8.dp)
             ) {
                 Row(

@@ -4,10 +4,8 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.IntrinsicSize
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -45,9 +43,9 @@ fun CustomAlertDialog(
         Column(
             modifier = modifier
                 .fillMaxWidth()
-                .height(IntrinsicSize.Min)
                 .clip(shape)
-                .background(containerColor),
+                .background(containerColor)
+                .padding(top = 15.dp),
             horizontalAlignment = Alignment.CenterHorizontally,
             verticalArrangement = Arrangement.spacedBy(15.dp)
         ) {
@@ -65,7 +63,6 @@ fun CustomAlertDialog(
             Box(
                 Modifier
                     .padding(horizontal = 15.dp)
-                    .weight(1f)
                     .then(
                         if (scroll) {
                             Modifier.verticalScroll(rememberScrollState())
