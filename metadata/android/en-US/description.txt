@@ -1,1 +1,0 @@
-Dragon Launcher is a highly customizable Android launcher focused on speed and efficiency. The main idea of this launcher is to launch your apps via gestures. You can customize your list of fast access apps easily in the settings, and also use the app drawer to pick an app and launch it automatically.

@@ -1,4 +1,5 @@
 Categories:
+  - Launcher
   - System
 License: GPL-3.0-only
 AuthorName: Elnix90
@@ -6,59 +7,32 @@ AuthorEmail: elnix91@gmail.com
 SourceCode: https://github.com/Elnix90/Dragon-Launcher
 IssueTracker: https://github.com/Elnix90/Dragon-Launcher/issues
 Changelog: https://github.com/Elnix90/Dragon-Launcher/releases
+
 AutoName: Dragon Launcher
-Summary: Fast and efficient Android launcher based on gestures and minimalism
-Description: |
-  Dragon Launcher is a highly customizable Android launcher focused on speed and efficiency.
-  
-  The main Idea of this launcher is to launch your apps via gestures.
-  You can customize your list of fast access apps easily in the settings, and also use the app drawer to pick an app and launch it automatically
+
+RepoType: git
+Repo: https://github.com/Elnix90/Dragon-Launcher.git
+Binaries: https://github.com/Elnix90/Dragon-Launcher/releases/download/v%v/DragonLauncher-v%v-unsigned.apk
 
 Builds:
-  - versionName: 1.2.2
-    versionCode: 16
-    commit: v1.2.2
-    gradle:
-      - yes
-
-  - versionName: 1.2.3
-    versionCode: 17
-    commit: v1.2.3
-    gradle:
-      - yes
-
-  - versionName: 1.2.4
-    versionCode: 18
-    commit: v1.2.4
-    gradle:
-      - yes
-
-  - versionName: 1.2.5
-    versionCode: 19
-    commit: v1.2.5
-    gradle:
-      - yes
-
-  - versionName: 1.2.6
-    versionCode: 20
-    commit: v1.2.6
-    gradle:
-      - yes
-
-  - versionName: 1.2.7
-    versionCode: 21
-    commit: v1.2.7
-    gradle:
-      - yes
-
-  - versionName: 2.0.0
-    versionCode: 23
-    commit: v2.0.0
-    gradle:
-      - yes
-
   - versionName: 2.0.2
     versionCode: 25
-    commit: 16243b53eb4dfced5b6bd89b9488fdb20301d50e
+    commit: 087c8ff61db28209a3abe0abf88149dbd9c2c9d6
+    subdir: app
     gradle:
-      - yes
+      - fdroid
+
+  - versionName: 2.1.0
+    versionCode: 25
+    commit: 83bc566f5c8969f7b499672c51d95a03fe8df552
+    subdir: app
+    gradle:
+      - fdroid
+
+AllowedAPKSigningKeys: 63068d94e01eeae50efcb2a0c43dfa8ac503a421cdeaf353d45b69ab933c0a06
+
+AutoUpdateMode: Version
+UpdateCheckMode: Tags
+UpdateCheckIgnore: beta-.*
+CurrentVersion: 2.1.0
+CurrentVersionCode: 26
