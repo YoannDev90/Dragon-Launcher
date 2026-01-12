@@ -28,8 +28,8 @@ android {
         applicationId = "org.elnix.dragonlauncher"
         minSdk = 27
         targetSdk = 36
-        versionCode = 25
-        versionName = "2.0.2"
+        versionCode = 26
+        versionName = "2.1.0"
     }
 
 
@@ -42,11 +42,6 @@ android {
         create("beta") {
             dimension = "channel"
             versionNameSuffix = "-beta"
-        }
-        create("fdroid") {
-            dimension = "channel"
-            versionNameSuffix = ""
-            signingConfig = null
         }
     }
 
@@ -105,6 +100,10 @@ android {
             isMinifyEnabled = true
             isShrinkResources = true
             isDebuggable = true
+        }
+        create("fdroidRelease") {
+            initWith(getByName("release"))
+            signingConfig = null
         }
         debug {
             isDebuggable = true
