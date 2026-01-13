@@ -114,6 +114,22 @@
 ### What's this icon ?
 
 ![image](/fastlane/metadata/android/en-US/images/phoneScreenshots/17.png)
+
+Enter / Exit the nest (click before on the nest you created on one circle)
+
+![image](/fastlane/metadata/android/en-US/images/phoneScreenshots/18.png)
+
+Edit toggle between points and swipe distance.
+
+![image](/fastlane/metadata/android/en-US/images/phoneScreenshots/19.png)
+
+Toggle points snapping (if not enabled, you can move freely the points, else they snap in rounded position - 15°)
+
+![image](/fastlane/metadata/android/en-US/images/phoneScreenshots/20.png)
+
+Toggle auto-separate points when you drag them
+
+
 ## Signing
 
 Releases signing key (SHA-256):
