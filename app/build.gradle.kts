@@ -43,6 +43,10 @@ android {
             dimension = "channel"
             versionNameSuffix = "-beta"
         }
+        create("fdroid") {
+            dimension = "channel"
+            versionNameSuffix = ""
+        }
     }
 
     signingConfigs {
@@ -79,9 +83,9 @@ android {
                         env("KEY_ALIAS") != null &&
                         env("KEY_PASSWORD") != null
 
-            if (hasSigning) {
-                signingConfig = signingConfigs.getByName("release")
-            }
+            signingConfig = if (hasSigning) {
+                signingConfigs.getByName("release")
+            } else null
 
             proguardFiles(
                 getDefaultProguardFile("proguard-android-optimize.txt"),
@@ -100,11 +104,6 @@ android {
             isMinifyEnabled = true
             isShrinkResources = true
             isDebuggable = true
-        }
-        create("fdroidRelease") {
-            initWith(getByName("release"))
-            signingConfig = null
-            flavorName = ""
         }
 
         debug {
