@@ -1,0 +1,172 @@
+@file:Suppress("AssignedValueIsNeverRead")
+
+package org.elnix.dragonlauncher.ui.settings.workspace
+
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.lazy.items
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Add
+import androidx.compose.material3.FloatingActionButton
+import androidx.compose.material3.Icon
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateListOf
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.runtime.setValue
+import androidx.compose.ui.Alignment
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.unit.dp
+import kotlinx.coroutines.launch
+import org.burnoutcrew.reorderable.ReorderableItem
+import org.burnoutcrew.reorderable.rememberReorderableLazyListState
+import org.elnix.dragonlauncher.common.R
+import org.elnix.dragonlauncher.common.serializables.Workspace
+import org.elnix.dragonlauncher.common.serializables.WorkspaceType
+import org.elnix.dragonlauncher.enumsui.WorkspaceAction
+import org.elnix.dragonlauncher.models.AppsViewModel
+import org.elnix.dragonlauncher.ui.dialogs.CreateOrEditWorkspaceDialog
+import org.elnix.dragonlauncher.ui.dialogs.UserValidation
+import org.elnix.dragonlauncher.ui.helpers.settings.SettingsLazyHeader
+
+
+@Composable
+fun WorkspaceListScreen(
+    appsViewModel: AppsViewModel,
+    onOpenWorkspace: (String) -> Unit,
+    onBack: () -> Unit
+) {
+    val scope = rememberCoroutineScope()
+    val state by appsViewModel.state.collectAsState()
+
+    var showCreateDialog by remember { mutableStateOf(false) }
+    var renameTarget by remember { mutableStateOf<Workspace?>(null) }
+    var nameBuffer by remember { mutableStateOf("") }
+
+    var showDeleteConfirm by remember { mutableStateOf<Workspace?>(null) }
+
+    // Local mutable list synced with ViewModel state
+    val uiList = remember { mutableStateListOf<Workspace>() }
+    LaunchedEffect(state.workspaces) {
+        if (state.workspaces != uiList) {
+            uiList.clear()
+            uiList.addAll(state.workspaces)
+        }
+    }
+
+    val reorderState = rememberReorderableLazyListState(
+        onMove = { from, to ->
+            if (from.index in uiList.indices && to.index in 0..uiList.size) {
+                val tmp = uiList.toMutableList()
+                val item = tmp.removeAt(from.index)
+                tmp.add(to.index, item)
+                uiList.clear()
+                uiList.addAll(tmp)
+            }
+        },
+        onDragEnd = { _, _ ->
+            // Commit changes to ViewModel
+            scope.launch { appsViewModel.setWorkspaceOrder(uiList) }
+        }
+    )
+
+    Box(modifier = Modifier.fillMaxSize()) {
+        SettingsLazyHeader(
+            title = stringResource(R.string.workspaces),
+            onBack = onBack,
+            helpText = stringResource(R.string.workspace_help),
+            onReset = {
+                scope.launch { appsViewModel.resetWorkspacesAndOverrides() }
+            },
+            reorderState = reorderState
+        ) {
+            items(uiList, key = { it.id }) { ws ->
+                ReorderableItem(state = reorderState, key = ws.id) { isDragging ->
+                    WorkspaceRow(
+                        workspace = ws,
+                        reorderState = reorderState,
+                        isDragging = isDragging,
+                        onClick = { onOpenWorkspace(ws.id) },
+                        onCheck = { scope.launch { appsViewModel.setWorkspaceEnabled(ws.id, it) } },
+                        onAction = { action ->
+                            when (action) {
+                                WorkspaceAction.Rename -> {
+                                    renameTarget = ws
+                                    nameBuffer = ws.name
+                                }
+                                WorkspaceAction.Delete -> { showDeleteConfirm = ws }
+                            }
+                        }
+                    )
+                }
+            }
+        }
+
+        FloatingActionButton(
+            onClick = {
+                nameBuffer = ""
+                showCreateDialog = true
+            },
+            modifier = Modifier
+                .align(Alignment.BottomEnd)
+                .padding(16.dp)
+        ) {
+            Icon(Icons.Default.Add, null)
+        }
+    }
+
+    CreateOrEditWorkspaceDialog(
+        visible = showCreateDialog,
+        title = stringResource(R.string.create_workspace),
+        name = nameBuffer,
+        type = WorkspaceType.CUSTOM,
+        onNameChange = { nameBuffer = it },
+        onConfirm = { selectedType ->
+            scope.launch { appsViewModel.createWorkspace(nameBuffer.trim(), selectedType) }
+            showCreateDialog = false
+        },
+        onDismiss = { showCreateDialog = false }
+    )
+
+    CreateOrEditWorkspaceDialog(
+        visible = renameTarget != null,
+        title = stringResource(R.string.rename_workspace),
+        name = nameBuffer,
+        type = renameTarget?.type,
+        onNameChange = { nameBuffer = it },
+        onConfirm = { selectedType ->
+            val targetId = renameTarget
+            if (targetId != null && nameBuffer.isNotBlank()) {
+                scope.launch {
+                    appsViewModel.editWorkspace(
+                        targetId.id,
+                        nameBuffer.trim(),
+                        selectedType
+                    )
+                }
+            }
+            renameTarget = null
+        },
+        onDismiss = { renameTarget = null }
+    )
+
+    if (showDeleteConfirm != null) {
+        val workSpaceToDelete = showDeleteConfirm!!
+        UserValidation(
+            title = stringResource(R.string.delete_workspace),
+            message = "${stringResource(R.string.are_you_sure_to_delete_workspace)} '${workSpaceToDelete.name}' ?",
+            onCancel = { showDeleteConfirm = null }
+        ) {
+            scope.launch {
+                appsViewModel.deleteWorkspace(workSpaceToDelete.id)
+                showDeleteConfirm = null
+            }
+        }
+    }
+}

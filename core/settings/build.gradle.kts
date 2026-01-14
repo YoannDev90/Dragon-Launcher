@@ -51,4 +51,10 @@ dependencies {
     implementation(libs.androidx.core.ktx)
     implementation(libs.androidx.appcompat)
     implementation(libs.material)
+    implementation(libs.androidx.datastore.preferences)
+
+    implementation(libs.androidx.ui.graphics)
+
+    implementation(project(":core:common"))
+    implementation(project(":core:enumsui"))
 }

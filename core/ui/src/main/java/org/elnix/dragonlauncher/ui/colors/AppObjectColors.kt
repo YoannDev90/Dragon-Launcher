@@ -1,0 +1,209 @@
+package org.elnix.dragonlauncher.ui.colors
+
+import androidx.compose.material3.ButtonColors
+import androidx.compose.material3.ButtonDefaults
+import androidx.compose.material3.CardColors
+import androidx.compose.material3.CardDefaults
+import androidx.compose.material3.CheckboxColors
+import androidx.compose.material3.CheckboxDefaults
+import androidx.compose.material3.IconButtonColors
+import androidx.compose.material3.IconButtonDefaults
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.OutlinedTextFieldDefaults
+import androidx.compose.material3.RadioButtonColors
+import androidx.compose.material3.RadioButtonDefaults
+import androidx.compose.material3.SliderColors
+import androidx.compose.material3.SliderDefaults
+import androidx.compose.material3.SwitchColors
+import androidx.compose.material3.SwitchDefaults
+import androidx.compose.material3.TextFieldColors
+import androidx.compose.runtime.Composable
+import androidx.compose.ui.graphics.Color
+import org.elnix.dragonlauncher.common.utils.colors.adjustBrightness
+
+object AppObjectsColors {
+
+    @Composable
+    fun switchColors(): SwitchColors {
+        val colors = MaterialTheme.colorScheme
+        return SwitchDefaults.colors(
+            checkedThumbColor = colors.onSurface,
+            checkedTrackColor = colors.primary,
+            checkedBorderColor = Color.Transparent,
+            uncheckedThumbColor = colors.onSurface,
+            uncheckedTrackColor = colors.background,
+            uncheckedBorderColor = Color.Transparent,
+            disabledCheckedThumbColor = colors.onSurface.adjustBrightness(0.5f),
+            disabledCheckedTrackColor = colors.primary.adjustBrightness(0.5f),
+            disabledCheckedBorderColor = Color.Transparent,
+            disabledUncheckedThumbColor = colors.onSurface.adjustBrightness(0.5f),
+            disabledUncheckedTrackColor = colors.background,
+            disabledUncheckedBorderColor = Color.Transparent,
+        )
+    }
+
+    @Composable
+    fun buttonColors(containerColor: Color? = null): ButtonColors {
+        val colors = MaterialTheme.colorScheme
+        return ButtonDefaults.buttonColors(
+            containerColor = containerColor ?: colors.primary,
+            contentColor = colors.onPrimary
+        )
+    }
+
+    @Composable
+    fun cancelButtonColors(): ButtonColors {
+        return ButtonDefaults.outlinedButtonColors(
+            containerColor = Color.Transparent,
+            contentColor = MaterialTheme.colorScheme.error
+        )
+    }
+
+
+    @Composable
+    fun sliderColors(
+        activeTrackColor: Color? = null,
+        backgroundColor: Color? = null
+    ): SliderColors {
+        val colors = MaterialTheme.colorScheme
+        return SliderDefaults.colors(
+            thumbColor = activeTrackColor?: colors.primary,
+            activeTrackColor = activeTrackColor?: colors.secondary,
+            activeTickColor = activeTrackColor?: colors.primary,
+            inactiveTrackColor = backgroundColor ?: colors.surface,
+            inactiveTickColor = activeTrackColor?: colors.primary,
+            disabledThumbColor = colors.primary,
+            disabledActiveTrackColor = backgroundColor ?: colors.onSurface,
+            disabledActiveTickColor = colors.primary,
+        )
+    }
+
+
+// --Commented out by Inspection START (11/8/25, 7:59 PM):
+//    @Composable
+//    fun dropDownMenuColors(): TextFieldColors {
+//        val colors = MaterialTheme.colorScheme
+//        return TextFieldDefaults.colors(
+//            focusedContainerColor = colors.secondary,
+//            unfocusedContainerColor = colors.secondary,
+//            disabledContainerColor = colors.surface,
+//            focusedIndicatorColor = colors.primary,
+//            unfocusedIndicatorColor = colors.outline,
+//            focusedTextColor = colors.onSurface,
+//            unfocusedTextColor = colors.onSurface
+//        )
+//    }
+// --Commented out by Inspection STOP (11/8/25, 7:59 PM)
+
+    @Composable
+    fun checkboxColors(): CheckboxColors {
+        val colors = MaterialTheme.colorScheme
+        return CheckboxDefaults.colors(
+            checkedColor = colors.primary,
+            uncheckedColor = colors.outline,
+            checkmarkColor = colors.onPrimary,
+            disabledCheckedColor = colors.primary.copy(alpha = 0.5f),
+            disabledUncheckedColor = colors.outline.copy(alpha = 0.5f),
+            disabledIndeterminateColor = colors.onSurface.copy(alpha = 0.5f),
+        )
+    }
+
+    @Composable
+    fun outlinedTextFieldColors(
+        backgroundColor: Color? = null,
+        onBackgroundColor: Color? = null,
+        removeBorder: Boolean = false
+    ): TextFieldColors {
+        val colors = MaterialTheme.colorScheme
+        return OutlinedTextFieldDefaults.colors(
+            focusedTextColor = onBackgroundColor ?: colors.onBackground,
+            unfocusedTextColor = onBackgroundColor ?: colors.onBackground,
+            disabledTextColor = onBackgroundColor ?: colors.onBackground.adjustBrightness( 0.5f),
+            errorTextColor = colors.error,
+
+            focusedContainerColor = backgroundColor ?: colors.background,
+            unfocusedContainerColor = backgroundColor ?: colors.background,
+            disabledContainerColor = backgroundColor ?: colors.background,
+            errorContainerColor = backgroundColor ?: colors.background,
+
+            cursorColor = colors.primary,
+            errorCursorColor = colors.error,
+
+            focusedBorderColor = if (!removeBorder) colors.primary else Color.Transparent,
+            unfocusedBorderColor = if (!removeBorder) colors.outline else Color.Transparent,
+            disabledBorderColor = if (!removeBorder) colors.outline.copy(0.5f) else Color.Transparent,
+            errorBorderColor = if (!removeBorder) colors.error else Color.Transparent,
+
+            focusedLeadingIconColor = colors.primary,
+            unfocusedLeadingIconColor = colors.onSurfaceVariant,
+            disabledLeadingIconColor = colors.surfaceVariant,
+            errorLeadingIconColor = colors.error,
+
+            focusedTrailingIconColor = colors.primary,
+            unfocusedTrailingIconColor = colors.onSurfaceVariant,
+            disabledTrailingIconColor = colors.surfaceVariant,
+            errorTrailingIconColor = colors.error,
+
+            focusedLabelColor = colors.primary,
+            unfocusedLabelColor = colors.outline,
+            disabledLabelColor = colors.outline.copy(0.5f),
+            errorLabelColor = colors.error,
+
+            focusedPlaceholderColor = colors.outline.copy(0.8f),
+            unfocusedPlaceholderColor = colors.outline.copy(0.5f),
+            disabledPlaceholderColor = colors.outline.copy(0.3f),
+            errorPlaceholderColor = colors.error,
+
+            focusedSupportingTextColor = colors.onSurfaceVariant,
+            unfocusedSupportingTextColor = colors.onSurfaceVariant,
+            disabledSupportingTextColor = colors.surfaceVariant,
+            errorSupportingTextColor = colors.error,
+
+            focusedPrefixColor = colors.onSurfaceVariant,
+            unfocusedPrefixColor = colors.onSurfaceVariant,
+            disabledPrefixColor = colors.surfaceVariant,
+            errorPrefixColor = colors.error,
+
+            focusedSuffixColor = colors.onSurfaceVariant,
+            unfocusedSuffixColor = colors.onSurfaceVariant,
+            disabledSuffixColor = colors.surfaceVariant,
+            errorSuffixColor = colors.error
+        )
+    }
+
+    @Composable
+    fun radioButtonColors(): RadioButtonColors {
+        val colors = MaterialTheme.colorScheme
+        return RadioButtonDefaults.colors(
+            selectedColor = colors.primary,
+            unselectedColor = colors.onSurface,
+            disabledSelectedColor = colors.primary.copy(0.5f),
+            disabledUnselectedColor = colors.onSurface.copy(0.5f)
+        )
+    }
+
+    @Composable
+    fun iconButtonColors(
+        backgroundColor: Color? = null,
+        contentColor: Color? = null
+    ): IconButtonColors {
+        val colors = MaterialTheme.colorScheme
+        return IconButtonDefaults.iconButtonColors(
+            containerColor = backgroundColor ?: colors.surface,
+            contentColor = contentColor ?: colors.onSurface,
+            disabledContainerColor = backgroundColor ?: colors.surface.copy(0.5f),
+            disabledContentColor = contentColor ?: colors.onSurface.copy(0.5f)
+        )
+    }
+
+    @Composable
+    fun cardColors(): CardColors {
+        val colors = MaterialTheme.colorScheme
+        return CardDefaults.cardColors(
+            colors.surface,
+            colors.onSurface,
+            colors.surface.copy(0.5f),
+            colors.onSurface.copy(0.5f),
+        )
+    }
+}

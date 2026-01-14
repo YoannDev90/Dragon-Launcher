@@ -73,4 +73,10 @@ dependencies {
     implementation(libs.android.image.cropper)
     implementation(libs.material)
     implementation(libs.material3)
+
+    implementation(project(":core:models"))
+    implementation(project(":core:services"))
+    implementation(project(":core:common"))
+    implementation(project(":core:enumsui"))
+    implementation(project(":core:settings"))
 }

@@ -1,0 +1,165 @@
+package org.elnix.dragonlauncher.ui.actions
+
+import android.content.Context
+import android.content.Intent
+import android.content.pm.LauncherApps
+import android.os.Process
+import android.os.UserManager
+import androidx.core.net.toUri
+import org.elnix.dragonlauncher.common.logging.logE
+import org.elnix.dragonlauncher.common.serializables.SwipeActionSerializable
+import org.elnix.dragonlauncher.common.utils.expandQuickActionsDrawer
+import org.elnix.dragonlauncher.common.utils.hasUriReadPermission
+import org.elnix.dragonlauncher.common.utils.launchShortcut
+import org.elnix.dragonlauncher.common.utils.showToast
+import org.elnix.dragonlauncher.services.SystemControl
+
+
+/**
+ * Exception for app launch failures
+ */
+class AppLaunchException(message: String, cause: Throwable? = null) : Exception(message, cause)
+
+
+fun launchSwipeAction(
+    ctx: Context,
+    action: SwipeActionSerializable?,
+    useAccessibilityInsteadOfContextToExpandActionPanel: Boolean = true,
+    onAskWhatMethodToUseToOpenQuickActions: (() -> Unit)? = null,
+    onReloadApps: (() -> Unit)? = null,
+    onReselectFile: (() -> Unit)? = null,
+    onAppSettings: (() -> Unit)? = null,
+    onAppDrawer: (() -> Unit)? = null,
+    onParentNest: (() -> Unit)? = null,
+    onOpenNestCircle: ((nestId: Int) -> Unit)? = null,
+) {
+    if (action == null) return
+
+    when (action) {
+
+        is SwipeActionSerializable.LaunchApp -> {
+            val userManager = ctx.getSystemService(Context.USER_SERVICE) as UserManager
+            val launcherApps = ctx.getSystemService(LauncherApps::class.java)
+                ?: throw AppLaunchException("LauncherApps unavailable")
+
+            val allUsers = userManager.userProfiles
+
+            // 1. Find the user profile that owns the package
+            val targetUserHandle = allUsers.firstOrNull { userHandle ->
+                launcherApps
+                    .getActivityList(null, userHandle)
+                    .any { it.applicationInfo.packageName == action.packageName }
+            } ?: Process.myUserHandle()
+
+            // 2. Find the launcher activity in that profile
+            val activity = launcherApps
+                .getActivityList(null, targetUserHandle)
+                .firstOrNull { it.applicationInfo.packageName == action.packageName }
+                ?: throw AppLaunchException("Launcher activity not found for ${action.packageName}")
+
+            // 3. Launch correctly (profile-aware)
+            try {
+                launcherApps.startMainActivity(
+                    activity.componentName,
+                    targetUserHandle,
+                    null,
+                    null
+                )
+            } catch (e: SecurityException) {
+                throw AppLaunchException("Security error launching ${action.packageName}", e)
+            } catch (e: NullPointerException) {
+                throw AppLaunchException("App component not found for ${action.packageName}", e)
+            } catch (e: Exception) {
+                throw AppLaunchException("Failed to launch ${action.packageName}", e)
+            }
+        }
+
+
+        is SwipeActionSerializable.LaunchShortcut -> {
+            launchShortcut(ctx, action.packageName, action.shortcutId)
+        }
+
+
+        is SwipeActionSerializable.OpenUrl -> {
+            val i = Intent(Intent.ACTION_VIEW, action.url.toUri())
+            ctx.startActivity(i.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK))
+        }
+
+        SwipeActionSerializable.NotificationShade -> {
+            if (!SystemControl.isServiceEnabled(ctx)) {
+                ctx.showToast("Please enable accessibility settings to use that feature")
+                SystemControl.openServiceSettings(ctx)
+                return
+            }
+            SystemControl.expandNotifications(ctx)
+        }
+
+        SwipeActionSerializable.ControlPanel -> {
+            if (useAccessibilityInsteadOfContextToExpandActionPanel) {
+                SystemControl.expandQuickSettings(
+                    ctx
+                )
+            }
+            else expandQuickActionsDrawer(ctx)
+            onAskWhatMethodToUseToOpenQuickActions?.invoke()
+
+        }
+
+        SwipeActionSerializable.OpenAppDrawer -> {
+            onAppDrawer?.invoke()
+        }
+
+        SwipeActionSerializable.OpenDragonLauncherSettings -> onAppSettings?.invoke()
+
+        SwipeActionSerializable.Lock -> {
+            if (!SystemControl.isServiceEnabled(ctx)) {
+                ctx.showToast("Please enable accessibility settings to use that feature")
+                SystemControl.openServiceSettings(ctx)
+                return
+            }
+            SystemControl.lockScreen(ctx)
+        }
+
+        is SwipeActionSerializable.OpenFile -> {
+            try {
+                val uri = action.uri.toUri()
+
+                if (!ctx.hasUriReadPermission(uri)) {
+                    ctx.showToast("Please reselect the file to allow access")
+                    onReselectFile?.invoke()
+                    return
+                }
+
+                val intent = Intent(Intent.ACTION_VIEW).apply {
+                    setDataAndType(uri, action.mimeType ?: "*/*")
+                    addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+                    addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION)
+                }
+
+                if (intent.resolveActivity(ctx.packageManager) != null) {
+                    ctx.startActivity(intent)
+                } else {
+                    ctx.showToast("No app available to open this file")
+                }
+
+            } catch (e: Exception) {
+                ctx.showToast("Unable to open file: ${e.message}")
+                ctx.logE("OpenFile", e.toString())
+            }
+        }
+
+        SwipeActionSerializable.ReloadApps -> onReloadApps?.invoke()
+        SwipeActionSerializable.OpenRecentApps -> {
+            if (!SystemControl.isServiceEnabled(ctx)) {
+                ctx.showToast("Please enable accessibility settings to use that feature")
+                SystemControl.openServiceSettings(ctx)
+                return
+            }
+            SystemControl.openRecentApps(ctx)
+        }
+
+        is SwipeActionSerializable.OpenCircleNest -> onOpenNestCircle?.invoke(action.nestId)
+        SwipeActionSerializable.GoParentNest -> onParentNest?.invoke()
+        is SwipeActionSerializable.OpenWidget -> {} // The widget action isn't mean to be part of the choosable actions, so nothing on launch
+    }
+}

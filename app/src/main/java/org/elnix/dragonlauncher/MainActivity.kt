@@ -2,6 +2,7 @@ package org.elnix.dragonlauncher
 
 import android.annotation.SuppressLint
 import android.appwidget.AppWidgetHost
+import android.appwidget.AppWidgetHostView
 import android.appwidget.AppWidgetManager
 import android.appwidget.AppWidgetProviderInfo
 import android.content.ComponentName
@@ -28,29 +29,31 @@ import androidx.lifecycle.lifecycleScope
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.rememberNavController
 import kotlinx.coroutines.launch
-import org.elnix.dragonlauncher.data.SwipeActionSerializable
-import org.elnix.dragonlauncher.data.helpers.SwipePointSerializable
-import org.elnix.dragonlauncher.data.stores.BehaviorSettingsStore
-import org.elnix.dragonlauncher.data.stores.ColorSettingsStore
-import org.elnix.dragonlauncher.data.stores.PrivateSettingsStore
-import org.elnix.dragonlauncher.data.stores.SwipeSettingsStore
-import org.elnix.dragonlauncher.data.stores.UiSettingsStore
+import org.elnix.dragonlauncher.common.R
+import org.elnix.dragonlauncher.common.logging.DragonLogManager
+import org.elnix.dragonlauncher.common.logging.logD
+import org.elnix.dragonlauncher.common.logging.logW
+import org.elnix.dragonlauncher.common.serializables.SwipeActionSerializable
+import org.elnix.dragonlauncher.common.serializables.SwipePointSerializable
+import org.elnix.dragonlauncher.common.utils.ROUTES
+import org.elnix.dragonlauncher.common.utils.WIDGET_TAG
+import org.elnix.dragonlauncher.common.utils.WidgetHostProvider
+import org.elnix.dragonlauncher.common.utils.ignoredReturnRoutes
+import org.elnix.dragonlauncher.common.utils.showToast
+import org.elnix.dragonlauncher.models.AppLifecycleViewModel
+import org.elnix.dragonlauncher.models.BackupViewModel
+import org.elnix.dragonlauncher.models.FloatingAppsViewModel
+import org.elnix.dragonlauncher.settings.SettingsBackupManager
+import org.elnix.dragonlauncher.settings.stores.BehaviorSettingsStore
+import org.elnix.dragonlauncher.settings.stores.ColorSettingsStore
+import org.elnix.dragonlauncher.settings.stores.PrivateSettingsStore
+import org.elnix.dragonlauncher.settings.stores.SwipeSettingsStore
+import org.elnix.dragonlauncher.settings.stores.UiSettingsStore
+import org.elnix.dragonlauncher.ui.DragonLauncherTheme
 import org.elnix.dragonlauncher.ui.MainAppUi
-import org.elnix.dragonlauncher.ui.ROUTES
-import org.elnix.dragonlauncher.ui.theme.DragonLauncherTheme
-import org.elnix.dragonlauncher.utils.SettingsBackupManager
-import org.elnix.dragonlauncher.utils.WIDGET_TAG
-import org.elnix.dragonlauncher.utils.ignoredReturnRoutes
-import org.elnix.dragonlauncher.utils.logs.DragonLogManager
-import org.elnix.dragonlauncher.utils.logs.logD
-import org.elnix.dragonlauncher.utils.logs.logW
-import org.elnix.dragonlauncher.utils.models.AppLifecycleViewModel
-import org.elnix.dragonlauncher.utils.models.BackupViewModel
-import org.elnix.dragonlauncher.utils.models.FloatingAppsViewModel
-import org.elnix.dragonlauncher.utils.showToast
 import java.util.UUID
 
-class MainActivity : ComponentActivity() {
+class MainActivity : ComponentActivity(), WidgetHostProvider {
 
     private val appLifecycleViewModel : AppLifecycleViewModel by viewModels()
     private val backupViewModel : BackupViewModel by viewModels()
@@ -68,6 +71,15 @@ class MainActivity : ComponentActivity() {
         GLOBAL_APPWIDGET_HOST ?: AppWidgetHost(this, R.id.appwidget_host_id).also {
             GLOBAL_APPWIDGET_HOST = it
         }
+    }
+
+    override fun createAppWidgetView(widgetId: Int): AppWidgetHostView? {
+        val info = getAppWidgetInfo(widgetId) ?: return null
+        return appWidgetHost.createView(this, widgetId, info)
+    }
+
+    override fun getAppWidgetInfo(widgetId: Int): AppWidgetProviderInfo? {
+        return AppWidgetManager.getInstance(this).getAppWidgetInfo(widgetId)
     }
 
     private val appWidgetManager by lazy {
@@ -426,6 +438,7 @@ class MainActivity : ComponentActivity() {
                     backupViewModel = backupViewModel,
                     appsViewModel = appsViewModel,
                     floatingAppsViewModel = floatingAppsViewModel,
+                    widgetHostProvider = this,
                     navController = navController,
                     onBindCustomWidget = { widgetId, provider ->
                         (ctx as MainActivity).bindWidgetFromCustomPicker(widgetId, provider)
@@ -434,6 +447,11 @@ class MainActivity : ComponentActivity() {
                     onResetWidgetSize = { id, widgetId ->
                         val info = appWidgetManager.getAppWidgetInfo(widgetId)
                         floatingAppsViewModel.resetFloatingAppSize(id, info)
+                    },
+                    onRemoveFloatingApp = { floatingAppObject ->
+                        floatingAppsViewModel.removeFloatingApp(floatingAppObject.id) {
+                            (ctx as MainActivity).deleteWidget(it)
+                        }
                     }
                 )
             }

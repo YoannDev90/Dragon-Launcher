@@ -152,7 +152,6 @@ android {
 
 dependencies {
     implementation(libs.androidx.core.ktx)
-    implementation(libs.androidx.lifecycle.runtime.ktx)
     implementation(libs.androidx.activity.compose)
     implementation(platform(libs.androidx.compose.bom))
     implementation(libs.androidx.compose.ui)
@@ -164,10 +163,7 @@ dependencies {
     implementation(libs.androidx.compose.foundation.layout)
     implementation(libs.androidx.appcompat)
     implementation(libs.androidx.glance.appwidget)
-    implementation(libs.androidx.datastore.preferences)
-    implementation(libs.gson)
     implementation(libs.androidx.material3)
-    implementation(libs.androidx.material.icons.extended)
     implementation(libs.androidx.navigation.compose)
     implementation(libs.reorderable)
     implementation(libs.android.image.cropper)
@@ -175,9 +171,10 @@ dependencies {
     implementation(libs.material3)
 
     implementation(project(":core:ui"))
-    implementation(project(":core:data"))
+    implementation(project(":core:enumsui"))
     implementation(project(":core:common"))
     implementation(project(":core:settings"))
+    implementation(project(":core:models"))
 }
 
 

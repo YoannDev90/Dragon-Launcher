@@ -1,0 +1,32 @@
+package org.elnix.dragonlauncher.common.utils
+
+
+// -------------------- SETTINGS --------------------
+
+object SETTINGS {
+    const val ROOT = "settings"
+    const val ADVANCED_ROOT = "settings/advanced"
+    const val APPEARANCE = "settings/advanced/appearance"
+    const val WALLPAPER = "settings/advanced/appearance/wallpaper"
+    const val ICON_PACK = "settings/advanced/appearance/icon_pack"
+    const val STATUS_BAR = "settings/advanced/appearance/status_bar"
+    const val THEME = "settings/advanced/appearance/theme"
+    const val FLOATING_APPS = "settings/advanced/appearance/floating_apps"
+    const val BEHAVIOR = "settings/advanced/behavior"
+    const val COLORS = "settings/advanced/appearance/colors"
+    const val DRAWER = "settings/advanced/drawer"
+    const val WORKSPACE = "settings/advanced/workspace"
+    const val WORKSPACE_DETAIL = "settings/advanced/workspace/{id}"
+    const val BACKUP = "settings/advanced/backup"
+    const val DEBUG = "settings//advanced/debug"
+    const val LOGS = "settings/advanced/debug/logs"
+    const val SETTINGS_JSON = "settings/advanced/debug/settings_json"
+    const val LANGUAGE = "settings/advanced/language"
+    const val CHANGELOGS = "settings/advanced/changelogs"
+}
+
+object ROUTES {
+    const val MAIN = "main"
+    const val DRAWER = "drawer"
+    const val WELCOME = "welcome"
+}
