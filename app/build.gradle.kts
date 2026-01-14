@@ -77,15 +77,24 @@ android {
             isMinifyEnabled = true
             isShrinkResources = true
 
-            val hasSigning =
-                env("KEYSTORE_FILE") != null &&
-                        env("KEYSTORE_PASSWORD") != null &&
-                        env("KEY_ALIAS") != null &&
-                        env("KEY_PASSWORD") != null
+            val isFdroidBuild = System.getenv("FDROID_BUILD") == "true"
 
-            signingConfig = if (hasSigning) {
-                signingConfigs.getByName("release")
-            } else null
+            signingConfig = if (!isFdroidBuild) {
+
+                val hasSigning =
+                    env("KEYSTORE_FILE") != null &&
+                            env("KEYSTORE_PASSWORD") != null &&
+                            env("KEY_ALIAS") != null &&
+                            env("KEY_PASSWORD") != null
+
+                 if (hasSigning) {
+                    signingConfigs.getByName("release")
+                } else null
+
+            } else {
+                println("FDroid build - not using release signing config")
+                null
+            }
 
             proguardFiles(
                 getDefaultProguardFile("proguard-android-optimize.txt"),
