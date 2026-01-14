@@ -339,7 +339,7 @@ fun EditPointDialog(
                         label = stringResource(R.string.border_color),
                         defaultColor = extraColors.circle,
                         currentColor = editPoint.borderColor?.let { Color(it) }
-                            ?: Color.Unspecified
+                            ?: extraColors.circle
                     ) { selectedColor ->
                         editPoint = editPoint.copy(borderColor = selectedColor.toArgb())
                     }
@@ -382,7 +382,7 @@ fun EditPointDialog(
                         label = stringResource(R.string.border_color_selected),
                         defaultColor = extraColors.circle,
                         currentColor = editPoint.borderColorSelected?.let { Color(it) }
-                            ?: Color.Unspecified
+                            ?: extraColors.circle
                     ) { selectedColor ->
                         editPoint = editPoint.copy(borderColorSelected = selectedColor.toArgb())
                     }
