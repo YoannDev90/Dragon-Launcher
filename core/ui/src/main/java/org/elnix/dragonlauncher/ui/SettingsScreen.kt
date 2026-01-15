@@ -31,6 +31,7 @@ import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.Redo
 import androidx.compose.material.icons.automirrored.filled.Undo
+import androidx.compose.material.icons.filled.AccountCircle
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.AutoMode
 import androidx.compose.material.icons.filled.ChangeCircle
@@ -106,6 +107,7 @@ import org.elnix.dragonlauncher.common.utils.circles.minAngleGapForCircle
 import org.elnix.dragonlauncher.common.utils.circles.normalizeAngle
 import org.elnix.dragonlauncher.common.utils.circles.randomFreeAngle
 import org.elnix.dragonlauncher.common.utils.circles.rememberNestNavigation
+import org.elnix.dragonlauncher.common.utils.pasteClipboard
 import org.elnix.dragonlauncher.common.utils.showToast
 import org.elnix.dragonlauncher.models.AppsViewModel
 import org.elnix.dragonlauncher.settings.stores.ColorSettingsStore
@@ -177,7 +179,7 @@ fun SettingsScreen(
     var recomposeTrigger by remember { mutableIntStateOf(0) }
 
     var showDeleteNestDialog by remember { mutableStateOf<SwipePointSerializable?>(null) }
-    var showNestManagementDialog by remember { mutableStateOf<SwipePointSerializable?>(null) }
+    var showNestManagementDialog by remember { mutableStateOf(false) }
 
     /**
      * NESTS SYSTEM
@@ -662,6 +664,15 @@ fun SettingsScreen(
 
                     val canGoNest = nestToGo != null
 
+                    CircleIconButton(
+                        icon = Icons.Filled.AccountCircle,
+                        contentDescription = stringResource(R.string.edit_nests),
+                        color = extraColors.goParentNest,
+                        padding = 7.dp
+                    ) {
+                        showNestManagementDialog = true
+                    }
+
 
                     CircleIconButton(
                         icon = Icons.Filled.Fullscreen,
@@ -862,11 +873,7 @@ fun SettingsScreen(
                     enabled = aPointIsSelected,
                     padding = 20.dp
                 ) {
-                    if (selectedPoint?.action is SwipeActionSerializable.OpenCircleNest) {
-                        showNestManagementDialog = selectedPoint
-                    } else {
-                        showEditDialog = selectedPoint
-                    }
+                    showEditDialog = selectedPoint
                 }
 
 
@@ -1169,19 +1176,47 @@ fun SettingsScreen(
         }
     }
 
-    if (showNestManagementDialog != null) {
+    if (showNestManagementDialog) {
         NestManagementDialog(
             nests = nests,
-            onDismissRequest = { showNestManagementDialog = null },
-            onChange = { id, newId ->
-                /*pendingNestUpdate = nests.map {
-                    if (it.id.toString() == id) {
-                        it.copy(
-                            id = newId.to,
-                        )
-                    }*/
+            onDismissRequest = { showNestManagementDialog = false },
+            onPaste = { id ->
+                val pendingNexId = try {
+                    ctx.pasteClipboard()
+                } catch (e: Exception) {
+                    ctx.showToast("Failed to paste from clipboard: $e")
+                    null
+                }
+
+                pendingNexId?.let { pendingId ->
+                    val newId = try {
+                        pendingId.toInt()
+                    } catch (e: Exception) {
+                        ctx.showToast("Failed to paste from clipboard: $e")
+                        null
+                    }
+
+                    newId?.let { newId ->
+                        applyChange {
+                            nests.map {
+                                if (it.id == id) {
+                                    it.copy(
+                                        id = newId,
+                                    )
+                                } else it
+                            }
+                        }
+                    }
+                }
             },
-            onSelect = {}
+            onDelete = { nestToDelete ->
+                applyChange {
+                    pendingNestUpdate = nests.filter { it.id != nestToDelete }
+                }
+            },
+            onSelect = {
+                showNestManagementDialog = false
+            }
         )
     }
 

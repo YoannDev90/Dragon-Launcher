@@ -6,14 +6,15 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Close
 import androidx.compose.material.icons.filled.ContentCopy
-import androidx.compose.material.icons.filled.Edit
+import androidx.compose.material.icons.filled.ContentPaste
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
@@ -27,6 +28,7 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import org.elnix.dragonlauncher.common.R
 import org.elnix.dragonlauncher.common.serializables.CircleNest
+import org.elnix.dragonlauncher.common.utils.colors.adjustBrightness
 import org.elnix.dragonlauncher.common.utils.copyToClipboard
 import org.elnix.dragonlauncher.ui.helpers.Bubble
 
@@ -34,7 +36,8 @@ import org.elnix.dragonlauncher.ui.helpers.Bubble
 fun NestManagementDialog(
     nests: List<CircleNest>,
     onDismissRequest: () -> Unit,
-    onChange: ((id: String, newId: String) -> Unit)? = null,
+    onPaste: ((id: Int) -> Unit)? = null,
+    onDelete: ((id: Int) -> Unit ),
     onSelect: ((CircleNest) -> Unit)? = null
 ) {
 
@@ -53,13 +56,13 @@ fun NestManagementDialog(
         text = {
             LazyColumn(
                 verticalArrangement = Arrangement.spacedBy(5.dp),
-                modifier = Modifier.height(700.dp),
-
+                modifier = Modifier.heightIn(max = 700.dp)
             ) {
                 items(nests) { nest ->
                     NestManagementItem(
                         nest = nest,
-                        onChange = onChange,
+                        onPaste = onPaste,
+                        onDelete = onDelete,
                         onSelect = { onSelect?.invoke(nest) }
                     )
                 }
@@ -73,7 +76,8 @@ fun NestManagementDialog(
 @Composable
 fun NestManagementItem(
     nest: CircleNest,
-    onChange: ((id: String, newId: String) -> Unit)? = null,
+    onPaste: ((id: Int) -> Unit)? = null,
+    onDelete: ((id: Int) -> Unit ),
     onSelect: (() -> Unit)? = null
 ) {
     val ctx = LocalContext.current
@@ -82,7 +86,7 @@ fun NestManagementItem(
         modifier = Modifier
             .fillMaxWidth()
             .clip(RoundedCornerShape(12.dp))
-            .background(MaterialTheme.colorScheme.primary)
+            .background(MaterialTheme.colorScheme.surface.adjustBrightness(0.5f))
             .clickable { onSelect?.invoke() },
         verticalAlignment = Alignment.CenterVertically,
         horizontalArrangement = Arrangement.SpaceBetween
@@ -108,38 +112,41 @@ fun NestManagementItem(
 
         Bubble(
             onClick = onSelect,
-            backgroundColor = MaterialTheme.colorScheme.primary,
-            borderColor = MaterialTheme.colorScheme.secondary,
+            backgroundColor = MaterialTheme.colorScheme.surface.adjustBrightness(0.5f),
             leadingIcon = {
-                IconButton(
-                    onClick = { ctx.copyToClipboard(nest.id.toString()) }
-                ) {
-                    Icon(
-                        imageVector = Icons.Default.ContentCopy,
-                        contentDescription = stringResource(R.string.copy_point),
-                        tint = MaterialTheme.colorScheme.primary
-                    )
-                }
+                Icon(
+                    imageVector = Icons.Default.ContentCopy,
+                    contentDescription = stringResource(R.string.copy_point),
+                    tint = MaterialTheme.colorScheme.primary,
+                    modifier = Modifier
+                        .clickable { ctx.copyToClipboard(nest.id.toString()) }
+                )
             },
-            trailingIcon = onChange?.let {
+            trailingIcon = onPaste?.let {
                 {
-                    IconButton(
-                        onClick = {
-                            onChange.invoke(nest.id.toString(), nest.id.toString())
-                        }
-                    ) {
-                        Icon(
-                            imageVector = Icons.Default.Edit,
-                            contentDescription = stringResource(R.string.change),
-                            tint = MaterialTheme.colorScheme.primary
-                        )
-                    }
+                    Icon(
+                        imageVector = Icons.Default.ContentPaste,
+                        contentDescription = stringResource(R.string.change),
+                        tint = MaterialTheme.colorScheme.primary,
+                        modifier = Modifier
+                            .clickable { onPaste.invoke(nest.id) }
+                    )
                 }
             }
         ) {
             Text(
                 text = nest.id.toString(),
                 color = MaterialTheme.colorScheme.primary
+            )
+        }
+
+        IconButton(
+            onClick = { onDelete(nest.id) }
+        ) {
+            Icon(
+                imageVector = Icons.Default.Close,
+                contentDescription = stringResource(R.string.delete_circle_nest),
+                tint = MaterialTheme.colorScheme.error
             )
         }
     }

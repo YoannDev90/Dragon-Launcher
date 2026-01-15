@@ -291,4 +291,5 @@
     <string name="set_wallpaper">Set Wallpaper</string>
     <string name="manage_nests">Nests Managment</string>
     <string name="copy">Copy</string>
+    <string name="edit_nests">Edit Nests</string>
 </resources>
