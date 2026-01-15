@@ -30,5 +30,10 @@ data class CircleNest(
      * The id of the nest that holds this one, used for drawing correctly the outer circles
      * And also to navigate across nests
      */
-    @SerializedName("parentId") val parentId: Int = 0
+    @SerializedName("parentId") val parentId: Int = 0,
+
+    /**
+     * A custom name for the nest you can set for easier identification
+     */
+    @SerializedName("name") val name: String? = null
 )

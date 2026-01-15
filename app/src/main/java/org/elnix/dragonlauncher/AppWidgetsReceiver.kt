@@ -14,7 +14,7 @@ import androidx.glance.background
 import androidx.glance.layout.Box
 import androidx.glance.layout.fillMaxSize
 import org.elnix.dragonlauncher.settings.stores.ColorSettingsStore
-import org.elnix.dragonlauncher.ui.DragonLauncherTheme
+import org.elnix.dragonlauncher.ui.theme.DragonLauncherTheme
 
 object DragonLauncherWidget : GlanceAppWidget() {
     override suspend fun provideGlance(context: Context, id: GlanceId) {

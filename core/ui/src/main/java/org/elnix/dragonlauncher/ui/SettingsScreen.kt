@@ -83,39 +83,46 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.launch
+import org.elnix.dragonlauncher.common.R
+import org.elnix.dragonlauncher.common.logging.logD
+import org.elnix.dragonlauncher.common.logging.logE
+import org.elnix.dragonlauncher.common.logging.logW
+import org.elnix.dragonlauncher.common.serializables.CircleNest
 import org.elnix.dragonlauncher.common.serializables.SwipeActionSerializable
-import org.elnix.dragonlauncher.common.utils.UiCircle
 import org.elnix.dragonlauncher.common.serializables.SwipePointSerializable
+import org.elnix.dragonlauncher.common.theme.AmoledDefault
+import org.elnix.dragonlauncher.common.theme.addRemoveCirclesColor
+import org.elnix.dragonlauncher.common.theme.copyColor
+import org.elnix.dragonlauncher.common.theme.moveColor
+import org.elnix.dragonlauncher.common.utils.ICONS_TAG
+import org.elnix.dragonlauncher.common.utils.POINT_RADIUS_PX
+import org.elnix.dragonlauncher.common.utils.SNAP_STEP_DEG
+import org.elnix.dragonlauncher.common.utils.SWIPE_TAG
+import org.elnix.dragonlauncher.common.utils.TAG
+import org.elnix.dragonlauncher.common.utils.TOUCH_THRESHOLD_PX
+import org.elnix.dragonlauncher.common.utils.UiCircle
+import org.elnix.dragonlauncher.common.utils.circles.autoSeparate
+import org.elnix.dragonlauncher.common.utils.circles.minAngleGapForCircle
+import org.elnix.dragonlauncher.common.utils.circles.normalizeAngle
+import org.elnix.dragonlauncher.common.utils.circles.randomFreeAngle
+import org.elnix.dragonlauncher.common.utils.circles.rememberNestNavigation
+import org.elnix.dragonlauncher.common.utils.showToast
+import org.elnix.dragonlauncher.models.AppsViewModel
 import org.elnix.dragonlauncher.settings.stores.ColorSettingsStore
 import org.elnix.dragonlauncher.settings.stores.DebugSettingsStore
 import org.elnix.dragonlauncher.settings.stores.SwipeSettingsStore
 import org.elnix.dragonlauncher.settings.stores.UiSettingsStore
+import org.elnix.dragonlauncher.ui.actions.actionColor
 import org.elnix.dragonlauncher.ui.components.AppPreviewTitle
 import org.elnix.dragonlauncher.ui.dialogs.AddPointDialog
 import org.elnix.dragonlauncher.ui.dialogs.EditPointDialog
+import org.elnix.dragonlauncher.ui.dialogs.NestManagementDialog
 import org.elnix.dragonlauncher.ui.dialogs.UserValidation
 import org.elnix.dragonlauncher.ui.helpers.CircleIconButton
 import org.elnix.dragonlauncher.ui.helpers.RepeatingPressButton
 import org.elnix.dragonlauncher.ui.helpers.SliderWithLabel
 import org.elnix.dragonlauncher.ui.helpers.actionsInCircle
-import org.elnix.dragonlauncher.common.theme.AmoledDefault
 import org.elnix.dragonlauncher.ui.theme.LocalExtraColors
-import org.elnix.dragonlauncher.common.theme.addRemoveCirclesColor
-import org.elnix.dragonlauncher.common.theme.copyColor
-import org.elnix.dragonlauncher.common.theme.moveColor
-import org.elnix.dragonlauncher.common.utils.ICONS_TAG
-import org.elnix.dragonlauncher.common.utils.SWIPE_TAG
-import org.elnix.dragonlauncher.common.utils.TAG
-import org.elnix.dragonlauncher.ui.actions.actionColor
-import org.elnix.dragonlauncher.common.utils.circles.autoSeparate
-import org.elnix.dragonlauncher.common.utils.circles.normalizeAngle
-import org.elnix.dragonlauncher.common.utils.circles.randomFreeAngle
-import org.elnix.dragonlauncher.common.utils.circles.rememberNestNavigation
-import org.elnix.dragonlauncher.common.logging.logD
-import org.elnix.dragonlauncher.common.logging.logE
-import org.elnix.dragonlauncher.common.logging.logW
-import org.elnix.dragonlauncher.common.serializables.CircleNest
-import org.elnix.dragonlauncher.common.utils.showToast
 import java.math.RoundingMode
 import java.util.UUID
 import kotlin.math.abs
@@ -125,12 +132,6 @@ import kotlin.math.hypot
 import kotlin.math.round
 import kotlin.math.sin
 import kotlin.random.Random
-import org.elnix.dragonlauncher.common.R
-import org.elnix.dragonlauncher.common.utils.POINT_RADIUS_PX
-import org.elnix.dragonlauncher.common.utils.SNAP_STEP_DEG
-import org.elnix.dragonlauncher.common.utils.TOUCH_THRESHOLD_PX
-import org.elnix.dragonlauncher.common.utils.circles.minAngleGapForCircle
-import org.elnix.dragonlauncher.models.AppsViewModel
 
 @Suppress("AssignedValueIsNeverRead")
 @Composable
@@ -176,7 +177,7 @@ fun SettingsScreen(
     var recomposeTrigger by remember { mutableIntStateOf(0) }
 
     var showDeleteNestDialog by remember { mutableStateOf<SwipePointSerializable?>(null) }
-
+    var showNestManagementDialog by remember { mutableStateOf<SwipePointSerializable?>(null) }
 
     /**
      * NESTS SYSTEM
@@ -597,7 +598,12 @@ fun SettingsScreen(
                                     val p =
                                         currentFilteredPoints.find { it.id == selectedPoint?.id }
                                             ?: return@detectDragGestures
-                                    if (autoSeparatePoints) autoSeparate(points, nestId, circles.find { it.id == p.circleNumber }, p)
+                                    if (autoSeparatePoints) autoSeparate(
+                                        points,
+                                        nestId,
+                                        circles.find { it.id == p.circleNumber },
+                                        p
+                                    )
                                 }
                             )
                         }
@@ -855,7 +861,13 @@ fun SettingsScreen(
                     color = MaterialTheme.colorScheme.secondary,
                     enabled = aPointIsSelected,
                     padding = 20.dp
-                ) { showEditDialog = selectedPoint }
+                ) {
+                    if (selectedPoint?.action is SwipeActionSerializable.OpenCircleNest) {
+                        showNestManagementDialog = selectedPoint
+                    } else {
+                        showEditDialog = selectedPoint
+                    }
+                }
 
 
                 CircleIconButton(
@@ -1155,6 +1167,22 @@ fun SettingsScreen(
             showDeleteNestDialog = null
 
         }
+    }
+
+    if (showNestManagementDialog != null) {
+        NestManagementDialog(
+            nests = nests,
+            onDismissRequest = { showNestManagementDialog = null },
+            onChange = { id, newId ->
+                /*pendingNestUpdate = nests.map {
+                    if (it.id.toString() == id) {
+                        it.copy(
+                            id = newId.to,
+                        )
+                    }*/
+            },
+            onSelect = {}
+        )
     }
 
     if (selectedPoint != null) {

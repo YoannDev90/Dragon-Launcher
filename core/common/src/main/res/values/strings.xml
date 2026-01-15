@@ -289,4 +289,6 @@
     <string name="reset_all_settings">Reset ALL settings ?!</string>
     <string name="experimental">Experimental</string>
     <string name="set_wallpaper">Set Wallpaper</string>
+    <string name="manage_nests">Nests Managment</string>
+    <string name="copy">Copy</string>
 </resources>
