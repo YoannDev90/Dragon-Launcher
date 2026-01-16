@@ -34,6 +34,7 @@ import androidx.compose.ui.unit.Density
 import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.IntSize
 import androidx.compose.ui.unit.dp
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import org.elnix.dragonlauncher.common.FloatingAppObject
 import org.elnix.dragonlauncher.common.R
@@ -180,6 +181,11 @@ fun MainScreen(
         appsViewModel.preloadPointIcons(
             points = points.filter { it.nestId == nestId }
         )
+
+        /* Load asynchronously all the other points, to avoid lag */
+        scope.launch(Dispatchers.IO) {
+            appsViewModel.preloadPointIcons(points)
+        }
     }
 
 
