@@ -1167,7 +1167,7 @@ fun SettingsScreen(
 
     if (showNestManagementDialog) {
         NestManagementDialog(
-            nests = nests,
+            appsViewModel = appsViewModel,
             onDismissRequest = { showNestManagementDialog = false },
             onPaste = { id ->
                 val pendingNexId = try {
