@@ -46,7 +46,7 @@ import org.elnix.dragonlauncher.settings.stores.ColorSettingsStore
 import org.elnix.dragonlauncher.settings.stores.DebugSettingsStore
 import org.elnix.dragonlauncher.settings.stores.UiSettingsStore
 import org.elnix.dragonlauncher.ui.components.AppPreviewTitle
-import org.elnix.dragonlauncher.ui.helpers.actionsInCircle
+import org.elnix.dragonlauncher.ui.helpers.nests.actionsInCircle
 import org.elnix.dragonlauncher.ui.theme.LocalExtraColors
 import kotlin.math.abs
 import kotlin.math.atan2
@@ -419,6 +419,7 @@ fun MainScreenOverlay(
                                     center = localCenter,
                                     ctx = ctx,
                                     circleColor = circleColor,
+                                    surfaceColorDraw = Color.Unspecified,
                                     extraColors = extraColors,
                                     pointIcons = pointIcons,
                                     deepNest = 1
@@ -436,6 +437,7 @@ fun MainScreenOverlay(
                                 center = end,
                                 ctx = ctx,
                                 circleColor = circleColor,
+                                surfaceColorDraw = Color.Unspecified,
                                 extraColors = extraColors,
                                 pointIcons = pointIcons,
                                 deepNest = 1
@@ -457,6 +459,7 @@ fun MainScreenOverlay(
                         center = start,
                         ctx = ctx,
                         circleColor = circleColor,
+                        surfaceColorDraw = Color.Unspecified,
                         extraColors = extraColors,
                         pointIcons = pointIcons,
                         deepNest = 1

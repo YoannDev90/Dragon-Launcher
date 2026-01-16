@@ -121,7 +121,7 @@ import org.elnix.dragonlauncher.ui.dialogs.UserValidation
 import org.elnix.dragonlauncher.ui.helpers.CircleIconButton
 import org.elnix.dragonlauncher.ui.helpers.RepeatingPressButton
 import org.elnix.dragonlauncher.ui.helpers.SliderWithLabel
-import org.elnix.dragonlauncher.ui.helpers.circlesSettingsOverlay
+import org.elnix.dragonlauncher.ui.helpers.nests.circlesSettingsOverlay
 import org.elnix.dragonlauncher.ui.theme.LocalExtraColors
 import java.math.RoundingMode
 import java.util.UUID
@@ -131,7 +131,6 @@ import kotlin.math.cos
 import kotlin.math.hypot
 import kotlin.math.round
 import kotlin.math.sin
-import kotlin.random.Random
 
 @Suppress("AssignedValueIsNeverRead")
 @Composable
@@ -221,7 +220,6 @@ fun SettingsScreen(
     val circlesWidthIncrement = (1f / circleNumber).takeIf { it != 0f } ?: 1f
 
     var pendingNestUpdate by remember { mutableStateOf<List<CircleNest>?>(null) }
-
 
     /**
      * Used to ensure that there is always a 0-id nest, the default one, the most important
@@ -485,7 +483,7 @@ fun SettingsScreen(
                             extraColors = extraColors,
                             pointIcons = pointIcons,
                             nestId = nestId,
-                            deepNest = 1,
+                            deepNest = 1
                         )
                     }
                 } else {
@@ -1075,13 +1073,26 @@ fun SettingsScreen(
                 var finalAction = action
 
                 if (action is SwipeActionSerializable.OpenCircleNest) {
-                    finalAction = action.copy(nestId = Random.nextInt())
+
+                    // Used to ensure that the new id won't be already in the list, but also to
+                    // keep it human readable, unlike previously where they were random numbers
+                    var newNestId = nests.size
+                    while (newNestId in nests.map { it.id }) {
+                        newNestId++
+                    }
+
+                    // Edit the action to give it the computed new id
+                    finalAction = action.copy(nestId = newNestId)
+
+                    // Launch the nests update with the new one and the goog open / parent ids
                     pendingNestUpdate = nests + CircleNest(
                         id = finalAction.nestId,
                         parentId = nestId
                     )
                 }
 
+                // Create a new swipe point, ids are still random, I think I'll keep it that way
+                // unless I really have to manage them correctly
                 val point = SwipePointSerializable(
                     id = UUID.randomUUID().toString(),
                     angleDeg = newAngle,

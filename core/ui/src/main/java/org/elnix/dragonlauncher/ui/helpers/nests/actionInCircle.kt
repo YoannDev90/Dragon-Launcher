@@ -1,4 +1,4 @@
-package org.elnix.dragonlauncher.ui.helpers
+package org.elnix.dragonlauncher.ui.helpers.nests
 
 import android.content.Context
 import androidx.compose.runtime.mutableStateListOf
@@ -30,6 +30,7 @@ fun DrawScope.actionsInCircle(
     center: Offset,
     ctx: Context,
     circleColor: Color,
+    surfaceColorDraw: Color,
     extraColors: ExtraColors,
     pointIcons: Map<String, ImageBitmap>,
     deepNest: Int,
@@ -42,7 +43,6 @@ fun DrawScope.actionsInCircle(
 
     val iconSize = 56 / deepNest
     val borderRadii = 44f / deepNest
-    println(borderRadii)
 
     val dstOffset = IntOffset(px.toInt() - iconSize / 2, py.toInt() - iconSize / 2)
     val intSize = IntSize(iconSize, iconSize)
@@ -64,7 +64,11 @@ fun DrawScope.actionsInCircle(
         point.backgroundColorSelected?.let { Color(it) }
     } else {
         point.backgroundColor?.let { Color(it) }
-    } ?: Color.Transparent
+    } ?: if (preventBgErasing) {
+        surfaceColorDraw
+    } else {
+        Color.Transparent
+    }
 
     if (action !is SwipeActionSerializable.OpenCircleNest) {
         // if no background color provided, erases the background
@@ -85,7 +89,7 @@ fun DrawScope.actionsInCircle(
                 center = center
             )
 
-            if (borderColor != Color.Transparent && borderStroke > 0f) {
+            if (borderColor.alpha != 0f && borderStroke > 0f) {
                 drawCircle(
                     color = borderColor,
                     radius = borderRadii,
@@ -142,7 +146,8 @@ fun DrawScope.actionsInCircle(
                 pointIcons = pointIcons,
                 nestId = nest.id,
                 deepNest = deepNest + 1,
-                selectedAll = selected
+                selectedAll = selected,
+                preventBgErasing = preventBgErasing
             )
 
 //            // Action is OpenCirclesNext (draws small the circleNests)

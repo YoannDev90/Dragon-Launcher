@@ -63,7 +63,7 @@ import org.elnix.dragonlauncher.settings.stores.SwipeSettingsStore
 import org.elnix.dragonlauncher.ui.colors.AppObjectsColors
 import org.elnix.dragonlauncher.ui.components.ValidateCancelButtons
 import org.elnix.dragonlauncher.ui.helpers.SliderWithLabel
-import org.elnix.dragonlauncher.ui.helpers.actionsInCircle
+import org.elnix.dragonlauncher.ui.helpers.nests.actionsInCircle
 import org.elnix.dragonlauncher.ui.theme.LocalExtraColors
 
 @Composable
@@ -83,6 +83,7 @@ fun IconEditorDialog(
     val nests by SwipeSettingsStore.getNestsFlow(ctx).collectAsState(emptyList())
 
     val circleColor = LocalExtraColors.current.circle
+    val backgroundColor = MaterialTheme.colorScheme.surface
 
     var selectedIcon by remember { mutableStateOf(point.customIcon) }
     var textValue by remember { mutableStateOf("") }
@@ -168,6 +169,7 @@ fun IconEditorDialog(
                         center = center.copy(x = center.x - actionSpacing),
                         ctx = ctx,
                         circleColor = circleColor,
+                        surfaceColorDraw = backgroundColor,
                         extraColors = extraColors,
                         pointIcons = previewIcon,
                         preventBgErasing = true,
@@ -183,6 +185,7 @@ fun IconEditorDialog(
                         center = center.copy(x = center.x + actionSpacing),
                         ctx = ctx,
                         circleColor = circleColor,
+                        surfaceColorDraw = backgroundColor,
                         extraColors = extraColors,
                         pointIcons = previewIcon,
                         preventBgErasing = true,

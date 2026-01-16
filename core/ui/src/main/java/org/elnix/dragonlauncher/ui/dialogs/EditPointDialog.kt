@@ -44,6 +44,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import org.elnix.dragonlauncher.common.R
+import org.elnix.dragonlauncher.common.serializables.SwipeActionSerializable
 import org.elnix.dragonlauncher.common.serializables.SwipePointSerializable
 import org.elnix.dragonlauncher.common.serializables.defaultSwipePointsValues
 import org.elnix.dragonlauncher.common.theme.AmoledDefault
@@ -57,7 +58,7 @@ import org.elnix.dragonlauncher.ui.colors.AppObjectsColors
 import org.elnix.dragonlauncher.ui.colors.ColorPickerRow
 import org.elnix.dragonlauncher.ui.components.ValidateCancelButtons
 import org.elnix.dragonlauncher.ui.helpers.SliderWithLabel
-import org.elnix.dragonlauncher.ui.helpers.actionsInCircle
+import org.elnix.dragonlauncher.ui.helpers.nests.actionsInCircle
 import org.elnix.dragonlauncher.ui.theme.LocalExtraColors
 
 
@@ -154,15 +155,16 @@ fun EditPointDialog(
                 Column(
                     modifier = Modifier
                         .fillMaxWidth()
-                        .height(80.dp)
+                        .height(120.dp)
                         .clip(RoundedCornerShape(12.dp))
                         .background(backgroundSurfaceColor)
-                        .padding(10.dp)
+                        .padding(10.dp),
+                    verticalArrangement = Arrangement.spacedBy(20.dp)
                 ) {
                     Row(
                         modifier = Modifier
                             .fillMaxWidth()
-                            .height(40.dp),
+                            .height(20.dp),
                         horizontalArrangement = Arrangement.Center
                     ) {
                         Text(
@@ -181,6 +183,7 @@ fun EditPointDialog(
                     Canvas(
                         modifier = Modifier
                             .fillMaxWidth()
+                            .height(40.dp)
                     ) {
                         val center = size.center
                         val actionSpacing = 240f
@@ -194,6 +197,7 @@ fun EditPointDialog(
                             center = center.copy(x = center.x - actionSpacing),
                             ctx = ctx,
                             circleColor = circleColor,
+                            surfaceColorDraw = backgroundSurfaceColor,
                             extraColors = extraColors,
                             pointIcons = pointIcons,
                             preventBgErasing = true,
@@ -209,6 +213,7 @@ fun EditPointDialog(
                             center = center.copy(x = center.x + actionSpacing),
                             ctx = ctx,
                             circleColor = circleColor,
+                            surfaceColorDraw = backgroundSurfaceColor,
                             extraColors = extraColors,
                             pointIcons = pointIcons,
                             preventBgErasing = true,
@@ -259,12 +264,13 @@ fun EditPointDialog(
                         )
                     }
 
+                    val editIconEnabled = editPoint.action !is SwipeActionSerializable.OpenCircleNest
                     Row(
                         modifier = Modifier
                             .weight(1f)
                             .clip(RoundedCornerShape(12.dp))
                             .background(backgroundSurfaceColor)
-                            .clickable {
+                            .clickable(editIconEnabled) {
                                 showEditIconDialog = true
                             }
                             .padding(12.dp),
@@ -273,14 +279,14 @@ fun EditPointDialog(
                     ) {
                         Text(
                             text = stringResource(R.string.edit_icon),
-                            color = MaterialTheme.colorScheme.onSurface
+                            color = MaterialTheme.colorScheme.onSurface.copy(if (editIconEnabled) 1f else 0.5f)
                         )
                         Spacer(Modifier.weight(1f))
 
                         Icon(
                             imageVector = Icons.Default.Edit,
                             contentDescription = stringResource(R.string.edit_action),
-                            tint = MaterialTheme.colorScheme.primary,
+                            tint = MaterialTheme.colorScheme.primary.copy(if (editIconEnabled) 1f else 0.5f),
                         )
                     }
                 }

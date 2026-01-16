@@ -1,4 +1,4 @@
-package org.elnix.dragonlauncher.ui.helpers
+package org.elnix.dragonlauncher.ui.helpers.nests
 
 import android.content.Context
 import androidx.compose.runtime.snapshots.SnapshotStateList
@@ -28,7 +28,8 @@ fun DrawScope.circlesSettingsOverlay(
     pointIcons: Map<String, ImageBitmap>,
     nestId: Int,
     deepNest: Int,
-    selectedAll: Boolean = false
+    selectedAll: Boolean = false,
+    preventBgErasing: Boolean = false
 ) {
     // 1. Draw all circles
     circles.forEach { circle ->
@@ -66,9 +67,11 @@ fun DrawScope.circlesSettingsOverlay(
                     center = newCenter,
                     ctx = ctx,
                     circleColor = circleColor,
+                    surfaceColorDraw = backgroundColor,
                     extraColors = extraColors,
                     pointIcons = pointIcons,
-                    deepNest = deepNest
+                    deepNest = deepNest,
+                    preventBgErasing = preventBgErasing
                 )
             }
     }
