@@ -55,6 +55,7 @@ private fun SliderWithLabelInternal(
     color: Color,
     showValue: Boolean,
     valueText: String,
+    backgroundColor: Color,
     onReset: (() -> Unit)?,
     onDragStateChange: ((Boolean) -> Unit)?,
     onChange: (Float) -> Unit
@@ -107,7 +108,7 @@ private fun SliderWithLabelInternal(
             },
             valueRange = valueRange,
             steps = steps,
-            colors = AppObjectsColors.sliderColors(color),
+            colors = AppObjectsColors.sliderColors(color, backgroundColor),
             modifier = Modifier.height(25.dp)
         )
     }
@@ -137,6 +138,7 @@ fun SliderWithLabel(
     value: Int,
     valueRange: IntRange,
     color: Color,
+    backgroundColor: Color = MaterialTheme.colorScheme.surface,
     showValue: Boolean = true,
     onReset: (() -> Unit)? = null,
     onDragStateChange: ((Boolean) -> Unit)? = null,
@@ -158,6 +160,7 @@ fun SliderWithLabel(
         valueRange = floatRange,
         steps = steps,
         color = color,
+        backgroundColor = backgroundColor,
         showValue = showValue,
         valueText = value.toString(),
         onReset = onReset,
@@ -192,6 +195,7 @@ fun SliderWithLabel(
     value: Float,
     valueRange: ClosedFloatingPointRange<Float>,
     color: Color,
+    backgroundColor: Color = MaterialTheme.colorScheme.surface,
     showValue: Boolean = true,
     decimals: Int = 2,
     onReset: (() -> Unit)? = null,
@@ -209,6 +213,7 @@ fun SliderWithLabel(
         valueRange = valueRange,
         steps = 0,
         color = color,
+        backgroundColor = backgroundColor,
         showValue = showValue,
         valueText = valueText,
         onReset = onReset,

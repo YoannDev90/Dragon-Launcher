@@ -36,7 +36,7 @@ fun DrawScope.circlesSettingsOverlay(
             color = circleColor,
             radius = circle.radius,
             center = center,
-            style = Stroke(4f)
+            style = Stroke(if (selectedAll) 8f else 4f)
         )
 
 
@@ -59,9 +59,8 @@ fun DrawScope.circlesSettingsOverlay(
                 )
 
                 actionsInCircle(
-                    selected = selectedAll || p.id == selectedPoint?.id,
+                    selected = selectedAll || (p.id == selectedPoint?.id),
                     point = displayPoint,
-//                    circles = circles,
                     nests = nests,
                     points = points,
                     center = newCenter,

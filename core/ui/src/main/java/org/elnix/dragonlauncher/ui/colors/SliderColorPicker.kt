@@ -22,6 +22,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 import org.elnix.dragonlauncher.common.utils.colors.adjustBrightness
+import org.elnix.dragonlauncher.common.utils.colors.blendWith
 import org.elnix.dragonlauncher.common.utils.colors.randomColor
 import org.elnix.dragonlauncher.ui.helpers.SliderWithLabel
 
@@ -100,6 +101,7 @@ fun SliderColorPicker(
             label = "Red :",
             value = red,
             color = Color.Red,
+            backgroundColor = MaterialTheme.colorScheme.surface.blendWith(Color.Red, 0.2f),
             valueRange = 0f..1f
         ) {
             red = it
@@ -110,6 +112,7 @@ fun SliderColorPicker(
             label = "Green :",
             value = green,
             color = Color.Green,
+            backgroundColor = MaterialTheme.colorScheme.surface.blendWith(Color.Green, 0.2f),
             valueRange = 0f..1f
         ) {
             green = it
@@ -120,6 +123,7 @@ fun SliderColorPicker(
             label = "Blue :",
             value = blue,
             color = Color.Blue,
+            backgroundColor = MaterialTheme.colorScheme.surface.blendWith(Color.Blue, 0.2f),
             valueRange = 0f..1f
         ) {
             blue = it

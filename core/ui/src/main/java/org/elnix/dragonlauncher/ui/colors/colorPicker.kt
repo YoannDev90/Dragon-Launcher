@@ -28,8 +28,8 @@ import androidx.compose.material.icons.filled.Shuffle
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextField
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
@@ -51,6 +51,7 @@ import androidx.core.graphics.toColorInt
 import kotlinx.coroutines.launch
 import org.elnix.dragonlauncher.common.R
 import org.elnix.dragonlauncher.common.utils.colors.adjustBrightness
+import org.elnix.dragonlauncher.common.utils.colors.blendWith
 import org.elnix.dragonlauncher.common.utils.colors.randomColor
 import org.elnix.dragonlauncher.common.utils.colors.toHexWithAlpha
 import org.elnix.dragonlauncher.common.utils.copyToClipboard
@@ -121,7 +122,14 @@ fun ColorPickerRow(
                     modifier = Modifier
                         .clip(CircleShape)
                         .background(backgroundColor.adjustBrightness(0.8f))
-                        .clickable(enabled) { onColorPicked(randomColor(minLuminance = 0.2f, maxLuminance = maxLuminance)) }
+                        .clickable(enabled) {
+                            onColorPicked(
+                                randomColor(
+                                    minLuminance = 0.2f,
+                                    maxLuminance = maxLuminance
+                                )
+                            )
+                        }
                         .padding(5.dp)
                 )
             }
@@ -158,6 +166,7 @@ fun ColorPickerRow(
 
     if (showPicker) {
         CustomAlertDialog(
+            imePadding = false,
             modifier = modifier.padding(15.dp),
             onDismissRequest = { showPicker = false },
             icon = {
@@ -262,10 +271,67 @@ private fun ColorPicker(
                 .border(1.dp, MaterialTheme.colorScheme.outline),
             contentAlignment = Alignment.Center
         ) {
-            Text(
-                text = toHexWithAlpha(color),
-                color = if (color.luminance() > 0.4) Color.Black else Color.White
-            )
+            Row(
+                verticalAlignment = Alignment.CenterVertically
+            ){
+                val textBoxColor = if (color.luminance() > 0.4) Color.Black else Color.White
+
+                TextField(
+                    value = hexText,
+                    onValueChange = {
+                        if (it.length <= 7) hexText = it
+                        runCatching {
+                            if (it.startsWith("#") && it.length == 7) {
+                                onColorSelected(Color(it.toColorInt()))
+                            }
+                        }
+                    },
+                    label = { Text(
+                        text = "HEX - AARRGGBB",
+                        color = textBoxColor
+                    ) },
+                    colors = AppObjectsColors.outlinedTextFieldColors(
+                        backgroundColor = color,
+                        onBackgroundColor = textBoxColor,
+                        removeBorder = true
+                    ),
+                    singleLine = true,
+                    modifier = Modifier.weight(1f)
+                )
+
+                Spacer(Modifier.width(50.dp))
+
+                IconButton(
+                    onClick = {
+                        ctx.copyToClipboard(hexText)
+                    },
+                    colors = AppObjectsColors.iconButtonColors(color,textBoxColor)
+                ) {
+                    Icon(
+                        imageVector = Icons.Default.ContentCopy,
+                        contentDescription = "Copy HEX"
+                    )
+                }
+
+                IconButton(
+                    onClick = {
+                        ctx.pasteClipboard()?.let { pasted ->
+                            hexText = pasted
+                            runCatching {
+                                if (pasted.startsWith("#") && pasted.length == 7) {
+                                    onColorSelected(Color(pasted.toColorInt()))
+                                }
+                            }
+                        }
+                    },
+                    colors = AppObjectsColors.iconButtonColors(color, textBoxColor)
+                ) {
+                    Icon(
+                        imageVector = Icons.Default.ContentPaste,
+                        contentDescription = "Paste HEX"
+                    )
+                }
+            }
         }
 
         Spacer(Modifier.height(15.dp))
@@ -296,67 +362,21 @@ private fun ColorPicker(
             showValue = false,
             value = color.alpha,
             color = MaterialTheme.colorScheme.primary,
+            backgroundColor = MaterialTheme.colorScheme.surface.blendWith(MaterialTheme.colorScheme.primary, 0.2f),
             valueRange = 0f..1f
         ) { alpha -> onColorSelected(color.copy(alpha = alpha)) }
 
-        Spacer(Modifier.height(15.dp))
+//        Spacer(Modifier.height(15.dp))
 
-        // --- HEX entry ---
-        val context = LocalContext.current
-
-        Row(
-            modifier = Modifier.fillMaxWidth(),
-            verticalAlignment = Alignment.CenterVertically
-        ) {
-            OutlinedTextField(
-                value = hexText,
-                onValueChange = {
-                    hexText = it
-                    runCatching {
-                        if (it.startsWith("#")) {
-                            onColorSelected(Color(it.toColorInt()))
-                        }
-                    }
-                },
-                label = { Text("HEX") },
-                colors = AppObjectsColors.outlinedTextFieldColors(
-                    backgroundColor = MaterialTheme.colorScheme.surface
-                ),
-                singleLine = true,
-                modifier = Modifier.weight(1f)
-            )
-
-            IconButton(
-                onClick = {
-                    context.copyToClipboard(hexText)
-                },
-                colors = AppObjectsColors.iconButtonColors()
-            ) {
-                Icon(
-                    imageVector = Icons.Default.ContentCopy,
-                    contentDescription = "Copy HEX"
-                )
-            }
-
-            IconButton(
-                onClick = {
-                    context.pasteClipboard()?.let { pasted ->
-                        hexText = pasted
-                        runCatching {
-                            if (pasted.startsWith("#")) {
-                                onColorSelected(Color(pasted.toColorInt()))
-                            }
-                        }
-                    }
-                },
-                colors = AppObjectsColors.iconButtonColors()
-            ) {
-                Icon(
-                    imageVector = Icons.Default.ContentPaste,
-                    contentDescription = "Paste HEX"
-                )
-            }
-        }
+//        // --- HEX entry ---
+//
+//        Row(
+//            modifier = Modifier.fillMaxWidth(),
+//        ) {
+//
+//
+//
+//        }
 
     }
 }

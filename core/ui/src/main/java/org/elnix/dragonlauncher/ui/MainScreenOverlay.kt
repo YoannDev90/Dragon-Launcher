@@ -385,12 +385,10 @@ fun MainScreenOverlay(
 
 
                         // compute point position relative to origin
-                        val px = start.x +
-                                radius * sin(Math.toRadians(point.angleDeg)).toFloat()
-                        val py = start.y -
-                                radius * cos(Math.toRadians(point.angleDeg)).toFloat()
-
-                        val end = Offset(px,py)
+                        val end = Offset(
+                            x = start.x + radius * sin(Math.toRadians(point.angleDeg)).toFloat(),
+                            y = start.y - radius * cos(Math.toRadians(point.angleDeg)).toFloat()
+                        )
 
                         // If the user selected that the line has to snap to action, it is drawn here and not above
                         if (linePreviewSnapToAction) {
@@ -416,14 +414,14 @@ fun MainScreenOverlay(
                                 actionsInCircle(
                                     selected = false,
                                     point = p,
-//                                    circles = mutableStateListOf(),
                                     nests = nests,
                                     points = points,
                                     center = localCenter,
                                     ctx = ctx,
                                     circleColor = circleColor,
                                     extraColors = extraColors,
-                                    pointIcons = pointIcons, 1
+                                    pointIcons = pointIcons,
+                                    deepNest = 1
                                 )
                             }
                         }
@@ -433,7 +431,6 @@ fun MainScreenOverlay(
                             actionsInCircle(
                                 selected = true,
                                 point = point,
-//                                circles = mutableStateListOf(),
                                 nests = nests,
                                 points = points,
                                 center = end,
@@ -453,9 +450,8 @@ fun MainScreenOverlay(
                     val currentPoint = hoveredPoint!!
 
                     actionsInCircle(
-                        selected = false,
+                        selected = true,
                         point = currentPoint,
-//                        circles = mutableStateListOf(),
                         nests = nests,
                         points = points,
                         center = start,

@@ -73,6 +73,7 @@ fun EditPointDialog(
     val extraColors = LocalExtraColors.current
 
     val points by SwipeSettingsStore.getPointsFlow(ctx).collectAsState(emptyList())
+    val nests by SwipeSettingsStore.getNestsFlow(ctx).collectAsState(emptyList())
 
     var editPoint by remember { mutableStateOf(point) }
     var showEditIconDialog by remember { mutableStateOf(false) }
@@ -116,8 +117,7 @@ fun EditPointDialog(
         title = {
             Column(
                 verticalArrangement = Arrangement.spacedBy(5.dp),
-                horizontalAlignment = Alignment.CenterHorizontally,
-                modifier = Modifier
+                horizontalAlignment = Alignment.CenterHorizontally
             ) {
                 Row(
                     modifier = Modifier
@@ -189,8 +189,7 @@ fun EditPointDialog(
                         actionsInCircle(
                             selected = false,
                             point = editPoint,
-//                            circles = mutableStateListOf(),
-                            nests = emptyList(),
+                            nests = nests,
                             points = points,
                             center = center.copy(x = center.x - actionSpacing),
                             ctx = ctx,
@@ -198,7 +197,7 @@ fun EditPointDialog(
                             extraColors = extraColors,
                             pointIcons = pointIcons,
                             preventBgErasing = true,
-                            deepNest = 0
+                            deepNest = 1
                         )
 
                         // Right action
@@ -206,15 +205,14 @@ fun EditPointDialog(
                             selected = true,
                             point = editPoint,
                             points = points,
-//                            circles = mutableStateListOf(),
-                            nests = emptyList(),
+                            nests = nests,
                             center = center.copy(x = center.x + actionSpacing),
                             ctx = ctx,
                             circleColor = circleColor,
                             extraColors = extraColors,
                             pointIcons = pointIcons,
                             preventBgErasing = true,
-                            deepNest = 0
+                            deepNest = 1
                         )
                     }
                 }
@@ -224,7 +222,7 @@ fun EditPointDialog(
             Column(
                 verticalArrangement = Arrangement.spacedBy(5.dp),
                 modifier = Modifier
-                    .height(600.dp)
+                    .height(500.dp)
                     .verticalScroll(rememberScrollState())
             ) {
 

@@ -25,7 +25,6 @@ import org.elnix.dragonlauncher.ui.theme.ExtraColors
 fun DrawScope.actionsInCircle(
     selected: Boolean,
     point: SwipePointSerializable,
-//    circles: SnapshotStateList<UiCircle>,
     nests: List<CircleNest>,
     points: List<SwipePointSerializable>,
     center: Offset,
@@ -42,11 +41,11 @@ fun DrawScope.actionsInCircle(
     val py = center.y
 
     val iconSize = 56 / deepNest
+    val borderRadii = 44f / deepNest
+    println(borderRadii)
 
-    val dstOffset = IntOffset(px.toInt() - iconSize/2, py.toInt() - iconSize/2)
+    val dstOffset = IntOffset(px.toInt() - iconSize / 2, py.toInt() - iconSize / 2)
     val intSize = IntSize(iconSize, iconSize)
-
-    val colorAction =  actionColor(point.action, extraColors)
 
     val borderColor = if (selected) {
         point.borderColorSelected?.let { Color(it) }
@@ -75,28 +74,29 @@ fun DrawScope.actionsInCircle(
         if (eraseBg) {
             drawCircle(
                 color = Color.Transparent,
-                radius = 44f,
+                radius = borderRadii,
                 center = center,
                 blendMode = BlendMode.Clear
             )
-        } else
+        } else {
             drawCircle(
                 color = backgroundColor,
-                radius = 44f,
+                radius = borderRadii,
                 center = center
             )
 
             if (borderColor != Color.Transparent && borderStroke > 0f) {
                 drawCircle(
-                    color =  borderColor,
-                    radius = 44f,
+                    color = borderColor,
+                    radius = borderRadii,
                     center = center,
                     style = Stroke(borderStroke)
                 )
             }
-
+        }
 
         val icon = point.id.let { pointIcons[it] }
+        val colorAction = actionColor(point.action, extraColors)
 
         if (icon != null) {
             drawImage(
@@ -112,7 +112,7 @@ fun DrawScope.actionsInCircle(
             )
         }
 
-    } else if ( deepNest < 2 ) {
+    } else if (deepNest < 3) {
         nests.find { it.id == action.nestId }?.let { nest ->
 
 
@@ -121,12 +121,12 @@ fun DrawScope.actionsInCircle(
             val newCircles: SnapshotStateList<UiCircle> = mutableStateListOf()
 
 
-             nest.dragDistances.filter { it.key != -1 }
-                .forEach { (index, _ ) ->
-                    val radius = 100f * circlesWidthIncrement * (index + 1)
+            nest.dragDistances.filter { it.key != -1 }
+                .forEach { (index, _) ->
+                    val radius = (100f / deepNest) * circlesWidthIncrement * (index + 1)
                     newCircles.add(
-                            UiCircle(index, radius)
-                        )
+                        UiCircle(index, radius)
+                    )
                 }
 
             circlesSettingsOverlay(
@@ -141,7 +141,7 @@ fun DrawScope.actionsInCircle(
                 extraColors = extraColors,
                 pointIcons = pointIcons,
                 nestId = nest.id,
-                deepNest = deepNest+1,
+                deepNest = deepNest + 1,
                 selectedAll = selected
             )
 

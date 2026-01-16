@@ -80,6 +80,7 @@ fun IconEditorDialog(
     val scope = rememberCoroutineScope()
 
     val points by SwipeSettingsStore.getPointsFlow(ctx).collectAsState(emptyList())
+    val nests by SwipeSettingsStore.getNestsFlow(ctx).collectAsState(emptyList())
 
     val circleColor = LocalExtraColors.current.circle
 
@@ -163,8 +164,7 @@ fun IconEditorDialog(
                         selected = false,
                         point = previewPoint,
                         points = points,
-//                        circles = mutableStateListOf(),
-                        nests = emptyList(),
+                        nests = nests,
                         center = center.copy(x = center.x - actionSpacing),
                         ctx = ctx,
                         circleColor = circleColor,
@@ -179,8 +179,7 @@ fun IconEditorDialog(
                         selected = true,
                         point = previewPoint,
                         points = points,
-//                        circles = mutableStateListOf(),
-                        nests = emptyList(),
+                        nests = nests,
                         center = center.copy(x = center.x + actionSpacing),
                         ctx = ctx,
                         circleColor = circleColor,
