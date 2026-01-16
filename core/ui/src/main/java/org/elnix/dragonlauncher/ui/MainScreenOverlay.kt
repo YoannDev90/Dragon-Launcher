@@ -39,22 +39,20 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.IntSize
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import org.elnix.dragonlauncher.common.serializables.CircleNest
 import org.elnix.dragonlauncher.common.serializables.SwipePointSerializable
+import org.elnix.dragonlauncher.common.theme.AmoledDefault
 import org.elnix.dragonlauncher.settings.stores.ColorSettingsStore
 import org.elnix.dragonlauncher.settings.stores.DebugSettingsStore
 import org.elnix.dragonlauncher.settings.stores.UiSettingsStore
 import org.elnix.dragonlauncher.ui.components.AppPreviewTitle
 import org.elnix.dragonlauncher.ui.helpers.actionsInCircle
-import org.elnix.dragonlauncher.common.theme.AmoledDefault
 import org.elnix.dragonlauncher.ui.theme.LocalExtraColors
-import org.elnix.dragonlauncher.ui.actions.actionColor
 import kotlin.math.abs
 import kotlin.math.atan2
 import kotlin.math.cos
 import kotlin.math.hypot
 import kotlin.math.sin
-import org.elnix.dragonlauncher.common.serializables.CircleNest
-import kotlin.collections.find
 
 
 @Composable
@@ -309,7 +307,7 @@ fun MainScreenOverlay(
             }
         }
 
-        val colorAction = if (hoveredPoint != null) actionColor(hoveredPoint!!.action, extraColors) else Color.Unspecified
+//        val colorAction = if (hoveredPoint != null) actionColor(hoveredPoint!!.action, extraColors) else Color.Unspecified
 
 
 
@@ -392,13 +390,14 @@ fun MainScreenOverlay(
                         val py = start.y -
                                 radius * cos(Math.toRadians(point.angleDeg)).toFloat()
 
+                        val end = Offset(px,py)
 
                         // If the user selected that the line has to snap to action, it is drawn here and not above
                         if (linePreviewSnapToAction) {
                             actionLine(
                                 drawScope = this,
                                 start = start,
-                                end = Offset(px,py),
+                                end = end,
                                 radius = circleRadius,
                                 color = lineColor
                             )
@@ -410,34 +409,39 @@ fun MainScreenOverlay(
                         // even though it shouldn't happened due to my separatePoints functions
                         if (showAllActionsOnCurrentCircle) {
                             points.filter { it.nestId == nestId && it.circleNumber == targetCircle && it != point }.forEach { p ->
-                                val px = start.x + radius * sin(Math.toRadians(p.angleDeg)).toFloat()
-                                val py = start.y - radius * cos(Math.toRadians(p.angleDeg)).toFloat()
-
-                                this.actionsInCircle(
+                                val localCenter = Offset(
+                                    x = start.x + radius * sin(Math.toRadians(p.angleDeg)).toFloat(),
+                                    y = start.y - radius * cos(Math.toRadians(p.angleDeg)).toFloat()
+                                )
+                                actionsInCircle(
                                     selected = false,
                                     point = p,
+//                                    circles = mutableStateListOf(),
                                     nests = nests,
-                                    px = px,
-                                    py = py,
+                                    points = points,
+                                    center = localCenter,
                                     ctx = ctx,
                                     circleColor = circleColor,
-                                    colorAction = actionColor(p.action, extraColors),
-                                    pointIcons = pointIcons
+                                    extraColors = extraColors,
+                                    pointIcons = pointIcons, 1
                                 )
                             }
                         }
 
                         // Draw here the actual selected action (if requested)
                         if (showAppLaunchPreview) {
-                            this.actionsInCircle(
+                            actionsInCircle(
                                 selected = true,
                                 point = point,
+//                                circles = mutableStateListOf(),
                                 nests = nests,
-                                px = px,
-                                py = py, ctx = ctx,
+                                points = points,
+                                center = end,
+                                ctx = ctx,
                                 circleColor = circleColor,
-                                colorAction = colorAction,
-                                pointIcons = pointIcons
+                                extraColors = extraColors,
+                                pointIcons = pointIcons,
+                                deepNest = 1
                             )
                         }
                     }
@@ -448,15 +452,18 @@ fun MainScreenOverlay(
                 if (showAppPreviewIconCenterStartPosition && hoveredPoint != null) {
                     val currentPoint = hoveredPoint!!
 
-                    this.actionsInCircle(
+                    actionsInCircle(
                         selected = false,
                         point = currentPoint,
+//                        circles = mutableStateListOf(),
                         nests = nests,
-                        px = start.x,
-                        py = start.y, ctx = ctx,
+                        points = points,
+                        center = start,
+                        ctx = ctx,
                         circleColor = circleColor,
-                        colorAction = colorAction,
-                        pointIcons = pointIcons
+                        extraColors = extraColors,
+                        pointIcons = pointIcons,
+                        deepNest = 1
                     )
                 }
             }

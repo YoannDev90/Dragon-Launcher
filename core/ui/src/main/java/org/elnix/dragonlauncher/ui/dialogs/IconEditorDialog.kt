@@ -32,6 +32,7 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TextField
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -51,20 +52,19 @@ import com.canhub.cropper.CropImageOptions
 import com.canhub.cropper.CropImageView
 import kotlinx.coroutines.launch
 import org.elnix.dragonlauncher.common.R
-import org.elnix.dragonlauncher.common.serializables.CircleNest
 import org.elnix.dragonlauncher.common.serializables.CustomIconSerializable
 import org.elnix.dragonlauncher.common.serializables.IconType
 import org.elnix.dragonlauncher.common.serializables.SwipePointSerializable
-import org.elnix.dragonlauncher.ui.theme.LocalExtraColors
 import org.elnix.dragonlauncher.common.utils.ImageUtils
 import org.elnix.dragonlauncher.common.utils.ImageUtils.uriToBase64
-import org.elnix.dragonlauncher.ui.actions.actionColor
 import org.elnix.dragonlauncher.common.utils.colors.adjustBrightness
 import org.elnix.dragonlauncher.models.AppsViewModel
+import org.elnix.dragonlauncher.settings.stores.SwipeSettingsStore
 import org.elnix.dragonlauncher.ui.colors.AppObjectsColors
 import org.elnix.dragonlauncher.ui.components.ValidateCancelButtons
 import org.elnix.dragonlauncher.ui.helpers.SliderWithLabel
 import org.elnix.dragonlauncher.ui.helpers.actionsInCircle
+import org.elnix.dragonlauncher.ui.theme.LocalExtraColors
 
 @Composable
 fun IconEditorDialog(
@@ -78,6 +78,8 @@ fun IconEditorDialog(
     val ctx = LocalContext.current
     val extraColors = LocalExtraColors.current
     val scope = rememberCoroutineScope()
+
+    val points by SwipeSettingsStore.getPointsFlow(ctx).collectAsState(emptyList())
 
     val circleColor = LocalExtraColors.current.circle
 
@@ -156,30 +158,36 @@ fun IconEditorDialog(
                     val center = size.center
                     val actionSpacing = 150f
 
+                    // Left action
                     actionsInCircle(
                         selected = false,
                         point = previewPoint,
-                        nests = emptyList<CircleNest>(),
-                        px = center.x - actionSpacing,
-                        py = center.y,
+                        points = points,
+//                        circles = mutableStateListOf(),
+                        nests = emptyList(),
+                        center = center.copy(x = center.x - actionSpacing),
                         ctx = ctx,
                         circleColor = circleColor,
-                        colorAction = actionColor(point.action, extraColors),
+                        extraColors = extraColors,
                         pointIcons = previewIcon,
-                        preventBgErasing = true
+                        preventBgErasing = true,
+                        deepNest = 1
                     )
 
+                    // Right action
                     actionsInCircle(
                         selected = true,
                         point = previewPoint,
-                        nests = emptyList<CircleNest>(),
-                        px = center.x + actionSpacing,
-                        py = center.y,
+                        points = points,
+//                        circles = mutableStateListOf(),
+                        nests = emptyList(),
+                        center = center.copy(x = center.x + actionSpacing),
                         ctx = ctx,
                         circleColor = circleColor,
-                        colorAction = actionColor(point.action, extraColors),
+                        extraColors = extraColors,
                         pointIcons = previewIcon,
-                        preventBgErasing = true
+                        preventBgErasing = true,
+                        deepNest = 1
                     )
                 }
 

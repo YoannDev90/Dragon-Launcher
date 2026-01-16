@@ -73,7 +73,6 @@ import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.drawscope.Fill
 import androidx.compose.ui.graphics.drawscope.Stroke
-import androidx.compose.ui.graphics.toArgb
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.layout.onSizeChanged
 import androidx.compose.ui.platform.LocalContext
@@ -87,7 +86,6 @@ import kotlinx.coroutines.launch
 import org.elnix.dragonlauncher.common.R
 import org.elnix.dragonlauncher.common.logging.logD
 import org.elnix.dragonlauncher.common.logging.logE
-import org.elnix.dragonlauncher.common.logging.logW
 import org.elnix.dragonlauncher.common.serializables.CircleNest
 import org.elnix.dragonlauncher.common.serializables.SwipeActionSerializable
 import org.elnix.dragonlauncher.common.serializables.SwipePointSerializable
@@ -114,7 +112,6 @@ import org.elnix.dragonlauncher.settings.stores.ColorSettingsStore
 import org.elnix.dragonlauncher.settings.stores.DebugSettingsStore
 import org.elnix.dragonlauncher.settings.stores.SwipeSettingsStore
 import org.elnix.dragonlauncher.settings.stores.UiSettingsStore
-import org.elnix.dragonlauncher.ui.actions.actionColor
 import org.elnix.dragonlauncher.ui.components.AppPreviewTitle
 import org.elnix.dragonlauncher.ui.dialogs.AddPointDialog
 import org.elnix.dragonlauncher.ui.dialogs.EditPointDialog
@@ -123,7 +120,7 @@ import org.elnix.dragonlauncher.ui.dialogs.UserValidation
 import org.elnix.dragonlauncher.ui.helpers.CircleIconButton
 import org.elnix.dragonlauncher.ui.helpers.RepeatingPressButton
 import org.elnix.dragonlauncher.ui.helpers.SliderWithLabel
-import org.elnix.dragonlauncher.ui.helpers.actionsInCircle
+import org.elnix.dragonlauncher.ui.helpers.circlesSettingsOverlay
 import org.elnix.dragonlauncher.ui.theme.LocalExtraColors
 import java.math.RoundingMode
 import java.util.UUID
@@ -203,11 +200,11 @@ fun SettingsScreen(
 
     val currentFilteredPoints by rememberUpdatedState(filteredPoints)
 
-    LaunchedEffect(points, nestId) {
-        logD(TAG, nestId.toString())
-        logD(TAG, currentNest.toString())
-        logD(TAG, points.filter { it.nestId == nestId }.toString())
-    }
+//    LaunchedEffect(points, nestId) {
+//        logD(TAG, nestId.toString())
+//        logD(TAG, currentNest.toString())
+//        logD(TAG, points.filter { it.nestId == nestId }.toString())
+//    }
 
     /**
      * The number of circles; it's the size of the current nest, minus one, cause it ignores the
@@ -468,47 +465,20 @@ fun SettingsScreen(
             key(recomposeTrigger) {
                 if (!isCircleDistanceMode) {
                     Canvas(Modifier.fillMaxSize()) {
-
-                        // 1. Draw all circles
-                        circles.forEach { circle ->
-                            drawCircle(
-                                color = circleColor,
-                                radius = circle.radius,
-                                center = center,
-                                style = Stroke(4f)
-                            )
-
-
-                            // 2. Draw all points that belongs to the actual circle, selected last
-                            currentFilteredPoints
-                                .filter { it.circleNumber == circle.id }
-                                .sortedBy { it.id == selectedPoint?.id }
-                                .forEach { p ->
-
-                                val px =
-                                    center.x + circle.radius * sin(Math.toRadians(p.angleDeg)).toFloat()
-                                val py =
-                                    center.y - circle.radius * cos(Math.toRadians(p.angleDeg)).toFloat()
-
-                                    val displayPoint = p.copy(
-                                        backgroundColor = p.backgroundColor ?: backgroundColor.toArgb(),
-                                        backgroundColorSelected = p.backgroundColorSelected
-                                            ?: backgroundColor.toArgb(),
-                                    )
-
-                                    actionsInCircle(
-                                        selected = p.id == selectedPoint?.id,
-                                        point = displayPoint,
-                                        nests = nests,
-                                        px = px,
-                                        py = py,
-                                        ctx = ctx,
-                                        circleColor = circleColor,
-                                        colorAction = actionColor(p.action, extraColors),
-                                        pointIcons = pointIcons,
-                                    )
-                            }
-                        }
+                        circlesSettingsOverlay(
+                            circles = circles,
+                            circleColor = circleColor,
+                            center = center,
+                            points = points,
+                            selectedPoint = selectedPoint,
+                            backgroundColor = backgroundColor,
+                            nests = nests,
+                            ctx = ctx,
+                            extraColors = extraColors,
+                            pointIcons = pointIcons,
+                            nestId = nestId,
+                            deepNest = 1,
+                        )
                     }
                 } else {
                     Canvas(Modifier.fillMaxSize()) {
@@ -615,9 +585,9 @@ fun SettingsScreen(
                                     var tapped: SwipePointSerializable? = null
                                     var best = Float.MAX_VALUE
 
-                                    logD(TAG, currentFilteredPoints.toString())
+//                                    logD(TAG, currentFilteredPoints.toString())
                                     currentFilteredPoints.forEach { p ->
-                                        logW(TAG, p.toString())
+//                                        logW(TAG, p.toString())
                                         val circle =
                                             circles.getOrNull(p.circleNumber) ?: return@forEach
                                         val px =
@@ -631,7 +601,7 @@ fun SettingsScreen(
                                             tapped = p
                                         }
                                     }
-                                    logW(TAG, "Tapped: $tapped")
+//                                    logW(TAG, "Tapped: $tapped")
 
                                     selectedPoint =
                                         if (best <= TOUCH_THRESHOLD_PX)

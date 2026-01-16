@@ -211,12 +211,12 @@ object ImageUtils {
     }
 
     fun loadDrawableResAsBitmap(
-        context: Context,
+        ctx: Context,
         resId: Int,
         width: Int,
         height: Int
     ): ImageBitmap {
-        val drawable = ContextCompat.getDrawable(context, resId)
+        val drawable = ContextCompat.getDrawable(ctx, resId)
             ?: return createDefaultBitmap(width, height)
 
         return loadDrawableAsBitmap(drawable, width, height)

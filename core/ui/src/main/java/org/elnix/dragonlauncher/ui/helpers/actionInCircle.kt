@@ -1,6 +1,8 @@
 package org.elnix.dragonlauncher.ui.helpers
 
 import android.content.Context
+import androidx.compose.runtime.mutableStateListOf
+import androidx.compose.runtime.snapshots.SnapshotStateList
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.BlendMode
 import androidx.compose.ui.graphics.Color
@@ -15,21 +17,36 @@ import org.elnix.dragonlauncher.common.serializables.CircleNest
 import org.elnix.dragonlauncher.common.serializables.SwipeActionSerializable
 import org.elnix.dragonlauncher.common.serializables.SwipePointSerializable
 import org.elnix.dragonlauncher.common.utils.ImageUtils.loadDrawableResAsBitmap
+import org.elnix.dragonlauncher.common.utils.UiCircle
+import org.elnix.dragonlauncher.ui.actions.actionColor
+import org.elnix.dragonlauncher.ui.theme.ExtraColors
 
 
 fun DrawScope.actionsInCircle(
     selected: Boolean,
     point: SwipePointSerializable,
+//    circles: SnapshotStateList<UiCircle>,
     nests: List<CircleNest>,
-    px: Float,
-    py: Float,
+    points: List<SwipePointSerializable>,
+    center: Offset,
     ctx: Context,
     circleColor: Color,
-    colorAction: Color,
+    extraColors: ExtraColors,
     pointIcons: Map<String, ImageBitmap>,
+    deepNest: Int,
     preventBgErasing: Boolean = false
 ) {
     val action = point.action
+
+    val px = center.x
+    val py = center.y
+
+    val iconSize = 56 / deepNest
+
+    val dstOffset = IntOffset(px.toInt() - iconSize/2, py.toInt() - iconSize/2)
+    val intSize = IntSize(iconSize, iconSize)
+
+    val colorAction =  actionColor(point.action, extraColors)
 
     val borderColor = if (selected) {
         point.borderColorSelected?.let { Color(it) }
@@ -59,21 +76,21 @@ fun DrawScope.actionsInCircle(
             drawCircle(
                 color = Color.Transparent,
                 radius = 44f,
-                center = Offset(px, py),
+                center = center,
                 blendMode = BlendMode.Clear
             )
         } else
             drawCircle(
                 color = backgroundColor,
                 radius = 44f,
-                center = Offset(px, py)
+                center = center
             )
 
             if (borderColor != Color.Transparent && borderStroke > 0f) {
                 drawCircle(
                     color =  borderColor,
                     radius = 44f,
-                    center = Offset(px, py),
+                    center = center,
                     style = Stroke(borderStroke)
                 )
             }
@@ -84,8 +101,8 @@ fun DrawScope.actionsInCircle(
         if (icon != null) {
             drawImage(
                 image = icon,
-                dstOffset = IntOffset(px.toInt() - 28, py.toInt() - 28),
-                dstSize = IntSize(56, 56),
+                dstOffset = dstOffset,
+                dstSize = intSize,
                 colorFilter = if (
                     action !is SwipeActionSerializable.LaunchApp &&
                     action !is SwipeActionSerializable.LaunchShortcut &&
@@ -95,28 +112,54 @@ fun DrawScope.actionsInCircle(
             )
         }
 
-    } else {
+    } else if ( deepNest < 2 ) {
         nests.find { it.id == action.nestId }?.let { nest ->
 
 
             val circlesWidthIncrement = 1f / (nest.dragDistances.size - 1)
 
+            val newCircles: SnapshotStateList<UiCircle> = mutableStateListOf()
 
-            // Action is OpenCirclesNext (draws small the circleNests)
-            nests.find { it.id == action.nestId }!!.dragDistances.filter { it.key != -1 }
-                .forEach { (index, _) ->
+
+             nest.dragDistances.filter { it.key != -1 }
+                .forEach { (index, _ ) ->
                     val radius = 100f * circlesWidthIncrement * (index + 1)
-                    drawCircle(
-                        color = colorAction,
-                        radius = radius,
-                        center = Offset(px, py),
-                        style = Stroke(if (selected) 8f else 4f)
-                    )
+                    newCircles.add(
+                            UiCircle(index, radius)
+                        )
                 }
+
+            circlesSettingsOverlay(
+                circles = newCircles,
+                circleColor = circleColor,
+                center = center,
+                points = points,
+                selectedPoint = point,
+                backgroundColor = backgroundColor,
+                nests = nests,
+                ctx = ctx,
+                extraColors = extraColors,
+                pointIcons = pointIcons,
+                nestId = nest.id,
+                deepNest = deepNest+1,
+                selectedAll = selected
+            )
+
+//            // Action is OpenCirclesNext (draws small the circleNests)
+//            nest.dragDistances.filter { it.key != -1 }
+//                .forEach { (index, _) ->
+//                    val radius = 100f * circlesWidthIncrement * (index + 1)
+//                    drawCircle(
+//                        color = colorAction,
+//                        radius = radius,
+//                        center = center,
+//                        style = Stroke(if (selected) 8f else 4f)
+//                    )
+//                }
         } ?: drawImage(
             image = loadDrawableResAsBitmap(ctx, R.drawable.ic_app_default, 48, 48),
-            dstOffset = IntOffset(px.toInt() - 28, py.toInt() - 28),
-            dstSize = IntSize(56, 56)
+            dstOffset = dstOffset,
+            dstSize = intSize
         )
     }
 }

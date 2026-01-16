@@ -44,21 +44,21 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import org.elnix.dragonlauncher.common.R
-import org.elnix.dragonlauncher.common.serializables.CircleNest
 import org.elnix.dragonlauncher.common.serializables.SwipePointSerializable
 import org.elnix.dragonlauncher.common.serializables.defaultSwipePointsValues
 import org.elnix.dragonlauncher.common.theme.AmoledDefault
-import org.elnix.dragonlauncher.ui.theme.LocalExtraColors
-import org.elnix.dragonlauncher.ui.actions.actionColor
-import org.elnix.dragonlauncher.ui.actions.actionLabel
 import org.elnix.dragonlauncher.common.utils.colors.adjustBrightness
 import org.elnix.dragonlauncher.models.AppsViewModel
 import org.elnix.dragonlauncher.settings.stores.ColorSettingsStore
+import org.elnix.dragonlauncher.settings.stores.SwipeSettingsStore
+import org.elnix.dragonlauncher.ui.actions.actionColor
+import org.elnix.dragonlauncher.ui.actions.actionLabel
 import org.elnix.dragonlauncher.ui.colors.AppObjectsColors
 import org.elnix.dragonlauncher.ui.colors.ColorPickerRow
 import org.elnix.dragonlauncher.ui.components.ValidateCancelButtons
 import org.elnix.dragonlauncher.ui.helpers.SliderWithLabel
 import org.elnix.dragonlauncher.ui.helpers.actionsInCircle
+import org.elnix.dragonlauncher.ui.theme.LocalExtraColors
 
 
 @Composable
@@ -71,6 +71,8 @@ fun EditPointDialog(
 
     val ctx = LocalContext.current
     val extraColors = LocalExtraColors.current
+
+    val points by SwipeSettingsStore.getPointsFlow(ctx).collectAsState(emptyList())
 
     var editPoint by remember { mutableStateOf(point) }
     var showEditIconDialog by remember { mutableStateOf(false) }
@@ -187,28 +189,32 @@ fun EditPointDialog(
                         actionsInCircle(
                             selected = false,
                             point = editPoint,
-                            nests = emptyList<CircleNest>(),
-                            px = center.x - actionSpacing,
-                            py = center.y,
+//                            circles = mutableStateListOf(),
+                            nests = emptyList(),
+                            points = points,
+                            center = center.copy(x = center.x - actionSpacing),
                             ctx = ctx,
                             circleColor = circleColor,
-                            colorAction = actionColor(editPoint.action, extraColors),
+                            extraColors = extraColors,
                             pointIcons = pointIcons,
-                            preventBgErasing = true
+                            preventBgErasing = true,
+                            deepNest = 0
                         )
 
                         // Right action
                         actionsInCircle(
                             selected = true,
                             point = editPoint,
-                            nests = emptyList<CircleNest>(),
-                            px = center.x + actionSpacing,
-                            py = center.y,
+                            points = points,
+//                            circles = mutableStateListOf(),
+                            nests = emptyList(),
+                            center = center.copy(x = center.x + actionSpacing),
                             ctx = ctx,
                             circleColor = circleColor,
-                            colorAction = actionColor(editPoint.action, extraColors),
+                            extraColors = extraColors,
                             pointIcons = pointIcons,
-                            preventBgErasing = true
+                            preventBgErasing = true,
+                            deepNest = 0
                         )
                     }
                 }
