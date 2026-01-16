@@ -213,7 +213,7 @@ fun MainScreen(
         } catch (e: AppLaunchException) {
             ctx.logE(TAG, e.message!!) // Lol if it crashes when logging for an exception
         } catch (e: Exception) {
-            ctx.logE(TAG, e.message?:"")
+            ctx.logE(TAG, e.message ?: "")
         }
     }
 

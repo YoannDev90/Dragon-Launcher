@@ -81,6 +81,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.launch
 import org.elnix.dragonlauncher.common.R
@@ -235,7 +236,14 @@ fun SettingsScreen(
 
 
     LaunchedEffect(points, nestId) {
-        appsViewModel.preloadPointIcons(points.filter { it.nestId == nestId })
+        appsViewModel.preloadPointIcons(
+            points.filter { it.nestId == nestId }
+        )
+
+        /* Load asynchronously all the other points, to avoid lag */
+        scope.launch(Dispatchers.IO) {
+            appsViewModel.preloadPointIcons(points)
+        }
     }
 
     /**
