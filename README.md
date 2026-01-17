@@ -1,6 +1,6 @@
 <div align="center">
 
-<img src="https://github.com/Elnix90/Dragon-Launcher/blob/main/app/src/main/ic_launcher-playstore.png" width="22%" alt="App Icon"/>
+<img src="https://github.com/Elnix90/Dragon-Launcher/blob/60e6a8a50312d18eb9342fcd9a1e9fd12eead6a1/core/common/src/main/res/drawable/dragon_launcher_foreground.png" width="22%" alt="App Icon"/>
 
 # Dragon Launcher - Fast Gesture based android launcher
 
