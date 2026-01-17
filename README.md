@@ -14,7 +14,7 @@
 [![GitHub forks](https://img.shields.io/github/forks/Elnix90/Dragon-Launcher?style=for-the-badge)](https://github.com/Elnix90/Dragon-Launcher/forks)
 [![GitHub pull requests](https://img.shields.io/github/issues-pr/Elnix90/Dragon-Launcher?style=for-the-badge)](https://github.com/Elnix90/Dragon-Launcher/pull)
 [![GitHub license](https://img.shields.io/github/license/Elnix90/Dragon-Launcher?style=for-the-badge)](https://github.com/Elnix90/Dragon-Launcher/blob/dev/LICENSE)
-[![Discord](https://img.shields.io/discord/1327996079786168441?color=blue&label=Discord&logo=discord&style=for-the-badge)](https://discord.gg/XXKXQeXpvF)
+[![Discord](https://img.shields.io/discord/1327996079786168441?color=blue&label=Discord&logo=discord&style=for-the-badge)](https://discord.gg/6UyuP8EBWS)
 
 [<img src="https://raw.githubusercontent.com/Kunzisoft/Github-badge/main/get-it-on-github.png" alt='Get it on GitHub' height="80">](https://github.com/Elnix90/Dragon-Launcher/releases/latest)
 [<img src="https://gitlab.com/IzzyOnDroid/repo/-/raw/master/assets/IzzyOnDroid.png" alt="Get it on IzzyOnDroid" height="80">](https://apt.izzysoft.de/fdroid/index/apk/org.elnix.dragonlauncher)
@@ -154,7 +154,7 @@ Coming soon - not yet approved
 
 * Contributions are welcome! Feel free to submit pull requests or open issues.
 
-* You may join the [discord server](https://discord.gg/XXKXQeXpvF) to discuss more easily about changes in the project:
+* You may join the [discord server](https://discord.gg/6UyuP8EBWS) to discuss more easily about changes in the project:
 
 ---
 ## License
