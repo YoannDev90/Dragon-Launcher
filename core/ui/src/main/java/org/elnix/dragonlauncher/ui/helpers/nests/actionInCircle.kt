@@ -88,16 +88,17 @@ fun DrawScope.actionsInCircle(
                 radius = borderRadii,
                 center = center
             )
-
-            if (borderColor.alpha != 0f && borderStroke > 0f) {
-                drawCircle(
-                    color = borderColor,
-                    radius = borderRadii,
-                    center = center,
-                    style = Stroke(borderStroke)
-                )
-            }
         }
+
+        if (borderColor.alpha != 0f && borderStroke > 0f) {
+            drawCircle(
+                color = borderColor,
+                radius = borderRadii,
+                center = center,
+                style = Stroke(borderStroke)
+            )
+        }
+
 
         val icon = point.id.let { pointIcons[it] }
         val colorAction = actionColor(point.action, extraColors)
