@@ -112,3 +112,8 @@ const val POINT_RADIUS_PX = 40f
 const val TOUCH_THRESHOLD_PX = 100f
 
 const val SNAP_STEP_DEG = 15.0
+
+
+/*  ─────────────  Links  ─────────────  */
+
+const val discordInviteLink = "https://discord.gg/6UyuP8EBWS"

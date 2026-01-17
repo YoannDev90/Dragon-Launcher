@@ -16,9 +16,14 @@ import androidx.compose.foundation.clickable
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.Launch
 import androidx.compose.material.icons.automirrored.filled.Notes
@@ -33,6 +38,7 @@ import androidx.compose.material.icons.filled.Restore
 import androidx.compose.material.icons.filled.SettingsSuggest
 import androidx.compose.material.icons.filled.Update
 import androidx.compose.material.icons.filled.Workspaces
+import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -46,6 +52,8 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.luminance
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
@@ -58,6 +66,7 @@ import org.elnix.dragonlauncher.common.R
 import org.elnix.dragonlauncher.common.serializables.SwipeActionSerializable
 import org.elnix.dragonlauncher.common.utils.SETTINGS
 import org.elnix.dragonlauncher.common.utils.copyToClipboard
+import org.elnix.dragonlauncher.common.utils.discordInviteLink
 import org.elnix.dragonlauncher.common.utils.getVersionCode
 import org.elnix.dragonlauncher.common.utils.obtainiumPackageName
 import org.elnix.dragonlauncher.common.utils.openUrl
@@ -99,6 +108,7 @@ fun AdvancedSettingsScreen(
     val versionName = ctx.packageManager.getPackageInfo(ctx.packageName, 0).versionName ?: "unknown"
     var timesClickedOnVersion by remember { mutableIntStateOf(0) }
 
+    val backgroundColor = MaterialTheme.colorScheme.background
 
     BackHandler { onBack() }
 
@@ -211,6 +221,61 @@ fun AdvancedSettingsScreen(
 
 
         item { TextDivider(stringResource(R.string.about)) }
+
+        item {
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .height(25.dp)
+                    .padding(horizontal = 16.dp),
+                horizontalArrangement = Arrangement.Center
+            ) {
+                Row(
+                    modifier = Modifier
+                        .weight(1f)
+                        .clip(RoundedCornerShape(12.dp))
+                        .clickable {ctx.openUrl("https://github.com/Elnix90/Dragon-Launcher") }
+                ) {
+
+                    val githubIcon = if (backgroundColor.luminance() < 0.5) {
+                        R.drawable.github_invertocat_white
+                    } else {
+                        R.drawable.github_invertocat_black
+                    }
+
+                    val githubLogo = if (backgroundColor.luminance() < 0.5) {
+                        R.drawable.github_logo_white
+                    } else {
+                        R.drawable.github_logo
+                    }
+
+                    Icon(
+                        painter = painterResource(githubIcon),
+                        contentDescription = "Github Icon",
+                        tint = Color.Unspecified
+                    )
+
+                    Image(
+                        painter = painterResource(githubLogo),
+                        contentDescription = "Github Logo"
+                    )
+                }
+
+                Spacer(Modifier.width(12.dp))
+
+                Row(
+                    modifier = Modifier
+                        .weight(1f)
+                        .clip(RoundedCornerShape(12.dp))
+                        .clickable {ctx.openUrl(discordInviteLink) }
+                ) {
+                    Image(
+                        painter = painterResource(R.drawable.discord_logo_blurple),
+                        contentDescription = "Discord Logo"
+                    )
+                }
+            }
+        }
 
         item {
 
@@ -329,6 +394,18 @@ fun AdvancedSettingsScreen(
                         .clip(CircleShape)
                         .clickable {
                             ctx.openUrl("https://github.com/acress1")
+                        }
+                        .background(MaterialTheme.colorScheme.surfaceVariant),
+                    contentScale = ContentScale.Crop
+                )
+                Image(
+                    painter = painterResource(R.drawable.yoanndev90),
+                    contentDescription = "YoannDev90 profile picture",
+                    modifier = Modifier
+                        .size(48.dp)
+                        .clip(CircleShape)
+                        .clickable {
+                            ctx.openUrl("https://github.com/YoannDev90")
                         }
                         .background(MaterialTheme.colorScheme.surfaceVariant),
                     contentScale = ContentScale.Crop
