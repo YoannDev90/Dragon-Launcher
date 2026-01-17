@@ -283,4 +283,16 @@
     <string name="line_preview_snap_to_action">कार्रवाई के लिए लाइन पूर्वावलोकन स्नैप</string>
     <string name="icon_packs_found">%1$d आइकन पैक मिले</string>
     <string name="default_text">गलती करना</string>
+    <string name="app_icon_size">ऐप आइकन का आकार</string>
+    <string name="app_label_size">ऐप लेबल का आकार</string>
+    <string name="every_setting_will_return_to_its_default_state_this_cannot_be_undone_the_app_will_kill_itself">प्रत्येक सेटिंग अपनी डिफ़ॉल्ट स्थिति में वापस आ जाएगी, इसे पूर्ववत नहीं किया जा सकता, ऐप स्वयं समाप्त हो जाएगा</string>
+    <string name="reset_all_settings">सभी सेटिंग्स रीसेट करें\?!</string>
+    <string name="experimental">प्रयोगात्मक</string>
+    <string name="set_wallpaper">वॉलपेपर सेट करो</string>
+    <string name="manage_nests">घोंसला प्रबंधन</string>
+    <string name="copy">प्रतिलिपि</string>
+    <string name="edit_nests">घोंसले संपादित करें</string>
+    <string name="pick_a_nest">एक घोंसला चुनें</string>
+    <string name="create_new_nest">नया घोंसला बनाएं</string>
+    <string name="copy_id">आईडी कॉपी करें</string>
 </resources>

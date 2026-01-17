@@ -283,4 +283,16 @@
     <string name="line_preview_snap_to_action">Die Linienvorschau lässt sich an die Aktion anpassen</string>
     <string name="icon_packs_found">%1$d Icon-Pakete gefunden</string>
     <string name="default_text">Standard</string>
+    <string name="app_icon_size">App-Symbolgröße</string>
+    <string name="app_label_size">Größe des App-Labels</string>
+    <string name="every_setting_will_return_to_its_default_state_this_cannot_be_undone_the_app_will_kill_itself">JEDE Einstellung wird auf den Standardzustand zurückgesetzt. Dies kann nicht rückgängig gemacht werden, die App beendet sich selbst</string>
+    <string name="reset_all_settings">ALLE Einstellungen zurücksetzen\?!</string>
+    <string name="experimental">Experimental</string>
+    <string name="set_wallpaper">Hintergrundbild festlegen</string>
+    <string name="manage_nests">Nestverwaltung</string>
+    <string name="copy">Kopie</string>
+    <string name="edit_nests">Nester bearbeiten</string>
+    <string name="pick_a_nest">Wähle ein Nest</string>
+    <string name="create_new_nest">Neues Nest erstellen</string>
+    <string name="copy_id">ID kopieren</string>
 </resources>

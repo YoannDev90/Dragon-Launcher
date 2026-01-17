@@ -283,4 +283,16 @@
     <string name="line_preview_snap_to_action">Visualização de linha instantânea para ação</string>
     <string name="icon_packs_found">%1$d pacotes de ícones encontrados</string>
     <string name="default_text">Padrão</string>
+    <string name="app_icon_size">Tamanho do ícone do aplicativo</string>
+    <string name="app_label_size">Tamanho do rótulo do aplicativo</string>
+    <string name="every_setting_will_return_to_its_default_state_this_cannot_be_undone_the_app_will_kill_itself">CADA configuração retornará ao seu estado padrão, isso não pode ser desfeito, o aplicativo irá se matar</string>
+    <string name="reset_all_settings">Redefinir TODAS as configurações\?!</string>
+    <string name="experimental">Experimental</string>
+    <string name="set_wallpaper">Definir papel de parede</string>
+    <string name="manage_nests">Gerenciamento de ninhos</string>
+    <string name="copy">Cópia</string>
+    <string name="edit_nests">Editar ninhos</string>
+    <string name="pick_a_nest">Escolha um ninho</string>
+    <string name="create_new_nest">Criar novo ninho</string>
+    <string name="copy_id">Copiar ID</string>
 </resources>
