@@ -24,6 +24,7 @@ import androidx.compose.foundation.layout.systemBars
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.AccountCircle
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.ArrowDownward
 import androidx.compose.material.icons.filled.ArrowUpward
@@ -43,6 +44,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.key
+import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
@@ -63,7 +65,9 @@ import androidx.compose.ui.unit.sp
 import kotlinx.coroutines.launch
 import org.elnix.dragonlauncher.common.FloatingAppObject
 import org.elnix.dragonlauncher.common.R
+import org.elnix.dragonlauncher.common.logging.logD
 import org.elnix.dragonlauncher.common.serializables.SwipeActionSerializable
+import org.elnix.dragonlauncher.common.utils.WIDGET_TAG
 import org.elnix.dragonlauncher.common.utils.WidgetHostProvider
 import org.elnix.dragonlauncher.models.AppsViewModel
 import org.elnix.dragonlauncher.models.FloatingAppsViewModel
@@ -71,6 +75,7 @@ import org.elnix.dragonlauncher.settings.stores.DebugSettingsStore
 import org.elnix.dragonlauncher.settings.stores.StatusBarSettingsStore
 import org.elnix.dragonlauncher.ui.components.FloatingAppsHostView
 import org.elnix.dragonlauncher.ui.dialogs.AddPointDialog
+import org.elnix.dragonlauncher.ui.dialogs.NestManagementDialog
 import org.elnix.dragonlauncher.ui.helpers.CircleIconButton
 import org.elnix.dragonlauncher.ui.helpers.UpDownButton
 import org.elnix.dragonlauncher.ui.helpers.settings.SettingsLazyHeader
@@ -82,7 +87,7 @@ fun FloatingAppsTab(
     floatingAppsViewModel: FloatingAppsViewModel,
     widgetHostProvider: WidgetHostProvider,
     onBack: () -> Unit,
-    onLaunchSystemWidgetPicker: () -> Unit,
+    onLaunchSystemWidgetPicker: (nestId: Int) -> Unit,
     onResetWidgetSize: (id: Int, widgetId: Int) -> Unit,
     onRemoveWidget: (FloatingAppObject) -> Unit
 ) {
@@ -108,8 +113,6 @@ fun FloatingAppsTab(
 
     fun removeWidget(floatingApp: FloatingAppObject) {
         onRemoveWidget(floatingApp)
-
-
         if (selected == floatingApp) selected = null
     }
 
@@ -117,7 +120,8 @@ fun FloatingAppsTab(
     val floatingAppsNumber = floatingApps.filter { it.action is SwipeActionSerializable.LaunchApp }.size
 
     var showAddDialog by remember { mutableStateOf(false) }
-
+    var showNestPickerDialog by remember { mutableStateOf(false) }
+    var nestId by remember { mutableIntStateOf(0) }
 
     /** ───────────────────────────────────────────────────────────────────────────────────────────
      * Status bar things, copy paste from the getters, do no change that, it's just for displaying
@@ -204,8 +208,8 @@ fun FloatingAppsTab(
 
         /* ---------------- Widget canvas ---------------- */
 
-        floatingApps.forEach { floatingApp ->
-            key(floatingApp.id) {
+        floatingApps.filter { it.nestId == nestId }.forEach { floatingApp ->
+                key(floatingApp.id, nestId) {
                 DraggableFloatingApp(
                     floatingAppsViewModel = floatingAppsViewModel,
                     app = floatingApp,
@@ -233,9 +237,8 @@ fun FloatingAppsTab(
             }
         }
 
-        /* ---------------- Bottom controls ---------------- */
 
-
+        /* ───────────── Bottom controls ───────────── */
         Row(
             Modifier
                 .fillMaxWidth()
@@ -244,36 +247,14 @@ fun FloatingAppsTab(
             horizontalArrangement = Arrangement.SpaceAround,
             verticalAlignment = Alignment.CenterVertically
         ) {
-            // Open Add floating app dialog
-            CircleIconButton(
-                icon = Icons.Default.Add,
-                contentDescription = stringResource(R.string.add_widget),
-                tint = MaterialTheme.colorScheme.primary,
-                padding = 16.dp
-            ) {
-               showAddDialog = true
-            }
-
-
-            // Delete selected widget
-            CircleIconButton(
-                icon = Icons.Default.Remove,
-                contentDescription = stringResource(R.string.delete_widget),
-                tint = MaterialTheme.colorScheme.error,
-                enabled = isSelected,
-                padding = 16.dp
-            ) {
-                selected?.let { removeWidget(it) }
-            }
-
-//            // Center selected widget
-//            CircleIconButton(
-//                icon = Icons.Default.CenterFocusStrong,
-//                contentDescription = stringResource(R.string.center_selected_floating_app),
-//                color = MaterialTheme.colorScheme.secondary,
-//                padding = 16.dp
-//            ) {
-//            }
+            UpDownButton(
+                upIcon = Icons.Default.Add,
+                downIcon = Icons.Default.AccountCircle,
+                color = MaterialTheme.colorScheme.primary,
+                padding = 16.dp,
+                onClickUp = { showAddDialog = true },
+                onClickDown = { showNestPickerDialog = true }
+            )
 
             UpDownButton(
                 upIcon = Icons.Default.CenterFocusStrong,
@@ -355,6 +336,17 @@ fun FloatingAppsTab(
                 onClickUp = { snapMove = !snapMove },
                 onClickDown = { snapResize = !snapResize }
             )
+
+            // Delete selected widget
+            CircleIconButton(
+                icon = Icons.Default.Remove,
+                contentDescription = stringResource(R.string.delete_widget),
+                tint = MaterialTheme.colorScheme.error,
+                enabled = isSelected,
+                padding = 16.dp
+            ) {
+                selected?.let { removeWidget(it) }
+            }
         }
     }
 
@@ -393,10 +385,29 @@ fun FloatingAppsTab(
             ),
         ) { action ->
             when (action) {
-                is SwipeActionSerializable.OpenWidget -> onLaunchSystemWidgetPicker()
-                else -> floatingAppsViewModel.addFloatingApp(action)
+                is SwipeActionSerializable.OpenWidget -> onLaunchSystemWidgetPicker(nestId)
+                else -> floatingAppsViewModel.addFloatingApp(action, nestId = nestId)
             }
             showAddDialog = false
+        }
+    }
+
+    if (showNestPickerDialog) {
+        NestManagementDialog(
+            appsViewModel = appsViewModel,
+            title = stringResource(R.string.pick_a_nest),
+            canCopyId = false,
+            onDismissRequest = { showNestPickerDialog = false },
+            onDelete = null,
+            onNewNest = null,
+            onNameChange = null
+        ) {
+            ctx.logD(WIDGET_TAG, it.toString())
+            nestId = it.id
+            selected = null
+            ctx.logD(WIDGET_TAG, nestId.toString())
+
+            showNestPickerDialog = false
         }
     }
 }

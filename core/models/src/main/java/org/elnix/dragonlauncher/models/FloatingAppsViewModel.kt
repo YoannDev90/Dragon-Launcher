@@ -32,11 +32,12 @@ class FloatingAppsViewModel(
 
     /* ----------------------------- Public API ----------------------------- */
 
-    fun addFloatingApp(action: SwipeActionSerializable, info: AppWidgetProviderInfo? = null) {
+    fun addFloatingApp(action: SwipeActionSerializable, info: AppWidgetProviderInfo? = null, nestId: Int) {
 
         viewModelScope.launch {
             val app = FloatingAppObject(
                 id = Random.nextInt(),
+                nestId = nestId,
                 action = action
             )
 

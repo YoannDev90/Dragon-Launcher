@@ -79,7 +79,7 @@ fun FloatingAppsHostView(
         ActionIcon(
             action = floatingAppObject.action,
             icons = icons,
-            modifier = Modifier
+            modifier = modifier
                 .fillMaxSize()
                 .clip(RoundedCornerShape(12.dp))
                 .let { mod ->

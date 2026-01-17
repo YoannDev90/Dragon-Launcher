@@ -89,8 +89,8 @@ fun MainAppUi(
     floatingAppsViewModel: FloatingAppsViewModel,
     navController: NavHostController,
     widgetHostProvider: WidgetHostProvider,
-    onBindCustomWidget: (Int, ComponentName) -> Unit,
-    onLaunchSystemWidgetPicker: () -> Unit,
+    onBindCustomWidget: (Int, ComponentName, nestId: Int) -> Unit,
+    onLaunchSystemWidgetPicker: (nestId: Int) -> Unit,
     onResetWidgetSize: (id: Int, widgetId: Int) -> Unit,
     onRemoveFloatingApp: (FloatingAppObject) -> Unit
 ) {
@@ -106,7 +106,7 @@ fun MainAppUi(
     val currentVersionCode = getVersionCode(ctx)
     var showWhatsNewBottomSheet by remember { mutableStateOf(false) }
 
-    var showWidgetPicker by remember { mutableStateOf(false) }
+    var showWidgetPicker by remember { mutableStateOf<Int?>(null) }
 
     val updates by produceState(initialValue = emptyList()) {
         value = loadChangelogs(ctx, versionCode)
@@ -199,9 +199,9 @@ fun MainAppUi(
 
 
 
-    fun launchWidgetsPicker() {
-        if (!forceAppWidgetsSelector) onLaunchSystemWidgetPicker()
-        else showWidgetPicker = true
+    fun launchWidgetsPicker(nestId: Int) {
+        if (!forceAppWidgetsSelector) onLaunchSystemWidgetPicker(nestId)
+        else showWidgetPicker = nestId
     }
 
 
@@ -388,8 +388,13 @@ fun MainAppUi(
         }
     }
 
-    if (showWidgetPicker) {
-        WidgetPickerDialog(onBindCustomWidget) { showWidgetPicker = false }
+    if (showWidgetPicker != null) {
+        val nestToBind = showWidgetPicker!!
+        WidgetPickerDialog(
+            onBindCustomWidget = { id, info ->
+                onBindCustomWidget(id, info, nestToBind)
+            }
+        ) { showWidgetPicker = null }
     }
 
     // ------------------------------------------------------------

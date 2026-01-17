@@ -5,6 +5,7 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.IntrinsicSize
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -52,7 +53,6 @@ import org.elnix.dragonlauncher.models.AppsViewModel
 import org.elnix.dragonlauncher.settings.stores.ColorSettingsStore
 import org.elnix.dragonlauncher.settings.stores.SwipeSettingsStore
 import org.elnix.dragonlauncher.ui.colors.AppObjectsColors
-import org.elnix.dragonlauncher.ui.helpers.CircleIconButton
 import org.elnix.dragonlauncher.ui.helpers.nests.actionsInCircle
 import org.elnix.dragonlauncher.ui.theme.LocalExtraColors
 
@@ -60,6 +60,7 @@ import org.elnix.dragonlauncher.ui.theme.LocalExtraColors
 fun NestManagementDialog(
     appsViewModel: AppsViewModel,
     title: String? = null,
+    canCopyId: Boolean = true,
     onDismissRequest: () -> Unit,
     onNewNest: (() -> Unit)? = null,
     onNameChange: ((id: Int, name: String) -> Unit)?,
@@ -99,7 +100,7 @@ fun NestManagementDialog(
                             modifier = Modifier
                                 .fillMaxWidth()
                                 .clip(CircleShape)
-                                .clickable  { onNewNest() }
+                                .clickable { onNewNest() }
                                 .padding(5.dp),
                             verticalAlignment = Alignment.CenterVertically,
                             horizontalArrangement = Arrangement.Center
@@ -127,6 +128,7 @@ fun NestManagementDialog(
                         points = points,
                         circleColor = circleColor,
                         pointIcons = pointIcons,
+                        canCopyId = canCopyId,
                         onNameChange = onNameChange,
                         onDelete = onDelete,
                         onSelect = { onSelect?.invoke(nest) }
@@ -140,12 +142,13 @@ fun NestManagementDialog(
 
 
 @Composable
-fun NestManagementItem(
+private fun NestManagementItem(
     nest: CircleNest,
     nests: List<CircleNest>,
     points: List<SwipePointSerializable>,
     circleColor: Color,
     pointIcons: Map<String, ImageBitmap>,
+    canCopyId: Boolean,
     onNameChange: ((id: Int, name: String) -> Unit)?,
     onDelete: ((id: Int) -> Unit)?,
     onSelect: (() -> Unit)? = null
@@ -203,10 +206,26 @@ fun NestManagementItem(
                 .padding(10.dp)
         ) {
 
-            Text(
-                text = "ID: ${nest.id}",
-                color = MaterialTheme.colorScheme.onPrimary.copy(0.9f)
-            )
+            Row(
+                modifier = Modifier
+                    .height(IntrinsicSize.Min)
+                    .clickable(canCopyId) {
+                        ctx.copyToClipboard(nest.id.toString())
+                    },
+                verticalAlignment = Alignment.CenterVertically,
+                horizontalArrangement = Arrangement.spacedBy(5.dp)
+            ) {
+                Text(
+                    text = "ID: ${nest.id}",
+                    color = MaterialTheme.colorScheme.onPrimary.copy(0.9f)
+                )
+
+                Icon(
+                    imageVector = Icons.Default.ContentCopy,
+                    contentDescription = stringResource(R.string.copy_id),
+                    modifier = Modifier.size(18.dp)
+                )
+            }
 
             if (onNameChange != null) {
                 TextField(
@@ -233,13 +252,6 @@ fun NestManagementItem(
             }
         }
 
-        CircleIconButton(
-            icon = Icons.Default.ContentCopy,
-            contentDescription = stringResource(R.string.copy_id),
-            padding = 0.dp
-        ) {
-            ctx.copyToClipboard(nest.id.toString())
-        }
 
         if (onDelete != null) {
             IconButton(

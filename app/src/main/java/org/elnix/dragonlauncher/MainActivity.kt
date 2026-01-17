@@ -49,8 +49,8 @@ import org.elnix.dragonlauncher.settings.stores.ColorSettingsStore
 import org.elnix.dragonlauncher.settings.stores.PrivateSettingsStore
 import org.elnix.dragonlauncher.settings.stores.SwipeSettingsStore
 import org.elnix.dragonlauncher.settings.stores.UiSettingsStore
-import org.elnix.dragonlauncher.ui.theme.DragonLauncherTheme
 import org.elnix.dragonlauncher.ui.MainAppUi
+import org.elnix.dragonlauncher.ui.theme.DragonLauncherTheme
 import java.util.UUID
 
 class MainActivity : ComponentActivity(), WidgetHostProvider {
@@ -88,6 +88,7 @@ class MainActivity : ComponentActivity(), WidgetHostProvider {
 
 
     private var pendingBindWidgetId: Int? = null
+    private var pendingAddNestId: Int? = null
     private var pendingBindProvider: ComponentName? = null
 
 
@@ -213,12 +214,12 @@ class MainActivity : ComponentActivity(), WidgetHostProvider {
             } catch (e: Exception) {
                 logW(WIDGET_TAG, "Failed to launch configure activity: ${e.message}")
                 this.showToast("Failed to launch configure activity: ${e.message}")
-                floatingAppsViewModel.addFloatingApp(SwipeActionSerializable.OpenWidget(widgetId,info.provider), info)
+                floatingAppsViewModel.addFloatingApp(SwipeActionSerializable.OpenWidget(widgetId,info.provider), info, pendingAddNestId!!)
             }
 
         } else {
             logD(WIDGET_TAG, "No configuration needed, adding widget")
-            floatingAppsViewModel.addFloatingApp(SwipeActionSerializable.OpenWidget(widgetId,info.provider), info)
+            floatingAppsViewModel.addFloatingApp(SwipeActionSerializable.OpenWidget(widgetId,info.provider), info, pendingAddNestId!!)
         }
     }
 
@@ -235,7 +236,7 @@ class MainActivity : ComponentActivity(), WidgetHostProvider {
 
 
             if (result.resultCode == RESULT_OK) {
-                floatingAppsViewModel.addFloatingApp(SwipeActionSerializable.OpenWidget(widgetId,info.provider), info)
+                floatingAppsViewModel.addFloatingApp(SwipeActionSerializable.OpenWidget(widgetId,info.provider), info, pendingAddNestId!!)
             } else {
                 logW(WIDGET_TAG, "Widget configure canceled, deleting $widgetId")
                 appWidgetHost.deleteAppWidgetId(widgetId)
@@ -440,10 +441,13 @@ class MainActivity : ComponentActivity(), WidgetHostProvider {
                     floatingAppsViewModel = floatingAppsViewModel,
                     widgetHostProvider = this,
                     navController = navController,
-                    onBindCustomWidget = { widgetId, provider ->
+                    onBindCustomWidget = { widgetId, provider, nestId ->
+                        pendingAddNestId = nestId
                         (ctx as MainActivity).bindWidgetFromCustomPicker(widgetId, provider)
                     },
-                    onLaunchSystemWidgetPicker = { (ctx as MainActivity).launchWidgetPicker() },
+                    onLaunchSystemWidgetPicker = { nestId ->
+                        pendingAddNestId = nestId
+                        (ctx as MainActivity).launchWidgetPicker() },
                     onResetWidgetSize = { id, widgetId ->
                         val info = appWidgetManager.getAppWidgetInfo(widgetId)
                         floatingAppsViewModel.resetFloatingAppSize(id, info)

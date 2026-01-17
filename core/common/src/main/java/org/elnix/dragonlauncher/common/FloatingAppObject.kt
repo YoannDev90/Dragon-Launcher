@@ -4,6 +4,7 @@ import org.elnix.dragonlauncher.common.serializables.SwipeActionSerializable
 
 data class FloatingAppObject(
     val id: Int,
+    val nestId: Int?,
     val action: SwipeActionSerializable,
     val spanX: Float = 1f,
     val spanY: Float = 1f,

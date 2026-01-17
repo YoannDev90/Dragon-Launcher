@@ -15,6 +15,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.key
 import androidx.compose.runtime.mutableLongStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -316,32 +317,34 @@ fun MainScreen(
             .then(hold.pointerModifier)
     ) {
 
-        floatingAppObjects.forEach { floatingAppObject ->
-            FloatingAppsHostView(
-                floatingAppObject = floatingAppObject,
-                icons = icons,
-                cellSizePx = cellSizePx,
-                modifier = Modifier
-                    .offset {
-                        IntOffset(
-                            x = (floatingAppObject.x * dm.widthPixels).toInt(),
-                            y = (floatingAppObject.y * dm.heightPixels).toInt()
+        floatingAppObjects.filter { it.nestId == nestId }.forEach { floatingAppObject ->
+            key(floatingAppObject.id, nestId) {
+                FloatingAppsHostView(
+                    floatingAppObject = floatingAppObject,
+                    icons = icons,
+                    cellSizePx = cellSizePx,
+                    modifier = Modifier
+                        .offset {
+                            IntOffset(
+                                x = (floatingAppObject.x * dm.widthPixels).toInt(),
+                                y = (floatingAppObject.y * dm.heightPixels).toInt()
+                            )
+                        }
+                        .size(
+                            width = with(density) { (floatingAppObject.spanX * cellSizePx).toDp() },
+                            height = with(density) { (floatingAppObject.spanY * cellSizePx).toDp() }
+                        ),
+                    onLaunchAction = {
+                        launchAction(
+                            dummySwipePoint(
+                                action = floatingAppObject.action
+                            )
                         )
-                    }
-                    .size(
-                        width = with(density) { (floatingAppObject.spanX * cellSizePx).toDp() },
-                        height = with(density) { (floatingAppObject.spanY * cellSizePx).toDp() }
-                    ),
-                onLaunchAction = {
-                    launchAction(
-                        dummySwipePoint(
-                            action = floatingAppObject.action
-                        )
-                    )
-                },
-                blockTouches = floatingAppObject.ghosted == true,
-                widgetHostProvider = widgetHostProvider
-            )
+                    },
+                    blockTouches = floatingAppObject.ghosted == true,
+                    widgetHostProvider = widgetHostProvider
+                )
+            }
         }
 
         if (showStatusBar && isRealFullscreen) {
