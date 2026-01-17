@@ -1,6 +1,6 @@
 <div align="center">
 
-<img src="app/src/main/res/drawable/dragon_launcher_foreground.png" width="22%" alt="App Icon"/>
+<img src="https://github.com/Elnix90/Dragon-Launcher/blob/main/app/src/main/ic_launcher-playstore.png" width="22%" alt="App Icon"/>
 
 # Dragon Launcher - Fast Gesture based android launcher
 
@@ -9,9 +9,14 @@
 
 [![GitHub release](https://img.shields.io/github/v/release/Elnix90/Dragon-Launcher.svg?include_prereleases&style=flat-square)](https://github.com/Elnix90/Dragon-Launcher/releases/latest)
 [![GitHub downloads](https://img.shields.io/github/downloads/Elnix90/Dragon-Launcher/total.svg?style=flat-square)](https://github.com/Elnix90/Dragon-Launcher/releases)
+[![GitHub stars](https://img.shields.io/github/stars/Elnix90/Dragon-Launcher?style=flat-square)](https://github.com/Elnix90/Dragon-Launcher/stargazers)
+[![GitHub issues](https://img.shields.io/github/issues/Elnix90/Dragon-Launcher?style=flat-square)](https://github.com/Elnix90/Dragon-Launcher/issues)
+[![GitHub license](https://img.shields.io/github/license/Elnix90/Dragon-Launcher?style=flat-square&type=mit)](https://github.com/Elnix90/Dragon-Launcher/blob/dev/LICENSE)
+[![Discord](https://img.shields.io/discord/1327996079786168441?color=blue&label=Discord&logo=discord&style=flat-square)](https://discord.gg/XXKXQeXpvF)
 
 [<img src="https://raw.githubusercontent.com/Kunzisoft/Github-badge/main/get-it-on-github.png" alt='Get it on GitHub' height="80">](https://github.com/Elnix90/Dragon-Launcher/releases/latest)
 [<img src="https://gitlab.com/IzzyOnDroid/repo/-/raw/master/assets/IzzyOnDroid.png" alt="Get it on IzzyOnDroid" height="80">](https://apt.izzysoft.de/fdroid/index/apk/org.elnix.dragonlauncher)
+[<img src="https://f-droid.org/badge/get-it-on.png" alt="Get it on F-Droid" height="80">](https://f-droid.org/en/packages/org.elnix.dragonlauncher/)
 </div>
 
 
