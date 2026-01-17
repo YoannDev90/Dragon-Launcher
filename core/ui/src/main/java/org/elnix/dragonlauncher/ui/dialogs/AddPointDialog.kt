@@ -50,6 +50,7 @@ import org.elnix.dragonlauncher.ui.theme.LocalExtraColors
 fun AddPointDialog(
     appsViewModel: AppsViewModel,
     actions: List<SwipeActionSerializable> = defaultChoosableActions,
+    onNewNest: (() -> Unit)? = null,
     onDismiss: () -> Unit,
     onActionSelected: (SwipeActionSerializable) -> Unit
 ) {
@@ -61,6 +62,7 @@ fun AddPointDialog(
     var showAppPicker by remember { mutableStateOf(false) }
     var showUrlInput by remember { mutableStateOf(false) }
     var showFilePicker by remember { mutableStateOf(false) }
+    var showNestPicker by remember { mutableStateOf(false) }
 
 
     val icons by appsViewModel.icons.collectAsState()
@@ -121,6 +123,16 @@ fun AddPointDialog(
                                 action = action,
                                 icons = icons,
                                 onSelected = { showFilePicker = true }
+                            )
+                            Spacer(Modifier.height(8.dp))
+                        }
+
+                        // Open File picker to choose a file
+                        is SwipeActionSerializable.OpenCircleNest -> {
+                            AddPointColumn(
+                                action = action,
+                                icons = icons,
+                                onSelected = { showNestPicker = true }
                             )
                             Spacer(Modifier.height(8.dp))
                         }
@@ -201,6 +213,21 @@ fun AddPointDialog(
             onOpenApp = {
                 onActionSelected(SwipeActionSerializable.LaunchApp(selectedApp!!.packageName))
                 onDismiss()
+            }
+        )
+    }
+
+    if (showNestPicker) {
+        NestManagementDialog(
+            appsViewModel = appsViewModel,
+            title = stringResource(R.string.pick_a_nest),
+            onNewNest = onNewNest,
+            onDismissRequest = { showNestPicker = false },
+            onNameChange = null,
+            onDelete = null,
+            onSelect = {
+                onActionSelected(SwipeActionSerializable.OpenCircleNest(it.id))
+                showNestPicker = false
             }
         )
     }

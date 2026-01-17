@@ -106,7 +106,6 @@ import org.elnix.dragonlauncher.common.utils.circles.minAngleGapForCircle
 import org.elnix.dragonlauncher.common.utils.circles.normalizeAngle
 import org.elnix.dragonlauncher.common.utils.circles.randomFreeAngle
 import org.elnix.dragonlauncher.common.utils.circles.rememberNestNavigation
-import org.elnix.dragonlauncher.common.utils.pasteClipboard
 import org.elnix.dragonlauncher.common.utils.showToast
 import org.elnix.dragonlauncher.models.AppsViewModel
 import org.elnix.dragonlauncher.settings.stores.ColorSettingsStore
@@ -117,7 +116,6 @@ import org.elnix.dragonlauncher.ui.components.AppPreviewTitle
 import org.elnix.dragonlauncher.ui.dialogs.AddPointDialog
 import org.elnix.dragonlauncher.ui.dialogs.EditPointDialog
 import org.elnix.dragonlauncher.ui.dialogs.NestManagementDialog
-import org.elnix.dragonlauncher.ui.dialogs.UserValidation
 import org.elnix.dragonlauncher.ui.helpers.CircleIconButton
 import org.elnix.dragonlauncher.ui.helpers.RepeatingPressButton
 import org.elnix.dragonlauncher.ui.helpers.SliderWithLabel
@@ -175,7 +173,7 @@ fun SettingsScreen(
     var showEditDialog by remember { mutableStateOf<SwipePointSerializable?>(null) }
     var recomposeTrigger by remember { mutableIntStateOf(0) }
 
-    var showDeleteNestDialog by remember { mutableStateOf<SwipePointSerializable?>(null) }
+//    var showDeleteNestDialog by remember { mutableStateOf<Int?>(null) }
     var showNestManagementDialog by remember { mutableStateOf(false) }
 
     /**
@@ -272,49 +270,82 @@ fun SettingsScreen(
 
 
     var undoStack by remember { mutableStateOf<List<List<SwipePointSerializable>>>(emptyList()) }
+    var nestsUndoStack by remember { mutableStateOf<List<List<CircleNest>>>(emptyList()) }
+
     var redoStack by remember { mutableStateOf<List<List<SwipePointSerializable>>>(emptyList()) }
+    var nestsRedoStack by remember { mutableStateOf<List<List<CircleNest>>>(emptyList()) }
 
     fun snapshotPoints(): List<SwipePointSerializable> = points.map { it.copy() }
+    fun snapshotNests(): List<CircleNest> = nests.map { it.copy() }
 
     fun applyChange(mutator: () -> Unit) {
         // Save current state into undo before mutation
         undoStack = undoStack + listOf(snapshotPoints())
+        nestsUndoStack = nestsUndoStack + listOf(snapshotNests())
         // Any new user change invalidates redo history
         redoStack = emptyList()
+        nestsRedoStack = emptyList()
         // Now apply the change
         mutator()
         recomposeTrigger++
     }
 
     fun undo() {
-        if (undoStack.isEmpty()) return
+        if (undoStack.isEmpty() && nestsUndoStack.isEmpty()) return
 
         // Current state goes to redo
         redoStack = redoStack + listOf(snapshotPoints())
+        nestsRedoStack = nestsRedoStack + listOf(snapshotNests())
 
         // Pop last from undo and set it as current
         val last = undoStack.last()
         undoStack = undoStack.dropLast(1)
 
+        val lastNests = nestsUndoStack.last()
+        nestsUndoStack = nestsUndoStack.dropLast(1)
+
         points.clear()
         points.addAll(last.map { it.copy() })
+
+        pendingNestUpdate = lastNests
 
         selectedPoint = points.find { it.id == (selectedPoint?.id ?: "") }
     }
 
     fun redo() {
-        if (redoStack.isEmpty()) return
+        if (redoStack.isEmpty() && nestsRedoStack.isEmpty()) return
 
         // Current state goes back to undo
         undoStack = undoStack + listOf(snapshotPoints())
+        nestsUndoStack = nestsUndoStack + listOf(snapshotNests())
 
         val last = redoStack.last()
         redoStack = redoStack.dropLast(1)
 
+        val lastNests = nestsRedoStack.last()
+        nestsRedoStack = nestsRedoStack.dropLast(1)
+
         points.clear()
         points.addAll(last.map { it.copy() })
 
+        pendingNestUpdate = lastNests
+
         selectedPoint = points.find { it.id == (selectedPoint?.id ?: "") }
+    }
+
+    fun addNewNest() {
+        // Used to ensure that the new id won't be already in the list, but also to
+        // keep it human readable, unlike previously where they were random numbers
+        var newNestId = nests.size
+        while (newNestId in nests.map { it.id }) {
+            newNestId++
+        }
+
+        // Launch the nests update with the new one and the good open / parent ids
+        pendingNestUpdate = nests + CircleNest(
+            id = newNestId,
+            parentId = nestId
+        )
     }
 
 
@@ -643,7 +674,7 @@ fun SettingsScreen(
                     CircleIconButton(
                         icon = Icons.Filled.AccountCircle,
                         contentDescription = stringResource(R.string.edit_nests),
-                        color = extraColors.goParentNest,
+                        tint = extraColors.goParentNest,
                         padding = 7.dp
                     ) {
                         showNestManagementDialog = true
@@ -653,7 +684,7 @@ fun SettingsScreen(
                     CircleIconButton(
                         icon = Icons.Filled.Fullscreen,
                         contentDescription = stringResource(R.string.open_nest_circle),
-                        color = extraColors.goParentNest,
+                        tint = extraColors.goParentNest,
                         enabled = canGoNest,
                         clickable = canGoNest,
                         padding = 7.dp
@@ -670,7 +701,7 @@ fun SettingsScreen(
                     CircleIconButton(
                         icon = Icons.Filled.FullscreenExit,
                         contentDescription = stringResource(R.string.go_parent_nest),
-                        color = extraColors.goParentNest,
+                        tint = extraColors.goParentNest,
                         enabled = canGoback,
                         clickable = canGoback,
                         padding = 7.dp
@@ -689,7 +720,7 @@ fun SettingsScreen(
                     Icons.Outlined.ChangeCircle
                 },
                 contentDescription = stringResource(R.string.toggle_drag_distances_editing),
-                color = MaterialTheme.colorScheme.primary,
+                tint = MaterialTheme.colorScheme.primary,
                 padding = 10.dp
             ) {
                 isCircleDistanceMode = !isCircleDistanceMode
@@ -726,7 +757,7 @@ fun SettingsScreen(
                 CircleIconButton(
                     icon = Icons.Default.Grid3x3,
                     contentDescription = stringResource(R.string.auto_separate),
-                    color = MaterialTheme.colorScheme.primary,
+                    tint = MaterialTheme.colorScheme.primary,
                     enabled = snapPoints,
                     padding = 10.dp
                 ) {
@@ -738,7 +769,7 @@ fun SettingsScreen(
                 CircleIconButton(
                     icon = Icons.Default.AutoMode,
                     contentDescription = stringResource(R.string.auto_separate),
-                    color = MaterialTheme.colorScheme.primary,
+                    tint = MaterialTheme.colorScheme.primary,
                     enabled = autoSeparatePoints,
                     padding = 10.dp
                 ) {
@@ -768,7 +799,7 @@ fun SettingsScreen(
                     CircleIconButton(
                         icon = Icons.Default.ChevronLeft,
                         contentDescription = stringResource(R.string.move_point_to_left),
-                        color = moveColor,
+                        tint = moveColor,
                         clickable = false,
                         enabled = aPointIsSelected,
                         padding = 10.dp,
@@ -816,7 +847,7 @@ fun SettingsScreen(
                     CircleIconButton(
                         icon = Icons.Default.ChevronRight,
                         contentDescription = stringResource(R.string.move_point_to_right),
-                        color = moveColor,
+                        tint = moveColor,
                         clickable = false,
                         enabled = aPointIsSelected,
                         padding = 10.dp,
@@ -836,7 +867,7 @@ fun SettingsScreen(
                 CircleIconButton(
                     icon = Icons.Default.Add,
                     contentDescription = stringResource(R.string.add_point),
-                    color = MaterialTheme.colorScheme.primary,
+                    tint = MaterialTheme.colorScheme.primary,
                     padding = 20.dp
                 ) { showAddDialog = true }
 
@@ -845,7 +876,7 @@ fun SettingsScreen(
                 CircleIconButton(
                     icon = Icons.Default.Edit,
                     contentDescription = stringResource(R.string.edit_point),
-                    color = MaterialTheme.colorScheme.secondary,
+                    tint = MaterialTheme.colorScheme.secondary,
                     enabled = aPointIsSelected,
                     padding = 20.dp
                 ) {
@@ -856,23 +887,18 @@ fun SettingsScreen(
                 CircleIconButton(
                     icon = Icons.Default.Remove,
                     contentDescription = stringResource(R.string.remove_point),
-                    color = MaterialTheme.colorScheme.error,
+                    tint = MaterialTheme.colorScheme.error,
                     enabled = aPointIsSelected,
                     padding = 20.dp
                 ) {
                     selectedPoint?.let { point ->
-
-                        if (point.action is SwipeActionSerializable.OpenCircleNest) {
-                            showDeleteNestDialog = point
-                        } else {
-                            val index = points.indexOfFirst { it.id == point.id }
-                            if (index >= 0) {
-                                applyChange {
-                                    points.removeAt(index)
-                                }
+                        val index = points.indexOfFirst { it.id == point.id }
+                        if (index >= 0) {
+                            applyChange {
+                                points.removeAt(index)
                             }
-                            selectedPoint = null
                         }
+                        selectedPoint = null
                     }
                 }
 
@@ -881,7 +907,7 @@ fun SettingsScreen(
                     icon = Icons.Default.ContentCopy,
                     contentDescription = stringResource(R.string.copy_point),
                     enabled = aPointIsSelected,
-                    color = copyColor,
+                    tint = copyColor,
                     padding = 20.dp
                 ) {
                     selectedPoint?.let { oldPoint ->
@@ -1059,6 +1085,7 @@ fun SettingsScreen(
     if (showAddDialog) {
         AddPointDialog(
             appsViewModel = appsViewModel,
+            onNewNest = ::addNewNest,
             onDismiss = {
                 showAddDialog = false
             },
@@ -1070,33 +1097,12 @@ fun SettingsScreen(
                 }
 
 
-                var finalAction = action
-
-                if (action is SwipeActionSerializable.OpenCircleNest) {
-
-                    // Used to ensure that the new id won't be already in the list, but also to
-                    // keep it human readable, unlike previously where they were random numbers
-                    var newNestId = nests.size
-                    while (newNestId in nests.map { it.id }) {
-                        newNestId++
-                    }
-
-                    // Edit the action to give it the computed new id
-                    finalAction = action.copy(nestId = newNestId)
-
-                    // Launch the nests update with the new one and the goog open / parent ids
-                    pendingNestUpdate = nests + CircleNest(
-                        id = finalAction.nestId,
-                        parentId = nestId
-                    )
-                }
-
                 // Create a new swipe point, ids are still random, I think I'll keep it that way
                 // unless I really have to manage them correctly
                 val point = SwipePointSerializable(
                     id = UUID.randomUUID().toString(),
                     angleDeg = newAngle,
-                    action = finalAction,
+                    action = action,
                     circleNumber = circleNumber,
                     nestId = nestId
                 )
@@ -1125,10 +1131,10 @@ fun SettingsScreen(
                 showEditDialog = null
             },
         ) { newPoint ->
-            if (newPoint.action is SwipeActionSerializable.OpenCircleNest) {
-                // If changing to nest action, create the nest
-                pendingNestUpdate = nests + CircleNest(id = newPoint.nestId ?: 0, parentId = nestId)
-            }
+//            if (newPoint.action is SwipeActionSerializable.OpenCircleNest) {
+//                // If changing to nest action, create the nest
+//                pendingNestUpdate = nests + CircleNest(id = newPoint.nestId ?: 0, parentId = nestId)
+//            }
             ctx.logE(ICONS_TAG, "Received edit of point id: ${editPoint.id} (new: ${newPoint.id}")
 
             applyChange {
@@ -1142,72 +1148,77 @@ fun SettingsScreen(
         }
     }
 
-    if (showDeleteNestDialog != null) {
-        val nestToDelete = showDeleteNestDialog!!
-        UserValidation(
-            title = stringResource(R.string.delete_circle_nest),
-            message = stringResource(R.string.are_you_sure_to_delete_this_nest),
-            onCancel = { showDeleteNestDialog = null }
-        ) {
-            // Delete nest, leave points on it for now
-            pendingNestUpdate = nests.filter { it.id != nestToDelete.nestId}
-
-            val index = points.indexOfFirst { it.id == nestToDelete.id }
-            if (index >= 0) {
-                applyChange {
-                    points.removeAt(index)
-                }
-            }
-
-            selectedPoint = null
-            showDeleteNestDialog = null
-
-        }
-    }
 
     if (showNestManagementDialog) {
         NestManagementDialog(
             appsViewModel = appsViewModel,
             onDismissRequest = { showNestManagementDialog = false },
-            onPaste = { id ->
-                val pendingNexId = try {
-                    ctx.pasteClipboard()
-                } catch (e: Exception) {
-                    ctx.showToast("Failed to paste from clipboard: $e")
-                    null
-                }
-
-                pendingNexId?.let { pendingId ->
-                    val newId = try {
-                        pendingId.toInt()
-                    } catch (e: Exception) {
-                        ctx.showToast("Failed to paste from clipboard: $e")
-                        null
-                    }
-
-                    newId?.let { newId ->
-                        applyChange {
-                            nests.map {
-                                if (it.id == id) {
-                                    it.copy(
-                                        id = newId,
-                                    )
-                                } else it
-                            }
-                        }
+            onNewNest = ::addNewNest,
+            onNameChange = null /*{ id, newName ->
+                applyChange {
+                    pendingNestUpdate = nests.map {
+                        if (it.id == id) it.copy(name = newName)
+                        else it
                     }
                 }
-            },
+            }*/,
+//            onPaste = { id ->
+//                val pendingNexId = try {
+//                    ctx.pasteClipboard()
+//                } catch (e: Exception) {
+//                    ctx.showToast("Failed to paste from clipboard: $e")
+//                    null
+//                }
+//
+//                pendingNexId?.let { pendingId ->
+//                    val newId = try {
+//                        pendingId.toInt()
+//                    } catch (e: Exception) {
+//                        ctx.showToast("Failed to paste from clipboard: $e")
+//                        null
+//                    }
+//
+//                    newId?.let { newId ->
+//                        applyChange {
+//                            pendingNestUpdate = nests.map {
+//                                if (it.id == id) {
+//                                    it.copy(
+//                                        id = newId,
+//                                    )
+//                                } else it
+//                            }
+//                        }
+//                    }
+//                }
+//            },
             onDelete = { nestToDelete ->
                 applyChange {
-                    pendingNestUpdate = nests.filter { it.id != nestToDelete }
+                    // Delete nest, leave points on it for now
+                    pendingNestUpdate = nests.filter { it.id != nestToDelete}
                 }
+
             },
             onSelect = {
                 showNestManagementDialog = false
             }
         )
     }
+
+    // nO need anymore, because the undo/redo stacks are handling nests as well,
+    // and also you can change their ids so ok
+//    if (showDeleteNestDialog != null) {
+//        val nestToDelete = showDeleteNestDialog!!
+//        UserValidation(
+//            title = stringResource(R.string.delete_circle_nest),
+//            message = stringResource(R.string.are_you_sure_to_delete_this_nest),
+//            onCancel = { showDeleteNestDialog = null }
+//        ) {
+//
+//            selectedPoint = null
+//            showDeleteNestDialog = null
+//
+//        }
+//    }
 
     if (selectedPoint != null) {
         val currentPoint = selectedPoint!!

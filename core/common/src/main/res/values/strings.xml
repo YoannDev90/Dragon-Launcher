@@ -292,4 +292,6 @@
     <string name="manage_nests">Nests Managment</string>
     <string name="copy">Copy</string>
     <string name="edit_nests">Edit Nests</string>
+    <string name="pick_a_nest">Pick A Nest</string>
+    <string name="new_nest">New Nest</string>
 </resources>

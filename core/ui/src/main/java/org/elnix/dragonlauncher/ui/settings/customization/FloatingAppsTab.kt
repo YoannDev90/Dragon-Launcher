@@ -248,7 +248,7 @@ fun FloatingAppsTab(
             CircleIconButton(
                 icon = Icons.Default.Add,
                 contentDescription = stringResource(R.string.add_widget),
-                color = MaterialTheme.colorScheme.primary,
+                tint = MaterialTheme.colorScheme.primary,
                 padding = 16.dp
             ) {
                showAddDialog = true
@@ -259,7 +259,7 @@ fun FloatingAppsTab(
             CircleIconButton(
                 icon = Icons.Default.Remove,
                 contentDescription = stringResource(R.string.delete_widget),
-                color = MaterialTheme.colorScheme.error,
+                tint = MaterialTheme.colorScheme.error,
                 enabled = isSelected,
                 padding = 16.dp
             ) {

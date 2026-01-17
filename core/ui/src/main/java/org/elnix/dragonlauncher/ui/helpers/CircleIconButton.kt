@@ -6,6 +6,7 @@ import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material3.Icon
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -18,21 +19,22 @@ import androidx.compose.ui.unit.dp
 fun CircleIconButton(
     icon: ImageVector,
     contentDescription: String? = null,
-    color: Color,
+    tint: Color= MaterialTheme.colorScheme.primary,
+    modifier: Modifier = Modifier,
     enabled: Boolean = true,
     clickable: Boolean = true,
     padding: Dp = 20.dp,
     onClick: (() -> Unit)?
 ) {
-    val displayColor = color.copy(if (enabled) 1f else 0.5f)
-    val backgroundColor = color.copy(if (enabled) 0.2f else 0f)
-    val borderColor = color.copy(if (enabled) 1f else 0.5f)
+    val displayColor = tint.copy(if (enabled) 1f else 0.5f)
+    val backgroundColor = tint.copy(if (enabled) 0.2f else 0f)
+    val borderColor = tint.copy(if (enabled) 1f else 0.5f)
 
     Icon(
         imageVector = icon,
         contentDescription = contentDescription,
         tint = displayColor,
-        modifier = Modifier
+        modifier = modifier
             .clip(CircleShape)
             .then(
                 if (clickable) Modifier.clickable { onClick?.invoke()}
