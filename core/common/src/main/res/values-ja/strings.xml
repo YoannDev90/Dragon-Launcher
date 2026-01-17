@@ -18,6 +18,12 @@
     <string name="debug">デバッグ</string>
     <string name="language_english">英語</string>
     <string name="language_french">フランス語</string>
+    <string name="language_german">ドイツ語</string>
+    <string name="language_spanish">スペイン語</string>
+    <string name="language_hindi">ヒンディー語</string>
+    <string name="language_japanese">日本語</string>
+    <string name="language_korean">韓国人</string>
+    <string name="language_portuguese">ポルトガル語</string>
     <string name="system_default">システムデフォルト</string>
     <string name="settings_language_title">言語選択器</string>
     <string name="choose_your_app_language">アプリの言語を選びましょう</string>

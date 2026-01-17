@@ -43,7 +43,12 @@ fun LanguageTab(onBack: () -> Unit) {
     // Available languages
     val availableLanguages = listOf(
         "en" to stringResource(R.string.language_english),
+        "de" to stringResource(R.string.language_german),
+        "es" to stringResource(R.string.language_spanish),
         "fr" to stringResource(R.string.language_french),
+        "hi" to stringResource(R.string.language_hindi),
+        "ko" to stringResource(R.string.language_korean),
+        "pt" to stringResource(R.string.language_portuguese),
         null to stringResource(R.string.system_default)
     )
 

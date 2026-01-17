@@ -18,6 +18,12 @@
     <string name="debug">Depuração</string>
     <string name="language_english">Inglês</string>
     <string name="language_french">Francês</string>
+    <string name="language_german">Alemão</string>
+    <string name="language_spanish">Espanhol</string>
+    <string name="language_hindi">hindi</string>
+    <string name="language_japanese">japonês</string>
+    <string name="language_korean">coreano</string>
+    <string name="language_portuguese">Português</string>
     <string name="system_default">Sistema Padrão</string>
     <string name="settings_language_title">Seletor de Idiomas</string>
     <string name="choose_your_app_language">Escolha o idioma do seu aplicativo</string>
