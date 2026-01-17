@@ -94,7 +94,6 @@ import org.elnix.dragonlauncher.common.theme.AmoledDefault
 import org.elnix.dragonlauncher.common.theme.addRemoveCirclesColor
 import org.elnix.dragonlauncher.common.theme.copyColor
 import org.elnix.dragonlauncher.common.theme.moveColor
-import org.elnix.dragonlauncher.common.utils.ICONS_TAG
 import org.elnix.dragonlauncher.common.utils.POINT_RADIUS_PX
 import org.elnix.dragonlauncher.common.utils.SNAP_STEP_DEG
 import org.elnix.dragonlauncher.common.utils.SWIPE_TAG
@@ -1131,11 +1130,7 @@ fun SettingsScreen(
                 showEditDialog = null
             },
         ) { newPoint ->
-//            if (newPoint.action is SwipeActionSerializable.OpenCircleNest) {
-//                // If changing to nest action, create the nest
-//                pendingNestUpdate = nests + CircleNest(id = newPoint.nestId ?: 0, parentId = nestId)
-//            }
-            ctx.logE(ICONS_TAG, "Received edit of point id: ${editPoint.id} (new: ${newPoint.id}")
+//            ctx.logE(ICONS_TAG, "Received edit of point id: ${editPoint.id} (new: ${newPoint.id}")
 
             applyChange {
                 val index = points.indexOfFirst { it.id == editPoint.id }
@@ -1162,35 +1157,6 @@ fun SettingsScreen(
                     }
                 }
             }*/,
-//            onPaste = { id ->
-//                val pendingNexId = try {
-//                    ctx.pasteClipboard()
-//                } catch (e: Exception) {
-//                    ctx.showToast("Failed to paste from clipboard: $e")
-//                    null
-//                }
-//
-//                pendingNexId?.let { pendingId ->
-//                    val newId = try {
-//                        pendingId.toInt()
-//                    } catch (e: Exception) {
-//                        ctx.showToast("Failed to paste from clipboard: $e")
-//                        null
-//                    }
-//
-//                    newId?.let { newId ->
-//                        applyChange {
-//                            pendingNestUpdate = nests.map {
-//                                if (it.id == id) {
-//                                    it.copy(
-//                                        id = newId,
-//                                    )
-//                                } else it
-//                            }
-//                        }
-//                    }
-//                }
-//            },
             onDelete = { nestToDelete ->
                 applyChange {
                     // Delete nest, leave points on it for now
@@ -1203,22 +1169,6 @@ fun SettingsScreen(
             }
         )
     }
-
-    // nO need anymore, because the undo/redo stacks are handling nests as well,
-    // and also you can change their ids so ok
-//    if (showDeleteNestDialog != null) {
-//        val nestToDelete = showDeleteNestDialog!!
-//        UserValidation(
-//            title = stringResource(R.string.delete_circle_nest),
-//            message = stringResource(R.string.are_you_sure_to_delete_this_nest),
-//            onCancel = { showDeleteNestDialog = null }
-//        ) {
-//
-//            selectedPoint = null
-//            showDeleteNestDialog = null
-//
-//        }
-//    }
 
     if (selectedPoint != null) {
         val currentPoint = selectedPoint!!

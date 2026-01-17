@@ -6,22 +6,25 @@ import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.AddCircle
 import androidx.compose.material.icons.filled.Close
 import androidx.compose.material.icons.filled.ContentCopy
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
-import androidx.compose.material3.TextButton
 import androidx.compose.material3.TextField
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
@@ -60,7 +63,6 @@ fun NestManagementDialog(
     onDismissRequest: () -> Unit,
     onNewNest: (() -> Unit)? = null,
     onNameChange: ((id: Int, name: String) -> Unit)?,
-//    onPaste: ((id: Int) -> Unit),
     onDelete: ((id: Int) -> Unit)?,
     onSelect: ((CircleNest) -> Unit)? = null
 ) {
@@ -93,15 +95,26 @@ fun NestManagementDialog(
             ) {
                 if (onNewNest != null) {
                     item {
-                        TextButton(
-                            onClick = { onNewNest() },
+                        Row(
                             modifier = Modifier
                                 .fillMaxWidth()
-                                .padding(5.dp)
+                                .clip(CircleShape)
+                                .clickable  { onNewNest() }
+                                .padding(5.dp),
+                            verticalAlignment = Alignment.CenterVertically,
+                            horizontalArrangement = Arrangement.Center
                         ) {
+
+                            Icon(
+                                imageVector = Icons.Default.AddCircle,
+                                contentDescription = stringResource(R.string.create_new_nest),
+                                tint = MaterialTheme.colorScheme.primary
+                            )
+                            Spacer(Modifier.width(15.dp))
+
                             Text(
-                                text = stringResource(R.string.new_nest),
-                                color = MaterialTheme.colorScheme.onSurface
+                                text = stringResource(R.string.create_new_nest),
+                                color = MaterialTheme.colorScheme.primary
                             )
                         }
                     }
@@ -115,7 +128,6 @@ fun NestManagementDialog(
                         circleColor = circleColor,
                         pointIcons = pointIcons,
                         onNameChange = onNameChange,
-//                        onPaste = onPaste,
                         onDelete = onDelete,
                         onSelect = { onSelect?.invoke(nest) }
                     )
@@ -135,7 +147,6 @@ fun NestManagementItem(
     circleColor: Color,
     pointIcons: Map<String, ImageBitmap>,
     onNameChange: ((id: Int, name: String) -> Unit)?,
-//    onPaste: ((id: Int) -> Unit),
     onDelete: ((id: Int) -> Unit)?,
     onSelect: (() -> Unit)? = null
 ) {
@@ -159,7 +170,8 @@ fun NestManagementItem(
             .height(100.dp)
             .clip(RoundedCornerShape(12.dp))
             .background(surfaceColorDraw)
-            .clickable { onSelect?.invoke() },
+            .clickable { onSelect?.invoke() }
+            .padding(5.dp),
         verticalAlignment = Alignment.CenterVertically
     ) {
 
@@ -223,34 +235,11 @@ fun NestManagementItem(
 
         CircleIconButton(
             icon = Icons.Default.ContentCopy,
-            contentDescription = stringResource(R.string.copy_point),
+            contentDescription = stringResource(R.string.copy_id),
+            padding = 0.dp
         ) {
             ctx.copyToClipboard(nest.id.toString())
         }
-
-//        Bubble(
-//            onClick = onSelect,
-//            backgroundColor = MaterialTheme.colorScheme.surface.adjustBrightness(0.5f),
-//            leadingIcon = {
-//                Icon(
-//                    imageVector = Icons.Default.ContentCopy,
-//                    contentDescription = stringResource(R.string.copy_point),
-//                    tint = MaterialTheme.colorScheme.primary,
-//                    modifier = Modifier
-//                        .clickable { ctx.copyToClipboard(nest.id.toString()) }
-//                )
-//            },
-//            trailingIcon = {
-//                Icon(
-//                    imageVector = Icons.Default.ContentPaste,
-//                    contentDescription = stringResource(R.string.change),
-//                    tint = MaterialTheme.colorScheme.primary,
-//                    modifier = Modifier
-//                        .clickable { onPaste(nest.id) }
-//                )
-//            }
-//
-//        ) {}
 
         if (onDelete != null) {
             IconButton(

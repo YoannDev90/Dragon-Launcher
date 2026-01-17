@@ -289,9 +289,10 @@
     <string name="reset_all_settings">Reset ALL settings ?!</string>
     <string name="experimental">Experimental</string>
     <string name="set_wallpaper">Set Wallpaper</string>
-    <string name="manage_nests">Nests Managment</string>
+    <string name="manage_nests">Nests Management</string>
     <string name="copy">Copy</string>
     <string name="edit_nests">Edit Nests</string>
     <string name="pick_a_nest">Pick A Nest</string>
-    <string name="new_nest">New Nest</string>
+    <string name="create_new_nest">Create New Nest</string>
+    <string name="copy_id">Copy Id</string>
 </resources>

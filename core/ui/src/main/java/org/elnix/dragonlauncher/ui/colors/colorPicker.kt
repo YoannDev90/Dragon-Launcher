@@ -279,9 +279,9 @@ private fun ColorPicker(
                 TextField(
                     value = hexText,
                     onValueChange = {
-                        if (it.length <= 7) hexText = it
+                        if (it.length <= 9) hexText = it
                         runCatching {
-                            if (it.startsWith("#") && it.length == 7) {
+                            if (it.startsWith("#") && it.length == 9) {
                                 onColorSelected(Color(it.toColorInt()))
                             }
                         }
@@ -318,7 +318,7 @@ private fun ColorPicker(
                         ctx.pasteClipboard()?.let { pasted ->
                             hexText = pasted
                             runCatching {
-                                if (pasted.startsWith("#") && pasted.length == 7) {
+                                if (pasted.startsWith("#") && pasted.length == 9) {
                                     onColorSelected(Color(pasted.toColorInt()))
                                 }
                             }

@@ -17,15 +17,16 @@ fun autoSeparate(
     nestId: Int,
     circle: UiCircle?,
     draggedPoint: SwipePointSerializable
-) {
-    val circleNumber = circle?.id ?: return
+): Boolean {
+    val circleNumber = circle?.id ?: return false
+    var hasMovedPoints = false
 
     repeat(20) {
         val pts = points
             .filter { it.nestId == nestId && it.circleNumber == circleNumber }
             .sortedBy { normalizeAngle(it.angleDeg) }
 
-        if (pts.size <= 1) return
+        if (pts.size <= 1) return false
 
         var adjusted = false
 
@@ -39,6 +40,9 @@ fun autoSeparate(
 
                 val diff = absAngleDiff(a, b)
                 if (diff < minAngleGapForCircle(circle.radius)) {
+
+                    /* If we reach here, the points will be changed, so we'll return true at the end */
+                    hasMovedPoints = true
 
                     if (draggedPoint.id == p1.id || draggedPoint.id == p2.id) {
                         // Check if dragged point crossed midpoint
@@ -75,8 +79,10 @@ fun autoSeparate(
             }
         }
 
-        if (!adjusted) return
+        if (!adjusted) return false
     }
+
+    return hasMovedPoints
 }
 
 
