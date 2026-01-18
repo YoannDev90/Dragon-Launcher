@@ -68,6 +68,12 @@ val ignoredReturnRoutes = listOf(
     SETTINGS.FLOATING_APPS
 )
 
+val transparentScreens = listOf(
+    ROUTES.MAIN,
+    ROUTES.DRAWER,
+    SETTINGS.WALLPAPER,
+    SETTINGS.FLOATING_APPS
+)
 
 
 /* Themes loader utils */

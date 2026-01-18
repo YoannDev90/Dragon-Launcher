@@ -5,6 +5,8 @@ import android.content.ComponentName
 import android.content.Intent
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
+import androidx.compose.animation.EnterTransition
+import androidx.compose.animation.ExitTransition
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.padding
@@ -47,6 +49,7 @@ import org.elnix.dragonlauncher.common.utils.getVersionCode
 import org.elnix.dragonlauncher.common.utils.hasUriReadWritePermission
 import org.elnix.dragonlauncher.common.utils.isDefaultLauncher
 import org.elnix.dragonlauncher.common.utils.loadChangelogs
+import org.elnix.dragonlauncher.common.utils.transparentScreens
 import org.elnix.dragonlauncher.enumsui.DrawerActions
 import org.elnix.dragonlauncher.models.AppsViewModel
 import org.elnix.dragonlauncher.models.BackupViewModel
@@ -60,6 +63,7 @@ import org.elnix.dragonlauncher.ui.dialogs.WidgetPickerDialog
 import org.elnix.dragonlauncher.ui.drawer.AppDrawerScreen
 import org.elnix.dragonlauncher.ui.helpers.ReselectAutoBackupBanner
 import org.elnix.dragonlauncher.ui.helpers.SetDefaultLauncherBanner
+import org.elnix.dragonlauncher.ui.helpers.noAnimComposable
 import org.elnix.dragonlauncher.ui.settings.backup.BackupTab
 import org.elnix.dragonlauncher.ui.settings.customization.AppearanceTab
 import org.elnix.dragonlauncher.ui.settings.customization.BehaviorTab
@@ -177,7 +181,7 @@ fun MainAppUi(
         // Add the observer to the lifecycle
         lifecycleOwner.lifecycle.addObserver(observer)
 
-        // When the composable leaves the screen, remove the observer
+        // When the noAnimComposable leaves the screen, remove the observer
         onDispose {
             lifecycleOwner.lifecycle.removeObserver(observer)
         }
@@ -250,7 +254,7 @@ fun MainAppUi(
     }
 
     val containerColor =
-        if (currentRoute == ROUTES.DRAWER || currentRoute == ROUTES.MAIN || currentRoute == SETTINGS.WALLPAPER) {
+        if (currentRoute in transparentScreens) {
             Color.Transparent
         } else {
             MaterialTheme.colorScheme.background
@@ -279,7 +283,7 @@ fun MainAppUi(
             modifier = Modifier.padding(paddingValues)
         ) {
             // Main App (LauncherScreen)
-            composable(ROUTES.MAIN) {
+            noAnimComposable(ROUTES.MAIN) {
                 MainScreen(
                     appsViewModel = appsViewModel,
                     floatingAppsViewModel = floatingAppsViewModel,
@@ -290,7 +294,7 @@ fun MainAppUi(
                 )
             }
 
-            composable(ROUTES.DRAWER) {
+            noAnimComposable(ROUTES.DRAWER) {
                 AppDrawerScreen(
                     appsViewModel = appsViewModel,
                     showIcons = showAppIconsInDrawer,
@@ -307,7 +311,7 @@ fun MainAppUi(
 
 
             // Settings + Welcome
-            composable(ROUTES.WELCOME) {
+            noAnimComposable(ROUTES.WELCOME) {
                 WelcomeScreen(
                     backupVm =  backupViewModel,
                     onEnterSettings = { goSettingsRoot() },
@@ -315,21 +319,21 @@ fun MainAppUi(
                 )
             }
 
-            composable(SETTINGS.ROOT) {
+            noAnimComposable(SETTINGS.ROOT) {
                 SettingsScreen(
                     appsViewModel = appsViewModel,
                     onAdvSettings = { goAdvSettingsRoot() },
                     onBack = { goMainScreen() }
                 )
             }
-            composable(SETTINGS.ADVANCED_ROOT) { AdvancedSettingsScreen(appsViewModel, navController ) { goSettingsRoot() } }
+            noAnimComposable(SETTINGS.ADVANCED_ROOT) { AdvancedSettingsScreen(appsViewModel, navController ) { goSettingsRoot() } }
 
-            composable(SETTINGS.APPEARANCE)    { AppearanceTab(appsViewModel, navController) { goAdvSettingsRoot() } }
-            composable(SETTINGS.WALLPAPER)     { WallpaperTab { goAppearance() } }
-            composable(SETTINGS.ICON_PACK)     { IconPackTab(appsViewModel) { goAppearance() } }
-            composable(SETTINGS.STATUS_BAR)    { StatusBarTab(appsViewModel) { goAppearance() } }
-            composable(SETTINGS.THEME)         { ThemesTab { goAppearance() } }
-            composable(SETTINGS.FLOATING_APPS) {
+            noAnimComposable(SETTINGS.APPEARANCE)    { AppearanceTab(appsViewModel, navController) { goAdvSettingsRoot() } }
+            noAnimComposable(SETTINGS.WALLPAPER)     { WallpaperTab { goAppearance() } }
+            noAnimComposable(SETTINGS.ICON_PACK)     { IconPackTab(appsViewModel) { goAppearance() } }
+            noAnimComposable(SETTINGS.STATUS_BAR)    { StatusBarTab(appsViewModel) { goAppearance() } }
+            noAnimComposable(SETTINGS.THEME)         { ThemesTab { goAppearance() } }
+            noAnimComposable(SETTINGS.FLOATING_APPS) {
                 FloatingAppsTab(
                     appsViewModel = appsViewModel,
                     floatingAppsViewModel = floatingAppsViewModel,
@@ -340,17 +344,17 @@ fun MainAppUi(
                     onRemoveWidget = onRemoveFloatingApp
                 )
             }
-            composable(SETTINGS.BEHAVIOR)      { BehaviorTab(appsViewModel) { goAdvSettingsRoot() } }
-            composable(SETTINGS.DRAWER)        { DrawerTab(appsViewModel) { goAdvSettingsRoot() } }
-            composable(SETTINGS.COLORS)        { ColorSelectorTab { goAppearance() } }
-            composable(SETTINGS.DEBUG)         { DebugTab(navController, appsViewModel, onShowWelcome = { goWelcome() } ) { goAdvSettingsRoot() } }
-            composable(SETTINGS.LOGS)          { LogsTab { goDebug() } }
-            composable(SETTINGS.SETTINGS_JSON) { SettingsDebugTab { goDebug() } }
-            composable(SETTINGS.LANGUAGE)      { LanguageTab { goAdvSettingsRoot() } }
-            composable(SETTINGS.BACKUP)        { BackupTab(backupViewModel) { goAdvSettingsRoot() } }
-            composable(SETTINGS.CHANGELOGS)    { ChangelogsScreen { goAdvSettingsRoot() } }
+            noAnimComposable(SETTINGS.BEHAVIOR)      { BehaviorTab(appsViewModel) { goAdvSettingsRoot() } }
+            noAnimComposable(SETTINGS.DRAWER)        { DrawerTab(appsViewModel) { goAdvSettingsRoot() } }
+            noAnimComposable(SETTINGS.COLORS)        { ColorSelectorTab { goAppearance() } }
+            noAnimComposable(SETTINGS.DEBUG)         { DebugTab(navController, appsViewModel, onShowWelcome = { goWelcome() } ) { goAdvSettingsRoot() } }
+            noAnimComposable(SETTINGS.LOGS)          { LogsTab { goDebug() } }
+            noAnimComposable(SETTINGS.SETTINGS_JSON) { SettingsDebugTab { goDebug() } }
+            noAnimComposable(SETTINGS.LANGUAGE)      { LanguageTab { goAdvSettingsRoot() } }
+            noAnimComposable(SETTINGS.BACKUP)        { BackupTab(backupViewModel) { goAdvSettingsRoot() } }
+            noAnimComposable(SETTINGS.CHANGELOGS)    { ChangelogsScreen { goAdvSettingsRoot() } }
 
-            composable(SETTINGS.WORKSPACE) {
+            noAnimComposable(SETTINGS.WORKSPACE) {
                 WorkspaceListScreen(
                     appsViewModel = appsViewModel,
                     onOpenWorkspace = { id ->
@@ -363,8 +367,12 @@ fun MainAppUi(
             }
 
             composable(
-                SETTINGS.WORKSPACE_DETAIL,
-                arguments = listOf(navArgument("id") { type = NavType.StringType })
+                route = SETTINGS.WORKSPACE_DETAIL,
+                arguments = listOf(navArgument("id") { type = NavType.StringType }),
+                enterTransition = { EnterTransition.None },
+                exitTransition = { ExitTransition.None },
+                popEnterTransition = { EnterTransition.None },
+                popExitTransition = { ExitTransition.None }
             ) { backStack ->
                 WorkspaceDetailScreen(
                     workspaceId = backStack.arguments!!.getString("id")!!,
