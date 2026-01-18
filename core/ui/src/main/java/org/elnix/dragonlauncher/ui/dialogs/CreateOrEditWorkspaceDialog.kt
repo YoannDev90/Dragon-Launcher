@@ -21,7 +21,7 @@ import org.elnix.dragonlauncher.common.R
 import org.elnix.dragonlauncher.ui.components.ValidateCancelButtons
 import org.elnix.dragonlauncher.common.serializables.WorkspaceType
 import org.elnix.dragonlauncher.ui.colors.AppObjectsColors
-import org.elnix.dragonlauncher.ui.helpers.ActionSelectorRow
+import org.elnix.dragonlauncher.ui.components.generic.ActionSelectorRow
 
 @Composable
 fun CreateOrEditWorkspaceDialog(

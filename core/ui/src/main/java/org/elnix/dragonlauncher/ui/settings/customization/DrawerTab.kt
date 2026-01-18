@@ -38,7 +38,7 @@ import org.elnix.dragonlauncher.enumsui.drawerActionIcon
 import org.elnix.dragonlauncher.enumsui.drawerActionsLabel
 import org.elnix.dragonlauncher.models.AppsViewModel
 import org.elnix.dragonlauncher.settings.stores.DrawerSettingsStore
-import org.elnix.dragonlauncher.ui.helpers.ActionSelectorRow
+import org.elnix.dragonlauncher.ui.components.generic.ActionSelectorRow
 import org.elnix.dragonlauncher.ui.helpers.GridSizeSlider
 import org.elnix.dragonlauncher.ui.helpers.SwitchRow
 import org.elnix.dragonlauncher.ui.helpers.TextDivider

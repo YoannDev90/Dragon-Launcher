@@ -1,6 +1,6 @@
 @file:Suppress("AssignedValueIsNeverRead")
 
-package org.elnix.dragonlauncher.ui.helpers
+package org.elnix.dragonlauncher.ui.components.generic
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -31,9 +31,9 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
-import org.elnix.dragonlauncher.ui.dialogs.CustomAlertDialog
 import org.elnix.dragonlauncher.common.utils.colors.adjustBrightness
 import org.elnix.dragonlauncher.ui.colors.AppObjectsColors
+import org.elnix.dragonlauncher.ui.dialogs.CustomAlertDialog
 
 
 @Composable
