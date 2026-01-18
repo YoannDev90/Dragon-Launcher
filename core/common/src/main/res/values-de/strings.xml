@@ -285,7 +285,6 @@
     <string name="show_app_line_preview">Show App Line Vorschau</string>
     <string name="show_app_angle_preview">App Angle Vorschau anzeigen. %1$s</string>
     <string name="do_you_hate_it">„Hasst du es\?“</string>
-    <string name="show_app_icon_angle_preview_in_center_of_start_dragging_position">Zeigen Sie die Winkelvorschau des App-Symbols in der Mitte der Startposition des Ziehens an</string>
     <string name="line_preview_snap_to_action">Die Linienvorschau lässt sich an die Aktion anpassen</string>
     <string name="icon_packs_found">%1$d Icon-Pakete gefunden</string>
     <string name="default_text">Standard</string>
@@ -301,4 +300,14 @@
     <string name="pick_a_nest">Wähle ein Nest</string>
     <string name="create_new_nest">Neues Nest erstellen</string>
     <string name="copy_id">ID kopieren</string>
+    <string name="edit_default_point_settings">Bearbeiten Sie die Standardpunkteinstellungen</string>
+    <string name="open_burger_menu">Öffnen Sie das Burger-Menü</string>
+    <string name="selected">Ausgewählt</string>
+    <string name="unselected">Nicht ausgewählt</string>
+    <string name="individual_options">Individuelle Option</string>
+    <string name="inner_padding">Innenpolsterung</string>
+    <string name="plain_color">Einfarbig</string>
+    <string name="tint">Farbton</string>
+    <string name="icon_pack_tint">Icon Pack-Tönung</string>
+    <string name="show_app_icon_start_drag_position">App-Symbol in Startposition beim Ziehen anzeigen</string>
 </resources>

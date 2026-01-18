@@ -285,7 +285,6 @@
     <string name="show_app_line_preview">Mostrar vista previa de la línea de la aplicación</string>
     <string name="show_app_angle_preview">Mostrar vista previa del ángulo de la aplicación. %1$s</string>
     <string name="do_you_hate_it">\"¿Lo odias\?\"</string>
-    <string name="show_app_icon_angle_preview_in_center_of_start_dragging_position">Mostrar vista previa del ángulo del ícono de la aplicación en el centro de la posición de inicio de arrastre</string>
     <string name="line_preview_snap_to_action">Vista previa de línea: ajuste a la acción</string>
     <string name="icon_packs_found">%1$d paquetes de iconos encontrados</string>
     <string name="default_text">Por defecto</string>
@@ -301,4 +300,14 @@
     <string name="pick_a_nest">Elige un nido</string>
     <string name="create_new_nest">Crear nuevo nido</string>
     <string name="copy_id">Copiar identificación</string>
+    <string name="edit_default_point_settings">Editar la configuración de puntos predeterminada</string>
+    <string name="open_burger_menu">Abrir menú de hamburguesas</string>
+    <string name="selected">Seleccionado</string>
+    <string name="unselected">No seleccionado</string>
+    <string name="individual_options">Opción individual</string>
+    <string name="inner_padding">Acolchado interior</string>
+    <string name="plain_color">Color liso</string>
+    <string name="tint">Tinte</string>
+    <string name="icon_pack_tint">Tinte del paquete de iconos</string>
+    <string name="show_app_icon_start_drag_position">Mostrar el ícono de la aplicación en la posición de inicio de arrastre</string>
 </resources>

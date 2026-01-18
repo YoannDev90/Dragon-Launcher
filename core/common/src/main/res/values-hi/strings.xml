@@ -285,7 +285,6 @@
     <string name="show_app_line_preview">ऐप लाइन पूर्वावलोकन दिखाएँ</string>
     <string name="show_app_angle_preview">ऐप एंगल पूर्वावलोकन दिखाएँ। %1$s</string>
     <string name="do_you_hate_it">\"क्या तुम्हें इससे नफरत है\?\"</string>
-    <string name="show_app_icon_angle_preview_in_center_of_start_dragging_position">ड्रैगिंग प्रारंभ स्थिति के केंद्र में ऐप आइकन कोण पूर्वावलोकन दिखाएं</string>
     <string name="line_preview_snap_to_action">कार्रवाई के लिए लाइन पूर्वावलोकन स्नैप</string>
     <string name="icon_packs_found">%1$d आइकन पैक मिले</string>
     <string name="default_text">गलती करना</string>
@@ -301,4 +300,14 @@
     <string name="pick_a_nest">एक घोंसला चुनें</string>
     <string name="create_new_nest">नया घोंसला बनाएं</string>
     <string name="copy_id">आईडी कॉपी करें</string>
+    <string name="edit_default_point_settings">डिफ़ॉल्ट बिंदु सेटिंग संपादित करें</string>
+    <string name="open_burger_menu">बर्गर मेनू खोलें</string>
+    <string name="selected">चयनित</string>
+    <string name="unselected">इसे नहीं चुना जाता</string>
+    <string name="individual_options">व्यक्तिगत विकल्प</string>
+    <string name="inner_padding">भीतरी गद्दी</string>
+    <string name="plain_color">सादा रंग</string>
+    <string name="tint">टिंट</string>
+    <string name="icon_pack_tint">चिह्न पैक टिंट</string>
+    <string name="show_app_icon_start_drag_position">स्टार्ट ड्रैग पोजीशन में ऐप आइकन दिखाएं</string>
 </resources>

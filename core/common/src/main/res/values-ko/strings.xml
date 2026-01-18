@@ -285,7 +285,6 @@
     <string name="show_app_line_preview">앱 라인 미리보기 표시</string>
     <string name="show_app_angle_preview">앱 각도 미리보기를 표시합니다. %1$s</string>
     <string name="do_you_hate_it">\"당신은 그것을 싫어합니까\?\"</string>
-    <string name="show_app_icon_angle_preview_in_center_of_start_dragging_position">드래그 시작 위치 중앙에 앱 아이콘 각도 미리보기 표시</string>
     <string name="line_preview_snap_to_action">라인 미리보기 스냅 투 액션</string>
     <string name="icon_packs_found">%1$d개의 아이콘 팩이 발견되었습니다.</string>
     <string name="default_text">기본</string>
@@ -301,4 +300,14 @@
     <string name="pick_a_nest">둥지를 골라라</string>
     <string name="create_new_nest">새 둥지 만들기</string>
     <string name="copy_id">ID 복사</string>
+    <string name="edit_default_point_settings">기본 포인트 설정 편집</string>
+    <string name="open_burger_menu">버거 메뉴 열기</string>
+    <string name="selected">선택된</string>
+    <string name="unselected">선택 해제됨</string>
+    <string name="individual_options">개별 옵션</string>
+    <string name="inner_padding">내부 패딩</string>
+    <string name="plain_color">일반 색상</string>
+    <string name="tint">색조</string>
+    <string name="icon_pack_tint">아이콘 팩 틴트</string>
+    <string name="show_app_icon_start_drag_position">드래그 시작 위치에 앱 아이콘 표시</string>
 </resources>

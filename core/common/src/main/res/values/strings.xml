@@ -285,7 +285,6 @@
     <string name="show_app_line_preview">Show App line preview</string>
     <string name="show_app_angle_preview">Show App Angle preview. %1$s</string>
     <string name="do_you_hate_it">" Do you hate it?"</string>
-    <string name="show_app_icon_angle_preview_in_center_of_start_dragging_position">Show App Icon angle preview in center of start dragging position</string>
     <string name="line_preview_snap_to_action">Line Preview snap to action</string>
     <string name="icon_packs_found">%1$d icon packs found</string>
     <string name="default_text">Default</string>
@@ -310,4 +309,5 @@
     <string name="plain_color">Plain Color</string>
     <string name="tint">Tint</string>
     <string name="icon_pack_tint">Icon Pack Tint</string>
+    <string name="show_app_icon_start_drag_position">Show app icon in start drag positon</string>
 </resources>

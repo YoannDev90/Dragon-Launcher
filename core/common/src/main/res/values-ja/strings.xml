@@ -285,7 +285,6 @@
     <string name="show_app_line_preview">アプリラインのプレビューを表示</string>
     <string name="show_app_angle_preview">アプリアングルのプレビューを表示します。 %1$s</string>
     <string name="do_you_hate_it">「嫌いですか？」</string>
-    <string name="show_app_icon_angle_preview_in_center_of_start_dragging_position">ドラッグ開始位置の中心にアプリアイコンの角度プレビューを表示</string>
     <string name="line_preview_snap_to_action">ラインプレビューのアクションへのスナップ</string>
     <string name="icon_packs_found">%1$d 個のアイコン パックが見つかりました</string>
     <string name="default_text">デフォルト</string>
@@ -301,4 +300,14 @@
     <string name="pick_a_nest">巣を選ぶ</string>
     <string name="create_new_nest">新しい巣を作成する</string>
     <string name="copy_id">IDをコピーする</string>
+    <string name="edit_default_point_settings">デフォルトのポイント設定を編集する</string>
+    <string name="open_burger_menu">バーガーメニューを開く</string>
+    <string name="selected">選択済み</string>
+    <string name="unselected">未選択</string>
+    <string name="individual_options">個別オプション</string>
+    <string name="inner_padding">内側のパディング</string>
+    <string name="plain_color">無地</string>
+    <string name="tint">色合い</string>
+    <string name="icon_pack_tint">アイコンパックの色合い</string>
+    <string name="show_app_icon_start_drag_position">ドラッグ開始位置にアプリアイコンを表示</string>
 </resources>

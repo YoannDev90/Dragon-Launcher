@@ -33,6 +33,9 @@ import kotlinx.coroutines.launch
 import org.elnix.dragonlauncher.common.R
 import org.elnix.dragonlauncher.common.serializables.SwipeActionSerializable
 import org.elnix.dragonlauncher.common.serializables.dummySwipePoint
+import org.elnix.dragonlauncher.common.utils.SETTINGS
+import org.elnix.dragonlauncher.common.utils.colors.adjustBrightness
+import org.elnix.dragonlauncher.models.AppsViewModel
 import org.elnix.dragonlauncher.settings.stores.UiSettingsStore
 import org.elnix.dragonlauncher.ui.components.AppPreviewTitle
 import org.elnix.dragonlauncher.ui.helpers.SliderWithLabel
@@ -40,9 +43,6 @@ import org.elnix.dragonlauncher.ui.helpers.SwitchRow
 import org.elnix.dragonlauncher.ui.helpers.TextDivider
 import org.elnix.dragonlauncher.ui.helpers.settings.SettingsItem
 import org.elnix.dragonlauncher.ui.helpers.settings.SettingsLazyHeader
-import org.elnix.dragonlauncher.common.utils.colors.adjustBrightness
-import org.elnix.dragonlauncher.common.utils.SETTINGS
-import org.elnix.dragonlauncher.models.AppsViewModel
 
 
 @Composable
@@ -324,7 +324,7 @@ fun AppearanceTab(
         item {
             SwitchRow(
                 showAppPreviewIconCenterStartPosition,
-                stringResource(R.string.show_app_icon_angle_preview_in_center_of_start_dragging_position),
+                stringResource(R.string.show_app_icon_start_drag_position),
             ) { scope.launch { UiSettingsStore.setShowAppPreviewIconCenterStartPosition(ctx, it) } }
         }
 
