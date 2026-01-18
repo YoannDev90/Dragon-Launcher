@@ -25,7 +25,7 @@ fun launchSwipeAction(
     ctx: Context,
     action: SwipeActionSerializable?,
     useAccessibilityInsteadOfContextToExpandActionPanel: Boolean = true,
-    onAskWhatMethodToUseToOpenQuickActions: (() -> Unit)? = null,
+//    onAskWhatMethodToUseToOpenQuickActions: (() -> Unit)? = null,
     onReloadApps: (() -> Unit)? = null,
     onReselectFile: (() -> Unit)? = null,
     onAppSettings: (() -> Unit)? = null,
@@ -101,7 +101,7 @@ fun launchSwipeAction(
                 )
             }
             else expandQuickActionsDrawer(ctx)
-            onAskWhatMethodToUseToOpenQuickActions?.invoke()
+//            onAskWhatMethodToUseToOpenQuickActions?.invoke()
 
         }
 

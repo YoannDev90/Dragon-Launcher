@@ -41,12 +41,20 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontStyle
 import androidx.compose.ui.unit.dp
 import androidx.core.net.toUri
 import kotlinx.coroutines.launch
 import org.elnix.dragonlauncher.common.R
+import org.elnix.dragonlauncher.common.logging.logE
+import org.elnix.dragonlauncher.common.utils.formatDateTime
+import org.elnix.dragonlauncher.common.utils.getFilePathFromUri
+import org.elnix.dragonlauncher.common.utils.showToast
+import org.elnix.dragonlauncher.models.BackupResult
+import org.elnix.dragonlauncher.models.BackupViewModel
 import org.elnix.dragonlauncher.settings.DataStoreName
+import org.elnix.dragonlauncher.settings.SettingsBackupManager
 import org.elnix.dragonlauncher.settings.backupableStores
 import org.elnix.dragonlauncher.settings.stores.BackupSettingsStore
 import org.elnix.dragonlauncher.ui.dialogs.ExportSettingsDialog
@@ -57,13 +65,6 @@ import org.elnix.dragonlauncher.ui.helpers.SwitchRow
 import org.elnix.dragonlauncher.ui.helpers.TextDivider
 import org.elnix.dragonlauncher.ui.helpers.rememberSettingsImportLauncher
 import org.elnix.dragonlauncher.ui.helpers.settings.SettingsLazyHeader
-import org.elnix.dragonlauncher.settings.SettingsBackupManager
-import org.elnix.dragonlauncher.common.utils.formatDateTime
-import org.elnix.dragonlauncher.common.utils.getFilePathFromUri
-import org.elnix.dragonlauncher.common.logging.logE
-import org.elnix.dragonlauncher.common.utils.showToast
-import org.elnix.dragonlauncher.models.BackupResult
-import org.elnix.dragonlauncher.models.BackupViewModel
 import org.json.JSONObject
 
 @SuppressLint("LocalContextGetResourceValueCall")
@@ -100,9 +101,9 @@ fun BackupTab(
     var showImportDialog by remember { mutableStateOf(false) }
     var showExportDialog by remember { mutableStateOf(false) }
 
-    // ------------------------------------------------------------
+    // ───────────────────────────────────────
     // SETTINGS EXPORT LAUNCHER
-    // ------------------------------------------------------------
+    // ───────────────────────────────────────
     val settingsExportLauncher =
         rememberLauncherForActivityResult(ActivityResultContracts.CreateDocument("application/json")) { uri ->
             if (uri == null) {
@@ -206,9 +207,9 @@ fun BackupTab(
     }
 
 
-    // ------------------------------------------------------------
+    // ───────────────────────────────────────
     // UI
-    // ------------------------------------------------------------
+    // ───────────────────────────────────────
     SettingsLazyHeader(
         title = ctx.getString(R.string.backup_restore),
         onBack = onBack,
@@ -497,9 +498,9 @@ fun BackupTab(
         }
     }
 
-    // ------------------------------------------------------------
+    // ───────────────────────────────────────
     // RESULT DIALOG
-    // ------------------------------------------------------------
+    // ───────────────────────────────────────
     result?.let { res ->
         val isError = res.error
         UserValidation(
@@ -516,29 +517,26 @@ fun BackupTab(
 }
 
 
-// ------------------------------------------------------------
+// ───────────────────────────────────────
 // Shared Buttons (internal)
-// ------------------------------------------------------------
-
-@SuppressLint("LocalContextGetResourceValueCall")
+// ───────────────────────────────────────
 @Composable
-fun BackupButtons(
+private fun BackupButtons(
     onExport: () -> Unit,
     onImport: () -> Unit
 ) {
-    val ctx = LocalContext.current
     Column(
         Modifier.fillMaxWidth(),
         horizontalAlignment = Alignment.CenterHorizontally,
         verticalArrangement = Arrangement.spacedBy(20.dp)
     ) {
         GradientBigButton(
-            text = ctx.getString(R.string.export_settings),
+            text = stringResource(R.string.export_settings),
             onClick = onExport,
             leadingIcon = {
                 Icon(
                     imageVector = Icons.Default.Upload,
-                    contentDescription = ctx.getString(R.string.export_settings),
+                    contentDescription = stringResource(R.string.export_settings),
                     tint = MaterialTheme.colorScheme.primary
                 )
             },
@@ -546,12 +544,12 @@ fun BackupButtons(
         )
 
         GradientBigButton(
-            text = ctx.getString(R.string.import_settings),
+            text = stringResource(R.string.import_settings),
             onClick = onImport,
             leadingIcon = {
                 Icon(
                     imageVector = Icons.Default.Download,
-                    contentDescription = ctx.getString(R.string.import_settings),
+                    contentDescription = stringResource(R.string.import_settings),
                     tint = MaterialTheme.colorScheme.primary
                 )
             },

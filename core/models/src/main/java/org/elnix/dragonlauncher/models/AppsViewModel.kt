@@ -141,18 +141,24 @@ class AppsViewModel(
 
     init {
         scope.launch {
-            loadWorkspaces()
-            loadDefaultPoint()
-
-            val savedPackName = UiSettingsStore.getIconPack(ctx)
-            savedPackName?.let { pkg ->
-                loadIconsPacks()
-                _selectedIconPack.value = _iconPacksList.value.find { it.packageName == pkg }
-            }
-            loadApps()
+            loadAll()
         }
     }
 
+    /**
+     * Loads everything the model needs, runs at start and when the user restore from a backup
+     */
+    suspend fun loadAll() {
+        loadWorkspaces()
+        loadDefaultPoint()
+
+        val savedPackName = UiSettingsStore.getIconPack(ctx)
+        savedPackName?.let { pkg ->
+            loadIconsPacks()
+            _selectedIconPack.value = _iconPacksList.value.find { it.packageName == pkg }
+        }
+        loadApps()
+    }
 
     /**
      * Returns a filtered and sorted list of apps for the specified workspace as a reactive Flow.

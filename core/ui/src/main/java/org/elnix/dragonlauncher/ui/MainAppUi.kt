@@ -404,13 +404,18 @@ fun MainAppUi(
         ) { showWidgetPicker = null }
     }
 
-    // ------------------------------------------------------------
+    // ────────────────────────────────────────────────────
     // RESULT DIALOG ( IMPORT / EXPORT )
-    // ------------------------------------------------------------
+    // ────────────────────────────────────────────────────
     result?.let { res ->
         val isError = res.error
         val isExport = res.export
         val errorMessage = res.message
+
+        // Reload the whole viewModel data after restore
+        scope.launch {
+            appsViewModel.loadAll()
+        }
 
         UserValidation(
             title = when {
