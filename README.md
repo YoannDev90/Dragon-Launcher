@@ -149,6 +149,7 @@ apksigner verify --print-certs DragonLauncher-*.apk
 ## Contributing
 
 * Contributions are welcome! Feel free to submit pull requests or open issues.
+* Check [CONTRIBUTING](https://github.com/Elnix90/Dragon-Launcher/blob/main/CONTRIBUTING.MD) for contributions guidelines
 
 * You may join the [discord server](https://discord.gg/6UyuP8EBWS) to discuss more easily about changes in the project:
 
