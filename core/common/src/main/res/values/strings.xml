@@ -303,4 +303,8 @@
     <string name="copy_id">Copy Id</string>
     <string name="edit_default_point_settings">Edit default points settings</string>
     <string name="open_burger_menu">Open Burger Menu</string>
+    <string name="selected">Selected</string>
+    <string name="unselected">Unselected</string>
+    <string name="individual_options">Individual Option</string>
+    <string name="inner_padding">Inner Padding</string>
 </resources>

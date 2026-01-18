@@ -16,6 +16,7 @@ import org.elnix.dragonlauncher.common.R
 import org.elnix.dragonlauncher.common.serializables.CircleNest
 import org.elnix.dragonlauncher.common.serializables.SwipeActionSerializable
 import org.elnix.dragonlauncher.common.serializables.SwipePointSerializable
+import org.elnix.dragonlauncher.common.serializables.defaultSwipePointsValues
 import org.elnix.dragonlauncher.common.utils.ImageUtils.loadDrawableResAsBitmap
 import org.elnix.dragonlauncher.common.utils.UiCircle
 import org.elnix.dragonlauncher.ui.actions.actionColor
@@ -42,8 +43,11 @@ fun DrawScope.actionsInCircle(
     val px = center.x
     val py = center.y
 
-    val iconSize = 56 / deepNest
-    val borderRadii = 44f / deepNest
+    val size = point.size ?: defaultPoint.size ?: defaultSwipePointsValues.size!!
+    val innerPadding = point.innerPadding ?: defaultPoint.innerPadding ?: defaultSwipePointsValues.innerPadding!!
+
+    val iconSize = size / deepNest
+    val borderRadii = (( size/2 + innerPadding ).coerceAtLeast(0) / deepNest).toFloat()
 
     val dstOffset = IntOffset(px.toInt() - iconSize / 2, py.toInt() - iconSize / 2)
     val intSize = IntSize(iconSize, iconSize)

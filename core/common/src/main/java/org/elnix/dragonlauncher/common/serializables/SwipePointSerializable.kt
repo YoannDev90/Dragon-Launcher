@@ -78,9 +78,13 @@ data class SwipePointSerializable(
 
     /** Inner padding (dp) between border and content. */
     @SerializedName("q")
-    val paddingDp: Int? = null,
+    val innerPadding: Int? = null,
 
-    /** Optional override for action color, default (null) will use the action color*/
+    /** Optional override for action color, default (null) will use the action color */
     @SerializedName("r")
-    val customActionColor: Int? = null
+    val customActionColor: Int? = null,
+
+    /** Optional size override */
+    @SerializedName("s")
+    val size: Int? = null
 )

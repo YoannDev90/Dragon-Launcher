@@ -11,6 +11,8 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Edit
@@ -36,6 +38,7 @@ import androidx.compose.ui.graphics.toArgb
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import org.elnix.dragonlauncher.common.R
@@ -44,6 +47,8 @@ import org.elnix.dragonlauncher.common.serializables.SwipePointSerializable
 import org.elnix.dragonlauncher.common.serializables.defaultSwipePointsValues
 import org.elnix.dragonlauncher.common.theme.AmoledDefault
 import org.elnix.dragonlauncher.common.utils.colors.adjustBrightness
+import org.elnix.dragonlauncher.enumsui.SelectedUnselectedViewMode
+import org.elnix.dragonlauncher.enumsui.selectedUnselectedViewName
 import org.elnix.dragonlauncher.models.AppsViewModel
 import org.elnix.dragonlauncher.settings.stores.ColorSettingsStore
 import org.elnix.dragonlauncher.settings.stores.SwipeSettingsStore
@@ -54,6 +59,7 @@ import org.elnix.dragonlauncher.ui.colors.ColorPickerRow
 import org.elnix.dragonlauncher.ui.components.PointPreviewCanvas
 import org.elnix.dragonlauncher.ui.components.ValidateCancelButtons
 import org.elnix.dragonlauncher.ui.helpers.SliderWithLabel
+import org.elnix.dragonlauncher.ui.helpers.TextDivider
 import org.elnix.dragonlauncher.ui.theme.LocalExtraColors
 
 
@@ -88,8 +94,11 @@ fun EditPointDialog(
     val currentActionColor = actionColor(editPoint.action, extraColors)
 
     val label = actionLabel(editPoint.action, editPoint.customName)
-    val actionColor = actionColor(editPoint.action, extraColors, editPoint.customActionColor?.let{ Color(it) })
+    val actionColor =
+        actionColor(editPoint.action, extraColors, editPoint.customActionColor?.let { Color(it) })
 
+
+    var selectedView by remember { mutableStateOf(SelectedUnselectedViewMode.UNSELECTED) }
 
 
     val defaultBorderStroke =
@@ -126,6 +135,16 @@ fun EditPointDialog(
             ?.let(::Color)
             ?: Color.Unspecified
 
+    val defaultSize =
+        defaultPoint.size
+            ?.takeIf { !isDefaultEditing }
+            ?: defaultSwipePointsValues.size!!
+
+
+    val defaultInnerPadding =
+        defaultPoint.innerPadding
+            ?.takeIf { !isDefaultEditing }
+            ?: defaultSwipePointsValues.innerPadding!!
 
 
 
@@ -140,9 +159,10 @@ fun EditPointDialog(
 
     CustomAlertDialog(
         modifier = Modifier
-            .padding(16.dp) ,
+            .padding(16.dp),
         onDismissRequest = onDismiss,
         imePadding = false,
+        scroll = false,
         alignment = Alignment.Center,
         confirmButton = {
             ValidateCancelButtons(
@@ -230,234 +250,313 @@ fun EditPointDialog(
             }
         },
         text = {
-            Column(
-                verticalArrangement = Arrangement.spacedBy(5.dp),
-//                modifier = Modifier
-//                    .height(500.dp)
-//                    .verticalScroll(rememberScrollState())
+            LazyColumn(
+                verticalArrangement = Arrangement.spacedBy(5.dp)
             ) {
 
                 if (!isDefaultEditing) {
-                    Row(
-                        modifier = Modifier
-                            .fillMaxWidth(),
-                        verticalAlignment = Alignment.CenterVertically,
-                        horizontalArrangement = Arrangement.spacedBy(15.dp)
-                    ) {
+                    item {
                         Row(
                             modifier = Modifier
-                                .weight(1f)
-                                .clip(RoundedCornerShape(12.dp))
-                                .background(backgroundSurfaceColor)
-                                .clickable {
-                                    showEditActionDialog = true
-                                }
-                                .padding(12.dp),
+                                .fillMaxWidth(),
                             verticalAlignment = Alignment.CenterVertically,
-                            horizontalArrangement = Arrangement.spacedBy(12.dp)
+                            horizontalArrangement = Arrangement.spacedBy(15.dp)
                         ) {
-                            Text(
-                                text = label,
-                                color = actionColor,
-                                fontSize = 18.sp,
-                                fontWeight = FontWeight.Bold
-                            )
-
-                            Spacer(Modifier.weight(1f))
-                            Icon(
-                                imageVector = Icons.Default.Edit,
-                                contentDescription = stringResource(R.string.edit_action),
-                                tint = MaterialTheme.colorScheme.primary
-                            )
-                        }
-
-                        val editIconEnabled = editPoint.action !is SwipeActionSerializable.OpenCircleNest
-                        Row(
-                            modifier = Modifier
-                                .weight(1f)
-                                .clip(RoundedCornerShape(12.dp))
-                                .background(backgroundSurfaceColor)
-                                .clickable(editIconEnabled) {
-                                    showEditIconDialog = true
-                                }
-                                .padding(12.dp),
-                            verticalAlignment = Alignment.CenterVertically,
-                            horizontalArrangement = Arrangement.spacedBy(12.dp)
-                        ) {
-                            Text(
-                                text = stringResource(R.string.edit_icon),
-                                color = MaterialTheme.colorScheme.onSurface.copy(if (editIconEnabled) 1f else 0.5f)
-                            )
-                            Spacer(Modifier.weight(1f))
-
-                            Icon(
-                                imageVector = Icons.Default.Edit,
-                                contentDescription = stringResource(R.string.edit_action),
-                                tint = MaterialTheme.colorScheme.primary.copy(if (editIconEnabled) 1f else 0.5f),
-                            )
-                        }
-                    }
-
-
-                    TextField(
-                        value = editPoint.customName ?: "",
-                        onValueChange = {
-                            editPoint = editPoint.copy(customName = it)
-                        },
-                        label = { Text(stringResource(R.string.custom_name)) },
-                        trailingIcon = {
-                            if (editPoint.customName != null && editPoint.customName!!.isNotEmpty()) {
-                                IconButton(
-                                    onClick = {
-                                        editPoint = editPoint.copy(customName = null)
+                            Row(
+                                modifier = Modifier
+                                    .weight(1f)
+                                    .clip(RoundedCornerShape(12.dp))
+                                    .background(backgroundSurfaceColor)
+                                    .clickable {
+                                        showEditActionDialog = true
                                     }
-                                ) {
-                                    Icon(
-                                        imageVector = Icons.Default.Restore,
-                                        contentDescription = stringResource(R.string.reset)
-                                    )
-                                }
+                                    .padding(12.dp),
+                                verticalAlignment = Alignment.CenterVertically,
+                                horizontalArrangement = Arrangement.spacedBy(12.dp)
+                            ) {
+                                Text(
+                                    text = label,
+                                    color = actionColor,
+                                    fontSize = 18.sp,
+                                    fontWeight = FontWeight.Bold
+                                )
+
+                                Spacer(Modifier.weight(1f))
+                                Icon(
+                                    imageVector = Icons.Default.Edit,
+                                    contentDescription = stringResource(R.string.edit_action),
+                                    tint = MaterialTheme.colorScheme.primary
+                                )
                             }
-                        },
-                        modifier = Modifier.fillMaxWidth(),
-                        colors = AppObjectsColors.outlinedTextFieldColors(
-                            removeBorder = true,
+
+                            val editIconEnabled =
+                                editPoint.action !is SwipeActionSerializable.OpenCircleNest
+                            Row(
+                                modifier = Modifier
+                                    .weight(1f)
+                                    .clip(RoundedCornerShape(12.dp))
+                                    .background(backgroundSurfaceColor)
+                                    .clickable(editIconEnabled) {
+                                        showEditIconDialog = true
+                                    }
+                                    .padding(12.dp),
+                                verticalAlignment = Alignment.CenterVertically,
+                                horizontalArrangement = Arrangement.spacedBy(12.dp)
+                            ) {
+                                Text(
+                                    text = stringResource(R.string.edit_icon),
+                                    color = MaterialTheme.colorScheme.onSurface.copy(if (editIconEnabled) 1f else 0.5f)
+                                )
+                                Spacer(Modifier.weight(1f))
+
+                                Icon(
+                                    imageVector = Icons.Default.Edit,
+                                    contentDescription = stringResource(R.string.edit_action),
+                                    tint = MaterialTheme.colorScheme.primary.copy(if (editIconEnabled) 1f else 0.5f),
+                                )
+                            }
+                        }
+                    }
+
+
+                    item {
+                        TextField(
+                            value = editPoint.customName ?: "",
+                            onValueChange = {
+                                editPoint = editPoint.copy(customName = it)
+                            },
+                            label = { Text(stringResource(R.string.custom_name)) },
+                            trailingIcon = {
+                                if (editPoint.customName != null && editPoint.customName!!.isNotEmpty()) {
+                                    IconButton(
+                                        onClick = {
+                                            editPoint = editPoint.copy(customName = null)
+                                        }
+                                    ) {
+                                        Icon(
+                                            imageVector = Icons.Default.Restore,
+                                            contentDescription = stringResource(R.string.reset)
+                                        )
+                                    }
+                                }
+                            },
+                            modifier = Modifier.fillMaxWidth(),
+                            colors = AppObjectsColors.outlinedTextFieldColors(
+                                removeBorder = true,
+                                backgroundColor = backgroundSurfaceColor
+                            )
+                        )
+                    }
+
+
+                    item {
+                        ColorPickerRow(
+                            label = stringResource(R.string.custom_action_color),
+                            defaultColor = currentActionColor,
+                            currentColor = editPoint.customActionColor?.let { Color(it) }
+                                ?: currentActionColor,
                             backgroundColor = backgroundSurfaceColor
-                        )
-                    )
-
-
-                    ColorPickerRow(
-                        label = stringResource(R.string.custom_action_color),
-                        defaultColor = currentActionColor,
-                        currentColor = editPoint.customActionColor?.let { Color(it) }
-                            ?: currentActionColor,
-                        backgroundColor = backgroundSurfaceColor
-                    ) { selectedColor ->
-                        editPoint = editPoint.copy(customActionColor = selectedColor.toArgb())
+                        ) { selectedColor ->
+                            editPoint = editPoint.copy(customActionColor = selectedColor.toArgb())
+                        }
                     }
                 }
 
-                Column(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(10.dp)
-                        .clip(RoundedCornerShape(12.dp))
-                        .background(backgroundSurfaceColor)
-                        .padding(10.dp),
-                    verticalArrangement = Arrangement.spacedBy(5.dp)
-                ){
-                    SliderWithLabel(
-                        label = stringResource(R.string.border_stroke),
-                        value = editPoint.borderStroke
-                            ?: defaultBorderStroke,
-                        valueRange = 0f..50f,
-                        color = MaterialTheme.colorScheme.primary,
-                        onReset = {
-                            editPoint = editPoint.copy(borderStroke = null)
-                        }
+                item {
+                    Column(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(10.dp)
+                            .clip(RoundedCornerShape(12.dp))
+                            .background(backgroundSurfaceColor)
+                            .padding(10.dp),
+                        verticalArrangement = Arrangement.spacedBy(5.dp)
                     ) {
-                        editPoint = editPoint.copy(borderStroke = it)
-                    }
+                        SliderWithLabel(
+                            label = stringResource(R.string.inner_padding),
+                            value = editPoint.innerPadding ?: defaultInnerPadding,
+                            valueRange = 0..100,
+                            color = MaterialTheme.colorScheme.primary,
+                            onReset = { editPoint = editPoint.copy(innerPadding = null) }
+                        ) { editPoint = editPoint.copy(innerPadding = it) }
 
-                    ColorPickerRow(
-                        label = stringResource(R.string.border_color),
-                        defaultColor = defaultBorderColor,
-                        currentColor = editPoint.borderColor?.let { Color(it) }
-                            ?: defaultBorderColor
-                    ) { selectedColor ->
-                        editPoint = editPoint.copy(borderColor = selectedColor.toArgb())
-                    }
-
-                    ColorPickerRow(
-                        label = stringResource(R.string.background_color),
-                        defaultColor = defaultBackgroundColor,
-                        currentColor = editPoint.backgroundColor?.let { Color(it) }
-                            ?: defaultBackgroundColor
-                    ) { selectedColor ->
-                        editPoint = editPoint.copy(
-                            backgroundColor = selectedColor.takeIf { it != Color.Unspecified }
-                                ?.toArgb()
-                        )
+                        SliderWithLabel(
+                            label = stringResource(R.string.size),
+                            value = editPoint.size ?: defaultSize,
+                            valueRange = 0..200,
+                            color = MaterialTheme.colorScheme.primary,
+                            onReset = { editPoint = editPoint.copy(size = null) }
+                        ) { editPoint = editPoint.copy(size = it) }
                     }
                 }
 
-                Column(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(10.dp)
-                        .clip(RoundedCornerShape(12.dp))
-                        .background(backgroundSurfaceColor)
-                        .padding(10.dp),
-                    verticalArrangement = Arrangement.spacedBy(5.dp)
-                ){
-                    SliderWithLabel(
-                        label = stringResource(R.string.border_stroke_selected),
-                        value = editPoint.borderStrokeSelected
-                            ?: defaultBorderStrokeSelected,
-                        valueRange = 0f..50f,
-                        color = MaterialTheme.colorScheme.primary,
-                        onReset = {
-                            editPoint =
-                                editPoint.copy(borderStrokeSelected = null)
-                        }
+
+                /* Selected / Unselected Options Toggler */
+
+                item {
+                    TextDivider(
+                        text = stringResource(R.string.individual_options),
+                        backgroundColor = MaterialTheme.colorScheme.surface
+                    )
+                }
+                item {
+                    Row(
+                        Modifier
+                            .fillMaxWidth()
+                            .clip(CircleShape),
+                        horizontalArrangement = Arrangement.SpaceEvenly
                     ) {
-                        editPoint = editPoint.copy(borderStrokeSelected = it)
+                        SelectedUnselectedViewMode.entries.forEach { mode ->
+                            val isSelected = mode == selectedView
+                            Text(
+                                text = selectedUnselectedViewName(mode),
+                                modifier = Modifier
+                                    .weight(1f)
+                                    .clip(RoundedCornerShape(12.dp))
+                                    .clickable { selectedView = mode }
+                                    .background(
+                                        if (isSelected) MaterialTheme.colorScheme.secondary
+                                        else backgroundSurfaceColor
+                                    )
+                                    .padding(12.dp),
+                                color = if (isSelected) MaterialTheme.colorScheme.onSecondary
+                                else MaterialTheme.colorScheme.onSurface,
+                                style = MaterialTheme.typography.bodyMedium,
+                                textAlign = TextAlign.Center
+                            )
+                        }
                     }
+                }
 
+                if (selectedView == SelectedUnselectedViewMode.UNSELECTED) {
+                    item {
+                        Column(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .padding(10.dp)
+                                .clip(RoundedCornerShape(12.dp))
+                                .background(backgroundSurfaceColor)
+                                .padding(10.dp),
+                            verticalArrangement = Arrangement.spacedBy(5.dp)
+                        ) {
+                            SliderWithLabel(
+                                label = stringResource(R.string.border_stroke),
+                                value = editPoint.borderStroke
+                                    ?: defaultBorderStroke,
+                                valueRange = 0f..50f,
+                                color = MaterialTheme.colorScheme.primary,
+                                onReset = {
+                                    editPoint = editPoint.copy(borderStroke = null)
+                                }
+                            ) {
+                                editPoint = editPoint.copy(borderStroke = it)
+                            }
 
-                    ColorPickerRow(
-                        label = stringResource(R.string.border_color_selected),
-                        defaultColor = defaultBorderColorSelected,
-                        currentColor = editPoint.borderColorSelected?.let { Color(it) }
-                            ?: defaultBorderColorSelected
-                    ) { selectedColor ->
-                        editPoint = editPoint.copy(borderColorSelected = selectedColor.toArgb())
+                            ColorPickerRow(
+                                label = stringResource(R.string.border_color),
+                                defaultColor = defaultBorderColor,
+                                currentColor = editPoint.borderColor?.let { Color(it) }
+                                    ?: defaultBorderColor
+                            ) { selectedColor ->
+                                editPoint = editPoint.copy(borderColor = selectedColor.toArgb())
+                            }
+
+                            ColorPickerRow(
+                                label = stringResource(R.string.background_color),
+                                defaultColor = defaultBackgroundColor,
+                                currentColor = editPoint.backgroundColor?.let { Color(it) }
+                                    ?: defaultBackgroundColor
+                            ) { selectedColor ->
+                                editPoint = editPoint.copy(
+                                    backgroundColor = selectedColor.takeIf { it != Color.Unspecified }
+                                        ?.toArgb()
+                                )
+                            }
+                        }
                     }
+                } else {
+
+                    item {
+                        Column(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .padding(10.dp)
+                                .clip(RoundedCornerShape(12.dp))
+                                .background(backgroundSurfaceColor)
+                                .padding(10.dp),
+                            verticalArrangement = Arrangement.spacedBy(5.dp)
+                        ) {
+                            SliderWithLabel(
+                                label = stringResource(R.string.border_stroke_selected),
+                                value = editPoint.borderStrokeSelected
+                                    ?: defaultBorderStrokeSelected,
+                                valueRange = 0f..50f,
+                                color = MaterialTheme.colorScheme.primary,
+                                onReset = {
+                                    editPoint =
+                                        editPoint.copy(borderStrokeSelected = null)
+                                }
+                            ) {
+                                editPoint = editPoint.copy(borderStrokeSelected = it)
+                            }
 
 
-                    ColorPickerRow(
-                        label = stringResource(R.string.background_selected),
-                        defaultColor = defaultBackgroundColorSelected,
-                        currentColor = editPoint.backgroundColorSelected?.let { Color(it) }
-                            ?: defaultBackgroundColorSelected
-                    ) { selectedColor ->
-                        editPoint = editPoint.copy(
-                            backgroundColorSelected = selectedColor.takeIf { it != Color.Unspecified }
-                                ?.toArgb()
-                        )
+                            ColorPickerRow(
+                                label = stringResource(R.string.border_color_selected),
+                                defaultColor = defaultBorderColorSelected,
+                                currentColor = editPoint.borderColorSelected?.let { Color(it) }
+                                    ?: defaultBorderColorSelected
+                            ) { selectedColor ->
+                                editPoint = editPoint.copy(borderColorSelected = selectedColor.toArgb())
+                            }
+
+
+                            ColorPickerRow(
+                                label = stringResource(R.string.background_selected),
+                                defaultColor = defaultBackgroundColorSelected,
+                                currentColor = editPoint.backgroundColorSelected?.let { Color(it) }
+                                    ?: defaultBackgroundColorSelected
+                            ) { selectedColor ->
+                                editPoint = editPoint.copy(
+                                    backgroundColorSelected = selectedColor.takeIf { it != Color.Unspecified }
+                                        ?.toArgb()
+                                )
+                            }
+                        }
                     }
                 }
 
 
-                Row(
-                    verticalAlignment = Alignment.CenterVertically,
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .clip(RoundedCornerShape(12.dp))
-                        .clickable(false) {
-                            if (editPoint.haptic == null) editPoint.copy(haptic = true)
-                            else editPoint = editPoint.copy(haptic = editPoint.haptic)
+                item {
+                    Row(
+                        verticalAlignment = Alignment.CenterVertically,
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .clip(RoundedCornerShape(12.dp))
+                            .clickable(false) {
+                                if (editPoint.haptic == null) editPoint.copy(haptic = true)
+                                else editPoint = editPoint.copy(haptic = editPoint.haptic)
 
-                        }
-                        .padding(8.dp)
-                ) {
-                    Checkbox(
-                        enabled = false,
-                        checked = editPoint.haptic
-                            ?: defaultPoint.haptic
-                            ?: defaultSwipePointsValues.haptic!!,
-                        onCheckedChange = {
-                            if (editPoint.haptic == null) editPoint.copy(haptic = true)
-                            else editPoint = editPoint.copy(haptic = editPoint.haptic)
-                        },
-                        colors = AppObjectsColors.checkboxColors()
-                    )
+                            }
+                            .padding(8.dp)
+                    ) {
+                        Checkbox(
+                            enabled = false,
+                            checked = editPoint.haptic
+                                ?: defaultPoint.haptic
+                                ?: defaultSwipePointsValues.haptic!!,
+                            onCheckedChange = {
+                                if (editPoint.haptic == null) editPoint.copy(haptic = true)
+                                else editPoint = editPoint.copy(haptic = editPoint.haptic)
+                            },
+                            colors = AppObjectsColors.checkboxColors()
+                        )
 
-                    Text(
-                        text = stringResource(R.string.haptic_feedback),
-                        color = MaterialTheme.colorScheme.onSurface.adjustBrightness(0.7f)
-                    )
+                        Text(
+                            text = stringResource(R.string.haptic_feedback),
+                            color = MaterialTheme.colorScheme.onSurface.adjustBrightness(0.7f)
+                        )
+                    }
                 }
             }
         },
