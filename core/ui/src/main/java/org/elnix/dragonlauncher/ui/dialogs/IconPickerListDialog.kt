@@ -193,11 +193,13 @@ private fun IconCell(
                 contentDescription = null,
                 modifier = Modifier.clickable {
                     onClick(it.asAndroidBitmap())
-                }
+                },
+                tint = MaterialTheme.colorScheme.outline
             )
             Text(
                 text = drawableName,
                 style = MaterialTheme.typography.bodySmall,
+                color = MaterialTheme.colorScheme.outline,
                 overflow = TextOverflow.Ellipsis,
                 textAlign = TextAlign.Center,
                 modifier = Modifier
