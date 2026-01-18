@@ -14,6 +14,10 @@
  - Entirely open source
 
 ## Code styles
+
+- Use camelCase for variables and functions name, and globally everywhere
+- Use underscore_case for resources like strings or images
+- Use FULL_MAJ_UNDERSCORE for settings keys in stores
  - Always add spaces between brackets in function declaration, condition statement
 ```kotlin
 fun foo() {
