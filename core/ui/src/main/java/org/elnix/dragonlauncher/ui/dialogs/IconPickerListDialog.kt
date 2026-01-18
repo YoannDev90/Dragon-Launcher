@@ -34,11 +34,10 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.ImageBitmap
 import androidx.compose.ui.graphics.asAndroidBitmap
 import androidx.compose.ui.graphics.asImageBitmap
-import androidx.compose.ui.graphics.toArgb
-import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
@@ -50,7 +49,6 @@ import org.elnix.dragonlauncher.common.serializables.IconPackInfo
 import org.elnix.dragonlauncher.common.utils.ImageUtils.loadDrawableAsBitmap
 import org.elnix.dragonlauncher.common.utils.colors.adjustBrightness
 import org.elnix.dragonlauncher.models.AppsViewModel
-import org.elnix.dragonlauncher.settings.stores.UiSettingsStore
 import org.elnix.dragonlauncher.ui.colors.AppObjectsColors
 
 @OptIn(ExperimentalFoundationApi::class)
@@ -61,7 +59,6 @@ fun IconPickerListDialog(
     onDismiss: () -> Unit,
     onIconSelected: (iconName: String, icon: ImageBitmap) -> Unit
 ) {
-    val ctx = LocalContext.current
     var searchQuery by remember { mutableStateOf("") }
 
     val drawableNames by appsViewModel.packIcons.collectAsState()
@@ -72,8 +69,7 @@ fun IconPickerListDialog(
             it.contains(searchQuery, ignoreCase = true)
         }
     }
-    val iconPackTint by UiSettingsStore.getIconPackTintFLow(ctx).collectAsState(null)
-
+    val iconPackTint by appsViewModel.packTint.collectAsState()
 
     CustomAlertDialog(
         imePadding = false,
@@ -140,7 +136,7 @@ fun IconPickerListDialog(
                             appsViewModel = appsViewModel,
                             pack = pack,
                             drawableName = filteredDrawable,
-                            packTint = iconPackTint?.toArgb(),
+                            packTint = iconPackTint,
                             onClick = { bitmap ->
                                 onIconSelected(filteredDrawable, bitmap.asImageBitmap())
                                 onDismiss()
@@ -201,7 +197,7 @@ private fun IconCell(
                 modifier = Modifier.clickable {
                     onClick(it.asAndroidBitmap())
                 },
-                tint = MaterialTheme.colorScheme.outline
+                tint = Color.Unspecified
             )
             Text(
                 text = drawableName,
