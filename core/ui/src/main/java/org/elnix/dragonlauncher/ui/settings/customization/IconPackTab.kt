@@ -9,11 +9,16 @@ import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.toArgb
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import kotlinx.coroutines.launch
 import org.elnix.dragonlauncher.common.R
 import org.elnix.dragonlauncher.models.AppsViewModel
+import org.elnix.dragonlauncher.settings.stores.UiSettingsStore
+import org.elnix.dragonlauncher.ui.colors.ColorPickerRow
 import org.elnix.dragonlauncher.ui.helpers.AppGrid
 import org.elnix.dragonlauncher.ui.helpers.iconPackListContent
 import org.elnix.dragonlauncher.ui.helpers.settings.SettingsLazyHeader
@@ -23,6 +28,7 @@ fun IconPackTab(
     appsViewModel: AppsViewModel,
     onBack: () -> Unit
 ) {
+    val ctx = LocalContext.current
     val scope = rememberCoroutineScope()
 
     val apps by appsViewModel.userApps.collectAsState(initial = emptyList())
@@ -31,6 +37,7 @@ fun IconPackTab(
     val selectedPack by appsViewModel.selectedIconPack.collectAsState()
     val packs by appsViewModel.iconPacksList.collectAsState()
 
+    val iconPackTint by UiSettingsStore.getIconPackTintFLow(ctx).collectAsState(null)
     // Load packs
     LaunchedEffect(Unit) {
         appsViewModel.loadIconsPacks()
@@ -61,6 +68,18 @@ fun IconPackTab(
             }
         }
     ) {
+
+        item {
+            ColorPickerRow(
+                label = stringResource(R.string.icon_pack_tint),
+                defaultColor = Color.Unspecified,
+                currentColor = iconPackTint ?: Color.Unspecified
+            ) {
+                val newColorInt = if (it == Color.Unspecified) null else it.toArgb()
+                scope.launch { appsViewModel.setIconPackTint(newColorInt) }
+            }
+        }
+
         iconPackListContent(
             packs = packs,
             icons = icons,

@@ -53,7 +53,8 @@ object ImageUtils {
     fun loadDrawableAsBitmap(
         drawable: Drawable,
         width: Int,
-        height: Int
+        height: Int,
+        tint: Int? = null
     ): ImageBitmap {
         // Adaptive icon support
         val bmp = if (drawable is AdaptiveIconDrawable) {
@@ -65,7 +66,10 @@ object ImageUtils {
         } else {
             drawable.toBitmap(width, height)
         }
-        return bmp.asImageBitmap()
+        val imageBitmap = bmp.asImageBitmap()
+        return tint?.let{
+            tintBitmap(imageBitmap, tint)
+        } ?: imageBitmap
     }
 
     fun cropCenterSquare(src: Bitmap): Bitmap {
@@ -187,12 +191,12 @@ object ImageUtils {
         return bitmap.asImageBitmap()
     }
 
-    fun tintBitmap(original: ImageBitmap, color: Color): ImageBitmap {
+    fun tintBitmap(original: ImageBitmap, color: Int): ImageBitmap {
         val bitmap = createBitmap(original.width, original.height)
         val canvas = Canvas(bitmap)
         val paint = Paint().apply {
             colorFilter = PorterDuffColorFilter(
-                color.toArgb(),
+                color,
                 PorterDuff.Mode.SRC_IN
             )
         }
@@ -297,7 +301,7 @@ object ImageUtils {
 
             IconType.PLAIN_COLOR -> icon.source?.let {
                 try {
-                    val sourceColor = Color(it.toInt())
+                    val sourceColor = it.toInt()
                     val bmp = createDefaultBitmap(sizePx, sizePx)
                     tintBitmap(bmp, sourceColor)
                 } catch (_: Exception) {

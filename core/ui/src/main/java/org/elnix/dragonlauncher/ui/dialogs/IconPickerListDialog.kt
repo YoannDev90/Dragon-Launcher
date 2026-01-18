@@ -37,6 +37,8 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.ImageBitmap
 import androidx.compose.ui.graphics.asAndroidBitmap
 import androidx.compose.ui.graphics.asImageBitmap
+import androidx.compose.ui.graphics.toArgb
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
@@ -48,6 +50,7 @@ import org.elnix.dragonlauncher.common.serializables.IconPackInfo
 import org.elnix.dragonlauncher.common.utils.ImageUtils.loadDrawableAsBitmap
 import org.elnix.dragonlauncher.common.utils.colors.adjustBrightness
 import org.elnix.dragonlauncher.models.AppsViewModel
+import org.elnix.dragonlauncher.settings.stores.UiSettingsStore
 import org.elnix.dragonlauncher.ui.colors.AppObjectsColors
 
 @OptIn(ExperimentalFoundationApi::class)
@@ -58,6 +61,7 @@ fun IconPickerListDialog(
     onDismiss: () -> Unit,
     onIconSelected: (iconName: String, icon: ImageBitmap) -> Unit
 ) {
+    val ctx = LocalContext.current
     var searchQuery by remember { mutableStateOf("") }
 
     val drawableNames by appsViewModel.packIcons.collectAsState()
@@ -68,6 +72,8 @@ fun IconPickerListDialog(
             it.contains(searchQuery, ignoreCase = true)
         }
     }
+    val iconPackTint by UiSettingsStore.getIconPackTintFLow(ctx).collectAsState(null)
+
 
     CustomAlertDialog(
         imePadding = false,
@@ -134,6 +140,7 @@ fun IconPickerListDialog(
                             appsViewModel = appsViewModel,
                             pack = pack,
                             drawableName = filteredDrawable,
+                            packTint = iconPackTint?.toArgb(),
                             onClick = { bitmap ->
                                 onIconSelected(filteredDrawable, bitmap.asImageBitmap())
                                 onDismiss()
@@ -148,7 +155,6 @@ fun IconPickerListDialog(
                     contentAlignment = Alignment.Center
                 ) {
                     Text(stringResource(R.string.no_search_match))
-
                 }
             } else {
 
@@ -172,13 +178,14 @@ private fun IconCell(
     appsViewModel: AppsViewModel,
     pack: IconPackInfo,
     drawableName: String,
+    packTint: Int?,
     onClick: (Bitmap) -> Unit
 ) {
 
     val bitmap by produceState<ImageBitmap?>(null, drawableName) {
         value = withContext(Dispatchers.IO) {
             appsViewModel.loadIconFromPack(pack.packageName, drawableName)
-                ?.let { loadDrawableAsBitmap(it, 96, 96) }
+                ?.let { loadDrawableAsBitmap(it, 96, 96, packTint) }
         }
     }
 

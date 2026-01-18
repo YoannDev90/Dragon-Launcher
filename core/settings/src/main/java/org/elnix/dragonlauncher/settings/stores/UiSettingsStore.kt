@@ -1,6 +1,7 @@
 package org.elnix.dragonlauncher.settings.stores
 
 import android.content.Context
+import androidx.compose.ui.graphics.Color
 import androidx.datastore.preferences.core.booleanPreferencesKey
 import androidx.datastore.preferences.core.edit
 import androidx.datastore.preferences.core.intPreferencesKey
@@ -21,6 +22,7 @@ import org.elnix.dragonlauncher.settings.stores.UiSettingsStore.Keys.APP_LABEL_O
 import org.elnix.dragonlauncher.settings.stores.UiSettingsStore.Keys.AUTO_SEPARATE_POINTS
 import org.elnix.dragonlauncher.settings.stores.UiSettingsStore.Keys.FULLSCREEN
 import org.elnix.dragonlauncher.settings.stores.UiSettingsStore.Keys.ICON_PACK_KEY
+import org.elnix.dragonlauncher.settings.stores.UiSettingsStore.Keys.ICON_PACK_TINT
 import org.elnix.dragonlauncher.settings.stores.UiSettingsStore.Keys.LINE_PREVIEW_SNAP_TO_ACTION
 import org.elnix.dragonlauncher.settings.stores.UiSettingsStore.Keys.MIN_ANGLE_FROM_A_POINT_TO_ACTIVATE_IT
 import org.elnix.dragonlauncher.settings.stores.UiSettingsStore.Keys.RGB_LINE
@@ -56,6 +58,7 @@ object UiSettingsStore : BaseSettingsStore<Map<String, Any?>>() {
         val minAngleFromAPointToActivateIt: Int = 30,
         val showAllActionsOnCurrentCircle: Boolean = false,
         val iconPackKey: String? = null,
+        val iconPackTint: Int? = null,
         val showActionIconBorder: Boolean = true,
         val appLabelIconOverlayTopPadding: Int = 30,
         val appLabelOverlaySize: Int = 18,
@@ -81,6 +84,7 @@ object UiSettingsStore : BaseSettingsStore<Map<String, Any?>>() {
         val MIN_ANGLE_FROM_A_POINT_TO_ACTIVATE_IT = intPreferencesKey("minAngleFromAPointToActivateIt")
         val SHOW_ALL_ACTIONS_ON_CURRENT_CIRCLE = booleanPreferencesKey("showAllActionsOnCurrentCircle")
         val ICON_PACK_KEY = stringPreferencesKey("selected_icon_pack")
+        val ICON_PACK_TINT = intPreferencesKey("icon_pack_tint")
         val APP_LABEL_ICON_OVERLAY_TOP_PADDING =
             intPreferencesKey("appLabelIconOverlayTopPadding")
         val APP_LABEL_OVERLAY_SIZE = intPreferencesKey("appLabelOverlaySize")
@@ -104,6 +108,7 @@ object UiSettingsStore : BaseSettingsStore<Map<String, Any?>>() {
             MIN_ANGLE_FROM_A_POINT_TO_ACTIVATE_IT,
             SHOW_ALL_ACTIONS_ON_CURRENT_CIRCLE,
             ICON_PACK_KEY,
+            ICON_PACK_TINT,
             APP_LABEL_ICON_OVERLAY_TOP_PADDING,
             APP_LABEL_OVERLAY_SIZE,
             APP_ICON_OVERLAY_SIZE
@@ -228,6 +233,29 @@ object UiSettingsStore : BaseSettingsStore<Map<String, Any?>>() {
                 prefs.remove(ICON_PACK_KEY)
             } else {
                 prefs[ICON_PACK_KEY] = packName
+            }
+        }
+    }
+
+    suspend fun getIconPackTint(ctx: Context): Int? {
+        return ctx.uiDatastore.data.map {
+            it[ICON_PACK_TINT] }
+            .firstOrNull()
+    }
+
+    fun getIconPackTintFLow(ctx: Context) =
+        ctx.uiDatastore.data.map {
+            it[ICON_PACK_TINT] ?.let { color ->
+                Color(color)
+            }
+    }
+
+    suspend fun setIconPackTint(ctx: Context, color: Int?) {
+        ctx.uiDatastore.edit {
+            if (color != null) {
+                it[ICON_PACK_TINT] = color
+            } else {
+                it.remove(ICON_PACK_TINT)
             }
         }
     }
@@ -366,6 +394,12 @@ object UiSettingsStore : BaseSettingsStore<Map<String, Any?>>() {
             )
 
             putIfNonDefault(
+                ICON_PACK_TINT,
+                prefs[ICON_PACK_TINT],
+                0
+            )
+
+            putIfNonDefault(
                 APP_LABEL_ICON_OVERLAY_TOP_PADDING,
                 prefs[APP_LABEL_ICON_OVERLAY_TOP_PADDING],
                 defaults.appLabelIconOverlayTopPadding
@@ -447,6 +481,9 @@ object UiSettingsStore : BaseSettingsStore<Map<String, Any?>>() {
 
             prefs[ICON_PACK_KEY] =
                 getStringStrict(value, ICON_PACK_KEY, "")
+
+            prefs[ICON_PACK_TINT] =
+                getIntStrict(value, ICON_PACK_TINT, 0)
 
 
             prefs[MIN_ANGLE_FROM_A_POINT_TO_ACTIVATE_IT] =

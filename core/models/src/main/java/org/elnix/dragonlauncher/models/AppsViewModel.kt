@@ -71,6 +71,10 @@ class AppsViewModel(
     private val _packIcons = MutableStateFlow<List<String>>(emptyList())
     val packIcons: StateFlow<List<String>> = _packIcons.asStateFlow()
 
+    private val _packTint = MutableStateFlow<Int?>(null)
+    val packTint = _packTint.asStateFlow()
+
+
     private val _icons = MutableStateFlow<Map<String, ImageBitmap>>(emptyMap())
     val icons = _icons.asStateFlow()
 
@@ -151,12 +155,17 @@ class AppsViewModel(
     suspend fun loadAll() {
         loadWorkspaces()
         loadDefaultPoint()
+        val savedPackTint = UiSettingsStore.getIconPackTint(ctx)
+        savedPackTint?.let { tint ->
+            _packTint.value = tint
+        }
 
         val savedPackName = UiSettingsStore.getIconPack(ctx)
         savedPackName?.let { pkg ->
             loadIconsPacks()
             _selectedIconPack.value = _iconPacksList.value.find { it.packageName == pkg }
         }
+
         loadApps()
     }
 
@@ -378,9 +387,11 @@ class AppsViewModel(
     ): Pair<String, ImageBitmap> {
         // blocking I/O & bitmap decoding
 
+        var isIconpack = false
         val packIconName = getCachedIconMapping(app.packageName)
         val drawable =
             packIconName?.let {
+                isIconpack = true
                 loadIconFromPack(
                     selectedIconPack.value?.packageName,
                     it
@@ -389,7 +400,7 @@ class AppsViewModel(
 
 
         val base = loadDrawableAsBitmap(
-            drawable, 128, 128
+            drawable, 128, 128, _packTint.value.takeIf { isIconpack }
         )
 
         if (useOverrides) {
@@ -772,6 +783,12 @@ class AppsViewModel(
     suspend fun setDefaultPoint(point: SwipePointSerializable) {
         _defaultPoint.value = point
         SwipeSettingsStore.setDefaultPoint(ctx, point)
+    }
+
+    suspend fun setIconPackTint(tint: Int?) {
+        UiSettingsStore.setIconPackTint(ctx, tint)
+        _packTint.value = tint
+        reloadApps()
     }
 }
 

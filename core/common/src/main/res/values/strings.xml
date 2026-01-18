@@ -309,4 +309,5 @@
     <string name="inner_padding">Inner Padding</string>
     <string name="plain_color">Plain Color</string>
     <string name="tint">Tint</string>
+    <string name="icon_pack_tint">Icon Pack Tint</string>
 </resources>
