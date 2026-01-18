@@ -307,4 +307,5 @@
     <string name="unselected">Unselected</string>
     <string name="individual_options">Individual Option</string>
     <string name="inner_padding">Inner Padding</string>
+    <string name="plain_color">Plain Color</string>
 </resources>

@@ -15,9 +15,7 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
-import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Check
 import androidx.compose.material.icons.filled.Close
@@ -40,6 +38,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.toArgb
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
@@ -50,16 +49,20 @@ import com.canhub.cropper.CropImageOptions
 import com.canhub.cropper.CropImageView
 import kotlinx.coroutines.launch
 import org.elnix.dragonlauncher.common.R
+import org.elnix.dragonlauncher.common.logging.logD
 import org.elnix.dragonlauncher.common.serializables.CustomIconSerializable
 import org.elnix.dragonlauncher.common.serializables.IconType
 import org.elnix.dragonlauncher.common.serializables.SwipePointSerializable
 import org.elnix.dragonlauncher.common.serializables.defaultSwipePointsValues
+import org.elnix.dragonlauncher.common.utils.ICONS_TAG
 import org.elnix.dragonlauncher.common.utils.ImageUtils
 import org.elnix.dragonlauncher.common.utils.ImageUtils.uriToBase64
 import org.elnix.dragonlauncher.common.utils.colors.adjustBrightness
+import org.elnix.dragonlauncher.common.utils.colors.randomColor
 import org.elnix.dragonlauncher.models.AppsViewModel
 import org.elnix.dragonlauncher.settings.stores.SwipeSettingsStore
 import org.elnix.dragonlauncher.ui.colors.AppObjectsColors
+import org.elnix.dragonlauncher.ui.colors.ColorPickerRow
 import org.elnix.dragonlauncher.ui.components.PointPreviewCanvas
 import org.elnix.dragonlauncher.ui.components.ValidateCancelButtons
 import org.elnix.dragonlauncher.ui.helpers.SliderWithLabel
@@ -140,7 +143,6 @@ fun IconEditorDialog(
             .padding(24.dp),
         onDismissRequest = onDismiss,
         imePadding = false,
-        scroll = false,
         alignment = Alignment.Center,
         title = {
             Row(
@@ -190,47 +192,63 @@ fun IconEditorDialog(
         },
         text = {
             Column(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .height(584.dp)
-                    .verticalScroll(rememberScrollState()),
+                modifier = Modifier.fillMaxWidth(),
                 verticalArrangement = Arrangement.spacedBy(8.dp)
             ) {
                 Row(
-                    horizontalArrangement = Arrangement.Center,
-                    verticalAlignment = Alignment.CenterVertically,
-                    modifier = Modifier.fillMaxWidth()
+                    horizontalArrangement = Arrangement.SpaceEvenly
                 ) {
-                    SelectableCard(
-                        modifier = Modifier.weight(1f),
-                        selected = selectedIcon?.type == IconType.BITMAP && source != null,
-                        onClick = {
-                            imagePicker.launch(arrayOf("image/*"))
-                            textValue = ""
-                        }
+                    Column(
+                        verticalArrangement = Arrangement.spacedBy(5.dp),
+                        modifier = Modifier.fillMaxWidth(0.5f) // Hacky lol
                     ) {
-                        Icon(
-                            imageVector = Icons.Default.Image,
-                            contentDescription = null,
-                            tint = MaterialTheme.colorScheme.onSurface
-                        )
-                        Spacer(Modifier.width(12.dp))
-                        Text(
-                            text = stringResource(R.string.pick_image),
-                            color = MaterialTheme.colorScheme.onSurface
-                        )
+                        SelectableCard(
+                            selected = selectedIcon?.type == IconType.BITMAP && source != null,
+                            onClick = {
+                                imagePicker.launch(arrayOf("image/*"))
+                                textValue = ""
+                            }
+                        ) {
+                            Icon(
+                                imageVector = Icons.Default.Image,
+                                contentDescription = null,
+                                tint = MaterialTheme.colorScheme.onSurface
+                            )
+                            Spacer(Modifier.width(12.dp))
+                            Text(
+                                text = stringResource(R.string.pick_image),
+                                color = MaterialTheme.colorScheme.onSurface
+                            )
+                        }
+
+
+                        SelectableCard(
+                            selected = selectedIcon?.type == IconType.ICON_PACK && source != null,
+                            onClick = {
+                                showIconPackPicker = true
+                                textValue = ""
+                            }
+                        ) {
+                            Icon(
+                                imageVector = Icons.Default.Palette,
+                                contentDescription = null,
+                                tint = MaterialTheme.colorScheme.onSurface
+                            )
+                            Spacer(Modifier.width(12.dp))
+                            Text(
+                                text = stringResource(R.string.pick_from_icon_pack),
+                                color = MaterialTheme.colorScheme.onSurface
+                            )
+                        }
                     }
 
-
-
                     SelectableCard(
-                        modifier = Modifier.weight(1f),
+                        modifier = Modifier.fillMaxWidth(),
                         selected = selectedIcon?.type == IconType.TEXT && source != null,
                         onClick = {}
                     ) {
                         Column(
                             modifier = Modifier
-                                .fillMaxWidth()
                                 .clip(RoundedCornerShape(12.dp))
                                 .background(
                                     MaterialTheme.colorScheme.surface.adjustBrightness(
@@ -270,57 +288,44 @@ fun IconEditorDialog(
                     }
                 }
 
-                Row(
-                    horizontalArrangement = Arrangement.Center,
-                    verticalAlignment = Alignment.CenterVertically,
-                    modifier = Modifier.fillMaxWidth()
+                SelectableCard(
+                    selected = selectedIcon?.type == IconType.PLAIN_COLOR && source != null,
+                    onClick = {}
                 ) {
-                    SelectableCard(
-                        modifier = Modifier.weight(1f),
-                        selected = selectedIcon?.type == IconType.ICON_PACK && source != null,
-                        onClick = {
-                            showIconPackPicker = true
-                            textValue = ""
-                        }
+                    ColorPickerRow(
+                        label = stringResource(R.string.plain_color),
+                        defaultColor = randomColor(),
+                        currentColor = randomColor()
                     ) {
-                        Icon(
-                            imageVector = Icons.Default.Palette,
-                            contentDescription = null,
-                            tint = MaterialTheme.colorScheme.onSurface
-                        )
-                        Spacer(Modifier.width(12.dp))
-                        Text(
-                            text = stringResource(R.string.pick_from_icon_pack),
-                            color = MaterialTheme.colorScheme.onSurface
-                        )
-                    }
-
-
-
-                    SelectableCard(
-                        modifier = Modifier.weight(1f),
-                        selected = selectedIcon?.type == null || selectedIcon?.source == null,
-                        onClick = {
-                            selectedIcon = selectedIcon?.copy(
-                                type = null,
-                                source = null
-                            )
-                            textValue = ""
-                        }
-                    ) {
-                        Icon(
-                            Icons.Default.Close,
-                            null,
-                            tint = MaterialTheme.colorScheme.onSurface
-                        )
-                        Spacer(Modifier.width(12.dp))
-                        Text(
-                            text = stringResource(R.string.no_custom_icon),
-                            color = MaterialTheme.colorScheme.onSurface
+                        logD(ICONS_TAG, "Set color $it")
+                        selectedIcon = (selectedIcon ?: CustomIconSerializable()).copy(
+                            type = IconType.PLAIN_COLOR,
+                            source = it.toArgb().toString()
                         )
                     }
                 }
 
+                SelectableCard(
+                    selected = selectedIcon?.type == null || selectedIcon?.source == null,
+                    onClick = {
+                        selectedIcon = selectedIcon?.copy(
+                            type = null,
+                            source = null
+                        )
+                        textValue = ""
+                    }
+                ) {
+                    Icon(
+                        Icons.Default.Close,
+                        null,
+                        tint = MaterialTheme.colorScheme.onSurface
+                    )
+                    Spacer(Modifier.width(12.dp))
+                    Text(
+                        text = stringResource(R.string.no_custom_icon),
+                        color = MaterialTheme.colorScheme.onSurface
+                    )
+                }
 
 
 
@@ -412,7 +417,7 @@ fun IconEditorDialog(
 
 @Composable
 private fun SelectableCard(
-    modifier: Modifier,
+    modifier: Modifier = Modifier,
     selected: Boolean,
     onClick: () -> Unit,
     content: @Composable RowScope.() -> Unit

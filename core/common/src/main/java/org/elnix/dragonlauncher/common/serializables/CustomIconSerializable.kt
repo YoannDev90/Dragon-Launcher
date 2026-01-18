@@ -74,11 +74,7 @@ data class CustomIconSerializable(
 
     /** Optional blend mode name (renderer-defined, e.g. SRC_IN, MULTIPLY). */
     @SerializedName("p")
-    val blendMode: String? = null,
-
-    /** Whether this icon supports animation (Lottie, animated vector, etc.). */
-    @SerializedName("q")
-    val animated: Boolean? = null
+    val blendMode: String? = null
 )
 
 /**
