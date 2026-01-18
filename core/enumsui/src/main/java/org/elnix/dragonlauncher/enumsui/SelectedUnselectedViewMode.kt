@@ -1,7 +1,6 @@
 package org.elnix.dragonlauncher.enumsui
 
-import androidx.compose.runtime.Composable
-import androidx.compose.ui.res.stringResource
+import android.content.Context
 import org.elnix.dragonlauncher.common.R
 
 enum class SelectedUnselectedViewMode {
@@ -9,12 +8,11 @@ enum class SelectedUnselectedViewMode {
     SELECTED
 }
 
-@Composable
-fun selectedUnselectedViewName(mode: SelectedUnselectedViewMode): String {
+fun selectedUnselectedViewName(ctx: Context, mode: SelectedUnselectedViewMode): String {
     return when(mode) {
         SelectedUnselectedViewMode
-            .SELECTED -> stringResource(R.string.selected)
+            .SELECTED -> ctx.getString(R.string.selected)
         SelectedUnselectedViewMode
-            .UNSELECTED -> stringResource(R.string.unselected)
+            .UNSELECTED -> ctx.getString(R.string.unselected)
     }
 }

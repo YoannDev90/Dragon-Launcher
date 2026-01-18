@@ -1,7 +1,6 @@
 package org.elnix.dragonlauncher.enumsui
 
-import androidx.compose.runtime.Composable
-import androidx.compose.ui.res.stringResource
+import android.content.Context
 import org.elnix.dragonlauncher.common.R
 
 enum class WorkspaceViewMode {
@@ -10,11 +9,10 @@ enum class WorkspaceViewMode {
     REMOVED
 }
 
-@Composable
-fun workspaceViewMode(mode: WorkspaceViewMode): String {
+fun workspaceViewMode(ctx: Context, mode: WorkspaceViewMode): String {
     return when(mode) {
-        WorkspaceViewMode.DEFAULTS -> stringResource(R.string.workspace_defaults)
-        WorkspaceViewMode.ADDED -> stringResource(R.string.workspace_added)
-        WorkspaceViewMode.REMOVED -> stringResource(R.string.workspace_removed)
+        WorkspaceViewMode.DEFAULTS -> ctx.getString(R.string.workspace_defaults)
+        WorkspaceViewMode.ADDED -> ctx.getString(R.string.workspace_added)
+        WorkspaceViewMode.REMOVED -> ctx.getString(R.string.workspace_removed)
     }
 }

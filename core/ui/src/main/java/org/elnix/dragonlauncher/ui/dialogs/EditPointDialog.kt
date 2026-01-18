@@ -12,7 +12,6 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Edit
@@ -38,7 +37,6 @@ import androidx.compose.ui.graphics.toArgb
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import org.elnix.dragonlauncher.common.R
@@ -58,6 +56,7 @@ import org.elnix.dragonlauncher.ui.colors.AppObjectsColors
 import org.elnix.dragonlauncher.ui.colors.ColorPickerRow
 import org.elnix.dragonlauncher.ui.components.PointPreviewCanvas
 import org.elnix.dragonlauncher.ui.components.ValidateCancelButtons
+import org.elnix.dragonlauncher.ui.helpers.ActionRow
 import org.elnix.dragonlauncher.ui.helpers.SliderWithLabel
 import org.elnix.dragonlauncher.ui.helpers.TextDivider
 import org.elnix.dragonlauncher.ui.theme.LocalExtraColors
@@ -400,32 +399,12 @@ fun EditPointDialog(
                     )
                 }
                 item {
-                    Row(
-                        Modifier
-                            .fillMaxWidth()
-                            .clip(CircleShape),
-                        horizontalArrangement = Arrangement.SpaceEvenly
-                    ) {
-                        SelectedUnselectedViewMode.entries.forEach { mode ->
-                            val isSelected = mode == selectedView
-                            Text(
-                                text = selectedUnselectedViewName(mode),
-                                modifier = Modifier
-                                    .weight(1f)
-                                    .clip(RoundedCornerShape(12.dp))
-                                    .clickable { selectedView = mode }
-                                    .background(
-                                        if (isSelected) MaterialTheme.colorScheme.secondary
-                                        else backgroundSurfaceColor
-                                    )
-                                    .padding(12.dp),
-                                color = if (isSelected) MaterialTheme.colorScheme.onSecondary
-                                else MaterialTheme.colorScheme.onSurface,
-                                style = MaterialTheme.typography.bodyMedium,
-                                textAlign = TextAlign.Center
-                            )
-                        }
-                    }
+                    ActionRow(
+                        actions = SelectedUnselectedViewMode.entries,
+                        selectedView = selectedView,
+                        actionName = { selectedUnselectedViewName(ctx, it) },
+                        backgroundColor = backgroundSurfaceColor
+                    ) { selectedView = it }
                 }
 
                 if (selectedView == SelectedUnselectedViewMode.UNSELECTED) {

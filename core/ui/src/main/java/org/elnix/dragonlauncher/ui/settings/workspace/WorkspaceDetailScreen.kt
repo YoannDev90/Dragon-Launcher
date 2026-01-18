@@ -41,7 +41,9 @@ import org.elnix.dragonlauncher.common.R
 import org.elnix.dragonlauncher.common.serializables.AppModel
 import org.elnix.dragonlauncher.common.serializables.SwipeActionSerializable
 import org.elnix.dragonlauncher.common.serializables.dummySwipePoint
+import org.elnix.dragonlauncher.enumsui.SelectedUnselectedViewMode
 import org.elnix.dragonlauncher.enumsui.WorkspaceViewMode
+import org.elnix.dragonlauncher.enumsui.selectedUnselectedViewName
 import org.elnix.dragonlauncher.enumsui.workspaceViewMode
 import org.elnix.dragonlauncher.models.AppsViewModel
 import org.elnix.dragonlauncher.settings.stores.DebugSettingsStore
@@ -50,6 +52,7 @@ import org.elnix.dragonlauncher.ui.dialogs.AppLongPressDialog
 import org.elnix.dragonlauncher.ui.dialogs.AppPickerDialog
 import org.elnix.dragonlauncher.ui.dialogs.IconEditorDialog
 import org.elnix.dragonlauncher.ui.dialogs.RenameAppDialog
+import org.elnix.dragonlauncher.ui.helpers.ActionRow
 import org.elnix.dragonlauncher.ui.helpers.AppGrid
 import org.elnix.dragonlauncher.ui.helpers.settings.SettingsLazyHeader
 
@@ -105,30 +108,13 @@ fun WorkspaceDetailScreen(
             resetText = stringResource(R.string.reset_this_workspace_to_default_apps),
             content = {
 
-                Row(
-                    Modifier.fillMaxWidth(),
-                    horizontalArrangement = Arrangement.SpaceEvenly
-                ) {
-                    WorkspaceViewMode.entries.forEach { mode ->
-                        val isSelected = mode == selectedView
-                        Text(
-                            text = workspaceViewMode(mode),
-                            modifier = Modifier
-                                .weight(1f)
-                                .clip(RoundedCornerShape(10.dp))
-                                .clickable { selectedView = mode }
-                                .background(
-                                    if (isSelected) MaterialTheme.colorScheme.secondary
-                                    else MaterialTheme.colorScheme.surface
-                                )
-                                .padding(12.dp),
-                            color = if (isSelected) MaterialTheme.colorScheme.onSecondary
-                                    else MaterialTheme.colorScheme.onSurface,
-                            style = MaterialTheme.typography.bodyMedium,
-                            textAlign = TextAlign.Center
-                        )
-                    }
-                }
+
+                ActionRow(
+                    actions = WorkspaceViewMode.entries,
+                    selectedView = selectedView,
+                    actionName = { workspaceViewMode(ctx, it) },
+                    backgroundColor = MaterialTheme.colorScheme.surface
+                ) { selectedView = it }
 
                 AppGrid(
                     apps = apps,
