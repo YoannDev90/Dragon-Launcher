@@ -257,7 +257,7 @@
     <string name="opacity">Opazitätsprozent</string>
     <string name="custom_name">Benutzerdefinierter Name</string>
     <string name="edit_action">Bearbeitungsaktion</string>
-    <string name="border_background_selected">Ausgewählter Grenz-Hintergrund</string>
+    <string name="background_selected">Ausgewählter Grenz-Hintergrund</string>
     <string name="custom_action_color">Benutzerdefinierte Aktionsfarbe</string>
     <string name="icon_editor">Icon-Editor</string>
     <string name="pick_image">Bild auswählen</string>

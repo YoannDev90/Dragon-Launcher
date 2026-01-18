@@ -38,21 +38,20 @@ import androidx.compose.ui.unit.dp
 import androidx.core.net.toUri
 import kotlinx.coroutines.launch
 import org.elnix.dragonlauncher.common.R
+import org.elnix.dragonlauncher.common.serializables.AppModel
 import org.elnix.dragonlauncher.common.serializables.SwipeActionSerializable
 import org.elnix.dragonlauncher.common.serializables.dummySwipePoint
+import org.elnix.dragonlauncher.enumsui.WorkspaceViewMode
+import org.elnix.dragonlauncher.enumsui.workspaceViewMode
+import org.elnix.dragonlauncher.models.AppsViewModel
 import org.elnix.dragonlauncher.settings.stores.DebugSettingsStore
+import org.elnix.dragonlauncher.ui.actions.launchSwipeAction
 import org.elnix.dragonlauncher.ui.dialogs.AppLongPressDialog
 import org.elnix.dragonlauncher.ui.dialogs.AppPickerDialog
 import org.elnix.dragonlauncher.ui.dialogs.IconEditorDialog
 import org.elnix.dragonlauncher.ui.dialogs.RenameAppDialog
-import org.elnix.dragonlauncher.common.serializables.AppModel
 import org.elnix.dragonlauncher.ui.helpers.AppGrid
 import org.elnix.dragonlauncher.ui.helpers.settings.SettingsLazyHeader
-import org.elnix.dragonlauncher.enumsui.WorkspaceViewMode
-import org.elnix.dragonlauncher.enumsui.workspaceViewMode
-import org.elnix.dragonlauncher.models.AppsViewModel
-import org.elnix.dragonlauncher.ui.actions.launchSwipeAction
-import kotlin.collections.get
 
 @Composable
 fun WorkspaceDetailScreen(

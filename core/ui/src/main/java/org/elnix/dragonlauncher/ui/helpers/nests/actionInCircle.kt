@@ -33,6 +33,7 @@ fun DrawScope.actionsInCircle(
     surfaceColorDraw: Color,
     extraColors: ExtraColors,
     pointIcons: Map<String, ImageBitmap>,
+    defaultPoint: SwipePointSerializable,
     deepNest: Int,
     preventBgErasing: Boolean = false
 ) {
@@ -48,27 +49,30 @@ fun DrawScope.actionsInCircle(
     val intSize = IntSize(iconSize, iconSize)
 
     val borderColor = if (selected) {
-        point.borderColorSelected?.let { Color(it) }
+        point.borderColorSelected?.let { Color(it) } ?: defaultPoint.borderColorSelected?.let { Color(it) }
     } else {
-        point.borderColor?.let { Color(it) }
+        point.borderColor?.let { Color(it) } ?: defaultPoint.borderColor?.let { Color(it) }
     } ?: circleColor
 
     val borderStroke = if (selected) {
-        point.borderStrokeSelected ?: 8f
+        point.borderStrokeSelected ?: defaultPoint.borderStrokeSelected ?: 8f
     } else {
-        point.borderStroke ?: 4f
+        point.borderStroke ?: defaultPoint.borderStroke ?: 4f
     }
 
 
     val backgroundColor = if (selected) {
-        point.backgroundColorSelected?.let { Color(it) }
+        point.backgroundColorSelected?.let { Color(it) } ?: defaultPoint.backgroundColorSelected?.let { Color(it) }
     } else {
-        point.backgroundColor?.let { Color(it) }
+        point.backgroundColor?.let { Color(it) } ?: defaultPoint.backgroundColor?.let { Color(it) }
     } ?: if (preventBgErasing) {
         surfaceColorDraw
     } else {
         Color.Transparent
     }
+
+    // if in the settings, set the alpha
+//    if (preventBgErasing) backgroundColor = backgroundColor.copy(1f)
 
     if (action !is SwipeActionSerializable.OpenCircleNest) {
         // if no background color provided, erases the background
@@ -139,6 +143,7 @@ fun DrawScope.actionsInCircle(
                 circleColor = circleColor,
                 center = center,
                 points = points,
+                defaultPoint = defaultPoint,
                 selectedPoint = point,
                 backgroundColor = backgroundColor,
                 nests = nests,

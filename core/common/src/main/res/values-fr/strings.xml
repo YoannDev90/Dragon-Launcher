@@ -257,7 +257,7 @@
     <string name="opacity">Opacité %</string>
     <string name="custom_name">Nom personnalisé</string>
     <string name="edit_action">Editer l\'action</string>
-    <string name="border_background_selected">Bordure d\'arrière plan sélectionnée</string>
+    <string name="background_selected">Couleur d\'arrière plan sélectionnée</string>
     <string name="custom_action_color">Personnaliser la couleur de l\'action</string>
     <string name="icon_editor">Éditeur d’icônes</string>
     <string name="pick_image">Sélectionner une image</string>

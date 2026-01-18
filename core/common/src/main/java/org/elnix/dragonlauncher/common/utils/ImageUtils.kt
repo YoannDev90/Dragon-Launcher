@@ -187,7 +187,7 @@ object ImageUtils {
         return bitmap.asImageBitmap()
     }
 
-    private fun tintBitmap(original: ImageBitmap, color: Color): ImageBitmap {
+    fun tintBitmap(original: ImageBitmap, color: Color): ImageBitmap {
         val bitmap = createBitmap(original.width, original.height)
         val canvas = Canvas(bitmap)
         val paint = Paint().apply {

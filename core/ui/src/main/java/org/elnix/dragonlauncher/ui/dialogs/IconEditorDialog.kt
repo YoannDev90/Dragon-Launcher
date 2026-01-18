@@ -4,7 +4,6 @@ package org.elnix.dragonlauncher.ui.dialogs
 
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
-import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
@@ -41,7 +40,6 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.geometry.center
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
@@ -55,15 +53,16 @@ import org.elnix.dragonlauncher.common.R
 import org.elnix.dragonlauncher.common.serializables.CustomIconSerializable
 import org.elnix.dragonlauncher.common.serializables.IconType
 import org.elnix.dragonlauncher.common.serializables.SwipePointSerializable
+import org.elnix.dragonlauncher.common.serializables.defaultSwipePointsValues
 import org.elnix.dragonlauncher.common.utils.ImageUtils
 import org.elnix.dragonlauncher.common.utils.ImageUtils.uriToBase64
 import org.elnix.dragonlauncher.common.utils.colors.adjustBrightness
 import org.elnix.dragonlauncher.models.AppsViewModel
 import org.elnix.dragonlauncher.settings.stores.SwipeSettingsStore
 import org.elnix.dragonlauncher.ui.colors.AppObjectsColors
+import org.elnix.dragonlauncher.ui.components.PointPreviewCanvas
 import org.elnix.dragonlauncher.ui.components.ValidateCancelButtons
 import org.elnix.dragonlauncher.ui.helpers.SliderWithLabel
-import org.elnix.dragonlauncher.ui.helpers.nests.actionsInCircle
 import org.elnix.dragonlauncher.ui.theme.LocalExtraColors
 
 @Composable
@@ -84,6 +83,8 @@ fun IconEditorDialog(
 
     val circleColor = LocalExtraColors.current.circle
     val backgroundColor = MaterialTheme.colorScheme.surface
+
+    val defaultPoint by appsViewModel.defaultPoint.collectAsState(defaultSwipePointsValues)
 
     var selectedIcon by remember { mutableStateOf(point.customIcon) }
     var textValue by remember { mutableStateOf("") }
@@ -153,45 +154,19 @@ fun IconEditorDialog(
                     style = MaterialTheme.typography.titleLarge
                 )
 
-                Canvas(
-                    modifier = Modifier
-                        .width(50.dp)
-                ) {
-                    val center = size.center
-                    val actionSpacing = 150f
+                PointPreviewCanvas(
+                    previewPoint,
+                    nests,
+                    points,
+                    defaultPoint,
+                    ctx,
+                    circleColor,
+                    backgroundColor,
+                    extraColors,
+                    previewIcon,
+                    modifier = Modifier.weight(1f)
+                )
 
-                    // Left action
-                    actionsInCircle(
-                        selected = false,
-                        point = previewPoint,
-                        points = points,
-                        nests = nests,
-                        center = center.copy(x = center.x - actionSpacing),
-                        ctx = ctx,
-                        circleColor = circleColor,
-                        surfaceColorDraw = backgroundColor,
-                        extraColors = extraColors,
-                        pointIcons = previewIcon,
-                        preventBgErasing = true,
-                        deepNest = 1
-                    )
-
-                    // Right action
-                    actionsInCircle(
-                        selected = true,
-                        point = previewPoint,
-                        points = points,
-                        nests = nests,
-                        center = center.copy(x = center.x + actionSpacing),
-                        ctx = ctx,
-                        circleColor = circleColor,
-                        surfaceColorDraw = backgroundColor,
-                        extraColors = extraColors,
-                        pointIcons = previewIcon,
-                        preventBgErasing = true,
-                        deepNest = 1
-                    )
-                }
 
                 IconButton(
                     onClick = {

@@ -3,16 +3,17 @@ package org.elnix.dragonlauncher.settings.stores
 import android.content.Context
 import androidx.datastore.preferences.core.edit
 import androidx.datastore.preferences.core.stringPreferencesKey
+import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.map
 import org.elnix.dragonlauncher.common.serializables.CircleNest
 import org.elnix.dragonlauncher.common.serializables.SwipeJson
 import org.elnix.dragonlauncher.common.serializables.SwipePointSerializable
+import org.elnix.dragonlauncher.common.serializables.defaultSwipePointsValues
 import org.elnix.dragonlauncher.settings.BaseSettingsStore
 import org.elnix.dragonlauncher.settings.swipeDataStore
 import org.json.JSONArray
 import org.json.JSONObject
-import kotlin.collections.isNotEmpty
 
 object SwipeSettingsStore : BaseSettingsStore<JSONObject>() {
 
@@ -21,7 +22,9 @@ object SwipeSettingsStore : BaseSettingsStore<JSONObject>() {
     private val POINTS = stringPreferencesKey("points_json")
     private val CIRCLE_NESTS = stringPreferencesKey("nests_json")
 
-    /* ---------- Points ---------- */
+    private val DEFAULT_CIRCLE = stringPreferencesKey("default_circle")
+
+    /* ───────────── Points ───────────── */
 
     suspend fun getPoints(ctx: Context): List<SwipePointSerializable> =
         ctx.swipeDataStore.data
@@ -39,7 +42,7 @@ object SwipeSettingsStore : BaseSettingsStore<JSONObject>() {
         }
     }
 
-    /* ---------- Nests ---------- */
+    /* ───────────── Nests ───────────── */
 
     suspend fun getNests(ctx: Context): List<CircleNest> =
         ctx.swipeDataStore.data
@@ -57,18 +60,41 @@ object SwipeSettingsStore : BaseSettingsStore<JSONObject>() {
         }
     }
 
-    /* ---------- Reset ---------- */
+
+    /* ───────────── Default circle ───────────── */
+
+    fun getDefaultPointFlow(ctx: Context): Flow<SwipePointSerializable> =
+        ctx.swipeDataStore.data.map { prefs ->
+            prefs[DEFAULT_CIRCLE]?.let { SwipeJson.decodePoints(it).first() } ?: defaultSwipePointsValues
+        }
+
+    suspend fun getDefaultPoint(ctx: Context): SwipePointSerializable =
+        ctx.swipeDataStore.data.map { prefs ->
+            prefs[DEFAULT_CIRCLE]?.let { SwipeJson.decodePoints(it).first() } ?: defaultSwipePointsValues
+        }.first()
+
+    suspend fun setDefaultPoint(ctx: Context, point: SwipePointSerializable) {
+        ctx.swipeDataStore.edit { prefs ->
+            prefs[DEFAULT_CIRCLE] = SwipeJson.encodePoints(listOf(point))
+        }
+    }
+
+
+
+    /* ───────────── Reset ───────────── */
 
     override suspend fun resetAll(ctx: Context) {
         ctx.swipeDataStore.edit { prefs ->
             prefs.remove(POINTS)
             prefs.remove(CIRCLE_NESTS)
+            prefs.remove(DEFAULT_CIRCLE)
         }
     }
 
     override suspend fun getAll(ctx: Context): JSONObject {
         val points = getPoints(ctx)
         val nests = getNests(ctx)
+        val defaultPoint = getDefaultPointFlow(ctx).first()
 
         if (points.isEmpty() && nests.isEmpty()) return JSONObject()
 
@@ -78,6 +104,9 @@ object SwipeSettingsStore : BaseSettingsStore<JSONObject>() {
             }
             if (nests.isNotEmpty()) {
                 put("nests", JSONArray(SwipeJson.encodeNestsPretty(nests)))
+            }
+            if (points.isNotEmpty()) {
+                put("default_point", JSONArray(SwipeJson.encodePointsPretty(listOf(defaultPoint))))
             }
         }
     }
@@ -90,6 +119,9 @@ object SwipeSettingsStore : BaseSettingsStore<JSONObject>() {
             }
             value.optJSONArray("nests")?.let {
                 saveNests(ctx, SwipeJson.decodeNests(it.toString()))
+            }
+            value.optJSONArray("default_point")?.let {
+                setDefaultPoint(ctx, SwipeJson.decodePoints(it.toString()).first())
             }
             return
         }

@@ -257,7 +257,7 @@
     <string name="opacity">Opacity %</string>
     <string name="custom_name">Custom name</string>
     <string name="edit_action">Edit Action</string>
-    <string name="border_background_selected">Border Background Selected</string>
+    <string name="background_selected">Background Selected</string>
     <string name="custom_action_color">Custom Action Color</string>
     <string name="icon_editor">Icon Editor</string>
     <string name="pick_image">Pick image</string>
@@ -301,4 +301,6 @@
     <string name="pick_a_nest">Pick A Nest</string>
     <string name="create_new_nest">Create New Nest</string>
     <string name="copy_id">Copy Id</string>
+    <string name="edit_default_point_settings">Edit default points settings</string>
+    <string name="open_burger_menu">Open Burger Menu</string>
 </resources>

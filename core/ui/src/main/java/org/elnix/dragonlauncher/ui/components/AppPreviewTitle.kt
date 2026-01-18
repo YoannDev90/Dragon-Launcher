@@ -14,15 +14,17 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.ColorFilter
 import androidx.compose.ui.graphics.ImageBitmap
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import org.elnix.dragonlauncher.common.serializables.SwipeActionSerializable
 import org.elnix.dragonlauncher.common.serializables.SwipePointSerializable
-import org.elnix.dragonlauncher.ui.theme.LocalExtraColors
 import org.elnix.dragonlauncher.ui.actions.actionColor
 import org.elnix.dragonlauncher.ui.actions.actionLabel
+import org.elnix.dragonlauncher.ui.theme.LocalExtraColors
 
 @Composable
 fun AppPreviewTitle(
@@ -55,15 +57,22 @@ fun AppPreviewTitle(
                 horizontalArrangement = Arrangement.spacedBy(5.dp),
                 verticalAlignment = Alignment.CenterVertically,
             ) {
-                if (showIcon) {
-                    pointIcons[point.id]?.let {
-                        Image(
-                            bitmap = it,
-                            contentDescription = null,
-                            modifier = Modifier.size(iconSize.dp)
-                        )
-                    }
+
+                val colorAction = actionColor(action, extraColors, point.customActionColor?.let { Color(it) })
+                pointIcons[point.id]?.let {
+                    Image(
+                        bitmap = it,
+                        contentDescription = null,
+                        colorFilter = if (
+                            action !is SwipeActionSerializable.LaunchApp &&
+                            action !is SwipeActionSerializable.LaunchShortcut &&
+                            action !is SwipeActionSerializable.OpenDragonLauncherSettings
+                        ) ColorFilter.tint(colorAction)
+                        else null,
+                        modifier = Modifier.size(iconSize.dp)
+                    )
                 }
+
                 if (showLabel) {
                     Text(
                         text = label,

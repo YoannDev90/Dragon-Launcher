@@ -257,7 +257,7 @@
     <string name="opacity">Opacidade %</string>
     <string name="custom_name">Nome personalizado</string>
     <string name="edit_action">Ação de Edição</string>
-    <string name="border_background_selected">Histórico da Fronteira Selecionado</string>
+    <string name="background_selected">Histórico da Fronteira Selecionado</string>
     <string name="custom_action_color">Cor de Ação Personalizada</string>
     <string name="icon_editor">Editor de ícones</string>
     <string name="pick_image">Escolha da imagem</string>

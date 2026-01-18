@@ -36,6 +36,7 @@ import org.elnix.dragonlauncher.common.serializables.SwipePointSerializable
 import org.elnix.dragonlauncher.common.serializables.Workspace
 import org.elnix.dragonlauncher.common.serializables.WorkspaceState
 import org.elnix.dragonlauncher.common.serializables.WorkspaceType
+import org.elnix.dragonlauncher.common.serializables.defaultSwipePointsValues
 import org.elnix.dragonlauncher.common.serializables.defaultWorkspaces
 import org.elnix.dragonlauncher.common.serializables.dummySwipePoint
 import org.elnix.dragonlauncher.common.serializables.resolveApp
@@ -76,6 +77,9 @@ class AppsViewModel(
     private val _pointIcons = MutableStateFlow<Map<String, ImageBitmap>>(emptyMap())
     val pointIcons = _pointIcons.asStateFlow()
 
+
+    private val _defaultPoint = MutableStateFlow(defaultSwipePointsValues)
+    val defaultPoint = _defaultPoint.asStateFlow()
 
     // Only used for preview, the real user apps getter are using the appsForWorkspace function
     val userApps: StateFlow<List<AppModel>> = _apps.map { list ->
@@ -138,6 +142,7 @@ class AppsViewModel(
     init {
         scope.launch {
             loadWorkspaces()
+            loadDefaultPoint()
 
             val savedPackName = UiSettingsStore.getIconPack(ctx)
             savedPackName?.let { pkg ->
@@ -752,6 +757,15 @@ class AppsViewModel(
             appOverrides = emptyMap()
         )
         persist()
+    }
+
+    suspend fun loadDefaultPoint() {
+        _defaultPoint.value = SwipeSettingsStore.getDefaultPoint(ctx)
+    }
+
+    suspend fun setDefaultPoint(point: SwipePointSerializable) {
+        _defaultPoint.value = point
+        SwipeSettingsStore.setDefaultPoint(ctx, point)
     }
 }
 

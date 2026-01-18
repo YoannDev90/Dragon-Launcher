@@ -257,7 +257,7 @@
     <string name="opacity">अस्पष्टता %</string>
     <string name="custom_name">कस्टम नाम</string>
     <string name="edit_action">कार्रवाई संपादित करें</string>
-    <string name="border_background_selected">बॉर्डर पृष्ठभूमि चयनित</string>
+    <string name="background_selected">बॉर्डर पृष्ठभूमि चयनित</string>
     <string name="custom_action_color">कस्टम एक्शन रंग</string>
     <string name="icon_editor">आइकन संपादक</string>
     <string name="pick_image">छवि चुनें</string>

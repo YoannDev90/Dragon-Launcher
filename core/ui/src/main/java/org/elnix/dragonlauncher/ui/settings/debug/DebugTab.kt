@@ -1,3 +1,5 @@
+@file:Suppress("AssignedValueIsNeverRead")
+
 package org.elnix.dragonlauncher.ui.settings.debug
 
 import android.os.Build
@@ -35,23 +37,23 @@ import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
 import kotlinx.coroutines.launch
 import org.elnix.dragonlauncher.common.R
-import org.elnix.dragonlauncher.settings.DataStoreName
+import org.elnix.dragonlauncher.common.logging.logD
 import org.elnix.dragonlauncher.common.serializables.dummySwipePoint
+import org.elnix.dragonlauncher.common.utils.SETTINGS
+import org.elnix.dragonlauncher.common.utils.detectSystemLauncher
+import org.elnix.dragonlauncher.models.AppsViewModel
+import org.elnix.dragonlauncher.services.SystemControl
+import org.elnix.dragonlauncher.services.SystemControl.activateDeviceAdmin
+import org.elnix.dragonlauncher.services.SystemControl.isDeviceAdminActive
+import org.elnix.dragonlauncher.settings.DataStoreName
 import org.elnix.dragonlauncher.settings.stores.DebugSettingsStore
 import org.elnix.dragonlauncher.settings.stores.PrivateSettingsStore
+import org.elnix.dragonlauncher.ui.colors.AppObjectsColors
 import org.elnix.dragonlauncher.ui.dialogs.IconEditorDialog
 import org.elnix.dragonlauncher.ui.helpers.SwitchRow
 import org.elnix.dragonlauncher.ui.helpers.TextDivider
 import org.elnix.dragonlauncher.ui.helpers.settings.SettingsItem
 import org.elnix.dragonlauncher.ui.helpers.settings.SettingsLazyHeader
-import org.elnix.dragonlauncher.common.utils.detectSystemLauncher
-import org.elnix.dragonlauncher.common.logging.logD
-import org.elnix.dragonlauncher.common.utils.SETTINGS
-import org.elnix.dragonlauncher.models.AppsViewModel
-import org.elnix.dragonlauncher.services.SystemControl
-import org.elnix.dragonlauncher.services.SystemControl.activateDeviceAdmin
-import org.elnix.dragonlauncher.services.SystemControl.isDeviceAdminActive
-import org.elnix.dragonlauncher.ui.colors.AppObjectsColors
 
 @Composable
 fun DebugTab(
@@ -104,7 +106,7 @@ fun DebugTab(
 
     var showEditAppOverrides by remember { mutableStateOf(false) }
 
-    val userApps by appsViewModel.userApps.collectAsState()
+//    val userApps by appsViewModel.userApps.collectAsState()
 
 
     SettingsLazyHeader(
@@ -447,6 +449,7 @@ fun DebugTab(
             appsViewModel.applyIconToApps(
                 icon = newIcon
             )
+            showEditAppOverrides = false
         }
     }
 }

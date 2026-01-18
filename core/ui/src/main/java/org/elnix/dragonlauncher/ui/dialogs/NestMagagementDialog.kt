@@ -46,6 +46,7 @@ import org.elnix.dragonlauncher.common.R
 import org.elnix.dragonlauncher.common.serializables.CircleNest
 import org.elnix.dragonlauncher.common.serializables.SwipeActionSerializable
 import org.elnix.dragonlauncher.common.serializables.SwipePointSerializable
+import org.elnix.dragonlauncher.common.serializables.defaultSwipePointsValues
 import org.elnix.dragonlauncher.common.theme.AmoledDefault
 import org.elnix.dragonlauncher.common.utils.colors.adjustBrightness
 import org.elnix.dragonlauncher.common.utils.copyToClipboard
@@ -75,6 +76,7 @@ fun NestManagementDialog(
         .collectAsState(initial = AmoledDefault.CircleColor)
 
     val pointIcons by appsViewModel.pointIcons.collectAsState()
+    val defaultPoint by appsViewModel.defaultPoint.collectAsState(defaultSwipePointsValues)
 
 
     CustomAlertDialog(
@@ -126,6 +128,7 @@ fun NestManagementDialog(
                         nest = nest,
                         nests = nests,
                         points = points,
+                        defaultPoint = defaultPoint,
                         circleColor = circleColor,
                         pointIcons = pointIcons,
                         canCopyId = canCopyId,
@@ -146,6 +149,7 @@ private fun NestManagementItem(
     nest: CircleNest,
     nests: List<CircleNest>,
     points: List<SwipePointSerializable>,
+    defaultPoint: SwipePointSerializable,
     circleColor: Color,
     pointIcons: Map<String, ImageBitmap>,
     canCopyId: Boolean,
@@ -187,6 +191,7 @@ private fun NestManagementItem(
             actionsInCircle(
                 selected = false,
                 point = editPoint,
+                defaultPoint = defaultPoint,
                 nests = nests,
                 points = points,
                 center = center,

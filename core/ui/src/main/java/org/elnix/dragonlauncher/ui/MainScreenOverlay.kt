@@ -63,6 +63,7 @@ fun MainScreenOverlay(
     isDragging: Boolean,
     surface: IntSize,
     points: List<SwipePointSerializable>,
+    defaultPoint: SwipePointSerializable,
     pointIcons: Map<String, ImageBitmap>,
     nests: List<CircleNest>,
     onLaunch: (SwipePointSerializable?) -> Unit
@@ -422,6 +423,7 @@ fun MainScreenOverlay(
                                     surfaceColorDraw = Color.Unspecified,
                                     extraColors = extraColors,
                                     pointIcons = pointIcons,
+                                    defaultPoint = defaultPoint,
                                     deepNest = 1
                                 )
                             }
@@ -440,6 +442,7 @@ fun MainScreenOverlay(
                                 surfaceColorDraw = Color.Unspecified,
                                 extraColors = extraColors,
                                 pointIcons = pointIcons,
+                                defaultPoint = defaultPoint,
                                 deepNest = 1
                             )
                         }
@@ -462,6 +465,7 @@ fun MainScreenOverlay(
                         surfaceColorDraw = Color.Unspecified,
                         extraColors = extraColors,
                         pointIcons = pointIcons,
+                        defaultPoint = defaultPoint,
                         deepNest = 1
                     )
                 }

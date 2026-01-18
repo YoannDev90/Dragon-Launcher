@@ -41,6 +41,7 @@ import org.elnix.dragonlauncher.common.FloatingAppObject
 import org.elnix.dragonlauncher.common.R
 import org.elnix.dragonlauncher.common.logging.logE
 import org.elnix.dragonlauncher.common.serializables.SwipePointSerializable
+import org.elnix.dragonlauncher.common.serializables.defaultSwipePointsValues
 import org.elnix.dragonlauncher.common.serializables.dummySwipePoint
 import org.elnix.dragonlauncher.common.utils.TAG
 import org.elnix.dragonlauncher.common.utils.WIDGET_TAG
@@ -85,6 +86,8 @@ fun MainScreen(
     var lastClickTime by remember { mutableLongStateOf(0L) }
 
     val floatingAppObjects by floatingAppsViewModel.floatingApps.collectAsState()
+    val defaultPoint by appsViewModel.defaultPoint.collectAsState(defaultSwipePointsValues)
+
 
     LaunchedEffect(floatingAppObjects) {
         logE(WIDGET_TAG, floatingAppObjects.toString())
@@ -361,6 +364,7 @@ fun MainScreen(
             isDragging = isDragging,
             surface = size,
             points = points,
+            defaultPoint = defaultPoint,
             pointIcons = pointIcons,
             nests = nests,
             onLaunch = { launchAction(it) }

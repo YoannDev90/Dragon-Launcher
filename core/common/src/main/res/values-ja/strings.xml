@@ -257,7 +257,7 @@
     <string name="opacity">不透明度%</string>
     <string name="custom_name">カスタム名称</string>
     <string name="edit_action">編集アクション</string>
-    <string name="border_background_selected">ボーダーバックグラウンド選択</string>
+    <string name="background_selected">ボーダーバックグラウンド選択</string>
     <string name="custom_action_color">カスタムアクションカラー</string>
     <string name="icon_editor">アイコンエディター</string>
     <string name="pick_image">画像を選んでください</string>

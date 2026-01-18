@@ -6,6 +6,7 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -17,6 +18,8 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.Shape
+import androidx.compose.ui.platform.LocalConfiguration
+import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 
 
@@ -33,8 +36,13 @@ fun CustomAlertDialog(
     containerColor: Color= MaterialTheme.colorScheme.surface,
     imePadding: Boolean = true,
     scroll: Boolean = true,
+    height: Dp = 400.dp,
     alignment: Alignment = Alignment.BottomCenter
 ) {
+
+    val maxDialogHeight = LocalConfiguration.current.screenHeightDp.dp * 0.9f
+
+
     FullScreenOverlay(
         onDismissRequest = onDismissRequest,
         imePadding = imePadding,
@@ -43,6 +51,7 @@ fun CustomAlertDialog(
         Column(
             modifier = modifier
                 .fillMaxWidth()
+                .heightIn(max = maxDialogHeight)
                 .clip(shape)
                 .background(containerColor)
                 .padding(top = 15.dp),
@@ -63,6 +72,8 @@ fun CustomAlertDialog(
             Box(
                 Modifier
                     .padding(horizontal = 15.dp)
+                    .weight(1f, fill = false)
+                    .heightIn(max = height)
                     .then(
                         if (scroll) {
                             Modifier.verticalScroll(rememberScrollState())

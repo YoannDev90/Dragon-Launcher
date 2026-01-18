@@ -7,7 +7,6 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.ImageBitmap
 import androidx.compose.ui.graphics.drawscope.DrawScope
 import androidx.compose.ui.graphics.drawscope.Stroke
-import androidx.compose.ui.graphics.toArgb
 import org.elnix.dragonlauncher.common.serializables.CircleNest
 import org.elnix.dragonlauncher.common.serializables.SwipePointSerializable
 import org.elnix.dragonlauncher.common.utils.UiCircle
@@ -20,6 +19,7 @@ fun DrawScope.circlesSettingsOverlay(
     circleColor: Color,
     center: Offset,
     points: List<SwipePointSerializable>,
+    defaultPoint: SwipePointSerializable,
     selectedPoint: SwipePointSerializable?,
     backgroundColor: Color,
     nests: List<CircleNest>,
@@ -53,15 +53,10 @@ fun DrawScope.circlesSettingsOverlay(
                     y = center.y - circle.radius * cos(Math.toRadians(p.angleDeg)).toFloat()
                 )
 
-                val displayPoint = p.copy(
-                    backgroundColor = p.backgroundColor ?: backgroundColor.toArgb(),
-                    backgroundColorSelected = p.backgroundColorSelected
-                        ?: backgroundColor.toArgb(),
-                )
 
                 actionsInCircle(
                     selected = selectedAll || (p.id == selectedPoint?.id),
-                    point = displayPoint,
+                    point = p,
                     nests = nests,
                     points = points,
                     center = newCenter,
@@ -70,6 +65,7 @@ fun DrawScope.circlesSettingsOverlay(
                     surfaceColorDraw = backgroundColor,
                     extraColors = extraColors,
                     pointIcons = pointIcons,
+                    defaultPoint = defaultPoint,
                     deepNest = deepNest,
                     preventBgErasing = preventBgErasing
                 )

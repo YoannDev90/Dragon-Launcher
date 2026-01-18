@@ -21,7 +21,7 @@ fun actionColor(
             is SwipeActionSerializable.OpenFile -> extra.openFile
             is SwipeActionSerializable.ReloadApps -> extra.reload
             SwipeActionSerializable.OpenRecentApps -> extra.openRecentApps
-            null -> Color.Unspecified
             is SwipeActionSerializable.OpenCircleNest -> extra.openCircleNest
             SwipeActionSerializable.GoParentNest -> extra.goParentNest
+            null -> Color.Unspecified
         }

@@ -257,7 +257,7 @@
     <string name="opacity">불투명도 %</string>
     <string name="custom_name">커스텀 이름</string>
     <string name="edit_action">편집 행동</string>
-    <string name="border_background_selected">국경 배경 선택됨</string>
+    <string name="background_selected">국경 배경 선택됨</string>
     <string name="custom_action_color">커스텀 액션 컬러</string>
     <string name="icon_editor">아이콘 에디터</string>
     <string name="pick_image">이미지 선택</string>
