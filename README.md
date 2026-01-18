@@ -127,7 +127,7 @@
 | ![image](assets/documentation/3.png) | Toggle points snapping (if not enabled, you can move freely the points, else they snap in rounded position - 15°) |
 | ![image](assets/documentation/4.png) | Toggle auto-separate points when you drag them                                                                    |
 | ![image](assets/documentation/5.jpg) | Enter the nest management dialog, where you can view, add and remove the nests                                    |
-&
+
 
 ## Signing
 
