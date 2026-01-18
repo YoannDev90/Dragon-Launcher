@@ -26,7 +26,7 @@ data class CustomIconSerializable(
 
     /** Tint color (ARGB) applied after rendering. */
     @SerializedName("c")
-    val tint: Long? = null,
+    val tint: Int? = null,
 
     /** Icon opacity multiplier (0.0 – 1.0). */
     @SerializedName("d")
@@ -94,6 +94,17 @@ enum class IconType {
 
     /** Procedural or primitive shape rendered by code. */
     SHAPE
+}
+
+/**
+ * Custom BlendModes usd in the icon resolution
+ * @see org.elnix.dragonlauncher.common.utils.ImageUtils.resolveCustomIconBitmap
+ */
+enum class BlendModes {
+    DEFAULT,
+    MULTIPLY,
+    SCREEN,
+    OVERLAY
 }
 
 

@@ -38,6 +38,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.toArgb
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
@@ -49,12 +50,11 @@ import com.canhub.cropper.CropImageOptions
 import com.canhub.cropper.CropImageView
 import kotlinx.coroutines.launch
 import org.elnix.dragonlauncher.common.R
-import org.elnix.dragonlauncher.common.logging.logD
+import org.elnix.dragonlauncher.common.serializables.BlendModes
 import org.elnix.dragonlauncher.common.serializables.CustomIconSerializable
 import org.elnix.dragonlauncher.common.serializables.IconType
 import org.elnix.dragonlauncher.common.serializables.SwipePointSerializable
 import org.elnix.dragonlauncher.common.serializables.defaultSwipePointsValues
-import org.elnix.dragonlauncher.common.utils.ICONS_TAG
 import org.elnix.dragonlauncher.common.utils.ImageUtils
 import org.elnix.dragonlauncher.common.utils.ImageUtils.uriToBase64
 import org.elnix.dragonlauncher.common.utils.colors.adjustBrightness
@@ -65,6 +65,7 @@ import org.elnix.dragonlauncher.ui.colors.AppObjectsColors
 import org.elnix.dragonlauncher.ui.colors.ColorPickerRow
 import org.elnix.dragonlauncher.ui.components.PointPreviewCanvas
 import org.elnix.dragonlauncher.ui.components.ValidateCancelButtons
+import org.elnix.dragonlauncher.ui.components.generic.ActionColumn
 import org.elnix.dragonlauncher.ui.helpers.SliderWithLabel
 import org.elnix.dragonlauncher.ui.theme.LocalExtraColors
 
@@ -297,7 +298,6 @@ fun IconEditorDialog(
                         defaultColor = randomColor(),
                         currentColor = randomColor()
                     ) {
-                        logD(ICONS_TAG, "Set color $it")
                         selectedIcon = (selectedIcon ?: CustomIconSerializable()).copy(
                             type = IconType.PLAIN_COLOR,
                             source = it.toArgb().toString()
@@ -390,6 +390,41 @@ fun IconEditorDialog(
                         }
                     ) {
                         selectedIcon = (selectedIcon ?: CustomIconSerializable()).copy(scaleY = it)
+                    }
+                }
+
+                Column(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(10.dp)
+                        .clip(RoundedCornerShape(12.dp))
+                        .background(MaterialTheme.colorScheme.surface.adjustBrightness(0.7f))
+                        .padding(10.dp),
+                    verticalArrangement = Arrangement.spacedBy(8.dp)
+                ) {
+                    ColorPickerRow(
+                        label = stringResource(R.string.tint),
+                        defaultColor = Color.Unspecified,
+                        currentColor = selectedIcon?.tint?.let { Color(it) } ?: Color.Unspecified
+                    ) {
+                        selectedIcon = (selectedIcon ?: CustomIconSerializable()).copy(
+                           tint = it.toArgb()
+                        )
+                    }
+
+
+                    val selectedBlendMode =  selectedIcon?.blendMode?.let {
+                        BlendModes.valueOf(it)
+                    } ?: BlendModes.DEFAULT
+
+                    ActionColumn(
+                        actions = BlendModes.entries,
+                        selectedView = selectedBlendMode,
+                        backgroundColor = MaterialTheme.colorScheme.surface
+                    ) {
+                        selectedIcon = (selectedIcon ?: CustomIconSerializable()).copy(
+                            blendMode = it.toString()
+                        )
                     }
                 }
             }

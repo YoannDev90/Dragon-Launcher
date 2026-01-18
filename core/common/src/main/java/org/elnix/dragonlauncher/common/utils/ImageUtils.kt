@@ -321,7 +321,7 @@ object ImageUtils {
         // Step 4: color tint
         icon.tint?.let {
             paint.colorFilter = PorterDuffColorFilter(
-                it.toInt(),
+                it,
                 PorterDuff.Mode.SRC_IN
             )
         }
