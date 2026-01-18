@@ -387,11 +387,11 @@ class AppsViewModel(
     ): Pair<String, ImageBitmap> {
         // blocking I/O & bitmap decoding
 
-        var isIconpack = false
+        var isIconPack = false
         val packIconName = getCachedIconMapping(app.packageName)
         val drawable =
             packIconName?.let {
-                isIconpack = true
+                isIconPack = true
                 loadIconFromPack(
                     selectedIconPack.value?.packageName,
                     it
@@ -400,7 +400,7 @@ class AppsViewModel(
 
 
         val base = loadDrawableAsBitmap(
-            drawable, 128, 128, _packTint.value.takeIf { isIconpack }
+            drawable, 128, 128, _packTint.value.takeIf { isIconPack }
         )
 
         if (useOverrides) {

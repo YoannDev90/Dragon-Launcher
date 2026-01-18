@@ -58,7 +58,6 @@ import org.elnix.dragonlauncher.common.serializables.defaultSwipePointsValues
 import org.elnix.dragonlauncher.common.utils.ImageUtils
 import org.elnix.dragonlauncher.common.utils.ImageUtils.uriToBase64
 import org.elnix.dragonlauncher.common.utils.colors.adjustBrightness
-import org.elnix.dragonlauncher.common.utils.colors.randomColor
 import org.elnix.dragonlauncher.models.AppsViewModel
 import org.elnix.dragonlauncher.settings.stores.SwipeSettingsStore
 import org.elnix.dragonlauncher.ui.colors.AppObjectsColors
@@ -93,17 +92,18 @@ fun IconEditorDialog(
     var selectedIcon by remember { mutableStateOf(point.customIcon) }
     var textValue by remember { mutableStateOf("") }
 
-    LaunchedEffect(Unit) {
-        if (selectedIcon?.type == IconType.TEXT) {
-            textValue = selectedIcon?.source ?: ""
-        }
-    }
 
     val previewPoint = point.copy(customIcon = selectedIcon)
-    val previewIcon = mapOf(point.id to appsViewModel.renderPointIcon(previewPoint, 64))
-
+    val previewIcon = remember(selectedIcon) {
+        mapOf(point.id to appsViewModel.renderPointIcon(previewPoint, 64))
+    }
     val source = selectedIcon?.source
 
+    LaunchedEffect(Unit) {
+        if (selectedIcon?.type == IconType.TEXT) {
+            textValue = source ?: ""
+        }
+    }
     var showIconPackPicker by remember { mutableStateOf(false) }
 
     val cropLauncher = rememberLauncherForActivityResult(
@@ -293,10 +293,16 @@ fun IconEditorDialog(
                     selected = selectedIcon?.type == IconType.PLAIN_COLOR && source != null,
                     onClick = {}
                 ) {
+                    val currentColor = run {
+                            source
+                                ?.takeIf { selectedIcon?.type == IconType.PLAIN_COLOR }
+                                ?.let { Color(it.toInt()) }
+                        } ?: Color.Black
+
                     ColorPickerRow(
                         label = stringResource(R.string.plain_color),
-                        defaultColor = randomColor(),
-                        currentColor = randomColor()
+                        defaultColor = Color.Black,
+                        currentColor = currentColor
                     ) {
                         selectedIcon = (selectedIcon ?: CustomIconSerializable()).copy(
                             type = IconType.PLAIN_COLOR,
@@ -306,7 +312,7 @@ fun IconEditorDialog(
                 }
 
                 SelectableCard(
-                    selected = selectedIcon?.type == null || selectedIcon?.source == null,
+                    selected = selectedIcon?.type == null || source == null,
                     onClick = {
                         selectedIcon = selectedIcon?.copy(
                             type = null,
@@ -407,8 +413,9 @@ fun IconEditorDialog(
                         defaultColor = Color.Unspecified,
                         currentColor = selectedIcon?.tint?.let { Color(it) } ?: Color.Unspecified
                     ) {
+                        val tintColor = it.takeIf { it != Color.Unspecified }?.toArgb()
                         selectedIcon = (selectedIcon ?: CustomIconSerializable()).copy(
-                           tint = it.toArgb()
+                           tint = tintColor
                         )
                     }
 

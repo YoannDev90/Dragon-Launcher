@@ -21,6 +21,7 @@ import androidx.compose.ui.unit.dp
 fun <T> ActionColumn(
     actions: List<T>,
     selectedView: T,
+    enabled: Boolean = true,
     selectedBackgroundColor: Color = MaterialTheme.colorScheme.secondary,
     backgroundColor: Color,
     actionName: (T) -> String = { it.toString() },
@@ -40,13 +41,15 @@ fun <T> ActionColumn(
                 modifier = Modifier
                     .fillMaxWidth()
                     .clip(RoundedCornerShape(12.dp))
-                    .clickable { onClick(mode) }
+                    .clickable(enabled) { onClick(mode) }
                     .background(
-                        if (isSelected) selectedBackgroundColor
-                        else backgroundColor
+                        (
+                            if (isSelected) selectedBackgroundColor
+                            else backgroundColor
+                        ).copy(if (enabled) 1f else 0.5f)
                     )
                     .padding(12.dp),
-                color = if (isSelected) MaterialTheme.colorScheme.onSecondary
+                color = if (isSelected) MaterialTheme.colorScheme.onSecondary.copy(if (enabled) 1f else 0.5f)
                 else MaterialTheme.colorScheme.onSurface,
                 style = MaterialTheme.typography.bodyMedium,
                 textAlign = TextAlign.Center

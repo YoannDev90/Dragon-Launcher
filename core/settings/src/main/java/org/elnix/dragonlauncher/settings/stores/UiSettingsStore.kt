@@ -396,7 +396,7 @@ object UiSettingsStore : BaseSettingsStore<Map<String, Any?>>() {
             putIfNonDefault(
                 ICON_PACK_TINT,
                 prefs[ICON_PACK_TINT],
-                0
+                defaults.iconPackTint
             )
 
             putIfNonDefault(
