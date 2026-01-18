@@ -226,7 +226,7 @@ fun AdvancedSettingsScreen(
             Row(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .height(25.dp)
+                    .height(20.dp)
                     .padding(horizontal = 16.dp),
                 horizontalArrangement = Arrangement.Center
             ) {
@@ -234,7 +234,8 @@ fun AdvancedSettingsScreen(
                     modifier = Modifier
                         .weight(1f)
                         .clip(RoundedCornerShape(12.dp))
-                        .clickable {ctx.openUrl("https://github.com/Elnix90/Dragon-Launcher") }
+                        .clickable {ctx.openUrl("https://github.com/Elnix90/Dragon-Launcher") },
+                    horizontalArrangement = Arrangement.Center
                 ) {
 
                     val githubIcon = if (backgroundColor.luminance() < 0.5) {
@@ -267,7 +268,8 @@ fun AdvancedSettingsScreen(
                     modifier = Modifier
                         .weight(1f)
                         .clip(RoundedCornerShape(12.dp))
-                        .clickable {ctx.openUrl(discordInviteLink) }
+                        .clickable {ctx.openUrl(discordInviteLink) },
+                    horizontalArrangement = Arrangement.Center
                 ) {
                     Image(
                         painter = painterResource(R.drawable.discord_logo_blurple),
