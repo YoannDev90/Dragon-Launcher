@@ -683,7 +683,17 @@ fun SettingsScreen(
 
                                     selectedPoint =
                                         if (best <= TOUCH_THRESHOLD_PX)
-                                            if (selectedPoint?.id == tapped?.id) null else tapped
+                                            if (selectedPoint?.id == tapped?.id) {
+                                                // Same point tapped -> if circle next, open it, else edit point
+                                                if (selectedPoint?.action is SwipeActionSerializable.OpenCircleNest) {
+                                                    nestNavigation.goToNest((selectedPoint?.action as SwipeActionSerializable.OpenCircleNest).nestId)
+                                                    null
+                                                } else {
+                                                    showEditDialog = selectedPoint
+                                                    tapped
+                                                }
+
+                                            } else tapped
                                         else null
 
                                     selectedPoint?.let { lastSelectedCircle = it.circleNumber }
