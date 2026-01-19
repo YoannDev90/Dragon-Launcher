@@ -3,9 +3,11 @@ package org.elnix.dragonlauncher.services
 import android.accessibilityservice.AccessibilityService
 import android.accessibilityservice.AccessibilityServiceInfo
 import android.annotation.SuppressLint
+import android.content.Context
 import android.os.Handler
 import android.os.Looper
 import android.view.accessibility.AccessibilityEvent
+import android.view.accessibility.AccessibilityNodeInfo
 import androidx.compose.runtime.mutableStateOf
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -13,6 +15,7 @@ import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.cancel
 import kotlinx.coroutines.launch
 import org.elnix.dragonlauncher.common.logging.logD
+import org.elnix.dragonlauncher.common.logging.logI
 import org.elnix.dragonlauncher.common.logging.logW
 import org.elnix.dragonlauncher.common.utils.ACCESSIBILITY_TAG
 import org.elnix.dragonlauncher.settings.stores.DebugSettingsStore
@@ -20,6 +23,8 @@ import org.elnix.dragonlauncher.settings.stores.DebugSettingsStore
 @SuppressLint("AccessibilityPolicy")
 class SystemControlService : AccessibilityService() {
 
+
+//    private var lastForegroundPackage: String? = null
 
     private var systemLauncher: String? = null
     private var autoRaiseEnabled = false
@@ -30,54 +35,92 @@ class SystemControlService : AccessibilityService() {
 
     override fun onAccessibilityEvent(event: AccessibilityEvent?) {
 
+//        val currentPkg = event?.packageName?.toString()
+
         if (!autoRaiseEnabled || systemLauncher == null) return
 
         if (event?.eventType != AccessibilityEvent.TYPE_WINDOW_STATE_CHANGED) return
+//
+//        if (currentPkg != null && currentPkg != systemLauncher) {
+//            lastForegroundPackage = currentPkg
+//        }
 
         val pkg = event.packageName?.toString() ?: return
-        if (pkg != systemLauncher) return
+        if (pkg != systemLauncher) {
+            return
+        }
 
         val now = System.currentTimeMillis()
         if (now - lastLaunchTime < DEBOUNCE_DELAY_MS) return
         if (isSwitching.value) return  // Prevent recursive launch
 
-        val className = event.className?.toString() ?: ""
-        logW(ACCESSIBILITY_TAG, "--------------------------")
-        logW(ACCESSIBILITY_TAG, event.toString())
-        logW(ACCESSIBILITY_TAG, "className: $className")
 
-        val isRecentsScreen = className.contains("Recents") ||
-                className.contains("Overview") ||
-                className.contains("Task") ||
-                className.contains("RecentApps") ||
-                className.contains("MultiWindow") ||
-                className.contains("SplitScreen") ||
-                className.contains("ListView")
+//        val root = rootInActiveWindow ?: return
+
+//        val ctx = this
+
+//        if (isLikelyRecents(ctx, root)) {
+//            logD(ACCESSIBILITY_TAG, "Blocked: structural recents screen")
+//            return
+//        }
 
 
-        if (isRecentsScreen) {
-            logD(ACCESSIBILITY_TAG, "Blocked recents screen: $className")
+        // This is so hacky lol, but it works (tested on 2 phones + 1 emulator)
+        val eventText = event.text.joinToString(" ").lowercase()
+
+        if (
+            eventText.contains("recent") ||
+            eventText.contains("overview") ||
+            eventText.contains("apps")
+        ) {
+            logD(ACCESSIBILITY_TAG, "Blocked recents by event text: $eventText")
             return
         }
 
-        val isMainHome = when {
-            className.contains("Launcher") -> true
-            className.contains("Home") && !className.contains("Screen") -> true
-            className.contains("Desktop") -> true
-            className.contains("Workspace") -> true
-            else -> {
-                val eventText = event.text.joinToString()
-                eventText.contains("Home", ignoreCase = true) ||
-                        eventText.contains("Desktop", ignoreCase = true)
-            }
-        }
 
-        if (isMainHome) {
-            logD(ACCESSIBILITY_TAG, "MAIN HOME SCREEN DETECTED: $className")
+        // Doesn't work
+
+//        val className = event.className?.toString() ?: ""
+//        logW(ACCESSIBILITY_TAG, "--------------------------")
+//        logW(ACCESSIBILITY_TAG, event.toString())
+//        logW(ACCESSIBILITY_TAG, "className: $className")
+//
+//        val isRecentsScreen = className.contains("Recents") ||
+//                className.contains("Overview") ||
+//                className.contains("Task") ||
+//                className.contains("RecentApps") ||
+//                className.contains("MultiWindow") ||
+//                className.contains("SplitScreen") ||
+//                className.contains("ListView")
+//
+//
+//        if (isRecentsScreen) {
+//            logD(ACCESSIBILITY_TAG, "Blocked recents screen: $className")
+//            return
+//        }
+
+//        val isMainHome = when {
+//            className.contains("Launcher") -> true
+//            className.contains("Home") && !className.contains("Screen") -> true
+//            className.contains("Desktop") -> true
+//            className.contains("Workspace") -> true
+//            else -> {
+//                val eventText = event.text.joinToString()
+//                eventText.contains("Home", ignoreCase = true) ||
+//                        eventText.contains("Desktop", ignoreCase = true)
+//            }
+//        }
+
+//        if (
+//            isMainHome &&
+//            lastForegroundPackage != null &&
+//            lastForegroundPackage != systemLauncher
+//        ) {
+            logD(ACCESSIBILITY_TAG, "MAIN HOME SCREEN DETECTED, LAUNCHING DRAGON")
             launchDragon()
-        } else {
-            logD(ACCESSIBILITY_TAG, "Skipped (not home): $className")
-        }
+//        } else {
+//            logD(ACCESSIBILITY_TAG, "Skipped (not home): $className")
+//        }
     }
 
     override fun onInterrupt() {
@@ -168,4 +211,38 @@ class SystemControlService : AccessibilityService() {
         serviceScope.cancel()
     }
 
+}
+
+
+/**
+ * Should detect if the launched launcher is in recent or is the launcher screen
+ * doesn't work on my redmagic thus.
+ */
+private fun isLikelyRecents(ctx: Context, root: AccessibilityNodeInfo): Boolean {
+    ctx.logI(ACCESSIBILITY_TAG, "Root: $root")
+
+    var nodeCount = 0
+    var clickableCount = 0
+    var focusableCount = 0
+
+    fun traverse(node: AccessibilityNodeInfo?, depth: Int = 0) {
+        if (node == null || depth > 6) return   // depth limit = safety
+        nodeCount++
+
+        if (node.isClickable) clickableCount++
+        if (node.isFocusable) focusableCount++
+
+        for (i in 0 until node.childCount) {
+            traverse(node.getChild(i), depth + 1)
+        }
+    }
+
+    traverse(root)
+
+    ctx.logI(ACCESSIBILITY_TAG, "NodeCount: $nodeCount")
+    ctx.logI(ACCESSIBILITY_TAG, "clickableCount: $clickableCount, focusableCount: $focusableCount")
+    if (nodeCount < 5) return true
+    if (clickableCount == 0 && focusableCount == 0) return true
+
+    return false
 }
