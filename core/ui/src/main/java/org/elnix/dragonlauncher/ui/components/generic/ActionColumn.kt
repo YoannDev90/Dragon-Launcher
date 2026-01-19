@@ -4,9 +4,13 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -14,6 +18,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 
@@ -25,6 +30,7 @@ fun <T> ActionColumn(
     selectedBackgroundColor: Color = MaterialTheme.colorScheme.secondary,
     backgroundColor: Color,
     actionName: (T) -> String = { it.toString() },
+    actionIcon: ((T) -> ImageVector)? = null,
     onClick: (T) -> Unit
 ) {
     Column(
@@ -36,24 +42,39 @@ fun <T> ActionColumn(
     ) {
         actions.forEach { mode ->
             val isSelected = mode == selectedView
-            Text(
-                text = actionName(mode),
+            Row(
+                horizontalArrangement = Arrangement.Center,
+                verticalAlignment = Alignment.CenterVertically,
                 modifier = Modifier
                     .fillMaxWidth()
                     .clip(RoundedCornerShape(12.dp))
                     .clickable(enabled) { onClick(mode) }
                     .background(
                         (
-                            if (isSelected) selectedBackgroundColor
-                            else backgroundColor
-                        ).copy(if (enabled) 1f else 0.5f)
+                                if (isSelected) selectedBackgroundColor
+                                else backgroundColor
+                                ).copy(if (enabled) 1f else 0.5f)
                     )
-                    .padding(12.dp),
-                color = if (isSelected) MaterialTheme.colorScheme.onSecondary.copy(if (enabled) 1f else 0.5f)
-                else MaterialTheme.colorScheme.onSurface,
-                style = MaterialTheme.typography.bodyMedium,
-                textAlign = TextAlign.Center
-            )
+            ) {
+                actionIcon?.let {
+                    Icon(
+                        imageVector = it(mode),
+                        contentDescription = null,
+                        tint = MaterialTheme.colorScheme.primary
+                    )
+                    Spacer(Modifier.width(5.dp))
+                }
+
+                Text(
+                    text = actionName(mode),
+                    modifier = Modifier
+                        .padding(12.dp),
+                    color = if (isSelected) MaterialTheme.colorScheme.onSecondary.copy(if (enabled) 1f else 0.5f)
+                    else MaterialTheme.colorScheme.onSurface,
+                    style = MaterialTheme.typography.bodyMedium,
+                    textAlign = TextAlign.Center
+                )
+            }
         }
     }
 }
