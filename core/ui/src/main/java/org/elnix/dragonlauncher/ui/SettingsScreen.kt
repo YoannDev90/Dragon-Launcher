@@ -44,10 +44,11 @@ import androidx.compose.material.icons.filled.Fullscreen
 import androidx.compose.material.icons.filled.FullscreenExit
 import androidx.compose.material.icons.filled.Grid3x3
 import androidx.compose.material.icons.filled.Home
-import androidx.compose.material.icons.filled.Menu
+import androidx.compose.material.icons.filled.MoreVert
 import androidx.compose.material.icons.filled.Remove
 import androidx.compose.material.icons.filled.Settings
 import androidx.compose.material.icons.outlined.ChangeCircle
+import androidx.compose.material3.DropdownMenu
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
@@ -117,7 +118,6 @@ import org.elnix.dragonlauncher.settings.stores.UiSettingsStore
 import org.elnix.dragonlauncher.ui.components.AppPreviewTitle
 import org.elnix.dragonlauncher.ui.components.burger.BurgerAction
 import org.elnix.dragonlauncher.ui.components.burger.BurgerListAction
-import org.elnix.dragonlauncher.ui.components.burger.BurgerMenu
 import org.elnix.dragonlauncher.ui.dialogs.AddPointDialog
 import org.elnix.dragonlauncher.ui.dialogs.EditPointDialog
 import org.elnix.dragonlauncher.ui.dialogs.NestManagementDialog
@@ -179,6 +179,7 @@ fun SettingsScreen(
     val aPointIsSelected = selectedPoint != null
 
     var showBurgerMenu by remember { mutableStateOf(false) }
+
     var showEditDefaultPoint by remember { mutableStateOf(false) }
     var showAddDialog by remember { mutableStateOf(false) }
     var showEditDialog by remember { mutableStateOf<SwipePointSerializable?>(null) }
@@ -468,9 +469,31 @@ fun SettingsScreen(
             Row {
                 IconButton(onClick = { showBurgerMenu = true }) {
                     Icon(
-                        imageVector = Icons.Default.Menu,
+                        imageVector = Icons.Default.MoreVert,
                         contentDescription = stringResource(R.string.open_burger_menu),
                         tint = MaterialTheme.colorScheme.onBackground
+                    )
+                }
+
+                DropdownMenu(
+                    expanded = showBurgerMenu,
+                    onDismissRequest = { showBurgerMenu = false },
+                    containerColor = Color.Transparent,
+                    shadowElevation = 0.dp,
+                    tonalElevation = 0.dp
+                ) {
+                    BurgerListAction(
+                        actions = listOf(
+                            BurgerAction(
+                                onClick = {
+                                    showBurgerMenu = false
+                                    showEditDefaultPoint = true
+                                }
+                            ) {
+                                Icon(Icons.Default.EditNote, null)
+                                Text(stringResource(R.string.edit_default_point_settings))
+                            }
+                        )
                     )
                 }
 
@@ -1219,28 +1242,6 @@ fun SettingsScreen(
             showLabel = true,
             showIcon = true
         )
-    }
-
-    if (showBurgerMenu) {
-        BurgerMenu(
-            alignment = Alignment.TopEnd,
-            onDismiss = { showBurgerMenu = false }
-        ) {
-            BurgerListAction(
-                modifier = Modifier.padding(top = 50.dp, end = 16.dp),
-                actions = listOf(
-                    BurgerAction(
-                        onClick = {
-                            showBurgerMenu = false
-                            showEditDefaultPoint = true
-                        }
-                    ) {
-                        Icon(Icons.Default.EditNote, null)
-                        Text(stringResource(R.string.edit_default_point_settings))
-                    }
-                )
-            )
-        }
     }
 
     if (showEditDefaultPoint) {

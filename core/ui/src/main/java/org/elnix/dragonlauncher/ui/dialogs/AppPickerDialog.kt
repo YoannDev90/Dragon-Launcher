@@ -41,10 +41,10 @@ import androidx.compose.ui.unit.dp
 import kotlinx.coroutines.launch
 import org.elnix.dragonlauncher.common.R
 import org.elnix.dragonlauncher.common.serializables.AppModel
-import org.elnix.dragonlauncher.ui.helpers.AppGrid
 import org.elnix.dragonlauncher.common.utils.colors.adjustBrightness
 import org.elnix.dragonlauncher.models.AppsViewModel
 import org.elnix.dragonlauncher.ui.colors.AppObjectsColors
+import org.elnix.dragonlauncher.ui.helpers.AppGrid
 
 @OptIn(ExperimentalFoundationApi::class)
 @Composable
@@ -211,6 +211,7 @@ fun AppPickerDialog(
             }
         },
         confirmButton = {},
-        containerColor = MaterialTheme.colorScheme.surface
+        containerColor = MaterialTheme.colorScheme.surface,
+        shape = RoundedCornerShape(20.dp)
     )
 }

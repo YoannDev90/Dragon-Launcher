@@ -205,7 +205,8 @@ fun AppLongPressDialog(
         },
         confirmButton = {},
         dismissButton = {},
-        containerColor = MaterialTheme.colorScheme.surface
+        containerColor = MaterialTheme.colorScheme.surface,
+        shape = RoundedCornerShape(20.dp)
     )
 
     if (showDetailedAppInfoDialog) {

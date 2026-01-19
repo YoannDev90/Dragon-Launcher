@@ -310,4 +310,6 @@
     <string name="tint">Tint</string>
     <string name="icon_pack_tint">Icon Pack Tint</string>
     <string name="show_app_icon_start_drag_position">Show app icon in start drag positon</string>
+    <string name="make_all_colors_identical">Make all colors identical</string>
+    <string name="apply">Apply</string>
 </resources>

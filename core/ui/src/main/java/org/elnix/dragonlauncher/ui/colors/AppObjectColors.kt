@@ -27,16 +27,16 @@ object AppObjectsColors {
     fun switchColors(): SwitchColors {
         val colors = MaterialTheme.colorScheme
         return SwitchDefaults.colors(
-            checkedThumbColor = colors.onSurface,
+            checkedThumbColor = colors.outline,
             checkedTrackColor = colors.primary,
             checkedBorderColor = Color.Transparent,
-            uncheckedThumbColor = colors.onSurface,
+            uncheckedThumbColor = colors.outline.copy(0.7f),
             uncheckedTrackColor = colors.background,
             uncheckedBorderColor = Color.Transparent,
-            disabledCheckedThumbColor = colors.onSurface.adjustBrightness(0.5f),
-            disabledCheckedTrackColor = colors.primary.adjustBrightness(0.5f),
+            disabledCheckedThumbColor = colors.outline.copy(0.5f),
+            disabledCheckedTrackColor = colors.primary.copy(0.5f),
             disabledCheckedBorderColor = Color.Transparent,
-            disabledUncheckedThumbColor = colors.onSurface.adjustBrightness(0.5f),
+            disabledUncheckedThumbColor = colors.onSurface.copy(0.5f),
             disabledUncheckedTrackColor = colors.background,
             disabledUncheckedBorderColor = Color.Transparent,
         )

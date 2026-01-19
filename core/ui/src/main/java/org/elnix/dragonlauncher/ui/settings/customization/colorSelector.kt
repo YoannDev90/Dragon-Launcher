@@ -18,16 +18,21 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.AllInclusive
 import androidx.compose.material.icons.filled.InvertColors
+import androidx.compose.material.icons.filled.MoreVert
 import androidx.compose.material.icons.filled.Palette
 import androidx.compose.material.icons.filled.Restore
+import androidx.compose.material.icons.filled.SelectAll
 import androidx.compose.material.icons.filled.Shuffle
+import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
+import androidx.compose.material3.DropdownMenu
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.RadioButton
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
@@ -57,6 +62,8 @@ import org.elnix.dragonlauncher.settings.stores.ColorModesSettingsStore
 import org.elnix.dragonlauncher.settings.stores.ColorSettingsStore
 import org.elnix.dragonlauncher.ui.colors.AppObjectsColors
 import org.elnix.dragonlauncher.ui.colors.ColorPickerRow
+import org.elnix.dragonlauncher.ui.components.burger.BurgerAction
+import org.elnix.dragonlauncher.ui.components.burger.BurgerListAction
 import org.elnix.dragonlauncher.ui.dialogs.UserValidation
 import org.elnix.dragonlauncher.ui.helpers.TextDivider
 import org.elnix.dragonlauncher.ui.helpers.settings.SettingsLazyHeader
@@ -96,22 +103,33 @@ fun ColorSelectorTab(
 
     val launchAppColor by ColorSettingsStore.getLaunchAppColor(ctx).collectAsState(initial = null)
     val openUrlColor by ColorSettingsStore.getOpenUrlColor(ctx).collectAsState(initial = null)
-    val notificationShadeColor by ColorSettingsStore.getNotificationShadeColor(ctx).collectAsState(initial = null)
-    val controlPanelColor by ColorSettingsStore.getControlPanelColor(ctx).collectAsState(initial = null)
-    val openAppDrawerColor by ColorSettingsStore.getOpenAppDrawerColor(ctx).collectAsState(initial = null)
-    val launcherSettingsColor by ColorSettingsStore.getLauncherSettingsColor(ctx).collectAsState(initial = null)
+    val notificationShadeColor by ColorSettingsStore.getNotificationShadeColor(ctx)
+        .collectAsState(initial = null)
+    val controlPanelColor by ColorSettingsStore.getControlPanelColor(ctx)
+        .collectAsState(initial = null)
+    val openAppDrawerColor by ColorSettingsStore.getOpenAppDrawerColor(ctx)
+        .collectAsState(initial = null)
+    val launcherSettingsColor by ColorSettingsStore.getLauncherSettingsColor(ctx)
+        .collectAsState(initial = null)
     val lockColor by ColorSettingsStore.getLockColor(ctx).collectAsState(initial = null)
     val openFileColor by ColorSettingsStore.getOpenFileColor(ctx).collectAsState(initial = null)
     val reloadColor by ColorSettingsStore.getReloadColor(ctx).collectAsState(initial = null)
-    val openRecentAppsColor by ColorSettingsStore.getOpenRecentApps(ctx).collectAsState(initial = null)
+    val openRecentAppsColor by ColorSettingsStore.getOpenRecentApps(ctx)
+        .collectAsState(initial = null)
     val openCircleNest by ColorSettingsStore.getOpenCircleNest(ctx).collectAsState(initial = null)
     val goParentCircle by ColorSettingsStore.getGoParentNest(ctx).collectAsState(initial = null)
 
-    val colorCustomisationMode by ColorModesSettingsStore.getColorCustomisationMode(ctx).collectAsState(initial = ColorCustomisationMode.DEFAULT)
-    val selectedDefaultTheme by ColorModesSettingsStore.getDefaultTheme(ctx).collectAsState(initial = DefaultThemes.DARK)
+    val colorCustomisationMode by ColorModesSettingsStore.getColorCustomisationMode(ctx)
+        .collectAsState(initial = ColorCustomisationMode.DEFAULT)
+    val selectedDefaultTheme by ColorModesSettingsStore.getDefaultTheme(ctx)
+        .collectAsState(initial = DefaultThemes.DARK)
 
     var showResetValidation by remember { mutableStateOf(false) }
+
+    var showBurgerMenu by remember { mutableStateOf(false) }
+
     var showRandomColorsValidation by remember { mutableStateOf(false) }
+    var showAllColorsValidation by remember { mutableStateOf(false) }
 
     SettingsLazyHeader(
         title = stringResource(R.string.color_selector),
@@ -160,6 +178,7 @@ fun ColorSelectorTab(
                                     tint = MaterialTheme.colorScheme.onSurface
                                 )
                             }
+
                             ColorCustomisationMode.NORMAL -> {
                                 Icon(
                                     imageVector = Icons.Default.Palette,
@@ -167,6 +186,7 @@ fun ColorSelectorTab(
                                     tint = MaterialTheme.colorScheme.onSurface
                                 )
                             }
+
                             ColorCustomisationMode.ALL -> {
                                 Icon(
                                     imageVector = Icons.Default.AllInclusive,
@@ -222,23 +242,51 @@ fun ColorSelectorTab(
                         color = MaterialTheme.colorScheme.onPrimary
                     )
                 }
+                if (colorCustomisationMode == ColorCustomisationMode.ALL) {
 
-                if (colorCustomisationMode == ColorCustomisationMode.ALL){
-                    IconButton(
-                        onClick = { showRandomColorsValidation = true },
-                        colors = AppObjectsColors.iconButtonColors(
-                            backgroundColor = MaterialTheme.colorScheme.primary.copy(0.5f)
-                        )
-                    ) {
-                        Icon(
-                            imageVector = Icons.Default.Shuffle,
-                            contentDescription = stringResource(R.string.make_every_colors_random),
-                            modifier = Modifier
-                                .clip(CircleShape)
-                                .padding(5.dp)
-                        )
+                    Box {
+                        IconButton(
+                            onClick = { showBurgerMenu = true },
+                            colors = AppObjectsColors.iconButtonColors(
+                                backgroundColor = MaterialTheme.colorScheme.primary.copy(0.5f)
+                            )
+                        ) {
+                            Icon(
+                                imageVector = Icons.Default.MoreVert,
+                                contentDescription = stringResource(R.string.open_burger_menu),
+                                modifier = Modifier
+                                    .clip(CircleShape)
+                                    .padding(5.dp)
+                            )
+                        }
+
+                        DropdownMenu(
+                            expanded = showBurgerMenu,
+                            onDismissRequest = { showBurgerMenu = false },
+                            containerColor = Color.Transparent,
+                            shadowElevation = 0.dp,
+                            tonalElevation = 0.dp
+                        ) {
+                            BurgerListAction(
+                                actions = listOf(
+                                    BurgerAction(
+                                        onClick = { showRandomColorsValidation = true }
+                                    ) {
+                                        Icon(Icons.Default.Shuffle, null)
+                                        Text(stringResource(R.string.make_every_colors_random))
+                                    },
+                                    BurgerAction(
+                                        onClick = { showAllColorsValidation = true }
+                                    ) {
+                                        Icon(Icons.Default.SelectAll, null)
+                                        Text(stringResource(R.string.make_all_colors_identical))
+                                    }
+                                )
+                            )
+                        }
                     }
                 }
+
             }
         }
 
@@ -392,7 +440,8 @@ fun ColorSelectorTab(
                     ColorPickerRow(
                         label = stringResource(R.string.notification_shade_color),
                         defaultColor = AmoledDefault.NotificationShadeColor,
-                        currentColor = notificationShadeColor ?: LocalExtraColors.current.notificationShade
+                        currentColor = notificationShadeColor
+                            ?: LocalExtraColors.current.notificationShade
                     ) { scope.launch { ColorSettingsStore.setNotificationShadeColor(ctx, it) } }
                 }
 
@@ -416,7 +465,8 @@ fun ColorSelectorTab(
                     ColorPickerRow(
                         label = stringResource(R.string.launcher_settings_color),
                         defaultColor = AmoledDefault.LauncherSettingsColor,
-                        currentColor = launcherSettingsColor ?: LocalExtraColors.current.launcherSettings
+                        currentColor = launcherSettingsColor
+                            ?: LocalExtraColors.current.launcherSettings
                     ) { scope.launch { ColorSettingsStore.setLauncherSettingsColor(ctx, it) } }
                 }
 
@@ -447,7 +497,8 @@ fun ColorSelectorTab(
                     ColorPickerRow(
                         label = stringResource(R.string.open_recent_apps_color),
                         defaultColor = AmoledDefault.OpenRecentAppsColor,
-                        currentColor = openRecentAppsColor ?: LocalExtraColors.current.openRecentApps
+                        currentColor = openRecentAppsColor
+                            ?: LocalExtraColors.current.openRecentApps
                     ) { scope.launch { ColorSettingsStore.setOpenRecentApps(ctx, it) } }
                 }
                 item {
@@ -560,6 +611,7 @@ fun ColorSelectorTab(
                                                 CircleShape
                                             )
                                     )
+
                                     DefaultThemes.DARK -> Box(
                                         modifier = Modifier
                                             .size(40.dp)
@@ -571,6 +623,7 @@ fun ColorSelectorTab(
                                                 CircleShape
                                             )
                                     )
+
                                     DefaultThemes.LIGHT -> Box(
                                         modifier = Modifier
                                             .size(40.dp)
@@ -582,12 +635,17 @@ fun ColorSelectorTab(
                                                 CircleShape
                                             )
                                     )
+
                                     DefaultThemes.SYSTEM -> Box(
                                         modifier = Modifier
                                             .size(40.dp)
                                             .clip(CircleShape)
                                             .background(MaterialTheme.colorScheme.primary)
-                                            .border(1.dp, MaterialTheme.colorScheme.outline.copy(0.5f), CircleShape)
+                                            .border(
+                                                1.dp,
+                                                MaterialTheme.colorScheme.outline.copy(0.5f),
+                                                CircleShape
+                                            )
                                     )
                                 }
 
@@ -618,7 +676,7 @@ fun ColorSelectorTab(
         }
     }
 
-    if(showResetValidation){
+    if (showResetValidation) {
         UserValidation(
             title = stringResource(R.string.reset_to_default_colors),
             message = stringResource(R.string.reset_to_default_colors_explanation),
@@ -634,7 +692,7 @@ fun ColorSelectorTab(
             }
         }
     }
-    if(showRandomColorsValidation){
+    if (showRandomColorsValidation) {
         UserValidation(
             title = stringResource(R.string.make_every_colors_random),
             message = stringResource(R.string.make_every_colors_random_explanation),
@@ -645,5 +703,42 @@ fun ColorSelectorTab(
                 showRandomColorsValidation = false
             }
         }
+    }
+
+
+    if (showAllColorsValidation) {
+        var applyColor by remember { mutableStateOf(Color.Black) }
+        AlertDialog(
+            onDismissRequest = { showAllColorsValidation = false },
+            confirmButton = {
+                TextButton(
+                    onClick = {
+                        scope.launch {
+                            ColorSettingsStore.setAllSameColors(ctx, applyColor)
+                            showAllColorsValidation = false
+                        }
+                    },
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .clip(CircleShape)
+                        .padding(5.dp)
+                ) {
+                    Text(
+                        text = stringResource(R.string.apply),
+                        color = MaterialTheme.colorScheme.primary
+                    )
+                }
+            },
+            title = {
+                ColorPickerRow(
+                    label = stringResource(R.string.color_mode_all),
+                    defaultColor = Color.Black,
+                    currentColor = applyColor,
+                    backgroundColor = MaterialTheme.colorScheme.surface.adjustBrightness(0.7f)
+                ) { applyColor = it }
+            },
+            containerColor = MaterialTheme.colorScheme.surface,
+            shape = RoundedCornerShape(20.dp)
+        )
     }
 }

@@ -114,7 +114,6 @@ object ColorSettingsStore : BaseSettingsStore<Map<String, Any?>>() {
     }
 
 
-
     // ------------------------------------------
     //            NORMAL COLORS
     // ------------------------------------------
@@ -330,36 +329,43 @@ object ColorSettingsStore : BaseSettingsStore<Map<String, Any?>>() {
 
 
     suspend fun setAllRandomColors(ctx: Context) {
-        val random = { randomColor() }
+        setAllColors(ctx) { randomColor() }
+    }
 
-        setPrimary(ctx, random())
-        setOnPrimary(ctx, random())
-        setSecondary(ctx, random())
-        setOnSecondary(ctx, random())
-        setTertiary(ctx, random())
-        setOnTertiary(ctx, random())
-        setBackground(ctx, random())
-        setOnBackground(ctx, random())
-        setSurface(ctx, random())
-        setOnSurface(ctx, random())
-        setError(ctx, random())
-        setOnError(ctx, random())
-        setOutline(ctx, random())
-        setAngleLineColor(ctx, random())
-        setCircleColor(ctx, random())
+    suspend fun setAllSameColors(ctx: Context, color: Color) {
+        setAllColors(ctx) { color }
+    }
 
-        setLaunchAppColor(ctx, random())
-        setOpenUrlColor(ctx, random())
-        setNotificationShadeColor(ctx, random())
-        setControlPanelColor(ctx, random())
-        setOpenAppDrawerColor(ctx, random())
-        setLauncherSettingsColor(ctx, random())
-        setLockColor(ctx, random())
-        setOpenFileColor(ctx, random())
-        setReloadColor(ctx, random())
-        setOpenRecentApps(ctx, random())
-        setOpenCircleNest(ctx, random())
-        setGoParentNest(ctx, random())
+    suspend fun setAllColors(ctx: Context, color: () -> Color) {
+
+        setPrimary(ctx, color())
+        setOnPrimary(ctx, color())
+        setSecondary(ctx, color())
+        setOnSecondary(ctx, color())
+        setTertiary(ctx, color())
+        setOnTertiary(ctx, color())
+        setBackground(ctx, color())
+        setOnBackground(ctx, color())
+        setSurface(ctx, color())
+        setOnSurface(ctx, color())
+        setError(ctx, color())
+        setOnError(ctx, color())
+        setOutline(ctx, color())
+        setAngleLineColor(ctx, color())
+        setCircleColor(ctx, color())
+
+        setLaunchAppColor(ctx, color())
+        setOpenUrlColor(ctx, color())
+        setNotificationShadeColor(ctx, color())
+        setControlPanelColor(ctx, color())
+        setOpenAppDrawerColor(ctx, color())
+        setLauncherSettingsColor(ctx, color())
+        setLockColor(ctx, color())
+        setOpenFileColor(ctx, color())
+        setReloadColor(ctx, color())
+        setOpenRecentApps(ctx, color())
+        setOpenCircleNest(ctx, color())
+        setGoParentNest(ctx, color())
     }
 
     override suspend fun resetAll(ctx: Context) {
@@ -379,8 +385,10 @@ object ColorSettingsStore : BaseSettingsStore<Map<String, Any?>>() {
             defaultTheme
         )
         else AmoledDefault
+
         return buildMap {
 
+            /*  ───────────── MaterialTheme Colors  ───────────── */
             putIfNonDefault(PRIMARY_COLOR, prefs[PRIMARY_COLOR], default.Primary)
             putIfNonDefault(ON_PRIMARY_COLOR, prefs[ON_PRIMARY_COLOR], default.OnPrimary)
             putIfNonDefault(SECONDARY_COLOR, prefs[SECONDARY_COLOR], default.Secondary)
@@ -394,9 +402,12 @@ object ColorSettingsStore : BaseSettingsStore<Map<String, Any?>>() {
             putIfNonDefault(ERROR_COLOR, prefs[ERROR_COLOR], default.Error)
             putIfNonDefault(ON_ERROR_COLOR, prefs[ON_ERROR_COLOR], default.OnError)
             putIfNonDefault(OUTLINE_COLOR, prefs[OUTLINE_COLOR], default.Outline)
+
+            /*  ───────────── Custom colors  ───────────── */
             putIfNonDefault(ANGLE_LINE_COLOR, prefs[ANGLE_LINE_COLOR], default.AngleLineColor)
             putIfNonDefault(CIRCLE_COLOR, prefs[CIRCLE_COLOR], default.CircleColor)
 
+            /*  ───────────── Actions Colors  ───────────── */
             putIfNonDefault(LAUNCH_APP_COLOR, prefs[LAUNCH_APP_COLOR], default.LaunchAppColor)
             putIfNonDefault(OPEN_URL_COLOR, prefs[OPEN_URL_COLOR], default.OpenUrlColor)
             putIfNonDefault(
@@ -432,6 +443,7 @@ object ColorSettingsStore : BaseSettingsStore<Map<String, Any?>>() {
     override suspend fun setAll(ctx: Context, value: Map<String, Any?>) {
         ctx.colorDatastore.edit { prefs ->
 
+            /*  ───────────── MaterialTheme Colors  ───────────── */
             value[PRIMARY_COLOR.name]?.let {
                 prefs[PRIMARY_COLOR] =
                     getIntStrict(value, PRIMARY_COLOR, prefs[PRIMARY_COLOR] ?: 0)
@@ -497,6 +509,8 @@ object ColorSettingsStore : BaseSettingsStore<Map<String, Any?>>() {
                     getIntStrict(value, OUTLINE_COLOR, prefs[OUTLINE_COLOR] ?: 0)
             }
 
+
+            /*  ───────────── Custom colors  ───────────── */
             value[ANGLE_LINE_COLOR.name]?.let {
                 prefs[ANGLE_LINE_COLOR] =
                     getIntStrict(value, ANGLE_LINE_COLOR, prefs[ANGLE_LINE_COLOR] ?: 0)
@@ -507,6 +521,7 @@ object ColorSettingsStore : BaseSettingsStore<Map<String, Any?>>() {
                     getIntStrict(value, CIRCLE_COLOR, prefs[CIRCLE_COLOR] ?: 0)
             }
 
+            /*  ───────────── Actions Colors  ───────────── */
             value[LAUNCH_APP_COLOR.name]?.let {
                 prefs[LAUNCH_APP_COLOR] =
                     getIntStrict(value, LAUNCH_APP_COLOR, prefs[LAUNCH_APP_COLOR] ?: 0)
@@ -580,6 +595,8 @@ object ColorSettingsStore : BaseSettingsStore<Map<String, Any?>>() {
 
 
 private suspend fun applyThemeColors(ctx: Context, colors: ThemeColors) {
+
+    /*  ───────────── MaterialTheme Colors  ───────────── */
     ColorSettingsStore.setPrimary(ctx, colors.Primary)
     ColorSettingsStore.setOnPrimary(ctx, colors.OnPrimary)
     ColorSettingsStore.setSecondary(ctx, colors.Secondary)
@@ -593,9 +610,13 @@ private suspend fun applyThemeColors(ctx: Context, colors: ThemeColors) {
     ColorSettingsStore.setError(ctx, colors.Error)
     ColorSettingsStore.setOnError(ctx, colors.OnError)
     ColorSettingsStore.setOutline(ctx, colors.Outline)
+
+    /*  ───────────── Custom colors  ───────────── */
     ColorSettingsStore.setAngleLineColor(ctx, colors.AngleLineColor)
     ColorSettingsStore.setCircleColor(ctx, colors.CircleColor)
 
+
+    /*  ───────────── Actions Colors  ───────────── */
     ColorSettingsStore.setLaunchAppColor(ctx, colors.LaunchAppColor)
     ColorSettingsStore.setOpenUrlColor(ctx, colors.OpenUrlColor)
     ColorSettingsStore.setNotificationShadeColor(ctx, colors.NotificationShadeColor)
