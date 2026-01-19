@@ -48,7 +48,7 @@ fun LazyListScope.iconPackListContent(
                 text = stringResource(R.string.icon_packs_found, packs.size),
                 modifier = Modifier.padding(horizontal = 16.dp, vertical = 8.dp),
                 style = MaterialTheme.typography.bodyMedium,
-                color = MaterialTheme.colorScheme.onSurfaceVariant
+                color = MaterialTheme.colorScheme.onBackground
             )
             // Refresh icon
             Icon(
@@ -89,17 +89,22 @@ fun LazyListScope.iconPackListContent(
                         Icon(
                             Icons.Default.Palette,
                             contentDescription = null,
-                            tint = MaterialTheme.colorScheme.onSurfaceVariant
+                            tint = MaterialTheme.colorScheme.onSurface
                         )
                     }
                 }
 
                 Column {
-                    Text(pack.name, style = MaterialTheme.typography.titleMedium)
+                    Text(
+                        text = pack.name,
+                        color = MaterialTheme.colorScheme.onSurface,
+                        style = MaterialTheme.typography.titleMedium
+                    )
+
                     Text(
                         pack.packageName,
-                        style = MaterialTheme.typography.bodySmall,
-                        color = MaterialTheme.colorScheme.onSurfaceVariant
+                        color = MaterialTheme.colorScheme.onSurface,
+                        style = MaterialTheme.typography.bodySmall
                     )
                 }
             }
@@ -130,19 +135,20 @@ fun LazyListScope.iconPackListContent(
                     Icon(
                         Icons.Default.Close,
                         contentDescription = null,
-                        tint = MaterialTheme.colorScheme.onSurfaceVariant,
+                        tint = MaterialTheme.colorScheme.primary,
                         modifier = Modifier.size(40.dp)
                     )
 
                     Column {
                         Text(
                             text = stringResource(R.string.default_text),
-                            style = MaterialTheme.typography.titleMedium
+                            style = MaterialTheme.typography.titleMedium,
+                            color = MaterialTheme.colorScheme.onSurface
                         )
                         Text(
                             text = stringResource(R.string.use_original_app_icon),
                             style = MaterialTheme.typography.bodySmall,
-                            color = MaterialTheme.colorScheme.onSurfaceVariant
+                            color = MaterialTheme.colorScheme.onSurface
                         )
                     }
                 }

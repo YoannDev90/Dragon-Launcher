@@ -407,9 +407,9 @@ fun AppDrawerScreen(
                 customIcon = iconOverride
             )
 
-        if (iconOverride == null) {
-            scope.launch { appsViewModel.reloadPointIcon(tempPoint) }
-        }
+//        if (iconOverride == null) {
+//            scope.launch { appsViewModel.reloadPointIcon(tempPoint) }
+//        }
 
         IconEditorDialog(
             point = tempPoint,
@@ -440,7 +440,7 @@ fun AppDrawerScreen(
 
 
 @Composable
-fun AppDrawerSearch(
+private fun AppDrawerSearch(
     searchQuery: String,
     onSearchChanged: (String) -> Unit,
     modifier: Modifier = Modifier,
@@ -463,7 +463,10 @@ fun AppDrawerSearch(
                 }
                 // Keyboard hiding on focus loss is handled by system, IME actions, or explicit calls elsewhere (e.g., scroll logic)
             },
-        placeholder = { Text("Search apps...") },
+        placeholder = { Text(
+            text = stringResource(R.string.search_apps),
+            color = MaterialTheme.colorScheme.onBackground
+        ) },
         singleLine = true,
         keyboardOptions = KeyboardOptions(imeAction = ImeAction.Search),
         keyboardActions = KeyboardActions(onSearch = {

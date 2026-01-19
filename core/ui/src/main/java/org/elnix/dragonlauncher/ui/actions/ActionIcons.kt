@@ -62,7 +62,7 @@ fun ActionIcon(
         bitmap = bitmap,
         contentDescription = null,
         colorFilter = if (
-            action !is SwipeActionSerializable.LaunchApp &&
+            (action !is SwipeActionSerializable.LaunchApp && !showLaunchAppVectorGrid) &&
             action !is SwipeActionSerializable.LaunchShortcut &&
             action !is SwipeActionSerializable.OpenDragonLauncherSettings
         ) ColorFilter.tint(actionColor(action, extraColors))

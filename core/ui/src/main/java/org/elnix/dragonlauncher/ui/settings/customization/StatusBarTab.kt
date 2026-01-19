@@ -242,6 +242,7 @@ fun StatusBarTab(
                             Icon(
                                 imageVector = Icons.Default.Restore,
                                 contentDescription = stringResource(R.string.reset),
+                                tint = MaterialTheme.colorScheme.primary,
                                 modifier = Modifier.clickable {
                                     scope.launch {
                                         StatusBarSettingsStore.setTimeFormatter(ctx, "HH:mm:ss")
@@ -314,6 +315,7 @@ fun StatusBarTab(
                             Icon(
                                 imageVector = Icons.Default.Restore,
                                 contentDescription = stringResource(R.string.reset),
+                                tint = MaterialTheme.colorScheme.primary,
                                 modifier = Modifier.clickable {
                                     scope.launch {
                                         StatusBarSettingsStore.setDateFormatter(ctx, "MMM dd")

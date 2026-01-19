@@ -1,0 +1,38 @@
+{
+  "ui": {
+    "rgbLine": "false",
+    "showCirclePreview": "false",
+    "showAllActionsOnCurrentCircle": "true",
+    "selected_icon_pack": "com.donnnno.arcticons",
+    "icon_pack_tint": "-65536"
+  },
+  "color": {
+    "primary_color": "-4325376",
+    "on_primary_color": "-16777216",
+    "secondary_color": "-3014656",
+    "on_secondary_color": "-15398912",
+    "tertiary_color": "-8912896",
+    "on_tertiary_color": "-16777213",
+    "background_color": "-16777216",
+    "on_background_color": "-65536",
+    "surface_color": "-16777216",
+    "on_surface_color": "-65536",
+    "error_color": "-65536",
+    "on_error_color": "-16777216",
+    "outline_color": "-63737",
+    "delete_color": "-65536",
+    "circle_color": "0",
+    "launch_app_color": "-65536",
+    "open_url_color": "-65536",
+    "notification_shade_color": "-65536",
+    "control_panel_color": "-65536",
+    "open_app_drawer_color": "-65536",
+    "launcher_settings_color": "-65536",
+    "lock_color": "-65536",
+    "open_file_color": "-65536",
+    "reload_color": "-65536",
+    "open_recent_apps": "-65536",
+    "open_circle_nest": "-65536",
+    "go_parent_nest": "-65536"
+  }
+}
