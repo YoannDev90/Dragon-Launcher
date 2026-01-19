@@ -1,32 +1,54 @@
----
-name: Bug report
-about: Create a report to help us improve
-title: "[BUG] : "
-labels: bug
-assignees: Elnix90
-
----
-
-**Describe the bug**
-A clear and concise description of what the bug is.
-
-**To Reproduce**
-Steps to reproduce the behavior:
-1. Go to '...'
-2. Click on '....'
-3. Scroll down to '....'
-4. See error
-
-**Expected behavior**
-A clear and concise description of what you expected to happen.
-
-**Screenshots**
-If applicable, add screenshots to help explain your problem.
-
-**Please complete the following information:**
- - Device: [e.g. Samsung S20]
- - OS: [e.g. Android 14]
- - App Version [e.g. 1.2.6-beta-119]
-
-**Additional context**
-Add any other context about the problem here.
+name: Bug Report
+description: Report a bug not specific to Discord Bot or API
+title: "[BUG] "
+labels: ["bug"]
+body:
+  - type: textarea
+    id: description
+    attributes:
+      label: Description
+      description: A clear and concise description of the bug.
+      placeholder: Describe what happened.
+  - type: textarea
+    id: steps
+    attributes:
+      label: Steps to Reproduce
+      description: Steps to reproduce the behavior.
+      placeholder: |
+        1. Go to '...'
+        2. Click on '....'
+        3. Scroll down to '....'
+        4. See error
+  - type: textarea
+    id: expected
+    attributes:
+      label: Expected Behavior
+      description: What you expected to happen.
+  - type: textarea
+    id: actual
+    attributes:
+      label: Actual Behavior
+      description: What actually happened.
+  - type: input
+    id: version
+    attributes:
+      label: Version
+      description: What version of Dragon Launcher are you using?
+      placeholder: e.g., v2.2.0
+  - type: input
+    id: device_and_version
+    attributes:
+      label: Device and version
+      description: What device are you using, and what android version?
+      placeholder: e.g., Google Pixel 10, Android16
+  - type: textarea
+    id: logs
+    attributes:
+      label: Logs
+      description: If applicable, add logs to help explain your problem.
+      render: shell
+  - type: textarea
+    id: additional
+    attributes:
+      label: Additional Context
+      description: Add any other context about the problem here.
