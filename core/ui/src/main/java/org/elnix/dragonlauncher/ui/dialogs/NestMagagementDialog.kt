@@ -222,7 +222,7 @@ private fun NestManagementItem(
             ) {
                 Text(
                     text = "ID: ${nest.id}",
-                    color = MaterialTheme.colorScheme.onPrimary.copy(0.9f)
+                    color = MaterialTheme.colorScheme.onSurface.copy(0.9f)
                 )
 
                 Icon(
