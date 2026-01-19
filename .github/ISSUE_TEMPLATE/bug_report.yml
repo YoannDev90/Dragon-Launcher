@@ -35,7 +35,7 @@ body:
       label: Version
       description: What version of Dragon Launcher are you using?
       placeholder: e.g., v2.2.0
-  - type: input
+  - type: textarea
     id: device_and_version
     attributes:
       label: Device and version
