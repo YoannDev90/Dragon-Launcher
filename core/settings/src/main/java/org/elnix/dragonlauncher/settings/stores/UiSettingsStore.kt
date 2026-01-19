@@ -54,7 +54,7 @@ object UiSettingsStore : BaseSettingsStore<Map<String, Any?>>() {
         val autoSeparatePoints: Boolean = true,
         val showAppPreviewIconCenterStartPosition: Boolean = false,
         val linePreviewSnapToAction: Boolean = false,
-        val minAngleFromAPointToActivateIt: Int = 30,
+        val minAngleFromAPointToActivateIt: Int = 0,
         val showAllActionsOnCurrentCircle: Boolean = false,
         val iconPackKey: String? = null,
         val iconPackTint: Int? = null,

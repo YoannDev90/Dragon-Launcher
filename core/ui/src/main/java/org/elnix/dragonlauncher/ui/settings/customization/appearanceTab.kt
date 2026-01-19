@@ -337,15 +337,34 @@ fun AppearanceTab(
 
 
         item {
-            SliderWithLabel(
-                label = stringResource(R.string.min_dist_to_activate_action),
-                value = minAngleFromAPointToActivateIt,
-                showValue = true,
-                valueRange = 0..360,
-                color = MaterialTheme.colorScheme.primary,
-                onReset = { scope.launch { UiSettingsStore.setMinAngleFromAPointToActivateIt(ctx, 30) } }
+            Column(
+                modifier = Modifier
+                    .clip(RoundedCornerShape(12.dp))
+                    .background(MaterialTheme.colorScheme.surface.adjustBrightness(0.7f))
+                    .border(
+                        1.dp,
+                        MaterialTheme.colorScheme.primary.adjustBrightness(0.2f),
+                        RoundedCornerShape(12.dp)
+                    )
+                    .padding(8.dp)
             ) {
-                scope.launch { UiSettingsStore.setMinAngleFromAPointToActivateIt(ctx, it) }
+                SliderWithLabel(
+                    label = stringResource(R.string.min_dist_to_activate_action),
+                    value = minAngleFromAPointToActivateIt,
+                    showValue = true,
+                    valueRange = 0..360,
+                    color = MaterialTheme.colorScheme.primary,
+                    onReset = {
+                        scope.launch {
+                            UiSettingsStore.setMinAngleFromAPointToActivateIt(
+                                ctx,
+                                0
+                            )
+                        }
+                    }
+                ) {
+                    scope.launch { UiSettingsStore.setMinAngleFromAPointToActivateIt(ctx, it) }
+                }
             }
         }
 
