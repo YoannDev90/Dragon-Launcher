@@ -1224,6 +1224,7 @@ fun SettingsScreen(
 
             },
             onSelect = {
+                nestNavigation.goToNest(it.id)
                 showNestManagementDialog = false
             }
         )
