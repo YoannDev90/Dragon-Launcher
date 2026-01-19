@@ -11,7 +11,6 @@ import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.firstOrNull
 import kotlinx.coroutines.flow.map
 import org.elnix.dragonlauncher.settings.BaseSettingsStore
-import org.elnix.dragonlauncher.settings.behaviorDataStore
 import org.elnix.dragonlauncher.settings.getBooleanStrict
 import org.elnix.dragonlauncher.settings.getIntStrict
 import org.elnix.dragonlauncher.settings.getStringStrict
@@ -261,24 +260,24 @@ object UiSettingsStore : BaseSettingsStore<Map<String, Any?>>() {
     }
 
     suspend fun setAppLabelIconOverlayTopPadding(ctx: Context, value: Int) {
-        ctx.behaviorDataStore.edit { it[APP_LABEL_ICON_OVERLAY_TOP_PADDING] = value }
+        ctx.uiDatastore.edit { it[APP_LABEL_ICON_OVERLAY_TOP_PADDING] = value }
     }
 
     fun getAppLabelIconOverlayTopPadding(ctx: Context): Flow<Int> =
-        ctx.behaviorDataStore.data.map { it[APP_LABEL_ICON_OVERLAY_TOP_PADDING] ?: defaults.appLabelIconOverlayTopPadding }
+        ctx.uiDatastore.data.map { it[APP_LABEL_ICON_OVERLAY_TOP_PADDING] ?: defaults.appLabelIconOverlayTopPadding }
 
     fun getAppLabelOverlaySize(ctx: Context): Flow<Int> =
-        ctx.behaviorDataStore.data.map { it[APP_LABEL_OVERLAY_SIZE] ?: defaults.appLabelOverlaySize }
+        ctx.uiDatastore.data.map { it[APP_LABEL_OVERLAY_SIZE] ?: defaults.appLabelOverlaySize }
 
     suspend fun setAppLabelOverlaySize(ctx: Context, value: Int) {
-        ctx.behaviorDataStore.edit { it[APP_LABEL_OVERLAY_SIZE] = value }
+        ctx.uiDatastore.edit { it[APP_LABEL_OVERLAY_SIZE] = value }
     }
 
     suspend fun setAppIconOverlaySize(ctx: Context, value: Int) {
-        ctx.behaviorDataStore.edit { it[APP_ICON_OVERLAY_SIZE] = value }
+        ctx.uiDatastore.edit { it[APP_ICON_OVERLAY_SIZE] = value }
     }
     fun getAppIconOverlaySize(ctx: Context): Flow<Int> =
-        ctx.behaviorDataStore.data.map { it[APP_ICON_OVERLAY_SIZE] ?: defaults.appIconOverlaySize }
+        ctx.uiDatastore.data.map { it[APP_ICON_OVERLAY_SIZE] ?: defaults.appIconOverlaySize }
 
 
     // --------------------------------
@@ -416,7 +415,6 @@ object UiSettingsStore : BaseSettingsStore<Map<String, Any?>>() {
                 prefs[APP_ICON_OVERLAY_SIZE],
                 defaults.appIconOverlaySize
             )
-
         }
     }
 
