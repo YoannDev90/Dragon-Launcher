@@ -383,7 +383,7 @@ fun AdvancedSettingsScreen(
                         .size(48.dp)
                         .clip(CircleShape)
                         .clickable {
-                            ctx.openUrl("https://github.com/mlm-games/CCLauncher")
+                            ctx.openUrl("https://lthb.fr")
                         }
                         .background(MaterialTheme.colorScheme.surfaceVariant),
                     contentScale = ContentScale.Crop
