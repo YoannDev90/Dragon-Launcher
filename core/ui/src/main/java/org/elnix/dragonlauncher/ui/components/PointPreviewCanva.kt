@@ -41,32 +41,34 @@ fun PointPreviewCanvas(
             point = editPoint,
             nests = nests,
             points = points,
-            defaultPoint = defaultPoint,
             center = Offset(leftX, centerY),
             ctx = ctx,
             circleColor = circleColor,
+            showCircle = true,
             surfaceColorDraw = backgroundSurfaceColor,
             extraColors = extraColors,
             pointIcons = pointIcons,
-            preventBgErasing = true,
-            deepNest = 1
+            defaultPoint = defaultPoint,
+            deepNest = 1,
+            preventBgErasing = true
         )
 
         // Right action
         actionsInCircle(
             selected = true,
             point = editPoint,
-            points = points,
-            defaultPoint = defaultPoint,
             nests = nests,
+            points = points,
             center = Offset(rightX, centerY),
             ctx = ctx,
             circleColor = circleColor,
+            showCircle = true,
             surfaceColorDraw = backgroundSurfaceColor,
             extraColors = extraColors,
             pointIcons = pointIcons,
-            preventBgErasing = true,
-            deepNest = 1
+            defaultPoint = defaultPoint,
+            deepNest = 1,
+            preventBgErasing = true
         )
     }
 }

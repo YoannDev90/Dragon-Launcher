@@ -191,20 +191,21 @@ private fun NestManagementItem(
             actionsInCircle(
                 selected = false,
                 point = editPoint,
-                defaultPoint = defaultPoint,
                 nests = nests,
                 points = points,
                 center = center,
                 ctx = ctx,
                 circleColor = circleColor,
+                showCircle = true,
                 surfaceColorDraw = surfaceColorDraw,
                 extraColors = extraColors,
                 pointIcons = pointIcons,
-                preventBgErasing = true,
-                deepNest = 1
+                defaultPoint = defaultPoint,
+                deepNest = 1,
+                preventBgErasing = true
             )
-
         }
+
         Column(
             modifier = Modifier
                 .weight(1f)

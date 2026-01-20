@@ -31,6 +31,7 @@ fun DrawScope.actionsInCircle(
     center: Offset,
     ctx: Context,
     circleColor: Color,
+    showCircle: Boolean,
     surfaceColorDraw: Color,
     extraColors: ExtraColors,
     pointIcons: Map<String, ImageBitmap>,
@@ -145,6 +146,7 @@ fun DrawScope.actionsInCircle(
             circlesSettingsOverlay(
                 circles = newCircles,
                 circleColor = circleColor,
+                showCircle = showCircle,
                 center = center,
                 points = points,
                 defaultPoint = defaultPoint,

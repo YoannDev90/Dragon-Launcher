@@ -568,6 +568,7 @@ fun SettingsScreen(
                         circlesSettingsOverlay(
                             circles = circles,
                             circleColor = circleColor,
+                            showCircle = true,
                             center = center,
                             points = points,
                             defaultPoint = defaultPoint,
