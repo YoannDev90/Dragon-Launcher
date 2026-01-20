@@ -45,6 +45,7 @@ import androidx.compose.material.icons.filled.FullscreenExit
 import androidx.compose.material.icons.filled.Grid3x3
 import androidx.compose.material.icons.filled.Home
 import androidx.compose.material.icons.filled.MoreVert
+import androidx.compose.material.icons.filled.Refresh
 import androidx.compose.material.icons.filled.Remove
 import androidx.compose.material.icons.filled.Settings
 import androidx.compose.material.icons.outlined.ChangeCircle
@@ -514,8 +515,8 @@ fun SettingsScreen(
                                     )
                                 }
                             ) {
-                                Icon(Icons.Default.EditNote, null)
-                                Text(stringResource(R.string.edit_default_point_settings))
+                                Icon(Icons.Default.Refresh, null)
+                                Text(stringResource(R.string.reload_point_icons))
                             }
                         )
                     )
