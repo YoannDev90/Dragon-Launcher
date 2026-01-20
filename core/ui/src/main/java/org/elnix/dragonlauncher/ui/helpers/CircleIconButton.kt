@@ -31,7 +31,6 @@ fun CircleIconButton(
     contentDescription: String,
     tint: Color= MaterialTheme.colorScheme.primary,
     enabled: Boolean = true,
-    clickable: Boolean = true,
     padding: Dp = 20.dp,
     onClick: (() -> Unit)?
 ) {
@@ -49,19 +48,9 @@ fun CircleIconButton(
             tint = displayColor,
             modifier = modifier
                 .clip(CircleShape)
-                .then (
-                    if (clickable) {
-                        Modifier.combinedClickable(
-                            onLongClick = { showHelp = true },
-                            onClick = {
-                                if (clickable) {
-                                    onClick?.invoke()
-                                } else {
-                                    showHelp = true
-                                }
-                            }
-                        )
-                    } else Modifier
+                .combinedClickable(
+                    onLongClick = { showHelp = true },
+                    onClick = { onClick?.invoke() }
                 )
                 .background(backgroundColor)
                 .border(width = 1.dp, color = borderColor, shape = CircleShape)
@@ -95,7 +84,6 @@ fun CircleIconButton(
     contentDescription: String,
     tint: Color= MaterialTheme.colorScheme.primary,
     enabled: Boolean = true,
-    clickable: Boolean = true,
     padding: Dp = 20.dp,
     onClick: (() -> Unit)?
 ) {
@@ -111,19 +99,9 @@ fun CircleIconButton(
             modifier = modifier
                 .size(40.dp)
                 .clip(CircleShape)
-                .then (
-                    if (clickable) {
-                        Modifier.combinedClickable(
-                            onLongClick = { showHelp = true },
-                            onClick = {
-                                if (clickable) {
-                                    onClick?.invoke()
-                                } else {
-                                    showHelp = true
-                                }
-                            }
-                        )
-                    } else Modifier
+                .combinedClickable(
+                    onLongClick = { showHelp = true },
+                    onClick = { onClick?.invoke() }
                 )
                 .background(backgroundColor)
                 .border(width = 1.dp, color = borderColor, shape = CircleShape)

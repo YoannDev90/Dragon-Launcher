@@ -762,7 +762,6 @@ fun SettingsScreen(
                         contentDescription = stringResource(R.string.open_nest_circle),
                         tint = extraColors.goParentNest,
                         enabled = canGoNest,
-                        clickable = canGoNest,
                         padding = 7.dp
                     ) {
                         nestToGo?.let {
@@ -779,7 +778,6 @@ fun SettingsScreen(
                         contentDescription = stringResource(R.string.go_parent_nest),
                         tint = extraColors.goParentNest,
                         enabled = canGoback,
-                        clickable = canGoback,
                         padding = 7.dp
                     ) {
                         nestNavigation.goBack()
@@ -881,7 +879,6 @@ fun SettingsScreen(
                         icon = Icons.Default.ChevronLeft,
                         contentDescription = stringResource(R.string.move_point_to_left),
                         tint = moveColor,
-                        clickable = false,
                         enabled = aPointIsSelected,
                         padding = 10.dp,
                         onClick = null
@@ -934,7 +931,6 @@ fun SettingsScreen(
                         icon = Icons.Default.ChevronRight,
                         contentDescription = stringResource(R.string.move_point_to_right),
                         tint = moveColor,
-                        clickable = false,
                         enabled = aPointIsSelected,
                         padding = 10.dp,
                         onClick = null
@@ -1063,7 +1059,6 @@ fun SettingsScreen(
                         contentDescription = stringResource(R.string.remove_circle),
                         padding = 7.dp,
                         enabled = canRemoveCircle,
-                        clickable = canRemoveCircle,
                         tint = addRemoveCirclesColor
                     ) {
                         // Remove last circle

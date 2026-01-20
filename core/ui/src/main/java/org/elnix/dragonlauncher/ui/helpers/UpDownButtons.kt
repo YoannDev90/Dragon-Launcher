@@ -50,14 +50,14 @@ fun UpDownButton(
     var showHelpUp by remember { mutableStateOf(false) }
     var showHelpDown by remember { mutableStateOf(false) }
 
-    Box {
-        Column(
-            modifier = Modifier
-                .clip(CircleShape)
-                .border(1.dp, color.copy(alpha = 0.5f), CircleShape)
-                .width(56.dp)
-        ) {
+    Column(
+        modifier = Modifier
+            .clip(CircleShape)
+            .border(1.dp, color.copy(alpha = 0.5f), CircleShape)
+            .width(56.dp)
+    ) {
 
+        Box {
             Icon(
                 imageVector = upIcon,
                 contentDescription = null,
@@ -65,23 +65,31 @@ fun UpDownButton(
                 modifier = Modifier
                     .fillMaxWidth()
                     .background(upBackground)
-                    .then (
-                        if (upClickable) {
-                            Modifier.combinedClickable(
-                                onLongClick = { showHelpDown = true },
-                                onClick = {
-                                    if (upEnabled) {
-                                        onClickUp?.invoke()
-                                    } else {
-                                        showHelpUp = true
-                                    }
-                                }
-                            )
-                        } else Modifier
+                    .combinedClickable(
+                        onLongClick = { showHelpUp = true },
+                        onClick = { onClickUp?.invoke() }
                     )
                     .padding(padding)
             )
+            DropdownMenu(
+                expanded = showHelpUp,
+                onDismissRequest = { showHelpUp = false },
+                containerColor = Color.Transparent,
+                shadowElevation = 0.dp,
+                tonalElevation = 0.dp
+            ) {
+                Text(
+                    text = contentDescriptionUp,
+                    color = upTint,
+                    modifier = Modifier
+                        .clip(CircleShape)
+                        .background(upBackground.copy(0.4f))
+                        .padding(5.dp)
+                )
+            }
+        }
 
+        Box {
             Icon(
                 imageVector = downIcon,
                 contentDescription = null,
@@ -89,56 +97,29 @@ fun UpDownButton(
                 modifier = Modifier
                     .fillMaxWidth()
                     .background(downBackground)
-                    .then (
-                        if (downClickable) {
-                            Modifier.combinedClickable(
-                                onLongClick = { showHelpDown = true },
-                                onClick = {
-                                    if (downEnabled) {
-                                        onClickDown?.invoke()
-                                    } else {
-                                        showHelpDown = true
-                                    }
-                                }
-                            )
-                        } else Modifier
+                    .combinedClickable(
+                        onLongClick = { showHelpDown = true },
+                        onClick = { onClickDown?.invoke() }
                     )
                     .padding(padding)
             )
+
+            DropdownMenu(
+                expanded = showHelpDown,
+                onDismissRequest = { showHelpDown = false },
+                containerColor = Color.Transparent,
+                shadowElevation = 0.dp,
+                tonalElevation = 0.dp
+            ) {
+                Text(
+                    text = contentDescriptionDown,
+                    color = downTint,
+                    modifier = Modifier
+                        .clip(CircleShape)
+                        .background(downBackground.copy(0.4f))
+                        .padding(5.dp)
+                )
+            }
         }
-    }
-
-    DropdownMenu(
-        expanded = showHelpUp,
-        onDismissRequest = { showHelpUp = false },
-        containerColor = Color.Transparent,
-        shadowElevation = 0.dp,
-        tonalElevation = 0.dp
-    ) {
-        Text(
-            text = contentDescriptionUp,
-            color = upTint,
-            modifier = Modifier
-                .clip(CircleShape)
-                .background(upBackground.copy(0.4f))
-                .padding(5.dp)
-        )
-    }
-
-    DropdownMenu(
-        expanded = showHelpDown,
-        onDismissRequest = { showHelpDown = false },
-        containerColor = Color.Transparent,
-        shadowElevation = 0.dp,
-        tonalElevation = 0.dp
-    ) {
-        Text(
-            text = contentDescriptionDown,
-            color = downTint,
-            modifier = Modifier
-                .clip(CircleShape)
-                .background(downBackground.copy(0.4f))
-                .padding(5.dp)
-        )
     }
 }
