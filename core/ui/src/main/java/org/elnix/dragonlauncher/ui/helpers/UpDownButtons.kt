@@ -1,15 +1,24 @@
+@file:Suppress("AssignedValueIsNeverRead")
+
 package org.elnix.dragonlauncher.ui.helpers
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
-import androidx.compose.foundation.clickable
+import androidx.compose.foundation.combinedClickable
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.material3.DropdownMenu
 import androidx.compose.material3.Icon
+import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
@@ -22,6 +31,8 @@ fun UpDownButton(
     upIcon: ImageVector,
     downIcon: ImageVector,
     color: Color,
+    contentDescriptionUp: String,
+    contentDescriptionDown: String,
     upEnabled: Boolean = true,
     downEnabled: Boolean = true,
     upClickable: Boolean = true,
@@ -36,41 +47,98 @@ fun UpDownButton(
     val upBackground = color.copy(alpha = if (upEnabled) 0.2f else 0f)
     val downBackground = color.copy(alpha = if (downEnabled) 0.2f else 0f)
 
-    Column(
-        modifier = Modifier
-            .clip(CircleShape)
-            .border(1.dp, color.copy(alpha = 0.5f), CircleShape)
-            .width(56.dp)
+    var showHelpUp by remember { mutableStateOf(false) }
+    var showHelpDown by remember { mutableStateOf(false) }
+
+    Box {
+        Column(
+            modifier = Modifier
+                .clip(CircleShape)
+                .border(1.dp, color.copy(alpha = 0.5f), CircleShape)
+                .width(56.dp)
+        ) {
+
+            Icon(
+                imageVector = upIcon,
+                contentDescription = null,
+                tint = upTint,
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .background(upBackground)
+                    .then (
+                        if (upClickable) {
+                            Modifier.combinedClickable(
+                                onLongClick = { showHelpDown = true },
+                                onClick = {
+                                    if (upEnabled) {
+                                        onClickUp?.invoke()
+                                    } else {
+                                        showHelpUp = true
+                                    }
+                                }
+                            )
+                        } else Modifier
+                    )
+                    .padding(padding)
+            )
+
+            Icon(
+                imageVector = downIcon,
+                contentDescription = null,
+                tint = downTint,
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .background(downBackground)
+                    .then (
+                        if (downClickable) {
+                            Modifier.combinedClickable(
+                                onLongClick = { showHelpDown = true },
+                                onClick = {
+                                    if (downEnabled) {
+                                        onClickDown?.invoke()
+                                    } else {
+                                        showHelpDown = true
+                                    }
+                                }
+                            )
+                        } else Modifier
+                    )
+                    .padding(padding)
+            )
+        }
+    }
+
+    DropdownMenu(
+        expanded = showHelpUp,
+        onDismissRequest = { showHelpUp = false },
+        containerColor = Color.Transparent,
+        shadowElevation = 0.dp,
+        tonalElevation = 0.dp
     ) {
-
-        Icon(
-            imageVector = upIcon,
-            contentDescription = null,
-            tint = upTint,
+        Text(
+            text = contentDescriptionUp,
+            color = upTint,
             modifier = Modifier
-                .fillMaxWidth()
-                .background(upBackground)
-                .then(
-                    if (upClickable)
-                        Modifier.clickable { onClickUp?.invoke() }
-                    else Modifier
-                )
-                .padding(padding)
+                .clip(CircleShape)
+                .background(upBackground.copy(0.4f))
+                .padding(5.dp)
         )
+    }
 
-        Icon(
-            imageVector = downIcon,
-            contentDescription = null,
-            tint = downTint,
+    DropdownMenu(
+        expanded = showHelpDown,
+        onDismissRequest = { showHelpDown = false },
+        containerColor = Color.Transparent,
+        shadowElevation = 0.dp,
+        tonalElevation = 0.dp
+    ) {
+        Text(
+            text = contentDescriptionDown,
+            color = downTint,
             modifier = Modifier
-                .fillMaxWidth()
-                .background(downBackground)
-                .then(
-                    if (downClickable)
-                        Modifier.clickable { onClickDown?.invoke() }
-                    else Modifier
-                )
-                .padding(padding)
+                .clip(CircleShape)
+                .background(downBackground.copy(0.4f))
+                .padding(5.dp)
         )
     }
 }

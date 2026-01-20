@@ -313,4 +313,14 @@
     <string name="make_all_colors_identical">Make all colors identical</string>
     <string name="apply">Apply</string>
     <string name="reload_point_icons">Reload points icons</string>
+    <string name="center_selected_widget">Center Selected Widget</string>
+    <string name="reset_widget">Reset Widget</string>
+    <string name="select_previous_widget">Select previous widget</string>
+    <string name="select_next_widget">Select Next Widget</string>
+    <string name="move_selectec_widget_up">Move selected widget up</string>
+    <string name="move_selectec_widget_down">Move selected widget down</string>
+    <string name="enable_grid">Enable Grid</string>
+    <string name="enable_scale_snap">Enable scale snap</string>
+    <string name="add_circle">Add circle</string>
+    <string name="remove_circle">Remove Crircle</string>
 </resources>

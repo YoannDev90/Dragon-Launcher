@@ -6,8 +6,6 @@ import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.animation.core.tween
 import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.background
-import androidx.compose.foundation.border
-import androidx.compose.foundation.clickable
 import androidx.compose.foundation.gestures.detectDragGestures
 import androidx.compose.foundation.gestures.detectTapGestures
 import androidx.compose.foundation.layout.Arrangement
@@ -22,11 +20,9 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.ime
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.safeDrawing
-import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.windowInsetsPadding
 import androidx.compose.foundation.rememberScrollState
-import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.Redo
@@ -72,7 +68,6 @@ import androidx.compose.runtime.snapshotFlow
 import androidx.compose.runtime.snapshots.SnapshotStateList
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.clip
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.drawscope.Fill
@@ -1034,100 +1029,57 @@ fun SettingsScreen(
 
 
 
-                Column(
-                    modifier = Modifier,
-                    verticalArrangement = Arrangement.Center,
-                    horizontalAlignment = Alignment.CenterHorizontally
-                ) {
-                    Box(
-                        modifier = Modifier
-                            .clip(CircleShape)
-                            .clickable {
-
-                                logD(TAG, nests.toString())
-                                logD(TAG, "Received add update, current nests size: ${nests.size}")
-
-
-                                // The new circle id is the size minus one, cause circleIndexes
-                                // starts at 0 and the cancel zone is always in the list
-                                val newCircleNumber = currentNest.dragDistances.size - 1
-
-                                logD(TAG, "new circle number: $newCircleNumber")
-
-                                logD(TAG, nests.map {
-                                    if (it.id == nestId) {
-                                        it.copy(
-                                            dragDistances = it.dragDistances + (newCircleNumber to defaultDragDistance(
-                                                newCircleNumber
-                                            ))
-                                        )
-                                    } else it
-                                }.toString())
-                                // Add a new circle
-                                pendingNestUpdate = nests.map {
-                                    if (it.id == nestId) {
-                                        it.copy(
-                                            dragDistances = it.dragDistances + (newCircleNumber to defaultDragDistance(
-                                                newCircleNumber
-                                            ))
-                                        )
-                                    } else it
-                                }
-                            }
-                            .background(addRemoveCirclesColor.copy(0.2f))
-                            .border(
-                                width = 1.dp,
-                                color = addRemoveCirclesColor,
-                                shape = CircleShape
-                            )
-                            .size(40.dp)
-                            .padding(7.dp),
-                        contentAlignment = Alignment.Center
+                Column {
+                    CircleIconButton(
+                        text = "+1",
+                        contentDescription = stringResource(R.string.add_circle),
+                        padding = 7.dp,
+                        tint = addRemoveCirclesColor
                     ) {
-                        Text(
-                            text = "+1",
-                            color = addRemoveCirclesColor,
-                        )
+                        // The new circle id is the size minus one, cause circleIndexes
+                        // starts at 0 and the cancel zone is always in the list
+                        val newCircleNumber = currentNest.dragDistances.size - 1
+
+                        // Add a new circle
+                        pendingNestUpdate = nests.map {
+                            if (it.id == nestId) {
+                                it.copy(
+                                    dragDistances = it.dragDistances + (newCircleNumber to defaultDragDistance(
+                                        newCircleNumber
+                                    ))
+                                )
+                            } else it
+                        }
                     }
+
+
 
                     val canRemoveCircle = circleNumber > 1
 
-                    Box(
-                        modifier = Modifier
-                            .clip(CircleShape)
-                            .clickable(canRemoveCircle) {
 
-                                // Remove last circle
-                                pendingNestUpdate = nests.map {
-                                    if (it.id == nestId) {
-
-                                        // Filters keys that are above zero (cannot remove if only one circle, it's a safe guard
-                                        val maxCircle =
-                                            it.dragDistances.keys.filter { k -> k > 0 }.maxOrNull()
-                                        val updatedDistances = if (maxCircle != null) {
-                                            it.dragDistances - maxCircle
-                                        } else {
-                                            it.dragDistances
-                                        }
-                                        it.copy(dragDistances = updatedDistances)
-                                    } else it
-                                }
-                            }
-                            .background(addRemoveCirclesColor.copy(if (canRemoveCircle) 0.2f else 0f))
-                            .border(
-                                width = 1.dp,
-                                color = addRemoveCirclesColor.copy(if (canRemoveCircle) 1f else 0.2f),
-                                shape = CircleShape
-                            )
-                            .size(40.dp)
-                            .padding(7.dp),
-                        contentAlignment = Alignment.Center
-
+                    CircleIconButton(
+                        text = "-1",
+                        contentDescription = stringResource(R.string.remove_circle),
+                        padding = 7.dp,
+                        enabled = canRemoveCircle,
+                        clickable = canRemoveCircle,
+                        tint = addRemoveCirclesColor
                     ) {
-                        Text(
-                            text = "-1",
-                            color = addRemoveCirclesColor.copy(if (canRemoveCircle) 1f else 0.2f),
-                        )
+                        // Remove last circle
+                        pendingNestUpdate = nests.map {
+                            if (it.id == nestId) {
+
+                                // Filters keys that are above zero (cannot remove if only one circle, it's a safe guard
+                                val maxCircle =
+                                    it.dragDistances.keys.filter { k -> k > 0 }.maxOrNull()
+                                val updatedDistances = if (maxCircle != null) {
+                                    it.dragDistances - maxCircle
+                                } else {
+                                    it.dragDistances
+                                }
+                                it.copy(dragDistances = updatedDistances)
+                            } else it
+                        }
                     }
                 }
             }
