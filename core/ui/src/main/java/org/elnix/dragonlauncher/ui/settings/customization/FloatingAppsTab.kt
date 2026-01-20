@@ -266,8 +266,6 @@ fun FloatingAppsTab(
                 contentDescriptionDown = stringResource(R.string.reset_widget),
                 upEnabled = isSelected,
                 downEnabled = isSelected,
-                upClickable = isSelected,
-                downClickable = isSelected,
                 padding = 16.dp,
                 onClickUp = {
                     selected?.let { floatingAppsViewModel.centerFloatingApp(it.id) }
@@ -292,8 +290,6 @@ fun FloatingAppsTab(
                 contentDescriptionDown = stringResource(R.string.select_next_widget),
                 upEnabled = true,
                 downEnabled = true,
-                upClickable = true,
-                downClickable = true,
                 padding = 16.dp,
                 onClickUp = {
                     if (floatingApps.isNotEmpty()) {
@@ -321,8 +317,6 @@ fun FloatingAppsTab(
                 contentDescriptionDown = stringResource(R.string.move_selectec_widget_down),
                 upEnabled = upDownEnabled,
                 downEnabled = upDownEnabled,
-                upClickable = upDownEnabled,
-                downClickable = upDownEnabled,
                 padding = 16.dp,
                 onClickUp = {
                     selected?.let { floatingAppsViewModel.moveFloatingAppDown(it.id) }
@@ -340,8 +334,6 @@ fun FloatingAppsTab(
                 contentDescriptionDown = stringResource(R.string.enable_scale_snap),
                 upEnabled = true,
                 downEnabled = true,
-                upClickable = true,
-                downClickable = true,
                 padding = 16.dp,
                 onClickUp = { snapMove = !snapMove },
                 onClickDown = { snapResize = !snapResize }

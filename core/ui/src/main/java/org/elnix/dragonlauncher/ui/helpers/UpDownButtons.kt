@@ -35,8 +35,6 @@ fun UpDownButton(
     contentDescriptionDown: String,
     upEnabled: Boolean = true,
     downEnabled: Boolean = true,
-    upClickable: Boolean = true,
-    downClickable: Boolean = true,
     padding: Dp = 20.dp,
     onClickUp: (() -> Unit)?,
     onClickDown: (() -> Unit)?
