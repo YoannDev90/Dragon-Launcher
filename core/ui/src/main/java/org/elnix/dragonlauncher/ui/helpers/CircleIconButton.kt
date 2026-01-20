@@ -54,7 +54,7 @@ fun CircleIconButton(
                         Modifier.combinedClickable(
                             onLongClick = { showHelp = true },
                             onClick = {
-                                if (enabled) {
+                                if (clickable) {
                                     onClick?.invoke()
                                 } else {
                                     showHelp = true
@@ -116,7 +116,7 @@ fun CircleIconButton(
                         Modifier.combinedClickable(
                             onLongClick = { showHelp = true },
                             onClick = {
-                                if (enabled) {
+                                if (clickable) {
                                     onClick?.invoke()
                                 } else {
                                     showHelp = true
