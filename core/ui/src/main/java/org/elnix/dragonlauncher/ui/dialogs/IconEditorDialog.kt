@@ -55,7 +55,6 @@ import org.elnix.dragonlauncher.common.serializables.CustomIconSerializable
 import org.elnix.dragonlauncher.common.serializables.IconType
 import org.elnix.dragonlauncher.common.serializables.SwipePointSerializable
 import org.elnix.dragonlauncher.common.serializables.defaultSwipePointsValues
-import org.elnix.dragonlauncher.common.utils.ImageUtils
 import org.elnix.dragonlauncher.common.utils.ImageUtils.uriToBase64
 import org.elnix.dragonlauncher.common.utils.colors.adjustBrightness
 import org.elnix.dragonlauncher.models.AppsViewModel
@@ -95,7 +94,7 @@ fun IconEditorDialog(
 
     val previewPoint = point.copy(customIcon = selectedIcon)
     val previewIcon = remember(selectedIcon) {
-        mapOf(point.id to appsViewModel.renderPointIcon(previewPoint, 64))
+        mapOf(point.id to appsViewModel.loadPointIcon(previewPoint, 64))
     }
     val source = selectedIcon?.source
 
@@ -443,15 +442,15 @@ fun IconEditorDialog(
         IconPackPickerDialog(
             appsViewModel = appsViewModel,
             onDismiss = { showIconPackPicker = false },
-            onIconPicked = { iconBitmap ->
-                scope.launch {
-                    val base64 = ImageUtils.imageBitmapToBase64(iconBitmap)
-                    selectedIcon = (selectedIcon ?: CustomIconSerializable()).copy(
-                        type = IconType.ICON_PACK,
-                        source = base64
-                    )
-                    showIconPackPicker = false
-                }
+            onIconPicked = { name, packName ->
+                // Now stores the name of the drawable, to avoid storing big bitmaps,
+                // renders at runtime, as equally efficient since rendering bitmap also consumes lots
+                // Comma separated with the name of the drawable and the pack name
+                selectedIcon = (selectedIcon ?: CustomIconSerializable()).copy(
+                    type = IconType.ICON_PACK,
+                    source = "$name,$packName"
+                )
+                showIconPackPicker = false
             }
         )
     }

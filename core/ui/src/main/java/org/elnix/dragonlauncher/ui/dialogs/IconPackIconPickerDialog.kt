@@ -15,7 +15,6 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
-import androidx.compose.ui.graphics.ImageBitmap
 import androidx.compose.ui.unit.dp
 import org.elnix.dragonlauncher.common.serializables.IconPackInfo
 import org.elnix.dragonlauncher.models.AppsViewModel
@@ -26,7 +25,7 @@ import org.elnix.dragonlauncher.ui.helpers.iconPackListContent
 fun IconPackPickerDialog(
     appsViewModel: AppsViewModel,
     onDismiss: () -> Unit,
-    onIconPicked: (ImageBitmap) -> Unit
+    onIconPicked: (drawableName: String, packName: String) -> Unit
 ) {
     var showIconPickerDialog by remember { mutableStateOf<IconPackInfo?>(null) }
 
@@ -36,6 +35,7 @@ fun IconPackPickerDialog(
     LaunchedEffect(Unit) {
         appsViewModel.loadIconsPacks()
     }
+
     AlertDialog(
         onDismissRequest = onDismiss,
         text = {
@@ -71,8 +71,8 @@ fun IconPackPickerDialog(
             pack = pack,
             onDismiss = onDismiss,
             onIconSelected = {
-                _, iconBitmap ->
-                onIconPicked(iconBitmap)
+                name ->
+                onIconPicked(name, pack.packageName)
             }
         )
     }

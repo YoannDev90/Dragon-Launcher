@@ -1,6 +1,5 @@
 package org.elnix.dragonlauncher.ui.dialogs
 
-import android.graphics.Bitmap
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
@@ -36,8 +35,6 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.ImageBitmap
-import androidx.compose.ui.graphics.asAndroidBitmap
-import androidx.compose.ui.graphics.asImageBitmap
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
@@ -57,7 +54,7 @@ fun IconPickerListDialog(
     appsViewModel: AppsViewModel,
     pack: IconPackInfo,
     onDismiss: () -> Unit,
-    onIconSelected: (iconName: String, icon: ImageBitmap) -> Unit
+    onIconSelected: (iconName: String) -> Unit
 ) {
     var searchQuery by remember { mutableStateOf("") }
 
@@ -69,6 +66,7 @@ fun IconPickerListDialog(
             it.contains(searchQuery, ignoreCase = true)
         }
     }
+
     val iconPackTint by appsViewModel.packTint.collectAsState()
 
     CustomAlertDialog(
@@ -137,8 +135,8 @@ fun IconPickerListDialog(
                             pack = pack,
                             drawableName = filteredDrawable,
                             packTint = iconPackTint,
-                            onClick = { bitmap ->
-                                onIconSelected(filteredDrawable, bitmap.asImageBitmap())
+                            onClick = {
+                                onIconSelected(filteredDrawable)
                                 onDismiss()
                             }
                         )
@@ -175,7 +173,7 @@ private fun IconCell(
     pack: IconPackInfo,
     drawableName: String,
     packTint: Int?,
-    onClick: (Bitmap) -> Unit
+    onClick: () -> Unit
 ) {
 
     val bitmap by produceState<ImageBitmap?>(null, drawableName) {
@@ -195,7 +193,7 @@ private fun IconCell(
                 bitmap = it,
                 contentDescription = null,
                 modifier = Modifier.clickable {
-                    onClick(it.asAndroidBitmap())
+                    onClick()
                 },
                 tint = Color.Unspecified
             )

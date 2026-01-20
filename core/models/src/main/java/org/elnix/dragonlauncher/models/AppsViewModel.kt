@@ -31,6 +31,7 @@ import org.elnix.dragonlauncher.common.serializables.AppOverride
 import org.elnix.dragonlauncher.common.serializables.CustomIconSerializable
 import org.elnix.dragonlauncher.common.serializables.IconMapping
 import org.elnix.dragonlauncher.common.serializables.IconPackInfo
+import org.elnix.dragonlauncher.common.serializables.IconType
 import org.elnix.dragonlauncher.common.serializables.SwipeActionSerializable
 import org.elnix.dragonlauncher.common.serializables.SwipePointSerializable
 import org.elnix.dragonlauncher.common.serializables.Workspace
@@ -285,34 +286,75 @@ class AppsViewModel(
     }
 
 
-    fun renderPointIcon(
-        point: SwipePointSerializable,
+    /**
+     * Renders a [CustomIconSerializable] from a given orig [ImageBitmap]
+     * @param orig the base [ImageBitmap] that will be edited
+     * @param customIcon the custom icon to render with
+     * @param sizePx size of the output [ImageBitmap]
+     *
+     * @return [ImageBitmap] the rendered icon after customIcon process
+     */
+    private fun renderCustomIcon(
+        orig: ImageBitmap,
+        customIcon: CustomIconSerializable,
         sizePx: Int
     ): ImageBitmap {
 
-        val base = createUntintedBitmap(
-            icons = _icons.value,
-            action = point.action,
-            ctx = ctx,
-            width = sizePx,
-            height = sizePx
+        val base: ImageBitmap =
+            customIcon.takeIf { it.type == IconType.ICON_PACK }
+                ?.source
+                ?.takeIf { ',' in it }
+                ?.let { source ->
+                    val (drawable, packName) = source.split(',', limit = 2)
+
+                    // If source is a specified icon from icon pack, use it, else, load the action icon
+                    loadIconFromPack(packName, drawable)
+                        ?.let { loadDrawableAsBitmap(it, sizePx, sizePx, packTint.value) }
+                }
+                ?: orig
+
+        return resolveCustomIconBitmap(
+            base = base,
+            icon = customIcon,
+            sizePx = sizePx
         )
-
-        val final = if (point.customIcon != null) {
-            resolveCustomIconBitmap(
-                base = base,
-                icon = point.customIcon!!,
-                sizePx = sizePx
-            )
-        } else {
-            base
-        }
-
-        return final
     }
 
     private fun invalidateAllPointIcons() {
         _pointIcons.value = emptyMap()
+    }
+
+
+    /**
+     * Load point icon
+     *
+     * @param point a [SwipePointSerializable] Object, that can contain a custom icon to render
+     * @param sizePx size of the output [ImageBitmap]
+     * @return [ImageBitmap]
+     */
+    fun loadPointIcon(
+        point: SwipePointSerializable,
+        sizePx: Int
+    ): ImageBitmap {
+
+        // Create the default bitmap, uses the app icons for default value if action is an app
+        val orig = createUntintedBitmap(
+            action = point.action,
+            ctx = ctx,
+            icons = _icons.value,
+            width = sizePx,
+            height = sizePx
+        )
+
+
+        // Returns either the icon rendered using the custom icon renderer, or the base icon if no render provided
+        return point.customIcon?.let { customIcon ->
+            renderCustomIcon(
+                orig = orig,
+                customIcon = customIcon,
+                sizePx = sizePx
+            )
+        } ?: orig
     }
 
     fun preloadPointIcons(
@@ -328,7 +370,7 @@ class AppsViewModel(
 
                     put(
                         id,
-                        renderPointIcon(
+                        loadPointIcon(
                             point = p,
                             sizePx = sizePx
                         )
@@ -350,7 +392,7 @@ class AppsViewModel(
         val id = point.id
 
         scope.launch(Dispatchers.IO) {
-            val bmp = renderPointIcon(
+            val bmp = loadPointIcon(
                 point = point,
                 sizePx = sizePx
             )
@@ -367,7 +409,7 @@ class AppsViewModel(
             apps.mapNotNull { app ->
                 runCatching {
                     iconSemaphore.withPermit {
-                        loadSingleIcon(app, true)
+                        loadSingleIcon(app.packageName, app.userId, true)
                     }
                 }.getOrNull()
             }.toMap()
@@ -378,17 +420,19 @@ class AppsViewModel(
         app: AppModel,
         useOverride: Boolean
     ) {
-        _icons.update { it + loadSingleIcon(app, useOverride) }
+        _icons.update { it + loadSingleIcon(app.packageName, app.userId, useOverride) }
     }
 
-    fun loadSingleIcon(
-        app: AppModel,
+    // TODO MAke a single function to load icons instead of 2 separated and shitty
+
+    private fun loadSingleIcon(
+        packageName: String,
+        userId: Int?,
         useOverrides: Boolean
     ): Pair<String, ImageBitmap> {
-        // blocking I/O & bitmap decoding
 
         var isIconPack = false
-        val packIconName = getCachedIconMapping(app.packageName)
+        val packIconName = getCachedIconMapping(packageName)
         val drawable =
             packIconName?.let {
                 isIconPack = true
@@ -396,26 +440,26 @@ class AppsViewModel(
                     selectedIconPack.value?.packageName,
                     it
                 )
-            } ?: pmCompat.getAppIcon(app.packageName, app.userId ?: 0)
+            } ?: pmCompat.getAppIcon(packageName, userId ?: 0)
 
 
-        val base = loadDrawableAsBitmap(
+        val orig = loadDrawableAsBitmap(
             drawable, 128, 128, _packTint.value.takeIf { isIconPack }
         )
 
         if (useOverrides) {
-            _workspacesState.value.appOverrides[app.packageName]?.customIcon?.let { customIcon ->
+            _workspacesState.value.appOverrides[packageName]?.customIcon?.let { customIcon ->
 
-                return app.packageName to resolveCustomIconBitmap(
-                    base = base,
-                    icon = customIcon,
+                return packageName to renderCustomIcon(
+                    orig = orig,
+                    customIcon = customIcon,
                     sizePx = 128
                 )
             }
         }
 
 
-        return app.packageName to base
+        return packageName to orig
     }
 
 

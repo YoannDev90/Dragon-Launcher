@@ -33,7 +33,6 @@ import androidx.core.graphics.drawable.toBitmap
 import androidx.core.graphics.scale
 import androidx.core.graphics.withSave
 import org.elnix.dragonlauncher.common.R
-import org.elnix.dragonlauncher.common.logging.logD
 import org.elnix.dragonlauncher.common.logging.logE
 import org.elnix.dragonlauncher.common.serializables.CustomIconSerializable
 import org.elnix.dragonlauncher.common.serializables.IconType
@@ -284,13 +283,13 @@ object ImageUtils {
     ): ImageBitmap {
         // Step 1: choose source bitmap (override or base)
         val sourceBitmap: ImageBitmap = when (icon.type) {
-            IconType.BITMAP,
-            IconType.ICON_PACK -> {
+            IconType.BITMAP -> {
                 icon.source
                     ?.let { base64ToImageBitmap(it) }
                     ?: base
             }
 
+            IconType.ICON_PACK -> base
             IconType.TEXT -> {
                 icon.source?.let {
                     textToBitmap(
