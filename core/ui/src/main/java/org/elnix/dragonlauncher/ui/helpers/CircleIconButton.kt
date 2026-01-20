@@ -2,12 +2,19 @@ package org.elnix.dragonlauncher.ui.helpers
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
-import androidx.compose.foundation.clickable
+import androidx.compose.foundation.combinedClickable
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.material3.DropdownMenu
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
@@ -18,9 +25,9 @@ import androidx.compose.ui.unit.dp
 @Composable
 fun CircleIconButton(
     icon: ImageVector,
-    contentDescription: String? = null,
-    tint: Color= MaterialTheme.colorScheme.primary,
     modifier: Modifier = Modifier,
+    contentDescription: String,
+    tint: Color= MaterialTheme.colorScheme.primary,
     enabled: Boolean = true,
     clickable: Boolean = true,
     padding: Dp = 20.dp,
@@ -30,18 +37,50 @@ fun CircleIconButton(
     val backgroundColor = tint.copy(if (enabled) 0.2f else 0f)
     val borderColor = tint.copy(if (enabled) 1f else 0.5f)
 
-    Icon(
-        imageVector = icon,
-        contentDescription = contentDescription,
-        tint = displayColor,
-        modifier = modifier
-            .clip(CircleShape)
-            .then(
-                if (clickable) Modifier.clickable { onClick?.invoke()}
-                else Modifier
+
+    var showHelp by remember { mutableStateOf(false) }
+
+    Box {
+        Icon(
+            imageVector = icon,
+            contentDescription = contentDescription,
+            tint = displayColor,
+            modifier = modifier
+                .clip(CircleShape)
+                .then (
+                    if (clickable) {
+                        Modifier.combinedClickable(
+                            onLongClick = { showHelp = true },
+                            onClick = {
+                                if (enabled) {
+                                    onClick?.invoke()
+                                } else {
+                                    showHelp = true
+                                }
+                            }
+                        )
+                    } else Modifier
+                )
+                .background(backgroundColor)
+                .border(width = 1.dp, color = borderColor, shape = CircleShape)
+                .padding(padding)
+        )
+
+        DropdownMenu(
+            expanded = showHelp,
+            onDismissRequest = { showHelp = false },
+            containerColor = Color.Transparent,
+            shadowElevation = 0.dp,
+            tonalElevation = 0.dp
+        ) {
+            Text(
+                text = contentDescription,
+                color = displayColor,
+                modifier = Modifier
+                    .clip(CircleShape)
+                    .background(backgroundColor.copy(0.4f))
+                    .padding(5.dp)
             )
-            .background(backgroundColor)
-            .border(width = 1.dp, color = borderColor, shape = CircleShape)
-            .padding(padding)
-    )
+        }
+    }
 }
