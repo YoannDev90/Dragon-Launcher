@@ -132,6 +132,7 @@ import kotlin.math.abs
 import kotlin.math.atan2
 import kotlin.math.cos
 import kotlin.math.hypot
+import kotlin.math.max
 import kotlin.math.round
 import kotlin.math.sin
 
@@ -234,16 +235,27 @@ fun SettingsScreen(
         }
     }
 
+    val pointIconsSize = max(appIconOverlaySize, defaultPoint.size ?: 64)
 
 
-    LaunchedEffect(points, nestId) {
+    /**
+     * Reload all point icons on every change of the points, nestId, appIconOverlaySize, or default point
+     * Set the size of the icons to the max size between the 2 overlays sizes preview to display them cleanly
+     */
+    LaunchedEffect(points, nestId, appIconOverlaySize, defaultPoint.hashCode()) {
+
+
         appsViewModel.preloadPointIcons(
-            points.filter { it.nestId == nestId }
+            points = points.filter { it.nestId == nestId },
+            sizePx = pointIconsSize
         )
 
         /* Load asynchronously all the other points, to avoid lag */
         scope.launch(Dispatchers.IO) {
-            appsViewModel.preloadPointIcons(points)
+            appsViewModel.preloadPointIcons(
+                points = points,
+                sizePx = pointIconsSize
+            )
         }
     }
 
@@ -488,6 +500,18 @@ fun SettingsScreen(
                                 onClick = {
                                     showBurgerMenu = false
                                     showEditDefaultPoint = true
+                                }
+                            ) {
+                                Icon(Icons.Default.EditNote, null)
+                                Text(stringResource(R.string.edit_default_point_settings))
+                            },
+                            BurgerAction(
+                                onClick = {
+                                    appsViewModel.preloadPointIcons(
+                                        points = points,
+                                        sizePx = pointIconsSize,
+                                        reloadAll = true
+                                    )
                                 }
                             ) {
                                 Icon(Icons.Default.EditNote, null)

@@ -60,6 +60,7 @@ import org.elnix.dragonlauncher.ui.dialogs.FilePickerDialog
 import org.elnix.dragonlauncher.ui.helpers.HoldToActivateArc
 import org.elnix.dragonlauncher.ui.helpers.rememberHoldToOpenSettings
 import org.elnix.dragonlauncher.ui.statusbar.StatusBar
+import kotlin.math.max
 
 
 @SuppressLint("LocalContextResourcesRead")
@@ -178,17 +179,30 @@ fun MainScreen(
     val density = LocalDensity.current
     val cellSizePx = floatingAppsViewModel.cellSizePx
 
-    LaunchedEffect(points, nestId) {
+    val appIconOverlaySize by UiSettingsStore.getAppIconOverlaySize(ctx)
+        .collectAsState(initial = 22)
+
+    /**
+     * Reload all point icons on every change of the points, nestId, appIconOverlaySize, or default point
+     * Set the size of the icons to the max size between the 2 overlays sizes preview to display them cleanly
+     */
+    LaunchedEffect(points, nestId, appIconOverlaySize, defaultPoint.hashCode()) {
+
+        val sizePx = max(appIconOverlaySize, defaultPoint.size ?: 64)
+
         appsViewModel.preloadPointIcons(
-            points = points.filter { it.nestId == nestId }
+            points = points.filter { it.nestId == nestId },
+            sizePx = sizePx
         )
 
         /* Load asynchronously all the other points, to avoid lag */
         scope.launch(Dispatchers.IO) {
-            appsViewModel.preloadPointIcons(points)
+            appsViewModel.preloadPointIcons(
+                points = points,
+                sizePx = sizePx
+            )
         }
     }
-
 
 
     fun launchAction(point: SwipePointSerializable?) {
