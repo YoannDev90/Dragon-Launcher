@@ -60,6 +60,7 @@ import org.elnix.dragonlauncher.ui.drawer.AppDrawerScreen
 import org.elnix.dragonlauncher.ui.helpers.ReselectAutoBackupBanner
 import org.elnix.dragonlauncher.ui.helpers.SetDefaultLauncherBanner
 import org.elnix.dragonlauncher.ui.helpers.noAnimComposable
+import org.elnix.dragonlauncher.ui.settings.SettingsNavHost
 import org.elnix.dragonlauncher.ui.welcome.WelcomeScreen
 import org.elnix.dragonlauncher.ui.whatsnew.WhatsNewBottomSheet
 

@@ -1,4 +1,4 @@
-package org.elnix.dragonlauncher.ui
+package org.elnix.dragonlauncher.ui.settings
 
 import androidx.compose.animation.EnterTransition
 import androidx.compose.animation.ExitTransition
@@ -20,6 +20,8 @@ import org.elnix.dragonlauncher.models.AppsViewModel
 import org.elnix.dragonlauncher.models.BackupViewModel
 import org.elnix.dragonlauncher.models.FloatingAppsViewModel
 import org.elnix.dragonlauncher.settings.stores.DrawerSettingsStore
+import org.elnix.dragonlauncher.ui.AdvancedSettingsScreen
+import org.elnix.dragonlauncher.ui.SettingsScreen
 import org.elnix.dragonlauncher.ui.helpers.noAnimComposable
 import org.elnix.dragonlauncher.ui.settings.backup.BackupTab
 import org.elnix.dragonlauncher.ui.settings.customization.AppearanceTab
@@ -101,7 +103,12 @@ fun SettingsNavHost(
                 onBack = { goMainScreen() }
             )
         }
-        noAnimComposable(SETTINGS.ADVANCED_ROOT) { AdvancedSettingsScreen(appsViewModel, navController ) { goSettingsRoot() } }
+        noAnimComposable(SETTINGS.ADVANCED_ROOT) {
+            AdvancedSettingsScreen(
+                appsViewModel,
+                navController
+            ) { goSettingsRoot() }
+        }
 
         noAnimComposable(SETTINGS.APPEARANCE)    { AppearanceTab(appsViewModel, navController) { goAdvSettingsRoot() } }
         noAnimComposable(SETTINGS.WALLPAPER)     { WallpaperTab { goAppearance() } }
