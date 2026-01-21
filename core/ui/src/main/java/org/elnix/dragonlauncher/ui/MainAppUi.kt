@@ -5,8 +5,6 @@ import android.content.ComponentName
 import android.content.Intent
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
-import androidx.compose.animation.EnterTransition
-import androidx.compose.animation.ExitTransition
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.padding
@@ -34,11 +32,8 @@ import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LifecycleEventObserver
 import androidx.lifecycle.compose.LocalLifecycleOwner
 import androidx.navigation.NavHostController
-import androidx.navigation.NavType
 import androidx.navigation.compose.NavHost
-import androidx.navigation.compose.composable
 import androidx.navigation.compose.currentBackStackEntryAsState
-import androidx.navigation.navArgument
 import kotlinx.coroutines.launch
 import org.elnix.dragonlauncher.common.FloatingAppObject
 import org.elnix.dragonlauncher.common.R
@@ -65,24 +60,7 @@ import org.elnix.dragonlauncher.ui.drawer.AppDrawerScreen
 import org.elnix.dragonlauncher.ui.helpers.ReselectAutoBackupBanner
 import org.elnix.dragonlauncher.ui.helpers.SetDefaultLauncherBanner
 import org.elnix.dragonlauncher.ui.helpers.noAnimComposable
-import org.elnix.dragonlauncher.ui.settings.backup.BackupTab
-import org.elnix.dragonlauncher.ui.settings.customization.AppearanceTab
-import org.elnix.dragonlauncher.ui.settings.customization.BehaviorTab
-import org.elnix.dragonlauncher.ui.settings.customization.ColorSelectorTab
-import org.elnix.dragonlauncher.ui.settings.customization.DrawerTab
-import org.elnix.dragonlauncher.ui.settings.customization.FloatingAppsTab
-import org.elnix.dragonlauncher.ui.settings.customization.IconPackTab
-import org.elnix.dragonlauncher.ui.settings.customization.StatusBarTab
-import org.elnix.dragonlauncher.ui.settings.customization.ThemesTab
-import org.elnix.dragonlauncher.ui.settings.customization.WallpaperTab
-import org.elnix.dragonlauncher.ui.settings.debug.DebugTab
-import org.elnix.dragonlauncher.ui.settings.debug.LogsTab
-import org.elnix.dragonlauncher.ui.settings.debug.SettingsDebugTab
-import org.elnix.dragonlauncher.ui.settings.language.LanguageTab
-import org.elnix.dragonlauncher.ui.settings.workspace.WorkspaceDetailScreen
-import org.elnix.dragonlauncher.ui.settings.workspace.WorkspaceListScreen
 import org.elnix.dragonlauncher.ui.welcome.WelcomeScreen
-import org.elnix.dragonlauncher.ui.whatsnew.ChangelogsScreen
 import org.elnix.dragonlauncher.ui.whatsnew.WhatsNewBottomSheet
 
 
@@ -197,11 +175,8 @@ fun MainAppUi(
     }
 
     fun goSettingsRoot() =  navController.navigate(SETTINGS.ROOT)
-    fun goAdvSettingsRoot() =  navController.navigate(SETTINGS.ADVANCED_ROOT)
     fun goDrawer() = navController.navigate(ROUTES.DRAWER)
     fun goWelcome() = navController.navigate(ROUTES.WELCOME)
-    fun goAppearance() = navController.navigate(SETTINGS.APPEARANCE)
-    fun goDebug() = navController.navigate(SETTINGS.DEBUG)
 
 
 
@@ -314,77 +289,28 @@ fun MainAppUi(
             }
 
 
-            // Settings + Welcome
+            // Welcome screen
             noAnimComposable(ROUTES.WELCOME) {
                 WelcomeScreen(
                     backupVm =  backupViewModel,
-                    onEnterSettings = { goSettingsRoot() },
-                    onEnterApp = { goMainScreen() }
+                    onEnterSettings = ::goSettingsRoot,
+                    onEnterApp = ::goMainScreen
                 )
             }
+
 
             noAnimComposable(SETTINGS.ROOT) {
-                SettingsScreen(
+                SettingsNavHost(
                     appsViewModel = appsViewModel,
-                    onAdvSettings = { goAdvSettingsRoot() },
-                    onBack = { goMainScreen() }
-                )
-            }
-            noAnimComposable(SETTINGS.ADVANCED_ROOT) { AdvancedSettingsScreen(appsViewModel, navController ) { goSettingsRoot() } }
-
-            noAnimComposable(SETTINGS.APPEARANCE)    { AppearanceTab(appsViewModel, navController) { goAdvSettingsRoot() } }
-            noAnimComposable(SETTINGS.WALLPAPER)     { WallpaperTab { goAppearance() } }
-            noAnimComposable(SETTINGS.ICON_PACK)     { IconPackTab(appsViewModel) { goAppearance() } }
-            noAnimComposable(SETTINGS.STATUS_BAR)    { StatusBarTab(appsViewModel) { goAppearance() } }
-            noAnimComposable(SETTINGS.THEME)         { ThemesTab { goAppearance() } }
-            noAnimComposable(SETTINGS.FLOATING_APPS) {
-                FloatingAppsTab(
-                    appsViewModel = appsViewModel,
+                    backupViewModel = backupViewModel,
+                    appLifecycleViewModel = appLifecycleViewModel,
                     floatingAppsViewModel = floatingAppsViewModel,
+                    goMainScreen = ::goMainScreen,
+                    goWelcome = ::goWelcome,
                     widgetHostProvider = widgetHostProvider,
-                    onBack = ::goAppearance,
-                    onLaunchSystemWidgetPicker = ::launchWidgetsPicker,
+                    launchWidgetsPicker = ::launchWidgetsPicker,
                     onResetWidgetSize = onResetWidgetSize,
-                    onRemoveWidget = onRemoveFloatingApp
-                )
-            }
-            noAnimComposable(SETTINGS.BEHAVIOR)      { BehaviorTab(appsViewModel) { goAdvSettingsRoot() } }
-            noAnimComposable(SETTINGS.DRAWER)        { DrawerTab(appsViewModel) { goAdvSettingsRoot() } }
-            noAnimComposable(SETTINGS.COLORS)        { ColorSelectorTab { goAppearance() } }
-            noAnimComposable(SETTINGS.DEBUG)         { DebugTab(navController, appsViewModel, onShowWelcome = { goWelcome() } ) { goAdvSettingsRoot() } }
-            noAnimComposable(SETTINGS.LOGS)          { LogsTab { goDebug() } }
-            noAnimComposable(SETTINGS.SETTINGS_JSON) { SettingsDebugTab { goDebug() } }
-            noAnimComposable(SETTINGS.LANGUAGE)      { LanguageTab { goAdvSettingsRoot() } }
-            noAnimComposable(SETTINGS.BACKUP)        { BackupTab(backupViewModel) { goAdvSettingsRoot() } }
-            noAnimComposable(SETTINGS.CHANGELOGS)    { ChangelogsScreen { goAdvSettingsRoot() } }
-
-            noAnimComposable(SETTINGS.WORKSPACE) {
-                WorkspaceListScreen(
-                    appsViewModel = appsViewModel,
-                    onOpenWorkspace = { id ->
-                        navController.navigate(
-                            SETTINGS.WORKSPACE_DETAIL.replace("{id}", id)
-                        )
-                    },
-                    onBack = { goAdvSettingsRoot() }
-                )
-            }
-
-            composable(
-                route = SETTINGS.WORKSPACE_DETAIL,
-                arguments = listOf(navArgument("id") { type = NavType.StringType }),
-                enterTransition = { EnterTransition.None },
-                exitTransition = { ExitTransition.None },
-                popEnterTransition = { EnterTransition.None },
-                popExitTransition = { ExitTransition.None }
-            ) { backStack ->
-                WorkspaceDetailScreen(
-                    workspaceId = backStack.arguments!!.getString("id")!!,
-                    appsViewModel = appsViewModel,
-                    showIcons = showAppIconsInDrawer,
-                    showLabels = showAppLabelsInDrawer,
-                    gridSize = gridSize,
-                    onBack = { navController.popBackStack() }
+                    onRemoveFloatingApp = onRemoveFloatingApp
                 )
             }
         }

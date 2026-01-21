@@ -37,7 +37,6 @@ import org.elnix.dragonlauncher.common.logging.logW
 import org.elnix.dragonlauncher.common.serializables.SwipeActionSerializable
 import org.elnix.dragonlauncher.common.serializables.SwipePointSerializable
 import org.elnix.dragonlauncher.common.utils.HOME_REENTER_WINDOW_MS
-import org.elnix.dragonlauncher.common.utils.OUT_OF_APP_RESET_MS
 import org.elnix.dragonlauncher.common.utils.ROUTES
 import org.elnix.dragonlauncher.common.utils.WIDGET_TAG
 import org.elnix.dragonlauncher.common.utils.WidgetHostProvider
@@ -501,12 +500,6 @@ class MainActivity : ComponentActivity(), WidgetHostProvider {
             // HOME pressed while launcher already visible
             isNewHomeIntent = false
             appLifecycleViewModel.launchHomeAction()
-        } else if (
-            pauseTime > 0L &&
-            delta > OUT_OF_APP_RESET_MS
-        ) {
-            // Returned from another app after a while
-            appLifecycleViewModel.onColdReturn()
         }
 
         isNewHomeIntent = false

@@ -88,8 +88,6 @@ fun MainScreen(
     val floatingAppObjects by floatingAppsViewModel.floatingApps.collectAsState()
     val defaultPoint by appsViewModel.defaultPoint.collectAsState(defaultSwipePointsValues)
 
-    val homeActionDetected by appLifecycleViewModel.homeActionDetected.collectAsState()
-
     LaunchedEffect(floatingAppObjects) {
         logE(WIDGET_TAG, floatingAppObjects.toString())
     }
@@ -239,11 +237,16 @@ fun MainScreen(
     }
 
 
-    LaunchedEffect(homeActionDetected) {
-        if (homeActionDetected && homeAction != null) {
-            launchAction(dummySwipePoint(homeAction))
+
+    LaunchedEffect(Unit) {
+        appLifecycleViewModel.homeEvents.collect {
+            // HOME while already on MAIN
+            // Decide locally what it means
+
+            if (homeAction != null) {
+                launchAction(dummySwipePoint(homeAction))
+            }
         }
-        appLifecycleViewModel.onColdReturn()
     }
 
     /**

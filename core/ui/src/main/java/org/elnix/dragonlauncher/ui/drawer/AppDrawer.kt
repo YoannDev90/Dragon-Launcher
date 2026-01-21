@@ -103,9 +103,6 @@ fun AppDrawerScreen(
 //        scope.launch{ appsViewModel.reloadApps() }
 //    }
 
-
-    val homeActionDetected by appLifecycleViewModel.homeActionDetected.collectAsState()
-
     val drawerHomeAction by DrawerSettingsStore.getDrawerHomeAction(ctx)
         .collectAsState(initial = DrawerActions.CLOSE)
 
@@ -197,8 +194,11 @@ fun AppDrawerScreen(
         }
     }
 
-    LaunchedEffect(homeActionDetected) {
-        if (homeActionDetected) launchDrawerAction(drawerHomeAction)
+
+    LaunchedEffect(Unit) {
+        appLifecycleViewModel.homeEvents.collect {
+            launchDrawerAction(drawerHomeAction)
+        }
     }
 
     @Composable

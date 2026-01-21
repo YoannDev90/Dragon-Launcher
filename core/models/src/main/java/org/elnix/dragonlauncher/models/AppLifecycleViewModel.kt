@@ -2,15 +2,26 @@ package org.elnix.dragonlauncher.models
 
 import android.app.Application
 import androidx.lifecycle.AndroidViewModel
+import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.asSharedFlow
 
 class AppLifecycleViewModel(application: Application) : AndroidViewModel(application) {
 
-    private val _homeActionDetected = MutableStateFlow(false)
-    val homeActionDetected = _homeActionDetected.asStateFlow()
+
+    /** ───────────── Tracks the home events ─────────────*/
+    private val _homeEvents = MutableSharedFlow<Unit>(
+        extraBufferCapacity = 1
+    )
+    val homeEvents = _homeEvents.asSharedFlow()
+
+    fun launchHomeAction() {
+        _homeEvents.tryEmit(Unit)
+    }
 
 
+
+    /** ───────────── Computes when the app goes background, to return main screen after cooldown (10 sec) ─────────────*/
     private val _lastInteraction = MutableStateFlow(System.currentTimeMillis().toDouble())
 
 //    val lastInteraction = _lastInteraction.asStateFlow()
@@ -28,14 +39,5 @@ class AppLifecycleViewModel(application: Application) : AndroidViewModel(applica
         val elapsed = now - last
         _lastInteraction.value = now
         return elapsed > deltaMillis
-    }
-
-
-    fun launchHomeAction() {
-        _homeActionDetected.value = true
-    }
-
-    fun onColdReturn() {
-        _homeActionDetected.value = false
     }
 }
