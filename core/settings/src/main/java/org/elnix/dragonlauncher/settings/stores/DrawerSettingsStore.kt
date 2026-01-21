@@ -33,7 +33,6 @@ import org.elnix.dragonlauncher.settings.stores.DrawerSettingsStore.Keys.SCROLL_
 import org.elnix.dragonlauncher.settings.stores.DrawerSettingsStore.Keys.SEARCH_BAR_BOTTOM
 import org.elnix.dragonlauncher.settings.stores.DrawerSettingsStore.Keys.SHOW_APP_ICONS_IN_DRAWER
 import org.elnix.dragonlauncher.settings.stores.DrawerSettingsStore.Keys.SHOW_APP_LABEL_IN_DRAWER
-import org.elnix.dragonlauncher.settings.uiDatastore
 
 object DrawerSettingsStore : BaseSettingsStore<Map<String, Any?>>() {
     override val name: String = "Drawer"
@@ -247,7 +246,7 @@ object DrawerSettingsStore : BaseSettingsStore<Map<String, Any?>>() {
     // Reset
     // -------------------------------------------------------------------------
     override suspend fun resetAll(ctx: Context) {
-        ctx.uiDatastore.edit { prefs ->
+        ctx.drawerDataStore.edit { prefs ->
             ALL.forEach { prefs.remove(it) }
         }
     }

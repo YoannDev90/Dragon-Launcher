@@ -6,13 +6,13 @@ import androidx.datastore.preferences.core.stringPreferencesKey
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.map
-import org.elnix.dragonlauncher.settings.BaseSettingsStore
-import org.elnix.dragonlauncher.settings.colorModeDatastore
-import org.elnix.dragonlauncher.settings.getEnumStrict
 import org.elnix.dragonlauncher.enumsui.ColorCustomisationMode
 import org.elnix.dragonlauncher.enumsui.ColorPickerMode
 import org.elnix.dragonlauncher.enumsui.DefaultThemes
+import org.elnix.dragonlauncher.settings.BaseSettingsStore
 import org.elnix.dragonlauncher.settings.applyDefaultThemeColors
+import org.elnix.dragonlauncher.settings.colorModeDatastore
+import org.elnix.dragonlauncher.settings.getEnumStrict
 import org.elnix.dragonlauncher.settings.putIfNonDefault
 import org.elnix.dragonlauncher.settings.stores.ColorModesSettingsStore.Keys.COLOR_CUSTOMISATION_MODE
 import org.elnix.dragonlauncher.settings.stores.ColorModesSettingsStore.Keys.COLOR_PICKER_MODE
@@ -49,32 +49,32 @@ object ColorModesSettingsStore : BaseSettingsStore<Map<String, Any?>>() {
     // -------------------------------------------------------------------------
     fun getColorPickerMode(ctx: Context): Flow<ColorPickerMode> =
         ctx.colorModeDatastore.data.map { prefs ->
-            prefs[Keys.COLOR_PICKER_MODE]?.let { ColorPickerMode.valueOf(it) }
+            prefs[COLOR_PICKER_MODE]?.let { ColorPickerMode.valueOf(it) }
                 ?: defaults.colorPickerMode
         }
 
     suspend fun setColorPickerMode(ctx: Context, mode: ColorPickerMode) {
-        ctx.colorModeDatastore.edit { it[Keys.COLOR_PICKER_MODE] = mode.name }
+        ctx.colorModeDatastore.edit { it[COLOR_PICKER_MODE] = mode.name }
     }
 
     fun getColorCustomisationMode(ctx: Context): Flow<ColorCustomisationMode> =
         ctx.colorModeDatastore.data.map { prefs ->
-            prefs[Keys.COLOR_CUSTOMISATION_MODE]?.let { ColorCustomisationMode.valueOf(it) }
+            prefs[COLOR_CUSTOMISATION_MODE]?.let { ColorCustomisationMode.valueOf(it) }
                 ?: defaults.colorCustomisationMode
         }
 
     suspend fun setColorCustomisationMode(ctx: Context, mode: ColorCustomisationMode) {
-        ctx.colorModeDatastore.edit { it[Keys.COLOR_CUSTOMISATION_MODE] = mode.name }
+        ctx.colorModeDatastore.edit { it[COLOR_CUSTOMISATION_MODE] = mode.name }
     }
 
     fun getDefaultTheme(ctx: Context): Flow<DefaultThemes> =
         ctx.colorModeDatastore.data.map { prefs ->
-            prefs[Keys.DEFAULT_THEME]?.let { DefaultThemes.valueOf(it) }
+            prefs[DEFAULT_THEME]?.let { DefaultThemes.valueOf(it) }
                 ?: defaults.defaultTheme
         }
 
     suspend fun setDefaultTheme(ctx: Context, mode: DefaultThemes) {
-        ctx.colorModeDatastore.edit { it[Keys.DEFAULT_THEME] = mode.name }
+        ctx.colorModeDatastore.edit { it[DEFAULT_THEME] = mode.name }
     }
 
     // -------------------------------------------------------------------------
@@ -82,9 +82,9 @@ object ColorModesSettingsStore : BaseSettingsStore<Map<String, Any?>>() {
     // -------------------------------------------------------------------------
     override suspend fun resetAll(ctx: Context) {
         ctx.colorModeDatastore.edit { prefs ->
-            prefs.remove(Keys.COLOR_PICKER_MODE)
-            prefs.remove(Keys.COLOR_CUSTOMISATION_MODE)
-            prefs.remove(Keys.DEFAULT_THEME)
+            prefs.remove(COLOR_PICKER_MODE)
+            prefs.remove(COLOR_CUSTOMISATION_MODE)
+            prefs.remove(DEFAULT_THEME)
         }
     }
 
@@ -138,9 +138,9 @@ object ColorModesSettingsStore : BaseSettingsStore<Map<String, Any?>>() {
         )
 
         ctx.colorModeDatastore.edit { prefs ->
-            prefs[Keys.COLOR_PICKER_MODE] = backup.colorPickerMode.name
-            prefs[Keys.COLOR_CUSTOMISATION_MODE] = backup.colorCustomisationMode.name
-            prefs[Keys.DEFAULT_THEME] = backup.defaultTheme.name
+            prefs[COLOR_PICKER_MODE] = backup.colorPickerMode.name
+            prefs[COLOR_CUSTOMISATION_MODE] = backup.colorCustomisationMode.name
+            prefs[DEFAULT_THEME] = backup.defaultTheme.name
         }
 
         // Apply colorscheme

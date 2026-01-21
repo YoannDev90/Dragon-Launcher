@@ -14,7 +14,6 @@ import org.elnix.dragonlauncher.common.serializables.SwipeActionSerializable
 import org.elnix.dragonlauncher.common.serializables.SwipeJson
 import org.elnix.dragonlauncher.common.theme.AmoledDefault
 import org.elnix.dragonlauncher.settings.BaseSettingsStore
-import org.elnix.dragonlauncher.settings.behaviorDataStore
 import org.elnix.dragonlauncher.settings.getBooleanStrict
 import org.elnix.dragonlauncher.settings.getIntStrict
 import org.elnix.dragonlauncher.settings.getStringStrict
@@ -37,7 +36,6 @@ import org.elnix.dragonlauncher.settings.stores.StatusBarSettingsStore.Keys.SHOW
 import org.elnix.dragonlauncher.settings.stores.StatusBarSettingsStore.Keys.SHOW_TIME
 import org.elnix.dragonlauncher.settings.stores.StatusBarSettingsStore.Keys.TIME_FORMATTER
 import org.elnix.dragonlauncher.settings.stores.StatusBarSettingsStore.Keys.TOP_PADDING
-import kotlin.text.isNotBlank
 
 object StatusBarSettingsStore : BaseSettingsStore<Map<String, Any?>>() {
 
@@ -233,24 +231,24 @@ object StatusBarSettingsStore : BaseSettingsStore<Map<String, Any?>>() {
 
 
     fun getClockAction(ctx: Context): Flow<SwipeActionSerializable?> =
-        ctx.behaviorDataStore.data.map {
+        ctx.statusBarDatastore.data.map {
             it[CLOCK_ACTION]?.takeIf { s -> s.isNotBlank() }?.let(SwipeJson::decodeAction)
         }
 
     suspend fun setClockAction(ctx: Context, value: SwipeActionSerializable?) {
-        ctx.behaviorDataStore.edit {
+        ctx.statusBarDatastore.edit {
             if (value != null) it[CLOCK_ACTION] = SwipeJson.encodeAction(value)
             else it.remove(CLOCK_ACTION)
         }
     }
 
     fun getDateAction(ctx: Context): Flow<SwipeActionSerializable?> =
-        ctx.behaviorDataStore.data.map {
+        ctx.statusBarDatastore.data.map {
             it[DATE_ACTION]?.takeIf { s -> s.isNotBlank() }?.let(SwipeJson::decodeAction)
         }
 
     suspend fun setDateAction(ctx: Context, value: SwipeActionSerializable?) {
-        ctx.behaviorDataStore.edit {
+        ctx.statusBarDatastore.edit {
             if (value != null) it[DATE_ACTION] = SwipeJson.encodeAction(value)
             else it.remove(DATE_ACTION)
         }

@@ -19,7 +19,6 @@ import org.elnix.dragonlauncher.settings.stores.PrivateSettingsStore.Keys.HAS_SE
 import org.elnix.dragonlauncher.settings.stores.PrivateSettingsStore.Keys.LAST_SEEN_VERSION_CODE
 import org.elnix.dragonlauncher.settings.stores.PrivateSettingsStore.Keys.SHOW_METHOD_ASKING
 import org.elnix.dragonlauncher.settings.stores.PrivateSettingsStore.Keys.SHOW_SET_DEFAULT_LAUNCHER_BANNER
-import org.elnix.dragonlauncher.settings.uiDatastore
 
 object PrivateSettingsStore : BaseSettingsStore<Map<String, Any?>>() {
     override val name: String = "Private"
@@ -108,10 +107,10 @@ object PrivateSettingsStore : BaseSettingsStore<Map<String, Any?>>() {
     }
 
     fun getLastSeenVersionCode(ctx: Context): Flow<Int> =
-        ctx.uiDatastore.data.map { it[LAST_SEEN_VERSION_CODE] ?: defaults.lastSeenVersionCode }
+        ctx.privateSettingsStore.data.map { it[LAST_SEEN_VERSION_CODE] ?: defaults.lastSeenVersionCode }
 
     suspend fun setLastSeenVersionCode(ctx: Context, value: Int) {
-        ctx.uiDatastore.edit { it[LAST_SEEN_VERSION_CODE] = value }
+        ctx.privateSettingsStore.edit { it[LAST_SEEN_VERSION_CODE] = value }
     }
 
 

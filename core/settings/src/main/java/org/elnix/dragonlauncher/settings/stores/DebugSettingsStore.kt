@@ -11,7 +11,6 @@ import org.elnix.dragonlauncher.settings.BaseSettingsStore
 import org.elnix.dragonlauncher.settings.debugDatastore
 import org.elnix.dragonlauncher.settings.getBooleanStrict
 import org.elnix.dragonlauncher.settings.getStringStrict
-import org.elnix.dragonlauncher.settings.privateSettingsStore
 import org.elnix.dragonlauncher.settings.putIfNonDefault
 import org.elnix.dragonlauncher.settings.stores.DebugSettingsStore.Keys.AUTO_RAISE_DRAGON_ON_SYSTEM_LAUNCHER
 import org.elnix.dragonlauncher.settings.stores.DebugSettingsStore.Keys.DEBUG_ENABLED
@@ -171,12 +170,12 @@ object DebugSettingsStore : BaseSettingsStore<Map<String, Any?>>() {
 
 
     fun getUseAccessibilityInsteadOfContextToExpandActionPanel(ctx: Context): Flow<Boolean> =
-        ctx.privateSettingsStore.data.map { prefs ->
+        ctx.debugDatastore.data.map { prefs ->
             prefs[USE_ACCESSIBILITY_INSTEAD_OF_CONTEXT] ?: defaults.useAccessibilityInsteadOfContextToExpandActionPanel
         }
 
     suspend fun setUseAccessibilityInsteadOfContextToExpandActionPanel(ctx: Context, v: Boolean) {
-        ctx.privateSettingsStore.edit { it[USE_ACCESSIBILITY_INSTEAD_OF_CONTEXT] = v }
+        ctx.debugDatastore.edit { it[USE_ACCESSIBILITY_INSTEAD_OF_CONTEXT] = v }
     }
 
     fun getEnableLogging(ctx: Context): Flow<Boolean> =

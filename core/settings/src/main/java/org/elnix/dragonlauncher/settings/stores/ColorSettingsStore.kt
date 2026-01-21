@@ -45,7 +45,6 @@ import org.elnix.dragonlauncher.settings.stores.ColorSettingsStore.Keys.RELOAD_C
 import org.elnix.dragonlauncher.settings.stores.ColorSettingsStore.Keys.SECONDARY_COLOR
 import org.elnix.dragonlauncher.settings.stores.ColorSettingsStore.Keys.SURFACE_COLOR
 import org.elnix.dragonlauncher.settings.stores.ColorSettingsStore.Keys.TERTIARY_COLOR
-import org.elnix.dragonlauncher.settings.uiDatastore
 
 
 object ColorSettingsStore : BaseSettingsStore<Map<String, Any?>>() {
@@ -209,9 +208,9 @@ object ColorSettingsStore : BaseSettingsStore<Map<String, Any?>>() {
         ctx.colorDatastore.edit { it[OUTLINE_COLOR] = color.toArgb() }
     }
 
-    // ------------------------------------------
+    // ───────────────────────────────────────
     //            CUSTOM COLORS
-    // ------------------------------------------
+    // ───────────────────────────────────────
 
     fun getAngleLineColor(ctx: Context) =
         ctx.colorDatastore.data.map { it[ANGLE_LINE_COLOR]?.let { color -> Color(color) } }
@@ -369,7 +368,7 @@ object ColorSettingsStore : BaseSettingsStore<Map<String, Any?>>() {
     }
 
     override suspend fun resetAll(ctx: Context) {
-        ctx.uiDatastore.edit { prefs ->
+        ctx.colorDatastore.edit { prefs ->
             ALL.forEach { prefs.remove(it) }
         }
         resetColors(ctx, ColorCustomisationMode.DEFAULT, DefaultThemes.AMOLED)
