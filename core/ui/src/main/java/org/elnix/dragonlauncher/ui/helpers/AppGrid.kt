@@ -31,9 +31,9 @@ import androidx.compose.ui.input.nestedscroll.nestedScroll
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
-import org.elnix.dragonlauncher.ui.drawer.AppItem
 import org.elnix.dragonlauncher.common.serializables.AppModel
 import org.elnix.dragonlauncher.ui.actions.appIcon
+import org.elnix.dragonlauncher.ui.drawer.AppItem
 
 @Composable
 fun AppGrid(
@@ -45,15 +45,31 @@ fun AppGrid(
     showLabels: Boolean,
     onLongClick: ((AppModel) -> Unit)? = null,
     onClose: (() -> Unit)? = null,
+    onToggleKb: (() -> Unit)? = null,
     onClick: (AppModel) -> Unit
 ) {
 
     val listState = rememberLazyListState()
     val nestedConnection = remember {
         object : NestedScrollConnection {
-            override fun onPreScroll(available: Offset, source: NestedScrollSource): Offset {
-                if (available.y > 50f && listState.firstVisibleItemIndex == 0 && listState.firstVisibleItemScrollOffset == 0) {
-                    onClose?.invoke()
+            override fun onPreScroll(
+                available: Offset,
+                source: NestedScrollSource
+            ): Offset {
+                if (
+                    listState.firstVisibleItemIndex == 0 &&
+                    listState.firstVisibleItemScrollOffset == 0
+                ) {
+
+                    /* Launches onClose on any down drag */
+                    if (available.y > 0) {
+                        onClose?.invoke()
+                    }
+
+                    /* Launches onToggleKb on any up drag */
+                    if (available.y < 0) {
+                        onToggleKb?.invoke()
+                    }
                 }
                 return Offset.Zero
             }

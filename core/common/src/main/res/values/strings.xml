@@ -325,4 +325,5 @@
     <string name="remove_circle">Remove Crircle</string>
     <string name="home_action">Home Action</string>
     <string name="drawer_home_action">Drawer Home action</string>
+    <string name="scroll_up_to_close_keyboard">Scroll up to close keyboard</string>
 </resources>

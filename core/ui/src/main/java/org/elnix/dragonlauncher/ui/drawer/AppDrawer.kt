@@ -134,6 +134,8 @@ fun AppDrawerScreen(
     val scrollDownToCloseDrawerOnTop by DrawerSettingsStore.getScrollDownToCloseDrawerOnTop(ctx)
         .collectAsState(initial = true)
 
+    val scrollUpToCloseKeyboard by DrawerSettingsStore.getScrollUpToCloseKeyboardOnTop(ctx)
+        .collectAsState(initial = true)
 
 
 
@@ -170,15 +172,23 @@ fun AppDrawerScreen(
     }
 
 
+    fun closeKeyboard() {
+        focusManager.clearFocus()
+        keyboardController?.hide()
+    }
+    fun openKeyboard() {
+        focusRequester.requestFocus()
+        keyboardController?.show()
+    }
+
     fun toggleKeyboard() {
         if (isSearchFocused) {
-            focusManager.clearFocus()
-            keyboardController?.hide()
+            closeKeyboard()
         } else {
-            focusRequester.requestFocus()
-            keyboardController?.show()
+            openKeyboard()
         }
     }
+
 
     fun launchDrawerAction(action: DrawerActions) {
         when (action) {
@@ -222,26 +232,9 @@ fun AppDrawerScreen(
         }
     }
 
-//    if (useWallpaper) {
-//        wallpaper?.let { bmp ->
-//            Image(
-//                bitmap = bmp.asImageBitmap(),
-//                contentDescription = null,
-//                modifier = Modifier.fillMaxSize(),
-//                contentScale = ContentScale.Crop
-//            )
-//        }
-//    }
-
     Column(
         modifier = Modifier
             .fillMaxSize()
-//            .background(Color.Transparent)
-
-//            .then(
-//                if (!useWallpaper) Modifier.background(MaterialTheme.colorScheme.background)
-//                else Modifier
-//            )
             .clickable(
                 enabled = clickEmptySpaceToRaiseKeyboard,
                 indication = null,
@@ -310,7 +303,8 @@ fun AppDrawerScreen(
                         showIcons = showIcons,
                         showLabels = showLabels,
                         onLongClick = { dialogApp = it },
-                        onClose = if (scrollDownToCloseDrawerOnTop) onClose else null
+                        onClose = if (scrollDownToCloseDrawerOnTop) onClose else null,
+                        onToggleKb = if (scrollUpToCloseKeyboard) ::closeKeyboard else null
                     ) {
                         launchApp(it.action)
                     }

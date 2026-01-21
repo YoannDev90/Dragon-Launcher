@@ -29,6 +29,7 @@ import org.elnix.dragonlauncher.settings.stores.DrawerSettingsStore.Keys.LEFT_DR
 import org.elnix.dragonlauncher.settings.stores.DrawerSettingsStore.Keys.RIGHT_DRAWER_ACTION
 import org.elnix.dragonlauncher.settings.stores.DrawerSettingsStore.Keys.RIGHT_DRAWER_WIDTH
 import org.elnix.dragonlauncher.settings.stores.DrawerSettingsStore.Keys.SCROLL_DOWN_TO_CLOSE_DRAWER_ON_TOP
+import org.elnix.dragonlauncher.settings.stores.DrawerSettingsStore.Keys.SCROLL_UP_TO_CLOSE_KEYBOARD
 import org.elnix.dragonlauncher.settings.stores.DrawerSettingsStore.Keys.SEARCH_BAR_BOTTOM
 import org.elnix.dragonlauncher.settings.stores.DrawerSettingsStore.Keys.SHOW_APP_ICONS_IN_DRAWER
 import org.elnix.dragonlauncher.settings.stores.DrawerSettingsStore.Keys.SHOW_APP_LABEL_IN_DRAWER
@@ -55,7 +56,8 @@ object DrawerSettingsStore : BaseSettingsStore<Map<String, Any?>>() {
         val rightDrawerWidth: Float = 0.1f,
         val drawerEnterAction: DrawerActions = DrawerActions.CLEAR,
         val drawerHomeAction: DrawerActions = DrawerActions.CLOSE,
-        val scrollDownToCloseDrawerOnTop: Boolean = true
+        val scrollDownToCloseDrawerOnTop: Boolean = true,
+        val scrollUpToCloseKeyboard: Boolean = true
     )
 
     private val defaults = DrawerSettingsBackup()
@@ -78,7 +80,10 @@ object DrawerSettingsStore : BaseSettingsStore<Map<String, Any?>>() {
         val RIGHT_DRAWER_WIDTH = floatPreferencesKey("rightDrawerWidth")
         val DRAWER_ENTER_ACTION = stringPreferencesKey("drawerEnterAction")
         val DRAWER_HOME_ACTION = stringPreferencesKey("drawerHomeAction")
-        val SCROLL_DOWN_TO_CLOSE_DRAWER_ON_TOP = booleanPreferencesKey("scrollDownToCloseDrawerOnTop")
+        val SCROLL_DOWN_TO_CLOSE_DRAWER_ON_TOP =
+            booleanPreferencesKey("scrollDownToCloseDrawerOnTop")
+        val SCROLL_UP_TO_CLOSE_KEYBOARD =
+            booleanPreferencesKey("scrollUpToCloseKeyboard")
 
         val ALL = listOf(
             AUTO_OPEN_SINGLE_MATCH,
@@ -94,7 +99,8 @@ object DrawerSettingsStore : BaseSettingsStore<Map<String, Any?>>() {
             RIGHT_DRAWER_WIDTH,
             DRAWER_ENTER_ACTION,
             DRAWER_HOME_ACTION,
-            SCROLL_DOWN_TO_CLOSE_DRAWER_ON_TOP
+            SCROLL_DOWN_TO_CLOSE_DRAWER_ON_TOP,
+            SCROLL_UP_TO_CLOSE_KEYBOARD
         )
     }
 
@@ -226,6 +232,16 @@ object DrawerSettingsStore : BaseSettingsStore<Map<String, Any?>>() {
         ctx.drawerDataStore.edit { it[SCROLL_DOWN_TO_CLOSE_DRAWER_ON_TOP] = v }
     }
 
+    fun getScrollUpToCloseKeyboardOnTop(ctx: Context): Flow<Boolean> =
+        ctx.drawerDataStore.data.map {
+            it[SCROLL_UP_TO_CLOSE_KEYBOARD] ?: defaults.scrollUpToCloseKeyboard
+        }
+
+    suspend fun setScrollUpToCloseKeyboardOnTop(ctx: Context, v: Boolean) {
+        ctx.drawerDataStore.edit { it[SCROLL_UP_TO_CLOSE_KEYBOARD] = v }
+    }
+
+
 
     // -------------------------------------------------------------------------
     // Reset
@@ -318,6 +334,12 @@ object DrawerSettingsStore : BaseSettingsStore<Map<String, Any?>>() {
                 prefs[SCROLL_DOWN_TO_CLOSE_DRAWER_ON_TOP],
                 defaults.scrollDownToCloseDrawerOnTop
             )
+
+            putIfNonDefault(
+                SCROLL_UP_TO_CLOSE_KEYBOARD,
+                prefs[SCROLL_UP_TO_CLOSE_KEYBOARD],
+                defaults.scrollUpToCloseKeyboard
+            )
         }
     }
 
@@ -390,6 +412,11 @@ object DrawerSettingsStore : BaseSettingsStore<Map<String, Any?>>() {
                 value,
                 SCROLL_DOWN_TO_CLOSE_DRAWER_ON_TOP,
                 defaults.scrollDownToCloseDrawerOnTop
+            ),
+            scrollUpToCloseKeyboard = getBooleanStrict(
+                value,
+                SCROLL_UP_TO_CLOSE_KEYBOARD,
+                defaults.scrollUpToCloseKeyboard
             )
         )
 
@@ -408,6 +435,7 @@ object DrawerSettingsStore : BaseSettingsStore<Map<String, Any?>>() {
             prefs[DRAWER_ENTER_ACTION] = backup.drawerEnterAction.name
             prefs[DRAWER_HOME_ACTION] = backup.drawerHomeAction.name
             prefs[SCROLL_DOWN_TO_CLOSE_DRAWER_ON_TOP] = backup.scrollDownToCloseDrawerOnTop
+            prefs[SCROLL_UP_TO_CLOSE_KEYBOARD] = backup.scrollUpToCloseKeyboard
         }
     }
 }

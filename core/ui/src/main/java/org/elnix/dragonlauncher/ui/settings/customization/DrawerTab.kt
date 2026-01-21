@@ -98,6 +98,9 @@ fun DrawerTab(
     val scrollDownToCloseDrawerOnTop by DrawerSettingsStore.getScrollDownToCloseDrawerOnTop(ctx)
         .collectAsState(initial = true)
 
+    val scrollUpToCloseKeyboard by DrawerSettingsStore.getScrollUpToCloseKeyboardOnTop(ctx)
+        .collectAsState(initial = true)
+
     var totalWidthPx by remember { mutableFloatStateOf(0f) }
 
     var localLeft by remember { mutableFloatStateOf(leftDrawerWidth) }
@@ -148,6 +151,13 @@ fun DrawerTab(
                 scrollDownToCloseDrawerOnTop,
                 stringResource(R.string.scroll_down_drawer),
             ) { scope.launch { DrawerSettingsStore.setScrollDownToCloseDrawerOnTop(ctx, it) } }
+        }
+
+        item {
+            SwitchRow(
+                scrollUpToCloseKeyboard,
+                stringResource(R.string.scroll_up_to_close_keyboard),
+            ) { scope.launch { DrawerSettingsStore.setScrollUpToCloseKeyboardOnTop(ctx, it) } }
         }
 
 //        item {
