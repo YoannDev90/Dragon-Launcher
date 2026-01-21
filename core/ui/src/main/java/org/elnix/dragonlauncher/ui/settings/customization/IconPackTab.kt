@@ -57,7 +57,7 @@ fun IconPackTab(
             item {
                 Box(Modifier.height(80.dp)){
                     AppGrid(
-                        apps = apps.take(6),
+                        apps = apps.shuffled().take(6),
                         icons = icons,
                         txtColor = MaterialTheme.colorScheme.onBackground,
                         gridSize = 6,
