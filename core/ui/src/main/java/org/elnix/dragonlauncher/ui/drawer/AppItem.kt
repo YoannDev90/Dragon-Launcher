@@ -57,6 +57,11 @@ fun AppItem(
             Spacer(Modifier.width(12.dp))
         }
 
-        if (showLabels) { Text(app.name, color = Color.White) }
+        if (showLabels) {
+            Text(
+                text = app.name,
+                color = MaterialTheme.colorScheme.onBackground
+            )
+        }
     }
 }
