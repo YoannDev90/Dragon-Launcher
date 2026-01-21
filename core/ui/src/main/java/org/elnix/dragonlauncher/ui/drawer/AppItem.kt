@@ -26,6 +26,7 @@ fun AppItem(
     app: AppModel,
     showIcons: Boolean,
     showLabels: Boolean,
+    txtColor: Color,
     icons: Map<String, ImageBitmap>,
     onLongClick: (() -> Unit)? = null,
     onClick: () -> Unit
@@ -60,7 +61,7 @@ fun AppItem(
         if (showLabels) {
             Text(
                 text = app.name,
-                color = MaterialTheme.colorScheme.onBackground
+                color = txtColor
             )
         }
     }

@@ -91,6 +91,7 @@ fun AppGrid(
                     app = app,
                     showIcons = showIcons,
                     showLabels = showLabels,
+                    txtColor = txtColor,
                     icons = icons,
                     onClick = { onClick(app) },
                     onLongClick = if (onLongClick != null) { { onLongClick(app) } } else null
