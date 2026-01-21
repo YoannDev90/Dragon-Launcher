@@ -45,6 +45,7 @@ import org.elnix.dragonlauncher.common.utils.TAG
 import org.elnix.dragonlauncher.common.utils.WIDGET_TAG
 import org.elnix.dragonlauncher.common.utils.WidgetHostProvider
 import org.elnix.dragonlauncher.common.utils.circles.rememberNestNavigation
+import org.elnix.dragonlauncher.models.AppLifecycleViewModel
 import org.elnix.dragonlauncher.models.AppsViewModel
 import org.elnix.dragonlauncher.models.FloatingAppsViewModel
 import org.elnix.dragonlauncher.settings.stores.BehaviorSettingsStore
@@ -69,6 +70,7 @@ import kotlin.math.max
 fun MainScreen(
     appsViewModel: AppsViewModel,
     floatingAppsViewModel: FloatingAppsViewModel,
+    appLifecycleViewModel: AppLifecycleViewModel,
 //    wallpaperViewModel: WallpaperViewModel,
     widgetHostProvider: WidgetHostProvider,
     onAppDrawer: () -> Unit,
@@ -86,6 +88,7 @@ fun MainScreen(
     val floatingAppObjects by floatingAppsViewModel.floatingApps.collectAsState()
     val defaultPoint by appsViewModel.defaultPoint.collectAsState(defaultSwipePointsValues)
 
+    val homeActionDetected by appLifecycleViewModel.homeActionDetected.collectAsState()
 
     LaunchedEffect(floatingAppObjects) {
         logE(WIDGET_TAG, floatingAppObjects.toString())
@@ -100,6 +103,9 @@ fun MainScreen(
         .collectAsState(initial = null)
 
     val backAction by BehaviorSettingsStore.getBackAction(ctx)
+        .collectAsState(initial = null)
+
+    val homeAction by BehaviorSettingsStore.getHomeAction(ctx)
         .collectAsState(initial = null)
 
     val leftPadding by BehaviorSettingsStore.getLeftPadding(ctx)
@@ -230,6 +236,14 @@ fun MainScreen(
         } catch (e: Exception) {
             ctx.logE(TAG, e.message ?: "")
         }
+    }
+
+
+    LaunchedEffect(homeActionDetected) {
+        if (homeActionDetected && homeAction != null) {
+            launchAction(dummySwipePoint(homeAction))
+        }
+        appLifecycleViewModel.onColdReturn()
     }
 
     /**

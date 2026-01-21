@@ -3,8 +3,14 @@ package org.elnix.dragonlauncher.models
 import android.app.Application
 import androidx.lifecycle.AndroidViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.asStateFlow
 
 class AppLifecycleViewModel(application: Application) : AndroidViewModel(application) {
+
+    private val _homeActionDetected = MutableStateFlow(false)
+    val homeActionDetected = _homeActionDetected.asStateFlow()
+
+
     private val _lastInteraction = MutableStateFlow(System.currentTimeMillis().toDouble())
 
 //    val lastInteraction = _lastInteraction.asStateFlow()
@@ -23,4 +29,14 @@ class AppLifecycleViewModel(application: Application) : AndroidViewModel(applica
         _lastInteraction.value = now
         return elapsed > deltaMillis
     }
+
+
+    fun launchHomeAction() {
+        _homeActionDetected.value = true
+    }
+
+    fun onColdReturn() {
+        _homeActionDetected.value = false
+    }
+
 }

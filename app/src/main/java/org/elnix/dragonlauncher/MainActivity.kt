@@ -11,6 +11,7 @@ import android.content.IntentFilter
 import android.content.pm.ActivityInfo
 import android.os.Build
 import android.os.Bundle
+import android.os.SystemClock
 import android.view.WindowManager
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
@@ -35,6 +36,8 @@ import org.elnix.dragonlauncher.common.logging.logD
 import org.elnix.dragonlauncher.common.logging.logW
 import org.elnix.dragonlauncher.common.serializables.SwipeActionSerializable
 import org.elnix.dragonlauncher.common.serializables.SwipePointSerializable
+import org.elnix.dragonlauncher.common.utils.HOME_REENTER_WINDOW_MS
+import org.elnix.dragonlauncher.common.utils.OUT_OF_APP_RESET_MS
 import org.elnix.dragonlauncher.common.utils.ROUTES
 import org.elnix.dragonlauncher.common.utils.WIDGET_TAG
 import org.elnix.dragonlauncher.common.utils.WidgetHostProvider
@@ -60,7 +63,6 @@ class MainActivity : ComponentActivity(), WidgetHostProvider {
     private val floatingAppsViewModel : FloatingAppsViewModel by viewModels()
 
     private var navControllerHolder = mutableStateOf<NavHostController?>(null)
-
 
     companion object {
         private var GLOBAL_APPWIDGET_HOST: AppWidgetHost? = null
@@ -439,6 +441,7 @@ class MainActivity : ComponentActivity(), WidgetHostProvider {
                     backupViewModel = backupViewModel,
                     appsViewModel = appsViewModel,
                     floatingAppsViewModel = floatingAppsViewModel,
+                    appLifecycleViewModel = appLifecycleViewModel,
                     widgetHostProvider = this,
                     navController = navController,
                     onBindCustomWidget = { widgetId, provider, nestId ->
@@ -462,8 +465,21 @@ class MainActivity : ComponentActivity(), WidgetHostProvider {
         }
     }
 
+
+    // For the home action, to prevent it to work TOO MUCH (I tested and it was launching
+    // the action everytime I clicked on the home button/gesture lol
+    var pauseTime: Long = 0L
+    var isNewHomeIntent: Boolean = false
+
+
     override fun onPause() {
         super.onPause()
+
+        /* ────────────────  Home detection actions ──────────────── */
+        pauseTime = SystemClock.uptimeMillis()
+
+
+        /* ──────────────── Returns back to home if outside for too long ─────────────────── */
         appLifecycleViewModel.onPause()
         lifecycleScope.launch {
             SettingsBackupManager.triggerBackup(this@MainActivity)
@@ -472,6 +488,31 @@ class MainActivity : ComponentActivity(), WidgetHostProvider {
 
     override fun onResume() {
         super.onResume()
+
+
+        /* ────────────────  Home detection actions ──────────────── */
+        val now = SystemClock.uptimeMillis()
+        val delta = now - pauseTime
+
+        if (
+            isNewHomeIntent &&
+            delta in 1..HOME_REENTER_WINDOW_MS
+        ) {
+            // HOME pressed while launcher already visible
+            isNewHomeIntent = false
+            appLifecycleViewModel.launchHomeAction()
+        } else if (
+            pauseTime > 0L &&
+            delta > OUT_OF_APP_RESET_MS
+        ) {
+            // Returned from another app after a while
+            appLifecycleViewModel.onColdReturn()
+        }
+
+        isNewHomeIntent = false
+
+
+        /* ──────────────── Returns back to home if outside for too long ─────────────────── */
         lifecycleScope.launch {
             SettingsBackupManager.triggerBackup(this@MainActivity)
         }
@@ -489,6 +530,32 @@ class MainActivity : ComponentActivity(), WidgetHostProvider {
         }
     }
 
+    override fun onNewIntent(intent: Intent) {
+        super.onNewIntent(intent)
+        setIntent(intent)
+
+
+        /* Detects if the new Intent is the launcher one, and set the pending value to true */
+        if (
+            intent.action == Intent.ACTION_MAIN &&
+            intent.hasCategory(Intent.CATEGORY_HOME)
+        ) {
+            isNewHomeIntent = true
+            logD("HomeAction", "HOME intent received (pending)")
+        }
+    }
+
+    override fun onStart() {
+        super.onStart()
+        appWidgetHost.startListening()
+    }
+
+
+    override fun onStop() {
+        super.onStop()
+        appWidgetHost.stopListening()
+    }
+
     override fun onDestroy() {
         super.onDestroy()
         unregisterReceiver(packageReceiver)
@@ -500,16 +567,4 @@ class MainActivity : ComponentActivity(), WidgetHostProvider {
         // Widgets
         GLOBAL_APPWIDGET_HOST = null
     }
-
-
-    override fun onStart() {
-        super.onStart()
-        appWidgetHost.startListening()
-    }
-
-    override fun onStop() {
-        super.onStop()
-        appWidgetHost.stopListening()
-    }
-
 }

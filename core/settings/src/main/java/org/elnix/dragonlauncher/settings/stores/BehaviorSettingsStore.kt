@@ -16,7 +16,15 @@ import org.elnix.dragonlauncher.settings.getBooleanStrict
 import org.elnix.dragonlauncher.settings.getIntStrict
 import org.elnix.dragonlauncher.settings.getStringStrict
 import org.elnix.dragonlauncher.settings.putIfNonDefault
-import kotlin.text.isNotBlank
+import org.elnix.dragonlauncher.settings.stores.BehaviorSettingsStore.Keys.ALL
+import org.elnix.dragonlauncher.settings.stores.BehaviorSettingsStore.Keys.BACK_ACTION
+import org.elnix.dragonlauncher.settings.stores.BehaviorSettingsStore.Keys.DOUBLE_CLICK_ACTION
+import org.elnix.dragonlauncher.settings.stores.BehaviorSettingsStore.Keys.DOWN_PADDING
+import org.elnix.dragonlauncher.settings.stores.BehaviorSettingsStore.Keys.HOME_ACTION
+import org.elnix.dragonlauncher.settings.stores.BehaviorSettingsStore.Keys.KEEP_SCREEN_ON
+import org.elnix.dragonlauncher.settings.stores.BehaviorSettingsStore.Keys.LEFT_PADDING
+import org.elnix.dragonlauncher.settings.stores.BehaviorSettingsStore.Keys.RIGHT_PADDING
+import org.elnix.dragonlauncher.settings.stores.BehaviorSettingsStore.Keys.UP_PADDING
 
 object BehaviorSettingsStore : BaseSettingsStore<Map<String, Any?>>() {
     override val name: String = "Behavior"
@@ -24,6 +32,7 @@ object BehaviorSettingsStore : BaseSettingsStore<Map<String, Any?>>() {
     private data class UiSettingsBackup(
         val backAction: SwipeActionSerializable? = null,
         val doubleClickAction: SwipeActionSerializable? = null,
+        val homeAction: SwipeActionSerializable? = null,
         val keepScreenOn: Boolean = false,
         val leftPadding: Int = 60,
         val rightPadding: Int = 60,
@@ -36,6 +45,7 @@ object BehaviorSettingsStore : BaseSettingsStore<Map<String, Any?>>() {
     private object Keys {
         val BACK_ACTION = stringPreferencesKey("backAction")
         val DOUBLE_CLICK_ACTION = stringPreferencesKey("doubleClickAction")
+        val HOME_ACTION = stringPreferencesKey("homeAction")
         val KEEP_SCREEN_ON = booleanPreferencesKey("keepScreenOn")
         val LEFT_PADDING = intPreferencesKey("leftPadding")
         val RIGHT_PADDING = intPreferencesKey("rightPadding")
@@ -44,6 +54,7 @@ object BehaviorSettingsStore : BaseSettingsStore<Map<String, Any?>>() {
         val ALL = listOf(
             BACK_ACTION,
             DOUBLE_CLICK_ACTION,
+            HOME_ACTION,
             KEEP_SCREEN_ON,
             LEFT_PADDING,
             RIGHT_PADDING,
@@ -54,67 +65,79 @@ object BehaviorSettingsStore : BaseSettingsStore<Map<String, Any?>>() {
 
     fun getBackAction(ctx: Context): Flow<SwipeActionSerializable?> =
         ctx.behaviorDataStore.data.map {
-            it[Keys.BACK_ACTION]?.takeIf { s -> s.isNotBlank() }?.let(SwipeJson::decodeAction)
+            it[BACK_ACTION]?.takeIf { s -> s.isNotBlank() }?.let(SwipeJson::decodeAction)
         }
 
     suspend fun setBackAction(ctx: Context, value: SwipeActionSerializable?) {
         ctx.behaviorDataStore.edit {
-            if (value != null) it[Keys.BACK_ACTION] = SwipeJson.encodeAction(value)
-            else it.remove(Keys.BACK_ACTION)
+            if (value != null) it[BACK_ACTION] = SwipeJson.encodeAction(value)
+            else it.remove(BACK_ACTION)
         }
     }
 
     fun getDoubleClickAction(ctx: Context): Flow<SwipeActionSerializable?> =
         ctx.behaviorDataStore.data.map {
-            it[Keys.DOUBLE_CLICK_ACTION]?.takeIf { s -> s.isNotBlank() }?.let(SwipeJson::decodeAction)
+            it[DOUBLE_CLICK_ACTION]?.takeIf { s -> s.isNotBlank() }?.let(SwipeJson::decodeAction)
         }
 
     suspend fun setDoubleClickAction(ctx: Context, value: SwipeActionSerializable?) {
         ctx.behaviorDataStore.edit {
-            if (value != null) it[Keys.DOUBLE_CLICK_ACTION] = SwipeJson.encodeAction(value)
-            else it.remove(Keys.DOUBLE_CLICK_ACTION)
+            if (value != null) it[DOUBLE_CLICK_ACTION] = SwipeJson.encodeAction(value)
+            else it.remove(DOUBLE_CLICK_ACTION)
+        }
+    }
+
+    fun getHomeAction(ctx: Context): Flow<SwipeActionSerializable?> =
+        ctx.behaviorDataStore.data.map {
+            it[HOME_ACTION]?.takeIf { s -> s.isNotBlank() }?.let(SwipeJson::decodeAction)
+        }
+
+    suspend fun setHomeAction(ctx: Context, value: SwipeActionSerializable?) {
+        ctx.behaviorDataStore.edit {
+            if (value != null) it[HOME_ACTION] = SwipeJson.encodeAction(value)
+            else it.remove(HOME_ACTION)
         }
     }
 
     fun getKeepScreenOn(ctx: Context): Flow<Boolean> =
-        ctx.behaviorDataStore.data.map { it[Keys.KEEP_SCREEN_ON] ?: defaults.keepScreenOn }
+        ctx.behaviorDataStore.data.map { it[KEEP_SCREEN_ON] ?: defaults.keepScreenOn }
 
     suspend fun setKeepScreenOn(ctx: Context, value: Boolean) {
-        ctx.behaviorDataStore.edit { it[Keys.KEEP_SCREEN_ON] = value }
+        ctx.behaviorDataStore.edit { it[KEEP_SCREEN_ON] = value }
     }
 
     suspend fun setLeftPadding(ctx: Context, value: Int) {
-        ctx.behaviorDataStore.edit { it[Keys.LEFT_PADDING] = value }
+        ctx.behaviorDataStore.edit { it[LEFT_PADDING] = value }
     }
 
     fun getLeftPadding(ctx: Context): Flow<Int> =
-        ctx.behaviorDataStore.data.map { it[Keys.LEFT_PADDING] ?: defaults.leftPadding }
+        ctx.behaviorDataStore.data.map { it[LEFT_PADDING] ?: defaults.leftPadding }
 
     suspend fun setRightPadding(ctx: Context, value: Int) {
-        ctx.behaviorDataStore.edit { it[Keys.RIGHT_PADDING] = value }
+        ctx.behaviorDataStore.edit { it[RIGHT_PADDING] = value }
     }
 
     fun getRightPadding(ctx: Context): Flow<Int> =
-        ctx.behaviorDataStore.data.map { it[Keys.RIGHT_PADDING] ?: defaults.rightPadding }
+        ctx.behaviorDataStore.data.map { it[RIGHT_PADDING] ?: defaults.rightPadding }
 
     suspend fun setUpPadding(ctx: Context, value: Int) {
-        ctx.behaviorDataStore.edit { it[Keys.UP_PADDING] = value }
+        ctx.behaviorDataStore.edit { it[UP_PADDING] = value }
     }
 
     fun getUpPadding(ctx: Context): Flow<Int> =
-        ctx.behaviorDataStore.data.map { it[Keys.UP_PADDING] ?: defaults.upPadding }
+        ctx.behaviorDataStore.data.map { it[UP_PADDING] ?: defaults.upPadding }
 
     suspend fun setDownPadding(ctx: Context, value: Int) {
-        ctx.behaviorDataStore.edit { it[Keys.DOWN_PADDING] = value }
+        ctx.behaviorDataStore.edit { it[DOWN_PADDING] = value }
     }
 
     fun getDownPadding(ctx: Context): Flow<Int> =
-        ctx.behaviorDataStore.data.map { it[Keys.DOWN_PADDING] ?: defaults.downPadding }
+        ctx.behaviorDataStore.data.map { it[DOWN_PADDING] ?: defaults.downPadding }
 
 
     override suspend fun resetAll(ctx: Context) {
         ctx.behaviorDataStore.edit { prefs ->
-            Keys.ALL.forEach { prefs.remove(it) }
+            ALL.forEach { prefs.remove(it) }
         }
     }
 
@@ -124,44 +147,50 @@ object BehaviorSettingsStore : BaseSettingsStore<Map<String, Any?>>() {
         return buildMap {
 
             putIfNonDefault(
-                Keys.BACK_ACTION,
-                prefs[Keys.BACK_ACTION],
+                BACK_ACTION,
+                prefs[BACK_ACTION],
                 defaults.backAction
             )
 
             putIfNonDefault(
-                Keys.DOUBLE_CLICK_ACTION,
-                prefs[Keys.DOUBLE_CLICK_ACTION],
+                DOUBLE_CLICK_ACTION,
+                prefs[DOUBLE_CLICK_ACTION],
                 defaults.doubleClickAction
             )
 
             putIfNonDefault(
-                Keys.KEEP_SCREEN_ON,
-                prefs[Keys.KEEP_SCREEN_ON],
+                HOME_ACTION,
+                prefs[HOME_ACTION],
+                defaults.homeAction
+            )
+
+            putIfNonDefault(
+                KEEP_SCREEN_ON,
+                prefs[KEEP_SCREEN_ON],
                 defaults.keepScreenOn
             )
 
             putIfNonDefault(
-                Keys.LEFT_PADDING,
-                prefs[Keys.LEFT_PADDING],
+                LEFT_PADDING,
+                prefs[LEFT_PADDING],
                 defaults.leftPadding
             )
 
             putIfNonDefault(
-                Keys.RIGHT_PADDING,
-                prefs[Keys.RIGHT_PADDING],
+                RIGHT_PADDING,
+                prefs[RIGHT_PADDING],
                 defaults.rightPadding
             )
 
             putIfNonDefault(
-                Keys.UP_PADDING,
-                prefs[Keys.UP_PADDING],
+                UP_PADDING,
+                prefs[UP_PADDING],
                 defaults.upPadding
             )
 
             putIfNonDefault(
-                Keys.DOWN_PADDING,
-                prefs[Keys.DOWN_PADDING],
+                DOWN_PADDING,
+                prefs[DOWN_PADDING],
                 defaults.downPadding
             )
         }
@@ -171,52 +200,59 @@ object BehaviorSettingsStore : BaseSettingsStore<Map<String, Any?>>() {
     override suspend fun setAll(ctx: Context, value: Map<String, Any?>) {
         ctx.behaviorDataStore.edit { prefs ->
 
-            prefs[Keys.BACK_ACTION] =
+            prefs[BACK_ACTION] =
                 getStringStrict(
                     value,
-                    Keys.BACK_ACTION,
+                    BACK_ACTION,
                     defaults.backAction.toString()
                 )
 
-            prefs[Keys.DOUBLE_CLICK_ACTION] =
+            prefs[DOUBLE_CLICK_ACTION] =
                 getStringStrict(
                     value,
-                    Keys.DOUBLE_CLICK_ACTION,
+                    DOUBLE_CLICK_ACTION,
                     defaults.doubleClickAction.toString()
                 )
 
-            prefs[Keys.KEEP_SCREEN_ON] =
+            prefs[HOME_ACTION] =
+                getStringStrict(
+                    value,
+                    HOME_ACTION,
+                    defaults.homeAction.toString()
+                )
+
+            prefs[KEEP_SCREEN_ON] =
                 getBooleanStrict(
                     value,
-                    Keys.KEEP_SCREEN_ON,
+                    KEEP_SCREEN_ON,
                     defaults.keepScreenOn
                 )
 
-            prefs[Keys.LEFT_PADDING] =
+            prefs[LEFT_PADDING] =
                 getIntStrict(
                     value,
-                    Keys.LEFT_PADDING,
+                    LEFT_PADDING,
                     defaults.leftPadding
                 )
 
-            prefs[Keys.RIGHT_PADDING] =
+            prefs[RIGHT_PADDING] =
                 getIntStrict(
                     value,
-                    Keys.RIGHT_PADDING,
+                    RIGHT_PADDING,
                     defaults.rightPadding
                 )
 
-            prefs[Keys.UP_PADDING] =
+            prefs[UP_PADDING] =
                 getIntStrict(
                     value,
-                    Keys.UP_PADDING,
+                    UP_PADDING,
                     defaults.upPadding
                 )
 
-            prefs[Keys.DOWN_PADDING] =
+            prefs[DOWN_PADDING] =
                 getIntStrict(
                     value,
-                    Keys.DOWN_PADDING,
+                    DOWN_PADDING,
                     defaults.downPadding
                 )
         }

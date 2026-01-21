@@ -36,6 +36,7 @@ fun BehaviorTab(
 
     val backAction by BehaviorSettingsStore.getBackAction(ctx).collectAsState(initial = null)
     val doubleClickAction by BehaviorSettingsStore.getDoubleClickAction(ctx).collectAsState(initial = null)
+    val homeAction by BehaviorSettingsStore.getHomeAction(ctx).collectAsState(initial = null)
     val keepScreenOn by BehaviorSettingsStore.getKeepScreenOn(ctx).collectAsState(initial = false)
     val leftPadding by BehaviorSettingsStore.getLeftPadding(ctx).collectAsState(initial = 0)
     val rightPadding by BehaviorSettingsStore.getRightPadding(ctx).collectAsState(initial = 0)
@@ -93,6 +94,23 @@ fun BehaviorTab(
             ) {
                 scope.launch {
                     BehaviorSettingsStore.setDoubleClickAction(ctx, it)
+                }
+            }
+        }
+
+        item {
+            CustomActionSelector(
+                appsViewModel = appsViewModel,
+                currentAction = homeAction,
+                label = stringResource(R.string.home_action),
+                onToggle = {
+                    scope.launch {
+                        BehaviorSettingsStore.setHomeAction(ctx, null)
+                    }
+                }
+            ) {
+                scope.launch {
+                    BehaviorSettingsStore.setHomeAction(ctx, it)
                 }
             }
         }

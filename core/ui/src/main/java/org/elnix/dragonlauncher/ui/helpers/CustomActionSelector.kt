@@ -34,12 +34,12 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import org.elnix.dragonlauncher.common.serializables.SwipeActionSerializable
 import org.elnix.dragonlauncher.models.AppsViewModel
-import org.elnix.dragonlauncher.ui.dialogs.AddPointDialog
-import org.elnix.dragonlauncher.ui.theme.LocalExtraColors
 import org.elnix.dragonlauncher.ui.actions.ActionIcon
 import org.elnix.dragonlauncher.ui.actions.actionColor
 import org.elnix.dragonlauncher.ui.actions.actionLabel
 import org.elnix.dragonlauncher.ui.colors.AppObjectsColors
+import org.elnix.dragonlauncher.ui.dialogs.AddPointDialog
+import org.elnix.dragonlauncher.ui.theme.LocalExtraColors
 
 
 @Composable
@@ -94,23 +94,10 @@ fun CustomActionSelector(
                     .weight(1f)
                     .padding(start = 12.dp)
             ) {
-//                Icon(
-//                    bitmap = actionIconBitmap(
-//                        icons = icons,
-//                        action = currentAction,
-//                        ctx = ctx,
-//                        tintColor = actionColor
-//                    ),
-//                    contentDescription = actionLabel(currentAction),
-//                    tint = Color.Unspecified,
-//                    modifier = Modifier.size(22.dp)
-//                )
-
                 ActionIcon(
                     action = currentAction,
                     icons = pointIcons,
-                    modifier = Modifier.size(30.dp),
-                    showLaunchAppVectorGrid = true
+                    modifier = Modifier.size(30.dp)
                 )
 
                 Text(

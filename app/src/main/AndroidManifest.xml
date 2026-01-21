@@ -41,7 +41,10 @@
             android:name=".MainActivity"
             android:windowSoftInputMode="stateAlwaysHidden"
             android:exported="true"
-            android:theme="@style/DragonLauncherTheme">
+            android:launchMode="singleTask"
+            android:taskAffinity=""
+            android:theme="@style/DragonLauncherTheme"
+            android:stateNotNeeded="true">
 
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />

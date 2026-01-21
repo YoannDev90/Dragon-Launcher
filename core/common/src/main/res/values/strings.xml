@@ -323,4 +323,5 @@
     <string name="enable_scale_snap">Enable scale snap</string>
     <string name="add_circle">Add circle</string>
     <string name="remove_circle">Remove Crircle</string>
+    <string name="home_action">Home Action</string>
 </resources>

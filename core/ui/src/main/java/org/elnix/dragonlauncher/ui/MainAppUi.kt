@@ -51,6 +51,7 @@ import org.elnix.dragonlauncher.common.utils.isDefaultLauncher
 import org.elnix.dragonlauncher.common.utils.loadChangelogs
 import org.elnix.dragonlauncher.common.utils.transparentScreens
 import org.elnix.dragonlauncher.enumsui.DrawerActions
+import org.elnix.dragonlauncher.models.AppLifecycleViewModel
 import org.elnix.dragonlauncher.models.AppsViewModel
 import org.elnix.dragonlauncher.models.BackupViewModel
 import org.elnix.dragonlauncher.models.FloatingAppsViewModel
@@ -91,6 +92,7 @@ fun MainAppUi(
     backupViewModel: BackupViewModel,
     appsViewModel: AppsViewModel,
     floatingAppsViewModel: FloatingAppsViewModel,
+    appLifecycleViewModel: AppLifecycleViewModel,
     navController: NavHostController,
     widgetHostProvider: WidgetHostProvider,
     onBindCustomWidget: (Int, ComponentName, nestId: Int) -> Unit,
@@ -287,6 +289,7 @@ fun MainAppUi(
                 MainScreen(
                     appsViewModel = appsViewModel,
                     floatingAppsViewModel = floatingAppsViewModel,
+                    appLifecycleViewModel = appLifecycleViewModel,
                     widgetHostProvider = widgetHostProvider,
                     onAppDrawer = { goDrawer() },
                     onGoWelcome = { goWelcome() },
