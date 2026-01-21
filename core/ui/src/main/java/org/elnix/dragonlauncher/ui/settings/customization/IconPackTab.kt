@@ -7,7 +7,11 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.runtime.setValue
+import androidx.compose.runtime.withFrameNanos
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.toArgb
@@ -38,10 +42,16 @@ fun IconPackTab(
     val packs by appsViewModel.iconPacksList.collectAsState()
 
     val iconPackTint by UiSettingsStore.getIconPackTintFLow(ctx).collectAsState(null)
-    // Load packs
+
+    // Used to delay the grid showing up, to prevent lag
+    var showPreview by remember { mutableStateOf(false) }
+
+
     LaunchedEffect(Unit) {
-        appsViewModel.loadIconsPacks()
-        appsViewModel.loadSavedIconPack()
+
+        // Let compose draw at least one frame before showing grid, saves display fps
+        withFrameNanos { }
+        showPreview = true
     }
 
     SettingsLazyHeader(
@@ -55,15 +65,17 @@ fun IconPackTab(
         },
         titleContent = {
             item {
-                Box(Modifier.height(80.dp)){
-                    AppGrid(
-                        apps = apps.shuffled().take(6),
-                        icons = icons,
-                        txtColor = MaterialTheme.colorScheme.onBackground,
-                        gridSize = 6,
-                        showIcons = true,
-                        showLabels = false
-                    ) { }
+                if (showPreview) {
+                    Box(Modifier.height(80.dp)){
+                        AppGrid(
+                            apps = apps.shuffled().take(6),
+                            icons = icons,
+                            txtColor = MaterialTheme.colorScheme.onBackground,
+                            gridSize = 6,
+                            showIcons = true,
+                            showLabels = false
+                        ) { }
+                    }
                 }
             }
         }

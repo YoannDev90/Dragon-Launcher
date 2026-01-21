@@ -300,6 +300,7 @@ fun MainAppUi(
             }
 
 
+            // Settings Nav Host, holds all the settings
             noAnimComposable(SETTINGS.ROOT) {
                 SettingsNavHost(
                     appsViewModel = appsViewModel,
