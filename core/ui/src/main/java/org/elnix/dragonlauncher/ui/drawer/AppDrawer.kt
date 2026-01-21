@@ -55,6 +55,7 @@ import org.elnix.dragonlauncher.common.serializables.dummySwipePoint
 import org.elnix.dragonlauncher.common.utils.openSearch
 import org.elnix.dragonlauncher.common.utils.showToast
 import org.elnix.dragonlauncher.enumsui.DrawerActions
+import org.elnix.dragonlauncher.models.AppLifecycleViewModel
 import org.elnix.dragonlauncher.models.AppsViewModel
 import org.elnix.dragonlauncher.settings.stores.DrawerSettingsStore
 import org.elnix.dragonlauncher.ui.actions.launchSwipeAction
@@ -68,6 +69,7 @@ import org.elnix.dragonlauncher.ui.helpers.AppGrid
 @Composable
 fun AppDrawerScreen(
     appsViewModel: AppsViewModel,
+    appLifecycleViewModel: AppLifecycleViewModel,
 //    wallpaperViewModel: WallpaperViewModel,
     showIcons: Boolean,
     showLabels: Boolean,
@@ -100,6 +102,12 @@ fun AppDrawerScreen(
 //    LaunchedEffect(Unit) {
 //        scope.launch{ appsViewModel.reloadApps() }
 //    }
+
+
+    val homeActionDetected by appLifecycleViewModel.homeActionDetected.collectAsState()
+
+    val drawerHomeAction by DrawerSettingsStore.getDrawerHomeAction(ctx)
+        .collectAsState(initial = DrawerActions.CLOSE)
 
 
     val workspaceState by appsViewModel.enabledState.collectAsState()
@@ -187,6 +195,10 @@ fun AppDrawerScreen(
             DrawerActions.OPEN_FIRST_APP -> haveToLaunchFirstApp = true
             DrawerActions.NONE, DrawerActions.DISABLED -> {}
         }
+    }
+
+    LaunchedEffect(homeActionDetected) {
+        if (homeActionDetected) launchDrawerAction(drawerHomeAction)
     }
 
     @Composable

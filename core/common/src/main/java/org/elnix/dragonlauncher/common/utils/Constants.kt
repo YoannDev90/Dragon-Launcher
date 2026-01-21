@@ -126,4 +126,4 @@ const val discordInviteLink = "https://discord.gg/6UyuP8EBWS"
 
 
 const val HOME_REENTER_WINDOW_MS = 80L
-const val OUT_OF_APP_RESET_MS = 5_000L
+const val OUT_OF_APP_RESET_MS = 1_000L

@@ -38,5 +38,4 @@ class AppLifecycleViewModel(application: Application) : AndroidViewModel(applica
     fun onColdReturn() {
         _homeActionDetected.value = false
     }
-
 }

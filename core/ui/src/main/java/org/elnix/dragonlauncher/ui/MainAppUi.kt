@@ -300,6 +300,7 @@ fun MainAppUi(
             noAnimComposable(ROUTES.DRAWER) {
                 AppDrawerScreen(
                     appsViewModel = appsViewModel,
+                    appLifecycleViewModel = appLifecycleViewModel,
                     showIcons = showAppIconsInDrawer,
                     showLabels = showAppLabelsInDrawer,
                     autoShowKeyboard = autoShowKeyboardOnDrawer,

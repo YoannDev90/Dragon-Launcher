@@ -91,6 +91,10 @@ fun DrawerTab(
     val drawerEnterAction by DrawerSettingsStore.getDrawerEnterAction(ctx)
         .collectAsState(initial = DrawerActions.CLEAR)
 
+
+    val drawerHomeAction by DrawerSettingsStore.getDrawerHomeAction(ctx)
+        .collectAsState(initial = DrawerActions.CLOSE)
+
     val scrollDownToCloseDrawerOnTop by DrawerSettingsStore.getScrollDownToCloseDrawerOnTop(ctx)
         .collectAsState(initial = true)
 
@@ -382,6 +386,34 @@ fun DrawerTab(
                 toggled = drawerEnterAction != DrawerActions.NONE
             ) {
                 scope.launch { DrawerSettingsStore.setDrawerEnterAction(ctx, it) }
+            }
+        }
+
+
+        item {
+            ActionSelectorRow(
+                options = DrawerActions.entries.filter { it != DrawerActions.NONE && it != DrawerActions.DISABLED },
+                selected = drawerHomeAction,
+                label = stringResource(R.string.drawer_home_action),
+                optionLabel = { drawerActionsLabel(ctx, it) },
+                onToggle = {
+                    scope.launch {
+                        if (drawerHomeAction == DrawerActions.NONE) {
+                            DrawerSettingsStore.setDrawerHomeAction(
+                                ctx,
+                                DrawerActions.CLEAR
+                            )
+                        } else {
+                            DrawerSettingsStore.setDrawerHomeAction(
+                                ctx,
+                                DrawerActions.NONE
+                            )
+                        }
+                    }
+                },
+                toggled = drawerHomeAction != DrawerActions.NONE
+            ) {
+                scope.launch { DrawerSettingsStore.setDrawerHomeAction(ctx, it) }
             }
         }
     }

@@ -17,6 +17,21 @@ import org.elnix.dragonlauncher.settings.getBooleanStrict
 import org.elnix.dragonlauncher.settings.getFloatStrict
 import org.elnix.dragonlauncher.settings.getIntStrict
 import org.elnix.dragonlauncher.settings.putIfNonDefault
+import org.elnix.dragonlauncher.settings.stores.DrawerSettingsStore.Keys.ALL
+import org.elnix.dragonlauncher.settings.stores.DrawerSettingsStore.Keys.AUTO_OPEN_SINGLE_MATCH
+import org.elnix.dragonlauncher.settings.stores.DrawerSettingsStore.Keys.AUTO_SHOW_KEYBOARD_ON_DRAWER
+import org.elnix.dragonlauncher.settings.stores.DrawerSettingsStore.Keys.CLICK_EMPTY_SPACE_TO_RAISE_KEYBOARD
+import org.elnix.dragonlauncher.settings.stores.DrawerSettingsStore.Keys.DRAWER_ENTER_ACTION
+import org.elnix.dragonlauncher.settings.stores.DrawerSettingsStore.Keys.DRAWER_HOME_ACTION
+import org.elnix.dragonlauncher.settings.stores.DrawerSettingsStore.Keys.GRID_SIZE
+import org.elnix.dragonlauncher.settings.stores.DrawerSettingsStore.Keys.LEFT_DRAWER_ACTION
+import org.elnix.dragonlauncher.settings.stores.DrawerSettingsStore.Keys.LEFT_DRAWER_WIDTH
+import org.elnix.dragonlauncher.settings.stores.DrawerSettingsStore.Keys.RIGHT_DRAWER_ACTION
+import org.elnix.dragonlauncher.settings.stores.DrawerSettingsStore.Keys.RIGHT_DRAWER_WIDTH
+import org.elnix.dragonlauncher.settings.stores.DrawerSettingsStore.Keys.SCROLL_DOWN_TO_CLOSE_DRAWER_ON_TOP
+import org.elnix.dragonlauncher.settings.stores.DrawerSettingsStore.Keys.SEARCH_BAR_BOTTOM
+import org.elnix.dragonlauncher.settings.stores.DrawerSettingsStore.Keys.SHOW_APP_ICONS_IN_DRAWER
+import org.elnix.dragonlauncher.settings.stores.DrawerSettingsStore.Keys.SHOW_APP_LABEL_IN_DRAWER
 import org.elnix.dragonlauncher.settings.uiDatastore
 
 object DrawerSettingsStore : BaseSettingsStore<Map<String, Any?>>() {
@@ -39,6 +54,7 @@ object DrawerSettingsStore : BaseSettingsStore<Map<String, Any?>>() {
         val leftDrawerWidth: Float = 0.1f,
         val rightDrawerWidth: Float = 0.1f,
         val drawerEnterAction: DrawerActions = DrawerActions.CLEAR,
+        val drawerHomeAction: DrawerActions = DrawerActions.CLOSE,
         val scrollDownToCloseDrawerOnTop: Boolean = true
     )
 
@@ -60,7 +76,8 @@ object DrawerSettingsStore : BaseSettingsStore<Map<String, Any?>>() {
         val RIGHT_DRAWER_ACTION = stringPreferencesKey("rightDrawerAction")
         val LEFT_DRAWER_WIDTH = floatPreferencesKey("leftDrawerWidth")
         val RIGHT_DRAWER_WIDTH = floatPreferencesKey("rightDrawerWidth")
-        val DRAWER_ENTER_ACTIONS = stringPreferencesKey("drawerEnterAction")
+        val DRAWER_ENTER_ACTION = stringPreferencesKey("drawerEnterAction")
+        val DRAWER_HOME_ACTION = stringPreferencesKey("drawerHomeAction")
         val SCROLL_DOWN_TO_CLOSE_DRAWER_ON_TOP = booleanPreferencesKey("scrollDownToCloseDrawerOnTop")
 
         val ALL = listOf(
@@ -75,7 +92,8 @@ object DrawerSettingsStore : BaseSettingsStore<Map<String, Any?>>() {
             RIGHT_DRAWER_ACTION,
             LEFT_DRAWER_WIDTH,
             RIGHT_DRAWER_WIDTH,
-            DRAWER_ENTER_ACTIONS,
+            DRAWER_ENTER_ACTION,
+            DRAWER_HOME_ACTION,
             SCROLL_DOWN_TO_CLOSE_DRAWER_ON_TOP
         )
     }
@@ -84,117 +102,128 @@ object DrawerSettingsStore : BaseSettingsStore<Map<String, Any?>>() {
     // Accessors + Mutators
     // -------------------------------------------------------------------------
     fun getAutoLaunchSingleMatch(ctx: Context): Flow<Boolean> =
-        ctx.drawerDataStore.data.map { it[Keys.AUTO_OPEN_SINGLE_MATCH] ?: defaults.autoOpenSingleMatch }
+        ctx.drawerDataStore.data.map { it[AUTO_OPEN_SINGLE_MATCH] ?: defaults.autoOpenSingleMatch }
 
     suspend fun setAutoLaunchSingleMatch(ctx: Context, v: Boolean) {
-        ctx.drawerDataStore.edit { it[Keys.AUTO_OPEN_SINGLE_MATCH] = v }
+        ctx.drawerDataStore.edit { it[AUTO_OPEN_SINGLE_MATCH] = v }
     }
 
     fun getShowAppIconsInDrawer(ctx: Context): Flow<Boolean> =
         ctx.drawerDataStore.data.map {
-            it[Keys.SHOW_APP_ICONS_IN_DRAWER] ?: defaults.showAppIconsInDrawer
+            it[SHOW_APP_ICONS_IN_DRAWER] ?: defaults.showAppIconsInDrawer
         }
 
     suspend fun setShowAppIconsInDrawer(ctx: Context, v: Boolean) {
-        ctx.drawerDataStore.edit { it[Keys.SHOW_APP_ICONS_IN_DRAWER] = v }
+        ctx.drawerDataStore.edit { it[SHOW_APP_ICONS_IN_DRAWER] = v }
     }
 
     fun getShowAppLabelsInDrawer(ctx: Context): Flow<Boolean> =
         ctx.drawerDataStore.data.map {
-            it[Keys.SHOW_APP_LABEL_IN_DRAWER] ?: defaults.showAppLabelInDrawer
+            it[SHOW_APP_LABEL_IN_DRAWER] ?: defaults.showAppLabelInDrawer
         }
 
     suspend fun setShowAppLabelsInDrawer(ctx: Context, v: Boolean) {
-        ctx.drawerDataStore.edit { it[Keys.SHOW_APP_LABEL_IN_DRAWER] = v }
+        ctx.drawerDataStore.edit { it[SHOW_APP_LABEL_IN_DRAWER] = v }
     }
 
     fun getSearchBarBottom(ctx: Context): Flow<Boolean> =
-        ctx.drawerDataStore.data.map { it[Keys.SEARCH_BAR_BOTTOM] ?: defaults.searchBarBottom }
+        ctx.drawerDataStore.data.map { it[SEARCH_BAR_BOTTOM] ?: defaults.searchBarBottom }
 
     suspend fun setSearchBarBottom(ctx: Context, v: Boolean) {
-        ctx.drawerDataStore.edit { it[Keys.SEARCH_BAR_BOTTOM] = v }
+        ctx.drawerDataStore.edit { it[SEARCH_BAR_BOTTOM] = v }
     }
 
     fun getAutoShowKeyboardOnDrawer(ctx: Context): Flow<Boolean> =
         ctx.drawerDataStore.data.map {
-            it[Keys.AUTO_SHOW_KEYBOARD_ON_DRAWER] ?: defaults.autoShowKeyboardOnDrawer
+            it[AUTO_SHOW_KEYBOARD_ON_DRAWER] ?: defaults.autoShowKeyboardOnDrawer
         }
 
     suspend fun setAutoShowKeyboardOnDrawer(ctx: Context, v: Boolean) {
-        ctx.drawerDataStore.edit { it[Keys.AUTO_SHOW_KEYBOARD_ON_DRAWER] = v }
+        ctx.drawerDataStore.edit { it[AUTO_SHOW_KEYBOARD_ON_DRAWER] = v }
     }
 
     fun getClickEmptySpaceToRaiseKeyboard(ctx: Context): Flow<Boolean> =
         ctx.drawerDataStore.data.map {
-            it[Keys.CLICK_EMPTY_SPACE_TO_RAISE_KEYBOARD] ?: defaults.clickEmptySpaceToRaiseKeyboard
+            it[CLICK_EMPTY_SPACE_TO_RAISE_KEYBOARD] ?: defaults.clickEmptySpaceToRaiseKeyboard
         }
 
     suspend fun setClickEmptySpaceToRaiseKeyboard(ctx: Context, v: Boolean) {
-        ctx.drawerDataStore.edit { it[Keys.CLICK_EMPTY_SPACE_TO_RAISE_KEYBOARD] = v }
+        ctx.drawerDataStore.edit { it[CLICK_EMPTY_SPACE_TO_RAISE_KEYBOARD] = v }
     }
 
     fun getGridSize(ctx: Context): Flow<Int> =
-        ctx.drawerDataStore.data.map { it[Keys.GRID_SIZE] ?: defaults.gridSize }
+        ctx.drawerDataStore.data.map { it[GRID_SIZE] ?: defaults.gridSize }
 
     suspend fun setGridSize(ctx: Context, size: Int) {
-        ctx.drawerDataStore.edit { it[Keys.GRID_SIZE] = size }
+        ctx.drawerDataStore.edit { it[GRID_SIZE] = size }
     }
 
     fun getLeftDrawerAction(ctx: Context): Flow<DrawerActions> =
         ctx.drawerDataStore.data.map {
             DrawerActions.valueOf(
-                it[Keys.LEFT_DRAWER_ACTION] ?: defaults.leftDrawerAction.name
+                it[LEFT_DRAWER_ACTION] ?: defaults.leftDrawerAction.name
             )
         }
 
     suspend fun setLeftDrawerAction(ctx: Context, action: DrawerActions) {
-        ctx.drawerDataStore.edit { it[Keys.LEFT_DRAWER_ACTION] = action.name }
+        ctx.drawerDataStore.edit { it[LEFT_DRAWER_ACTION] = action.name }
     }
 
     fun getRightDrawerAction(ctx: Context): Flow<DrawerActions> =
         ctx.drawerDataStore.data.map {
             DrawerActions.valueOf(
-                it[Keys.RIGHT_DRAWER_ACTION] ?: defaults.rightDrawerAction.name
+                it[RIGHT_DRAWER_ACTION] ?: defaults.rightDrawerAction.name
             )
         }
 
     suspend fun setRightDrawerAction(ctx: Context, action: DrawerActions) {
-        ctx.drawerDataStore.edit { it[Keys.RIGHT_DRAWER_ACTION] = action.name }
+        ctx.drawerDataStore.edit { it[RIGHT_DRAWER_ACTION] = action.name }
     }
 
 
     fun getLeftDrawerWidth(ctx: Context): Flow<Float> =
-        ctx.drawerDataStore.data.map { it[Keys.LEFT_DRAWER_WIDTH] ?: defaults.leftDrawerWidth }
+        ctx.drawerDataStore.data.map { it[LEFT_DRAWER_WIDTH] ?: defaults.leftDrawerWidth }
 
     suspend fun setLeftDrawerWidth(ctx: Context, width: Float) {
-        ctx.drawerDataStore.edit { it[Keys.LEFT_DRAWER_WIDTH] = width }
+        ctx.drawerDataStore.edit { it[LEFT_DRAWER_WIDTH] = width }
     }
 
     fun getRightDrawerWidth(ctx: Context): Flow<Float> =
-        ctx.drawerDataStore.data.map { it[Keys.RIGHT_DRAWER_WIDTH] ?: defaults.rightDrawerWidth }
+        ctx.drawerDataStore.data.map { it[RIGHT_DRAWER_WIDTH] ?: defaults.rightDrawerWidth }
 
     suspend fun setRightDrawerWidth(ctx: Context, width: Float) {
-        ctx.drawerDataStore.edit { it[Keys.RIGHT_DRAWER_WIDTH] = width }
+        ctx.drawerDataStore.edit { it[RIGHT_DRAWER_WIDTH] = width }
     }
 
     fun getDrawerEnterAction(ctx: Context): Flow<DrawerActions> =
         ctx.drawerDataStore.data.map {
             DrawerActions.valueOf(
-                it[Keys.DRAWER_ENTER_ACTIONS] ?: defaults.drawerEnterAction.name
+                it[DRAWER_ENTER_ACTION] ?: defaults.drawerEnterAction.name
             )
         }
 
     suspend fun setDrawerEnterAction(ctx: Context, v: DrawerActions) {
-        ctx.drawerDataStore.edit { it[Keys.DRAWER_ENTER_ACTIONS] = v.name }
+        ctx.drawerDataStore.edit { it[DRAWER_ENTER_ACTION] = v.name }
+    }
+
+    fun getDrawerHomeAction(ctx: Context): Flow<DrawerActions> =
+        ctx.drawerDataStore.data.map {
+            DrawerActions.valueOf(
+                it[DRAWER_HOME_ACTION] ?: defaults.drawerHomeAction.name
+            )
+        }
+
+    suspend fun setDrawerHomeAction(ctx: Context, v: DrawerActions) {
+        ctx.drawerDataStore.edit { it[DRAWER_HOME_ACTION] = v.name }
     }
 
     fun getScrollDownToCloseDrawerOnTop(ctx: Context): Flow<Boolean> =
         ctx.drawerDataStore.data.map {
-            it[Keys.SCROLL_DOWN_TO_CLOSE_DRAWER_ON_TOP] ?: defaults.scrollDownToCloseDrawerOnTop
+            it[SCROLL_DOWN_TO_CLOSE_DRAWER_ON_TOP] ?: defaults.scrollDownToCloseDrawerOnTop
         }
 
     suspend fun setScrollDownToCloseDrawerOnTop(ctx: Context, v: Boolean) {
-        ctx.drawerDataStore.edit { it[Keys.SCROLL_DOWN_TO_CLOSE_DRAWER_ON_TOP] = v }
+        ctx.drawerDataStore.edit { it[SCROLL_DOWN_TO_CLOSE_DRAWER_ON_TOP] = v }
     }
 
 
@@ -203,7 +232,7 @@ object DrawerSettingsStore : BaseSettingsStore<Map<String, Any?>>() {
     // -------------------------------------------------------------------------
     override suspend fun resetAll(ctx: Context) {
         ctx.uiDatastore.edit { prefs ->
-            Keys.ALL.forEach { prefs.remove(it) }
+            ALL.forEach { prefs.remove(it) }
         }
     }
 
@@ -217,69 +246,76 @@ object DrawerSettingsStore : BaseSettingsStore<Map<String, Any?>>() {
 
 
             putIfNonDefault(
-                Keys.AUTO_OPEN_SINGLE_MATCH,
-                prefs[Keys.AUTO_OPEN_SINGLE_MATCH],
+                AUTO_OPEN_SINGLE_MATCH,
+                prefs[AUTO_OPEN_SINGLE_MATCH],
                 defaults.autoOpenSingleMatch
             )
             putIfNonDefault(
-                Keys.SHOW_APP_ICONS_IN_DRAWER,
-                prefs[Keys.SHOW_APP_ICONS_IN_DRAWER],
+                SHOW_APP_ICONS_IN_DRAWER,
+                prefs[SHOW_APP_ICONS_IN_DRAWER],
                 defaults.showAppIconsInDrawer
             )
             putIfNonDefault(
-                Keys.SHOW_APP_LABEL_IN_DRAWER,
-                prefs[Keys.SHOW_APP_LABEL_IN_DRAWER],
+                SHOW_APP_LABEL_IN_DRAWER,
+                prefs[SHOW_APP_LABEL_IN_DRAWER],
                 defaults.showAppLabelInDrawer
             )
             putIfNonDefault(
-                Keys.SEARCH_BAR_BOTTOM,
-                prefs[Keys.SEARCH_BAR_BOTTOM],
+                SEARCH_BAR_BOTTOM,
+                prefs[SEARCH_BAR_BOTTOM],
                 defaults.searchBarBottom
             )
             putIfNonDefault(
-                Keys.AUTO_SHOW_KEYBOARD_ON_DRAWER,
-                prefs[Keys.AUTO_SHOW_KEYBOARD_ON_DRAWER],
+                AUTO_SHOW_KEYBOARD_ON_DRAWER,
+                prefs[AUTO_SHOW_KEYBOARD_ON_DRAWER],
                 defaults.autoShowKeyboardOnDrawer
             )
             putIfNonDefault(
-                Keys.CLICK_EMPTY_SPACE_TO_RAISE_KEYBOARD,
-                prefs[Keys.CLICK_EMPTY_SPACE_TO_RAISE_KEYBOARD],
+                CLICK_EMPTY_SPACE_TO_RAISE_KEYBOARD,
+                prefs[CLICK_EMPTY_SPACE_TO_RAISE_KEYBOARD],
                 defaults.clickEmptySpaceToRaiseKeyboard
             )
             putIfNonDefault(
-                Keys.GRID_SIZE,
-                prefs[Keys.GRID_SIZE],
+                GRID_SIZE,
+                prefs[GRID_SIZE],
                 defaults.gridSize
             )
             putIfNonDefault(
-                Keys.LEFT_DRAWER_ACTION,
-                prefs[Keys.LEFT_DRAWER_ACTION],
+                LEFT_DRAWER_ACTION,
+                prefs[LEFT_DRAWER_ACTION],
                 defaults.leftDrawerAction.name
             )
             putIfNonDefault(
-                Keys.RIGHT_DRAWER_ACTION,
-                prefs[Keys.RIGHT_DRAWER_ACTION],
+                RIGHT_DRAWER_ACTION,
+                prefs[RIGHT_DRAWER_ACTION],
                 defaults.rightDrawerAction.name
             )
             putIfNonDefault(
-                Keys.LEFT_DRAWER_WIDTH,
-                prefs[Keys.LEFT_DRAWER_WIDTH],
+                LEFT_DRAWER_WIDTH,
+                prefs[LEFT_DRAWER_WIDTH],
                 defaults.leftDrawerWidth
             )
             putIfNonDefault(
-                Keys.RIGHT_DRAWER_WIDTH,
-                prefs[Keys.RIGHT_DRAWER_WIDTH],
+                RIGHT_DRAWER_WIDTH,
+                prefs[RIGHT_DRAWER_WIDTH],
                 defaults.rightDrawerWidth
             )
 
             putIfNonDefault(
-                Keys.DRAWER_ENTER_ACTIONS,
-                prefs[Keys.DRAWER_ENTER_ACTIONS],
+                DRAWER_ENTER_ACTION,
+                prefs[DRAWER_ENTER_ACTION],
                 defaults.drawerEnterAction
             )
+
             putIfNonDefault(
-                Keys.SCROLL_DOWN_TO_CLOSE_DRAWER_ON_TOP,
-                prefs[Keys.SCROLL_DOWN_TO_CLOSE_DRAWER_ON_TOP],
+                DRAWER_HOME_ACTION,
+                prefs[DRAWER_HOME_ACTION],
+                defaults.drawerHomeAction
+            )
+
+            putIfNonDefault(
+                SCROLL_DOWN_TO_CLOSE_DRAWER_ON_TOP,
+                prefs[SCROLL_DOWN_TO_CLOSE_DRAWER_ON_TOP],
                 defaults.scrollDownToCloseDrawerOnTop
             )
         }
@@ -293,8 +329,8 @@ object DrawerSettingsStore : BaseSettingsStore<Map<String, Any?>>() {
 
         fun getDrawerActionStrict(key: String): DrawerActions {
             val v = value[key] ?: return when (key) {
-                Keys.LEFT_DRAWER_ACTION.name -> defaults.leftDrawerAction
-                Keys.RIGHT_DRAWER_ACTION.name -> defaults.rightDrawerAction
+                LEFT_DRAWER_ACTION.name -> defaults.leftDrawerAction
+                RIGHT_DRAWER_ACTION.name -> defaults.rightDrawerAction
                 else -> throw BackupTypeException(key, "DrawerAction", null, null)
             }
 
@@ -306,7 +342,7 @@ object DrawerSettingsStore : BaseSettingsStore<Map<String, Any?>>() {
 
         fun getDrawerEnterActionStrict(key: String): DrawerActions {
             val v = value[key] ?: return when (key) {
-                Keys.DRAWER_ENTER_ACTIONS.name -> defaults.drawerEnterAction
+                DRAWER_ENTER_ACTION.name -> defaults.drawerEnterAction
                 else -> throw BackupTypeException(key, "DrawerEnterAction", null, null)
             }
 
@@ -318,58 +354,60 @@ object DrawerSettingsStore : BaseSettingsStore<Map<String, Any?>>() {
 
         val backup = DrawerSettingsBackup(
             autoOpenSingleMatch = getBooleanStrict(
-                value, Keys.AUTO_OPEN_SINGLE_MATCH, defaults.autoOpenSingleMatch
+                value, AUTO_OPEN_SINGLE_MATCH, defaults.autoOpenSingleMatch
             ),
             showAppIconsInDrawer = getBooleanStrict(
-                value, Keys.SHOW_APP_ICONS_IN_DRAWER, defaults.showAppIconsInDrawer
+                value, SHOW_APP_ICONS_IN_DRAWER, defaults.showAppIconsInDrawer
             ),
             showAppLabelInDrawer = getBooleanStrict(
-                value, Keys.SHOW_APP_LABEL_IN_DRAWER, defaults.showAppLabelInDrawer
+                value, SHOW_APP_LABEL_IN_DRAWER, defaults.showAppLabelInDrawer
             ),
             searchBarBottom = getBooleanStrict(
-                value, Keys.SEARCH_BAR_BOTTOM, defaults.searchBarBottom
+                value, SEARCH_BAR_BOTTOM, defaults.searchBarBottom
             ),
             autoShowKeyboardOnDrawer = getBooleanStrict(
-                value, Keys.AUTO_SHOW_KEYBOARD_ON_DRAWER, defaults.autoShowKeyboardOnDrawer
+                value, AUTO_SHOW_KEYBOARD_ON_DRAWER, defaults.autoShowKeyboardOnDrawer
             ),
             clickEmptySpaceToRaiseKeyboard = getBooleanStrict(
                 value,
-                Keys.CLICK_EMPTY_SPACE_TO_RAISE_KEYBOARD,
+                CLICK_EMPTY_SPACE_TO_RAISE_KEYBOARD,
                 defaults.clickEmptySpaceToRaiseKeyboard
             ),
             gridSize = getIntStrict(
-                value, Keys.GRID_SIZE, defaults.gridSize
+                value, GRID_SIZE, defaults.gridSize
             ),
-            leftDrawerAction = getDrawerActionStrict(Keys.LEFT_DRAWER_ACTION.name),
-            rightDrawerAction = getDrawerActionStrict(Keys.RIGHT_DRAWER_ACTION.name),
+            leftDrawerAction = getDrawerActionStrict(LEFT_DRAWER_ACTION.name),
+            rightDrawerAction = getDrawerActionStrict(RIGHT_DRAWER_ACTION.name),
             leftDrawerWidth = getFloatStrict(
-                value, Keys.LEFT_DRAWER_WIDTH, defaults.leftDrawerWidth
+                value, LEFT_DRAWER_WIDTH, defaults.leftDrawerWidth
             ),
             rightDrawerWidth = getFloatStrict(
-                value, Keys.RIGHT_DRAWER_WIDTH, defaults.rightDrawerWidth
+                value, RIGHT_DRAWER_WIDTH, defaults.rightDrawerWidth
             ),
-            drawerEnterAction = getDrawerEnterActionStrict(Keys.DRAWER_ENTER_ACTIONS.name),
+            drawerEnterAction = getDrawerEnterActionStrict(DRAWER_ENTER_ACTION.name),
+            drawerHomeAction = getDrawerEnterActionStrict(DRAWER_HOME_ACTION.name),
             scrollDownToCloseDrawerOnTop = getBooleanStrict(
                 value,
-                Keys.SCROLL_DOWN_TO_CLOSE_DRAWER_ON_TOP,
+                SCROLL_DOWN_TO_CLOSE_DRAWER_ON_TOP,
                 defaults.scrollDownToCloseDrawerOnTop
             )
         )
 
         ctx.drawerDataStore.edit { prefs ->
-            prefs[Keys.AUTO_OPEN_SINGLE_MATCH] = backup.autoOpenSingleMatch
-            prefs[Keys.SHOW_APP_ICONS_IN_DRAWER] = backup.showAppIconsInDrawer
-            prefs[Keys.SHOW_APP_LABEL_IN_DRAWER] = backup.showAppLabelInDrawer
-            prefs[Keys.SEARCH_BAR_BOTTOM] = backup.searchBarBottom
-            prefs[Keys.AUTO_SHOW_KEYBOARD_ON_DRAWER] = backup.autoShowKeyboardOnDrawer
-            prefs[Keys.CLICK_EMPTY_SPACE_TO_RAISE_KEYBOARD] = backup.clickEmptySpaceToRaiseKeyboard
-            prefs[Keys.GRID_SIZE] = backup.gridSize
-            prefs[Keys.LEFT_DRAWER_ACTION] = backup.leftDrawerAction.name
-            prefs[Keys.RIGHT_DRAWER_ACTION] = backup.rightDrawerAction.name
-            prefs[Keys.LEFT_DRAWER_WIDTH] = backup.leftDrawerWidth
-            prefs[Keys.RIGHT_DRAWER_WIDTH] = backup.rightDrawerWidth
-            prefs[Keys.DRAWER_ENTER_ACTIONS] = backup.drawerEnterAction.name
-            prefs[Keys.SCROLL_DOWN_TO_CLOSE_DRAWER_ON_TOP] = backup.scrollDownToCloseDrawerOnTop
+            prefs[AUTO_OPEN_SINGLE_MATCH] = backup.autoOpenSingleMatch
+            prefs[SHOW_APP_ICONS_IN_DRAWER] = backup.showAppIconsInDrawer
+            prefs[SHOW_APP_LABEL_IN_DRAWER] = backup.showAppLabelInDrawer
+            prefs[SEARCH_BAR_BOTTOM] = backup.searchBarBottom
+            prefs[AUTO_SHOW_KEYBOARD_ON_DRAWER] = backup.autoShowKeyboardOnDrawer
+            prefs[CLICK_EMPTY_SPACE_TO_RAISE_KEYBOARD] = backup.clickEmptySpaceToRaiseKeyboard
+            prefs[GRID_SIZE] = backup.gridSize
+            prefs[LEFT_DRAWER_ACTION] = backup.leftDrawerAction.name
+            prefs[RIGHT_DRAWER_ACTION] = backup.rightDrawerAction.name
+            prefs[LEFT_DRAWER_WIDTH] = backup.leftDrawerWidth
+            prefs[RIGHT_DRAWER_WIDTH] = backup.rightDrawerWidth
+            prefs[DRAWER_ENTER_ACTION] = backup.drawerEnterAction.name
+            prefs[DRAWER_HOME_ACTION] = backup.drawerHomeAction.name
+            prefs[SCROLL_DOWN_TO_CLOSE_DRAWER_ON_TOP] = backup.scrollDownToCloseDrawerOnTop
         }
     }
 }
