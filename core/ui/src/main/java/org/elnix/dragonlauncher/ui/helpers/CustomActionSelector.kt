@@ -57,7 +57,7 @@ fun CustomActionSelector(
 ) {
     val extraColors = LocalExtraColors.current
 
-    val pointIcons by appsViewModel.pointIcons.collectAsState()
+    val icons by appsViewModel.icons.collectAsState()
 
     var showDialog by remember { mutableStateOf(false) }
 
@@ -96,7 +96,7 @@ fun CustomActionSelector(
             ) {
                 ActionIcon(
                     action = currentAction,
-                    icons = pointIcons,
+                    icons = icons,
                     modifier = Modifier.size(30.dp)
                 )
 
