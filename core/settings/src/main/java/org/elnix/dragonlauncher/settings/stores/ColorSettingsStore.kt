@@ -3,314 +3,248 @@ package org.elnix.dragonlauncher.settings.stores
 import android.content.Context
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.toArgb
-import androidx.datastore.preferences.core.edit
-import androidx.datastore.preferences.core.intPreferencesKey
-import kotlinx.coroutines.flow.first
-import kotlinx.coroutines.flow.map
 import org.elnix.dragonlauncher.common.theme.AmoledDefault
 import org.elnix.dragonlauncher.common.theme.ThemeColors
 import org.elnix.dragonlauncher.common.utils.colors.randomColor
 import org.elnix.dragonlauncher.enumsui.ColorCustomisationMode
 import org.elnix.dragonlauncher.enumsui.DefaultThemes
-import org.elnix.dragonlauncher.settings.BaseSettingsStore
-import org.elnix.dragonlauncher.settings.colorDatastore
+import org.elnix.dragonlauncher.settings.DataStoreName
+import org.elnix.dragonlauncher.settings.SettingObject
+import org.elnix.dragonlauncher.settings.SettingType
+import org.elnix.dragonlauncher.settings.bases.MapSettingsStore
 import org.elnix.dragonlauncher.settings.getDefaultColorScheme
-import org.elnix.dragonlauncher.settings.getIntStrict
-import org.elnix.dragonlauncher.settings.putIfNonDefault
-import org.elnix.dragonlauncher.settings.stores.ColorSettingsStore.Keys.ALL
-import org.elnix.dragonlauncher.settings.stores.ColorSettingsStore.Keys.ANGLE_LINE_COLOR
-import org.elnix.dragonlauncher.settings.stores.ColorSettingsStore.Keys.BACKGROUND_COLOR
-import org.elnix.dragonlauncher.settings.stores.ColorSettingsStore.Keys.CIRCLE_COLOR
-import org.elnix.dragonlauncher.settings.stores.ColorSettingsStore.Keys.CONTROL_PANEL_COLOR
-import org.elnix.dragonlauncher.settings.stores.ColorSettingsStore.Keys.ERROR_COLOR
-import org.elnix.dragonlauncher.settings.stores.ColorSettingsStore.Keys.GO_PARENT_NEST
-import org.elnix.dragonlauncher.settings.stores.ColorSettingsStore.Keys.LAUNCHER_SETTINGS_COLOR
-import org.elnix.dragonlauncher.settings.stores.ColorSettingsStore.Keys.LAUNCH_APP_COLOR
-import org.elnix.dragonlauncher.settings.stores.ColorSettingsStore.Keys.LOCK_COLOR
-import org.elnix.dragonlauncher.settings.stores.ColorSettingsStore.Keys.NOTIFICATION_SHADE_COLOR
-import org.elnix.dragonlauncher.settings.stores.ColorSettingsStore.Keys.ON_BACKGROUND_COLOR
-import org.elnix.dragonlauncher.settings.stores.ColorSettingsStore.Keys.ON_ERROR_COLOR
-import org.elnix.dragonlauncher.settings.stores.ColorSettingsStore.Keys.ON_PRIMARY_COLOR
-import org.elnix.dragonlauncher.settings.stores.ColorSettingsStore.Keys.ON_SECONDARY_COLOR
-import org.elnix.dragonlauncher.settings.stores.ColorSettingsStore.Keys.ON_SURFACE_COLOR
-import org.elnix.dragonlauncher.settings.stores.ColorSettingsStore.Keys.ON_TERTIARY_COLOR
-import org.elnix.dragonlauncher.settings.stores.ColorSettingsStore.Keys.OPEN_APP_DRAWER_COLOR
-import org.elnix.dragonlauncher.settings.stores.ColorSettingsStore.Keys.OPEN_CIRCLE_NEST
-import org.elnix.dragonlauncher.settings.stores.ColorSettingsStore.Keys.OPEN_FILE_COLOR
-import org.elnix.dragonlauncher.settings.stores.ColorSettingsStore.Keys.OPEN_RECENT_APPS
-import org.elnix.dragonlauncher.settings.stores.ColorSettingsStore.Keys.OPEN_URL_COLOR
-import org.elnix.dragonlauncher.settings.stores.ColorSettingsStore.Keys.OUTLINE_COLOR
-import org.elnix.dragonlauncher.settings.stores.ColorSettingsStore.Keys.PRIMARY_COLOR
-import org.elnix.dragonlauncher.settings.stores.ColorSettingsStore.Keys.RELOAD_COLOR
-import org.elnix.dragonlauncher.settings.stores.ColorSettingsStore.Keys.SECONDARY_COLOR
-import org.elnix.dragonlauncher.settings.stores.ColorSettingsStore.Keys.SURFACE_COLOR
-import org.elnix.dragonlauncher.settings.stores.ColorSettingsStore.Keys.TERTIARY_COLOR
 
 
-object ColorSettingsStore : BaseSettingsStore<Map<String, Any?>>() {
+object ColorSettingsStore : MapSettingsStore() {
     override val name: String = "Colors"
+    override val dataStoreName = DataStoreName.COLOR
 
 
-    private object Keys {
-        val PRIMARY_COLOR = intPreferencesKey("primary_color")
-        val ON_PRIMARY_COLOR = intPreferencesKey("on_primary_color")
-        val SECONDARY_COLOR = intPreferencesKey("secondary_color")
-        val ON_SECONDARY_COLOR = intPreferencesKey("on_secondary_color")
-        val TERTIARY_COLOR = intPreferencesKey("tertiary_color")
-        val ON_TERTIARY_COLOR = intPreferencesKey("on_tertiary_color")
-        val BACKGROUND_COLOR = intPreferencesKey("background_color")
-        val ON_BACKGROUND_COLOR = intPreferencesKey("on_background_color")
-        val SURFACE_COLOR = intPreferencesKey("surface_color")
-        val ON_SURFACE_COLOR = intPreferencesKey("on_surface_color")
-        val ERROR_COLOR = intPreferencesKey("error_color")
-        val ON_ERROR_COLOR = intPreferencesKey("on_error_color")
-        val OUTLINE_COLOR = intPreferencesKey("outline_color")
-        val ANGLE_LINE_COLOR = intPreferencesKey("delete_color")
-        val CIRCLE_COLOR = intPreferencesKey("circle_color")
-        val LAUNCH_APP_COLOR = intPreferencesKey("launch_app_color")
-        val OPEN_URL_COLOR = intPreferencesKey("open_url_color")
-        val NOTIFICATION_SHADE_COLOR = intPreferencesKey("notification_shade_color")
-        val CONTROL_PANEL_COLOR = intPreferencesKey("control_panel_color")
-        val OPEN_APP_DRAWER_COLOR = intPreferencesKey("open_app_drawer_color")
-        val LAUNCHER_SETTINGS_COLOR = intPreferencesKey("launcher_settings_color")
-        val LOCK_COLOR = intPreferencesKey("lock_color")
-        val OPEN_FILE_COLOR = intPreferencesKey("open_file_color")
-        val RELOAD_COLOR = intPreferencesKey("reload_color")
-        val OPEN_RECENT_APPS = intPreferencesKey("open_recent_apps")
+    /* ───────────── Colors ───────────── */
 
-        val OPEN_CIRCLE_NEST = intPreferencesKey("open_circle_nest")
-        val GO_PARENT_NEST = intPreferencesKey("go_parent_nest")
+    val primaryColor = SettingObject<Int?>(
+        key = "primary_color",
+        dataStoreName = dataStoreName,
+        default = null,
+        type = SettingType.Int
+    )
 
-        val ALL = listOf(
-            PRIMARY_COLOR,
-            ON_PRIMARY_COLOR,
-            SECONDARY_COLOR,
-            ON_SECONDARY_COLOR,
-            TERTIARY_COLOR,
-            ON_TERTIARY_COLOR,
-            BACKGROUND_COLOR,
-            ON_BACKGROUND_COLOR,
-            SURFACE_COLOR,
-            ON_SURFACE_COLOR,
-            ERROR_COLOR,
-            ON_ERROR_COLOR,
-            OUTLINE_COLOR,
-            ANGLE_LINE_COLOR,
-            CIRCLE_COLOR,
-            LAUNCH_APP_COLOR,
-            OPEN_URL_COLOR,
-            NOTIFICATION_SHADE_COLOR,
-            CONTROL_PANEL_COLOR,
-            OPEN_APP_DRAWER_COLOR,
-            LAUNCHER_SETTINGS_COLOR,
-            LOCK_COLOR,
-            OPEN_FILE_COLOR,
-            RELOAD_COLOR,
-            OPEN_RECENT_APPS,
-            OPEN_CIRCLE_NEST,
-            GO_PARENT_NEST
+    val onPrimaryColor = SettingObject<Int?>(
+        key = "on_primary_color",
+        dataStoreName = dataStoreName,
+        default = null,
+        type = SettingType.Int
+    )
+
+    val secondaryColor = SettingObject<Int?>(
+        key = "secondary_color",
+        dataStoreName = dataStoreName,
+        default = null,
+        type = SettingType.Int
+    )
+
+    val onSecondaryColor = SettingObject<Int?>(
+        key = "on_secondary_color",
+        dataStoreName = dataStoreName,
+        default = null,
+        type = SettingType.Int
+    )
+
+    val tertiaryColor = SettingObject<Int?>(
+        key = "tertiary_color",
+        dataStoreName = dataStoreName,
+        default = null,
+        type = SettingType.Int
+    )
+
+    val onTertiaryColor = SettingObject<Int?>(
+        key = "on_tertiary_color",
+        dataStoreName = dataStoreName,
+        default = null,
+        type = SettingType.Int
+    )
+
+    val backgroundColor = SettingObject<Int?>(
+        key = "background_color",
+        dataStoreName = dataStoreName,
+        default = null,
+        type = SettingType.Int
+    )
+
+    val onBackgroundColor = SettingObject<Int?>(
+        key = "on_background_color",
+        dataStoreName = dataStoreName,
+        default = null,
+        type = SettingType.Int
+    )
+
+    val surfaceColor = SettingObject<Int?>(
+        key = "surface_color",
+        dataStoreName = dataStoreName,
+        default = null,
+        type = SettingType.Int
+    )
+
+    val onSurfaceColor = SettingObject<Int?>(
+        key = "on_surface_color",
+        dataStoreName = dataStoreName,
+        default = null,
+        type = SettingType.Int
+    )
+
+    val errorColor = SettingObject<Int?>(
+        key = "error_color",
+        dataStoreName = dataStoreName,
+        default = null,
+        type = SettingType.Int
+    )
+
+    val onErrorColor = SettingObject<Int?>(
+        key = "on_error_color",
+        dataStoreName = dataStoreName,
+        default = null,
+        type = SettingType.Int
+    )
+
+    val outlineColor = SettingObject<Int?>(
+        key = "outline_color",
+        dataStoreName = dataStoreName,
+        default = null,
+        type = SettingType.Int
+    )
+
+    val angleLineColor = SettingObject<Int?>(
+        key = "delete_color",
+        dataStoreName = dataStoreName,
+        default = null,
+        type = SettingType.Int
+    )
+
+    val circleColor = SettingObject<Int?>(
+        key = "circle_color",
+        dataStoreName = dataStoreName,
+        default = null,
+        type = SettingType.Int
+    )
+
+    /* ───────────── Action colors ───────────── */
+
+    val launchAppColor = SettingObject<Int?>(
+        key = "launch_app_color",
+        dataStoreName = dataStoreName,
+        default = null,
+        type = SettingType.Int
+    )
+
+    val openUrlColor = SettingObject<Int?>(
+        key = "open_url_color",
+        dataStoreName = dataStoreName,
+        default = null,
+        type = SettingType.Int
+    )
+
+    val notificationShadeColor = SettingObject<Int?>(
+        key = "notification_shade_color",
+        dataStoreName = dataStoreName,
+        default = null,
+        type = SettingType.Int
+    )
+
+    val controlPanelColor = SettingObject<Int?>(
+        key = "control_panel_color",
+        dataStoreName = dataStoreName,
+        default = null,
+        type = SettingType.Int
+    )
+
+    val openAppDrawerColor = SettingObject<Int?>(
+        key = "open_app_drawer_color",
+        dataStoreName = dataStoreName,
+        default = null,
+        type = SettingType.Int
+    )
+
+    val launcherSettingsColor = SettingObject<Int?>(
+        key = "launcher_settings_color",
+        dataStoreName = dataStoreName,
+        default = null,
+        type = SettingType.Int
+    )
+
+    val lockColor = SettingObject<Int?>(
+        key = "lock_color",
+        dataStoreName = dataStoreName,
+        default = null,
+        type = SettingType.Int
+    )
+
+    val openFileColor = SettingObject<Int?>(
+        key = "open_file_color",
+        dataStoreName = dataStoreName,
+        default = null,
+        type = SettingType.Int
+    )
+
+    val reloadColor = SettingObject<Int?>(
+        key = "reload_color",
+        dataStoreName = dataStoreName,
+        default = null,
+        type = SettingType.Int
+    )
+
+    val openRecentAppsColor = SettingObject<Int?>(
+        key = "open_recent_apps",
+        dataStoreName = dataStoreName,
+        default = null,
+        type = SettingType.Int
+    )
+
+    val openCircleNestColor = SettingObject<Int?>(
+        key = "open_circle_nest",
+        dataStoreName = dataStoreName,
+        default = null,
+        type = SettingType.Int
+    )
+
+    val goParentNestColor = SettingObject<Int?>(
+        key = "go_parent_nest",
+        dataStoreName = dataStoreName,
+        default = null,
+        type = SettingType.Int
+    )
+
+    /* ───────────── Registry ───────────── */
+
+    override val ALL: List<SettingObject<Int?>>
+        get() = listOf(
+            primaryColor,
+            onPrimaryColor,
+            secondaryColor,
+            onSecondaryColor,
+            tertiaryColor,
+            onTertiaryColor,
+            backgroundColor,
+            onBackgroundColor,
+            surfaceColor,
+            onSurfaceColor,
+            errorColor,
+            onErrorColor,
+            outlineColor,
+            angleLineColor,
+            circleColor,
+            launchAppColor,
+            openUrlColor,
+            notificationShadeColor,
+            controlPanelColor,
+            openAppDrawerColor,
+            launcherSettingsColor,
+            lockColor,
+            openFileColor,
+            reloadColor,
+            openRecentAppsColor,
+            openCircleNestColor,
+            goParentNestColor
         )
-    }
-
-
-    // ------------------------------------------
-    //            NORMAL COLORS
-    // ------------------------------------------
-
-    fun getPrimary(ctx: Context) =
-        ctx.colorDatastore.data.map { it[PRIMARY_COLOR]?.let { color -> Color(color) } }
-
-    suspend fun setPrimary(ctx: Context, color: Color) {
-        ctx.colorDatastore.edit { it[PRIMARY_COLOR] = color.toArgb() }
-    }
-
-    fun getOnPrimary(ctx: Context) =
-        ctx.colorDatastore.data.map { it[ON_PRIMARY_COLOR]?.let { color -> Color(color) } }
-
-    suspend fun setOnPrimary(ctx: Context, color: Color) {
-        ctx.colorDatastore.edit { it[ON_PRIMARY_COLOR] = color.toArgb() }
-    }
-
-    fun getSecondary(ctx: Context) =
-        ctx.colorDatastore.data.map { it[SECONDARY_COLOR]?.let { color -> Color(color) } }
-
-    suspend fun setSecondary(ctx: Context, color: Color) {
-        ctx.colorDatastore.edit { it[SECONDARY_COLOR] = color.toArgb() }
-    }
-
-    fun getOnSecondary(ctx: Context) =
-        ctx.colorDatastore.data.map { it[ON_SECONDARY_COLOR]?.let { color -> Color(color) } }
-
-    suspend fun setOnSecondary(ctx: Context, color: Color) {
-        ctx.colorDatastore.edit { it[ON_SECONDARY_COLOR] = color.toArgb() }
-    }
-
-    fun getTertiary(ctx: Context) =
-        ctx.colorDatastore.data.map { it[TERTIARY_COLOR]?.let { color -> Color(color) } }
-
-    suspend fun setTertiary(ctx: Context, color: Color) {
-        ctx.colorDatastore.edit { it[TERTIARY_COLOR] = color.toArgb() }
-    }
-
-    fun getOnTertiary(ctx: Context) =
-        ctx.colorDatastore.data.map { it[ON_TERTIARY_COLOR]?.let { color -> Color(color) } }
-
-    suspend fun setOnTertiary(ctx: Context, color: Color) {
-        ctx.colorDatastore.edit { it[ON_TERTIARY_COLOR] = color.toArgb() }
-    }
-
-    fun getBackground(ctx: Context) =
-        ctx.colorDatastore.data.map { it[BACKGROUND_COLOR]?.let { color -> Color(color) } }
-
-    suspend fun setBackground(ctx: Context, color: Color) {
-        ctx.colorDatastore.edit { it[BACKGROUND_COLOR] = color.toArgb() }
-    }
-
-    fun getOnBackground(ctx: Context) =
-        ctx.colorDatastore.data.map { it[ON_BACKGROUND_COLOR]?.let { color -> Color(color) } }
-
-    suspend fun setOnBackground(ctx: Context, color: Color) {
-        ctx.colorDatastore.edit { it[ON_BACKGROUND_COLOR] = color.toArgb() }
-    }
-
-    fun getSurface(ctx: Context) =
-        ctx.colorDatastore.data.map { it[SURFACE_COLOR]?.let { color -> Color(color) } }
-
-    suspend fun setSurface(ctx: Context, color: Color) {
-        ctx.colorDatastore.edit { it[SURFACE_COLOR] = color.toArgb() }
-    }
-
-    fun getOnSurface(ctx: Context) =
-        ctx.colorDatastore.data.map { it[ON_SURFACE_COLOR]?.let { color -> Color(color) } }
-
-    suspend fun setOnSurface(ctx: Context, color: Color) {
-        ctx.colorDatastore.edit { it[ON_SURFACE_COLOR] = color.toArgb() }
-    }
-
-    fun getError(ctx: Context) =
-        ctx.colorDatastore.data.map { it[ERROR_COLOR]?.let { color -> Color(color) } }
-
-    suspend fun setError(ctx: Context, color: Color) {
-        ctx.colorDatastore.edit { it[ERROR_COLOR] = color.toArgb() }
-    }
-
-    fun getOnError(ctx: Context) =
-        ctx.colorDatastore.data.map { it[ON_ERROR_COLOR]?.let { color -> Color(color) } }
-
-    suspend fun setOnError(ctx: Context, color: Color) {
-        ctx.colorDatastore.edit { it[ON_ERROR_COLOR] = color.toArgb() }
-    }
-
-    fun getOutline(ctx: Context) =
-        ctx.colorDatastore.data.map { it[OUTLINE_COLOR]?.let { color -> Color(color) } }
-
-    suspend fun setOutline(ctx: Context, color: Color) {
-        ctx.colorDatastore.edit { it[OUTLINE_COLOR] = color.toArgb() }
-    }
-
-    // ───────────────────────────────────────
-    //            CUSTOM COLORS
-    // ───────────────────────────────────────
-
-    fun getAngleLineColor(ctx: Context) =
-        ctx.colorDatastore.data.map { it[ANGLE_LINE_COLOR]?.let { color -> Color(color) } }
-
-    suspend fun setAngleLineColor(ctx: Context, color: Color) {
-        ctx.colorDatastore.edit { it[ANGLE_LINE_COLOR] = color.toArgb() }
-    }
-
-    fun getCircleColor(ctx: Context) =
-        ctx.colorDatastore.data.map {
-            it[CIRCLE_COLOR]?.let { color -> Color(color) } ?: AmoledDefault.CircleColor
-        }
-
-    suspend fun setCircleColor(ctx: Context, color: Color) {
-        ctx.colorDatastore.edit { it[CIRCLE_COLOR] = color.toArgb() }
-    }
-
-    fun getLaunchAppColor(ctx: Context) =
-        ctx.colorDatastore.data.map { it[LAUNCH_APP_COLOR]?.let { c -> Color(c) } }
-
-    suspend fun setLaunchAppColor(ctx: Context, color: Color) {
-        ctx.colorDatastore.edit { it[LAUNCH_APP_COLOR] = color.toArgb() }
-    }
-
-    fun getOpenUrlColor(ctx: Context) =
-        ctx.colorDatastore.data.map { it[OPEN_URL_COLOR]?.let { c -> Color(c) } }
-
-    suspend fun setOpenUrlColor(ctx: Context, color: Color) {
-        ctx.colorDatastore.edit { it[OPEN_URL_COLOR] = color.toArgb() }
-    }
-
-    fun getNotificationShadeColor(ctx: Context) =
-        ctx.colorDatastore.data.map { it[NOTIFICATION_SHADE_COLOR]?.let { c -> Color(c) } }
-
-    suspend fun setNotificationShadeColor(ctx: Context, color: Color) {
-        ctx.colorDatastore.edit { it[NOTIFICATION_SHADE_COLOR] = color.toArgb() }
-    }
-
-    fun getControlPanelColor(ctx: Context) =
-        ctx.colorDatastore.data.map { it[CONTROL_PANEL_COLOR]?.let { c -> Color(c) } }
-
-    suspend fun setControlPanelColor(ctx: Context, color: Color) {
-        ctx.colorDatastore.edit { it[CONTROL_PANEL_COLOR] = color.toArgb() }
-    }
-
-    fun getOpenAppDrawerColor(ctx: Context) =
-        ctx.colorDatastore.data.map { it[OPEN_APP_DRAWER_COLOR]?.let { c -> Color(c) } }
-
-    suspend fun setOpenAppDrawerColor(ctx: Context, color: Color) {
-        ctx.colorDatastore.edit { it[OPEN_APP_DRAWER_COLOR] = color.toArgb() }
-    }
-
-    fun getLauncherSettingsColor(ctx: Context) =
-        ctx.colorDatastore.data.map { it[LAUNCHER_SETTINGS_COLOR]?.let { c -> Color(c) } }
-
-    suspend fun setLauncherSettingsColor(ctx: Context, color: Color) {
-        ctx.colorDatastore.edit { it[LAUNCHER_SETTINGS_COLOR] = color.toArgb() }
-    }
-
-    fun getLockColor(ctx: Context) =
-        ctx.colorDatastore.data.map { it[LOCK_COLOR]?.let { c -> Color(c) } }
-
-    suspend fun setLockColor(ctx: Context, color: Color) {
-        ctx.colorDatastore.edit { it[LOCK_COLOR] = color.toArgb() }
-    }
-
-    fun getOpenFileColor(ctx: Context) =
-        ctx.colorDatastore.data.map { it[OPEN_FILE_COLOR]?.let { c -> Color(c) } }
-
-    suspend fun setOpenFileColor(ctx: Context, color: Color) {
-        ctx.colorDatastore.edit { it[OPEN_FILE_COLOR] = color.toArgb() }
-    }
-
-    fun getReloadColor(ctx: Context) =
-        ctx.colorDatastore.data.map { it[RELOAD_COLOR]?.let { c -> Color(c) } }
-
-    suspend fun setReloadColor(ctx: Context, color: Color) {
-        ctx.colorDatastore.edit { it[RELOAD_COLOR] = color.toArgb() }
-    }
-
-    fun getOpenRecentApps(ctx: Context) =
-        ctx.colorDatastore.data.map { it[OPEN_RECENT_APPS]?.let { c -> Color(c) } }
-
-    suspend fun setOpenRecentApps(ctx: Context, color: Color) {
-        ctx.colorDatastore.edit { it[OPEN_RECENT_APPS] = color.toArgb() }
-    }
-
-    fun getOpenCircleNest(ctx: Context) =
-        ctx.colorDatastore.data.map { it[OPEN_CIRCLE_NEST]?.let { c -> Color(c) } }
-
-    suspend fun setOpenCircleNest(ctx: Context, color: Color) {
-        ctx.colorDatastore.edit { it[OPEN_CIRCLE_NEST] = color.toArgb() }
-    }
-
-    fun getGoParentNest(ctx: Context) =
-        ctx.colorDatastore.data.map { it[GO_PARENT_NEST]?.let { c -> Color(c) } }
-
-    suspend fun setGoParentNest(ctx: Context, color: Color) {
-        ctx.colorDatastore.edit { it[GO_PARENT_NEST] = color.toArgb() }
-    }
 
     suspend fun resetColors(
         ctx: Context,
@@ -337,294 +271,43 @@ object ColorSettingsStore : BaseSettingsStore<Map<String, Any?>>() {
 
     suspend fun setAllColors(ctx: Context, color: () -> Color) {
 
-        setPrimary(ctx, color())
-        setOnPrimary(ctx, color())
-        setSecondary(ctx, color())
-        setOnSecondary(ctx, color())
-        setTertiary(ctx, color())
-        setOnTertiary(ctx, color())
-        setBackground(ctx, color())
-        setOnBackground(ctx, color())
-        setSurface(ctx, color())
-        setOnSurface(ctx, color())
-        setError(ctx, color())
-        setOnError(ctx, color())
-        setOutline(ctx, color())
-        setAngleLineColor(ctx, color())
-        setCircleColor(ctx, color())
-
-        setLaunchAppColor(ctx, color())
-        setOpenUrlColor(ctx, color())
-        setNotificationShadeColor(ctx, color())
-        setControlPanelColor(ctx, color())
-        setOpenAppDrawerColor(ctx, color())
-        setLauncherSettingsColor(ctx, color())
-        setLockColor(ctx, color())
-        setOpenFileColor(ctx, color())
-        setReloadColor(ctx, color())
-        setOpenRecentApps(ctx, color())
-        setOpenCircleNest(ctx, color())
-        setGoParentNest(ctx, color())
-    }
-
-    override suspend fun resetAll(ctx: Context) {
-        ctx.colorDatastore.edit { prefs ->
-            ALL.forEach { prefs.remove(it) }
-        }
-        resetColors(ctx, ColorCustomisationMode.DEFAULT, DefaultThemes.AMOLED)
-    }
-
-    override suspend fun getAll(ctx: Context): Map<String, Any> {
-        val prefs = ctx.colorDatastore.data.first()
-        val colorMode = ColorModesSettingsStore.getColorCustomisationMode(ctx).first()
-        val defaultTheme = ColorModesSettingsStore.getDefaultTheme(ctx).first()
-
-        val default = if (colorMode == ColorCustomisationMode.DEFAULT) getDefaultColorScheme(
-            ctx,
-            defaultTheme
-        )
-        else AmoledDefault
-
-        return buildMap {
-
-            /*  ───────────── MaterialTheme Colors  ───────────── */
-            putIfNonDefault(PRIMARY_COLOR, prefs[PRIMARY_COLOR], default.Primary)
-            putIfNonDefault(ON_PRIMARY_COLOR, prefs[ON_PRIMARY_COLOR], default.OnPrimary)
-            putIfNonDefault(SECONDARY_COLOR, prefs[SECONDARY_COLOR], default.Secondary)
-            putIfNonDefault(ON_SECONDARY_COLOR, prefs[ON_SECONDARY_COLOR], default.OnSecondary)
-            putIfNonDefault(TERTIARY_COLOR, prefs[TERTIARY_COLOR], default.Tertiary)
-            putIfNonDefault(ON_TERTIARY_COLOR, prefs[ON_TERTIARY_COLOR], default.OnTertiary)
-            putIfNonDefault(BACKGROUND_COLOR, prefs[BACKGROUND_COLOR], default.Background)
-            putIfNonDefault(ON_BACKGROUND_COLOR, prefs[ON_BACKGROUND_COLOR], default.OnBackground)
-            putIfNonDefault(SURFACE_COLOR, prefs[SURFACE_COLOR], default.Surface)
-            putIfNonDefault(ON_SURFACE_COLOR, prefs[ON_SURFACE_COLOR], default.OnSurface)
-            putIfNonDefault(ERROR_COLOR, prefs[ERROR_COLOR], default.Error)
-            putIfNonDefault(ON_ERROR_COLOR, prefs[ON_ERROR_COLOR], default.OnError)
-            putIfNonDefault(OUTLINE_COLOR, prefs[OUTLINE_COLOR], default.Outline)
-
-            /*  ───────────── Custom colors  ───────────── */
-            putIfNonDefault(ANGLE_LINE_COLOR, prefs[ANGLE_LINE_COLOR], default.AngleLineColor)
-            putIfNonDefault(CIRCLE_COLOR, prefs[CIRCLE_COLOR], default.CircleColor)
-
-            /*  ───────────── Actions Colors  ───────────── */
-            putIfNonDefault(LAUNCH_APP_COLOR, prefs[LAUNCH_APP_COLOR], default.LaunchAppColor)
-            putIfNonDefault(OPEN_URL_COLOR, prefs[OPEN_URL_COLOR], default.OpenUrlColor)
-            putIfNonDefault(
-                NOTIFICATION_SHADE_COLOR,
-                prefs[NOTIFICATION_SHADE_COLOR],
-                default.NotificationShadeColor
-            )
-            putIfNonDefault(
-                CONTROL_PANEL_COLOR,
-                prefs[CONTROL_PANEL_COLOR],
-                default.ControlPanelColor
-            )
-            putIfNonDefault(
-                OPEN_APP_DRAWER_COLOR,
-                prefs[OPEN_APP_DRAWER_COLOR],
-                default.OpenAppDrawerColor
-            )
-            putIfNonDefault(
-                LAUNCHER_SETTINGS_COLOR,
-                prefs[LAUNCHER_SETTINGS_COLOR],
-                default.LauncherSettingsColor
-            )
-            putIfNonDefault(LOCK_COLOR, prefs[LOCK_COLOR], default.LockColor)
-            putIfNonDefault(OPEN_FILE_COLOR, prefs[OPEN_FILE_COLOR], default.OpenFileColor)
-            putIfNonDefault(RELOAD_COLOR, prefs[RELOAD_COLOR], default.ReloadColor)
-            putIfNonDefault(OPEN_RECENT_APPS, prefs[OPEN_RECENT_APPS], default.OpenRecentAppsColor)
-            putIfNonDefault(OPEN_CIRCLE_NEST, prefs[OPEN_CIRCLE_NEST], default.OpenCircleNestColor)
-            putIfNonDefault(GO_PARENT_NEST, prefs[GO_PARENT_NEST], default.GoParentNestColor)
-
-        }
-    }
-
-    override suspend fun setAll(ctx: Context, value: Map<String, Any?>) {
-        ctx.colorDatastore.edit { prefs ->
-
-            /*  ───────────── MaterialTheme Colors  ───────────── */
-            value[PRIMARY_COLOR.name]?.let {
-                prefs[PRIMARY_COLOR] =
-                    getIntStrict(value, PRIMARY_COLOR, prefs[PRIMARY_COLOR] ?: 0)
-            }
-
-            value[ON_PRIMARY_COLOR.name]?.let {
-                prefs[ON_PRIMARY_COLOR] =
-                    getIntStrict(value, ON_PRIMARY_COLOR, prefs[ON_PRIMARY_COLOR] ?: 0)
-            }
-
-            value[SECONDARY_COLOR.name]?.let {
-                prefs[SECONDARY_COLOR] =
-                    getIntStrict(value, SECONDARY_COLOR, prefs[SECONDARY_COLOR] ?: 0)
-            }
-
-            value[ON_SECONDARY_COLOR.name]?.let {
-                prefs[ON_SECONDARY_COLOR] =
-                    getIntStrict(value, ON_SECONDARY_COLOR, prefs[ON_SECONDARY_COLOR] ?: 0)
-            }
-
-            value[TERTIARY_COLOR.name]?.let {
-                prefs[TERTIARY_COLOR] =
-                    getIntStrict(value, TERTIARY_COLOR, prefs[TERTIARY_COLOR] ?: 0)
-            }
-
-            value[ON_TERTIARY_COLOR.name]?.let {
-                prefs[ON_TERTIARY_COLOR] =
-                    getIntStrict(value, ON_TERTIARY_COLOR, prefs[ON_TERTIARY_COLOR] ?: 0)
-            }
-
-            value[BACKGROUND_COLOR.name]?.let {
-                prefs[BACKGROUND_COLOR] =
-                    getIntStrict(value, BACKGROUND_COLOR, prefs[BACKGROUND_COLOR] ?: 0)
-            }
-
-            value[ON_BACKGROUND_COLOR.name]?.let {
-                prefs[ON_BACKGROUND_COLOR] =
-                    getIntStrict(value, ON_BACKGROUND_COLOR, prefs[ON_BACKGROUND_COLOR] ?: 0)
-            }
-
-            value[SURFACE_COLOR.name]?.let {
-                prefs[SURFACE_COLOR] =
-                    getIntStrict(value, SURFACE_COLOR, prefs[SURFACE_COLOR] ?: 0)
-            }
-
-            value[ON_SURFACE_COLOR.name]?.let {
-                prefs[ON_SURFACE_COLOR] =
-                    getIntStrict(value, ON_SURFACE_COLOR, prefs[ON_SURFACE_COLOR] ?: 0)
-            }
-
-            value[ERROR_COLOR.name]?.let {
-                prefs[ERROR_COLOR] =
-                    getIntStrict(value, ERROR_COLOR, prefs[ERROR_COLOR] ?: 0)
-            }
-
-            value[ON_ERROR_COLOR.name]?.let {
-                prefs[ON_ERROR_COLOR] =
-                    getIntStrict(value, ON_ERROR_COLOR, prefs[ON_ERROR_COLOR] ?: 0)
-            }
-
-            value[OUTLINE_COLOR.name]?.let {
-                prefs[OUTLINE_COLOR] =
-                    getIntStrict(value, OUTLINE_COLOR, prefs[OUTLINE_COLOR] ?: 0)
-            }
-
-
-            /*  ───────────── Custom colors  ───────────── */
-            value[ANGLE_LINE_COLOR.name]?.let {
-                prefs[ANGLE_LINE_COLOR] =
-                    getIntStrict(value, ANGLE_LINE_COLOR, prefs[ANGLE_LINE_COLOR] ?: 0)
-            }
-
-            value[CIRCLE_COLOR.name]?.let {
-                prefs[CIRCLE_COLOR] =
-                    getIntStrict(value, CIRCLE_COLOR, prefs[CIRCLE_COLOR] ?: 0)
-            }
-
-            /*  ───────────── Actions Colors  ───────────── */
-            value[LAUNCH_APP_COLOR.name]?.let {
-                prefs[LAUNCH_APP_COLOR] =
-                    getIntStrict(value, LAUNCH_APP_COLOR, prefs[LAUNCH_APP_COLOR] ?: 0)
-            }
-
-            value[OPEN_URL_COLOR.name]?.let {
-                prefs[OPEN_URL_COLOR] =
-                    getIntStrict(value, OPEN_URL_COLOR, prefs[OPEN_URL_COLOR] ?: 0)
-            }
-
-            value[NOTIFICATION_SHADE_COLOR.name]?.let {
-                prefs[NOTIFICATION_SHADE_COLOR] =
-                    getIntStrict(
-                        value,
-                        NOTIFICATION_SHADE_COLOR,
-                        prefs[NOTIFICATION_SHADE_COLOR] ?: 0
-                    )
-            }
-
-            value[CONTROL_PANEL_COLOR.name]?.let {
-                prefs[CONTROL_PANEL_COLOR] =
-                    getIntStrict(value, CONTROL_PANEL_COLOR, prefs[CONTROL_PANEL_COLOR] ?: 0)
-            }
-
-            value[OPEN_APP_DRAWER_COLOR.name]?.let {
-                prefs[OPEN_APP_DRAWER_COLOR] =
-                    getIntStrict(value, OPEN_APP_DRAWER_COLOR, prefs[OPEN_APP_DRAWER_COLOR] ?: 0)
-            }
-
-            value[LAUNCHER_SETTINGS_COLOR.name]?.let {
-                prefs[LAUNCHER_SETTINGS_COLOR] =
-                    getIntStrict(
-                        value,
-                        LAUNCHER_SETTINGS_COLOR,
-                        prefs[LAUNCHER_SETTINGS_COLOR] ?: 0
-                    )
-            }
-
-            value[LOCK_COLOR.name]?.let {
-                prefs[LOCK_COLOR] =
-                    getIntStrict(value, LOCK_COLOR, prefs[LOCK_COLOR] ?: 0)
-            }
-
-            value[OPEN_FILE_COLOR.name]?.let {
-                prefs[OPEN_FILE_COLOR] =
-                    getIntStrict(value, OPEN_FILE_COLOR, prefs[OPEN_FILE_COLOR] ?: 0)
-            }
-
-            value[RELOAD_COLOR.name]?.let {
-                prefs[RELOAD_COLOR] =
-                    getIntStrict(value, RELOAD_COLOR, prefs[RELOAD_COLOR] ?: 0)
-            }
-
-            value[OPEN_RECENT_APPS.name]?.let {
-                prefs[OPEN_RECENT_APPS] =
-                    getIntStrict(value, OPEN_RECENT_APPS, prefs[OPEN_RECENT_APPS] ?: 0)
-            }
-
-            value[OPEN_CIRCLE_NEST.name]?.let {
-                prefs[OPEN_CIRCLE_NEST] =
-                    getIntStrict(value, OPEN_CIRCLE_NEST, prefs[OPEN_CIRCLE_NEST] ?: 0)
-            }
-
-            value[GO_PARENT_NEST.name]?.let {
-                prefs[GO_PARENT_NEST] =
-                    getIntStrict(value, GO_PARENT_NEST, prefs[GO_PARENT_NEST] ?: 0)
-            }
-        }
+        ALL.forEach { it.set(ctx, color().toArgb()) }
     }
 }
 
 
 private suspend fun applyThemeColors(ctx: Context, colors: ThemeColors) {
 
-    /*  ───────────── MaterialTheme Colors  ───────────── */
-    ColorSettingsStore.setPrimary(ctx, colors.Primary)
-    ColorSettingsStore.setOnPrimary(ctx, colors.OnPrimary)
-    ColorSettingsStore.setSecondary(ctx, colors.Secondary)
-    ColorSettingsStore.setOnSecondary(ctx, colors.OnSecondary)
-    ColorSettingsStore.setTertiary(ctx, colors.Tertiary)
-    ColorSettingsStore.setOnTertiary(ctx, colors.OnTertiary)
-    ColorSettingsStore.setBackground(ctx, colors.Background)
-    ColorSettingsStore.setOnBackground(ctx, colors.OnBackground)
-    ColorSettingsStore.setSurface(ctx, colors.Surface)
-    ColorSettingsStore.setOnSurface(ctx, colors.OnSurface)
-    ColorSettingsStore.setError(ctx, colors.Error)
-    ColorSettingsStore.setOnError(ctx, colors.OnError)
-    ColorSettingsStore.setOutline(ctx, colors.Outline)
+    /* ───────────── MaterialTheme Colors ───────────── */
+    ColorSettingsStore.primaryColor.set(ctx, colors.Primary.toArgb())
+    ColorSettingsStore.onPrimaryColor.set(ctx, colors.OnPrimary.toArgb())
+    ColorSettingsStore.secondaryColor.set(ctx, colors.Secondary.toArgb())
+    ColorSettingsStore.onSecondaryColor.set(ctx, colors.OnSecondary.toArgb())
+    ColorSettingsStore.tertiaryColor.set(ctx, colors.Tertiary.toArgb())
+    ColorSettingsStore.onTertiaryColor.set(ctx, colors.OnTertiary.toArgb())
+    ColorSettingsStore.backgroundColor.set(ctx, colors.Background.toArgb())
+    ColorSettingsStore.onBackgroundColor.set(ctx, colors.OnBackground.toArgb())
+    ColorSettingsStore.surfaceColor.set(ctx, colors.Surface.toArgb())
+    ColorSettingsStore.onSurfaceColor.set(ctx, colors.OnSurface.toArgb())
+    ColorSettingsStore.errorColor.set(ctx, colors.Error.toArgb())
+    ColorSettingsStore.onErrorColor.set(ctx, colors.OnError.toArgb())
+    ColorSettingsStore.outlineColor.set(ctx, colors.Outline.toArgb())
 
-    /*  ───────────── Custom colors  ───────────── */
-    ColorSettingsStore.setAngleLineColor(ctx, colors.AngleLineColor)
-    ColorSettingsStore.setCircleColor(ctx, colors.CircleColor)
+    /* ───────────── Custom Colors ───────────── */
+    ColorSettingsStore.angleLineColor.set(ctx, colors.AngleLineColor.toArgb())
+    ColorSettingsStore.circleColor.set(ctx, colors.CircleColor.toArgb())
 
-
-    /*  ───────────── Actions Colors  ───────────── */
-    ColorSettingsStore.setLaunchAppColor(ctx, colors.LaunchAppColor)
-    ColorSettingsStore.setOpenUrlColor(ctx, colors.OpenUrlColor)
-    ColorSettingsStore.setNotificationShadeColor(ctx, colors.NotificationShadeColor)
-    ColorSettingsStore.setControlPanelColor(ctx, colors.ControlPanelColor)
-    ColorSettingsStore.setOpenAppDrawerColor(ctx, colors.OpenAppDrawerColor)
-    ColorSettingsStore.setLauncherSettingsColor(ctx, colors.LauncherSettingsColor)
-    ColorSettingsStore.setLockColor(ctx, colors.LockColor)
-    ColorSettingsStore.setOpenFileColor(ctx, colors.OpenFileColor)
-    ColorSettingsStore.setReloadColor(ctx, colors.ReloadColor)
-    ColorSettingsStore.setOpenCircleNest(ctx, colors.OpenCircleNestColor)
-    ColorSettingsStore.setGoParentNest(ctx, colors.GoParentNestColor)
+    /* ───────────── Actions Colors ───────────── */
+    ColorSettingsStore.launchAppColor.set(ctx, colors.LaunchAppColor.toArgb())
+    ColorSettingsStore.openUrlColor.set(ctx, colors.OpenUrlColor.toArgb())
+    ColorSettingsStore.notificationShadeColor.set(ctx, colors.NotificationShadeColor.toArgb())
+    ColorSettingsStore.controlPanelColor.set(ctx, colors.ControlPanelColor.toArgb())
+    ColorSettingsStore.openAppDrawerColor.set(ctx, colors.OpenAppDrawerColor.toArgb())
+    ColorSettingsStore.launcherSettingsColor.set(ctx, colors.LauncherSettingsColor.toArgb())
+    ColorSettingsStore.lockColor.set(ctx, colors.LockColor.toArgb())
+    ColorSettingsStore.openFileColor.set(ctx, colors.OpenFileColor.toArgb())
+    ColorSettingsStore.reloadColor.set(ctx, colors.ReloadColor.toArgb())
+    ColorSettingsStore.openRecentAppsColor.set(ctx, colors.OpenRecentAppsColor.toArgb())
+    ColorSettingsStore.openCircleNestColor.set(ctx, colors.OpenCircleNestColor.toArgb())
+    ColorSettingsStore.goParentNestColor.set(ctx, colors.GoParentNestColor.toArgb())
 }

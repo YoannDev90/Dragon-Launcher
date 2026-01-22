@@ -77,11 +77,11 @@ fun BackupTab(
     val ctx = LocalContext.current
     val scope = rememberCoroutineScope()
 
-    val autoBackupEnabled by BackupSettingsStore.getAutoBackupEnabled(ctx).collectAsState(initial = false)
-    val autoBackupUriString by BackupSettingsStore.getAutoBackupUri(ctx).collectAsState(initial = null)
-    val lastBackupTime by BackupSettingsStore.getLastBackupTime(ctx).collectAsState(initial = 0L)
+    val autoBackupEnabled by BackupSettingsStore.autoBackupEnabled.flow(ctx).collectAsState(initial = false)
+    val autoBackupUriString by BackupSettingsStore.autoBackupUri.flow(ctx).collectAsState(initial = null)
+    val lastBackupTime by BackupSettingsStore.lastBackupTime.flow(ctx).collectAsState(initial = 0L)
 
-    val backupStores by BackupSettingsStore.getBackupStores(ctx).collectAsState(initial = emptySet())
+    val backupStores by BackupSettingsStore.backupStores.flow(ctx).collectAsState(initial = emptySet())
 
     val result by backupViewModel.result.collectAsState()
 
@@ -182,8 +182,8 @@ fun BackupTab(
                 )
                 // Proceed only if successful
                 scope.launch {
-                    BackupSettingsStore.setAutoBackupUri(ctx, uri)
-                    BackupSettingsStore.setAutoBackupEnabled(ctx, true)
+                    BackupSettingsStore.autoBackupUri.set(ctx, uri.toString())
+                    BackupSettingsStore.autoBackupEnabled.set(ctx, true)
                 }
                 backupViewModel.setResult(
                     BackupResult(
@@ -241,7 +241,7 @@ fun BackupTab(
                 text = ctx.getString(R.string.automatic_backups)
             ) { enabled ->
                 scope.launch {
-                    BackupSettingsStore.setAutoBackupEnabled(ctx, enabled)
+                    BackupSettingsStore.autoBackupEnabled.set(ctx, enabled)
                 }
             }
         }
@@ -322,7 +322,7 @@ fun BackupTab(
                                 .fillMaxHeight()
                                 .clickable {
                                     scope.launch {
-                                        BackupSettingsStore.setAutoBackupUri(ctx, null)
+                                        BackupSettingsStore.autoBackupUri.set(ctx, null)
                                     }
                                 },
 
@@ -418,9 +418,11 @@ fun BackupTab(
                                         } else {
                                             backupStores + store.value
                                         }
-                                        BackupSettingsStore.setBackupStores(
+                                        BackupSettingsStore.backupStores.set(
                                             ctx,
-                                            backupableStores.filter { updated.contains(it.value) })
+                                            backupableStores.filter { updated.contains(it.value) }
+                                                .map { it.value }.toSet()
+                                        )
                                     }
                                 }
                                 .padding(12.dp),

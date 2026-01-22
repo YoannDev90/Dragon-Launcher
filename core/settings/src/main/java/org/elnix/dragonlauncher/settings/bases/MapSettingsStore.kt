@@ -1,0 +1,79 @@
+package org.elnix.dragonlauncher.settings.bases
+
+import android.content.Context
+import org.elnix.dragonlauncher.settings.SettingObject
+import org.elnix.dragonlauncher.settings.putIfNonDefault
+import org.json.JSONObject
+
+/**
+ * Settings store backed by multiple independent DataStore keys.
+ *
+ * `MapSettingsStore` is the standard implementation used for most settings groups,
+ * where each setting is stored under its own DataStore preference key and exposed
+ * collectively as a `Map<String, Any?>`.
+ *
+ * Characteristics:
+ * - Each entry in [ALL] represents a single persisted setting.
+ * - The map key corresponds to `SettingObject.key`.
+ * - Values are read and written individually, not as a single blob.
+ * - Import/export operates on raw values and relies on each `SettingObject`
+ *   to decode and validate its own type.
+ *
+ * This design enables:
+ * - fine-grained persistence (only changed keys are written)
+ * - backward-compatible imports (unknown keys are ignored)
+ * - safe type coercion during restore via `SettingObject.decode`
+ */
+abstract class MapSettingsStore :
+    BaseSettingsStore<Map<String, Any?>>() {
+
+    /**
+     * Reads all settings from DataStore and returns them as a map.
+     *
+     * Missing keys fall back to each setting’s default value.
+     */
+    override suspend fun getAll(ctx: Context): Map<String, Any> =
+        buildMap {
+            ALL.forEach { setting ->
+                putIfNonDefault(setting.key, setting.get(ctx), setting.default)
+            }
+        }
+
+    /**
+     * Writes all provided values to DataStore.
+     *
+     * Each value is decoded individually using the corresponding
+     * `SettingObject.decode` implementation before being persisted.
+     *
+     * Unknown or missing keys are ignored.
+     */
+    override suspend fun setAll(ctx: Context, value: Map<String, Any?>) {
+        ALL.forEach { setting ->
+            val raw = value[setting.key]
+            @Suppress("UNCHECKED_CAST")
+            (setting as SettingObject<Any?>)
+                .set(ctx, setting.decode(raw))
+        }
+    }
+
+    /**
+     * Exports all settings into a single [JSONObject] for backup purposes.
+     */
+    override suspend fun exportForBackup(ctx: Context): JSONObject =
+        JSONObject(getAll(ctx))
+
+    /**
+     * Restores settings from a [JSONObject] backup.
+     *
+     * Only keys present in [ALL] are applied; unknown keys are safely ignored.
+     * Each value is decoded and validated by its corresponding `SettingObject`.
+     */
+    override suspend fun importFromBackup(ctx: Context, json: JSONObject) {
+        json.keys().forEach { key ->
+            ALL.find { it.key == key }?.let { setting ->
+                @Suppress("UNCHECKED_CAST")
+                (setting as SettingObject<Any?>).set(ctx, json.opt(key))
+            }
+        }
+    }
+}

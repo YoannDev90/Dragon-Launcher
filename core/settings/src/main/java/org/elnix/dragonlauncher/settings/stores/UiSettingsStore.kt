@@ -10,7 +10,7 @@ import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.firstOrNull
 import kotlinx.coroutines.flow.map
-import org.elnix.dragonlauncher.settings.BaseSettingsStore
+import org.elnix.dragonlauncher.settings.bases.BaseSettingsStore
 import org.elnix.dragonlauncher.settings.getBooleanStrict
 import org.elnix.dragonlauncher.settings.getIntStrict
 import org.elnix.dragonlauncher.settings.getStringStrict

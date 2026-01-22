@@ -1,22 +1,11 @@
-package org.elnix.dragonlauncher.settings
+package org.elnix.dragonlauncher.settings.bases
 
 import android.content.Context
 import androidx.datastore.preferences.core.Preferences
 import androidx.datastore.preferences.core.edit
 import kotlinx.coroutines.flow.Flow
-import org.json.JSONObject
-
-
-
-sealed interface SettingType {
-    data object Boolean : SettingType
-    data object Int : SettingType
-    data object Float : SettingType
-    data object Long : SettingType
-//    data object Double : SettingType
-    data object String : SettingType
-    data object StringSet : SettingType
-}
+import org.elnix.dragonlauncher.settings.DataStoreName
+import org.elnix.dragonlauncher.settings.resolveDataStore
 
 
 abstract class BaseSettingObject <T> (
@@ -78,25 +67,5 @@ abstract class BaseSettingObject <T> (
         ctx.resolveDataStore(dataStoreName).edit {
             it.remove(preferenceKey)
         }
-    }
-}
-
-
-class JsonSettingObject(
-    private val delegate: SettingObject<String>,
-    private val default: JSONObject = JSONObject()
-) {
-
-    suspend fun get(ctx: Context): JSONObject {
-        val raw = delegate.get(ctx)
-        return if (raw.isBlank()) default else JSONObject(raw)
-    }
-
-    suspend fun set(ctx: Context, value: JSONObject) {
-        delegate.set(ctx, value.toString())
-    }
-
-    suspend fun reset(ctx: Context) {
-        delegate.reset(ctx)
     }
 }

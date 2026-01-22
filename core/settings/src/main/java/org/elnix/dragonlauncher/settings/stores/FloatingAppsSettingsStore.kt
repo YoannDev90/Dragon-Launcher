@@ -1,28 +1,36 @@
 package org.elnix.dragonlauncher.settings.stores
 
 import android.content.Context
-import androidx.datastore.preferences.core.edit
-import androidx.datastore.preferences.core.stringPreferencesKey
-import kotlinx.coroutines.flow.first
 import org.elnix.dragonlauncher.common.FloatingAppObject
 import org.elnix.dragonlauncher.common.logging.logD
 import org.elnix.dragonlauncher.common.logging.logE
 import org.elnix.dragonlauncher.common.serializables.SwipeActionSerializable
 import org.elnix.dragonlauncher.common.serializables.SwipeJson
 import org.elnix.dragonlauncher.common.utils.FLOATING_APPS_TAG
-import org.elnix.dragonlauncher.settings.BaseSettingsStore
-import org.elnix.dragonlauncher.settings.floatingAppsDatastore
+import org.elnix.dragonlauncher.settings.DataStoreName
+import org.elnix.dragonlauncher.settings.SettingObject
+import org.elnix.dragonlauncher.settings.SettingType
+import org.elnix.dragonlauncher.settings.bases.JsonSettingsStore
 import org.json.JSONArray
 import org.json.JSONObject
 import java.util.Collections.emptyList
 
-object FloatingAppsSettingsStore : BaseSettingsStore<JSONObject>() {
+object FloatingAppsSettingsStore : JsonSettingsStore() {
 
     override val name: String = "Floating Apps"
+    override val dataStoreName: DataStoreName
+        get() = DataStoreName.FLOATING_APPS
 
-    private object Keys {
-        val FLOATING_APPS_KEY = stringPreferencesKey("floating_apps")
-    }
+
+    override val jsonSetting: SettingObject<String> = SettingObject(
+        key = "floating_apps",
+        dataStoreName = dataStoreName,
+        default = "",
+        type = SettingType.String
+    )
+
+    override val ALL: List<SettingObject<*>>
+        get() = listOf(jsonSetting)
 
     suspend fun loadFloatingApps(ctx: Context): List<FloatingAppObject> {
         return try {
@@ -116,24 +124,5 @@ object FloatingAppsSettingsStore : BaseSettingsStore<JSONObject>() {
         }
 
         setAll(ctx, json)
-    }
-
-
-    override suspend fun resetAll(ctx: Context) {
-        ctx.floatingAppsDatastore.edit { prefs ->
-            prefs.remove(Keys.FLOATING_APPS_KEY)
-        }
-    }
-
-    override suspend fun getAll(ctx: Context): JSONObject {
-        val prefs = ctx.floatingAppsDatastore.data.first()
-        val raw = prefs[Keys.FLOATING_APPS_KEY] ?: return JSONObject()
-        return JSONObject(raw)
-    }
-
-    override suspend fun setAll(ctx: Context, value: JSONObject) {
-        ctx.floatingAppsDatastore.edit { prefs ->
-            prefs[Keys.FLOATING_APPS_KEY] = value.toString()
-        }
     }
 }

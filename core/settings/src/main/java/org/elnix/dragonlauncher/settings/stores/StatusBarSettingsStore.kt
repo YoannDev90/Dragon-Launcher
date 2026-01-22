@@ -13,7 +13,7 @@ import kotlinx.coroutines.flow.map
 import org.elnix.dragonlauncher.common.serializables.SwipeActionSerializable
 import org.elnix.dragonlauncher.common.serializables.SwipeJson
 import org.elnix.dragonlauncher.common.theme.AmoledDefault
-import org.elnix.dragonlauncher.settings.BaseSettingsStore
+import org.elnix.dragonlauncher.settings.bases.BaseSettingsStore
 import org.elnix.dragonlauncher.settings.getBooleanStrict
 import org.elnix.dragonlauncher.settings.getIntStrict
 import org.elnix.dragonlauncher.settings.getStringStrict

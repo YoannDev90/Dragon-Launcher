@@ -8,12 +8,11 @@ import androidx.datastore.preferences.core.intPreferencesKey
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.map
-import org.elnix.dragonlauncher.settings.BaseSettingsStore
+import org.elnix.dragonlauncher.settings.bases.BaseSettingsStore
 import org.elnix.dragonlauncher.settings.getBooleanStrict
 import org.elnix.dragonlauncher.settings.getIntStrict
 import org.elnix.dragonlauncher.settings.privateSettingsStore
 import org.elnix.dragonlauncher.settings.putIfNonDefault
-import org.elnix.dragonlauncher.settings.stores.PrivateSettingsStore.Keys.ALL
 import org.elnix.dragonlauncher.settings.stores.PrivateSettingsStore.Keys.HAS_INITIALIZED
 import org.elnix.dragonlauncher.settings.stores.PrivateSettingsStore.Keys.HAS_SEEN_WELCOME
 import org.elnix.dragonlauncher.settings.stores.PrivateSettingsStore.Keys.LAST_SEEN_VERSION_CODE

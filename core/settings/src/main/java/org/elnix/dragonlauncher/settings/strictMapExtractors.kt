@@ -1,5 +1,8 @@
 package org.elnix.dragonlauncher.settings
 
+import org.elnix.dragonlauncher.common.serializables.SwipeActionSerializable
+import org.elnix.dragonlauncher.common.serializables.SwipeJson
+
 
 fun getBooleanStrict(
     raw: Map<String, Any?>,
@@ -63,6 +66,23 @@ fun getLongStrict(
     }
 }
 
+
+
+fun getDoubleStrict(
+    raw: Map<String, Any?>,
+    key: String,
+    def: Double
+): Double {
+    val v = raw[key] ?: return def
+    return when (v) {
+        is Double -> v
+        is Number -> v.toDouble()
+        is String -> v.toDoubleOrNull()
+            ?: throw BackupTypeException(key, "Double", "String", v)
+        else -> throw BackupTypeException(key, "Double", v::class.simpleName, v)
+    }
+}
+
 fun getStringStrict(
     raw: Map<String, Any?>,
     key: String,
@@ -72,6 +92,20 @@ fun getStringStrict(
     return when (v) {
         is String -> v
         else -> throw BackupTypeException(key, "String", v::class.simpleName, v)
+    }
+}
+
+
+fun getSwipeActionSerializableStrict(
+    raw: Map<String, Any?>,
+    key: String,
+    def: SwipeActionSerializable
+): SwipeActionSerializable {
+    val v = raw[key] ?: return def
+    return when (v) {
+        is String -> SwipeJson.decodeAction(v) ?:
+         throw BackupTypeException(key, "SwipeActionSerializable", v::class.simpleName, v)
+        else -> throw BackupTypeException(key, "SwipeActionSerializable", v::class.simpleName, v)
     }
 }
 
@@ -114,13 +148,13 @@ private fun Collection<*>.flattenStrings(): List<String> = flatMap { item ->
     }
 }.filter { it.isNotBlank() }
 
-
-inline fun <reified E : Enum<E>> getEnumStrict(
-    raw: Map<String, Any?>,
+fun decodeEnumStrict(
+    raw: Any?,
     key: String,
-    def: E
-): E {
-    val v = raw[key] ?: return def
+    def: Enum<*>,
+    enumClass: Class<out Enum<*>>
+): Enum<*> {
+    val v = raw ?: return def
 
     if (v !is String) {
         throw BackupTypeException(
@@ -131,14 +165,16 @@ inline fun <reified E : Enum<E>> getEnumStrict(
         )
     }
 
-    return enumValues<E>().firstOrNull { it.name == v }
+    return enumClass.enumConstants
+        ?.firstOrNull { it.name == v }
         ?: throw BackupTypeException(
             key,
-            "one of ${enumValues<E>().joinToString { it.name }}",
+            "one of ${enumClass.enumConstants?.joinToString { it.name }}",
             "String",
             v
         )
 }
+
 
 
 fun MutableMap<String, Any>.putIfNonDefault(

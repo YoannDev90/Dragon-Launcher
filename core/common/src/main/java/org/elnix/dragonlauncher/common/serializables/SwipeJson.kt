@@ -191,7 +191,7 @@ object SwipeJson {
     /* ---------- Old format, keep it for legacy support ---------- */
     private val listType = object : TypeToken<List<SwipePointSerializable>>() {}.type
 
-    fun decode(jsonString: String): List<SwipePointSerializable> {
+    fun decodeLegacy(jsonString: String): List<SwipePointSerializable> {
         if (jsonString.isBlank()) return emptyList()
         return try {
             gson.fromJson(jsonString, listType)
