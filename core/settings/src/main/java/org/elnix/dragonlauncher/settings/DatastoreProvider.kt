@@ -1,6 +1,8 @@
 package org.elnix.dragonlauncher.settings
 
 import android.content.Context
+import androidx.datastore.core.DataStore
+import androidx.datastore.preferences.core.Preferences
 import androidx.datastore.preferences.preferencesDataStore
 import org.elnix.dragonlauncher.settings.stores.AppsSettingsStore
 import org.elnix.dragonlauncher.settings.stores.BackupSettingsStore
@@ -48,17 +50,40 @@ val backupableStores = allStores.filter { it.userBackup }
  */
 val defaultDebugStores = allStores.filter { it.store != AppsSettingsStore }
 
-val Context.uiDatastore by preferencesDataStore(name = DataStoreName.UI.value)
-val Context.colorModeDatastore by preferencesDataStore(name = DataStoreName.COLOR_MODE.value)
-val Context.colorDatastore by preferencesDataStore(name = DataStoreName.COLOR.value)
-val Context.privateSettingsStore by preferencesDataStore(name = DataStoreName.PRIVATE_SETTINGS.value)
-val Context.swipeDataStore by preferencesDataStore(name = DataStoreName.SWIPE.value)
-val Context.languageDatastore by preferencesDataStore(name = DataStoreName.LANGUAGE.value)
-val Context.drawerDataStore by preferencesDataStore(name = DataStoreName.DRAWER.value)
-val Context.debugDatastore by preferencesDataStore(name = DataStoreName.DEBUG.value)
-val Context.workspaceDataStore by preferencesDataStore(name = DataStoreName.WORKSPACES.value)
-val Context.appsDatastore by preferencesDataStore(name = DataStoreName.APPS.value)
-val Context.behaviorDataStore by preferencesDataStore(name = DataStoreName.BEHAVIOR.value)
-val Context.backupDatastore by preferencesDataStore(name = DataStoreName.BACKUP.value)
-val Context.statusBarDatastore by preferencesDataStore(name = DataStoreName.STATUS_BAR.value)
-val Context.floatingAppsDatastore by preferencesDataStore(name = DataStoreName.FLOATING_APPS.value)
+
+/**
+ * Datastore, now handled by a conditional function to avoid errors, all private
+ */
+private val Context.uiDatastore by preferencesDataStore(name = DataStoreName.UI.value)
+private val Context.colorModeDatastore by preferencesDataStore(name = DataStoreName.COLOR_MODE.value)
+private val Context.colorDatastore by preferencesDataStore(name = DataStoreName.COLOR.value)
+private val Context.privateSettingsStore by preferencesDataStore(name = DataStoreName.PRIVATE_SETTINGS.value)
+private val Context.swipeDataStore by preferencesDataStore(name = DataStoreName.SWIPE.value)
+private val Context.languageDatastore by preferencesDataStore(name = DataStoreName.LANGUAGE.value)
+private val Context.drawerDataStore by preferencesDataStore(name = DataStoreName.DRAWER.value)
+private val Context.debugDatastore by preferencesDataStore(name = DataStoreName.DEBUG.value)
+private val Context.workspaceDataStore by preferencesDataStore(name = DataStoreName.WORKSPACES.value)
+private val Context.appsDatastore by preferencesDataStore(name = DataStoreName.APPS.value)
+private val Context.behaviorDataStore by preferencesDataStore(name = DataStoreName.BEHAVIOR.value)
+private val Context.backupDatastore by preferencesDataStore(name = DataStoreName.BACKUP.value)
+private val Context.statusBarDatastore by preferencesDataStore(name = DataStoreName.STATUS_BAR.value)
+private val Context.floatingAppsDatastore by preferencesDataStore(name = DataStoreName.FLOATING_APPS.value)
+
+
+fun Context.resolveDataStore(name: DataStoreName): DataStore<Preferences> =
+    when (name) {
+        DataStoreName.UI -> uiDatastore
+        DataStoreName.COLOR_MODE -> colorModeDatastore
+        DataStoreName.COLOR -> colorDatastore
+        DataStoreName.PRIVATE_SETTINGS -> privateSettingsStore
+        DataStoreName.SWIPE -> swipeDataStore
+        DataStoreName.LANGUAGE -> languageDatastore
+        DataStoreName.DRAWER -> drawerDataStore
+        DataStoreName.DEBUG -> debugDatastore
+        DataStoreName.WORKSPACES -> workspaceDataStore
+        DataStoreName.APPS -> appsDatastore
+        DataStoreName.BEHAVIOR -> behaviorDataStore
+        DataStoreName.BACKUP -> backupDatastore
+        DataStoreName.STATUS_BAR -> statusBarDatastore
+        DataStoreName.FLOATING_APPS -> floatingAppsDatastore
+    }

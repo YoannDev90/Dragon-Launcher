@@ -1,48 +1,36 @@
 package org.elnix.dragonlauncher.settings.stores
 
-import android.content.Context
-import androidx.datastore.preferences.core.edit
-import androidx.datastore.preferences.core.stringPreferencesKey
-import kotlinx.coroutines.flow.first
-import kotlinx.coroutines.flow.firstOrNull
-import kotlinx.coroutines.flow.map
-import org.elnix.dragonlauncher.settings.BaseSettingsStore
-import org.elnix.dragonlauncher.settings.appsDatastore
-import org.json.JSONObject
+import org.elnix.dragonlauncher.settings.DataStoreName
+import org.elnix.dragonlauncher.settings.JsonSettingsStore
+import org.elnix.dragonlauncher.settings.SettingType
+import org.elnix.dragonlauncher.settings.TypedSettingObject
 
-object AppsSettingsStore : BaseSettingsStore<JSONObject>() {
+object AppsSettingsStore : JsonSettingsStore() {
     override val name: String = "Apps"
+    override val dataStoreName= DataStoreName.APPS
 
-    private val DATASTORE_KEY = stringPreferencesKey("cached_apps_json")
+    private val RAW_JSON = TypedSettingObject(
+        key = "cached_apps_json",
+        dataStoreName = dataStoreName,
+        default = "",
+        type = SettingType.String
+    )
 
-    suspend fun getCachedApps(ctx: Context): String? {
-        return ctx.appsDatastore.data
-            .map { it[DATASTORE_KEY] }
-            .firstOrNull()
-    }
+    override val ALL = listOf(
+        RAW_JSON
+    )
 
-    suspend fun saveCachedApps(ctx: Context, json: String) {
-        ctx.appsDatastore.edit { prefs ->
-            prefs[DATASTORE_KEY] = json
-        }
-    }
+    override val jsonSetting = RAW_JSON
 
-    override suspend fun resetAll(ctx: Context) {
-        ctx.appsDatastore.edit {
-            it.remove(DATASTORE_KEY)
-        }
-    }
-
-    override suspend fun getAll(ctx: Context): JSONObject {
-        val prefs = ctx.appsDatastore.data.first()
-        val json = prefs[DATASTORE_KEY] ?: return JSONObject()
-        return JSONObject(json)
-    }
-
-
-    override suspend fun setAll(ctx: Context, value: JSONObject) {
-        ctx.appsDatastore.edit { prefs ->
-            prefs[DATASTORE_KEY] = value.toString()
-        }
-    }
+//    override suspend fun resetAll(ctx: Context) {
+//        CACHED_APPS.reset(ctx)
+//    }
+//
+//    override suspend fun getAll(ctx: Context): JSONObject {
+//        return CACHED_APPS.get(ctx)
+//    }
+//
+//    override suspend fun setAll(ctx: Context, value: JSONObject) {
+//        CACHED_APPS.set(ctx, value)
+//    }
 }
