@@ -372,7 +372,7 @@ fun AppearanceTab(
             offsetY = offsetY,
             alpha = alpha,
             pointIcons = icons,
-            point = dummySwipePoint(SwipeActionSerializable.OpenDragonLauncherSettings).copy(
+            point = dummySwipePoint(SwipeActionSerializable.OpenRecentApps).copy(
                 customName = "Preview",
                 id = icons.keys.random() // Kinda funny so I'll keep it :)
             ),
