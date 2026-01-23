@@ -34,14 +34,14 @@ fun BehaviorTab(
     val ctx = LocalContext.current
     val scope = rememberCoroutineScope()
 
-    val backAction by BehaviorSettingsStore.getBackAction(ctx).collectAsState(initial = null)
-    val doubleClickAction by BehaviorSettingsStore.getDoubleClickAction(ctx).collectAsState(initial = null)
-    val homeAction by BehaviorSettingsStore.getHomeAction(ctx).collectAsState(initial = null)
-    val keepScreenOn by BehaviorSettingsStore.getKeepScreenOn(ctx).collectAsState(initial = false)
-    val leftPadding by BehaviorSettingsStore.getLeftPadding(ctx).collectAsState(initial = 0)
-    val rightPadding by BehaviorSettingsStore.getRightPadding(ctx).collectAsState(initial = 0)
-    val upPadding by BehaviorSettingsStore.getUpPadding(ctx).collectAsState(initial = 0)
-    val downPadding by BehaviorSettingsStore.getDownPadding(ctx).collectAsState(initial = 0)
+    val backAction by BehaviorSettingsStore.backAction.flow(ctx).collectAsState(initial = null)
+    val doubleClickAction by BehaviorSettingsStore.doubleClickAction.flow(ctx).collectAsState(initial = null)
+    val homeAction by BehaviorSettingsStore.homeAction.flow(ctx).collectAsState(initial = null)
+    val keepScreenOn by BehaviorSettingsStore.keepScreenOn.flow(ctx).collectAsState(initial = false)
+    val leftPadding by BehaviorSettingsStore.leftPadding.flow(ctx).collectAsState(initial = 0)
+    val rightPadding by BehaviorSettingsStore.rightPadding.flow(ctx).collectAsState(initial = 0)
+    val topPadding by BehaviorSettingsStore.topPadding.flow(ctx).collectAsState(initial = 0)
+    val bottomPadding by BehaviorSettingsStore.bottomPadding.flow(ctx).collectAsState(initial = 0)
 
     val isDragging = remember { mutableStateOf(false) }
 
@@ -60,7 +60,7 @@ fun BehaviorTab(
                 keepScreenOn,
                 stringResource(R.string.keep_screen_on),
             ) {
-                scope.launch { BehaviorSettingsStore.setKeepScreenOn(ctx, it) }
+                scope.launch { BehaviorSettingsStore.keepScreenOn.set(ctx, it) }
             }
         }
 
@@ -71,12 +71,12 @@ fun BehaviorTab(
                 label = stringResource(R.string.back_action),
                 onToggle = {
                     scope.launch {
-                        BehaviorSettingsStore.setBackAction(ctx, null)
+                        BehaviorSettingsStore.backAction.reset(ctx)
                     }
                 }
             ) {
                 scope.launch {
-                    BehaviorSettingsStore.setBackAction(ctx, it)
+                    BehaviorSettingsStore.backAction.set(ctx, it)
                 }
             }
         }
@@ -88,12 +88,12 @@ fun BehaviorTab(
                 label = stringResource(R.string.double_click_action),
                 onToggle = {
                     scope.launch {
-                        BehaviorSettingsStore.setDoubleClickAction(ctx, null)
+                        BehaviorSettingsStore.resetAll(ctx)
                     }
                 }
             ) {
                 scope.launch {
-                    BehaviorSettingsStore.setDoubleClickAction(ctx, it)
+                    BehaviorSettingsStore.doubleClickAction.set(ctx, it)
                 }
             }
         }
@@ -105,12 +105,12 @@ fun BehaviorTab(
                 label = stringResource(R.string.home_action),
                 onToggle = {
                     scope.launch {
-                        BehaviorSettingsStore.setHomeAction(ctx, null)
+                        BehaviorSettingsStore.homeAction.reset(ctx)
                     }
                 }
             ) {
                 scope.launch {
-                    BehaviorSettingsStore.setHomeAction(ctx, it)
+                    BehaviorSettingsStore.homeAction.set(ctx, it)
                 }
             }
         }
@@ -124,12 +124,12 @@ fun BehaviorTab(
                 showValue = true,
                 onReset = {
                     scope.launch {
-                        BehaviorSettingsStore.setLeftPadding(ctx, 60)
+                        BehaviorSettingsStore.leftPadding.reset(ctx)
                     }
                 },
                 onChange = {
                     scope.launch {
-                        BehaviorSettingsStore.setLeftPadding(ctx, it)
+                        BehaviorSettingsStore.leftPadding.set(ctx, it)
                     }
                 },
                 onDragStateChange = { dragging ->
@@ -147,12 +147,12 @@ fun BehaviorTab(
                 showValue = true,
                 onReset = {
                     scope.launch {
-                        BehaviorSettingsStore.setRightPadding(ctx, 60)
+                        BehaviorSettingsStore.rightPadding.reset(ctx)
                     }
                 },
                 onChange = {
                     scope.launch {
-                        BehaviorSettingsStore.setRightPadding(ctx, it)
+                        BehaviorSettingsStore.rightPadding.set(ctx, it)
                     }
                 },
                 onDragStateChange = { dragging ->
@@ -164,18 +164,18 @@ fun BehaviorTab(
         item {
             SliderWithLabel(
                 label = stringResource(R.string.up_padding),
-                value = upPadding,
+                value = topPadding,
                 valueRange = 0..300,
                 color = MaterialTheme.colorScheme.primary,
                 showValue = true,
                 onReset = {
                     scope.launch {
-                        BehaviorSettingsStore.setUpPadding(ctx, 80)
+                        BehaviorSettingsStore.topPadding.reset(ctx)
                     }
                 },
                 onChange = {
                     scope.launch {
-                        BehaviorSettingsStore.setUpPadding(ctx, it)
+                        BehaviorSettingsStore.topPadding.set(ctx, it)
                     }
                 },
                 onDragStateChange = { dragging ->
@@ -187,18 +187,18 @@ fun BehaviorTab(
         item {
             SliderWithLabel(
                 label = stringResource(R.string.down_padding),
-                value = downPadding,
+                value = bottomPadding,
                 valueRange = 0..300,
                 color = MaterialTheme.colorScheme.primary,
                 showValue = true,
                 onReset = {
                     scope.launch {
-                        BehaviorSettingsStore.setDownPadding(ctx, 100)
+                        BehaviorSettingsStore.bottomPadding.reset(ctx)
                     }
                 },
                 onChange = {
                     scope.launch {
-                        BehaviorSettingsStore.setDownPadding(ctx, it)
+                        BehaviorSettingsStore.bottomPadding.set(ctx, it)
                     }
                 },
                 onDragStateChange = { dragging ->
@@ -215,11 +215,11 @@ fun BehaviorTab(
                 color = Color(0x55FF0000),
                 topLeft = Offset(
                     leftPadding.toFloat(),
-                    upPadding.toFloat()
+                    topPadding.toFloat()
                 ),
                 size = Size(
                     size.width - leftPadding - rightPadding.toFloat(),
-                    size.height - upPadding - downPadding.toFloat()
+                    size.height - topPadding - bottomPadding.toFloat()
                 )
             )
         }

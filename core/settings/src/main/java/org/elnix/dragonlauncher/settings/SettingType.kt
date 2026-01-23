@@ -88,4 +88,6 @@ sealed interface SettingType {
     data class Enum<E : kotlin.Enum<E>>(
         val enumClass: Class<E>
     ) : SettingType
+
+    data object Color : SettingType
 }

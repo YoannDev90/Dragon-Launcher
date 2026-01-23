@@ -309,21 +309,21 @@ fun AppearanceTab(
                     R.string.show_app_angle_preview,
                     if (!showAppAnglePreview) stringResource(R.string.do_you_hate_it) else ""
                 ),
-            ) { scope.launch { UiSettingsStore.(ctx, it) } }
+            ) { scope.launch { UiSettingsStore.showAnglePreview.set(ctx, it) } }
         }
 
         item {
             SwitchRow(
                 showAppPreviewIconCenterStartPosition,
                 stringResource(R.string.show_app_icon_start_drag_position),
-            ) { scope.launch { UiSettingsStore.setShowAppPreviewIconCenterStartPosition(ctx, it) } }
+            ) { scope.launch { UiSettingsStore.showAppPreviewIconCenterStartPosition.set(ctx, it) } }
         }
 
         item {
             SwitchRow(
                 linePreviewSnapToAction,
                 stringResource(R.string.line_preview_snap_to_action),
-            ) { scope.launch { UiSettingsStore.setLinePreviewSnapToAction(ctx, it) } }
+            ) { scope.launch { UiSettingsStore.linePreviewSnapToAction.set(ctx, it) } }
         }
 
 
@@ -347,14 +347,11 @@ fun AppearanceTab(
                     color = MaterialTheme.colorScheme.primary,
                     onReset = {
                         scope.launch {
-                            UiSettingsStore.setMinAngleFromAPointToActivateIt(
-                                ctx,
-                                0
-                            )
+                            UiSettingsStore.minAngleFromAPointToActivateIt.reset(ctx)
                         }
                     }
                 ) {
-                    scope.launch { UiSettingsStore.setMinAngleFromAPointToActivateIt(ctx, it) }
+                    scope.launch { UiSettingsStore.minAngleFromAPointToActivateIt.set(ctx, it) }
                 }
             }
         }
@@ -363,7 +360,7 @@ fun AppearanceTab(
             SwitchRow(
                 state = showAllActionsOnCurrentCircle,
                 text = stringResource(R.string.show_all_actions_on_current_circle),
-            ) { scope.launch { UiSettingsStore.setShowAllActionsOnCurrentCircle(ctx, it) } }
+            ) { scope.launch { UiSettingsStore.showAllActionsOnCurrentCircle.set(ctx, it) } }
         }
     }
 

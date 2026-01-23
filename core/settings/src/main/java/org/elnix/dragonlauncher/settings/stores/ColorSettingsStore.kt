@@ -2,7 +2,6 @@ package org.elnix.dragonlauncher.settings.stores
 
 import android.content.Context
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.toArgb
 import org.elnix.dragonlauncher.common.theme.AmoledDefault
 import org.elnix.dragonlauncher.common.theme.ThemeColors
 import org.elnix.dragonlauncher.common.utils.colors.randomColor
@@ -22,200 +21,200 @@ object ColorSettingsStore : MapSettingsStore() {
 
     /* ───────────── Colors ───────────── */
 
-    val primaryColor = SettingObject<Int?>(
+    val primaryColor = SettingObject<Color?>(
         key = "primary_color",
         dataStoreName = dataStoreName,
         default = null,
-        type = SettingType.Int
+        type = SettingType.Color
     )
 
-    val onPrimaryColor = SettingObject<Int?>(
+    val onPrimaryColor = SettingObject<Color?>(
         key = "on_primary_color",
         dataStoreName = dataStoreName,
         default = null,
-        type = SettingType.Int
+        type = SettingType.Color
     )
 
-    val secondaryColor = SettingObject<Int?>(
+    val secondaryColor = SettingObject<Color?>(
         key = "secondary_color",
         dataStoreName = dataStoreName,
         default = null,
-        type = SettingType.Int
+        type = SettingType.Color
     )
 
-    val onSecondaryColor = SettingObject<Int?>(
+    val onSecondaryColor = SettingObject<Color?>(
         key = "on_secondary_color",
         dataStoreName = dataStoreName,
         default = null,
-        type = SettingType.Int
+        type = SettingType.Color
     )
 
-    val tertiaryColor = SettingObject<Int?>(
+    val tertiaryColor = SettingObject<Color?>(
         key = "tertiary_color",
         dataStoreName = dataStoreName,
         default = null,
-        type = SettingType.Int
+        type = SettingType.Color
     )
 
-    val onTertiaryColor = SettingObject<Int?>(
+    val onTertiaryColor = SettingObject<Color?>(
         key = "on_tertiary_color",
         dataStoreName = dataStoreName,
         default = null,
-        type = SettingType.Int
+        type = SettingType.Color
     )
 
-    val backgroundColor = SettingObject<Int?>(
+    val backgroundColor = SettingObject<Color?>(
         key = "background_color",
         dataStoreName = dataStoreName,
         default = null,
-        type = SettingType.Int
+        type = SettingType.Color
     )
 
-    val onBackgroundColor = SettingObject<Int?>(
+    val onBackgroundColor = SettingObject<Color?>(
         key = "on_background_color",
         dataStoreName = dataStoreName,
         default = null,
-        type = SettingType.Int
+        type = SettingType.Color
     )
 
-    val surfaceColor = SettingObject<Int?>(
+    val surfaceColor = SettingObject<Color?>(
         key = "surface_color",
         dataStoreName = dataStoreName,
         default = null,
-        type = SettingType.Int
+        type = SettingType.Color
     )
 
-    val onSurfaceColor = SettingObject<Int?>(
+    val onSurfaceColor = SettingObject<Color?>(
         key = "on_surface_color",
         dataStoreName = dataStoreName,
         default = null,
-        type = SettingType.Int
+        type = SettingType.Color
     )
 
-    val errorColor = SettingObject<Int?>(
+    val errorColor = SettingObject<Color?>(
         key = "error_color",
         dataStoreName = dataStoreName,
         default = null,
-        type = SettingType.Int
+        type = SettingType.Color
     )
 
-    val onErrorColor = SettingObject<Int?>(
+    val onErrorColor = SettingObject<Color?>(
         key = "on_error_color",
         dataStoreName = dataStoreName,
         default = null,
-        type = SettingType.Int
+        type = SettingType.Color
     )
 
-    val outlineColor = SettingObject<Int?>(
+    val outlineColor = SettingObject<Color?>(
         key = "outline_color",
         dataStoreName = dataStoreName,
         default = null,
-        type = SettingType.Int
+        type = SettingType.Color
     )
 
-    val angleLineColor = SettingObject<Int?>(
+    val angleLineColor = SettingObject<Color?>(
         key = "delete_color",
         dataStoreName = dataStoreName,
         default = null,
-        type = SettingType.Int
+        type = SettingType.Color
     )
 
-    val circleColor = SettingObject<Int?>(
+    val circleColor = SettingObject<Color?>(
         key = "circle_color",
         dataStoreName = dataStoreName,
         default = null,
-        type = SettingType.Int
+        type = SettingType.Color
     )
 
     /* ───────────── Action colors ───────────── */
 
-    val launchAppColor = SettingObject<Int?>(
+    val launchAppColor = SettingObject<Color?>(
         key = "launch_app_color",
         dataStoreName = dataStoreName,
         default = null,
-        type = SettingType.Int
+        type = SettingType.Color
     )
 
-    val openUrlColor = SettingObject<Int?>(
+    val openUrlColor = SettingObject<Color?>(
         key = "open_url_color",
         dataStoreName = dataStoreName,
         default = null,
-        type = SettingType.Int
+        type = SettingType.Color
     )
 
-    val notificationShadeColor = SettingObject<Int?>(
+    val notificationShadeColor = SettingObject<Color?>(
         key = "notification_shade_color",
         dataStoreName = dataStoreName,
         default = null,
-        type = SettingType.Int
+        type = SettingType.Color
     )
 
-    val controlPanelColor = SettingObject<Int?>(
+    val controlPanelColor = SettingObject<Color?>(
         key = "control_panel_color",
         dataStoreName = dataStoreName,
         default = null,
-        type = SettingType.Int
+        type = SettingType.Color
     )
 
-    val openAppDrawerColor = SettingObject<Int?>(
+    val openAppDrawerColor = SettingObject<Color?>(
         key = "open_app_drawer_color",
         dataStoreName = dataStoreName,
         default = null,
-        type = SettingType.Int
+        type = SettingType.Color
     )
 
-    val launcherSettingsColor = SettingObject<Int?>(
+    val launcherSettingsColor = SettingObject<Color?>(
         key = "launcher_settings_color",
         dataStoreName = dataStoreName,
         default = null,
-        type = SettingType.Int
+        type = SettingType.Color
     )
 
-    val lockColor = SettingObject<Int?>(
+    val lockColor = SettingObject<Color?>(
         key = "lock_color",
         dataStoreName = dataStoreName,
         default = null,
-        type = SettingType.Int
+        type = SettingType.Color
     )
 
-    val openFileColor = SettingObject<Int?>(
+    val openFileColor = SettingObject<Color?>(
         key = "open_file_color",
         dataStoreName = dataStoreName,
         default = null,
-        type = SettingType.Int
+        type = SettingType.Color
     )
 
-    val reloadColor = SettingObject<Int?>(
+    val reloadColor = SettingObject<Color?>(
         key = "reload_color",
         dataStoreName = dataStoreName,
         default = null,
-        type = SettingType.Int
+        type = SettingType.Color
     )
 
-    val openRecentAppsColor = SettingObject<Int?>(
+    val openRecentAppsColor = SettingObject<Color?>(
         key = "open_recent_apps",
         dataStoreName = dataStoreName,
         default = null,
-        type = SettingType.Int
+        type = SettingType.Color
     )
 
-    val openCircleNestColor = SettingObject<Int?>(
+    val openCircleNestColor = SettingObject<Color?>(
         key = "open_circle_nest",
         dataStoreName = dataStoreName,
         default = null,
-        type = SettingType.Int
+        type = SettingType.Color
     )
 
-    val goParentNestColor = SettingObject<Int?>(
+    val goParentNestColor = SettingObject<Color?>(
         key = "go_parent_nest",
         dataStoreName = dataStoreName,
         default = null,
-        type = SettingType.Int
+        type = SettingType.Color
     )
 
     /* ───────────── Registry ───────────── */
 
-    override val ALL: List<SettingObject<Int?>>
+    override val ALL: List<SettingObject<Color?>>
         get() = listOf(
             primaryColor,
             onPrimaryColor,
@@ -271,7 +270,7 @@ object ColorSettingsStore : MapSettingsStore() {
 
     suspend fun setAllColors(ctx: Context, color: () -> Color) {
 
-        ALL.forEach { it.set(ctx, color().toArgb()) }
+        ALL.forEach { it.set(ctx, color()) }
     }
 }
 
@@ -279,35 +278,35 @@ object ColorSettingsStore : MapSettingsStore() {
 private suspend fun applyThemeColors(ctx: Context, colors: ThemeColors) {
 
     /* ───────────── MaterialTheme Colors ───────────── */
-    ColorSettingsStore.primaryColor.set(ctx, colors.Primary.toArgb())
-    ColorSettingsStore.onPrimaryColor.set(ctx, colors.OnPrimary.toArgb())
-    ColorSettingsStore.secondaryColor.set(ctx, colors.Secondary.toArgb())
-    ColorSettingsStore.onSecondaryColor.set(ctx, colors.OnSecondary.toArgb())
-    ColorSettingsStore.tertiaryColor.set(ctx, colors.Tertiary.toArgb())
-    ColorSettingsStore.onTertiaryColor.set(ctx, colors.OnTertiary.toArgb())
-    ColorSettingsStore.backgroundColor.set(ctx, colors.Background.toArgb())
-    ColorSettingsStore.onBackgroundColor.set(ctx, colors.OnBackground.toArgb())
-    ColorSettingsStore.surfaceColor.set(ctx, colors.Surface.toArgb())
-    ColorSettingsStore.onSurfaceColor.set(ctx, colors.OnSurface.toArgb())
-    ColorSettingsStore.errorColor.set(ctx, colors.Error.toArgb())
-    ColorSettingsStore.onErrorColor.set(ctx, colors.OnError.toArgb())
-    ColorSettingsStore.outlineColor.set(ctx, colors.Outline.toArgb())
+    ColorSettingsStore.primaryColor.set(ctx, colors.Primary)
+    ColorSettingsStore.onPrimaryColor.set(ctx, colors.OnPrimary)
+    ColorSettingsStore.secondaryColor.set(ctx, colors.Secondary)
+    ColorSettingsStore.onSecondaryColor.set(ctx, colors.OnSecondary)
+    ColorSettingsStore.tertiaryColor.set(ctx, colors.Tertiary)
+    ColorSettingsStore.onTertiaryColor.set(ctx, colors.OnTertiary)
+    ColorSettingsStore.backgroundColor.set(ctx, colors.Background)
+    ColorSettingsStore.onBackgroundColor.set(ctx, colors.OnBackground)
+    ColorSettingsStore.surfaceColor.set(ctx, colors.Surface)
+    ColorSettingsStore.onSurfaceColor.set(ctx, colors.OnSurface)
+    ColorSettingsStore.errorColor.set(ctx, colors.Error)
+    ColorSettingsStore.onErrorColor.set(ctx, colors.OnError)
+    ColorSettingsStore.outlineColor.set(ctx, colors.Outline)
 
     /* ───────────── Custom Colors ───────────── */
-    ColorSettingsStore.angleLineColor.set(ctx, colors.AngleLineColor.toArgb())
-    ColorSettingsStore.circleColor.set(ctx, colors.CircleColor.toArgb())
+    ColorSettingsStore.angleLineColor.set(ctx, colors.AngleLineColor)
+    ColorSettingsStore.circleColor.set(ctx, colors.CircleColor)
 
     /* ───────────── Actions Colors ───────────── */
-    ColorSettingsStore.launchAppColor.set(ctx, colors.LaunchAppColor.toArgb())
-    ColorSettingsStore.openUrlColor.set(ctx, colors.OpenUrlColor.toArgb())
-    ColorSettingsStore.notificationShadeColor.set(ctx, colors.NotificationShadeColor.toArgb())
-    ColorSettingsStore.controlPanelColor.set(ctx, colors.ControlPanelColor.toArgb())
-    ColorSettingsStore.openAppDrawerColor.set(ctx, colors.OpenAppDrawerColor.toArgb())
-    ColorSettingsStore.launcherSettingsColor.set(ctx, colors.LauncherSettingsColor.toArgb())
-    ColorSettingsStore.lockColor.set(ctx, colors.LockColor.toArgb())
-    ColorSettingsStore.openFileColor.set(ctx, colors.OpenFileColor.toArgb())
-    ColorSettingsStore.reloadColor.set(ctx, colors.ReloadColor.toArgb())
-    ColorSettingsStore.openRecentAppsColor.set(ctx, colors.OpenRecentAppsColor.toArgb())
-    ColorSettingsStore.openCircleNestColor.set(ctx, colors.OpenCircleNestColor.toArgb())
-    ColorSettingsStore.goParentNestColor.set(ctx, colors.GoParentNestColor.toArgb())
+    ColorSettingsStore.launchAppColor.set(ctx, colors.LaunchAppColor)
+    ColorSettingsStore.openUrlColor.set(ctx, colors.OpenUrlColor)
+    ColorSettingsStore.notificationShadeColor.set(ctx, colors.NotificationShadeColor)
+    ColorSettingsStore.controlPanelColor.set(ctx, colors.ControlPanelColor)
+    ColorSettingsStore.openAppDrawerColor.set(ctx, colors.OpenAppDrawerColor)
+    ColorSettingsStore.launcherSettingsColor.set(ctx, colors.LauncherSettingsColor)
+    ColorSettingsStore.lockColor.set(ctx, colors.LockColor)
+    ColorSettingsStore.openFileColor.set(ctx, colors.OpenFileColor)
+    ColorSettingsStore.reloadColor.set(ctx, colors.ReloadColor)
+    ColorSettingsStore.openRecentAppsColor.set(ctx, colors.OpenRecentAppsColor)
+    ColorSettingsStore.openCircleNestColor.set(ctx, colors.OpenCircleNestColor)
+    ColorSettingsStore.goParentNestColor.set(ctx, colors.GoParentNestColor)
 }

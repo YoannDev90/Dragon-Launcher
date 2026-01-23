@@ -1,5 +1,6 @@
 package org.elnix.dragonlauncher.settings
 
+import androidx.compose.ui.graphics.Color
 import org.elnix.dragonlauncher.common.serializables.SwipeActionSerializable
 import org.elnix.dragonlauncher.common.serializables.SwipeJson
 
@@ -176,6 +177,20 @@ fun decodeEnumStrict(
 }
 
 
+
+fun getColorStrict(
+    raw: Map<String, Any?>,
+    key: String,
+    def: Color
+): Color {
+    val v = raw[key] ?: return def
+    return when (v) {
+        is Int -> Color(v)
+        is Number -> Color(v.toInt())
+        is String -> Color (v.toInt())
+        else -> throw BackupTypeException(key, "Color", v::class.simpleName, v)
+    }
+}
 
 fun MutableMap<String, Any>.putIfNonDefault(
     key: String,

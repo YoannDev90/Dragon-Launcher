@@ -1,6 +1,7 @@
 package org.elnix.dragonlauncher.settings
 
 import android.content.Context
+import androidx.compose.ui.graphics.Color
 import androidx.datastore.preferences.core.Preferences
 import androidx.datastore.preferences.core.booleanPreferencesKey
 import androidx.datastore.preferences.core.doublePreferencesKey
@@ -35,6 +36,7 @@ class SettingObject<T>(
             is SettingType.StringSet -> stringSetPreferencesKey(key)
             is SettingType.SwipeActionSerializable -> stringPreferencesKey(key)
             is SettingType.Enum<*> -> stringPreferencesKey(key)
+            is SettingType.Color -> intPreferencesKey(key)
         } as Preferences.Key<T>
 
     @Suppress("UNCHECKED_CAST")
@@ -71,6 +73,9 @@ class SettingObject<T>(
                     def = default as Enum<*>,
                     enumClass = type.enumClass
                 ) as T
+
+            SettingType.Color ->
+                getColorStrict(mapOf(key to raw), key, default as Color) as T
         }
 
     override suspend fun get(ctx: Context): T {

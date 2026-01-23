@@ -20,8 +20,8 @@ object BehaviorSettingsStore : MapSettingsStore() {
             keepScreenOn,
             leftPadding,
             rightPadding,
-            upPadding,
-            downPadding
+            topPadding,
+            bottomPadding
         )
 
     val backAction = SettingObject<SwipeActionSerializable?>(
@@ -66,14 +66,14 @@ object BehaviorSettingsStore : MapSettingsStore() {
         type = SettingType.Int
     )
 
-    val upPadding = SettingObject(
+    val topPadding = SettingObject(
         key = "upPadding",
         dataStoreName = BackupSettingsStore.dataStoreName,
         default = 80,
         type = SettingType.Int
     )
 
-    val downPadding = SettingObject(
+    val bottomPadding = SettingObject(
         key = "downPadding",
         dataStoreName = BackupSettingsStore.dataStoreName,
         default = 100,
