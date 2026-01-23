@@ -97,25 +97,25 @@ fun MainScreen(
     // Removed hacky popup on notifications, use debug on my phone to open quick settings
 //    val showMethodAsking = false
 
-    val doubleClickAction by BehaviorSettingsStore.getDoubleClickAction(ctx)
+    val doubleClickAction by BehaviorSettingsStore.doubleClickAction.flow(ctx)
         .collectAsState(initial = null)
 
-    val backAction by BehaviorSettingsStore.getBackAction(ctx)
+    val backAction by BehaviorSettingsStore.backAction.flow(ctx)
         .collectAsState(initial = null)
 
-    val homeAction by BehaviorSettingsStore.getHomeAction(ctx)
+    val homeAction by BehaviorSettingsStore.homeAction.flow(ctx)
         .collectAsState(initial = null)
 
-    val leftPadding by BehaviorSettingsStore.getLeftPadding(ctx)
+    val leftPadding by BehaviorSettingsStore.leftPadding.flow(ctx)
         .collectAsState(initial = 0)
 
-    val rightPadding by BehaviorSettingsStore.getRightPadding(ctx)
+    val rightPadding by BehaviorSettingsStore.rightPadding.flow(ctx)
         .collectAsState(initial = 0)
 
-    val upPadding by BehaviorSettingsStore.getUpPadding(ctx)
+    val topPadding by BehaviorSettingsStore.topPadding.flow(ctx)
         .collectAsState(initial = 0)
 
-    val downPadding by BehaviorSettingsStore.getDownPadding(ctx)
+    val bottomPadding by BehaviorSettingsStore.bottomPadding.flow(ctx)
         .collectAsState(initial = 0)
 
 
@@ -132,20 +132,20 @@ fun MainScreen(
     )
 
     val defaultColor = Color.Red
-    val rgbLoading by UiSettingsStore.getRGBLoading(ctx)
+    val rgbLoading by UiSettingsStore.rgbLoading.flow(ctx)
         .collectAsState(initial = true)
 
-    val hasSeenWelcome by PrivateSettingsStore.getHasSeenWelcome(ctx)
+    val hasSeenWelcome by PrivateSettingsStore.hasSeenWelcome.flow(ctx)
         .collectAsState(initial = true)
 
     val useAccessibilityInsteadOfContextToExpandActionPanel by DebugSettingsStore
-        .getUseAccessibilityInsteadOfContextToExpandActionPanel(ctx)
+        .useAccessibilityInsteadOfContextToExpandActionPanel.flow(ctx)
         .collectAsState(initial = true)
 
 
     /* ───────────── status bar things ───────────── */
 
-    val showStatusBar by StatusBarSettingsStore.getShowStatusBar(ctx)
+    val showStatusBar by StatusBarSettingsStore.showStatusBar.flow(ctx)
         .collectAsState(initial = false)
 
     val systemInsets = WindowInsets.systemBars.asPaddingValues()
@@ -183,7 +183,7 @@ fun MainScreen(
     val density = LocalDensity.current
     val cellSizePx = floatingAppsViewModel.cellSizePx
 
-    val appIconOverlaySize by UiSettingsStore.getAppIconOverlaySize(ctx)
+    val appIconOverlaySize by UiSettingsStore.appIconOverlaySize.flow(ctx)
         .collectAsState(initial = 22)
 
     /**
@@ -281,8 +281,8 @@ fun MainScreen(
                             size = size,
                             left = leftPadding,
                             right = rightPadding,
-                            top = upPadding,
-                            bottom = downPadding
+                            top = topPadding,
+                            bottom = bottomPadding
                         )
 
                         if (!allowed) {

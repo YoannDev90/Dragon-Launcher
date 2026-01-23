@@ -52,55 +52,55 @@ fun StatusBarTab(
 
     val isRealFullscreen = systemInsets.calculateTopPadding() == 0.dp
 
-    val showStatusBar by StatusBarSettingsStore.getShowStatusBar(ctx)
+    val showStatusBar by StatusBarSettingsStore.showStatusBar.flow(ctx)
         .collectAsState(initial = false)
 
-    val statusBarBackground by StatusBarSettingsStore.getBarBackgroundColor(ctx)
+    val statusBarBackground by StatusBarSettingsStore.barBackgroundColor.flow(ctx)
         .collectAsState(initial = Color.Transparent)
 
-    val statusBarText by StatusBarSettingsStore.getBarTextColor(ctx)
+    val statusBarText by StatusBarSettingsStore.barTextColor.flow(ctx)
         .collectAsState(initial = MaterialTheme.colorScheme.onBackground)
 
-    val showTime by StatusBarSettingsStore.getShowTime(ctx)
+    val showTime by StatusBarSettingsStore.showTime.flow(ctx)
         .collectAsState(initial = false)
 
-    val showDate by StatusBarSettingsStore.getShowDate(ctx)
+    val showDate by StatusBarSettingsStore.showDate.flow(ctx)
         .collectAsState(initial = false)
 
-    val timeFormatter by StatusBarSettingsStore.getTimeFormatter(ctx)
+    val timeFormatter by StatusBarSettingsStore.timeFormatter.flow(ctx)
         .collectAsState("HH:mm:ss")
 
-    val dateFormatter by StatusBarSettingsStore.getDateFormatter(ctx)
+    val dateFormatter by StatusBarSettingsStore.dateFormater.flow(ctx)
         .collectAsState("MMM dd")
 
-    val showNotifications by StatusBarSettingsStore.getShowNotifications(ctx)
+    val showNotifications by StatusBarSettingsStore.showNotifications.flow(ctx)
         .collectAsState(initial = false)
 
-    val showBattery by StatusBarSettingsStore.getShowBattery(ctx)
+    val showBattery by StatusBarSettingsStore.showBattery.flow(ctx)
         .collectAsState(initial = false)
 
-    val showConnectivity by StatusBarSettingsStore.getShowConnectivity(ctx)
+    val showConnectivity by StatusBarSettingsStore.showConnectivity.flow(ctx)
         .collectAsState(initial = false)
 
-    val showNextAlarm by StatusBarSettingsStore.getShowNextAlarm(ctx)
+    val showNextAlarm by StatusBarSettingsStore.showNextAlarm.flow(ctx)
         .collectAsState(false)
 
-    val leftPadding by StatusBarSettingsStore.getLeftPadding(ctx)
+    val leftPadding by StatusBarSettingsStore.leftPadding.flow(ctx)
         .collectAsState(initial = 5)
 
-    val rightPadding by StatusBarSettingsStore.getRightPadding(ctx)
+    val rightPadding by StatusBarSettingsStore.rightPadding.flow(ctx)
         .collectAsState(initial = 5)
 
-    val topPadding by StatusBarSettingsStore.getTopPadding(ctx)
+    val topPadding by StatusBarSettingsStore.topPadding.flow(ctx)
         .collectAsState(initial = 2)
 
-    val bottomPadding by StatusBarSettingsStore.getBottomPadding(ctx)
+    val bottomPadding by StatusBarSettingsStore.botomPadding.flow(ctx)
         .collectAsState(initial = 2)
 
-    val clockAction by StatusBarSettingsStore.getClockAction(ctx)
+    val clockAction by StatusBarSettingsStore.clockAction.flow(ctx)
         .collectAsState(null)
 
-    val dateAction by StatusBarSettingsStore.getDateAction(ctx)
+    val dateAction by StatusBarSettingsStore.dateAction.flow(ctx)
         .collectAsState(null)
 
 
@@ -156,7 +156,7 @@ fun StatusBarTab(
                     text = stringResource(R.string.show_status_bar)
                 ) {
                     scope.launch {
-                        StatusBarSettingsStore.setShowStatusBar(ctx, it)
+                        StatusBarSettingsStore.showStatusBar.set(ctx, it)
                     }
                 }
             }
@@ -170,7 +170,7 @@ fun StatusBarTab(
                     currentColor = statusBarBackground,
                 ) {
                     scope.launch {
-                        StatusBarSettingsStore.setBarBackgroundColor(ctx, it)
+                        StatusBarSettingsStore.barBackgroundColor.set(ctx, it)
                     }
                 }
             }
@@ -182,7 +182,7 @@ fun StatusBarTab(
                     currentColor = statusBarText,
                 ) {
                     scope.launch {
-                        StatusBarSettingsStore.setBarTextColor(ctx, it)
+                        StatusBarSettingsStore.barTextColor.set(ctx, it)
                     }
                 }
             }
@@ -192,7 +192,7 @@ fun StatusBarTab(
                     state = showTime,
                     text = stringResource(R.string.show_time)
                 ) {
-                    scope.launch { StatusBarSettingsStore.setShowTime(ctx, it) }
+                    scope.launch { StatusBarSettingsStore.showTime.set(ctx, it) }
                 }
             }
 
@@ -206,12 +206,12 @@ fun StatusBarTab(
                     switchEnabled = showTime,
                     onToggle = {
                         scope.launch {
-                            StatusBarSettingsStore.setClockAction(ctx, null)
+                            StatusBarSettingsStore.clockAction.set(ctx, null)
                         }
                     }
                 ) {
                     scope.launch {
-                        StatusBarSettingsStore.setClockAction(ctx, it)
+                        StatusBarSettingsStore.clockAction.set(ctx, it)
                     }
                 }
             }
@@ -229,7 +229,7 @@ fun StatusBarTab(
                         value = timeFormatter,
                         onValueChange = { newValue ->
                             scope.launch {
-                                StatusBarSettingsStore.setTimeFormatter(ctx, newValue)
+                                StatusBarSettingsStore.timeFormatter.set(ctx, newValue)
                             }
                         },
                         singleLine = true,
@@ -245,7 +245,7 @@ fun StatusBarTab(
                                 tint = MaterialTheme.colorScheme.primary,
                                 modifier = Modifier.clickable {
                                     scope.launch {
-                                        StatusBarSettingsStore.setTimeFormatter(ctx, "HH:mm:ss")
+                                        StatusBarSettingsStore.timeFormatter.reset(ctx)
                                     }
                                 }
                             )
@@ -262,7 +262,7 @@ fun StatusBarTab(
                     state = showDate,
                     text = stringResource(R.string.show_date)
                 ) {
-                    scope.launch { StatusBarSettingsStore.setShowDate(ctx, it) }
+                    scope.launch { StatusBarSettingsStore.showDate.set(ctx, it) }
                 }
             }
 
@@ -276,12 +276,12 @@ fun StatusBarTab(
                     switchEnabled = showDate,
                     onToggle = {
                         scope.launch {
-                            StatusBarSettingsStore.setDateAction(ctx, null)
+                            StatusBarSettingsStore.dateAction.reset(ctx)
                         }
                     }
                 ) {
                     scope.launch {
-                        StatusBarSettingsStore.setDateAction(ctx, it)
+                        StatusBarSettingsStore.dateAction.set(ctx, it)
                     }
                 }
             }
@@ -302,7 +302,7 @@ fun StatusBarTab(
                         value = dateFormatter,
                         onValueChange = { newValue ->
                             scope.launch {
-                                StatusBarSettingsStore.setDateFormatter(ctx, newValue)
+                                StatusBarSettingsStore.dateFormater.set(ctx, newValue)
                             }
                         },
                         singleLine = true,
@@ -318,7 +318,7 @@ fun StatusBarTab(
                                 tint = MaterialTheme.colorScheme.primary,
                                 modifier = Modifier.clickable {
                                     scope.launch {
-                                        StatusBarSettingsStore.setDateFormatter(ctx, "MMM dd")
+                                        StatusBarSettingsStore.dateFormater.reset(ctx)
                                     }
                                 }
                             )
@@ -335,7 +335,7 @@ fun StatusBarTab(
                     text = stringResource(R.string.show_next_alarm),
                     subText = "Requires exact alarm permission"
                 ) {
-                    scope.launch { StatusBarSettingsStore.setShowNextAlarm(ctx, it) }
+                    scope.launch { StatusBarSettingsStore.showNextAlarm.set(ctx, it) }
                 }
             }
 
@@ -346,7 +346,7 @@ fun StatusBarTab(
                     text = stringResource(R.string.show_notifications),
                     subText = "Not implemented"
                 ) {
-                    scope.launch { StatusBarSettingsStore.setShowNotifications(ctx, it) }
+                    scope.launch { StatusBarSettingsStore.showNotifications.set(ctx, it) }
                 }
             }
 
@@ -355,7 +355,7 @@ fun StatusBarTab(
                     state = showBattery,
                     text = stringResource(R.string.show_battery)
                 ) {
-                    scope.launch { StatusBarSettingsStore.setShowBattery(ctx, it) }
+                    scope.launch { StatusBarSettingsStore.showBattery.set(ctx, it) }
                 }
             }
 
@@ -365,7 +365,7 @@ fun StatusBarTab(
                     text = stringResource(R.string.show_connectivity),
                     subText = "Kinda buggy RN, so working so well, but you can try"
                 ) {
-                    scope.launch { StatusBarSettingsStore.setShowConnectivity(ctx, it) }
+                    scope.launch { StatusBarSettingsStore.showConnectivity.set(ctx, it) }
                 }
             }
 
@@ -379,9 +379,9 @@ fun StatusBarTab(
                     showValue = true,
                     valueRange = 0..200,
                     color = MaterialTheme.colorScheme.primary,
-                    onReset = { scope.launch { StatusBarSettingsStore.setLeftPadding(ctx, 5) } }
+                    onReset = { scope.launch { StatusBarSettingsStore.leftPadding.reset(ctx) } }
                 ) {
-                    scope.launch{ StatusBarSettingsStore.setLeftPadding(ctx, it ) }
+                    scope.launch{ StatusBarSettingsStore.leftPadding.set(ctx, it ) }
                 }
             }
 
@@ -392,9 +392,9 @@ fun StatusBarTab(
                     showValue = true,
                     valueRange = 0..200,
                     color = MaterialTheme.colorScheme.primary,
-                    onReset = { scope.launch { StatusBarSettingsStore.setRightPadding(ctx, 5) } }
+                    onReset = { scope.launch { StatusBarSettingsStore.rightPadding.reset(ctx) } }
                 ) {
-                    scope.launch{ StatusBarSettingsStore.setRightPadding(ctx, it ) }
+                    scope.launch{ StatusBarSettingsStore.rightPadding.set(ctx, it ) }
                 }
             }
 
@@ -405,9 +405,9 @@ fun StatusBarTab(
                     showValue = true,
                     valueRange = 0..200,
                     color = MaterialTheme.colorScheme.primary,
-                    onReset = { scope.launch { StatusBarSettingsStore.setTopPadding(ctx, 2) } }
+                    onReset = { scope.launch { StatusBarSettingsStore.topPadding.reset(ctx) } }
                 ) {
-                    scope.launch{ StatusBarSettingsStore.setTopPadding(ctx, it ) }
+                    scope.launch{ StatusBarSettingsStore.topPadding.set(ctx, it ) }
                 }
             }
 
@@ -418,9 +418,9 @@ fun StatusBarTab(
                     showValue = true,
                     valueRange = 0..200,
                     color = MaterialTheme.colorScheme.primary,
-                    onReset = { scope.launch { StatusBarSettingsStore.setBottomPadding(ctx, 2) } }
+                    onReset = { scope.launch { StatusBarSettingsStore.botomPadding.reset(ctx) } }
                 ) {
-                    scope.launch{ StatusBarSettingsStore.setBottomPadding(ctx, it ) }
+                    scope.launch{ StatusBarSettingsStore.botomPadding.set(ctx, it ) }
                 }
             }
         }

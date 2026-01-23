@@ -1,7 +1,7 @@
 package org.elnix.dragonlauncher.settings.stores
 
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.toArgb
+import org.elnix.dragonlauncher.common.serializables.SwipeActionSerializable
 import org.elnix.dragonlauncher.common.theme.AmoledDefault
 import org.elnix.dragonlauncher.settings.DataStoreName
 import org.elnix.dragonlauncher.settings.SettingObject
@@ -23,15 +23,15 @@ object StatusBarSettingsStore : MapSettingsStore() {
     val barBackgroundColor = SettingObject(
         key = "barBackgroundColor",
         dataStoreName = dataStoreName,
-        default = Color.Transparent.toArgb(),
-        type = SettingType.Int
+        default = Color.Transparent,
+        type = SettingType.Color
     )
 
     val barTextColor = SettingObject(
         key = "barTextColor",
         dataStoreName = dataStoreName,
-        default = AmoledDefault.OnBackground.toArgb(),
-        type = SettingType.Int
+        default = AmoledDefault.OnBackground,
+        type = SettingType.Color
     )
 
     val showTime = SettingObject(
@@ -118,18 +118,18 @@ object StatusBarSettingsStore : MapSettingsStore() {
         type = SettingType.Int
     )
 
-    val clockAction = SettingObject(
+    val clockAction = SettingObject<SwipeActionSerializable?>(
         key = "clockAction",
         dataStoreName = dataStoreName,
-        default = "",
-        type = SettingType.String
+        default = null,
+        type = SettingType.SwipeActionSerializable
     )
 
-    val dateAction = SettingObject(
+    val dateAction = SettingObject<SwipeActionSerializable?>(
         key = "dateAction",
         dataStoreName = dataStoreName,
-        default = "",
-        type = SettingType.String
+        default = null,
+        type = SettingType.SwipeActionSerializable
     )
 
     override val ALL: List<SettingObject<*>> = listOf(

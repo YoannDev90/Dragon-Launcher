@@ -72,7 +72,7 @@ fun NestManagementDialog(
 
     val points by SwipeSettingsStore.getPointsFlow(ctx).collectAsState(emptyList())
     val nests by SwipeSettingsStore.getNestsFlow(ctx).collectAsState(emptyList())
-    val circleColor by ColorSettingsStore.getCircleColor(ctx)
+    val circleColor by ColorSettingsStore.circleColor.flow(ctx)
         .collectAsState(initial = AmoledDefault.CircleColor)
 
     val pointIcons by appsViewModel.pointIcons.collectAsState()

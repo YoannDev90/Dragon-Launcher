@@ -47,7 +47,7 @@ fun SetDefaultLauncherBanner() {
             modifier = Modifier.weight(1f)
         )
         IconButton(onClick = {
-            scope.launch { PrivateSettingsStore.setShowSetDefaultLauncherBanner(ctx, false) }
+            scope.launch { PrivateSettingsStore.showSetDefaultLauncherBanner.set(ctx, false) }
         }) {
             Icon(
                 imageVector = Icons.Default.Close,

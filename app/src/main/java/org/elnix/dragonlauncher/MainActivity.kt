@@ -305,9 +305,9 @@ class MainActivity : ComponentActivity(), WidgetHostProvider {
 //            DoubleBackToExit()
 
 
-            val keepScreenOn by BehaviorSettingsStore.getKeepScreenOn(ctx).collectAsState(false)
-            val fullscreen by UiSettingsStore.getFullscreen(ctx).collectAsState(false)
-            val hasInitialized by PrivateSettingsStore.getHasInitialized(ctx).collectAsState(initial = true)
+            val keepScreenOn by BehaviorSettingsStore.keepScreenOn.flow(ctx).collectAsState(false)
+            val fullscreen by UiSettingsStore.fullScreen.flow(ctx).collectAsState(false)
+            val hasInitialized by PrivateSettingsStore.hasInitialized.flow(ctx).collectAsState(initial = true)
 
 
             val window = this@MainActivity.window
@@ -359,47 +359,83 @@ class MainActivity : ComponentActivity(), WidgetHostProvider {
                     )
 
                     /* ───────────── Finally, initialize ───────────── */
-                    PrivateSettingsStore.setHasInitialized(ctx, true)
+                    PrivateSettingsStore.hasInitialized.set(ctx, true)
                 }
             }
 
             // Colors
-            val primary by ColorSettingsStore.getPrimary(ctx).collectAsState(initial = null)
-            val onPrimary by ColorSettingsStore.getOnPrimary(ctx).collectAsState(initial = null)
+//            val primary by ColorSettingsStore.getPrimary(ctx).collectAsState(initial = null)
+//            val onPrimary by ColorSettingsStore.getOnPrimary(ctx).collectAsState(initial = null)
+//
+//            val secondary by ColorSettingsStore.getSecondary(ctx).collectAsState(initial = null)
+//            val onSecondary by ColorSettingsStore.getOnSecondary(ctx).collectAsState(initial = null)
+//
+//            val tertiary by ColorSettingsStore.getTertiary(ctx).collectAsState(initial = null)
+//            val onTertiary by ColorSettingsStore.getOnTertiary(ctx).collectAsState(initial = null)
+//
+//            val background by ColorSettingsStore.getBackground(ctx).collectAsState(initial = null)
+//            val onBackground by ColorSettingsStore.getOnBackground(ctx).collectAsState(initial = null)
+//
+//            val surface by ColorSettingsStore.getSurface(ctx).collectAsState(initial = null)
+//            val onSurface by ColorSettingsStore.getOnSurface(ctx).collectAsState(initial = null)
+//
+//            val error by ColorSettingsStore.getError(ctx).collectAsState(initial = null)
+//            val onError by ColorSettingsStore.getOnError(ctx).collectAsState(initial = null)
+//
+//            val outline by ColorSettingsStore.getOutline(ctx).collectAsState(initial = null)
+//
+//            val angleLineColor by ColorSettingsStore.getAngleLineColor(ctx).collectAsState(initial = null)
+//            val circleColor by ColorSettingsStore.getCircleColor(ctx).collectAsState(initial = null)
+//
+//            val launchAppColor by ColorSettingsStore.getLaunchAppColor(ctx).collectAsState(initial = null)
+//            val openUrlColor by ColorSettingsStore.getOpenUrlColor(ctx).collectAsState(initial = null)
+//            val notificationShadeColor by ColorSettingsStore.getNotificationShadeColor(ctx).collectAsState(initial = null)
+//            val controlPanelColor by ColorSettingsStore.getControlPanelColor(ctx).collectAsState(initial = null)
+//            val openAppDrawerColor by ColorSettingsStore.getOpenAppDrawerColor(ctx).collectAsState(initial = null)
+//            val launcherSettingsColor by ColorSettingsStore.getLauncherSettingsColor(ctx).collectAsState(initial = null)
+//            val lockColor by ColorSettingsStore.getLockColor(ctx).collectAsState(initial = null)
+//            val openFileColor by ColorSettingsStore.getOpenFileColor(ctx).collectAsState(initial = null)
+//            val reloadColor by ColorSettingsStore.getReloadColor(ctx).collectAsState(initial = null)
+//            val openRecentAppsColor by ColorSettingsStore.getOpenRecentApps(ctx).collectAsState(initial = null)
+//            val openCircleNestColor by ColorSettingsStore.getOpenCircleNest(ctx).collectAsState(initial = null)
+//            val goParentCircleColor by ColorSettingsStore.getGoParentNest(ctx).collectAsState(initial = null)
 
-            val secondary by ColorSettingsStore.getSecondary(ctx).collectAsState(initial = null)
-            val onSecondary by ColorSettingsStore.getOnSecondary(ctx).collectAsState(initial = null)
 
-            val tertiary by ColorSettingsStore.getTertiary(ctx).collectAsState(initial = null)
-            val onTertiary by ColorSettingsStore.getOnTertiary(ctx).collectAsState(initial = null)
+            val primary by ColorSettingsStore.primaryColor.flow(ctx).collectAsState(initial = null)
+            val onPrimary by ColorSettingsStore.onPrimaryColor.flow(ctx).collectAsState(initial = null)
 
-            val background by ColorSettingsStore.getBackground(ctx).collectAsState(initial = null)
-            val onBackground by ColorSettingsStore.getOnBackground(ctx).collectAsState(initial = null)
+            val secondary by ColorSettingsStore.secondaryColor.flow(ctx).collectAsState(initial = null)
+            val onSecondary by ColorSettingsStore.onSecondaryColor.flow(ctx).collectAsState(initial = null)
 
-            val surface by ColorSettingsStore.getSurface(ctx).collectAsState(initial = null)
-            val onSurface by ColorSettingsStore.getOnSurface(ctx).collectAsState(initial = null)
+            val tertiary by ColorSettingsStore.tertiaryColor.flow(ctx).collectAsState(initial = null)
+            val onTertiary by ColorSettingsStore.onTertiaryColor.flow(ctx).collectAsState(initial = null)
 
-            val error by ColorSettingsStore.getError(ctx).collectAsState(initial = null)
-            val onError by ColorSettingsStore.getOnError(ctx).collectAsState(initial = null)
+            val background by ColorSettingsStore.backgroundColor.flow(ctx).collectAsState(initial = null)
+            val onBackground by ColorSettingsStore.onBackgroundColor.flow(ctx).collectAsState(initial = null)
 
-            val outline by ColorSettingsStore.getOutline(ctx).collectAsState(initial = null)
+            val surface by ColorSettingsStore.surfaceColor.flow(ctx).collectAsState(initial = null)
+            val onSurface by ColorSettingsStore.onSurfaceColor.flow(ctx).collectAsState(initial = null)
 
-            val angleLineColor by ColorSettingsStore.getAngleLineColor(ctx).collectAsState(initial = null)
-            val circleColor by ColorSettingsStore.getCircleColor(ctx).collectAsState(initial = null)
+            val error by ColorSettingsStore.errorColor.flow(ctx).collectAsState(initial = null)
+            val onError by ColorSettingsStore.onErrorColor.flow(ctx).collectAsState(initial = null)
 
-            val launchAppColor by ColorSettingsStore.getLaunchAppColor(ctx).collectAsState(initial = null)
-            val openUrlColor by ColorSettingsStore.getOpenUrlColor(ctx).collectAsState(initial = null)
-            val notificationShadeColor by ColorSettingsStore.getNotificationShadeColor(ctx).collectAsState(initial = null)
-            val controlPanelColor by ColorSettingsStore.getControlPanelColor(ctx).collectAsState(initial = null)
-            val openAppDrawerColor by ColorSettingsStore.getOpenAppDrawerColor(ctx).collectAsState(initial = null)
-            val launcherSettingsColor by ColorSettingsStore.getLauncherSettingsColor(ctx).collectAsState(initial = null)
-            val lockColor by ColorSettingsStore.getLockColor(ctx).collectAsState(initial = null)
-            val openFileColor by ColorSettingsStore.getOpenFileColor(ctx).collectAsState(initial = null)
-            val reloadColor by ColorSettingsStore.getReloadColor(ctx).collectAsState(initial = null)
-            val openRecentAppsColor by ColorSettingsStore.getOpenRecentApps(ctx).collectAsState(initial = null)
-            val openCircleNestColor by ColorSettingsStore.getOpenCircleNest(ctx).collectAsState(initial = null)
-            val goParentCircleColor by ColorSettingsStore.getGoParentNest(ctx).collectAsState(initial = null)
+            val outline by ColorSettingsStore.outlineColor.flow(ctx).collectAsState(initial = null)
 
+            val angleLineColor by ColorSettingsStore.angleLineColor.flow(ctx).collectAsState(initial = null)
+            val circleColor by ColorSettingsStore.circleColor.flow(ctx).collectAsState(initial = null)
+
+            val launchAppColor by ColorSettingsStore.launchAppColor.flow(ctx).collectAsState(initial = null)
+            val openUrlColor by ColorSettingsStore.openUrlColor.flow(ctx).collectAsState(initial = null)
+            val notificationShadeColor by ColorSettingsStore.notificationShadeColor.flow(ctx).collectAsState(initial = null)
+            val controlPanelColor by ColorSettingsStore.controlPanelColor.flow(ctx).collectAsState(initial = null)
+            val openAppDrawerColor by ColorSettingsStore.openAppDrawerColor.flow(ctx).collectAsState(initial = null)
+            val launcherSettingsColor by ColorSettingsStore.launcherSettingsColor.flow(ctx).collectAsState(initial = null)
+            val lockColor by ColorSettingsStore.lockColor.flow(ctx).collectAsState(initial = null)
+            val openFileColor by ColorSettingsStore.openFileColor.flow(ctx).collectAsState(initial = null)
+            val reloadColor by ColorSettingsStore.reloadColor.flow(ctx).collectAsState(initial = null)
+            val openRecentAppsColor by ColorSettingsStore.openRecentAppsColor.flow(ctx).collectAsState(initial = null)
+            val openCircleNestColor by ColorSettingsStore.openCircleNestColor.flow(ctx).collectAsState(initial = null)
+            val goParentNestColor by ColorSettingsStore.goParentNestColor.flow(ctx).collectAsState(initial = null)
 
 
             DragonLauncherTheme(
@@ -430,7 +466,7 @@ class MainActivity : ComponentActivity(), WidgetHostProvider {
                 customReloadAppsColor = reloadColor,
                 customOpenRecentAppsColor = openRecentAppsColor,
                 customOpenCircleNest = openCircleNestColor,
-                customGoParentNest = goParentCircleColor
+                customGoParentNest = goParentNestColor
             ) {
 
                 val navController = rememberNavController()

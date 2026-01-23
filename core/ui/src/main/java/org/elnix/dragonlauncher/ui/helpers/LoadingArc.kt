@@ -10,6 +10,20 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.StrokeCap
 import androidx.compose.ui.graphics.drawscope.Stroke
 
+/**
+ * Hold to activate arc
+ * The loading circle RGB that shows when holding for 0.5 to 3 sec on main screen,
+ * used to display settings loading progress,
+ * It is hard coded in the app, to avoid people blocking them from accessing settings.
+ * You won't ever have any ways to disable it I guess cause otherwise it could be impossible
+ * to access app settings by another way if not set
+ *
+ * @param center where to draw it
+ * @param progress from 0f to 1f, how much it has loading
+ * @param radius
+ * @param rgbLoading whether to display it as rbg HSV gradient during progress or just using the default color
+ * @param defaultColor default color that draws if [rgbLoading] is disabled
+ */
 @Composable
 fun HoldToActivateArc(
     center: Offset?,

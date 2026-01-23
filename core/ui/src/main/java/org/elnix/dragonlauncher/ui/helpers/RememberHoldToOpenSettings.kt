@@ -15,6 +15,18 @@ import androidx.compose.ui.input.pointer.pointerInput
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 
+
+/**
+ * Remember hold to open settings
+ * Handles the drawing of the [HoldToActivateArc]
+ *
+ * @param onSettings callback that fires when fully loaded
+ * @param holdDelay how long to wait before circle starts showing
+ * @param loadDuration how long to hold to fully load
+ * @param tolerance how much finger can move awai from the starting point before canceling the loading
+ * @receiver
+ * @return
+ */
 @Composable
 fun rememberHoldToOpenSettings(
     onSettings: () -> Unit,

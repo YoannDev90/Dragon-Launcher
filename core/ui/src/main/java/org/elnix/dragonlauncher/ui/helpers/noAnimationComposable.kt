@@ -7,6 +7,17 @@ import androidx.navigation.NamedNavArgument
 import androidx.navigation.NavGraphBuilder
 import androidx.navigation.compose.composable
 
+
+/**
+ * No anim composable
+ *
+ * Blocks enter/exit transitions of screen in a navHost
+ *
+ * @param route
+ * @param arguments
+ * @param content
+ * @receiver
+ */
 fun NavGraphBuilder.noAnimComposable(
     route: String,
     arguments: List<NamedNavArgument> = emptyList(),

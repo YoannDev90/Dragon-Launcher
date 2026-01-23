@@ -91,7 +91,6 @@ import org.elnix.dragonlauncher.common.serializables.CircleNest
 import org.elnix.dragonlauncher.common.serializables.SwipeActionSerializable
 import org.elnix.dragonlauncher.common.serializables.SwipePointSerializable
 import org.elnix.dragonlauncher.common.serializables.defaultSwipePointsValues
-import org.elnix.dragonlauncher.common.theme.AmoledDefault
 import org.elnix.dragonlauncher.common.theme.addRemoveCirclesColor
 import org.elnix.dragonlauncher.common.theme.copyColor
 import org.elnix.dragonlauncher.common.theme.moveColor
@@ -108,7 +107,6 @@ import org.elnix.dragonlauncher.common.utils.circles.randomFreeAngle
 import org.elnix.dragonlauncher.common.utils.circles.rememberNestNavigation
 import org.elnix.dragonlauncher.common.utils.showToast
 import org.elnix.dragonlauncher.models.AppsViewModel
-import org.elnix.dragonlauncher.settings.stores.ColorSettingsStore
 import org.elnix.dragonlauncher.settings.stores.DebugSettingsStore
 import org.elnix.dragonlauncher.settings.stores.SwipeSettingsStore
 import org.elnix.dragonlauncher.settings.stores.UiSettingsStore
@@ -150,19 +148,16 @@ fun SettingsScreen(
     val defaultPoint by appsViewModel.defaultPoint.collectAsState(defaultSwipePointsValues)
 
 
-
-    val circleColor by ColorSettingsStore.getCircleColor(ctx)
-        .collectAsState(initial = AmoledDefault.CircleColor)
-    val snapPoints by UiSettingsStore.getSnapPoints(ctx).collectAsState(initial = true)
-    val autoSeparatePoints by UiSettingsStore.getAutoSeparatePoints(ctx)
+    val snapPoints by UiSettingsStore.snapPoints.flow(ctx).collectAsState(initial = true)
+    val autoSeparatePoints by UiSettingsStore.autoSeparatePoints.flow(ctx)
         .collectAsState(initial = true)
 
-    val appLabelOverlaySize by UiSettingsStore.getAppLabelOverlaySize(ctx)
+    val appLabelOverlaySize by UiSettingsStore.appLabelOverlaySize.flow(ctx)
         .collectAsState(initial = 18)
-    val appIconOverlaySize by UiSettingsStore.getAppIconOverlaySize(ctx)
+    val appIconOverlaySize by UiSettingsStore.appIconOverlaySize.flow(ctx)
         .collectAsState(initial = 22)
 
-    val settingsDebugInfos by DebugSettingsStore.getSettingsDebugInfos(ctx)
+    val settingsDebugInfos by DebugSettingsStore.settingsDebugInfo.flow(ctx)
         .collectAsState(initial = false)
 
     var center by remember { mutableStateOf(Offset.Zero) }
@@ -567,7 +562,7 @@ fun SettingsScreen(
                     Canvas(Modifier.fillMaxSize()) {
                         circlesSettingsOverlay(
                             circles = circles,
-                            circleColor = circleColor,
+                            circleColor = extraColors.circle,
                             showCircle = true,
                             center = center,
                             points = points,
@@ -588,14 +583,14 @@ fun SettingsScreen(
 
                         currentNest.dragDistances.forEach { (_, distance) ->
                             drawCircle(
-                                color = circleColor.copy(0.1f),
+                                color = extraColors.circle.copy(0.1f),
                                 radius = distance.toFloat(),
                                 center = center,
                                 style = Fill
                             )
 
                             drawCircle(
-                                color = circleColor,
+                                color = extraColors.circle,
                                 radius = distance.toFloat(),
                                 center = center,
                                 style = Stroke(4f)
@@ -836,7 +831,7 @@ fun SettingsScreen(
                     padding = 10.dp
                 ) {
                     scope.launch {
-                        UiSettingsStore.setSnapPoints(ctx, !snapPoints)
+                        UiSettingsStore.snapPoints.set(ctx, !snapPoints)
                     }
                 }
 
@@ -848,7 +843,7 @@ fun SettingsScreen(
                     padding = 10.dp
                 ) {
                     scope.launch {
-                        UiSettingsStore.setAutoSeparatePoints(ctx, !autoSeparatePoints)
+                        UiSettingsStore.autoSeparatePoints.set(ctx, !autoSeparatePoints)
                     }
                 }
 

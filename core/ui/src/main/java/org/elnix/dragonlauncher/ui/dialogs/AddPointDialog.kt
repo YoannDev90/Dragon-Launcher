@@ -67,11 +67,11 @@ fun AddPointDialog(
 
     val icons by appsViewModel.icons.collectAsState()
 
-    val gridSize by DrawerSettingsStore.getGridSize(ctx)
+    val gridSize by DrawerSettingsStore.gridSize.flow(ctx)
         .collectAsState(initial = 1)
-    val showIcons by DrawerSettingsStore.getShowAppIconsInDrawer(ctx)
+    val showIcons by DrawerSettingsStore.showAppIconsInDrawer.flow(ctx)
         .collectAsState(initial = true)
-    val showLabels by DrawerSettingsStore.getShowAppLabelsInDrawer(ctx)
+    val showLabels by DrawerSettingsStore.showAppLabelInDrawer.flow(ctx)
         .collectAsState(initial = true)
 
 

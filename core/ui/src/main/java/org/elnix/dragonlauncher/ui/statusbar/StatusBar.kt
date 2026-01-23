@@ -25,46 +25,46 @@ fun StatusBar(
 ) {
     val ctx = LocalContext.current
 
-    val statusBarBackground by StatusBarSettingsStore.getBarBackgroundColor(ctx)
+    val statusBarBackground by StatusBarSettingsStore.barBackgroundColor.flow(ctx)
         .collectAsState(initial = Color.Transparent)
 
-    val statusBarText by StatusBarSettingsStore.getBarTextColor(ctx)
+    val statusBarText by StatusBarSettingsStore.barTextColor.flow(ctx)
         .collectAsState(initial = MaterialTheme.colorScheme.onBackground)
 
-    val showTime by StatusBarSettingsStore.getShowTime(ctx)
+    val showTime by StatusBarSettingsStore.showTime.flow(ctx)
         .collectAsState(initial = false)
 
-    val showDate by StatusBarSettingsStore.getShowDate(ctx)
+    val showDate by StatusBarSettingsStore.showDate.flow(ctx)
         .collectAsState(initial = false)
 
-    val timeFormatter by StatusBarSettingsStore.getTimeFormatter(ctx)
+    val timeFormatter by StatusBarSettingsStore.timeFormatter.flow(ctx)
         .collectAsState("HH:mm")
 
-    val dateFormatter by StatusBarSettingsStore.getDateFormatter(ctx)
+    val dateFormatter by StatusBarSettingsStore.dateFormater.flow(ctx)
         .collectAsState("MMM dd")
 
-    val showNotifications by StatusBarSettingsStore.getShowNotifications(ctx)
+    val showNotifications by StatusBarSettingsStore.showNotifications.flow(ctx)
         .collectAsState(initial = false)
 
-    val showBattery by StatusBarSettingsStore.getShowBattery(ctx)
+    val showBattery by StatusBarSettingsStore.showBattery.flow(ctx)
         .collectAsState(initial = false)
 
-    val showConnectivity by StatusBarSettingsStore.getShowConnectivity(ctx)
+    val showConnectivity by StatusBarSettingsStore.showConnectivity.flow(ctx)
         .collectAsState(initial = false)
 
-    val showNextAlarm by StatusBarSettingsStore.getShowNextAlarm(ctx)
+    val showNextAlarm by StatusBarSettingsStore.showNextAlarm.flow(ctx)
         .collectAsState(false)
 
-    val leftStatusBarPadding by StatusBarSettingsStore.getLeftPadding(ctx)
+    val leftStatusBarPadding by StatusBarSettingsStore.leftPadding.flow(ctx)
         .collectAsState(initial = 5)
 
-    val rightStatusBarPadding by StatusBarSettingsStore.getRightPadding(ctx)
+    val rightStatusBarPadding by StatusBarSettingsStore.rightPadding.flow(ctx)
         .collectAsState(initial = 5)
 
-    val topStatusBarPadding by StatusBarSettingsStore.getTopPadding(ctx)
+    val topStatusBarPadding by StatusBarSettingsStore.topPadding.flow(ctx)
         .collectAsState(initial = 2)
 
-    val bottomStatusBarPadding by StatusBarSettingsStore.getBottomPadding(ctx)
+    val bottomStatusBarPadding by StatusBarSettingsStore.botomPadding.flow(ctx)
         .collectAsState(initial = 2)
 
     Row(

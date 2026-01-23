@@ -58,8 +58,7 @@ import org.elnix.dragonlauncher.common.utils.copyToClipboard
 import org.elnix.dragonlauncher.common.utils.pasteClipboard
 import org.elnix.dragonlauncher.enumsui.ColorPickerMode
 import org.elnix.dragonlauncher.enumsui.colorPickerText
-import org.elnix.dragonlauncher.settings.stores.ColorModesSettingsStore.getColorPickerMode
-import org.elnix.dragonlauncher.settings.stores.ColorModesSettingsStore.setColorPickerMode
+import org.elnix.dragonlauncher.settings.stores.ColorModesSettingsStore
 import org.elnix.dragonlauncher.ui.components.ValidateCancelButtons
 import org.elnix.dragonlauncher.ui.dialogs.CustomAlertDialog
 import org.elnix.dragonlauncher.ui.helpers.SliderWithLabel
@@ -84,7 +83,7 @@ fun ColorPickerRow(
 
     val modifier = if (showLabel) Modifier.fillMaxWidth() else Modifier.wrapContentWidth()
 
-    val savedMode by getColorPickerMode(ctx).collectAsState(initial = ColorPickerMode.SLIDERS)
+    val savedMode by ColorModesSettingsStore.colorPickerMode.flow(ctx).collectAsState(initial = ColorPickerMode.SLIDERS)
     val initialPage = remember(savedMode) { ColorPickerMode.entries.indexOf(savedMode) }
 
 
@@ -231,7 +230,7 @@ private fun ColorPicker(
     // Save the current page as mode whenever changed
     LaunchedEffect(pagerState.currentPage) {
         val currentMode = pickerModes[pagerState.currentPage]
-        setColorPickerMode(ctx, currentMode)
+        ColorModesSettingsStore.colorPickerMode.set(ctx, currentMode)
     }
 
     Column(modifier = Modifier.fillMaxWidth()) {

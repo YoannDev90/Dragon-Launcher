@@ -39,11 +39,11 @@ import org.elnix.dragonlauncher.enumsui.workspaceViewMode
 import org.elnix.dragonlauncher.models.AppsViewModel
 import org.elnix.dragonlauncher.settings.stores.DebugSettingsStore
 import org.elnix.dragonlauncher.ui.actions.launchSwipeAction
+import org.elnix.dragonlauncher.ui.components.generic.ActionRow
 import org.elnix.dragonlauncher.ui.dialogs.AppLongPressDialog
 import org.elnix.dragonlauncher.ui.dialogs.AppPickerDialog
 import org.elnix.dragonlauncher.ui.dialogs.IconEditorDialog
 import org.elnix.dragonlauncher.ui.dialogs.RenameAppDialog
-import org.elnix.dragonlauncher.ui.components.generic.ActionRow
 import org.elnix.dragonlauncher.ui.helpers.AppGrid
 import org.elnix.dragonlauncher.ui.helpers.settings.SettingsLazyHeader
 
@@ -63,7 +63,7 @@ fun WorkspaceDetailScreen(
     val workspace = workspaceState.workspaces.first { it.id == workspaceId }
     val overrides = workspaceState.appOverrides
 
-    val workspaceDebugInfos by DebugSettingsStore.getWorkspacesDebugInfos(ctx)
+    val workspaceDebugInfos by DebugSettingsStore.workspacesDebugInfo.flow(ctx)
         .collectAsState(initial = false)
 
     var selectedView by remember { mutableStateOf(WorkspaceViewMode.DEFAULTS) }

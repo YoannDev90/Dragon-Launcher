@@ -36,8 +36,8 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import kotlinx.coroutines.launch
 import org.elnix.dragonlauncher.common.R
-import org.elnix.dragonlauncher.settings.stores.DrawerSettingsStore
 import org.elnix.dragonlauncher.common.serializables.AppModel
+import org.elnix.dragonlauncher.settings.stores.DrawerSettingsStore
 import org.elnix.dragonlauncher.ui.colors.AppObjectsColors
 
 @Composable
@@ -50,7 +50,7 @@ fun GridSizeSlider(
     val ctx = LocalContext.current
     val scope = rememberCoroutineScope()
 
-    val gridSize by DrawerSettingsStore.getGridSize(ctx).collectAsState(initial = 1)
+    val gridSize by DrawerSettingsStore.gridSize.flow(ctx).collectAsState(initial = 1)
     var sliderValue by remember { mutableFloatStateOf(gridSize.toFloat()) }
 
     LaunchedEffect(gridSize) {
@@ -81,7 +81,7 @@ fun GridSizeSlider(
                 modifier = Modifier
                     .clickable {
                         scope.launch{
-                            DrawerSettingsStore.setGridSize(ctx, 6)
+                            DrawerSettingsStore.gridSize.reset(ctx)
                         }
                     }
             )
@@ -108,7 +108,7 @@ fun GridSizeSlider(
             value = sliderValue,
             onValueChange = { sliderValue = it },
             onValueChangeFinished = {
-                scope.launch { DrawerSettingsStore.setGridSize(ctx, sliderValue.toInt()) }
+                scope.launch { DrawerSettingsStore.gridSize.set(ctx, sliderValue.toInt()) }
             },
             valueRange = 1f..10f,
             steps = 8,

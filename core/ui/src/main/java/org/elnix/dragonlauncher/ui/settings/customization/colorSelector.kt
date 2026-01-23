@@ -302,7 +302,7 @@ fun ColorSelectorTab(
                         label = stringResource(R.string.on_primary_color),
                         defaultColor = AmoledDefault.OnPrimary,
                         currentColor = onPrimary ?: MaterialTheme.colorScheme.onPrimary
-                    ) { scope.launch { ColorSettingsStore.setOnPrimary(ctx, it) } }
+                    ) { scope.launch { ColorSettingsStore.onPrimaryColor.set(ctx, it) } }
                 }
 
                 item {
@@ -310,7 +310,7 @@ fun ColorSelectorTab(
                         label = stringResource(R.string.secondary_color),
                         defaultColor = AmoledDefault.Secondary,
                         currentColor = secondary ?: MaterialTheme.colorScheme.secondary
-                    ) { scope.launch { ColorSettingsStore.setSecondary(ctx, it) } }
+                    ) { scope.launch { ColorSettingsStore.secondaryColor.set(ctx, it) } }
                 }
 
                 item {
@@ -319,7 +319,7 @@ fun ColorSelectorTab(
                         defaultColor = AmoledDefault.OnSecondary,
                         currentColor = onSecondary
                             ?: MaterialTheme.colorScheme.onSecondary
-                    ) { scope.launch { ColorSettingsStore.setOnSecondary(ctx, it) } }
+                    ) { scope.launch { ColorSettingsStore.onSecondaryColor.set(ctx, it) } }
                 }
 
                 item {
@@ -327,7 +327,7 @@ fun ColorSelectorTab(
                         label = stringResource(R.string.tertiary_color),
                         defaultColor = AmoledDefault.Tertiary,
                         currentColor = tertiary ?: MaterialTheme.colorScheme.tertiary
-                    ) { scope.launch { ColorSettingsStore.setTertiary(ctx, it) } }
+                    ) { scope.launch { ColorSettingsStore.tertiaryColor.set(ctx, it) } }
                 }
 
                 item {
@@ -336,7 +336,7 @@ fun ColorSelectorTab(
                         defaultColor = AmoledDefault.OnTertiary,
                         currentColor = onTertiary
                             ?: MaterialTheme.colorScheme.onTertiary
-                    ) { scope.launch { ColorSettingsStore.setOnTertiary(ctx, it) } }
+                    ) { scope.launch { ColorSettingsStore.onTertiaryColor.set(ctx, it) } }
                 }
 
                 item {
@@ -345,7 +345,7 @@ fun ColorSelectorTab(
                         defaultColor = AmoledDefault.Background,
                         currentColor = background
                             ?: MaterialTheme.colorScheme.background
-                    ) { scope.launch { ColorSettingsStore.setBackground(ctx, it) } }
+                    ) { scope.launch { ColorSettingsStore.backgroundColor.set(ctx, it) } }
                 }
 
                 item {
@@ -354,7 +354,7 @@ fun ColorSelectorTab(
                         defaultColor = AmoledDefault.OnBackground,
                         currentColor = onBackground
                             ?: MaterialTheme.colorScheme.onBackground
-                    ) { scope.launch { ColorSettingsStore.setOnBackground(ctx, it) } }
+                    ) { scope.launch { ColorSettingsStore.onBackgroundColor.set(ctx, it) } }
                 }
 
                 item {
@@ -362,7 +362,7 @@ fun ColorSelectorTab(
                         label = stringResource(R.string.surface_color),
                         defaultColor = AmoledDefault.Surface,
                         currentColor = surface ?: MaterialTheme.colorScheme.surface
-                    ) { scope.launch { ColorSettingsStore.setSurface(ctx, it) } }
+                    ) { scope.launch { ColorSettingsStore.surfaceColor.set(ctx, it) } }
                 }
 
                 item {
@@ -370,7 +370,7 @@ fun ColorSelectorTab(
                         label = stringResource(R.string.on_surface_color),
                         defaultColor = AmoledDefault.OnSurface,
                         currentColor = onSurface ?: MaterialTheme.colorScheme.onSurface
-                    ) { scope.launch { ColorSettingsStore.setOnSurface(ctx, it) } }
+                    ) { scope.launch { ColorSettingsStore.onSurfaceColor.set(ctx, it) } }
                 }
 
                 item {
@@ -378,7 +378,7 @@ fun ColorSelectorTab(
                         label = stringResource(R.string.error_color),
                         defaultColor = AmoledDefault.Error,
                         currentColor = error ?: MaterialTheme.colorScheme.error
-                    ) { scope.launch { ColorSettingsStore.setError(ctx, it) } }
+                    ) { scope.launch { ColorSettingsStore.errorColor.set(ctx, it) } }
                 }
 
                 item {
@@ -386,7 +386,7 @@ fun ColorSelectorTab(
                         label = stringResource(R.string.on_error_color),
                         defaultColor = AmoledDefault.OnError,
                         currentColor = onError ?: MaterialTheme.colorScheme.onError
-                    ) { scope.launch { ColorSettingsStore.setOnError(ctx, it) } }
+                    ) { scope.launch { ColorSettingsStore.onErrorColor.set(ctx, it) } }
                 }
 
                 item {
@@ -394,7 +394,7 @@ fun ColorSelectorTab(
                         label = stringResource(R.string.outline_color),
                         defaultColor = AmoledDefault.Outline,
                         currentColor = outline ?: MaterialTheme.colorScheme.outline
-                    ) { scope.launch { ColorSettingsStore.setOutline(ctx, it) } }
+                    ) { scope.launch { ColorSettingsStore.outlineColor.set(ctx, it) } }
                 }
 
                 // === Extra custom action colors ===
@@ -403,7 +403,7 @@ fun ColorSelectorTab(
                         label = stringResource(R.string.angle_line_color),
                         defaultColor = AmoledDefault.AngleLineColor,
                         currentColor = angleLineColor ?: LocalExtraColors.current.angleLine
-                    ) { scope.launch { ColorSettingsStore.setAngleLineColor(ctx, it) } }
+                    ) { scope.launch { ColorSettingsStore.angleLineColor.set(ctx, it) } }
                 }
 
                 item {
@@ -411,7 +411,7 @@ fun ColorSelectorTab(
                         label = stringResource(R.string.circle_color),
                         defaultColor = AmoledDefault.CircleColor,
                         currentColor = circleColor ?: LocalExtraColors.current.circle
-                    ) { scope.launch { ColorSettingsStore.setCircleColor(ctx, it) } }
+                    ) { scope.launch { ColorSettingsStore.circleColor.set(ctx, it) } }
                 }
 
                 item {
@@ -419,7 +419,7 @@ fun ColorSelectorTab(
                         label = stringResource(R.string.launch_app_color),
                         defaultColor = AmoledDefault.LaunchAppColor,
                         currentColor = launchAppColor ?: LocalExtraColors.current.launchApp
-                    ) { scope.launch { ColorSettingsStore.setLaunchAppColor(ctx, it) } }
+                    ) { scope.launch { ColorSettingsStore.launchAppColor.set(ctx, it) } }
                 }
 
                 item {
@@ -427,7 +427,7 @@ fun ColorSelectorTab(
                         label = stringResource(R.string.open_url_color),
                         defaultColor = AmoledDefault.OpenUrlColor,
                         currentColor = openUrlColor ?: LocalExtraColors.current.openUrl
-                    ) { scope.launch { ColorSettingsStore.setOpenUrlColor(ctx, it) } }
+                    ) { scope.launch { ColorSettingsStore.openUrlColor.set(ctx, it) } }
                 }
 
                 item {
@@ -436,7 +436,7 @@ fun ColorSelectorTab(
                         defaultColor = AmoledDefault.NotificationShadeColor,
                         currentColor = notificationShadeColor
                             ?: LocalExtraColors.current.notificationShade
-                    ) { scope.launch { ColorSettingsStore.setNotificationShadeColor(ctx, it) } }
+                    ) { scope.launch { ColorSettingsStore.notificationShadeColor.set(ctx, it) } }
                 }
 
                 item {
@@ -444,7 +444,7 @@ fun ColorSelectorTab(
                         label = stringResource(R.string.control_panel_color),
                         defaultColor = AmoledDefault.ControlPanelColor,
                         currentColor = controlPanelColor ?: LocalExtraColors.current.controlPanel
-                    ) { scope.launch { ColorSettingsStore.setControlPanelColor(ctx, it) } }
+                    ) { scope.launch { ColorSettingsStore.controlPanelColor.set(ctx, it) } }
                 }
 
                 item {
@@ -452,7 +452,7 @@ fun ColorSelectorTab(
                         label = stringResource(R.string.open_app_drawer_color),
                         defaultColor = AmoledDefault.OpenAppDrawerColor,
                         currentColor = openAppDrawerColor ?: LocalExtraColors.current.openAppDrawer
-                    ) { scope.launch { ColorSettingsStore.setOpenAppDrawerColor(ctx, it) } }
+                    ) { scope.launch { ColorSettingsStore.openAppDrawerColor.set(ctx, it) } }
                 }
 
                 item {
@@ -461,7 +461,7 @@ fun ColorSelectorTab(
                         defaultColor = AmoledDefault.LauncherSettingsColor,
                         currentColor = launcherSettingsColor
                             ?: LocalExtraColors.current.launcherSettings
-                    ) { scope.launch { ColorSettingsStore.setLauncherSettingsColor(ctx, it) } }
+                    ) { scope.launch { ColorSettingsStore.launcherSettingsColor.set(ctx, it) } }
                 }
 
                 item {
@@ -469,7 +469,7 @@ fun ColorSelectorTab(
                         label = stringResource(R.string.lock_color),
                         defaultColor = AmoledDefault.LockColor,
                         currentColor = lockColor ?: LocalExtraColors.current.lock
-                    ) { scope.launch { ColorSettingsStore.setLockColor(ctx, it) } }
+                    ) { scope.launch { ColorSettingsStore.lockColor.set(ctx, it) } }
                 }
 
                 item {
@@ -477,7 +477,7 @@ fun ColorSelectorTab(
                         label = stringResource(R.string.open_file_color),
                         defaultColor = AmoledDefault.OpenFileColor,
                         currentColor = openFileColor ?: LocalExtraColors.current.openFile
-                    ) { scope.launch { ColorSettingsStore.setOpenFileColor(ctx, it) } }
+                    ) { scope.launch { ColorSettingsStore.openFileColor.set(ctx, it) } }
                 }
 
                 item {
@@ -485,7 +485,7 @@ fun ColorSelectorTab(
                         label = stringResource(R.string.reload_color),
                         defaultColor = AmoledDefault.ReloadColor,
                         currentColor = reloadColor ?: LocalExtraColors.current.reload
-                    ) { scope.launch { ColorSettingsStore.setReloadColor(ctx, it) } }
+                    ) { scope.launch { ColorSettingsStore.reloadColor.set(ctx, it) } }
                 }
                 item {
                     ColorPickerRow(
@@ -493,21 +493,21 @@ fun ColorSelectorTab(
                         defaultColor = AmoledDefault.OpenRecentAppsColor,
                         currentColor = openRecentAppsColor
                             ?: LocalExtraColors.current.openRecentApps
-                    ) { scope.launch { ColorSettingsStore.setOpenRecentApps(ctx, it) } }
+                    ) { scope.launch { ColorSettingsStore.openRecentAppsColor.set(ctx, it) } }
                 }
                 item {
                     ColorPickerRow(
                         label = stringResource(R.string.open_circle_nest_color),
                         defaultColor = AmoledDefault.OpenCircleNestColor,
                         currentColor = openCircleNest ?: LocalExtraColors.current.openCircleNest
-                    ) { scope.launch { ColorSettingsStore.setOpenCircleNest(ctx, it) } }
+                    ) { scope.launch { ColorSettingsStore.openCircleNestColor.set(ctx, it) } }
                 }
                 item {
                     ColorPickerRow(
                         label = stringResource(R.string.go_parent_nest_color),
                         defaultColor = AmoledDefault.GoParentNestColor,
                         currentColor = goParentCircle ?: LocalExtraColors.current.goParentNest
-                    ) { scope.launch { ColorSettingsStore.setGoParentNest(ctx, it) } }
+                    ) { scope.launch { ColorSettingsStore.goParentNestColor.set(ctx, it) } }
                 }
             }
 
@@ -527,10 +527,10 @@ fun ColorSelectorTab(
                         val surfaceColor = newColor.blendWith(backgroundColor, 0.7f)
 
                         scope.launch {
-                            ColorSettingsStore.setPrimary(ctx, newColor)
-                            ColorSettingsStore.setSecondary(ctx, secondaryColor)
-                            ColorSettingsStore.setTertiary(ctx, tertiaryColor)
-                            ColorSettingsStore.setSurface(ctx, surfaceColor)
+                            ColorSettingsStore.primaryColor.set(ctx, newColor)
+                            ColorSettingsStore.secondaryColor.set(ctx, secondaryColor)
+                            ColorSettingsStore.tertiaryColor.set(ctx, tertiaryColor)
+                            ColorSettingsStore.surfaceColor.set(ctx, surfaceColor)
                         }
                     }
                 }
@@ -543,7 +543,7 @@ fun ColorSelectorTab(
                             ?: MaterialTheme.colorScheme.background
                     ) {
                         scope.launch {
-                            ColorSettingsStore.setBackground(ctx, it)
+                            ColorSettingsStore.backgroundColor.set(ctx, it)
                         }
                     }
                 }
@@ -555,13 +555,13 @@ fun ColorSelectorTab(
                         currentColor = onPrimary ?: MaterialTheme.colorScheme.onPrimary
                     ) {
                         scope.launch {
-                            ColorSettingsStore.setOnPrimary(ctx, it)
-                            ColorSettingsStore.setOnSecondary(ctx, it)
-                            ColorSettingsStore.setOnTertiary(ctx, it)
-                            ColorSettingsStore.setOnSurface(ctx, it)
-                            ColorSettingsStore.setOnBackground(ctx, it)
-                            ColorSettingsStore.setOutline(ctx, it)
-                            ColorSettingsStore.setOnError(ctx, it)
+                            ColorSettingsStore.onPrimaryColor.set(ctx, it)
+                            ColorSettingsStore.onSecondaryColor.set(ctx, it)
+                            ColorSettingsStore.onTertiaryColor.set(ctx, it)
+                            ColorSettingsStore.onSurfaceColor.set(ctx, it)
+                            ColorSettingsStore.onBackgroundColor.set(ctx, it)
+                            ColorSettingsStore.outlineColor.set(ctx, it)
+                            ColorSettingsStore.onErrorColor.set(ctx, it)
                         }
                     }
                 }
@@ -585,7 +585,7 @@ fun ColorSelectorTab(
                                     .clip(RoundedCornerShape(12.dp))
                                     .clickable {
                                         scope.launch {
-                                            ColorModesSettingsStore.setDefaultTheme(ctx, it)
+                                            ColorModesSettingsStore.defaultTheme.set(ctx, it)
                                             applyDefaultThemeColors(ctx, it)
                                         }
                                     }
@@ -656,7 +656,7 @@ fun ColorSelectorTab(
                                     selected = selectedDefaultTheme == it,
                                     onClick = {
                                         scope.launch {
-                                            ColorModesSettingsStore.setDefaultTheme(ctx, it)
+                                            ColorModesSettingsStore.defaultTheme.set(ctx, it)
                                             applyDefaultThemeColors(ctx, it)
                                         }
                                     },

@@ -95,9 +95,9 @@ fun AdvancedSettingsScreen(
 
     val versionCode = getVersionCode(ctx)
 
-    val isDebugModeEnabled by DebugSettingsStore.getDebugEnabled(ctx)
+    val isDebugModeEnabled by DebugSettingsStore.debugEnabled.flow(ctx)
         .collectAsState(initial = false)
-    val forceAppLanguageSelector by DebugSettingsStore.getForceAppLanguageSelector(ctx)
+    val forceAppLanguageSelector by DebugSettingsStore.forceAppLanguageSelector.flow(ctx)
         .collectAsState(initial = false)
 
 
@@ -459,7 +459,7 @@ fun AdvancedSettingsScreen(
                             }
 
                             else -> {
-                                scope.launch { DebugSettingsStore.setDebugEnabled(ctx, true) }
+                                scope.launch { DebugSettingsStore.debugEnabled.set(ctx, true) }
                             }
                         }
                     }

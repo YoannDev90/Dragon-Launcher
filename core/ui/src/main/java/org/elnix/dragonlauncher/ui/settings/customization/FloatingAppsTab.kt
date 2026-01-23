@@ -96,7 +96,7 @@ fun FloatingAppsTab(
 
     val icons by appsViewModel.icons.collectAsState()
 
-    val widgetsDebugInfos by DebugSettingsStore.getWidgetsDebugInfos(ctx)
+    val widgetsDebugInfos by DebugSettingsStore.widgetsDebugInfo.flow(ctx)
         .collectAsState(initial = false)
 
 
@@ -131,7 +131,7 @@ fun FloatingAppsTab(
 
     val isRealFullscreen = systemInsets.calculateTopPadding() == 0.dp
 
-    val showStatusBar by StatusBarSettingsStore.getShowStatusBar(ctx)
+    val showStatusBar by StatusBarSettingsStore.showStatusBar.flow(ctx)
         .collectAsState(initial = false)
 
     /** ───────────────────────────────────────────────────────────────── */

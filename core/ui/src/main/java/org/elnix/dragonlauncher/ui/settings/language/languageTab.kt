@@ -56,7 +56,7 @@ fun LanguageTab(onBack: () -> Unit) {
 
     // Load current language tag
     LaunchedEffect(Unit) {
-        selectedTag = LanguageSettingsStore.getLanguageTag(ctx)
+        selectedTag = LanguageSettingsStore.keyLang.get(ctx)
     }
 
     SettingsLazyHeader(
@@ -79,7 +79,7 @@ fun LanguageTab(onBack: () -> Unit) {
                     .padding(5.dp)
                     .clickable {
                         scope.launch {
-                            LanguageSettingsStore.setLanguageTag(ctx, tag)
+                            LanguageSettingsStore.keyLang.set(ctx, tag)
                             applyLocale(tag)
                             selectedTag = tag
                         }
@@ -90,7 +90,7 @@ fun LanguageTab(onBack: () -> Unit) {
                     selected = tag == selectedTag,
                     onClick = {
                         scope.launch {
-                            LanguageSettingsStore.setLanguageTag(ctx, tag)
+                            LanguageSettingsStore.keyLang.set(ctx, tag)
                             applyLocale(tag)
                             selectedTag = tag
                         }

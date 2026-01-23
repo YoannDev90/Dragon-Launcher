@@ -115,7 +115,7 @@ object DrawerSettingsStore : MapSettingsStore() {
         type = SettingType.Boolean
     )
 
-    val scrollUpToCloseKeyboard = SettingObject(
+    val scrollUpToToggleKeyboard = SettingObject(
         key = "scrollUpToCloseKeyboard",
         dataStoreName = dataStoreName,
         default = true,
@@ -140,6 +140,6 @@ object DrawerSettingsStore : MapSettingsStore() {
             drawerEnterAction,
             drawerHomeAction,
             scrollDownToCloseDrawerOnTop,
-            scrollUpToCloseKeyboard
+            scrollUpToToggleKeyboard
         )
 }

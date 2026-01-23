@@ -60,7 +60,7 @@ fun LogsTab(
     val scope = rememberCoroutineScope()
     val ctx = LocalContext.current
 
-    val enableLogging by DebugSettingsStore.getEnableLogging(ctx)
+    val enableLogging by DebugSettingsStore.enableLogging.flow(ctx)
         .collectAsState(false)
 
     var logs by remember { mutableStateOf("") }
@@ -89,7 +89,7 @@ fun LogsTab(
                 state = enableLogging,
                 text = "Activate Logs"
             ) {
-                scope.launch { DebugSettingsStore.setEnableLogging(ctx, it) }
+                scope.launch { DebugSettingsStore.enableLogging.set(ctx, it) }
                 DragonLogManager.enableLogging(it)
             }
 

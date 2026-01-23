@@ -103,7 +103,7 @@ fun AppDrawerScreen(
 //        scope.launch{ appsViewModel.reloadApps() }
 //    }
 
-    val drawerHomeAction by DrawerSettingsStore.getDrawerHomeAction(ctx)
+    val drawerHomeAction by DrawerSettingsStore.drawerHomeAction.flow(ctx)
         .collectAsState(initial = DrawerActions.CLOSE)
 
 
@@ -121,20 +121,20 @@ fun AppDrawerScreen(
     val icons by appsViewModel.icons.collectAsState()
 
     val autoLaunchSingleMatch by DrawerSettingsStore
-        .getAutoLaunchSingleMatch(ctx)
+        .autoOpenSingleMatch.flow(ctx)
         .collectAsState(initial = true)
 
     val clickEmptySpaceToRaiseKeyboard by DrawerSettingsStore
-        .getClickEmptySpaceToRaiseKeyboard(ctx)
+        .clickEmptySpaceToRaiseKeyboard.flow(ctx)
         .collectAsState(initial = false)
 
-    val drawerEnterAction by DrawerSettingsStore.getDrawerEnterAction(ctx)
+    val drawerEnterAction by DrawerSettingsStore.drawerEnterAction.flow(ctx)
         .collectAsState(initial = DrawerActions.CLEAR)
 
-    val scrollDownToCloseDrawerOnTop by DrawerSettingsStore.getScrollDownToCloseDrawerOnTop(ctx)
+    val scrollDownToCloseDrawerOnTop by DrawerSettingsStore.scrollDownToCloseDrawerOnTop.flow(ctx)
         .collectAsState(initial = true)
 
-    val scrollUpToCloseKeyboard by DrawerSettingsStore.getScrollUpToCloseKeyboardOnTop(ctx)
+    val scrollUpToCloseKeyboard by DrawerSettingsStore.scrollUpToToggleKeyboard.flow(ctx)
         .collectAsState(initial = true)
 
 

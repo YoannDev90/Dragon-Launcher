@@ -38,10 +38,10 @@ import org.elnix.dragonlauncher.common.R
 import org.elnix.dragonlauncher.models.BackupResult
 import org.elnix.dragonlauncher.models.BackupViewModel
 import org.elnix.dragonlauncher.settings.DataStoreName
+import org.elnix.dragonlauncher.settings.SettingsBackupManager
 import org.elnix.dragonlauncher.settings.stores.PrivateSettingsStore
 import org.elnix.dragonlauncher.ui.dialogs.ImportSettingsDialog
 import org.elnix.dragonlauncher.ui.helpers.rememberSettingsImportLauncher
-import org.elnix.dragonlauncher.settings.SettingsBackupManager
 import org.json.JSONObject
 
 @SuppressLint("LocalContextGetResourceValueCall")
@@ -94,7 +94,7 @@ fun WelcomeScreen(
     BackHandler { }
 
     fun setHasSeen() {
-        scope.launch { PrivateSettingsStore.setHasSeenWelcome(ctx, true) }
+        scope.launch { PrivateSettingsStore.hasSeenWelcome.set(ctx, true) }
     }
 
     Box(

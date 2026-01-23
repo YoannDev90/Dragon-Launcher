@@ -16,9 +16,9 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import kotlinx.coroutines.delay
 import org.elnix.dragonlauncher.common.serializables.SwipeActionSerializable
-import org.elnix.dragonlauncher.settings.stores.StatusBarSettingsStore
 import org.elnix.dragonlauncher.common.utils.openAlarmApp
 import org.elnix.dragonlauncher.common.utils.openCalendar
+import org.elnix.dragonlauncher.settings.stores.StatusBarSettingsStore
 import java.time.LocalDate
 import java.time.LocalTime
 import java.time.format.DateTimeFormatter
@@ -35,10 +35,10 @@ fun StatusBarClock(
 ) {
     val ctx = LocalContext.current
 
-    val clockAction by StatusBarSettingsStore.getClockAction(ctx)
+    val clockAction by StatusBarSettingsStore.clockAction.flow(ctx)
         .collectAsState(null)
 
-    val dateAction by StatusBarSettingsStore.getDateAction(ctx)
+    val dateAction by StatusBarSettingsStore.dateAction.flow(ctx)
         .collectAsState(null)
 
     val timeFormat = remember(timeFormatter) {

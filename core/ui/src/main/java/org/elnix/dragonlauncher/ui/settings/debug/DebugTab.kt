@@ -65,39 +65,39 @@ fun DebugTab(
     val scope = rememberCoroutineScope()
     val ctx = LocalContext.current
 
-    val isDebugModeEnabled by DebugSettingsStore.getDebugEnabled(ctx)
+    val isDebugModeEnabled by DebugSettingsStore.debugEnabled.flow(ctx)
         .collectAsState(initial = false)
 
-    val debugInfos by DebugSettingsStore.getDebugInfos(ctx)
+    val debugInfos by DebugSettingsStore.debugInfos.flow(ctx)
         .collectAsState(initial = false)
-    val settingsDebugInfos by DebugSettingsStore.getSettingsDebugInfos(ctx)
+    val settingsDebugInfos by DebugSettingsStore.settingsDebugInfo.flow(ctx)
         .collectAsState(initial = false)
-    val widgetsDebugInfos by DebugSettingsStore.getWidgetsDebugInfos(ctx)
+    val widgetsDebugInfos by DebugSettingsStore.widgetsDebugInfo.flow(ctx)
         .collectAsState(initial = false)
-    val workspaceDebugInfos by DebugSettingsStore.getWorkspacesDebugInfos(ctx)
+    val workspaceDebugInfos by DebugSettingsStore.workspacesDebugInfo.flow(ctx)
         .collectAsState(initial = false)
 
     val useAccessibilityInsteadOfContextToExpandActionPanel by DebugSettingsStore
-        .getUseAccessibilityInsteadOfContextToExpandActionPanel(ctx)
+        .useAccessibilityInsteadOfContextToExpandActionPanel.flow(ctx)
         .collectAsState(initial = false)
 
-    val hasInitialized by PrivateSettingsStore.getHasInitialized(ctx)
+    val hasInitialized by PrivateSettingsStore.hasInitialized.flow(ctx)
         .collectAsState(initial = true)
-    val showSetDefaultLauncherBanner by PrivateSettingsStore.getShowSetDefaultLauncherBanner(ctx)
+    val showSetDefaultLauncherBanner by PrivateSettingsStore.showSetDefaultLauncherBanner.flow(ctx)
         .collectAsState(initial = true)
 
-    val forceAppLanguageSelector by DebugSettingsStore.getForceAppLanguageSelector(ctx)
+    val forceAppLanguageSelector by DebugSettingsStore.forceAppLanguageSelector.flow(ctx)
         .collectAsState(initial = false)
 
-    val forceAppWidgetsSelector by DebugSettingsStore.getForceAppWidgetsSelector(ctx)
+    val forceAppWidgetsSelector by DebugSettingsStore.forceAppWidgetsSelector.flow(ctx)
         .collectAsState(initial = false)
 
-    val doNotRemindMeAgainNotificationsBehavior by PrivateSettingsStore.getShowMethodAsking(ctx)
+    val doNotRemindMeAgainNotificationsBehavior by PrivateSettingsStore.showMethodAsking.flow(ctx)
         .collectAsState(initial = true)
 
-    val systemLauncherPackageName by DebugSettingsStore.getSystemLauncherPackageName(ctx)
+    val systemLauncherPackageName by DebugSettingsStore.systemLauncherPackageName.flow(ctx)
         .collectAsState("")
-    val autoRaiseDragonOnSystemLauncher by DebugSettingsStore.getAutoRaiseDragonOnSystemLauncher(ctx)
+    val autoRaiseDragonOnSystemLauncher by DebugSettingsStore.autoRaiseDragonOnSystemLauncher.flow(ctx)
         .collectAsState(false)
 
     var pendingSystemLauncher by remember { mutableStateOf<String?>(null) }
@@ -106,7 +106,6 @@ fun DebugTab(
 
     var showEditAppOverrides by remember { mutableStateOf(false) }
 
-//    val userApps by appsViewModel.userApps.collectAsState()
 
 
     SettingsLazyHeader(
@@ -124,7 +123,7 @@ fun DebugTab(
                 defaultValue = true
             ) {
                 scope.launch {
-                    DebugSettingsStore.setDebugEnabled(ctx, false)
+                    DebugSettingsStore.debugEnabled.set(ctx, it)
                 }
                 navController.popBackStack()
             }
@@ -158,7 +157,7 @@ fun DebugTab(
                 defaultValue = false
             ) {
                 scope.launch {
-                    DebugSettingsStore.setDebugInfos(ctx, it)
+                    DebugSettingsStore.debugInfos.set(ctx, it)
                 }
             }
         }
@@ -170,7 +169,7 @@ fun DebugTab(
                 defaultValue = false
             ) {
                 scope.launch {
-                    DebugSettingsStore.setSettingsDebugInfos(ctx, it)
+                    DebugSettingsStore.settingsDebugInfo.set(ctx, it)
                 }
             }
         }
@@ -182,7 +181,7 @@ fun DebugTab(
                 defaultValue = false
             ) {
                 scope.launch {
-                    DebugSettingsStore.setWidgetsDebugInfos(ctx, it)
+                    DebugSettingsStore.widgetsDebugInfo.set(ctx, it)
                 }
             }
         }
@@ -194,7 +193,7 @@ fun DebugTab(
                 defaultValue = false
             ) {
                 scope.launch {
-                    DebugSettingsStore.setWorkspacesDebugInfos(ctx, it)
+                    DebugSettingsStore.workspacesDebugInfo.set(ctx, it)
                 }
             }
         }
@@ -216,7 +215,7 @@ fun DebugTab(
         item {
             Button(
                 onClick = {
-                    scope.launch { PrivateSettingsStore.setLastSeenVersionCode(ctx, 0) }
+                    scope.launch { PrivateSettingsStore.lastSeenVersionCode.set(ctx, 0) }
                 },
                 colors = AppObjectsColors.buttonColors(),
                 modifier = Modifier.fillMaxWidth()
@@ -233,7 +232,7 @@ fun DebugTab(
                 text = "Has initialized"
             ) {
                 scope.launch {
-                    PrivateSettingsStore.setHasInitialized(ctx, it)
+                    PrivateSettingsStore.hasInitialized.set(ctx, it)
                 }
             }
         }
@@ -245,7 +244,7 @@ fun DebugTab(
                 defaultValue = true
             ) {
                 scope.launch {
-                    PrivateSettingsStore.setShowSetDefaultLauncherBanner(ctx, !it)
+                    PrivateSettingsStore.showSetDefaultLauncherBanner.set(ctx, !it)
                 }
             }
         }
@@ -268,7 +267,7 @@ fun DebugTab(
                 state = forceAppLanguageSelector,
                 text = "Force app language selector",
                 enabled = Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU
-            ) { scope.launch { DebugSettingsStore.setForceAppLanguageSelector(ctx, it) } }
+            ) { scope.launch { DebugSettingsStore.forceAppLanguageSelector.set(ctx, it) } }
         }
 
         item {
@@ -277,7 +276,7 @@ fun DebugTab(
                 text = "Force app widgets selector"
             ) {
                 scope.launch {
-                    DebugSettingsStore.setForceAppWidgetsSelector(
+                    DebugSettingsStore.forceAppWidgetsSelector.set(
                         ctx,
                         it
                     )
@@ -291,7 +290,7 @@ fun DebugTab(
                 text = "useAccessibilityInsteadOfContextToExpandActionPanel"
             ) {
                 scope.launch {
-                    DebugSettingsStore.setUseAccessibilityInsteadOfContextToExpandActionPanel(
+                    DebugSettingsStore.useAccessibilityInsteadOfContextToExpandActionPanel.set(
                         ctx,
                         it
                     )
@@ -305,7 +304,7 @@ fun DebugTab(
                 text = "Ask me each times for the notifications / quick settings behavior"
             ) {
                 scope.launch {
-                    PrivateSettingsStore.setShowMethodAsking(ctx, it)
+                    PrivateSettingsStore.showMethodAsking.set(ctx, it)
                 }
             }
         }
@@ -359,7 +358,7 @@ fun DebugTab(
                 text = "Auto launch Dragon on system launcher (needs accessibility enabled)",
             ) {
                 scope.launch {
-                    DebugSettingsStore.setAutoRaiseDragonOnSystemLauncher(ctx, it)
+                    DebugSettingsStore.autoRaiseDragonOnSystemLauncher.set(ctx, it)
                 }
             }
         }
@@ -381,7 +380,7 @@ fun DebugTab(
                     Button(
                         onClick = {
                             scope.launch {
-                                DebugSettingsStore.setSystemLauncherPackageName(
+                                DebugSettingsStore.systemLauncherPackageName.set(
                                     ctx,
                                     pendingSystemLauncher
                                 )
@@ -418,7 +417,7 @@ fun DebugTab(
                 value = systemLauncherPackageName,
                 onValueChange = { newValue ->
                     scope.launch {
-                        DebugSettingsStore.setSystemLauncherPackageName(ctx, newValue)
+                        DebugSettingsStore.systemLauncherPackageName.set(ctx, newValue)
                     }
                 },
                 singleLine = true,

@@ -41,7 +41,7 @@ fun IconPackTab(
     val selectedPack by appsViewModel.selectedIconPack.collectAsState()
     val packs by appsViewModel.iconPacksList.collectAsState()
 
-    val iconPackTint by UiSettingsStore.getIconPackTintFLow(ctx).collectAsState(null)
+    val iconPackTint by UiSettingsStore.iconPackTint.flow(ctx).collectAsState(null)
 
     // Used to delay the grid showing up, to prevent lag
     var showPreview by remember { mutableStateOf(false) }

@@ -1,5 +1,6 @@
 package org.elnix.dragonlauncher.settings.stores
 
+import androidx.compose.ui.graphics.Color
 import org.elnix.dragonlauncher.settings.DataStoreName
 import org.elnix.dragonlauncher.settings.SettingObject
 import org.elnix.dragonlauncher.settings.SettingType
@@ -125,8 +126,8 @@ object UiSettingsStore : MapSettingsStore() {
     val iconPackTint = SettingObject(
         key = "icon_pack_tint",
         dataStoreName = dataStoreName,
-        default = 0,
-        type = SettingType.Int
+        default = Color.Unspecified,
+        type = SettingType.Color
     )
 
     val appLabelIconOverlayTopPadding = SettingObject(

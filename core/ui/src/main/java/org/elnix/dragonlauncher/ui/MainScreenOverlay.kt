@@ -41,8 +41,6 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import org.elnix.dragonlauncher.common.serializables.CircleNest
 import org.elnix.dragonlauncher.common.serializables.SwipePointSerializable
-import org.elnix.dragonlauncher.common.theme.AmoledDefault
-import org.elnix.dragonlauncher.settings.stores.ColorSettingsStore
 import org.elnix.dragonlauncher.settings.stores.DebugSettingsStore
 import org.elnix.dragonlauncher.settings.stores.UiSettingsStore
 import org.elnix.dragonlauncher.ui.components.AppPreviewTitle
@@ -69,50 +67,44 @@ fun MainScreenOverlay(
     onLaunch: (SwipePointSerializable?) -> Unit
 ) {
     val ctx = LocalContext.current
+    val extraColors = LocalExtraColors.current
 
-    val rgbLine by UiSettingsStore.getRGBLine(ctx)
+    val rgbLine by UiSettingsStore.rgbLine.flow(ctx)
         .collectAsState(initial = true)
-    val debugInfos by DebugSettingsStore.getDebugInfos(ctx)
+    val debugInfos by DebugSettingsStore.debugInfos.flow(ctx)
         .collectAsState(initial = false)
-    val angleLineColor by ColorSettingsStore.getAngleLineColor(ctx)
-        .collectAsState(initial = AmoledDefault.AngleLineColor)
-    val circleColor by ColorSettingsStore.getCircleColor(ctx)
-        .collectAsState(initial = AmoledDefault.CircleColor)
-    val showLaunchingAppLabel by UiSettingsStore.getShowLaunchingAppLabel(ctx)
+    val showLaunchingAppLabel by UiSettingsStore.showLaunchingAppLabel.flow(ctx)
         .collectAsState(initial = true)
-    val showLaunchingAppIcon by UiSettingsStore.getShowLaunchingAppIcon(ctx)
+    val showLaunchingAppIcon by UiSettingsStore.showLaunchingAppIcon.flow(ctx)
         .collectAsState(initial = true)
 
-    val showAppLaunchPreview by UiSettingsStore.getShowAppLaunchPreview(ctx)
+    val showAppLaunchPreview by UiSettingsStore.showAppLaunchingPreview.flow(ctx)
         .collectAsState(initial = true)
-    val showAppCirclePreview by UiSettingsStore.getShowCirclePreview(ctx)
+    val showAppCirclePreview by UiSettingsStore.showCirclePreview.flow(ctx)
         .collectAsState(initial = true)
-    val showAppLinePreview by UiSettingsStore.getShowLinePreview(ctx)
+    val showAppLinePreview by UiSettingsStore.showLinePreview.flow(ctx)
         .collectAsState(initial = true)
     val showAppAnglePreview by UiSettingsStore.showAnglePreview.flow(ctx)
         .collectAsState(initial = true)
     val showAppPreviewIconCenterStartPosition by UiSettingsStore.showAppPreviewIconCenterStartPosition.flow(ctx)
         .collectAsState(initial = false)
-    val linePreviewSnapToAction by UiSettingsStore.getLinePreviewSnapToAction(ctx)
+    val linePreviewSnapToAction by UiSettingsStore.linePreviewSnapToAction.flow(ctx)
         .collectAsState(initial = false)
-    val showAllActionsOnCurrentCircle by UiSettingsStore.getShowAllActionsOnCurrentCircle(ctx)
+    val showAllActionsOnCurrentCircle by UiSettingsStore.showAllActionsOnCurrentCircle.flow(ctx)
         .collectAsState(initial = false)
-    val appLabelIconOverlayTopPadding by UiSettingsStore.getAppLabelIconOverlayTopPadding(ctx)
+    val appLabelIconOverlayTopPadding by UiSettingsStore.appLabelIconOverlayTopPadding.flow(ctx)
         .collectAsState(initial = 30)
-    val appLabelOverlaySize by UiSettingsStore.getAppLabelOverlaySize(ctx)
+    val appLabelOverlaySize by UiSettingsStore.appLabelOverlaySize.flow(ctx)
         .collectAsState(initial = 18)
-    val appIconOverlaySize by UiSettingsStore.getAppIconOverlaySize(ctx)
+    val appIconOverlaySize by UiSettingsStore.appIconOverlaySize.flow(ctx)
         .collectAsState(initial = 22)
-
-//    val backgroundColor = MaterialTheme.colorScheme.background
-    val extraColors = LocalExtraColors.current
 
 
     var lastAngle by remember { mutableStateOf<Double?>(null) }
     var cumulativeAngle by remember { mutableDoubleStateOf(0.0) }   // continuous rotation without jumps
 
 
-    val minAngleFromAPointToActivateIt by UiSettingsStore.getMinAngleFromAPointToActivateIt(ctx)
+    val minAngleFromAPointToActivateIt by UiSettingsStore.minAngleFromAPointToActivateIt.flow(ctx)
         .collectAsState(initial = 0)
 
 
@@ -157,7 +149,7 @@ fun MainScreenOverlay(
 
 
         lineColor = if (rgbLine) Color.hsv(angle0to360.toFloat(),1f,1f)
-                    else angleLineColor ?: AmoledDefault.AngleLineColor
+                    else extraColors.angleLine
 
     } else {
         dx = 0f; dy = 0f
@@ -376,7 +368,7 @@ fun MainScreenOverlay(
                         // Main circle (the selected) drawn before any apps to be behind
                         if (showAppCirclePreview) {
                             drawCircle(
-                                color = circleColor,
+                                color = extraColors.circle,
                                 radius = radius,
                                 center = start,
                                 style = Stroke(4f)
@@ -419,7 +411,7 @@ fun MainScreenOverlay(
                                     points = points,
                                     center = localCenter,
                                     ctx = ctx,
-                                    circleColor = circleColor,
+                                    circleColor = extraColors.circle,
                                     showCircle = showAppCirclePreview,
                                     surfaceColorDraw = Color.Unspecified,
                                     extraColors = extraColors,
@@ -439,7 +431,7 @@ fun MainScreenOverlay(
                                 points = points,
                                 center = end,
                                 ctx = ctx,
-                                circleColor = circleColor,
+                                circleColor = extraColors.circle,
                                 showCircle = showAppCirclePreview,
                                 surfaceColorDraw = Color.Unspecified,
                                 extraColors = extraColors,
@@ -463,7 +455,7 @@ fun MainScreenOverlay(
                         points = points,
                         center = start,
                         ctx = ctx,
-                        circleColor = circleColor,
+                        circleColor = extraColors.circle,
                         showCircle = showAppCirclePreview,
                         surfaceColorDraw = Color.Unspecified,
                         extraColors = extraColors,

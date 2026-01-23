@@ -85,7 +85,7 @@ fun MainAppUi(
     val result by backupViewModel.result.collectAsState()
 
     // Changelogs system
-    val lastSeenVersionCode by PrivateSettingsStore.getLastSeenVersionCode(ctx)
+    val lastSeenVersionCode by PrivateSettingsStore.lastSeenVersionCode.flow(ctx)
         .collectAsState(initial = Int.MAX_VALUE)
 
     val currentVersionCode = getVersionCode(ctx)
@@ -97,16 +97,16 @@ fun MainAppUi(
         value = loadChangelogs(ctx, versionCode)
     }
 
-    val showAppIconsInDrawer by DrawerSettingsStore.getShowAppIconsInDrawer(ctx)
+    val showAppIconsInDrawer by DrawerSettingsStore.showAppIconsInDrawer.flow(ctx)
         .collectAsState(initial = true)
 
-    val showAppLabelsInDrawer by DrawerSettingsStore.getShowAppLabelsInDrawer(ctx)
+    val showAppLabelsInDrawer by DrawerSettingsStore.showAppLabelInDrawer.flow(ctx)
         .collectAsState(initial = true)
 
-    val autoShowKeyboardOnDrawer by DrawerSettingsStore.getAutoShowKeyboardOnDrawer(ctx)
+    val autoShowKeyboardOnDrawer by DrawerSettingsStore.autoShowKeyboardOnDrawer.flow(ctx)
         .collectAsState(initial = false)
 
-    val gridSize by DrawerSettingsStore.getGridSize(ctx)
+    val gridSize by DrawerSettingsStore.gridSize.flow(ctx)
         .collectAsState(initial = 1)
 
 //    val searchBarBottom by DrawerSettingsStore.getSearchBarBottom(ctx)
@@ -115,22 +115,22 @@ fun MainAppUi(
 
 
 
-    val leftDrawerAction by DrawerSettingsStore.getLeftDrawerAction(ctx)
+    val leftDrawerAction by DrawerSettingsStore.leftDrawerAction.flow(ctx)
         .collectAsState(initial = DrawerActions.TOGGLE_KB)
 
-    val rightDrawerAction by DrawerSettingsStore.getRightDrawerAction(ctx)
+    val rightDrawerAction by DrawerSettingsStore.rightDrawerAction.flow(ctx)
         .collectAsState(initial = DrawerActions.CLOSE)
 
-    val leftDrawerWidth by DrawerSettingsStore.getLeftDrawerWidth(ctx)
+    val leftDrawerWidth by DrawerSettingsStore.leftDrawerWidth.flow(ctx)
         .collectAsState(initial = 0.1f)
-    val rightDrawerWidth  by DrawerSettingsStore.getRightDrawerWidth(ctx)
+    val rightDrawerWidth  by DrawerSettingsStore.rightDrawerWidth.flow(ctx)
         .collectAsState(initial = 0.1f)
 
-    val forceAppWidgetsSelector by DebugSettingsStore.getForceAppWidgetsSelector(ctx)
+    val forceAppWidgetsSelector by DebugSettingsStore.forceAppWidgetsSelector.flow(ctx)
         .collectAsState(initial = false)
 
 
-    val showSetDefaultLauncherBanner by PrivateSettingsStore.getShowSetDefaultLauncherBanner(ctx)
+    val showSetDefaultLauncherBanner by PrivateSettingsStore.showSetDefaultLauncherBanner.flow(ctx)
         .collectAsState(initial = false)
 
 
@@ -141,8 +141,8 @@ fun MainAppUi(
     val currentRoute = navBackStackEntry?.destination?.route
 
 
-    val autoBackupEnabled by BackupSettingsStore.getAutoBackupEnabled(ctx).collectAsState(initial = false)
-    val autoBackupUriString by BackupSettingsStore.getAutoBackupUri(ctx).collectAsState(initial = null)
+    val autoBackupEnabled by BackupSettingsStore.autoBackupEnabled.flow(ctx).collectAsState(initial = false)
+    val autoBackupUriString by BackupSettingsStore.autoBackupUri.flow(ctx).collectAsState(initial = null)
     val autoBackupUri = autoBackupUriString?.toUri()
 
 
@@ -225,8 +225,8 @@ fun MainAppUi(
             hasAutoBackupPermission = true
 
             scope.launch {
-                BackupSettingsStore.setAutoBackupUri(ctx, uri)
-                BackupSettingsStore.setAutoBackupEnabled(ctx, true)
+                BackupSettingsStore.autoBackupUri.set(ctx, uri.toString())
+                BackupSettingsStore.autoBackupEnabled.set(ctx, true)
             }
         }
     }
@@ -323,7 +323,7 @@ fun MainAppUi(
             updates = updates
         ) {
             showWhatsNewBottomSheet = false
-            scope.launch { PrivateSettingsStore.setLastSeenVersionCode(ctx, currentVersionCode) }
+            scope.launch { PrivateSettingsStore.lastSeenVersionCode.set(ctx, currentVersionCode) }
         }
     }
 

@@ -81,7 +81,7 @@ fun EditPointDialog(
     var showEditIconDialog by remember { mutableStateOf(false) }
     var showEditActionDialog by remember { mutableStateOf(false) }
 
-    val circleColor by ColorSettingsStore.getCircleColor(ctx)
+    val circleColor by ColorSettingsStore.circleColor.flow(ctx)
         .collectAsState(initial = AmoledDefault.CircleColor)
 
     val pointIcons by appsViewModel.pointIcons.collectAsState()

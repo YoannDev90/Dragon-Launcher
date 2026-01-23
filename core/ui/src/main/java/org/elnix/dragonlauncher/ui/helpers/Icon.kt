@@ -8,6 +8,15 @@ import androidx.compose.ui.graphics.painter.Painter
 import androidx.compose.ui.graphics.vector.ImageVector
 
 
+/**
+ * Icon c; generic helper to accept both imageVector and painter
+ * not very used across project
+ *
+ * @param icon either [ImageVector] or [Painter]
+ * @param contentDescription
+ * @param tint how's the icon tinted, use [Color.Unspecified] to avoid tinting
+ * @param modifier optional [Modifier]
+ */
 @Composable
 fun IconC(
     icon: Any?,

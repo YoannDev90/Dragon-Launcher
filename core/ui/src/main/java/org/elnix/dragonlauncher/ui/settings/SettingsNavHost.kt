@@ -71,13 +71,13 @@ fun SettingsNavHost(
 
 
 
-    val showAppIconsInDrawer by DrawerSettingsStore.getShowAppIconsInDrawer(ctx)
+    val showAppIconsInDrawer by DrawerSettingsStore.showAppIconsInDrawer.flow(ctx)
         .collectAsState(initial = true)
 
-    val showAppLabelsInDrawer by DrawerSettingsStore.getShowAppLabelsInDrawer(ctx)
+    val showAppLabelsInDrawer by DrawerSettingsStore.showAppLabelInDrawer.flow(ctx)
         .collectAsState(initial = true)
 
-    val gridSize by DrawerSettingsStore.getGridSize(ctx)
+    val gridSize by DrawerSettingsStore.gridSize.flow(ctx)
         .collectAsState(initial = 1)
 
 

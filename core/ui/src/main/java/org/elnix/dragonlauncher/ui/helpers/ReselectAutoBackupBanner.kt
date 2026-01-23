@@ -17,6 +17,15 @@ import androidx.compose.ui.unit.dp
 import org.elnix.dragonlauncher.common.R
 
 
+/**
+ * Reselect auto backup banner
+ *
+ * Ugly banner that shows up when app loose access to the URI for the auto backup, shouldn't appear
+ * now since it auto get uri permissions on import
+ *
+ * @param onClick
+ * @receiver
+ */
 @Composable
 fun ReselectAutoBackupBanner(onClick: () -> Unit) {
     Row(
