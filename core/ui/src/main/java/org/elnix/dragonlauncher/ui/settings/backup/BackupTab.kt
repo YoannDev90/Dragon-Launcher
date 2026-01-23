@@ -95,8 +95,8 @@ fun BackupTab(
         getFilePathFromUri(ctx, uri)
     }
 
-    var selectedStoresForExport by remember { mutableStateOf(listOf<DataStoreName>()) }
-    var selectedStoresForImport by remember { mutableStateOf(listOf<DataStoreName>()) }
+    var selectedStoresForExport by remember { mutableStateOf(setOf<DataStoreName>()) }
+    var selectedStoresForImport by remember { mutableStateOf(setOf<DataStoreName>()) }
     var importJson by remember { mutableStateOf<JSONObject?>(null) }
     var showImportDialog by remember { mutableStateOf(false) }
     var showExportDialog by remember { mutableStateOf(false) }
@@ -404,8 +404,11 @@ fun BackupTab(
 
             item {
                 Column{
-                    backupableStores.forEach { store ->
-                        val isSelected = backupStores.contains(store.value)
+                    backupableStores.forEach { entry ->
+                        val dataStoreName = entry.key
+                        val settingsStore = entry.value
+
+                        val isSelected = backupStores.contains(dataStoreName.value)
 
                         Row(
                             modifier = Modifier
@@ -414,14 +417,14 @@ fun BackupTab(
                                 .clickable {
                                     scope.launch {
                                         val updated = if (isSelected) {
-                                            backupStores - store.value
+                                            backupStores - dataStoreName.value
                                         } else {
-                                            backupStores + store.value
+                                            backupStores + dataStoreName.value
                                         }
                                         BackupSettingsStore.backupStores.set(
                                             ctx,
-                                            backupableStores.filter { updated.contains(it.value) }
-                                                .map { it.value }.toSet()
+                                            backupableStores.filter { updated.contains(it.key.backupKey) }
+                                                .map { it.value.dataStoreName.backupKey }.toSet()
                                         )
                                     }
                                 }
@@ -430,7 +433,7 @@ fun BackupTab(
                             verticalAlignment = Alignment.CenterVertically
                         ) {
                             Text(
-                                text = store.store.name,
+                                text = settingsStore.name,
                                 style = MaterialTheme.typography.bodyLarge
                             )
                             Checkbox(
@@ -450,7 +453,7 @@ fun BackupTab(
             onDismiss = { showExportDialog = false },
             onConfirm = { selectedStores ->
                 showExportDialog = false
-                selectedStoresForExport = selectedStores
+                selectedStoresForExport = selectedStores.keys
                 settingsExportLauncher.launch("backup-${System.currentTimeMillis()}.json")
             }
         )
@@ -467,7 +470,7 @@ fun BackupTab(
                 },
                 onConfirm = { selectedStores ->
                     showImportDialog = false
-                    selectedStoresForImport = selectedStores
+                    selectedStoresForImport = selectedStores.keys
 
                     scope.launch {
                         try {

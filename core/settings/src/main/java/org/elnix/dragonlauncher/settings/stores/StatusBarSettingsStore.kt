@@ -111,7 +111,7 @@ object StatusBarSettingsStore : MapSettingsStore() {
         type = SettingType.Int
     )
 
-    val botomPadding = SettingObject(
+    val bottomPadding = SettingObject(
         key = "bottomPadding",
         dataStoreName = dataStoreName,
         default = 2,
@@ -147,7 +147,7 @@ object StatusBarSettingsStore : MapSettingsStore() {
         leftPadding,
         rightPadding,
         topPadding,
-        botomPadding,
+        bottomPadding,
         clockAction,
         dateAction
     )

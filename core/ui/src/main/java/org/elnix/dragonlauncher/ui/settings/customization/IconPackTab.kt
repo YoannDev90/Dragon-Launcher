@@ -14,7 +14,6 @@ import androidx.compose.runtime.setValue
 import androidx.compose.runtime.withFrameNanos
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.toArgb
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
@@ -87,8 +86,8 @@ fun IconPackTab(
                 defaultColor = Color.Unspecified,
                 currentColor = iconPackTint ?: Color.Unspecified
             ) {
-                val newColorInt = if (it == Color.Unspecified) null else it.toArgb()
-                scope.launch { appsViewModel.setIconPackTint(newColorInt) }
+                val newColor = if (it == Color.Unspecified) null else it
+                scope.launch { appsViewModel.setIconPackTint(newColor) }
             }
         }
 

@@ -178,16 +178,16 @@ class SystemControlService : AccessibilityService() {
 
     private fun listenToSettingsChanges() {
         serviceScope.launch {
-            DebugSettingsStore.getSystemLauncherPackageName(this@SystemControlService)
-                .collect { pkg ->
+            DebugSettingsStore.systemLauncherPackageName.get(this@SystemControlService)
+                .let { pkg ->
                     systemLauncher = pkg.ifBlank { null }
                     logD(ACCESSIBILITY_TAG, "Launcher setting updated: $pkg")
                 }
         }
 
         serviceScope.launch {
-            DebugSettingsStore.getAutoRaiseDragonOnSystemLauncher(this@SystemControlService)
-                .collect { enabled ->
+            DebugSettingsStore.autoRaiseDragonOnSystemLauncher.get(this@SystemControlService)
+                .let { enabled ->
                     autoRaiseEnabled = enabled
                     logD(ACCESSIBILITY_TAG, "Auto-raise toggled: $enabled")
                 }

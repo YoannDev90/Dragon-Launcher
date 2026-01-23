@@ -64,7 +64,7 @@ fun StatusBar(
     val topStatusBarPadding by StatusBarSettingsStore.topPadding.flow(ctx)
         .collectAsState(initial = 2)
 
-    val bottomStatusBarPadding by StatusBarSettingsStore.botomPadding.flow(ctx)
+    val bottomStatusBarPadding by StatusBarSettingsStore.bottomPadding.flow(ctx)
         .collectAsState(initial = 2)
 
     Row(

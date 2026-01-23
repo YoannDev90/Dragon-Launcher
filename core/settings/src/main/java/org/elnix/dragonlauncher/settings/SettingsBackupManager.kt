@@ -4,7 +4,6 @@ import android.content.Context
 import android.net.Uri
 import androidx.core.net.toUri
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.withContext
 import org.elnix.dragonlauncher.common.logging.logD
 import org.elnix.dragonlauncher.common.logging.logE
@@ -26,14 +25,14 @@ object SettingsBackupManager {
      * Automatic backup to pre-selected file
      */
     suspend fun triggerBackup(ctx: Context) {
-        if (!BackupSettingsStore.getAutoBackupEnabled(ctx).first()) {
+        if (!BackupSettingsStore.autoBackupEnabled.get(ctx)) {
             logW(BACKUP_TAG, "Auto-backup disabled")
             return
         }
 
         try {
-            val uriString = BackupSettingsStore.getAutoBackupUri(ctx).first()
-            if (uriString.isNullOrBlank()) {
+            val uriString = BackupSettingsStore.autoBackupUri.get(ctx)
+            if (uriString.isBlank()) {
                 logW(BACKUP_TAG, "No backup URI set")
                 return
             }
@@ -47,12 +46,14 @@ object SettingsBackupManager {
                 return
             }
 
-            val selectedStores = BackupSettingsStore.getBackupStores(ctx).first()
-                .mapNotNull { storeValue -> DataStoreName.entries.find { it.value == storeValue } }
+            val selectedStores = BackupSettingsStore.backupStores.get(ctx)
+                .mapNotNull {
+                    storeValue -> DataStoreName.entries.find { it.value == storeValue }
+                }.toSet()
 
             exportSettings(ctx, uri, selectedStores)
 
-            BackupSettingsStore.setLastBackupTime(ctx)
+            BackupSettingsStore.lastBackupTime.set(ctx, System.currentTimeMillis())
             logI(BACKUP_TAG, "Auto-backup completed to $path")
 
         } catch (e: Exception) {
@@ -90,14 +91,17 @@ object SettingsBackupManager {
     suspend fun exportSettings(
         ctx: Context,
         uri: Uri,
-        requestedStores: List<DataStoreName>
+        requestedStores: Set<DataStoreName>
     ) {
         val json = JSONObject()
 
-        allStores.forEach { store ->
-            if (store.backupKey in requestedStores.map { it.backupKey }) {
-                store.store.exportForBackup(ctx)?.let {
-                    json.put(store.backupKey, it)
+        allStores.forEach { entry ->
+            val dataStoreName = entry.key
+            val settingsStore = entry.value
+
+            if (dataStoreName.backupKey in requestedStores.map { it.backupKey }) {
+                settingsStore.exportForBackup(ctx)?.let {
+                    json.put(dataStoreName.backupKey, it)
                 }
             }
         }
@@ -119,15 +123,18 @@ object SettingsBackupManager {
     suspend fun importSettingsFromJson(
         ctx: Context,
         json: JSONObject,
-        requestedStores: List<DataStoreName>
+        requestedStores: Set<DataStoreName>
     ) {
         logD(BACKUP_TAG, json.toString())
 
-        allStores.forEach { store ->
-            val key = store.backupKey
+        allStores.forEach { entry ->
+            val dataStoreName = entry.key
+            val settingsStore = entry.value
+
+            val key = dataStoreName.backupKey
             if (key in requestedStores.map { it.backupKey }) {
                 json.optJSONObject(key)?.let {
-                    store.store.importFromBackup(ctx, it)
+                    settingsStore.importFromBackup(ctx, it)
                 }
             }
         }

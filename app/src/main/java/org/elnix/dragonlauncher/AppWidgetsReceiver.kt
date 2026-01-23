@@ -19,7 +19,7 @@ import org.elnix.dragonlauncher.ui.theme.DragonLauncherTheme
 object DragonLauncherWidget : GlanceAppWidget() {
     override suspend fun provideGlance(context: Context, id: GlanceId) {
         provideContent {
-            val background by ColorSettingsStore.getBackground(context).collectAsState(initial = null)
+            val background by ColorSettingsStore.backgroundColor.flow(context).collectAsState(initial = null)
 
             DragonLauncherTheme(
                 customBackground = background,

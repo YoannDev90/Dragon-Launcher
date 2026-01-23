@@ -1,7 +1,6 @@
 package org.elnix.dragonlauncher.settings.bases
 
 import android.content.Context
-import org.elnix.dragonlauncher.settings.SettingObject
 import org.json.JSONObject
 
 /**
@@ -28,8 +27,7 @@ abstract class JsonSettingsStore :
     /**
      * Underlying setting that stores the JSON payload as a raw string.
      */
-    abstract val jsonSetting: SettingObject<String>
-
+    abstract val jsonSetting: BaseSettingObject<String, String>
     /**
      * Reads the JSON string from DataStore and parses it into a [JSONObject].
      */

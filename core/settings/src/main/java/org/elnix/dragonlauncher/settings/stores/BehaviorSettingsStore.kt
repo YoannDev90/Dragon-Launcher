@@ -4,6 +4,7 @@ import org.elnix.dragonlauncher.common.serializables.SwipeActionSerializable
 import org.elnix.dragonlauncher.settings.DataStoreName
 import org.elnix.dragonlauncher.settings.SettingObject
 import org.elnix.dragonlauncher.settings.SettingType
+import org.elnix.dragonlauncher.settings.bases.BaseSettingObject
 import org.elnix.dragonlauncher.settings.bases.MapSettingsStore
 
 object BehaviorSettingsStore : MapSettingsStore() {
@@ -12,7 +13,7 @@ object BehaviorSettingsStore : MapSettingsStore() {
 
     override val dataStoreName = DataStoreName.BEHAVIOR
 
-    override val ALL: List<SettingObject<*>>
+    override val ALL: List<BaseSettingObject <*, *> >
         get() = listOf(
             backAction,
             doubleClickAction,

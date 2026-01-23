@@ -94,7 +94,7 @@ fun StatusBarTab(
     val topPadding by StatusBarSettingsStore.topPadding.flow(ctx)
         .collectAsState(initial = 2)
 
-    val bottomPadding by StatusBarSettingsStore.botomPadding.flow(ctx)
+    val bottomPadding by StatusBarSettingsStore.bottomPadding.flow(ctx)
         .collectAsState(initial = 2)
 
     val clockAction by StatusBarSettingsStore.clockAction.flow(ctx)
@@ -418,9 +418,9 @@ fun StatusBarTab(
                     showValue = true,
                     valueRange = 0..200,
                     color = MaterialTheme.colorScheme.primary,
-                    onReset = { scope.launch { StatusBarSettingsStore.botomPadding.reset(ctx) } }
+                    onReset = { scope.launch { StatusBarSettingsStore.bottomPadding.reset(ctx) } }
                 ) {
-                    scope.launch{ StatusBarSettingsStore.botomPadding.set(ctx, it ) }
+                    scope.launch{ StatusBarSettingsStore.bottomPadding.set(ctx, it ) }
                 }
             }
         }

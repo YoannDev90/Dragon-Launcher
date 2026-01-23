@@ -1,8 +1,8 @@
 package org.elnix.dragonlauncher.settings.stores
 
 import org.elnix.dragonlauncher.settings.DataStoreName
-import org.elnix.dragonlauncher.settings.SettingObject
-import org.elnix.dragonlauncher.settings.SettingType
+import org.elnix.dragonlauncher.settings.Settings
+import org.elnix.dragonlauncher.settings.bases.BaseSettingObject
 import org.elnix.dragonlauncher.settings.bases.MapSettingsStore
 
 object BackupSettingsStore : MapSettingsStore() {
@@ -10,7 +10,7 @@ object BackupSettingsStore : MapSettingsStore() {
     override val name: String = "Backup"
     override val dataStoreName = DataStoreName.BACKUP
 
-    override val ALL: List<SettingObject<*>>
+    override val ALL: List<BaseSettingObject <*, *> >
         get() = listOf(
             autoBackupEnabled,
             autoBackupUri,
@@ -26,33 +26,29 @@ object BackupSettingsStore : MapSettingsStore() {
 
 
 
-    val autoBackupEnabled = SettingObject(
+    val autoBackupEnabled = Settings.boolean(
         key = "autoBackupEnabled",
         dataStoreName = dataStoreName,
-        default = false,
-        type = SettingType.Boolean
+        default = false
     )
 
-    val autoBackupUri = SettingObject(
+    val autoBackupUri = Settings.string(
         key = "autoBackupUri",
         dataStoreName = dataStoreName,
-        default = "",
-        type = SettingType.StringSet
+        default = ""
     )
 
-    val backupStores = SettingObject(
+    val backupStores = Settings.stringSet(
         key = "backupStores",
         dataStoreName = dataStoreName,
-        default = defaultBackupStores,
-        type = SettingType.StringSet
+        default = defaultBackupStores
     )
 
 
     // TODO PUT THIS IN PRIVATE SETTINGS STORE
-    val lastBackupTime = SettingObject(
+    val lastBackupTime = Settings.long(
         key = "lastBackupTime",
         dataStoreName = dataStoreName,
-        default = System.currentTimeMillis(),
-        type = SettingType.Long
+        default = System.currentTimeMillis()
     )
 }

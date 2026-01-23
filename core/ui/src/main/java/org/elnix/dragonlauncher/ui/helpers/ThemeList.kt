@@ -59,7 +59,7 @@ fun ThemesList(
                                 SettingsBackupManager.importSettingsFromJson(
                                     ctx,
                                     theme.json,
-                                    DataStoreName.entries
+                                    DataStoreName.entries.toSet()
                                 )
                             }
                         }

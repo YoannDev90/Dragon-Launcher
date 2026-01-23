@@ -8,8 +8,8 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.cancel
 import kotlinx.coroutines.launch
-import org.elnix.dragonlauncher.settings.stores.LanguageSettingsStore
 import org.elnix.dragonlauncher.models.AppsViewModel
+import org.elnix.dragonlauncher.settings.stores.LanguageSettingsStore
 
 class MyApplication : Application() {
 
@@ -28,7 +28,7 @@ class MyApplication : Application() {
         )
 
         CoroutineScope(Dispatchers.Default).launch {
-            val tag = LanguageSettingsStore.getLanguageTag(this@MyApplication)
+            val tag = LanguageSettingsStore.keyLang.get(this@MyApplication)
             if (!tag.isNullOrEmpty()) {
                 AppCompatDelegate.setApplicationLocales(
                     LocaleListCompat.forLanguageTags(tag)

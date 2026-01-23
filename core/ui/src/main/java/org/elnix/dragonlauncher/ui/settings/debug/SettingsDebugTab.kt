@@ -30,11 +30,11 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
 import kotlinx.coroutines.launch
+import org.elnix.dragonlauncher.common.utils.copyToClipboard
 import org.elnix.dragonlauncher.settings.allStores
 import org.elnix.dragonlauncher.settings.defaultDebugStores
 import org.elnix.dragonlauncher.ui.dialogs.ExportSettingsDialog
 import org.elnix.dragonlauncher.ui.helpers.settings.SettingsLazyHeader
-import org.elnix.dragonlauncher.common.utils.copyToClipboard
 import org.json.JSONObject
 
 @Composable
@@ -55,8 +55,8 @@ fun SettingsDebugTab(
             val json = JSONObject()
 
             selectedStores.forEach { store ->
-                store.store.exportForBackup(ctx)?.let {
-                    json.put(store.backupKey, it)
+                store.value.exportForBackup(ctx)?.let {
+                    json.put(store.key.backupKey, it)
                 }
             }
             settingsJson = json

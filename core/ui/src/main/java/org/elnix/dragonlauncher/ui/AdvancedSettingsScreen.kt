@@ -72,7 +72,7 @@ import org.elnix.dragonlauncher.common.utils.obtainiumPackageName
 import org.elnix.dragonlauncher.common.utils.openUrl
 import org.elnix.dragonlauncher.common.utils.showToast
 import org.elnix.dragonlauncher.models.AppsViewModel
-import org.elnix.dragonlauncher.settings.DataStoreName
+import org.elnix.dragonlauncher.settings.SettingsStoreRegistry
 import org.elnix.dragonlauncher.settings.stores.DebugSettingsStore
 import org.elnix.dragonlauncher.settings.stores.PrivateSettingsStore
 import org.elnix.dragonlauncher.ui.actions.launchSwipeAction
@@ -121,8 +121,10 @@ fun AdvancedSettingsScreen(
         onReset = {
             scope.launch {
                 // Reset all stores, one by one, using their defined resetAll functions
-                DataStoreName.entries.filter { it.store != PrivateSettingsStore }.forEach {
-                    it.store.resetAll(ctx)
+                SettingsStoreRegistry.byName.entries.filter {
+                    it.value != PrivateSettingsStore
+                }.forEach {
+                    it.value.resetAll(ctx)
                 }
 
                 // Small delay to allow the default apps to load before initializing

@@ -23,33 +23,59 @@ import org.elnix.dragonlauncher.settings.stores.WorkspaceSettingsStore
 enum class DataStoreName(
     val value: String,
     val backupKey: String,
-    val store: BaseSettingsStore<*>,
+//    val store: BaseSettingsStore<*>,
     val userBackup: Boolean = true
 ) {
-    UI("uiDatastore", "ui", UiSettingsStore),
-    COLOR_MODE("colorModeDatastore", "color_mode", ColorModesSettingsStore),
-    COLOR("colorDatastore", "color", ColorSettingsStore),
-    PRIVATE_SETTINGS("privateSettingsStore", "private", PrivateSettingsStore, false),
-    SWIPE("swipePointsDatastore", "new_actions", SwipeSettingsStore),
-    LANGUAGE("languageDatastore", "language", LanguageSettingsStore),
-    DRAWER("drawerDatastore", "drawer", DrawerSettingsStore),
-    DEBUG("debugDatastore", "debug", DebugSettingsStore),
-    WORKSPACES("workspacesDataStore", "workspaces", WorkspaceSettingsStore),
-    APPS("appsDatastore","apps", AppsSettingsStore, false),
-    BEHAVIOR("behaviorDatastore", "behavior", BehaviorSettingsStore),
-    BACKUP("backupDatastore", "backup", BackupSettingsStore),
-    STATUS_BAR("statusDatastore", "status_bar", StatusBarSettingsStore),
-    FLOATING_APPS("floatingAppsDatastore", "floating_apps", FloatingAppsSettingsStore)
+    UI("uiDatastore", "ui"),
+    COLOR_MODE("colorModeDatastore", "color_mode"),
+    COLOR("colorDatastore", "color"),
+    PRIVATE_SETTINGS("privateSettingsStore", "private", false),
+    SWIPE("swipePointsDatastore", "new_actions"),
+    LANGUAGE("languageDatastore", "language"),
+    DRAWER("drawerDatastore", "drawer"),
+    DEBUG("debugDatastore", "debug"),
+    WORKSPACES("workspacesDataStore", "workspaces"),
+    APPS("appsDatastore","apps", false),
+    BEHAVIOR("behaviorDatastore", "behavior"),
+    BACKUP("backupDatastore", "backup"),
+    STATUS_BAR("statusDatastore", "status_bar"),
+    FLOATING_APPS("floatingAppsDatastore", "floating_apps")
 }
 
-val allStores = DataStoreName.entries
-val backupableStores = allStores.filter { it.userBackup }
+
+object SettingsStoreRegistry {
+    val byName: Map<DataStoreName, BaseSettingsStore<*>> = mapOf(
+        DataStoreName.UI to UiSettingsStore,
+        DataStoreName.COLOR_MODE to ColorModesSettingsStore,
+        DataStoreName.COLOR to ColorSettingsStore,
+        DataStoreName.PRIVATE_SETTINGS to PrivateSettingsStore,
+        DataStoreName.SWIPE to SwipeSettingsStore,
+        DataStoreName.LANGUAGE to LanguageSettingsStore,
+        DataStoreName.DRAWER to DrawerSettingsStore,
+        DataStoreName.DEBUG to DebugSettingsStore,
+        DataStoreName.WORKSPACES to WorkspaceSettingsStore,
+        DataStoreName.APPS to AppsSettingsStore,
+        DataStoreName.BEHAVIOR to BehaviorSettingsStore,
+        DataStoreName.BACKUP to BackupSettingsStore,
+        DataStoreName.STATUS_BAR to StatusBarSettingsStore,
+        DataStoreName.FLOATING_APPS to FloatingAppsSettingsStore
+    )
+}
+
+val allStores = SettingsStoreRegistry.byName
+
+
+val backupableStores =
+    SettingsStoreRegistry.byName
+        .filterKeys { it.userBackup }
 
 
 /**
- * All the stores, minus the 2 that hols big data (the wallpapers in b64 and the app cache)
+ * All the stores, minus the one that hols big data (the app cache)
  */
-val defaultDebugStores = allStores.filter { it.store != AppsSettingsStore }
+val defaultDebugStores =
+    SettingsStoreRegistry.byName
+        .filterValues { it != AppsSettingsStore }
 
 
 /**

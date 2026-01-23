@@ -45,7 +45,7 @@ import org.elnix.dragonlauncher.models.AppsViewModel
 import org.elnix.dragonlauncher.services.SystemControl
 import org.elnix.dragonlauncher.services.SystemControl.activateDeviceAdmin
 import org.elnix.dragonlauncher.services.SystemControl.isDeviceAdminActive
-import org.elnix.dragonlauncher.settings.DataStoreName
+import org.elnix.dragonlauncher.settings.allStores
 import org.elnix.dragonlauncher.settings.stores.DebugSettingsStore
 import org.elnix.dragonlauncher.settings.stores.PrivateSettingsStore
 import org.elnix.dragonlauncher.ui.colors.AppObjectsColors
@@ -101,8 +101,6 @@ fun DebugTab(
         .collectAsState(false)
 
     var pendingSystemLauncher by remember { mutableStateOf<String?>(null) }
-
-    val settingsStores = DataStoreName.entries.map { it.store }
 
     var showEditAppOverrides by remember { mutableStateOf(false) }
 
@@ -317,9 +315,11 @@ fun DebugTab(
             )
         }
 
-        items(settingsStores) { store ->
+        items(allStores.entries.toList()) { entry ->
+            val settingsStore = entry.value
+
             OutlinedButton(
-                onClick = { scope.launch { store.resetAll(ctx) } },
+                onClick = { scope.launch { settingsStore.resetAll(ctx) } },
                 colors = AppObjectsColors.cancelButtonColors(),
                 border = BorderStroke(1.dp, MaterialTheme.colorScheme.error),
                 modifier = Modifier.fillMaxWidth()
@@ -333,7 +333,7 @@ fun DebugTab(
                                 textDecoration = TextDecoration.Underline
                             ),
                         ) {
-                            append(store.name)
+                            append(settingsStore.name)
                         }
                         append(" SettingsStore")
                     }

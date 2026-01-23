@@ -7,7 +7,9 @@ import android.content.pm.PackageManager
 import android.content.res.Resources
 import android.content.res.XmlResourceParser
 import android.graphics.drawable.Drawable
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.ImageBitmap
+import androidx.compose.ui.graphics.toArgb
 import androidx.core.content.res.ResourcesCompat
 import com.google.gson.Gson
 import com.google.gson.reflect.TypeToken
@@ -156,12 +158,12 @@ class AppsViewModel(
     suspend fun loadAll() {
         loadWorkspaces()
         loadDefaultPoint()
-        val savedPackTint = UiSettingsStore.getIconPackTint(ctx)
+        val savedPackTint = UiSettingsStore.iconPackTint.get(ctx)
         savedPackTint?.let { tint ->
-            _packTint.value = tint
+            _packTint.value = tint.toArgb()
         }
 
-        val savedPackName = UiSettingsStore.getIconPack(ctx)
+        val savedPackName = UiSettingsStore.selectedIconPack.get(ctx)
         savedPackName?.let { pkg ->
             loadIconsPacks()
             _selectedIconPack.value = _iconPacksList.value.find { it.packageName == pkg }
@@ -229,15 +231,15 @@ class AppsViewModel(
 
 
     private suspend fun loadApps() {
-        val cachedJson = AppsSettingsStore.getCachedApps(ctx)
+        val cachedJson = AppsSettingsStore.cachedApps.get(ctx)
 
-        if (!cachedJson.isNullOrEmpty()) {
+        if (cachedJson.isNotEmpty()) {
             try {
                 val type = object : TypeToken<List<AppModel>>() {}.type
                 _apps.value = gson.fromJson(cachedJson, type) ?: emptyList()
             } catch (e: Exception) {
                 logE(TAG, "Failed to parse cached apps, clearing: ${e.message}")
-                AppsSettingsStore.saveCachedApps(ctx, "") // Clear bad cache
+                AppsSettingsStore.cachedApps.reset(ctx) // Clear bad cache
                 _apps.value = emptyList()
             }
         }
@@ -272,7 +274,7 @@ class AppsViewModel(
 
 
             withContext(Dispatchers.IO) {
-                AppsSettingsStore.saveCachedApps(ctx, gson.toJson(apps))
+                AppsSettingsStore.cachedApps.set(ctx, gson.toJson(apps))
             }
 
             logE(
@@ -506,7 +508,7 @@ class AppsViewModel(
 
     fun loadSavedIconPack() {
         scope.launch {
-            val savedPackName = UiSettingsStore.getIconPack(ctx)
+            val savedPackName = UiSettingsStore.selectedIconPack.get(ctx)
             savedPackName?.let { pkg ->
                 _iconPacksList.value.find { it.packageName == pkg }?.let { pack ->
                     _selectedIconPack.value = pack
@@ -518,7 +520,7 @@ class AppsViewModel(
     fun selectIconPack(pack: IconPackInfo) {
         _selectedIconPack.value = pack
         scope.launch(Dispatchers.IO) {
-            UiSettingsStore.setIconPack(ctx, pack.packageName)
+            UiSettingsStore.selectedIconPack.set(ctx, pack.packageName)
             iconPackCache[pack.packageName] = loadIconPackMappings(pack.packageName)
             reloadApps()
         }
@@ -528,7 +530,7 @@ class AppsViewModel(
     fun clearIconPack() {
         _selectedIconPack.value = null
         scope.launch(Dispatchers.IO) {
-            UiSettingsStore.setIconPack(ctx, null)
+            UiSettingsStore.selectedIconPack.reset(ctx)
             reloadApps()
         }
     }
@@ -829,9 +831,9 @@ class AppsViewModel(
         SwipeSettingsStore.setDefaultPoint(ctx, point)
     }
 
-    suspend fun setIconPackTint(tint: Int?) {
-        UiSettingsStore.setIconPackTint(ctx, tint)
-        _packTint.value = tint
+    suspend fun setIconPackTint(tint: Color?) {
+        UiSettingsStore.iconPackTint.set(ctx, tint)
+        _packTint.value = tint?.toArgb()
         reloadApps()
     }
 }

@@ -56,7 +56,7 @@ fun WelcomeScreen(
     val ctx = LocalContext.current
 
 
-    var selectedStoresForImport by remember { mutableStateOf(listOf<DataStoreName>()) }
+    var selectedStoresForImport by remember { mutableStateOf(setOf<DataStoreName>()) }
     var importJson by remember { mutableStateOf<JSONObject?>(null) }
     var showImportDialog by remember { mutableStateOf(false) }
 
@@ -185,7 +185,7 @@ fun WelcomeScreen(
                 },
                 onConfirm = { selectedStores ->
                     showImportDialog = false
-                    selectedStoresForImport = selectedStores
+                    selectedStoresForImport = selectedStores.keys
 
                     scope.launch {
                         try {

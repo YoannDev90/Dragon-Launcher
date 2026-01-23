@@ -116,7 +116,7 @@ object UiSettingsStore : MapSettingsStore() {
         type = SettingType.Boolean
     )
 
-    val selectedIconpack = SettingObject(
+    val selectedIconPack = SettingObject(
         key = "selected_icon_pack",
         dataStoreName = dataStoreName,
         default = "",
@@ -167,7 +167,7 @@ object UiSettingsStore : MapSettingsStore() {
         linePreviewSnapToAction,
         minAngleFromAPointToActivateIt,
         showAllActionsOnCurrentCircle,
-        selectedIconpack,
+        selectedIconPack,
         iconPackTint,
         appLabelIconOverlayTopPadding,
         appLabelOverlaySize,

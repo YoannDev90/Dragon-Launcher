@@ -8,8 +8,8 @@ import org.elnix.dragonlauncher.common.utils.colors.randomColor
 import org.elnix.dragonlauncher.enumsui.ColorCustomisationMode
 import org.elnix.dragonlauncher.enumsui.DefaultThemes
 import org.elnix.dragonlauncher.settings.DataStoreName
-import org.elnix.dragonlauncher.settings.SettingObject
-import org.elnix.dragonlauncher.settings.SettingType
+import org.elnix.dragonlauncher.settings.Settings
+import org.elnix.dragonlauncher.settings.bases.BaseSettingObject
 import org.elnix.dragonlauncher.settings.bases.MapSettingsStore
 import org.elnix.dragonlauncher.settings.getDefaultColorScheme
 
@@ -21,200 +21,173 @@ object ColorSettingsStore : MapSettingsStore() {
 
     /* ───────────── Colors ───────────── */
 
-    val primaryColor = SettingObject(
+    val primaryColor = Settings.color(
         key = "primary_color",
         dataStoreName = dataStoreName,
-        default = AmoledDefault.Primary,
-        type = SettingType.Color
+        default = AmoledDefault.Primary
     )
 
-    val onPrimaryColor = SettingObject(
+    val onPrimaryColor = Settings.color(
         key = "on_primary_color",
         dataStoreName = dataStoreName,
-        default = AmoledDefault.OnPrimary,
-        type = SettingType.Color
+        default = AmoledDefault.OnPrimary
     )
 
-    val secondaryColor = SettingObject(
+    val secondaryColor = Settings.color(
         key = "secondary_color",
         dataStoreName = dataStoreName,
-        default = AmoledDefault.Secondary,
-        type = SettingType.Color
+        default = AmoledDefault.Secondary
     )
 
-    val onSecondaryColor = SettingObject(
+    val onSecondaryColor = Settings.color(
         key = "on_secondary_color",
         dataStoreName = dataStoreName,
-        default = AmoledDefault.OnSecondary,
-        type = SettingType.Color
+        default = AmoledDefault.OnSecondary
     )
 
-    val tertiaryColor = SettingObject(
+    val tertiaryColor = Settings.color(
         key = "tertiary_color",
         dataStoreName = dataStoreName,
-        default = AmoledDefault.Tertiary,
-        type = SettingType.Color
+        default = AmoledDefault.Tertiary
     )
 
-    val onTertiaryColor = SettingObject(
+    val onTertiaryColor = Settings.color(
         key = "on_tertiary_color",
         dataStoreName = dataStoreName,
-        default = AmoledDefault.OnTertiary,
-        type = SettingType.Color
+        default = AmoledDefault.OnTertiary
     )
 
-    val backgroundColor = SettingObject(
+    val backgroundColor = Settings.color(
         key = "background_color",
         dataStoreName = dataStoreName,
-        default = AmoledDefault.Background,
-        type = SettingType.Color
+        default = AmoledDefault.Background
     )
 
-    val onBackgroundColor = SettingObject(
+    val onBackgroundColor = Settings.color(
         key = "on_background_color",
         dataStoreName = dataStoreName,
-        default = AmoledDefault.OnBackground,
-        type = SettingType.Color
+        default = AmoledDefault.OnBackground
     )
 
-    val surfaceColor = SettingObject(
+    val surfaceColor = Settings.color(
         key = "surface_color",
         dataStoreName = dataStoreName,
-        default = AmoledDefault.Surface,
-        type = SettingType.Color
+        default = AmoledDefault.Surface
     )
 
-    val onSurfaceColor = SettingObject(
+    val onSurfaceColor = Settings.color(
         key = "on_surface_color",
         dataStoreName = dataStoreName,
-        default = AmoledDefault.OnSecondary,
-        type = SettingType.Color
+        default = AmoledDefault.OnSecondary
     )
 
-    val errorColor = SettingObject(
+    val errorColor = Settings.color(
         key = "error_color",
         dataStoreName = dataStoreName,
-        default = AmoledDefault.Error,
-        type = SettingType.Color
+        default = AmoledDefault.Error
     )
 
-    val onErrorColor = SettingObject(
+    val onErrorColor = Settings.color(
         key = "on_error_color",
         dataStoreName = dataStoreName,
-        default = AmoledDefault.OnError,
-        type = SettingType.Color
+        default = AmoledDefault.OnError
     )
 
-    val outlineColor = SettingObject(
+    val outlineColor = Settings.color(
         key = "outline_color",
         dataStoreName = dataStoreName,
-        default = AmoledDefault.Outline,
-        type = SettingType.Color
+        default = AmoledDefault.Outline
     )
 
-    val angleLineColor = SettingObject(
+    val angleLineColor = Settings.color(
         key = "angle_line_color",
         dataStoreName = dataStoreName,
-        default = AmoledDefault.AngleLineColor,
-        type = SettingType.Color
+        default = AmoledDefault.AngleLineColor
     )
 
-    val circleColor = SettingObject(
+    val circleColor = Settings.color(
         key = "circle_color",
         dataStoreName = dataStoreName,
-        default = AmoledDefault.CircleColor,
-        type = SettingType.Color
+        default = AmoledDefault.CircleColor
     )
 
     /* ───────────── Action colors ───────────── */
 
-    val launchAppColor = SettingObject(
+    val launchAppColor = Settings.color(
         key = "launch_app_color",
         dataStoreName = dataStoreName,
-        default = AmoledDefault.LaunchAppColor,
-        type = SettingType.Color
+        default = AmoledDefault.LaunchAppColor
     )
 
-    val openUrlColor = SettingObject(
+    val openUrlColor = Settings.color(
         key = "open_url_color",
         dataStoreName = dataStoreName,
-        default = AmoledDefault.OpenUrlColor,
-        type = SettingType.Color
+        default = AmoledDefault.OpenUrlColor
     )
 
-    val notificationShadeColor = SettingObject(
+    val notificationShadeColor = Settings.color(
         key = "notification_shade_color",
         dataStoreName = dataStoreName,
-        default = AmoledDefault.NotificationShadeColor,
-        type = SettingType.Color
+        default = AmoledDefault.NotificationShadeColor
     )
 
-    val controlPanelColor = SettingObject(
+    val controlPanelColor = Settings.color(
         key = "control_panel_color",
         dataStoreName = dataStoreName,
-        default = AmoledDefault.ControlPanelColor,
-        type = SettingType.Color
+        default = AmoledDefault.ControlPanelColor
     )
 
-    val openAppDrawerColor = SettingObject(
+    val openAppDrawerColor = Settings.color(
         key = "open_app_drawer_color",
         dataStoreName = dataStoreName,
-        default = AmoledDefault.OpenAppDrawerColor,
-        type = SettingType.Color
+        default = AmoledDefault.OpenAppDrawerColor
     )
 
-    val launcherSettingsColor = SettingObject(
+    val launcherSettingsColor = Settings.color(
         key = "launcher_settings_color",
         dataStoreName = dataStoreName,
-        default = AmoledDefault.LauncherSettingsColor,
-        type = SettingType.Color
+        default = AmoledDefault.LauncherSettingsColor
     )
 
-    val lockColor = SettingObject(
+    val lockColor = Settings.color(
         key = "lock_color",
         dataStoreName = dataStoreName,
-        default = AmoledDefault.LockColor,
-        type = SettingType.Color
+        default = AmoledDefault.LockColor
     )
 
-    val openFileColor = SettingObject(
+    val openFileColor = Settings.color(
         key = "open_file_color",
         dataStoreName = dataStoreName,
-        default = AmoledDefault.OpenFileColor,
-        type = SettingType.Color
+        default = AmoledDefault.OpenFileColor
     )
 
-    val reloadColor = SettingObject(
+    val reloadColor = Settings.color(
         key = "reload_color",
         dataStoreName = dataStoreName,
-        default = AmoledDefault.ReloadColor,
-        type = SettingType.Color
+        default = AmoledDefault.ReloadColor
     )
 
-    val openRecentAppsColor = SettingObject(
+    val openRecentAppsColor = Settings.color(
         key = "open_recent_apps",
         dataStoreName = dataStoreName,
-        default = AmoledDefault.OpenRecentAppsColor,
-        type = SettingType.Color
+        default = AmoledDefault.OpenRecentAppsColor
     )
 
-    val openCircleNestColor = SettingObject(
+    val openCircleNestColor = Settings.color(
         key = "open_circle_nest",
         dataStoreName = dataStoreName,
-        default = AmoledDefault.OpenCircleNestColor,
-        type = SettingType.Color
+        default = AmoledDefault.OpenCircleNestColor
     )
 
-    val goParentNestColor = SettingObject(
+    val goParentNestColor = Settings.color(
         key = "go_parent_nest",
         dataStoreName = dataStoreName,
-        default = AmoledDefault.GoParentNestColor,
-        type = SettingType.Color
+        default = AmoledDefault.GoParentNestColor
     )
 
     /* ───────────── Registry ───────────── */
 
-    override val ALL: List<SettingObject<Color>>
+    override val ALL: List<BaseSettingObject<Color, Int>>
         get() = listOf(
             primaryColor,
             onPrimaryColor,
@@ -275,7 +248,7 @@ object ColorSettingsStore : MapSettingsStore() {
 }
 
 
-private suspend fun applyThemeColors(ctx: Context, colors: ThemeColors) {
+suspend fun applyThemeColors(ctx: Context, colors: ThemeColors) {
 
     /* ───────────── MaterialTheme Colors ───────────── */
     ColorSettingsStore.primaryColor.set(ctx, colors.Primary)
