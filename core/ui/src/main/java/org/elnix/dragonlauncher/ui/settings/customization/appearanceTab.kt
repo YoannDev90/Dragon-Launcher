@@ -55,50 +55,50 @@ fun AppearanceTab(
     val ctx = LocalContext.current
     val scope = rememberCoroutineScope()
 
-    val fullscreenApp by UiSettingsStore.getFullscreen(ctx)
+    val fullscreenApp by UiSettingsStore.fullScreen.flow(ctx)
         .collectAsState(initial = false)
 
-    val rgbLoading by UiSettingsStore.getRGBLoading(ctx)
+    val rgbLoading by UiSettingsStore.rgbLoading.flow(ctx)
         .collectAsState(initial = true)
 
-    val rgbLine by UiSettingsStore.getRGBLine(ctx)
+    val rgbLine by UiSettingsStore.rgbLine.flow(ctx)
         .collectAsState(initial = true)
 
-    val showLaunchingAppLabel by UiSettingsStore.getShowLaunchingAppLabel(ctx)
+    val showLaunchingAppLabel by UiSettingsStore.showLaunchingAppLabel.flow(ctx)
         .collectAsState(initial = true)
 
-    val showLaunchingAppIcon by UiSettingsStore.getShowLaunchingAppIcon(ctx)
+    val showLaunchingAppIcon by UiSettingsStore.showLaunchingAppIcon.flow(ctx)
         .collectAsState(initial = true)
 
-    val showAppLaunchPreview by UiSettingsStore.getShowAppLaunchPreview(ctx)
+    val showAppLaunchPreview by UiSettingsStore.showAppLaunchingPreview.flow(ctx)
         .collectAsState(initial = true)
 
-    val showAppCirclePreview by UiSettingsStore.getShowCirclePreview(ctx)
+    val showAppCirclePreview by UiSettingsStore.showCirclePreview.flow(ctx)
         .collectAsState(initial = true)
 
-    val showAppLinePreview by UiSettingsStore.getShowLinePreview(ctx)
+    val showLinePreview by UiSettingsStore.showLinePreview.flow(ctx)
         .collectAsState(initial = true)
 
-    val showAppAnglePreview by UiSettingsStore.getShowAnglePreview(ctx)
+    val showAppAnglePreview by UiSettingsStore.showAnglePreview.flow(ctx)
         .collectAsState(initial = true)
 
-    val showAppPreviewIconCenterStartPosition by UiSettingsStore.getShowAppPreviewIconCenterStartPosition(ctx)
+    val showAppPreviewIconCenterStartPosition by UiSettingsStore.showAppPreviewIconCenterStartPosition.flow(ctx)
         .collectAsState(initial = false)
 
-    val linePreviewSnapToAction by UiSettingsStore.getLinePreviewSnapToAction(ctx)
+    val linePreviewSnapToAction by UiSettingsStore.linePreviewSnapToAction.flow(ctx)
         .collectAsState(initial = false)
 
-    val minAngleFromAPointToActivateIt by UiSettingsStore.getMinAngleFromAPointToActivateIt(ctx)
+    val minAngleFromAPointToActivateIt by UiSettingsStore.minAngleFromAPointToActivateIt.flow(ctx)
         .collectAsState(initial = 0)
 
-    val showAllActionsOnCurrentCircle by UiSettingsStore.getShowAllActionsOnCurrentCircle(ctx)
+    val showAllActionsOnCurrentCircle by UiSettingsStore.showAllActionsOnCurrentCircle.flow(ctx)
         .collectAsState(initial = false)
 
-    val appLabelIconOverlayTopPadding by UiSettingsStore.getAppLabelIconOverlayTopPadding(ctx)
+    val appLabelIconOverlayTopPadding by UiSettingsStore.appLabelIconOverlayTopPadding.flow(ctx)
         .collectAsState(initial = 30)
-    val appLabelOverlaySize by UiSettingsStore.getAppLabelOverlaySize(ctx)
+    val appLabelOverlaySize by UiSettingsStore.appLabelOverlaySize.flow(ctx)
         .collectAsState(initial = 18)
-    val appIconOverlaySize by UiSettingsStore.getAppIconOverlaySize(ctx)
+    val appIconOverlaySize by UiSettingsStore.appIconOverlaySize.flow(ctx)
         .collectAsState(initial = 22)
 
     var isDraggingAppPreviewOverlays by remember { mutableStateOf(false) }
@@ -177,7 +177,7 @@ fun AppearanceTab(
                 fullscreenApp,
                 stringResource(R.string.fullscreen_app),
             ) {
-                scope.launch { UiSettingsStore.setFullscreen(ctx, it) }
+                scope.launch { UiSettingsStore.fullScreen.set(ctx, it) }
             }
         }
 
@@ -185,7 +185,7 @@ fun AppearanceTab(
             SwitchRow(
                 rgbLoading,
                 stringResource(R.string.rgb_loading_settings),
-            ) { scope.launch { UiSettingsStore.setRGBLoading(ctx, it) } }
+            ) { scope.launch { UiSettingsStore.rgbLoading.set(ctx, it) } }
 
         }
 
@@ -193,21 +193,21 @@ fun AppearanceTab(
             SwitchRow(
                 rgbLine,
                 stringResource(R.string.rgb_line_selector),
-            ) { scope.launch { UiSettingsStore.setRGBLine(ctx, it) } }
+            ) { scope.launch { UiSettingsStore.rgbLine.set(ctx, it) } }
         }
 
         item {
             SwitchRow(
                 showLaunchingAppLabel,
                 stringResource(R.string.show_launching_app_label),
-            ) { scope.launch { UiSettingsStore.setShowLaunchingAppLabel(ctx, it) } }
+            ) { scope.launch { UiSettingsStore.showLaunchingAppLabel.set(ctx, it) } }
         }
 
         item {
             SwitchRow(
                 showLaunchingAppIcon,
                 stringResource(R.string.show_launching_app_icon),
-            ) { scope.launch { UiSettingsStore.setShowLaunchingAppIcon(ctx, it) } }
+            ) { scope.launch { UiSettingsStore.showLaunchingAppIcon.set(ctx, it) } }
         }
 
         item {
@@ -230,14 +230,11 @@ fun AppearanceTab(
                     color = MaterialTheme.colorScheme.primary,
                     onReset = {
                         scope.launch {
-                            UiSettingsStore.setAppLabelIconOverlayTopPadding(
-                                ctx,
-                                18
-                            )
+                            UiSettingsStore.appLabelIconOverlayTopPadding.reset(ctx)
                         }
                     },
                     onChange = {
-                        scope.launch { UiSettingsStore.setAppLabelIconOverlayTopPadding(ctx, it) }
+                        scope.launch { UiSettingsStore.appLabelIconOverlayTopPadding.set(ctx, it) }
                     },
                     onDragStateChange = {
                         isDraggingAppPreviewOverlays = it
@@ -252,14 +249,11 @@ fun AppearanceTab(
                     color = MaterialTheme.colorScheme.primary,
                     onReset = {
                         scope.launch {
-                            UiSettingsStore.setAppLabelOverlaySize(
-                                ctx,
-                                18
-                            )
+                            UiSettingsStore.appLabelOverlaySize.reset(ctx)
                         }
                     },
                     onChange = {
-                        scope.launch { UiSettingsStore.setAppLabelOverlaySize(ctx, it) }
+                        scope.launch { UiSettingsStore.appLabelOverlaySize.set(ctx, it) }
                     },
                     onDragStateChange = {
                         isDraggingAppPreviewOverlays = it
@@ -274,14 +268,11 @@ fun AppearanceTab(
                     color = MaterialTheme.colorScheme.primary,
                     onReset = {
                         scope.launch {
-                            UiSettingsStore.setAppIconOverlaySize(
-                                ctx,
-                                22
-                            )
+                            UiSettingsStore.appIconOverlaySize.reset(ctx)
                         }
                     },
                     onChange = {
-                        scope.launch { UiSettingsStore.setAppIconOverlaySize(ctx, it) }
+                        scope.launch { UiSettingsStore.appIconOverlaySize.set(ctx, it) }
                     },
                     onDragStateChange = {
                         isDraggingAppPreviewOverlays = it
@@ -294,21 +285,21 @@ fun AppearanceTab(
             SwitchRow(
                 showAppLaunchPreview,
                 stringResource(R.string.show_app_launch_preview),
-            ) { scope.launch { UiSettingsStore.setShowAppLaunchPreview(ctx, it) } }
+            ) { scope.launch { UiSettingsStore.showAppLaunchingPreview.set(ctx, it) } }
         }
 
         item {
             SwitchRow(
                 showAppCirclePreview,
                 stringResource(R.string.show_app_circle_preview),
-            ) { scope.launch { UiSettingsStore.setShowCirclePreview(ctx, it) } }
+            ) { scope.launch { UiSettingsStore.showCirclePreview.set(ctx, it) } }
         }
 
         item {
             SwitchRow(
-                showAppLinePreview,
+                showLinePreview,
                 stringResource(R.string.show_app_line_preview),
-            ) { scope.launch { UiSettingsStore.setShowLinePreview(ctx, it) } }
+            ) { scope.launch { UiSettingsStore.showLinePreview.set(ctx, it) } }
         }
 
         item {
@@ -318,7 +309,7 @@ fun AppearanceTab(
                     R.string.show_app_angle_preview,
                     if (!showAppAnglePreview) stringResource(R.string.do_you_hate_it) else ""
                 ),
-            ) { scope.launch { UiSettingsStore.setShowAnglePreview(ctx, it) } }
+            ) { scope.launch { UiSettingsStore.(ctx, it) } }
         }
 
         item {

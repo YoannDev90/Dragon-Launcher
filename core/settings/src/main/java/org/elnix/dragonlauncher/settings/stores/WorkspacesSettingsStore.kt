@@ -1,38 +1,27 @@
 package org.elnix.dragonlauncher.settings.stores
 
-import android.content.Context
-import androidx.datastore.preferences.core.edit
-import androidx.datastore.preferences.core.stringPreferencesKey
-import kotlinx.coroutines.flow.first
-import org.elnix.dragonlauncher.settings.bases.BaseSettingsStore
-import org.elnix.dragonlauncher.settings.workspaceDataStore
-import org.json.JSONObject
+import org.elnix.dragonlauncher.settings.DataStoreName
+import org.elnix.dragonlauncher.settings.SettingObject
+import org.elnix.dragonlauncher.settings.SettingType
+import org.elnix.dragonlauncher.settings.bases.JsonSettingsStore
 
-object WorkspaceSettingsStore : BaseSettingsStore<JSONObject>() {
+object WorkspaceSettingsStore : JsonSettingsStore() {
 
     override val name: String = "Workspaces"
-
-    private object Keys {
-        val WORKSPACE_KEY = stringPreferencesKey("workspace_state")
-    }
+    override val dataStoreName= DataStoreName.WORKSPACES
 
 
-    override suspend fun resetAll(ctx: Context) {
-        ctx.workspaceDataStore.edit { prefs ->
-            prefs.remove(Keys.WORKSPACE_KEY)
-        }
-    }
+    override val ALL: List<SettingObject<*>>
+        get() = listOf(
+            RAW_JSON
+        )
 
-    override suspend fun getAll(ctx: Context): JSONObject {
-        val prefs = ctx.workspaceDataStore.data.first()
-        val json = prefs[Keys.WORKSPACE_KEY] ?: return JSONObject()
-        return JSONObject(json)
-    }
+    private val RAW_JSON = SettingObject(
+        key = "workspace_state",
+        dataStoreName = dataStoreName,
+        default = "",
+        type = SettingType.String
+    )
 
-
-    override suspend fun setAll(ctx: Context, value: JSONObject) {
-        ctx.workspaceDataStore.edit { prefs ->
-            prefs[Keys.WORKSPACE_KEY] = value.toString()
-        }
-    }
+    override val jsonSetting = RAW_JSON
 }

@@ -10,14 +10,24 @@ import org.elnix.dragonlauncher.common.serializables.CircleNest
 import org.elnix.dragonlauncher.common.serializables.SwipeJson
 import org.elnix.dragonlauncher.common.serializables.SwipePointSerializable
 import org.elnix.dragonlauncher.common.serializables.defaultSwipePointsValues
-import org.elnix.dragonlauncher.settings.bases.BaseSettingsStore
-import org.elnix.dragonlauncher.settings.swipeDataStore
+import org.elnix.dragonlauncher.settings.DataStoreName
+import org.elnix.dragonlauncher.settings.SettingObject
+import org.elnix.dragonlauncher.settings.bases.JsonSettingsStore
+import org.elnix.dragonlauncher.settings.resolveDataStore
 import org.json.JSONArray
 import org.json.JSONObject
 
-object SwipeSettingsStore : BaseSettingsStore<JSONObject>() {
+object SwipeSettingsStore : JsonSettingsStore() {
 
     override val name: String = "Swipe"
+    override val dataStoreName = DataStoreName.SWIPE
+
+    override val ALL: List<SettingObject<*>>
+        get() = listOf()
+
+    override val jsonSetting: SettingObject<String>
+        get() = error("SwipeSettingsStore does not use a single JSON backing value")
+
 
     private val POINTS = stringPreferencesKey("points_json")
     private val CIRCLE_NESTS = stringPreferencesKey("nests_json")
@@ -27,17 +37,17 @@ object SwipeSettingsStore : BaseSettingsStore<JSONObject>() {
     /* ───────────── Points ───────────── */
 
     suspend fun getPoints(ctx: Context): List<SwipePointSerializable> =
-        ctx.swipeDataStore.data
+        ctx.resolveDataStore(dataStoreName).data
             .map { prefs -> prefs[POINTS]?.let(SwipeJson::decodePoints) ?: emptyList() }
             .first()
 
     fun getPointsFlow(ctx: Context) =
-        ctx.swipeDataStore.data.map { prefs ->
+        ctx.resolveDataStore(dataStoreName).data.map { prefs ->
             prefs[POINTS]?.let(SwipeJson::decodePoints) ?: emptyList()
         }
 
     suspend fun savePoints(ctx: Context, points: List<SwipePointSerializable>) {
-        ctx.swipeDataStore.edit { prefs ->
+        ctx.resolveDataStore(dataStoreName).edit { prefs ->
             prefs[POINTS] = SwipeJson.encodePoints(points)
         }
     }
@@ -45,17 +55,17 @@ object SwipeSettingsStore : BaseSettingsStore<JSONObject>() {
     /* ───────────── Nests ───────────── */
 
     suspend fun getNests(ctx: Context): List<CircleNest> =
-        ctx.swipeDataStore.data
+        ctx.resolveDataStore(dataStoreName).data
             .map { prefs -> prefs[CIRCLE_NESTS]?.let(SwipeJson::decodeNests) ?: listOf(CircleNest()) }
             .first()
 
     fun getNestsFlow(ctx: Context) =
-        ctx.swipeDataStore.data.map { prefs ->
+        ctx.resolveDataStore(dataStoreName).data.map { prefs ->
             prefs[CIRCLE_NESTS]?.let(SwipeJson::decodeNests) ?: listOf(CircleNest())
         }
 
     suspend fun saveNests(ctx: Context, nests: List<CircleNest>) {
-        ctx.swipeDataStore.edit { prefs ->
+        ctx.resolveDataStore(dataStoreName).edit { prefs ->
             prefs[CIRCLE_NESTS] = SwipeJson.encodeNests(nests)
         }
     }
@@ -64,30 +74,18 @@ object SwipeSettingsStore : BaseSettingsStore<JSONObject>() {
     /* ───────────── Default circle ───────────── */
 
     fun getDefaultPointFlow(ctx: Context): Flow<SwipePointSerializable> =
-        ctx.swipeDataStore.data.map { prefs ->
+        ctx.resolveDataStore(dataStoreName).data.map { prefs ->
             prefs[DEFAULT_CIRCLE]?.let { SwipeJson.decodePoints(it).first() } ?: defaultSwipePointsValues
         }
 
     suspend fun getDefaultPoint(ctx: Context): SwipePointSerializable =
-        ctx.swipeDataStore.data.map { prefs ->
+        ctx.resolveDataStore(dataStoreName).data.map { prefs ->
             prefs[DEFAULT_CIRCLE]?.let { SwipeJson.decodePoints(it).first() } ?: defaultSwipePointsValues
         }.first()
 
     suspend fun setDefaultPoint(ctx: Context, point: SwipePointSerializable) {
-        ctx.swipeDataStore.edit { prefs ->
+        ctx.resolveDataStore(dataStoreName).edit { prefs ->
             prefs[DEFAULT_CIRCLE] = SwipeJson.encodePoints(listOf(point))
-        }
-    }
-
-
-
-    /* ───────────── Reset ───────────── */
-
-    override suspend fun resetAll(ctx: Context) {
-        ctx.swipeDataStore.edit { prefs ->
-            prefs.remove(POINTS)
-            prefs.remove(CIRCLE_NESTS)
-            prefs.remove(DEFAULT_CIRCLE)
         }
     }
 

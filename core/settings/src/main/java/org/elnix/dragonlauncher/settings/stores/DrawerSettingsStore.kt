@@ -10,9 +10,6 @@ object DrawerSettingsStore : MapSettingsStore() {
     override val name: String = "Drawer"
     override val dataStoreName = DataStoreName.DRAWER
 
-    // -------------------------------------------------------------------------
-    // Settings as typed SettingObjects
-    // -------------------------------------------------------------------------
     val autoOpenSingleMatch = SettingObject(
         key = "autoOpenSingleMatch",
         dataStoreName = dataStoreName,
@@ -125,9 +122,7 @@ object DrawerSettingsStore : MapSettingsStore() {
         type = SettingType.Boolean
     )
 
-    // -------------------------------------------------------------------------
-    // ALL registry for iteration / reset / backup
-    // -------------------------------------------------------------------------
+
     override val ALL: List<SettingObject<*>>
         get() = listOf(
             autoOpenSingleMatch,
