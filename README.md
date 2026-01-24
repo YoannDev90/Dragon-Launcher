@@ -8,22 +8,27 @@
 
 
 [![GitHub release](https://img.shields.io/github/v/release/Elnix90/Dragon-Launcher.svg?include_prereleases&style=for-the-badge)](https://github.com/Elnix90/Dragon-Launcher/releases/latest)
-[![GitHub downloads](https://img.shields.io/github/downloads/Elnix90/Dragon-Launcher/total.svg?style=for-the-badge)](https://github.com/Elnix90/Dragon-Launcher/releases)
 [![GitHub stars](https://img.shields.io/github/stars/Elnix90/Dragon-Launcher?style=for-the-badge)](https://github.com/Elnix90/Dragon-Launcher/stargazers)
 [![GitHub issues](https://img.shields.io/github/issues/Elnix90/Dragon-Launcher?style=for-the-badge)](https://github.com/Elnix90/Dragon-Launcher/issues)
 [![GitHub forks](https://img.shields.io/github/forks/Elnix90/Dragon-Launcher?style=for-the-badge)](https://github.com/Elnix90/Dragon-Launcher/forks)
 [![GitHub pull requests](https://img.shields.io/github/issues-pr/Elnix90/Dragon-Launcher?style=for-the-badge)](https://github.com/Elnix90/Dragon-Launcher/pull)
+
+[![GitHub downloads](https://img.shields.io/github/downloads/Elnix90/Dragon-Launcher/total.svg?style=for-the-badge)](https://github.com/Elnix90/Dragon-Launcher/releases)
 [![GitHub license](https://img.shields.io/github/license/Elnix90/Dragon-Launcher?style=for-the-badge)](https://github.com/Elnix90/Dragon-Launcher/blob/dev/LICENSE)
 [![Discord](https://img.shields.io/discord/1327996079786168441?color=blue&label=Discord&logo=discord&style=for-the-badge)](https://discord.gg/6UyuP8EBWS)
-
 [![Offline First](https://img.shields.io/badge/Offline-First-orange.svg?style=for-the-badge&logo=rss&logoColor=white)]()
 [![Privacy](https://img.shields.io/badge/Privacy-100%25-green.svg?style=for-the-badge&logo=shield&logoColor=white)]()
 
 [<img src="https://raw.githubusercontent.com/Kunzisoft/Github-badge/main/get-it-on-github.png" alt='Get it on GitHub' height="80">](https://github.com/Elnix90/Dragon-Launcher/releases/latest)
 [<img src="https://gitlab.com/IzzyOnDroid/repo/-/raw/master/assets/IzzyOnDroid.png" alt="Get it on IzzyOnDroid" height="80">](https://apt.izzysoft.de/fdroid/index/apk/org.elnix.dragonlauncher)
 [<img src="https://f-droid.org/badge/get-it-on.png" alt="Get it on F-Droid" height="80">](https://f-droid.org/en/packages/org.elnix.dragonlauncher/)
+[<img src="https://www.openapk.net/images/openapk-badge.png" alt="Get it on OpenAPK" height="80">](https://www.openapk.net/dragon-launcher/org.elnix.dragonlauncher/)
+[<img src="https://raw.githubusercontent.com/ImranR98/Obtainium/main/assets/graphics/badge_obtainium.png" alt="Get it on Obtainium" height="60">](http://apps.obtainium.imranr.dev/redirect.html?r=obtainium://add/https://github.com/Elnix90/Dragon-Launcher)
 </div>
 
+---
+# 🎉 Thank you very much to the stargazers !
+---
 
 ## Features
 
