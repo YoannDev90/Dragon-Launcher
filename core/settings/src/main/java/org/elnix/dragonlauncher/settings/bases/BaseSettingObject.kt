@@ -71,8 +71,8 @@ class BaseSettingObject <T, R> (
     suspend fun get(ctx: Context): T {
         val raw = ctx.resolveDataStore(dataStoreName)
             .data
-            .first()[preferenceKey] ?: encode(default)
-        return decode(raw)
+            .first()[preferenceKey]
+        return raw?.let { decode(it) } ?: default
     }
 
     /**
@@ -84,7 +84,11 @@ class BaseSettingObject <T, R> (
     fun flow(ctx: Context): Flow<T> =
         ctx.resolveDataStore(dataStoreName)
             .data
-            .map { decode(it[preferenceKey] ?: encode(default)) }
+            .map { prefs ->
+                prefs[preferenceKey]?.let {
+                    decode(it)
+                } ?: default
+            }
 
 
 

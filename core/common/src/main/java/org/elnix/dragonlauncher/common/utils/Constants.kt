@@ -109,6 +109,7 @@ const val WIDGET_TAG = "WidgetsDebug"
 const val FLOATING_APPS_TAG = "FloatingAppsDebug"
 const val ACCESSIBILITY_TAG = "SystemControl"
 const val IMAGE_TAG = "ImageDebug"
+const val SETTINGS_TAG = "SettingsDebug"
 
 
 

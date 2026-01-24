@@ -7,124 +7,102 @@ import org.elnix.dragonlauncher.common.serializables.SwipeJson
 
 fun getBooleanStrict(
     raw: Any?,
-    key: String,
     def: Boolean
 ): Boolean {
-    val v = raw ?: return def
-    return when (v) {
-        is Boolean -> v
-        is Number -> v.toInt() != 0
-        is String -> when (v.trim().lowercase()) {
+    return when (raw) {
+        is Boolean -> raw
+        is Number -> raw.toInt() != 0
+        is String -> when (raw.trim().lowercase()) {
             "true", "1", "yes", "y", "on" -> true
             "false", "0", "no", "n", "off" -> false
-            else -> throw BackupTypeException(key, "Boolean", "String", v)
+            else -> null
         }
-        else -> throw BackupTypeException(key, "Boolean", v::class.simpleName, v)
-    }
+        else -> null
+    } ?: def
 }
 
 fun getIntStrict(
     raw: Any?,
-    key: String,
     def: Int
 ): Int {
-    val v = raw ?: return def
-    return when (v) {
-        is Int -> v
-        is Number -> v.toInt()
-        is String -> v.toIntOrNull()
-            ?: throw BackupTypeException(key, "Int", "String", v)
-        else -> throw BackupTypeException(key, "Int", v::class.simpleName, v)
-    }
+    return when (raw) {
+        is Int -> raw
+        is Number -> raw.toInt()
+        is String -> raw.toIntOrNull()
+        else -> null
+    } ?: def
 }
 fun getFloatStrict(
     raw: Any?,
-    key: String,
     def: Float
 ): Float {
-    val v = raw ?: return def
-    return when (v) {
-        is Float -> v
-        is Number -> v.toFloat()
-        is String -> v.toFloatOrNull()
-            ?: throw BackupTypeException(key, "Float", "String", v)
-        else -> throw BackupTypeException(key, "Float", v::class.simpleName, v)
-    }
+    return when (raw) {
+        is Float -> raw
+        is Number -> raw.toFloat()
+        is String -> raw.toFloatOrNull()
+        else -> null
+    } ?: def
 }
 
 fun getLongStrict(
     raw: Any?,
-    key: String,
     def: Long
 ): Long {
-    val v = raw ?: return def
-    return when (v) {
-        is Long -> v
-        is Number -> v.toLong()
-        is String -> v.toLongOrNull()
-            ?: throw BackupTypeException(key, "Long", "String", v)
-        else -> throw BackupTypeException(key, "Long", v::class.simpleName, v)
-    }
+    return when (raw) {
+        is Long -> raw
+        is Number -> raw.toLong()
+        is String -> raw.toLongOrNull()
+        else -> null
+    } ?: def
 }
-
 
 
 fun getDoubleStrict(
     raw: Any?,
-    key: String,
     def: Double
 ): Double {
-    val v = raw ?: return def
-    return when (v) {
-        is Double -> v
-        is Number -> v.toDouble()
-        is String -> v.toDoubleOrNull()
-            ?: throw BackupTypeException(key, "Double", "String", v)
-        else -> throw BackupTypeException(key, "Double", v::class.simpleName, v)
-    }
+    return when (raw) {
+        is Double -> raw
+        is Number -> raw.toDouble()
+        is String -> raw.toDoubleOrNull()
+        else -> null
+    } ?: def
 }
 
 fun getStringStrict(
     raw: Any?,
-    key: String,
     def: String
 ): String {
-    val v = raw ?: return def
-    return when (v) {
-        is String -> v
-        else -> throw BackupTypeException(key, "String", v::class.simpleName, v)
+    return when (raw) {
+        is String -> raw
+        null -> def
+        else -> raw.toString()
     }
 }
 
 
 fun getSwipeActionSerializableStrict(
     raw: Any?,
-    key: String,
     def: SwipeActionSerializable
 ): SwipeActionSerializable {
-    val v = raw ?: return def
-    return when (v) {
-        is String -> SwipeJson.decodeAction(v) ?: def
-//         throw BackupTypeException(key, "SwipeActionSerializable", v::class.simpleName, v)
-        else -> throw BackupTypeException(key, "SwipeActionSerializable", v::class.simpleName, v)
-    }
+    return when (raw) {
+        is String -> SwipeJson.decodeAction(raw)
+        else -> null
+    } ?: def
 }
 
 fun getStringSetStrict(
     raw: Any?,
-    key: String,
     def: Set<String>
 ): Set<String> {
-    val v = raw ?: return def
-
-    return when (v) {
-        is Set<*> -> v.flattenStrings().toSet()
-        is List<*> -> v.flattenStrings().toSet()
+    return when (raw) {
+        is Set<*> -> raw.flattenStrings().toSet()
+        is List<*> -> raw.flattenStrings().toSet()
         is String -> {
             // Parse "[a,b,c]" → ["a","b","c"]
             try {
                 // Extract content between [ ] and split by comma
-                val clean = v.trim().removeSurrounding("[", "]")
+                val clean = raw.trim().removeSurrounding("[", "]")
                 if (clean.isBlank()) return emptySet()
 
                 clean.split(",")
@@ -132,11 +110,11 @@ fun getStringSetStrict(
                     .filter { it.isNotBlank() }
                     .toSet()
             } catch (_: Exception) {
-                setOf(v)
+                setOf(raw)
             }
         }
-        else -> throw BackupTypeException(key, "String Set", v.javaClass.name, v)
-    }
+        else -> null
+    } ?: def
 }
 
 
@@ -151,29 +129,12 @@ private fun Collection<*>.flattenStrings(): List<String> = flatMap { item ->
 
 fun <E : Enum<E>> getEnumStrict(
     raw: Any?,
-    key: String,
     def: E,
     enumClass: Class<E>
 ): E {
-    val v = raw ?: return def
-
-    if (v !is String) {
-        throw BackupTypeException(
-            key,
-            "String (Enum name)",
-            v::class.simpleName,
-            v
-        )
-    }
-
     return enumClass.enumConstants
-        ?.firstOrNull { it.name == v }
-        ?: throw BackupTypeException(
-            key,
-            "one of ${enumClass.enumConstants?.joinToString { it.name }}",
-            "String",
-            v
-        )
+        ?.firstOrNull { it.name == raw }
+        ?: def
 }
 
 
@@ -181,16 +142,15 @@ fun <E : Enum<E>> getEnumStrict(
 
 fun getColorStrict(
     raw: Any?,
-    key: String,
     def: Color
 ): Color {
-    val v = raw ?: return def
-    return when (v) {
-        is Int -> Color(v)
-        is Number -> Color(v.toInt())
-        is String -> Color (v.toInt())
-        else -> throw BackupTypeException(key, "Color", v::class.simpleName, v)
-    }
+    return when (raw) {
+        null -> null
+        is Int -> Color(raw)
+        is Number -> Color(raw.toInt())
+        is String -> Color (raw.toInt())
+        else -> null
+    } ?: def
 }
 
 fun MutableMap<String, Any>.putIfNonDefault(

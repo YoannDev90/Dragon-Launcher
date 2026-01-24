@@ -1,6 +1,7 @@
 package org.elnix.dragonlauncher.settings
 
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.toArgb
 import androidx.datastore.preferences.core.booleanPreferencesKey
 import androidx.datastore.preferences.core.doublePreferencesKey
 import androidx.datastore.preferences.core.floatPreferencesKey
@@ -8,8 +9,10 @@ import androidx.datastore.preferences.core.intPreferencesKey
 import androidx.datastore.preferences.core.longPreferencesKey
 import androidx.datastore.preferences.core.stringPreferencesKey
 import androidx.datastore.preferences.core.stringSetPreferencesKey
+import org.elnix.dragonlauncher.common.logging.logD
 import org.elnix.dragonlauncher.common.serializables.SwipeActionSerializable
 import org.elnix.dragonlauncher.common.serializables.SwipeJson
+import org.elnix.dragonlauncher.common.utils.SETTINGS_TAG
 import org.elnix.dragonlauncher.settings.bases.BaseSettingObject
 
 /**
@@ -55,7 +58,7 @@ object Settings {
             preferenceKey = booleanPreferencesKey(key),
             encode = { it },
             decode = { raw ->
-                getBooleanStrict(raw, key, default)
+                getBooleanStrict(raw, default)
             }
         )
 
@@ -71,7 +74,7 @@ object Settings {
             preferenceKey = intPreferencesKey(key),
             encode = { it },
             decode = { raw ->
-                getIntStrict(raw, key, default)
+                getIntStrict(raw, default)
             }
         )
 
@@ -88,7 +91,7 @@ object Settings {
             preferenceKey = floatPreferencesKey(key),
             encode = { it },
             decode = { raw ->
-                getFloatStrict(raw, key, default)
+                getFloatStrict(raw, default)
             }
         )
 
@@ -104,7 +107,7 @@ object Settings {
             preferenceKey = longPreferencesKey(key),
             encode = { it },
             decode = { raw ->
-                getLongStrict(raw, key, default)
+                getLongStrict(raw, default)
             }
         )
 
@@ -120,7 +123,7 @@ object Settings {
             preferenceKey = doublePreferencesKey(key),
             encode = { it },
             decode = { raw ->
-                getDoubleStrict(raw, key, default)
+                getDoubleStrict(raw, default)
             }
         )
 
@@ -137,7 +140,7 @@ object Settings {
             preferenceKey = stringPreferencesKey(key),
             encode = { it },
             decode = { raw ->
-                getStringStrict(raw, key, default)
+                getStringStrict(raw, default)
             }
         )
 
@@ -153,7 +156,7 @@ object Settings {
             preferenceKey = stringSetPreferencesKey(key),
             encode = { it },
             decode = { raw ->
-                getStringSetStrict(raw, key, default)
+                getStringSetStrict(raw, default)
             }
         )
 
@@ -170,7 +173,7 @@ object Settings {
             preferenceKey = stringPreferencesKey(key),
             encode = { it.name },
             decode = { raw ->
-                getEnumStrict(raw, key, default, enumClass)
+                getEnumStrict(raw, default, enumClass)
 
             }
         )
@@ -185,9 +188,11 @@ object Settings {
             dataStoreName = dataStoreName,
             default = default,
             preferenceKey = intPreferencesKey(key),
-            encode = { it.value.toInt() },
+            encode = { it.toArgb() },
             decode = { raw ->
-                getColorStrict(raw, key, default)
+                val a = getColorStrict(raw, default)
+                logD(SETTINGS_TAG, "Decoded $raw -> $a")
+                a
             }
         )
 
@@ -203,7 +208,7 @@ object Settings {
             preferenceKey = stringPreferencesKey(key),
             encode = { SwipeJson.encodeAction(it) },
             decode = { raw ->
-                getSwipeActionSerializableStrict(raw, key, default)
+                getSwipeActionSerializableStrict(raw, default)
             }
         )
 }
