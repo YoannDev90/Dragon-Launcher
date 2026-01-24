@@ -3,8 +3,7 @@ name: Build & Pre-Release
 on:
   push:
     branches:
-      - never # Disabled from now, since it creates jank in everyone's feed
-      # I'll only release at evening for instance
+      - dev
     paths:
         - 'app/**'
         - 'build.gradle**'
