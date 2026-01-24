@@ -1,6 +1,7 @@
 package org.elnix.dragonlauncher.settings.bases
 
 import android.content.Context
+import org.json.JSONException
 import org.json.JSONObject
 
 /**
@@ -28,11 +29,23 @@ abstract class JsonSettingsStore :
      * Underlying setting that stores the JSON payload as a raw string.
      */
     abstract val jsonSetting: BaseSettingObject<String, String>
+
+
     /**
      * Reads the JSON string from DataStore and parses it into a [JSONObject].
      */
-    override suspend fun getAll(ctx: Context): JSONObject =
-        JSONObject(jsonSetting.get(ctx))
+    override suspend fun getAll(ctx: Context): JSONObject {
+        val raw = jsonSetting.get(ctx).trim()
+
+        return try {
+            if (raw.isEmpty()) JSONObject() else JSONObject(raw)
+        } catch (e: JSONException) {
+            e.printStackTrace()
+            JSONObject()
+        }
+    }
+
+
 
     /**
      * Serializes and writes the provided [JSONObject] into DataStore.
