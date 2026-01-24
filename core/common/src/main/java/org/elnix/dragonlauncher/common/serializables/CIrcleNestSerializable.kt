@@ -19,7 +19,12 @@ data class CircleNest(
      * the key is the circle number, made for allowing not ascending order drag distances
      * For the last one, the drag distance has no limit, it's not even counted
      */
-    @SerializedName("dragDistances") val dragDistances: Map<Int, Int> = emptyMap(),
+    @SerializedName("dragDistances") val dragDistances: Map<Int, Int> = mapOf(
+        -1 to 150,
+        0 to 300,
+        1 to 450,
+        2 to 600
+    ),
 
     /**
      * The id of the nest that holds this one, used for drawing correctly the outer circles
