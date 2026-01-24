@@ -66,7 +66,7 @@ data class SwipePointSerializable(
 
     /** Enables haptic feedback when the swipe point is activated. */
     @SerializedName("n")
-    val haptic: Boolean? = null,
+    val haptic: Int? = null,
 
     /** Optional user-defined display name (labels, accessibility, debug UI). */
     @SerializedName("o")

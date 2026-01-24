@@ -41,6 +41,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import org.elnix.dragonlauncher.common.serializables.CircleNest
 import org.elnix.dragonlauncher.common.serializables.SwipePointSerializable
+import org.elnix.dragonlauncher.common.utils.vibrate
 import org.elnix.dragonlauncher.settings.stores.DebugSettingsStore
 import org.elnix.dragonlauncher.settings.stores.UiSettingsStore
 import org.elnix.dragonlauncher.ui.components.AppPreviewTitle
@@ -228,6 +229,16 @@ fun MainScreenOverlay(
         targetValue = if (bannerVisible) 0.dp else (-20).dp,
         animationSpec = tween(150)
     )
+
+    LaunchedEffect(hoveredPoint?.id) {
+       hoveredPoint?.let { point ->
+           point.haptic ?: defaultPoint.haptic?.let { milliseconds ->
+               if (milliseconds > 0) {
+                   vibrate(ctx, milliseconds.toLong())
+               }
+           }
+       }
+    }
 
     LaunchedEffect(isDragging) {
         if (!isDragging) {

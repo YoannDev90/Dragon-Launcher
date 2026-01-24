@@ -16,7 +16,6 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Edit
 import androidx.compose.material.icons.filled.Restore
-import androidx.compose.material3.Checkbox
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
@@ -507,34 +506,17 @@ fun EditPointDialog(
 
 
                 item {
-                    Row(
-                        verticalAlignment = Alignment.CenterVertically,
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .clip(RoundedCornerShape(12.dp))
-                            .clickable(false) {
-                                if (editPoint.haptic == null) editPoint.copy(haptic = true)
-                                else editPoint = editPoint.copy(haptic = editPoint.haptic)
 
-                            }
-                            .padding(8.dp)
+                    SliderWithLabel(
+                        value = editPoint.haptic ?: 0,
+                        label = stringResource(R.string.haptic_feedback),
+                        valueRange = 0..1000,
+                        color = MaterialTheme.colorScheme.primary,
+                        onReset = {
+                            editPoint = editPoint.copy(haptic = null)
+                        }
                     ) {
-                        Checkbox(
-                            enabled = false,
-                            checked = editPoint.haptic
-                                ?: defaultPoint.haptic
-                                ?: defaultSwipePointsValues.haptic!!,
-                            onCheckedChange = {
-                                if (editPoint.haptic == null) editPoint.copy(haptic = true)
-                                else editPoint = editPoint.copy(haptic = editPoint.haptic)
-                            },
-                            colors = AppObjectsColors.checkboxColors()
-                        )
-
-                        Text(
-                            text = stringResource(R.string.haptic_feedback),
-                            color = MaterialTheme.colorScheme.onSurface.adjustBrightness(0.7f)
-                        )
+                        editPoint = editPoint.copy(haptic = it)
                     }
                 }
             }
