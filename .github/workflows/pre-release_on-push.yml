@@ -12,7 +12,6 @@ on:
         - '**.kts'
         - '**.java'
 
-
 jobs:
   build:
     runs-on: ubuntu-latest
