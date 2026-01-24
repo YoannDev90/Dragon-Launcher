@@ -128,7 +128,7 @@ class SwipeActionAdapter : JsonSerializer<SwipeActionSerializable>, JsonDeserial
             is SwipeActionSerializable.ReloadApps -> { obj.addProperty("type", "ReloadApps") }
             is SwipeActionSerializable.OpenRecentApps -> { obj.addProperty("type", "OpenRecentApps") }
             is SwipeActionSerializable.GoParentNest -> { obj.addProperty("type", "GoParentNest") }
-            SwipeActionSerializable.None -> {}
+            SwipeActionSerializable.None -> null
         }
         return obj
     }

@@ -1,6 +1,9 @@
 package org.elnix.dragonlauncher.settings.bases
 
 import android.content.Context
+import org.elnix.dragonlauncher.common.logging.logI
+import org.elnix.dragonlauncher.common.logging.logW
+import org.elnix.dragonlauncher.common.utils.SETTINGS_TAG
 import org.elnix.dragonlauncher.settings.putIfNonDefault
 import org.json.JSONObject
 
@@ -49,7 +52,10 @@ abstract class MapSettingsStore :
     override suspend fun setAll(ctx: Context, value: Map<String, Any?>) {
         ALL.forEach { setting ->
             val raw = value[setting.key]
+            logI(SETTINGS_TAG, "Raw : $raw")
             val typedValue = setting.decode(raw)
+
+            logI(SETTINGS_TAG, "Typed value : $typedValue")
             setting.setAny(ctx, typedValue)
         }
     }
@@ -71,6 +77,8 @@ abstract class MapSettingsStore :
             ALL.find { it.key == key }?.let { setting ->
                 val raw = json.opt(key)
                 val typedValue = setting.decode(raw)
+
+                logW(SETTINGS_TAG, "[IMPORT FROM BACKUP] Raw : $raw; Typed value : $typedValue")
                 setting.setAny(ctx, typedValue)
             }
         }

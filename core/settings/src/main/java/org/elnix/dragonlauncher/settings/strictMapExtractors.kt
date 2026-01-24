@@ -159,6 +159,6 @@ fun MutableMap<String, Any>.putIfNonDefault(
     def: Any?
 ) {
     if (value != null && value != def) {
-        put(key, value.toString())
+        put(key, value)
     }
 }

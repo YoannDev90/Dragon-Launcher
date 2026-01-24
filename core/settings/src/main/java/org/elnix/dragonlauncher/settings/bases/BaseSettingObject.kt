@@ -6,6 +6,8 @@ import androidx.datastore.preferences.core.edit
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.map
+import org.elnix.dragonlauncher.common.logging.logI
+import org.elnix.dragonlauncher.common.utils.SETTINGS_TAG
 import org.elnix.dragonlauncher.settings.DataStoreName
 import org.elnix.dragonlauncher.settings.resolveDataStore
 
@@ -55,7 +57,7 @@ class BaseSettingObject <T, R> (
      */
     override suspend fun setAny(ctx: Context, value: Any?) {
         @Suppress("UNCHECKED_CAST")
-        set(ctx, decode(value as R))
+        set(ctx, value as T)
     }
 
 
@@ -103,7 +105,10 @@ class BaseSettingObject <T, R> (
     suspend fun set(ctx: Context, value: T?) {
         ctx.resolveDataStore(dataStoreName).edit {
             if (value != null) {
-                it[preferenceKey] = encode(value)
+                val encoded = encode(value)
+                logI(SETTINGS_TAG, "[SET] $preferenceKey > Value: $value; Encoded : $encoded")
+
+                it[preferenceKey] = encoded
             } else {
                 it.remove(preferenceKey)
             }

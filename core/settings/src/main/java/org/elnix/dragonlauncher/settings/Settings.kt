@@ -9,10 +9,8 @@ import androidx.datastore.preferences.core.intPreferencesKey
 import androidx.datastore.preferences.core.longPreferencesKey
 import androidx.datastore.preferences.core.stringPreferencesKey
 import androidx.datastore.preferences.core.stringSetPreferencesKey
-import org.elnix.dragonlauncher.common.logging.logD
 import org.elnix.dragonlauncher.common.serializables.SwipeActionSerializable
 import org.elnix.dragonlauncher.common.serializables.SwipeJson
-import org.elnix.dragonlauncher.common.utils.SETTINGS_TAG
 import org.elnix.dragonlauncher.settings.bases.BaseSettingObject
 
 /**
@@ -191,7 +189,7 @@ object Settings {
             encode = { it.toArgb() },
             decode = { raw ->
                 val a = getColorStrict(raw, default)
-                logD(SETTINGS_TAG, "Decoded $raw -> $a")
+//                logD(SETTINGS_TAG, "key: $key; Decoded $raw -> $a (${toHexWithAlpha(a)}")
                 a
             }
         )
@@ -206,9 +204,16 @@ object Settings {
             dataStoreName = dataStoreName,
             default = default,
             preferenceKey = stringPreferencesKey(key),
-            encode = { SwipeJson.encodeAction(it) },
+            encode = { raw ->
+
+                val a = SwipeJson.encodeAction(raw)
+//                logD(SETTINGS_TAG, "Encoded $raw -> $a")
+                a
+             },
             decode = { raw ->
-                getSwipeActionSerializableStrict(raw, default)
+                val a = getSwipeActionSerializableStrict(raw, default)
+//                logD(SETTINGS_TAG, "Decoded $raw -> $a")
+                a
             }
         )
 }

@@ -67,6 +67,12 @@ fun StatusBar(
     val bottomStatusBarPadding by StatusBarSettingsStore.bottomPadding.flow(ctx)
         .collectAsState(initial = 2)
 
+    val clockAction by StatusBarSettingsStore.clockAction.flow(ctx)
+        .collectAsState(null)
+
+    val dateAction by StatusBarSettingsStore.dateAction.flow(ctx)
+        .collectAsState(null)
+
     Row(
         modifier = Modifier
             .fillMaxWidth()
@@ -85,6 +91,8 @@ fun StatusBar(
             showDate = showDate,
             timeFormatter = timeFormatter,
             dateFormatter = dateFormatter,
+            clockAction = clockAction,
+            dateAction = dateAction,
             textColor = statusBarText,
             onClockAction = onClockAction,
             onDateAction = onDateAction

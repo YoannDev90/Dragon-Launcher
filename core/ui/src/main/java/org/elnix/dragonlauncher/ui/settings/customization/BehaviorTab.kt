@@ -88,7 +88,7 @@ fun BehaviorTab(
                 label = stringResource(R.string.double_click_action),
                 onToggle = {
                     scope.launch {
-                        BehaviorSettingsStore.resetAll(ctx)
+                        BehaviorSettingsStore.doubleClickAction.reset(ctx)
                     }
                 }
             ) {

@@ -63,7 +63,7 @@ fun CustomActionSelector(
 
     val baseModifier = if (label != null) Modifier.fillMaxWidth() else Modifier.wrapContentWidth()
 
-    val toggled = currentAction != null
+    val toggled = currentAction != null && currentAction != SwipeActionSerializable.None
 
     val actionColor = actionColor(currentAction, extraColors).copy(if (enabled) 1f else 0.5f)
     Row(

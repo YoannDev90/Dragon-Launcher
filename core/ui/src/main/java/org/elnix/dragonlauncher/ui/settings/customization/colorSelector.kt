@@ -264,13 +264,19 @@ fun ColorSelectorTab(
                             BurgerListAction(
                                 actions = listOf(
                                     BurgerAction(
-                                        onClick = { showRandomColorsValidation = true }
+                                        onClick = {
+                                            showRandomColorsValidation = true
+                                            showBurgerMenu = false
+                                        }
                                     ) {
                                         Icon(Icons.Default.Shuffle, null)
                                         Text(stringResource(R.string.make_every_colors_random))
                                     },
                                     BurgerAction(
-                                        onClick = { showAllColorsValidation = true }
+                                        onClick = {
+                                            showAllColorsValidation = true
+                                            showBurgerMenu = false
+                                        }
                                     ) {
                                         Icon(Icons.Default.SelectAll, null)
                                         Text(stringResource(R.string.make_all_colors_identical))
@@ -280,7 +286,6 @@ fun ColorSelectorTab(
                         }
                     }
                 }
-
             }
         }
 

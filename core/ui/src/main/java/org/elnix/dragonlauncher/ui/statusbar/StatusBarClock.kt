@@ -6,7 +6,6 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -18,7 +17,6 @@ import kotlinx.coroutines.delay
 import org.elnix.dragonlauncher.common.serializables.SwipeActionSerializable
 import org.elnix.dragonlauncher.common.utils.openAlarmApp
 import org.elnix.dragonlauncher.common.utils.openCalendar
-import org.elnix.dragonlauncher.settings.stores.StatusBarSettingsStore
 import java.time.LocalDate
 import java.time.LocalTime
 import java.time.format.DateTimeFormatter
@@ -30,16 +28,13 @@ fun StatusBarClock(
     textColor: Color,
     timeFormatter: String,
     dateFormatter: String,
+    clockAction: SwipeActionSerializable?,
+    dateAction: SwipeActionSerializable?,
     onClockAction: (SwipeActionSerializable) -> Unit,
     onDateAction: (SwipeActionSerializable) -> Unit
 ) {
     val ctx = LocalContext.current
 
-    val clockAction by StatusBarSettingsStore.clockAction.flow(ctx)
-        .collectAsState(null)
-
-    val dateAction by StatusBarSettingsStore.dateAction.flow(ctx)
-        .collectAsState(null)
 
     val timeFormat = remember(timeFormatter) {
         try {
