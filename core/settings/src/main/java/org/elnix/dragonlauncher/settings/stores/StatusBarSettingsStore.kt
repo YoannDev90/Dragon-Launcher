@@ -4,8 +4,8 @@ import androidx.compose.ui.graphics.Color
 import org.elnix.dragonlauncher.common.serializables.SwipeActionSerializable
 import org.elnix.dragonlauncher.common.theme.AmoledDefault
 import org.elnix.dragonlauncher.settings.DataStoreName
-import org.elnix.dragonlauncher.settings.SettingObject
-import org.elnix.dragonlauncher.settings.SettingType
+import org.elnix.dragonlauncher.settings.Settings
+import org.elnix.dragonlauncher.settings.bases.BaseSettingObject
 import org.elnix.dragonlauncher.settings.bases.MapSettingsStore
 
 object StatusBarSettingsStore : MapSettingsStore() {
@@ -13,126 +13,109 @@ object StatusBarSettingsStore : MapSettingsStore() {
     override val name: String = "Status Bar"
     override val dataStoreName: DataStoreName = DataStoreName.STATUS_BAR
 
-    val showStatusBar = SettingObject(
+    val showStatusBar = Settings.boolean(
         key = "showStatusBar",
         dataStoreName = dataStoreName,
-        default = true,
-        type = SettingType.Boolean
+        default = true
     )
 
-    val barBackgroundColor = SettingObject(
+    val barBackgroundColor = Settings.color(
         key = "barBackgroundColor",
         dataStoreName = dataStoreName,
-        default = Color.Transparent,
-        type = SettingType.Color
+        default = Color.Transparent
     )
 
-    val barTextColor = SettingObject(
+    val barTextColor = Settings.color(
         key = "barTextColor",
         dataStoreName = dataStoreName,
-        default = AmoledDefault.OnBackground,
-        type = SettingType.Color
+        default = AmoledDefault.OnBackground
     )
 
-    val showTime = SettingObject(
+    val showTime = Settings.boolean(
         key = "showTime",
         dataStoreName = dataStoreName,
-        default = true,
-        type = SettingType.Boolean
+        default = true
     )
 
-    val showDate = SettingObject(
+    val showDate = Settings.boolean(
         key = "showDate",
         dataStoreName = dataStoreName,
-        default = false,
-        type = SettingType.Boolean
+        default = false
     )
 
-    val timeFormatter = SettingObject(
+    val timeFormatter = Settings.string(
         key = "timeFormatter",
         dataStoreName = dataStoreName,
-        default = "HH:mm:ss",
-        type = SettingType.String
+        default = "HH:mm:ss"
     )
 
-    val dateFormater = SettingObject(
+    val dateFormater = Settings.string(
         key = "dateFormatter",
         dataStoreName = dataStoreName,
-        default = "MMM dd",
-        type = SettingType.String
+        default = "MMM dd"
     )
 
-    val showNotifications = SettingObject(
+    val showNotifications = Settings.boolean(
         key = "showNotifications",
         dataStoreName = dataStoreName,
-        default = false,
-        type = SettingType.Boolean
+        default = false
     )
 
-    val showBattery = SettingObject(
+    val showBattery = Settings.boolean(
         key = "showBattery",
         dataStoreName = dataStoreName,
-        default = true,
-        type = SettingType.Boolean
+        default = true
     )
 
-    val showConnectivity = SettingObject(
+    val showConnectivity = Settings.boolean(
         key = "showConnectivity",
         dataStoreName = dataStoreName,
-        default = false,
-        type = SettingType.Boolean
+        default = false
     )
 
-    val showNextAlarm = SettingObject(
+    val showNextAlarm = Settings.boolean(
         key = "showNextAlarm",
         dataStoreName = dataStoreName,
-        default = true,
-        type = SettingType.Boolean
+        default = true
     )
 
-    val leftPadding = SettingObject(
+    val leftPadding = Settings.int(
         key = "leftPadding",
         dataStoreName = dataStoreName,
-        default = 5,
-        type = SettingType.Int
+        default = 5
     )
 
-    val rightPadding = SettingObject(
+    val rightPadding = Settings.int(
         key = "rightPadding",
         dataStoreName = dataStoreName,
-        default = 5,
-        type = SettingType.Int
+        default = 5
     )
 
-    val topPadding = SettingObject(
+    val topPadding = Settings.int(
         key = "topPadding",
         dataStoreName = dataStoreName,
-        default = 2,
-        type = SettingType.Int
+        default = 2
     )
 
-    val bottomPadding = SettingObject(
+    val bottomPadding = Settings.int(
         key = "bottomPadding",
         dataStoreName = dataStoreName,
-        default = 2,
-        type = SettingType.Int
+        default = 2
     )
 
-    val clockAction = SettingObject<SwipeActionSerializable?>(
+    val clockAction = Settings.swipeAction(
         key = "clockAction",
         dataStoreName = dataStoreName,
-        default = null,
-        type = SettingType.SwipeActionSerializable
+        default = SwipeActionSerializable.None
     )
 
-    val dateAction = SettingObject<SwipeActionSerializable?>(
+    val dateAction = Settings.swipeAction(
         key = "dateAction",
         dataStoreName = dataStoreName,
-        default = null,
-        type = SettingType.SwipeActionSerializable
+        default = SwipeActionSerializable.None
     )
 
-    override val ALL: List<SettingObject<*>> = listOf(
+    override val ALL: List<BaseSettingObject<*,*>> = listOf(
         showStatusBar,
         barBackgroundColor,
         barTextColor,

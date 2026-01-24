@@ -2,8 +2,12 @@ package org.elnix.dragonlauncher.settings
 
 import androidx.compose.ui.graphics.Color
 import androidx.datastore.preferences.core.booleanPreferencesKey
+import androidx.datastore.preferences.core.doublePreferencesKey
+import androidx.datastore.preferences.core.floatPreferencesKey
 import androidx.datastore.preferences.core.intPreferencesKey
+import androidx.datastore.preferences.core.longPreferencesKey
 import androidx.datastore.preferences.core.stringPreferencesKey
+import androidx.datastore.preferences.core.stringSetPreferencesKey
 import org.elnix.dragonlauncher.common.serializables.SwipeActionSerializable
 import org.elnix.dragonlauncher.common.serializables.SwipeJson
 import org.elnix.dragonlauncher.settings.bases.BaseSettingObject
@@ -50,7 +54,9 @@ object Settings {
             default = default,
             preferenceKey = booleanPreferencesKey(key),
             encode = { it },
-            decode = { it }
+            decode = { raw ->
+                getBooleanStrict(raw, key, default)
+            }
         )
 
     fun int(
@@ -64,8 +70,60 @@ object Settings {
             default = default,
             preferenceKey = intPreferencesKey(key),
             encode = { it },
-            decode = { it }
+            decode = { raw ->
+                getIntStrict(raw, key, default)
+            }
         )
+
+
+    fun float(
+        key: String,
+        dataStoreName: DataStoreName,
+        default: Float
+    ): BaseSettingObject<Float, Float> =
+        BaseSettingObject(
+            key = key,
+            dataStoreName = dataStoreName,
+            default = default,
+            preferenceKey = floatPreferencesKey(key),
+            encode = { it },
+            decode = { raw ->
+                getFloatStrict(raw, key, default)
+            }
+        )
+
+    fun long(
+        key: String,
+        dataStoreName: DataStoreName,
+        default: Long
+    ): BaseSettingObject<Long, Long> =
+        BaseSettingObject(
+            key = key,
+            dataStoreName = dataStoreName,
+            default = default,
+            preferenceKey = longPreferencesKey(key),
+            encode = { it },
+            decode = { raw ->
+                getLongStrict(raw, key, default)
+            }
+        )
+
+    fun double(
+        key: String,
+        dataStoreName: DataStoreName,
+        default: Double
+    ): BaseSettingObject<Double, Double> =
+        BaseSettingObject(
+            key = key,
+            dataStoreName = dataStoreName,
+            default = default,
+            preferenceKey = doublePreferencesKey(key),
+            encode = { it },
+            decode = { raw ->
+                getDoubleStrict(raw, key, default)
+            }
+        )
+
 
     fun string(
         key: String,
@@ -78,7 +136,25 @@ object Settings {
             default = default,
             preferenceKey = stringPreferencesKey(key),
             encode = { it },
-            decode = { it }
+            decode = { raw ->
+                getStringStrict(raw, key, default)
+            }
+        )
+
+    fun stringSet(
+        key: String,
+        dataStoreName: DataStoreName,
+        default: Set<String>
+    ): BaseSettingObject<Set<String>, Set<String>> =
+        BaseSettingObject(
+            key = key,
+            dataStoreName = dataStoreName,
+            default = default,
+            preferenceKey = stringSetPreferencesKey(key),
+            encode = { it },
+            decode = { raw ->
+                getStringSetStrict(raw, key, default)
+            }
         )
 
     fun <E : Enum<E>> enum(
@@ -94,10 +170,8 @@ object Settings {
             preferenceKey = stringPreferencesKey(key),
             encode = { it.name },
             decode = { raw ->
-                raw?.let {
-                    enumClass.enumConstants.firstOrNull { e -> e.name == it }
-                        ?: default
-                } ?: default
+                getEnumStrict(raw, key, default, enumClass)
+
             }
         )
 
@@ -113,7 +187,7 @@ object Settings {
             preferenceKey = intPreferencesKey(key),
             encode = { it.value.toInt() },
             decode = { raw ->
-                getColorStrict(mapOf(key to raw), key, default)
+                getColorStrict(raw, key, default)
             }
         )
 
@@ -129,7 +203,7 @@ object Settings {
             preferenceKey = stringPreferencesKey(key),
             encode = { SwipeJson.encodeAction(it) },
             decode = { raw ->
-                getSwipeActionSerializableStrict(mapOf(key to raw), key, default)
+                getSwipeActionSerializableStrict(raw, key, default)
             }
         )
 }

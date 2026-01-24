@@ -2,8 +2,8 @@ package org.elnix.dragonlauncher.settings.stores
 
 import androidx.compose.ui.graphics.Color
 import org.elnix.dragonlauncher.settings.DataStoreName
-import org.elnix.dragonlauncher.settings.SettingObject
-import org.elnix.dragonlauncher.settings.SettingType
+import org.elnix.dragonlauncher.settings.Settings
+import org.elnix.dragonlauncher.settings.bases.BaseSettingObject
 import org.elnix.dragonlauncher.settings.bases.MapSettingsStore
 
 object UiSettingsStore : MapSettingsStore() {
@@ -11,147 +11,127 @@ object UiSettingsStore : MapSettingsStore() {
     override val name: String = "Ui"
     override val dataStoreName: DataStoreName = DataStoreName.UI
 
-    val rgbLoading = SettingObject(
+    val rgbLoading = Settings.boolean(
         key = "rgbLoading",
         dataStoreName = dataStoreName,
-        default = true,
-        type = SettingType.Boolean
+        default = true
     )
 
-    val rgbLine = SettingObject(
+    val rgbLine = Settings.boolean(
         key = "rgbLine",
         dataStoreName = dataStoreName,
-        default = true,
-        type = SettingType.Boolean
+        default = true
     )
 
-    val showLaunchingAppLabel = SettingObject(
+    val showLaunchingAppLabel = Settings.boolean(
         key = "showLaunchingAppLabel",
         dataStoreName = dataStoreName,
         default = true,
-        type = SettingType.Boolean
-    )
+        )
 
-    val showLaunchingAppIcon = SettingObject(
+    val showLaunchingAppIcon = Settings.boolean(
         key = "showLaunchingAppIcon",
         dataStoreName = dataStoreName,
-        default = true,
-        type = SettingType.Boolean
+        default = true
     )
 
-    val showAppLaunchingPreview = SettingObject(
+    val showAppLaunchingPreview = Settings.boolean(
         key = "showAppLaunchPreview",
         dataStoreName = dataStoreName,
-        default = true,
-        type = SettingType.Boolean
+        default = true
     )
 
-    val fullScreen = SettingObject(
+    val fullScreen = Settings.boolean(
         key = "fullscreen",
         dataStoreName = dataStoreName,
-        default = true,
-        type = SettingType.Boolean
+        default = true
     )
 
-    val showCirclePreview = SettingObject(
+    val showCirclePreview = Settings.boolean(
         key = "showCirclePreview",
         dataStoreName = dataStoreName,
-        default = true,
-        type = SettingType.Boolean
+        default = true
     )
 
-    val showLinePreview = SettingObject(
+    val showLinePreview = Settings.boolean(
         key = "showLinePreview",
         dataStoreName = dataStoreName,
-        default = true,
-        type = SettingType.Boolean
+        default = true
     )
 
-    val showAnglePreview = SettingObject(
+    val showAnglePreview = Settings.boolean(
         key = "showAnglePreview",
         dataStoreName = dataStoreName,
-        default = true,
-        type = SettingType.Boolean
+        default = true
     )
 
-    val snapPoints = SettingObject(
+    val snapPoints = Settings.boolean(
         key = "snapPoints",
         dataStoreName = dataStoreName,
-        default = true,
-        type = SettingType.Boolean
+        default = true
     )
 
-    val autoSeparatePoints = SettingObject(
+    val autoSeparatePoints = Settings.boolean(
         key = "autoSeparatePoints",
         dataStoreName = dataStoreName,
-        default = true,
-        type = SettingType.Boolean
+        default = true
     )
 
-    val showAppPreviewIconCenterStartPosition = SettingObject(
+    val showAppPreviewIconCenterStartPosition = Settings.boolean(
         key = "showAppPreviewIconCenterStartPosition",
         dataStoreName = dataStoreName,
-        default = false,
-        type = SettingType.Boolean
+        default = false
     )
 
-    val linePreviewSnapToAction = SettingObject(
+    val linePreviewSnapToAction = Settings.boolean(
         key = "linePreviewSnapToAction",
         dataStoreName = dataStoreName,
-        default = false,
-        type = SettingType.Boolean
+        default = false
     )
 
-    val minAngleFromAPointToActivateIt = SettingObject(
+    val minAngleFromAPointToActivateIt = Settings.int(
         key = "minAngleFromAPointToActivateIt",
         dataStoreName = dataStoreName,
-        default = 0,
-        type = SettingType.Int
+        default = 0
     )
 
-    val showAllActionsOnCurrentCircle = SettingObject(
+    val showAllActionsOnCurrentCircle = Settings.boolean(
         key = "showAllActionsOnCurrentCircle",
         dataStoreName = dataStoreName,
-        default = false,
-        type = SettingType.Boolean
+        default = false
     )
 
-    val selectedIconPack = SettingObject(
+    val selectedIconPack = Settings.string(
         key = "selected_icon_pack",
         dataStoreName = dataStoreName,
-        default = "",
-        type = SettingType.String
+        default = ""
     )
 
-    val iconPackTint = SettingObject(
+    val iconPackTint = Settings.color(
         key = "icon_pack_tint",
         dataStoreName = dataStoreName,
-        default = Color.Unspecified,
-        type = SettingType.Color
+        default = Color.Unspecified
     )
 
-    val appLabelIconOverlayTopPadding = SettingObject(
+    val appLabelIconOverlayTopPadding = Settings.int(
         key = "appLabelIconOverlayTopPadding",
         dataStoreName = dataStoreName,
-        default = 30,
-        type = SettingType.Int
+        default = 30
     )
 
-    val appLabelOverlaySize = SettingObject(
+    val appLabelOverlaySize = Settings.int(
         key = "appLabelOverlaySize",
         dataStoreName = dataStoreName,
-        default = 18,
-        type = SettingType.Int
+        default = 18
     )
 
-    val appIconOverlaySize = SettingObject(
+    val appIconOverlaySize = Settings.int(
         key = "appIconOverlaySize",
         dataStoreName = dataStoreName,
-        default = 22,
-        type = SettingType.Int
+        default = 22
     )
 
-    override val ALL: List<SettingObject<*>> = listOf(
+    override val ALL: List<BaseSettingObject<*,*>> = listOf(
         rgbLoading,
         rgbLine,
         showLaunchingAppLabel,

@@ -2,128 +2,116 @@ package org.elnix.dragonlauncher.settings.stores
 
 import org.elnix.dragonlauncher.enumsui.DrawerActions
 import org.elnix.dragonlauncher.settings.DataStoreName
-import org.elnix.dragonlauncher.settings.SettingObject
-import org.elnix.dragonlauncher.settings.SettingType
+import org.elnix.dragonlauncher.settings.Settings
+import org.elnix.dragonlauncher.settings.bases.BaseSettingObject
 import org.elnix.dragonlauncher.settings.bases.MapSettingsStore
 
 object DrawerSettingsStore : MapSettingsStore() {
     override val name: String = "Drawer"
     override val dataStoreName = DataStoreName.DRAWER
 
-    val autoOpenSingleMatch = SettingObject(
+    val autoOpenSingleMatch = Settings.boolean(
         key = "autoOpenSingleMatch",
         dataStoreName = dataStoreName,
-        default = true,
-        type = SettingType.Boolean
+        default = true
     )
 
-    val showAppIconsInDrawer = SettingObject(
+    val showAppIconsInDrawer = Settings.boolean(
         key = "showAppIconsInDrawer",
         dataStoreName = dataStoreName,
-        default = true,
-        type = SettingType.Boolean
+        default = true
     )
 
-    val showAppLabelInDrawer = SettingObject(
+    val showAppLabelInDrawer = Settings.boolean(
         key = "showAppLabelInDrawer",
         dataStoreName = dataStoreName,
-        default = true,
-        type = SettingType.Boolean
+        default = true
     )
 
-    val searchBarBottom = SettingObject(
+    val searchBarBottom = Settings.boolean(
         key = "searchBarBottom",
         dataStoreName = dataStoreName,
-        default = true,
-        type = SettingType.Boolean
+        default = true
     )
 
-    val autoShowKeyboardOnDrawer = SettingObject(
+    val autoShowKeyboardOnDrawer = Settings.boolean(
         key = "autoShowKeyboardOnDrawer",
         dataStoreName = dataStoreName,
-        default = true,
-        type = SettingType.Boolean
+        default = true
     )
 
-    val clickEmptySpaceToRaiseKeyboard = SettingObject(
+    val clickEmptySpaceToRaiseKeyboard = Settings.boolean(
         key = "clickEmptySpaceToRaiseKeyboard",
         dataStoreName = dataStoreName,
-        default = false,
-        type = SettingType.Boolean
+        default = false
     )
 
-    val gridSize = SettingObject(
+    val gridSize = Settings.int(
         key = "gridSize",
         dataStoreName = dataStoreName,
-        default = 6,
-        type = SettingType.Int
+        default = 6
     )
 
-    val initialPage = SettingObject(
+    val initialPage = Settings.int(
         key = "initialPage",
         dataStoreName = dataStoreName,
-        default = 0,
-        type = SettingType.Int
+        default = 0
     )
 
-    val leftDrawerAction = SettingObject(
+    val leftDrawerAction = Settings.enum(
         key = "leftDrawerAction",
         dataStoreName = dataStoreName,
         default = DrawerActions.TOGGLE_KB,
-        type = SettingType.Enum(DrawerActions::class.java)
+        enumClass = DrawerActions::class.java
     )
 
-    val rightDrawerAction = SettingObject(
+    val rightDrawerAction = Settings.enum(
         key = "rightDrawerAction",
         dataStoreName = dataStoreName,
         default = DrawerActions.CLOSE,
-        type = SettingType.Enum(DrawerActions::class.java)
+        enumClass = DrawerActions::class.java
     )
 
-    val leftDrawerWidth = SettingObject(
+    val leftDrawerWidth = Settings.float(
         key = "leftDrawerWidth",
         dataStoreName = dataStoreName,
-        default = 0.1f,
-        type = SettingType.Float
+        default = 0.1f
     )
 
-    val rightDrawerWidth = SettingObject(
+    val rightDrawerWidth = Settings.float(
         key = "rightDrawerWidth",
         dataStoreName = dataStoreName,
-        default = 0.1f,
-        type = SettingType.Float
+        default = 0.1f
     )
 
-    val drawerEnterAction = SettingObject(
+    val drawerEnterAction = Settings.enum(
         key = "drawerEnterAction",
         dataStoreName = dataStoreName,
         default = DrawerActions.CLEAR,
-        type = SettingType.Enum(DrawerActions::class.java)
+        enumClass = DrawerActions::class.java
     )
 
-    val drawerHomeAction = SettingObject(
+    val drawerHomeAction = Settings.enum(
         key = "drawerHomeAction",
         dataStoreName = dataStoreName,
         default = DrawerActions.CLOSE,
-        type = SettingType.Enum(DrawerActions::class.java)
+        enumClass = DrawerActions::class.java
     )
 
-    val scrollDownToCloseDrawerOnTop = SettingObject(
+    val scrollDownToCloseDrawerOnTop = Settings.boolean(
         key = "scrollDownToCloseDrawerOnTop",
         dataStoreName = dataStoreName,
-        default = true,
-        type = SettingType.Boolean
+        default = true
     )
 
-    val scrollUpToToggleKeyboard = SettingObject(
+    val scrollUpToToggleKeyboard = Settings.boolean(
         key = "scrollUpToCloseKeyboard",
         dataStoreName = dataStoreName,
-        default = true,
-        type = SettingType.Boolean
+        default = true
     )
 
 
-    override val ALL: List<SettingObject<*>>
+    override val ALL: List<BaseSettingObject<*,*>>
         get() = listOf(
             autoOpenSingleMatch,
             showAppIconsInDrawer,

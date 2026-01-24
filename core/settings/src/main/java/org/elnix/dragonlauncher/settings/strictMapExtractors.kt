@@ -6,11 +6,11 @@ import org.elnix.dragonlauncher.common.serializables.SwipeJson
 
 
 fun getBooleanStrict(
-    raw: Map<String, Any?>,
+    raw: Any?,
     key: String,
     def: Boolean
 ): Boolean {
-    val v = raw[key] ?: return def
+    val v = raw ?: return def
     return when (v) {
         is Boolean -> v
         is Number -> v.toInt() != 0
@@ -24,11 +24,11 @@ fun getBooleanStrict(
 }
 
 fun getIntStrict(
-    raw: Map<String, Any?>,
+    raw: Any?,
     key: String,
     def: Int
 ): Int {
-    val v = raw[key] ?: return def
+    val v = raw ?: return def
     return when (v) {
         is Int -> v
         is Number -> v.toInt()
@@ -38,11 +38,11 @@ fun getIntStrict(
     }
 }
 fun getFloatStrict(
-    raw: Map<String, Any?>,
+    raw: Any?,
     key: String,
     def: Float
 ): Float {
-    val v = raw[key] ?: return def
+    val v = raw ?: return def
     return when (v) {
         is Float -> v
         is Number -> v.toFloat()
@@ -53,11 +53,11 @@ fun getFloatStrict(
 }
 
 fun getLongStrict(
-    raw: Map<String, Any?>,
+    raw: Any?,
     key: String,
     def: Long
 ): Long {
-    val v = raw[key] ?: return def
+    val v = raw ?: return def
     return when (v) {
         is Long -> v
         is Number -> v.toLong()
@@ -70,11 +70,11 @@ fun getLongStrict(
 
 
 fun getDoubleStrict(
-    raw: Map<String, Any?>,
+    raw: Any?,
     key: String,
     def: Double
 ): Double {
-    val v = raw[key] ?: return def
+    val v = raw ?: return def
     return when (v) {
         is Double -> v
         is Number -> v.toDouble()
@@ -85,11 +85,11 @@ fun getDoubleStrict(
 }
 
 fun getStringStrict(
-    raw: Map<String, Any?>,
+    raw: Any?,
     key: String,
     def: String
 ): String {
-    val v = raw[key] ?: return def
+    val v = raw ?: return def
     return when (v) {
         is String -> v
         else -> throw BackupTypeException(key, "String", v::class.simpleName, v)
@@ -98,24 +98,24 @@ fun getStringStrict(
 
 
 fun getSwipeActionSerializableStrict(
-    raw: Map<String, Any?>,
+    raw: Any?,
     key: String,
     def: SwipeActionSerializable
 ): SwipeActionSerializable {
-    val v = raw[key] ?: return def
+    val v = raw ?: return def
     return when (v) {
-        is String -> SwipeJson.decodeAction(v) ?:
-         throw BackupTypeException(key, "SwipeActionSerializable", v::class.simpleName, v)
+        is String -> SwipeJson.decodeAction(v) ?: def
+//         throw BackupTypeException(key, "SwipeActionSerializable", v::class.simpleName, v)
         else -> throw BackupTypeException(key, "SwipeActionSerializable", v::class.simpleName, v)
     }
 }
 
 fun getStringSetStrict(
-    raw: Map<String, Any?>,
+    raw: Any?,
     key: String,
     def: Set<String>
 ): Set<String> {
-    val v = raw[key] ?: return def
+    val v = raw ?: return def
 
     return when (v) {
         is Set<*> -> v.flattenStrings().toSet()
@@ -149,12 +149,12 @@ private fun Collection<*>.flattenStrings(): List<String> = flatMap { item ->
     }
 }.filter { it.isNotBlank() }
 
-fun decodeEnumStrict(
+fun <E : Enum<E>> getEnumStrict(
     raw: Any?,
     key: String,
-    def: Enum<*>,
-    enumClass: Class<out Enum<*>>
-): Enum<*> {
+    def: E,
+    enumClass: Class<E>
+): E {
     val v = raw ?: return def
 
     if (v !is String) {
@@ -178,12 +178,13 @@ fun decodeEnumStrict(
 
 
 
+
 fun getColorStrict(
-    raw: Map<String, Any?>,
+    raw: Any?,
     key: String,
     def: Color
 ): Color {
-    val v = raw[key] ?: return def
+    val v = raw ?: return def
     return when (v) {
         is Int -> Color(v)
         is Number -> Color(v.toInt())

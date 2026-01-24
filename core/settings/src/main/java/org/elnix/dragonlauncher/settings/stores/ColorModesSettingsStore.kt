@@ -4,8 +4,8 @@ import org.elnix.dragonlauncher.enumsui.ColorCustomisationMode
 import org.elnix.dragonlauncher.enumsui.ColorPickerMode
 import org.elnix.dragonlauncher.enumsui.DefaultThemes
 import org.elnix.dragonlauncher.settings.DataStoreName
-import org.elnix.dragonlauncher.settings.SettingObject
-import org.elnix.dragonlauncher.settings.SettingType
+import org.elnix.dragonlauncher.settings.Settings
+import org.elnix.dragonlauncher.settings.bases.BaseSettingObject
 import org.elnix.dragonlauncher.settings.bases.MapSettingsStore
 
 object ColorModesSettingsStore : MapSettingsStore() {
@@ -14,7 +14,7 @@ object ColorModesSettingsStore : MapSettingsStore() {
     override val dataStoreName = DataStoreName.COLOR_MODE
 
 
-    override val ALL: List<SettingObject<*>>
+    override val ALL: List<BaseSettingObject <*, *> >
         get() = listOf(
             colorPickerMode,
             colorCustomisationMode,
@@ -22,24 +22,24 @@ object ColorModesSettingsStore : MapSettingsStore() {
         )
 
 
-    val colorPickerMode = SettingObject(
+    val colorPickerMode = Settings.enum(
         key = "colorPickerMode",
         dataStoreName = dataStoreName,
         default = ColorPickerMode.DEFAULTS,
-        type = SettingType.Enum(ColorPickerMode::class.java)
+        enumClass = ColorPickerMode::class.java,
     )
 
-    val colorCustomisationMode = SettingObject(
+    val colorCustomisationMode = Settings.enum(
         key = "colorCustomisationMode",
         dataStoreName = dataStoreName,
         default = ColorCustomisationMode.DEFAULT,
-        type = SettingType.Enum(ColorCustomisationMode::class.java)
+        enumClass =  ColorCustomisationMode::class.java
     )
 
-    val defaultTheme = SettingObject(
+    val defaultTheme = Settings.enum(
         key = "defaultTheme",
         dataStoreName = dataStoreName,
         default = DefaultThemes.AMOLED,
-        type = SettingType.Enum(DefaultThemes::class.java)
+        enumClass = DefaultThemes::class.java
     )
 }

@@ -11,7 +11,7 @@ import org.elnix.dragonlauncher.common.serializables.SwipeJson
 import org.elnix.dragonlauncher.common.serializables.SwipePointSerializable
 import org.elnix.dragonlauncher.common.serializables.defaultSwipePointsValues
 import org.elnix.dragonlauncher.settings.DataStoreName
-import org.elnix.dragonlauncher.settings.SettingObject
+import org.elnix.dragonlauncher.settings.bases.BaseSettingObject
 import org.elnix.dragonlauncher.settings.bases.JsonSettingsStore
 import org.elnix.dragonlauncher.settings.resolveDataStore
 import org.json.JSONArray
@@ -22,10 +22,10 @@ object SwipeSettingsStore : JsonSettingsStore() {
     override val name: String = "Swipe"
     override val dataStoreName = DataStoreName.SWIPE
 
-    override val ALL: List<SettingObject<*>>
+    override val ALL: List<BaseSettingObject<*,*>>
         get() = listOf()
 
-    override val jsonSetting: SettingObject<String>
+    override val jsonSetting: BaseSettingObject<String, String>
         get() = error("SwipeSettingsStore does not use a single JSON backing value")
 
 

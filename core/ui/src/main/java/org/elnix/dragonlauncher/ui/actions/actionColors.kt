@@ -24,4 +24,5 @@ fun actionColor(
             is SwipeActionSerializable.OpenCircleNest -> extra.openCircleNest
             SwipeActionSerializable.GoParentNest -> extra.goParentNest
             null -> Color.Unspecified
+            else -> Color.Unspecified
         }

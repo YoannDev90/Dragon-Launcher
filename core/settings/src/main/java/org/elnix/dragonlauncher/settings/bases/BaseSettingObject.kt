@@ -20,33 +20,48 @@ class BaseSettingObject <T, R> (
 ) : AnySettingObject {
 
 
+    /**
+     * Returns the current value of this setting in a type-erased form.
+     *
+     * This method is part of the type-erased settings API and allows heterogeneous
+     * collections of settings to be accessed without knowing their concrete generic
+     * type parameters at compile time.
+     *
+     * Internally, this simply delegates to [get], preserving the original value,
+     * but exposes it as [Any?] so it can be used in generic containers such as
+     * maps or lists of mixed setting types.
+     *
+     * @param ctx Android context used to access the underlying data store.
+     * @return The current value of this setting, or its default value if none
+     *         has been persisted yet.
+     */
     override suspend fun getAny(ctx: Context) = get(ctx)
+
+    /**
+     * Sets the value of this setting using a type-erased input.
+     *
+     * This method exists to support bulk operations (such as restore, import,
+     * or map-based updates) where the concrete generic type of the setting is
+     * not known at compile time.
+     *
+     * The provided [value] is first cast to the raw representation type [R],
+     * then converted into the setting's strongly-typed value using [decode],
+     * and finally persisted via [set].
+     *
+     * @param ctx Android context used to access the underlying data store.
+     * @param value The raw, type-erased value to apply to this setting.
+     *
+     * @throws ClassCastException if [value] is not of the expected raw type [R].
+     */
     override suspend fun setAny(ctx: Context, value: Any?) {
         @Suppress("UNCHECKED_CAST")
         set(ctx, decode(value as R))
     }
 
-//    /**
-//     * The preference key that stores the actual value in the datastore
-//     * protected: not editable
-//     */
-//    protected abstract val preferenceKey:  Preferences.Key<R>
-//
-//    /**
-//     *  Decode raw imported value into [T]
-//     */
-//    abstract fun decode(raw: R): T
-
-//    /**
-//     * Encode value into [R]
-//     *
-//     * @param value
-//     * @return
-//     */
-//    abstract fun encode(value: Any?): R
 
 
     /* ───────────── GETTERS ───────────── */
+
     /**
      * Get the value one shot for logic, no flow
      *
@@ -74,7 +89,6 @@ class BaseSettingObject <T, R> (
 
 
     /* ───────────── SETTERS ───────────── */
-
 
     /**
      * Set; saves the value in the datastore for persistence

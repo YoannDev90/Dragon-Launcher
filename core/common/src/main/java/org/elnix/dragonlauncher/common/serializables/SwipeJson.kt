@@ -71,6 +71,8 @@ sealed class SwipeActionSerializable {
         val widgetId: Int,
         val provider: ComponentName
     ): SwipeActionSerializable()
+
+    object None : SwipeActionSerializable()
 }
 
 // Gson type adapter for sealed class
@@ -126,7 +128,7 @@ class SwipeActionAdapter : JsonSerializer<SwipeActionSerializable>, JsonDeserial
             is SwipeActionSerializable.ReloadApps -> { obj.addProperty("type", "ReloadApps") }
             is SwipeActionSerializable.OpenRecentApps -> { obj.addProperty("type", "OpenRecentApps") }
             is SwipeActionSerializable.GoParentNest -> { obj.addProperty("type", "GoParentNest") }
-
+            SwipeActionSerializable.None -> {}
         }
         return obj
     }

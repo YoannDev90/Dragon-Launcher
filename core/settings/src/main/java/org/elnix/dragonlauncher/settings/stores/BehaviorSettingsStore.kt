@@ -2,8 +2,7 @@ package org.elnix.dragonlauncher.settings.stores
 
 import org.elnix.dragonlauncher.common.serializables.SwipeActionSerializable
 import org.elnix.dragonlauncher.settings.DataStoreName
-import org.elnix.dragonlauncher.settings.SettingObject
-import org.elnix.dragonlauncher.settings.SettingType
+import org.elnix.dragonlauncher.settings.Settings
 import org.elnix.dragonlauncher.settings.bases.BaseSettingObject
 import org.elnix.dragonlauncher.settings.bases.MapSettingsStore
 
@@ -25,59 +24,51 @@ object BehaviorSettingsStore : MapSettingsStore() {
             bottomPadding
         )
 
-    val backAction = SettingObject<SwipeActionSerializable?>(
+    val backAction = Settings.swipeAction(
         key = "backAction",
         dataStoreName = BackupSettingsStore.dataStoreName,
-        default = null,
-        type = SettingType.SwipeActionSerializable
+        default = SwipeActionSerializable.None
     )
 
-    val doubleClickAction = SettingObject<SwipeActionSerializable?>(
+    val doubleClickAction = Settings.swipeAction(
         key = "doubleClickAction",
         dataStoreName = BackupSettingsStore.dataStoreName,
-        default = null,
-        type = SettingType.SwipeActionSerializable
+        default = SwipeActionSerializable.None
     )
 
-    val homeAction = SettingObject<SwipeActionSerializable?>(
+    val homeAction = Settings.swipeAction(
         key = "homeAction",
         dataStoreName = BackupSettingsStore.dataStoreName,
-        default = null,
-        type = SettingType.SwipeActionSerializable
+        default = SwipeActionSerializable.None
     )
 
-    val keepScreenOn = SettingObject(
+    val keepScreenOn = Settings.boolean(
         key = "keepScreenOn",
         dataStoreName = BackupSettingsStore.dataStoreName,
-        default = false,
-        type = SettingType.Boolean
+        default = false
     )
 
-    val leftPadding = SettingObject(
+    val leftPadding = Settings.int(
         key = "leftPadding",
         dataStoreName = BackupSettingsStore.dataStoreName,
-        default = 60,
-        type = SettingType.Int
+        default = 60
     )
 
-    val rightPadding = SettingObject(
+    val rightPadding = Settings.int(
         key = "rightPadding",
         dataStoreName = BackupSettingsStore.dataStoreName,
-        default = 60,
-        type = SettingType.Int
+        default = 60
     )
 
-    val topPadding = SettingObject(
+    val topPadding = Settings.int(
         key = "upPadding",
         dataStoreName = BackupSettingsStore.dataStoreName,
-        default = 80,
-        type = SettingType.Int
+        default = 80
     )
 
-    val bottomPadding = SettingObject(
+    val bottomPadding = Settings.int(
         key = "downPadding",
         dataStoreName = BackupSettingsStore.dataStoreName,
-        default = 100,
-        type = SettingType.Int
+        default = 100
     )
 }

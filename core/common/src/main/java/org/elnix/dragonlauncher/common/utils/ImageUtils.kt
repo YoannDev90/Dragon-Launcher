@@ -247,7 +247,7 @@ object ImageUtils {
                 }
 
                 pmCompat.getAppIcon(pkg, 0)
-                icons[pkg] ?: loadDrawableResAsBitmap(ctx, R.drawable.ic_app_default, width, height)
+                icons[pkg]
 
             }
 
@@ -273,7 +273,8 @@ object ImageUtils {
             is SwipeActionSerializable.OpenCircleNest -> loadDrawableResAsBitmap(ctx, R.drawable.ic_action_target, width, height)
             SwipeActionSerializable.GoParentNest -> loadDrawableResAsBitmap(ctx, R.drawable.ic_icon_go_parent_nest, width, height)
             is SwipeActionSerializable.OpenWidget -> loadDrawableResAsBitmap(ctx, R.drawable.ic_action_widgets, width, height)
-        }
+            SwipeActionSerializable.None -> null
+        } ?: loadDrawableResAsBitmap(ctx, R.drawable.ic_app_default, width, height)
     }
 
     fun resolveCustomIconBitmap(

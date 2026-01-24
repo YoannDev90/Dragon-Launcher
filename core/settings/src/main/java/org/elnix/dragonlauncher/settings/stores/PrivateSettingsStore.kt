@@ -1,8 +1,8 @@
 package org.elnix.dragonlauncher.settings.stores
 
 import org.elnix.dragonlauncher.settings.DataStoreName
-import org.elnix.dragonlauncher.settings.SettingObject
-import org.elnix.dragonlauncher.settings.SettingType
+import org.elnix.dragonlauncher.settings.Settings
+import org.elnix.dragonlauncher.settings.bases.BaseSettingObject
 import org.elnix.dragonlauncher.settings.bases.MapSettingsStore
 
 object PrivateSettingsStore : MapSettingsStore() {
@@ -10,42 +10,37 @@ object PrivateSettingsStore : MapSettingsStore() {
     override val name: String = "Private"
     override val dataStoreName: DataStoreName = DataStoreName.PRIVATE_SETTINGS
 
-    val hasSeenWelcome = SettingObject(
+    val hasSeenWelcome = Settings.boolean(
         key = "hasSeenWelcome",
         dataStoreName = dataStoreName,
-        default = false,
-        type = SettingType.Boolean
+        default = false
     )
 
-    val hasInitialized = SettingObject(
+    val hasInitialized = Settings.boolean(
         key = "hasInitialized",
         dataStoreName = dataStoreName,
-        default = false,
-        type = SettingType.Boolean
+        default = false
     )
 
-    val showSetDefaultLauncherBanner = SettingObject(
+    val showSetDefaultLauncherBanner = Settings.boolean(
         key = "showSetDefaultLauncherBanner",
         dataStoreName = dataStoreName,
-        default = true,
-        type = SettingType.Boolean
+        default = true
     )
 
-    val showMethodAsking = SettingObject(
+    val showMethodAsking = Settings.boolean(
         key = "showMethodAsking",
         dataStoreName = dataStoreName,
-        default = false,
-        type = SettingType.Boolean
+        default = false
     )
 
-    val lastSeenVersionCode = SettingObject(
+    val lastSeenVersionCode = Settings.int(
         key = "lastSeenVersionCode",
         dataStoreName = dataStoreName,
-        default = 0,
-        type = SettingType.Int
+        default = 0
     )
 
-    override val ALL: List<SettingObject<*>> = listOf(
+    override val ALL: List<BaseSettingObject<*,*>> = listOf(
         hasSeenWelcome,
         hasInitialized,
         showSetDefaultLauncherBanner,

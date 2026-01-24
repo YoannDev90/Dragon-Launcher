@@ -161,5 +161,6 @@ fun launchSwipeAction(
         is SwipeActionSerializable.OpenCircleNest -> onOpenNestCircle?.invoke(action.nestId)
         SwipeActionSerializable.GoParentNest -> onParentNest?.invoke()
         is SwipeActionSerializable.OpenWidget -> {} // The widget action isn't mean to be part of the choosable actions, so nothing on launch
+        SwipeActionSerializable.None -> {}
     }
 }

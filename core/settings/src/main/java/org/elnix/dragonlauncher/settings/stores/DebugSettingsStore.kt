@@ -1,93 +1,82 @@
 package org.elnix.dragonlauncher.settings.stores
 
 import org.elnix.dragonlauncher.settings.DataStoreName
-import org.elnix.dragonlauncher.settings.SettingObject
-import org.elnix.dragonlauncher.settings.SettingType
+import org.elnix.dragonlauncher.settings.Settings
+import org.elnix.dragonlauncher.settings.bases.BaseSettingObject
 import org.elnix.dragonlauncher.settings.bases.MapSettingsStore
 
 object DebugSettingsStore : MapSettingsStore() {
     override val name: String = "Debug"
     override val dataStoreName = DataStoreName.DEBUG
 
-    val debugEnabled = SettingObject(
+    val debugEnabled = Settings.boolean(
         key = "debugEnabled",
         dataStoreName = dataStoreName,
-        default = false,
-        type = SettingType.Boolean
+        default = false
     )
 
-    val debugInfos = SettingObject(
+    val debugInfos = Settings.boolean(
         key = "debugInfos",
         dataStoreName = dataStoreName,
-        default = false,
-        type = SettingType.Boolean
+        default = false
     )
 
-    val settingsDebugInfo = SettingObject(
+    val settingsDebugInfo = Settings.boolean(
         key = "settingsDebugInfo",
         dataStoreName = dataStoreName,
-        default = false,
-        type = SettingType.Boolean
+        default = false
     )
 
-    val widgetsDebugInfo = SettingObject(
+    val widgetsDebugInfo = Settings.boolean(
         key = "widgetsDebugInfo",
         dataStoreName = dataStoreName,
-        default = false,
-        type = SettingType.Boolean
+        default = false
     )
 
-    val workspacesDebugInfo = SettingObject(
+    val workspacesDebugInfo = Settings.boolean(
         key = "workspacesDebugInfo",
         dataStoreName = dataStoreName,
-        default = false,
-        type = SettingType.Boolean
+        default = false
     )
 
-    val forceAppLanguageSelector = SettingObject(
+    val forceAppLanguageSelector = Settings.boolean(
         key = "forceAppLanguageSelector",
         dataStoreName = dataStoreName,
-        default = false,
-        type = SettingType.Boolean
+        default = false
     )
 
-    val forceAppWidgetsSelector = SettingObject(
+    val forceAppWidgetsSelector = Settings.boolean(
         key = "forceAppWidgetsSelector",
         dataStoreName = dataStoreName,
-        default = false,
-        type = SettingType.Boolean
+        default = false
     )
 
-    val autoRaiseDragonOnSystemLauncher = SettingObject(
+    val autoRaiseDragonOnSystemLauncher = Settings.boolean(
         key = "autoRaiseDragonOnSystemLauncher",
         dataStoreName = dataStoreName,
-        default = false,
-        type = SettingType.Boolean
+        default = false
     )
 
-    val systemLauncherPackageName = SettingObject(
+    val systemLauncherPackageName = Settings.string(
         key = "systemLauncherPackageName",
         dataStoreName = dataStoreName,
-        default = "",
-        type = SettingType.String
+        default = ""
     )
 
-    val useAccessibilityInsteadOfContextToExpandActionPanel = SettingObject(
+    val useAccessibilityInsteadOfContextToExpandActionPanel = Settings.boolean(
         key = "useAccessibilityInsteadOfContextToExpandActionPanel",
         dataStoreName = dataStoreName,
-        default = true,
-        type = SettingType.Boolean
+        default = true
     )
 
-    val enableLogging = SettingObject(
+    val enableLogging = Settings.boolean(
         key = "enableLogging",
         dataStoreName = dataStoreName,
-        default = false,
-        type = SettingType.Boolean
+        default = false
     )
 
 
-    override val ALL: List<SettingObject<*>>
+    override val ALL: List<BaseSettingObject<*,*>>
         get() = listOf(
             debugEnabled,
             debugInfos,

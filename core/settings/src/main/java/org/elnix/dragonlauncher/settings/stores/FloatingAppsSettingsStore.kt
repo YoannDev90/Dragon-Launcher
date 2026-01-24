@@ -8,8 +8,8 @@ import org.elnix.dragonlauncher.common.serializables.SwipeActionSerializable
 import org.elnix.dragonlauncher.common.serializables.SwipeJson
 import org.elnix.dragonlauncher.common.utils.FLOATING_APPS_TAG
 import org.elnix.dragonlauncher.settings.DataStoreName
-import org.elnix.dragonlauncher.settings.SettingObject
-import org.elnix.dragonlauncher.settings.SettingType
+import org.elnix.dragonlauncher.settings.Settings
+import org.elnix.dragonlauncher.settings.bases.BaseSettingObject
 import org.elnix.dragonlauncher.settings.bases.JsonSettingsStore
 import org.json.JSONArray
 import org.json.JSONObject
@@ -22,14 +22,13 @@ object FloatingAppsSettingsStore : JsonSettingsStore() {
         get() = DataStoreName.FLOATING_APPS
 
 
-    override val jsonSetting: SettingObject<String> = SettingObject(
+    override val jsonSetting = Settings.string(
         key = "floating_apps",
         dataStoreName = dataStoreName,
-        default = "",
-        type = SettingType.String
+        default = ""
     )
 
-    override val ALL: List<SettingObject<*>>
+    override val ALL: List<BaseSettingObject<*,*>>
         get() = listOf(jsonSetting)
 
     suspend fun loadFloatingApps(ctx: Context): List<FloatingAppObject> {

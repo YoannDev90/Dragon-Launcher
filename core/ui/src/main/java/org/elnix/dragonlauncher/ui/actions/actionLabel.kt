@@ -82,5 +82,6 @@ fun actionLabel(
             is SwipeActionSerializable.OpenCircleNest -> stringResource(R.string.open_nest_circle)
             SwipeActionSerializable.GoParentNest -> stringResource(R.string.go_parent_nest)
             is SwipeActionSerializable.OpenWidget -> stringResource(R.string.widgets)
+            SwipeActionSerializable.None -> ""
         }
 }
