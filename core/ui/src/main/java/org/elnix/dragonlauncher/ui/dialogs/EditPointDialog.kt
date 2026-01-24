@@ -505,18 +505,19 @@ fun EditPointDialog(
                 }
 
 
-                item {
-
-                    SliderWithLabel(
-                        value = editPoint.haptic ?: 0,
-                        label = stringResource(R.string.haptic_feedback),
-                        valueRange = 0..1000,
-                        color = MaterialTheme.colorScheme.primary,
-                        onReset = {
-                            editPoint = editPoint.copy(haptic = null)
+                if (!isDefaultEditing) {
+                    item {
+                        SliderWithLabel(
+                            value = editPoint.haptic ?: 0,
+                            label = stringResource(R.string.haptic_feedback),
+                            valueRange = 0..1000,
+                            color = MaterialTheme.colorScheme.primary,
+                            onReset = {
+                                editPoint = editPoint.copy(haptic = null)
+                            }
+                        ) {
+                            editPoint = editPoint.copy(haptic = it)
                         }
-                    ) {
-                        editPoint = editPoint.copy(haptic = it)
                     }
                 }
             }

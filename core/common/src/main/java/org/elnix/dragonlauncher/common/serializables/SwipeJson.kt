@@ -33,7 +33,6 @@ val defaultSwipePointsValues = dummySwipePoint(null).copy(
     borderStrokeSelected = 8f,
     opacity = 1f,
     cornerRadius = null,
-    haptic = 0,
     innerPadding = 16,
     size = 56
 )

@@ -2,6 +2,7 @@ package org.elnix.dragonlauncher.ui.helpers.settings
 
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.ColumnScope
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.WindowInsets
@@ -51,7 +52,7 @@ fun SettingsLazyHeader(
     banner: @Composable (() -> Unit)? = null,
     titleContent: (LazyListScope.() -> Unit)? = null,
     bottomContent: (LazyListScope.() -> Unit)? = null,
-    content: @Composable (() -> Unit)? = null,
+    content: @Composable (ColumnScope.() -> Unit)? = null,
     lazyContent: (LazyListScope.() -> Unit)? = null
 ) {
 

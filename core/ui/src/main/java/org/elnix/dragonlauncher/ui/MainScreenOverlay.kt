@@ -112,6 +112,7 @@ fun MainScreenOverlay(
 
 
     val dragRadii = nests.find { it.id == nestId }?.dragDistances ?: CircleNest().dragDistances
+    val haptics = nests.find { it.id == nestId }?.haptic ?: CircleNest().haptic
 
     val dx: Float
     val dy: Float
@@ -232,7 +233,7 @@ fun MainScreenOverlay(
 
     LaunchedEffect(hoveredPoint?.id) {
        hoveredPoint?.let { point ->
-           point.haptic ?: defaultPoint.haptic?.let { milliseconds ->
+           (point.haptic ?: haptics[targetCircle] ?: defaultHapticFeedback(targetCircle)).let { milliseconds ->
                if (milliseconds > 0) {
                    vibrate(ctx, milliseconds.toLong())
                }
@@ -530,4 +531,11 @@ private fun actionLine(
         center = end,
         style = Fill
     )
+}
+
+
+fun defaultHapticFeedback(id: Int): Int = when (id) {
+    -1 -> 5 // Cancel Zone, small feedback
+    0 -> 20  // First circle 20ms
+    else -> 20 + 20 * id // others: add 20ms each
 }

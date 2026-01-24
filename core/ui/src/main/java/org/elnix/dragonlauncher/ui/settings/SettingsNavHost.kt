@@ -6,6 +6,9 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.platform.LocalContext
 import androidx.navigation.NavType
 import androidx.navigation.compose.NavHost
@@ -13,6 +16,7 @@ import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navArgument
 import org.elnix.dragonlauncher.common.FloatingAppObject
+import org.elnix.dragonlauncher.common.serializables.defaultSwipePointsValues
 import org.elnix.dragonlauncher.common.utils.SETTINGS
 import org.elnix.dragonlauncher.common.utils.WidgetHostProvider
 import org.elnix.dragonlauncher.models.AppLifecycleViewModel
@@ -20,6 +24,7 @@ import org.elnix.dragonlauncher.models.AppsViewModel
 import org.elnix.dragonlauncher.models.BackupViewModel
 import org.elnix.dragonlauncher.models.FloatingAppsViewModel
 import org.elnix.dragonlauncher.settings.stores.DrawerSettingsStore
+import org.elnix.dragonlauncher.settings.stores.SwipeSettingsStore
 import org.elnix.dragonlauncher.ui.AdvancedSettingsScreen
 import org.elnix.dragonlauncher.ui.SettingsScreen
 import org.elnix.dragonlauncher.ui.helpers.noAnimComposable
@@ -30,6 +35,7 @@ import org.elnix.dragonlauncher.ui.settings.customization.ColorSelectorTab
 import org.elnix.dragonlauncher.ui.settings.customization.DrawerTab
 import org.elnix.dragonlauncher.ui.settings.customization.FloatingAppsTab
 import org.elnix.dragonlauncher.ui.settings.customization.IconPackTab
+import org.elnix.dragonlauncher.ui.settings.customization.NestEditingScreen
 import org.elnix.dragonlauncher.ui.settings.customization.StatusBarTab
 import org.elnix.dragonlauncher.ui.settings.customization.ThemesTab
 import org.elnix.dragonlauncher.ui.settings.customization.WallpaperTab
@@ -80,13 +86,26 @@ fun SettingsNavHost(
     val gridSize by DrawerSettingsStore.gridSize.flow(ctx)
         .collectAsState(initial = 1)
 
+    val nests by SwipeSettingsStore.getNestsFlow(ctx).collectAsState(initial = emptyList())
+    val points by SwipeSettingsStore.getPointsFlow(ctx).collectAsState(emptyList())
+
+    val pointIcons by appsViewModel.pointIcons.collectAsState()
+    val defaultPoint by appsViewModel.defaultPoint.collectAsState(defaultSwipePointsValues)
+
+
 
     val navController = rememberNavController()
 
+    var pendingNestToEdit by remember { mutableStateOf<Int?>(null) }
 
     fun goAdvSettingsRoot() =  navController.navigate(SETTINGS.ADVANCED_ROOT)
     fun goAppearance() = navController.navigate(SETTINGS.APPEARANCE)
     fun goDebug() = navController.navigate(SETTINGS.DEBUG)
+    fun goNestEdit(nest: Int) {
+        pendingNestToEdit = nest
+        navController.navigate(SETTINGS.NESTS_EDIT)
+    }
+
 
     fun goSettingsRoot() =  navController.navigate(SETTINGS.ROOT)
 
@@ -99,8 +118,12 @@ fun SettingsNavHost(
         noAnimComposable(SETTINGS.ROOT) {
             SettingsScreen(
                 appsViewModel = appsViewModel,
-                onAdvSettings = { goAdvSettingsRoot() },
-                onBack = { goMainScreen() }
+                pointIcons = pointIcons,
+                defaultPoint = defaultPoint,
+                nests = nests,
+                onAdvSettings = ::goAdvSettingsRoot,
+                onNestEdit = ::goNestEdit,
+                onBack = goMainScreen
             )
         }
         noAnimComposable(SETTINGS.ADVANCED_ROOT) {
@@ -110,21 +133,29 @@ fun SettingsNavHost(
             ) { goSettingsRoot() }
         }
 
-        noAnimComposable(SETTINGS.APPEARANCE)    { AppearanceTab(appsViewModel, navController) { goAdvSettingsRoot() } }
-        noAnimComposable(SETTINGS.WALLPAPER)     { WallpaperTab { goAppearance() } }
-        noAnimComposable(SETTINGS.ICON_PACK)     { IconPackTab(appsViewModel) { goAppearance() } }
-        noAnimComposable(SETTINGS.STATUS_BAR)    { StatusBarTab(appsViewModel) { goAppearance() } }
-        noAnimComposable(SETTINGS.THEME)         { ThemesTab { goAppearance() } }
+        noAnimComposable(SETTINGS.APPEARANCE)    { AppearanceTab(appsViewModel, navController, ::goAdvSettingsRoot) }
+        noAnimComposable(SETTINGS.WALLPAPER)     { WallpaperTab(::goAppearance) }
+        noAnimComposable(SETTINGS.ICON_PACK)     { IconPackTab(appsViewModel, ::goAppearance) }
+        noAnimComposable(SETTINGS.STATUS_BAR)    { StatusBarTab(appsViewModel, ::goAppearance) }
+        noAnimComposable(SETTINGS.THEME)         { ThemesTab(::goAppearance) }
 
-        noAnimComposable(SETTINGS.BEHAVIOR)      { BehaviorTab(appsViewModel) { goAdvSettingsRoot() } }
-        noAnimComposable(SETTINGS.DRAWER)        { DrawerTab(appsViewModel) { goAdvSettingsRoot() } }
-        noAnimComposable(SETTINGS.COLORS)        { ColorSelectorTab { goAppearance() } }
-        noAnimComposable(SETTINGS.DEBUG)         { DebugTab(navController, appsViewModel, onShowWelcome = { goWelcome() } ) { goAdvSettingsRoot() } }
-        noAnimComposable(SETTINGS.LOGS)          { LogsTab { goDebug() } }
-        noAnimComposable(SETTINGS.SETTINGS_JSON) { SettingsDebugTab { goDebug() } }
-        noAnimComposable(SETTINGS.LANGUAGE)      { LanguageTab { goAdvSettingsRoot() } }
-        noAnimComposable(SETTINGS.BACKUP)        { BackupTab(backupViewModel) { goAdvSettingsRoot() } }
-        noAnimComposable(SETTINGS.CHANGELOGS)    { ChangelogsScreen { goAdvSettingsRoot() } }
+        noAnimComposable(SETTINGS.BEHAVIOR)      { BehaviorTab(appsViewModel, ::goAdvSettingsRoot) }
+        noAnimComposable(SETTINGS.DRAWER)        { DrawerTab(appsViewModel, ::goAdvSettingsRoot) }
+        noAnimComposable(SETTINGS.COLORS)        { ColorSelectorTab(::goAppearance) }
+        noAnimComposable(SETTINGS.DEBUG)         { DebugTab(navController, appsViewModel, onShowWelcome = goWelcome ,::goAdvSettingsRoot) }
+        noAnimComposable(SETTINGS.LOGS)          { LogsTab(::goDebug) }
+        noAnimComposable(SETTINGS.SETTINGS_JSON) { SettingsDebugTab(::goDebug) }
+        noAnimComposable(SETTINGS.LANGUAGE)      { LanguageTab (::goAdvSettingsRoot) }
+        noAnimComposable(SETTINGS.BACKUP)        { BackupTab(backupViewModel, ::goAdvSettingsRoot) }
+        noAnimComposable(SETTINGS.CHANGELOGS)    { ChangelogsScreen (::goAdvSettingsRoot) }
+        noAnimComposable(SETTINGS.NESTS_EDIT)    { NestEditingScreen(
+            nestId = pendingNestToEdit,
+            nests = nests,
+            points = points,
+            pointIcons = pointIcons,
+            defaultPoint = defaultPoint,
+            onBack = ::goSettingsRoot
+        ) }
 
         noAnimComposable(SETTINGS.FLOATING_APPS) {
             FloatingAppsTab(
@@ -146,7 +177,7 @@ fun SettingsNavHost(
                         SETTINGS.WORKSPACE_DETAIL.replace("{id}", id)
                     )
                 },
-                onBack = { goAdvSettingsRoot() }
+                onBack = ::goAdvSettingsRoot
             )
         }
 

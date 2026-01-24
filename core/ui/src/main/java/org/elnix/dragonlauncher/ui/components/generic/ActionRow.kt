@@ -59,7 +59,7 @@ fun <T> ActionRow(
                     Icon(
                         imageVector = it(mode),
                         contentDescription = null,
-                        tint = MaterialTheme.colorScheme.primary
+                        tint = MaterialTheme.colorScheme.onSecondary
                     )
                     Spacer(Modifier.width(5.dp))
                 }

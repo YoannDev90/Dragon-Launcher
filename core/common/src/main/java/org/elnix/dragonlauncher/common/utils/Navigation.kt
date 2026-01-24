@@ -23,6 +23,7 @@ object SETTINGS {
     const val SETTINGS_JSON = "settings/advanced/debug/settings_json"
     const val LANGUAGE = "settings/advanced/language"
     const val CHANGELOGS = "settings/advanced/changelogs"
+    const val NESTS_EDIT = "settings/nest"
 }
 
 object ROUTES {

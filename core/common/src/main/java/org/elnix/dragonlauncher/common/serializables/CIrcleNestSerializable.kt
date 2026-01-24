@@ -19,12 +19,7 @@ data class CircleNest(
      * the key is the circle number, made for allowing not ascending order drag distances
      * For the last one, the drag distance has no limit, it's not even counted
      */
-    @SerializedName("dragDistances") val dragDistances: Map<Int, Int> = mapOf(
-        -1 to 150,
-        0 to 400,
-        1 to 700,
-        2 to 1000
-    ),
+    @SerializedName("dragDistances") val dragDistances: Map<Int, Int> = emptyMap(),
 
     /**
      * The id of the nest that holds this one, used for drawing correctly the outer circles
@@ -35,5 +30,10 @@ data class CircleNest(
     /**
      * A custom name for the nest you can set for easier identification
      */
-    @SerializedName("name") val name: String? = null
+    @SerializedName("name") val name: String? = null,
+
+    /**
+     * Haptic feedback, as default for the points in  the circle, separated from the point system
+     */
+    @SerializedName("haptic") val haptic: Map<Int, Int> = emptyMap()
 )
