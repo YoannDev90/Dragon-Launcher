@@ -46,7 +46,9 @@ import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.unit.dp
 import androidx.core.net.toUri
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 import kotlinx.coroutines.yield
 import org.elnix.dragonlauncher.common.R
 import org.elnix.dragonlauncher.common.serializables.AppModel
@@ -426,6 +428,7 @@ fun AppDrawerScreen(
             onDismiss = { appTarget = null }
         ) {
 
+            /* ───────────── Reload icon once firstly ───────────── */
             scope.launch {
                 if (it != null) {
                     appsViewModel.setAppIcon(
@@ -436,7 +439,13 @@ fun AppDrawerScreen(
                     appsViewModel.resetAppIcon(pkg)
                 }
                 appsViewModel.updateSingleIcon(app, true)
+
+                /* ───────────── Reload all points upon icon change to synchronize with points ───────────── */
+                withContext(Dispatchers.IO) {
+                    appsViewModel.reloadApps()
+                }
             }
+
             appTarget = null
         }
     }
