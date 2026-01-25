@@ -189,7 +189,7 @@ object SwipeJson {
     private val nestsType = object : TypeToken<List<CircleNest>>() {}.type
 
 
-    /* ---------- Old format, keep it for legacy support ---------- */
+    /* ───────────── Old format, keep it for legacy support ───────────── */
     private val listType = object : TypeToken<List<SwipePointSerializable>>() {}.type
 
     fun decodeLegacy(jsonString: String): List<SwipePointSerializable> {
@@ -202,7 +202,7 @@ object SwipeJson {
         }
     }
 
-    /* ---------- Points ---------- */
+    /* ───────────── Points ───────────── */
 
     fun encodePoints(points: List<SwipePointSerializable>): String =
         gson.toJson(points, pointsType)
@@ -213,7 +213,7 @@ object SwipeJson {
     fun decodePoints(json: String): List<SwipePointSerializable> =
         decodeSafe(json, pointsType)
 
-    /* ---------- Nests ---------- */
+    /* ───────────── Nests ───────────── */
 
     fun encodeNests(nests: List<CircleNest>): String =
         gson.toJson(nests, nestsType)

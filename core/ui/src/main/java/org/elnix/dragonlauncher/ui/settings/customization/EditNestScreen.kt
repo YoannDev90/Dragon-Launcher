@@ -75,7 +75,8 @@ fun NestEditingScreen(
 
     LaunchedEffect(currentNest.dragDistances) {
         circles.clear()
-        dragDistancesState.forEach { (circleNumber, radius) ->
+        dragDistancesState
+            .forEach { (circleNumber, radius) ->
             circles.add(
                 UiCircle(
                     id = circleNumber,
@@ -167,7 +168,7 @@ fun NestEditingScreen(
                 verticalArrangement = Arrangement.spacedBy(15.dp)
             ) {
                 if (currentEditMode == NestEditMode.DRAG) {
-                    dragDistancesState.forEach { (index, distance) ->
+                    dragDistancesState.toSortedMap().forEach { (index, distance) ->
                         SliderWithLabel(
                             label = if (index == -1) "${stringResource(R.string.cancel_zone)} ->"
                             else "${stringResource(R.string.circle)}: $index ->",
@@ -186,19 +187,10 @@ fun NestEditingScreen(
                             }
                         ) { newValue ->
                             dragDistancesState[index] = newValue
-
-//                            pendingNestUpdate = nests.map { nest ->
-//                                if (nest.id == nestId) {
-//                                    val newDistances = nest.dragDistances.toMutableMap().apply {
-//                                        this[index] = newValue
-//                                    }
-//                                    nest.copy(dragDistances = newDistances)
-//                                } else nest
-//                            }
                         }
                     }
                 } else {
-                    currentNest.dragDistances.forEach { (index, _) ->
+                    dragDistancesState.toSortedMap().forEach { (index, _) ->
                         val milliseconds = currentNest.haptic[index] ?: defaultHapticFeedback(index)
                         SliderWithLabel(
                             label = if (index == -1) "${stringResource(R.string.cancel_zone)} ->"
