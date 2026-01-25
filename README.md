@@ -12,17 +12,19 @@
 [![GitHub issues](https://img.shields.io/github/issues/Elnix90/Dragon-Launcher?style=for-the-badge)](https://github.com/Elnix90/Dragon-Launcher/issues)
 [![GitHub forks](https://img.shields.io/github/forks/Elnix90/Dragon-Launcher?style=for-the-badge)](https://github.com/Elnix90/Dragon-Launcher/forks)
 [![GitHub pull requests](https://img.shields.io/github/issues-pr/Elnix90/Dragon-Launcher?style=for-the-badge)](https://github.com/Elnix90/Dragon-Launcher/pull)
-
+---
 [![GitHub downloads](https://img.shields.io/github/downloads/Elnix90/Dragon-Launcher/total.svg?style=for-the-badge)](https://github.com/Elnix90/Dragon-Launcher/releases)
 [![GitHub license](https://img.shields.io/github/license/Elnix90/Dragon-Launcher?style=for-the-badge)](https://github.com/Elnix90/Dragon-Launcher/blob/dev/LICENSE)
 [![Discord](https://img.shields.io/discord/1327996079786168441?color=blue&label=Discord&logo=discord&style=for-the-badge)](https://discord.gg/6UyuP8EBWS)
 [![Offline First](https://img.shields.io/badge/Offline-First-orange.svg?style=for-the-badge&logo=rss&logoColor=white)]()
 [![Privacy](https://img.shields.io/badge/Privacy-100%25-green.svg?style=for-the-badge&logo=shield&logoColor=white)]()
-
-[<img src="https://raw.githubusercontent.com/Kunzisoft/Github-badge/main/get-it-on-github.png" alt='Get it on GitHub' height="80">](https://github.com/Elnix90/Dragon-Launcher/releases/latest)
-[<img src="https://gitlab.com/IzzyOnDroid/repo/-/raw/master/assets/IzzyOnDroid.png" alt="Get it on IzzyOnDroid" height="80">](https://apt.izzysoft.de/fdroid/index/apk/org.elnix.dragonlauncher)
+---
 [<img src="https://f-droid.org/badge/get-it-on.png" alt="Get it on F-Droid" height="80">](https://f-droid.org/en/packages/org.elnix.dragonlauncher/)
+[<img src="https://gitlab.com/IzzyOnDroid/repo/-/raw/master/assets/IzzyOnDroid.png" alt="Get it on IzzyOnDroid" height="80">](https://apt.izzysoft.de/fdroid/index/apk/org.elnix.dragonlauncher)
+---
+[<img src="https://raw.githubusercontent.com/Kunzisoft/Github-badge/main/get-it-on-github.png" alt='Get it on GitHub' height="80">](https://github.com/Elnix90/Dragon-Launcher/releases/latest)
 [<img src="https://www.openapk.net/images/openapk-badge.png" alt="Get it on OpenAPK" height="80">](https://www.openapk.net/dragon-launcher/org.elnix.dragonlauncher/)
+---
 [<img src="https://raw.githubusercontent.com/ImranR98/Obtainium/main/assets/graphics/badge_obtainium.png" alt="Get it on Obtainium" height="60">](http://apps.obtainium.imranr.dev/redirect.html?r=obtainium://add/https://github.com/Elnix90/Dragon-Launcher)
 </div>
 
@@ -80,15 +82,15 @@
 * Uses Accessibility permissions (optionally) to:
   1. Expand notifications panel (needed by android)
      - Uses accessibility to expand the notifications panel
-     - Expanding the quick actions / notifications isn't required on some android version, there is a hidden settings in the debug tab, to change the way it opens the quick actions, cause on my phone, the notifications action opens que quick actions
+     - Expanding the quick actions / notifications isn't required on some Android version, there is a hidden settings in the debug tab, to change the way it opens the quick actions, cause on my phone, the notifications action opens the quick actions
   2. Lock screen (needed by android)
      - It uses accessibility to lock the screen, as you pressed the lock button
-  3. Open recent apps (needed by android)
+  3. Open recent apps (needed by Android)
      - You can choose to open the recent apps, just like when you click on the Square button, or do the recent apps gesture
   4. Auto launch Dragon on system launcher detected (used by some Xiaomi users that cannot set another default launcher without loosing the gesture navigation)
      - It will launch Dragon Launcher when the accessibility detects that you entered your system launcher, for a default launcher-like experience when it cannot be set as android default (configurable in debug settings)
 * Can set the Launcher as device admin
-  * used for some OEMs o prevent it from killing the app, especially on Xiaomi/ HyperOS devices that have really strong battery optimisation features
+  * used for some OEMs to prevent it from killing the app, especially on Xiaomi/HyperOS devices that have really strong battery optimization features
   * used also for users that need the previous auto launch on system launcher, to prevent the accessibility services to be killed
 * All data stored locally (you can backup manually or use the auto backup feature)
 
@@ -158,7 +160,7 @@ apksigner verify --print-certs DragonLauncher-*.apk
 * Contributions are welcome! Feel free to submit pull requests or open issues.
 * Check [CONTRIBUTING](https://github.com/Elnix90/Dragon-Launcher/blob/main/CONTRIBUTING.MD) for contributions guidelines
 
-* You may join the [discord server](https://discord.gg/6UyuP8EBWS) to discuss more easily about changes in the project:
+* You may join the [Discord server](https://discord.gg/6UyuP8EBWS) to discuss more easily about changes in the project.
 
 ---
 ## License
