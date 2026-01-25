@@ -139,10 +139,13 @@ object SettingsBackupManager {
             }
         }
 
+        logE(BACKUP_TAG,json.optJSONArray("actions")?.toString() ?: "No actions")
+
         // LEGACY format: fallback for "actions" array
         json.optJSONArray("actions")?.let { actionsArray ->
             logD(BACKUP_TAG, "Fallback to legacy system")
             val legacyPoints = SwipeJson.decodeLegacy(actionsArray.toString())
+            logE(BACKUP_TAG,legacyPoints.toString())
             SwipeSettingsStore.savePoints(ctx, legacyPoints)
         }
     }

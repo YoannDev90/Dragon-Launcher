@@ -6,12 +6,12 @@ on:
       - dev
     paths:
         - 'app/**'
+        - 'core/**'
         - 'build.gradle**'
         - 'gradle/**'
         - '**.kt'
         - '**.kts'
         - '**.java'
-
 
 jobs:
   build:
