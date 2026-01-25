@@ -67,7 +67,9 @@ object ImageUtils {
             drawable.toBitmap(width, height)
         }
         val imageBitmap = bmp.asImageBitmap()
-        return tint?.let{
+
+        // If tint is not unspecified (transparent)
+        return tint?.takeIf { it != 0 }?.let{
             tintBitmap(imageBitmap, tint)
         } ?: imageBitmap
     }
