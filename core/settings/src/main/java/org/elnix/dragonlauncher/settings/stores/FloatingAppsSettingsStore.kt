@@ -35,7 +35,7 @@ object FloatingAppsSettingsStore : JsonSettingsStore() {
         return try {
             val allJson = getAll(ctx)
             logD(FLOATING_APPS_TAG, "Raw: $allJson")
-            val floatingAppArray = allJson.optJSONArray("floating_apps") ?: return emptyList()
+            val floatingAppArray = allJson?.optJSONArray("floating_apps") ?: return emptyList()
 
             val floatingApps = mutableListOf<FloatingAppObject>()
             for (i in 0 until floatingAppArray.length()) {

@@ -37,7 +37,7 @@ abstract class MapSettingsStore :
     override suspend fun getAll(ctx: Context): Map<String, Any> =
         buildMap {
             ALL.forEach { setting ->
-                putIfNonDefault(setting.key, setting.get(ctx), setting.default)
+                putIfNonDefault(setting.key, setting.getEncoded(ctx), setting.default)
             }
         }
 
@@ -63,8 +63,13 @@ abstract class MapSettingsStore :
     /**
      * Exports all settings into a single [JSONObject] for backup purposes.
      */
-    override suspend fun exportForBackup(ctx: Context): JSONObject =
-        JSONObject(getAll(ctx))
+    override suspend fun exportForBackup(ctx: Context): JSONObject? {
+
+        val json = getAll(ctx)
+        return if (json.isNotEmpty()) {
+            JSONObject(json)
+        } else null
+    }
 
     /**
      * Restores settings from a [JSONObject] backup.
@@ -72,8 +77,8 @@ abstract class MapSettingsStore :
      * Only keys present in [ALL] are applied; unknown keys are safely ignored.
      * Each value is decoded and validated by its corresponding `BaseSettingObject`.
      */
-    override suspend fun importFromBackup(ctx: Context, json: JSONObject) {
-        json.keys().forEach { key ->
+    override suspend fun importFromBackup(ctx: Context, json: JSONObject?) {
+        json?.keys()?.forEach { key ->
             ALL.find { it.key == key }?.let { setting ->
                 val raw = json.opt(key)
                 val typedValue = setting.decode(raw)

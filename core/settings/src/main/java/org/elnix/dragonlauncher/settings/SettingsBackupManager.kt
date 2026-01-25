@@ -25,14 +25,14 @@ object SettingsBackupManager {
      * Automatic backup to pre-selected file
      */
     suspend fun triggerBackup(ctx: Context) {
-        if (!BackupSettingsStore.autoBackupEnabled.get(ctx)) {
+        if (BackupSettingsStore.autoBackupEnabled.get(ctx) != false) {
             logW(BACKUP_TAG, "Auto-backup disabled")
             return
         }
 
         try {
             val uriString = BackupSettingsStore.autoBackupUri.get(ctx)
-            if (uriString.isBlank()) {
+            if (uriString.isNullOrBlank()) {
                 logW(BACKUP_TAG, "No backup URI set")
                 return
             }
@@ -47,9 +47,12 @@ object SettingsBackupManager {
             }
 
             val selectedStores = BackupSettingsStore.backupStores.get(ctx)
-                .mapNotNull {
+                ?.mapNotNull {
                     storeValue -> DataStoreName.entries.find { it.value == storeValue }
-                }.toSet()
+                }
+                ?.toSet()
+                ?: backupableStores.keys
+
 
             exportSettings(ctx, uri, selectedStores)
 
