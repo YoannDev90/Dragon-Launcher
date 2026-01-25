@@ -59,6 +59,7 @@ import org.elnix.dragonlauncher.ui.actions.launchSwipeAction
 import org.elnix.dragonlauncher.ui.components.FloatingAppsHostView
 import org.elnix.dragonlauncher.ui.dialogs.FilePickerDialog
 import org.elnix.dragonlauncher.ui.helpers.HoldToActivateArc
+import org.elnix.dragonlauncher.ui.helpers.WallpaperDim
 import org.elnix.dragonlauncher.ui.helpers.rememberHoldToOpenSettings
 import org.elnix.dragonlauncher.ui.statusbar.StatusBar
 import kotlin.math.max
@@ -75,6 +76,7 @@ fun MainScreen(
     widgetHostProvider: WidgetHostProvider,
     onAppDrawer: () -> Unit,
     onGoWelcome: () -> Unit,
+//    ontest: () -> Unit,
     onLongPress3Sec: () -> Unit
 ) {
     val ctx = LocalContext.current
@@ -155,16 +157,15 @@ fun MainScreen(
     /* ────────────────────────────────────────────── */
 
 
-//    val activity = LocalContext.current as? Activity
-//    val window = activity?.window
-//
-//    val mainBlurRadius by wallpaperViewModel.blurRadiusMainScreen.collectAsState(0)
-//
-//    LaunchedEffect(Unit, mainBlurRadius) {
-//        if (Build.VERSION.SDK_INT >= 31) {
-//            window?.setBackgroundBlurRadius(mainBlurRadius)
-//        }
-//    }
+
+
+    /* Dim wallpaper system */
+    val mainBlurRadius by UiSettingsStore.wallpaperDimMainScreen.flow(ctx)
+        .collectAsState(UiSettingsStore.wallpaperDimMainScreen.default)
+
+    WallpaperDim(mainBlurRadius)
+
+
 
     LaunchedEffect(hasSeenWelcome) {
         if (!hasSeenWelcome) onGoWelcome()

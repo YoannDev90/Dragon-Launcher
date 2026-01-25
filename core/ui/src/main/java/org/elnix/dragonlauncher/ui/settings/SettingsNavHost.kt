@@ -2,6 +2,10 @@ package org.elnix.dragonlauncher.ui.settings
 
 import androidx.compose.animation.EnterTransition
 import androidx.compose.animation.ExitTransition
+import androidx.compose.foundation.layout.WindowInsets
+import androidx.compose.foundation.layout.padding
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Scaffold
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
@@ -9,16 +13,21 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.navigation.NavType
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
+import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navArgument
 import org.elnix.dragonlauncher.common.FloatingAppObject
+import org.elnix.dragonlauncher.common.logging.logE
 import org.elnix.dragonlauncher.common.serializables.defaultSwipePointsValues
 import org.elnix.dragonlauncher.common.utils.SETTINGS
 import org.elnix.dragonlauncher.common.utils.WidgetHostProvider
+import org.elnix.dragonlauncher.common.utils.transparentScreens
 import org.elnix.dragonlauncher.models.AppLifecycleViewModel
 import org.elnix.dragonlauncher.models.AppsViewModel
 import org.elnix.dragonlauncher.models.BackupViewModel
@@ -109,94 +118,113 @@ fun SettingsNavHost(
 
     fun goSettingsRoot() =  navController.navigate(SETTINGS.ROOT)
 
-    NavHost(
-        navController = navController,
-        startDestination = SETTINGS.ROOT
-    ) {
 
 
-        noAnimComposable(SETTINGS.ROOT) {
-            SettingsScreen(
-                appsViewModel = appsViewModel,
+    val navBackStackEntry by navController.currentBackStackEntryAsState()
+    val currentRoute = navBackStackEntry?.destination?.route
+
+
+    val containerColor =
+        if (currentRoute in transparentScreens) {
+            ctx.logE("Wallpaper", "Is in $currentRoute")
+            Color.Transparent
+        } else {
+            MaterialTheme.colorScheme.background
+        }
+
+
+    Scaffold(
+        contentWindowInsets = WindowInsets(),
+        containerColor = containerColor,
+    ) { paddingValues ->
+        NavHost(
+            navController = navController,
+            startDestination = SETTINGS.ROOT,
+            modifier = Modifier.padding(paddingValues)
+        ) {
+            noAnimComposable(SETTINGS.ROOT) {
+                SettingsScreen(
+                    appsViewModel = appsViewModel,
+                    pointIcons = pointIcons,
+                    defaultPoint = defaultPoint,
+                    nests = nests,
+                    onAdvSettings = ::goAdvSettingsRoot,
+                    onNestEdit = ::goNestEdit,
+                    onBack = goMainScreen
+                )
+            }
+            noAnimComposable(SETTINGS.ADVANCED_ROOT) {
+                AdvancedSettingsScreen(
+                    appsViewModel,
+                    navController
+                ) { goSettingsRoot() }
+            }
+
+            noAnimComposable(SETTINGS.APPEARANCE)    { AppearanceTab(appsViewModel, navController, ::goAdvSettingsRoot) }
+            noAnimComposable(SETTINGS.WALLPAPER)     { WallpaperTab(::goAppearance) }
+            noAnimComposable(SETTINGS.ICON_PACK)     { IconPackTab(appsViewModel, ::goAppearance) }
+            noAnimComposable(SETTINGS.STATUS_BAR)    { StatusBarTab(appsViewModel, ::goAppearance) }
+            noAnimComposable(SETTINGS.THEME)         { ThemesTab(::goAppearance) }
+
+            noAnimComposable(SETTINGS.BEHAVIOR)      { BehaviorTab(appsViewModel, ::goAdvSettingsRoot) }
+            noAnimComposable(SETTINGS.DRAWER)        { DrawerTab(appsViewModel, ::goAdvSettingsRoot) }
+            noAnimComposable(SETTINGS.COLORS)        { ColorSelectorTab(::goAppearance) }
+            noAnimComposable(SETTINGS.DEBUG)         { DebugTab(navController, appsViewModel, onShowWelcome = goWelcome ,::goAdvSettingsRoot) }
+            noAnimComposable(SETTINGS.LOGS)          { LogsTab(::goDebug) }
+            noAnimComposable(SETTINGS.SETTINGS_JSON) { SettingsDebugTab(::goDebug) }
+            noAnimComposable(SETTINGS.LANGUAGE)      { LanguageTab (::goAdvSettingsRoot) }
+            noAnimComposable(SETTINGS.BACKUP)        { BackupTab(backupViewModel, ::goAdvSettingsRoot) }
+            noAnimComposable(SETTINGS.CHANGELOGS)    { ChangelogsScreen (::goAdvSettingsRoot) }
+            noAnimComposable(SETTINGS.NESTS_EDIT)    { NestEditingScreen(
+                nestId = pendingNestToEdit,
+                nests = nests,
+                points = points,
                 pointIcons = pointIcons,
                 defaultPoint = defaultPoint,
-                nests = nests,
-                onAdvSettings = ::goAdvSettingsRoot,
-                onNestEdit = ::goNestEdit,
-                onBack = goMainScreen
-            )
-        }
-        noAnimComposable(SETTINGS.ADVANCED_ROOT) {
-            AdvancedSettingsScreen(
-                appsViewModel,
-                navController
-            ) { goSettingsRoot() }
-        }
+                onBack = ::goSettingsRoot
+            ) }
 
-        noAnimComposable(SETTINGS.APPEARANCE)    { AppearanceTab(appsViewModel, navController, ::goAdvSettingsRoot) }
-        noAnimComposable(SETTINGS.WALLPAPER)     { WallpaperTab(::goAppearance) }
-        noAnimComposable(SETTINGS.ICON_PACK)     { IconPackTab(appsViewModel, ::goAppearance) }
-        noAnimComposable(SETTINGS.STATUS_BAR)    { StatusBarTab(appsViewModel, ::goAppearance) }
-        noAnimComposable(SETTINGS.THEME)         { ThemesTab(::goAppearance) }
+            noAnimComposable(SETTINGS.FLOATING_APPS) {
+                FloatingAppsTab(
+                    appsViewModel = appsViewModel,
+                    floatingAppsViewModel = floatingAppsViewModel,
+                    widgetHostProvider = widgetHostProvider,
+                    onBack = ::goAppearance,
+                    onLaunchSystemWidgetPicker = launchWidgetsPicker,
+                    onResetWidgetSize = onResetWidgetSize,
+                    onRemoveWidget = onRemoveFloatingApp
+                )
+            }
 
-        noAnimComposable(SETTINGS.BEHAVIOR)      { BehaviorTab(appsViewModel, ::goAdvSettingsRoot) }
-        noAnimComposable(SETTINGS.DRAWER)        { DrawerTab(appsViewModel, ::goAdvSettingsRoot) }
-        noAnimComposable(SETTINGS.COLORS)        { ColorSelectorTab(::goAppearance) }
-        noAnimComposable(SETTINGS.DEBUG)         { DebugTab(navController, appsViewModel, onShowWelcome = goWelcome ,::goAdvSettingsRoot) }
-        noAnimComposable(SETTINGS.LOGS)          { LogsTab(::goDebug) }
-        noAnimComposable(SETTINGS.SETTINGS_JSON) { SettingsDebugTab(::goDebug) }
-        noAnimComposable(SETTINGS.LANGUAGE)      { LanguageTab (::goAdvSettingsRoot) }
-        noAnimComposable(SETTINGS.BACKUP)        { BackupTab(backupViewModel, ::goAdvSettingsRoot) }
-        noAnimComposable(SETTINGS.CHANGELOGS)    { ChangelogsScreen (::goAdvSettingsRoot) }
-        noAnimComposable(SETTINGS.NESTS_EDIT)    { NestEditingScreen(
-            nestId = pendingNestToEdit,
-            nests = nests,
-            points = points,
-            pointIcons = pointIcons,
-            defaultPoint = defaultPoint,
-            onBack = ::goSettingsRoot
-        ) }
+            noAnimComposable(SETTINGS.WORKSPACE) {
+                WorkspaceListScreen(
+                    appsViewModel = appsViewModel,
+                    onOpenWorkspace = { id ->
+                        navController.navigate(
+                            SETTINGS.WORKSPACE_DETAIL.replace("{id}", id)
+                        )
+                    },
+                    onBack = ::goAdvSettingsRoot
+                )
+            }
 
-        noAnimComposable(SETTINGS.FLOATING_APPS) {
-            FloatingAppsTab(
-                appsViewModel = appsViewModel,
-                floatingAppsViewModel = floatingAppsViewModel,
-                widgetHostProvider = widgetHostProvider,
-                onBack = ::goAppearance,
-                onLaunchSystemWidgetPicker = launchWidgetsPicker,
-                onResetWidgetSize = onResetWidgetSize,
-                onRemoveWidget = onRemoveFloatingApp
-            )
-        }
-
-        noAnimComposable(SETTINGS.WORKSPACE) {
-            WorkspaceListScreen(
-                appsViewModel = appsViewModel,
-                onOpenWorkspace = { id ->
-                    navController.navigate(
-                        SETTINGS.WORKSPACE_DETAIL.replace("{id}", id)
-                    )
-                },
-                onBack = ::goAdvSettingsRoot
-            )
-        }
-
-        composable(
-            route = SETTINGS.WORKSPACE_DETAIL,
-            arguments = listOf(navArgument("id") { type = NavType.StringType }),
-            enterTransition = { EnterTransition.None },
-            exitTransition = { ExitTransition.None },
-            popEnterTransition = { EnterTransition.None },
-            popExitTransition = { ExitTransition.None }
-        ) { backStack ->
-            WorkspaceDetailScreen(
-                workspaceId = backStack.arguments!!.getString("id")!!,
-                appsViewModel = appsViewModel,
-                showIcons = showAppIconsInDrawer,
-                showLabels = showAppLabelsInDrawer,
-                gridSize = gridSize,
-                onBack = { navController.popBackStack() }
-            )
+            composable(
+                route = SETTINGS.WORKSPACE_DETAIL,
+                arguments = listOf(navArgument("id") { type = NavType.StringType }),
+                enterTransition = { EnterTransition.None },
+                exitTransition = { ExitTransition.None },
+                popEnterTransition = { EnterTransition.None },
+                popExitTransition = { ExitTransition.None }
+            ) { backStack ->
+                WorkspaceDetailScreen(
+                    workspaceId = backStack.arguments!!.getString("id")!!,
+                    appsViewModel = appsViewModel,
+                    showIcons = showAppIconsInDrawer,
+                    showLabels = showAppLabelsInDrawer,
+                    gridSize = gridSize,
+                    onBack = { navController.popBackStack() }
+                )
+            }
         }
     }
 }

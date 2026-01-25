@@ -123,10 +123,10 @@ fun FloatingAppsTab(
     var showNestPickerDialog by remember { mutableStateOf(false) }
     var nestId by remember { mutableIntStateOf(0) }
 
-    /** ───────────────────────────────────────────────────────────────────────────────────────────
+    /**
      * Status bar things, copy paste from the getters, do no change that, it's just for displaying
      * the status bar if enabled to preview more easily
-    ──────────────────────────────────────────────────────────────────────────────────────────────*/
+     */
     val systemInsets = WindowInsets.systemBars.asPaddingValues()
 
     val isRealFullscreen = systemInsets.calculateTopPadding() == 0.dp
@@ -137,7 +137,7 @@ fun FloatingAppsTab(
     /** ───────────────────────────────────────────────────────────────── */
 
 
-    Column{
+    Column {
 
         if (showStatusBar && isRealFullscreen) {
             StatusBar(

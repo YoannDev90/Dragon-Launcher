@@ -71,6 +71,7 @@ val ignoredReturnRoutes = listOf(
 val transparentScreens = listOf(
     ROUTES.MAIN,
     ROUTES.DRAWER,
+    SETTINGS.ROOT, // To tell the main NavHost that settings are transparent, then the settings scaffold will take the relay and apply the color where it needs
     SETTINGS.WALLPAPER,
     SETTINGS.FLOATING_APPS
 )

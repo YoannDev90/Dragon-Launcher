@@ -391,12 +391,7 @@ fun EditPointDialog(
 
                 /* Selected / Unselected Options Toggler */
 
-                item {
-                    TextDivider(
-                        text = stringResource(R.string.individual_options),
-                        backgroundColor = MaterialTheme.colorScheme.surface
-                    )
-                }
+                item { TextDivider(stringResource(R.string.individual_options)) }
                 item {
                     ActionRow(
                         actions = SelectedUnselectedViewMode.entries,

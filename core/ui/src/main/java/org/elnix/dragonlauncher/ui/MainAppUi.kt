@@ -37,6 +37,7 @@ import androidx.navigation.compose.currentBackStackEntryAsState
 import kotlinx.coroutines.launch
 import org.elnix.dragonlauncher.common.FloatingAppObject
 import org.elnix.dragonlauncher.common.R
+import org.elnix.dragonlauncher.common.logging.logE
 import org.elnix.dragonlauncher.common.utils.ROUTES
 import org.elnix.dragonlauncher.common.utils.SETTINGS
 import org.elnix.dragonlauncher.common.utils.WidgetHostProvider
@@ -233,6 +234,7 @@ fun MainAppUi(
 
     val containerColor =
         if (currentRoute in transparentScreens) {
+            ctx.logE("Wallpaper", "IS TRANSPARENT: $currentRoute")
             Color.Transparent
         } else {
             MaterialTheme.colorScheme.background
@@ -252,7 +254,7 @@ fun MainAppUi(
                 }
             }
         },
-        contentWindowInsets = WindowInsets(0),
+        contentWindowInsets = WindowInsets(),
         containerColor = containerColor,
     ) { paddingValues ->
         NavHost(
@@ -269,6 +271,7 @@ fun MainAppUi(
                     widgetHostProvider = widgetHostProvider,
                     onAppDrawer = { goDrawer() },
                     onGoWelcome = { goWelcome() },
+//                    ontest = { navController.navigate("test") },
                     onLongPress3Sec = { goSettingsRoot() }
                 )
             }
@@ -288,7 +291,19 @@ fun MainAppUi(
                     rightWidth = rightDrawerWidth
                 ) { goMainScreen() }
             }
-
+//
+//            noAnimComposable("test") {
+//                SettingsLazyHeader(
+//                    title = "test",
+//                    onBack = ::goMainScreen,
+//                    helpText = "",
+//                    onReset = null
+//                ) {
+//                    item {
+//                        Text("Test")
+//                    }
+//                }
+//            }
 
             // Welcome screen
             noAnimComposable(ROUTES.WELCOME) {

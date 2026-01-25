@@ -131,6 +131,18 @@ object UiSettingsStore : MapSettingsStore() {
         default = 22
     )
 
+    val wallpaperDimMainScreen = Settings.float(
+        key = "wallpaperDimMainScreen",
+        dataStoreName = dataStoreName,
+        default = 0f
+    )
+
+    val wallpaperDimDrawerScreen = Settings.float(
+        key = "wallpaperDimDrawerScreen",
+        dataStoreName = dataStoreName,
+        default = 0f
+    )
+
     override val ALL: List<BaseSettingObject<*,*>> = listOf(
         rgbLoading,
         rgbLine,
@@ -151,6 +163,8 @@ object UiSettingsStore : MapSettingsStore() {
         iconPackTint,
         appLabelIconOverlayTopPadding,
         appLabelOverlaySize,
-        appIconOverlaySize
+        appIconOverlaySize,
+        wallpaperDimMainScreen,
+        wallpaperDimDrawerScreen
     )
 }

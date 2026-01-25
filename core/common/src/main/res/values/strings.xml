@@ -327,4 +327,7 @@
     <string name="drawer_home_action">Drawer Home action</string>
     <string name="scroll_up_to_close_keyboard">Scroll up to close keyboard</string>
     <string name="drag_distances">Drag distances</string>
+    <string name="wallpaper_edit_main">Home screen wallpaper</string>
+    <string name="wallpaper_edit_drawer">App drawer wallpaper</string>
+    <string name="wallpaper_dim_amount">Wallpaper dim amount</string>
 </resources>

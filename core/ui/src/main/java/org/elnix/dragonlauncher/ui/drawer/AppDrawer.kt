@@ -60,11 +60,13 @@ import org.elnix.dragonlauncher.enumsui.DrawerActions
 import org.elnix.dragonlauncher.models.AppLifecycleViewModel
 import org.elnix.dragonlauncher.models.AppsViewModel
 import org.elnix.dragonlauncher.settings.stores.DrawerSettingsStore
+import org.elnix.dragonlauncher.settings.stores.UiSettingsStore
 import org.elnix.dragonlauncher.ui.actions.launchSwipeAction
 import org.elnix.dragonlauncher.ui.dialogs.AppLongPressDialog
 import org.elnix.dragonlauncher.ui.dialogs.IconEditorDialog
 import org.elnix.dragonlauncher.ui.dialogs.RenameAppDialog
 import org.elnix.dragonlauncher.ui.helpers.AppGrid
+import org.elnix.dragonlauncher.ui.helpers.WallpaperDim
 
 @Suppress("AssignedValueIsNeverRead")
 @OptIn(ExperimentalComposeUiApi::class)
@@ -233,6 +235,14 @@ fun AppDrawerScreen(
             ctx.showToast("Error: ${e.message}")
         }
     }
+
+
+    /* Dim wallpaper system */
+    val drawerBlurRadius by UiSettingsStore.wallpaperDimDrawerScreen.flow(ctx)
+        .collectAsState(UiSettingsStore.wallpaperDimDrawerScreen.default)
+
+    WallpaperDim(drawerBlurRadius)
+
 
     Column(
         modifier = Modifier

@@ -23,7 +23,6 @@ fun TextDivider(
     modifier: Modifier = Modifier,
     lineColor: Color = MaterialTheme.colorScheme.outline,
     textColor: Color = MaterialTheme.colorScheme.outline,
-    backgroundColor: Color = MaterialTheme.colorScheme.background,
     enabled: Boolean = true,
     thickness: Dp = 1.dp,
     padding: Dp = 8.dp
@@ -31,7 +30,7 @@ fun TextDivider(
     Row(
         modifier = modifier
             .fillMaxWidth()
-            .background(backgroundColor),
+            .background(Color.Transparent),
         verticalAlignment = Alignment.CenterVertically,
         horizontalArrangement = Arrangement.Center
     ) {
