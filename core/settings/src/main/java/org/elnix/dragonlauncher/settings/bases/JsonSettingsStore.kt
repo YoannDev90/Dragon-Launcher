@@ -23,7 +23,7 @@ import org.json.JSONObject
  * - trades fine-grained updates for easier serialization
  */
 abstract class JsonSettingsStore :
-    BaseSettingsStore<JSONObject>() {
+    BaseSettingsStore<JSONObject?>() {
 
     /**
      * Underlying setting that stores the JSON payload as a raw string.
@@ -34,14 +34,15 @@ abstract class JsonSettingsStore :
     /**
      * Reads the JSON string from DataStore and parses it into a [JSONObject].
      */
-    override suspend fun getAll(ctx: Context): JSONObject {
-        val raw = jsonSetting.get(ctx).trim()
+    override suspend fun getAll(ctx: Context): JSONObject? {
+        // Skips if default value provided (no changes made), keep the backup lighter
+        val raw = jsonSetting.getEncoded(ctx)?.trim() ?: return null
 
         return try {
-            if (raw.isEmpty()) JSONObject() else JSONObject(raw)
+            if (raw.isEmpty()) null else JSONObject(raw)
         } catch (e: JSONException) {
             e.printStackTrace()
-            JSONObject()
+            null
         }
     }
 
@@ -50,7 +51,7 @@ abstract class JsonSettingsStore :
     /**
      * Serializes and writes the provided [JSONObject] into DataStore.
      */
-    override suspend fun setAll(ctx: Context, value: JSONObject) {
+    override suspend fun setAll(ctx: Context, value: JSONObject?) {
         jsonSetting.set(ctx, value.toString())
     }
 
@@ -59,7 +60,7 @@ abstract class JsonSettingsStore :
      *
      * Since the store is already JSON-backed, this is a direct passthrough.
      */
-    override suspend fun exportForBackup(ctx: Context): JSONObject =
+    override suspend fun exportForBackup(ctx: Context): JSONObject? =
         getAll(ctx)
 
     /**
@@ -67,7 +68,7 @@ abstract class JsonSettingsStore :
      *
      * The provided [JSONObject] fully replaces the current stored value.
      */
-    override suspend fun importFromBackup(ctx: Context, json: JSONObject) {
+    override suspend fun importFromBackup(ctx: Context, json: JSONObject?) {
         setAll(ctx, json)
     }
 }

@@ -6,7 +6,9 @@ import androidx.datastore.preferences.core.edit
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.map
+import org.elnix.dragonlauncher.common.logging.logD
 import org.elnix.dragonlauncher.common.logging.logI
+import org.elnix.dragonlauncher.common.logging.logW
 import org.elnix.dragonlauncher.common.utils.SETTINGS_TAG
 import org.elnix.dragonlauncher.settings.DataStoreName
 import org.elnix.dragonlauncher.settings.resolveDataStore
@@ -68,14 +70,50 @@ class BaseSettingObject <T, R> (
      * Get the value one shot for logic, no flow
      *
      * @param ctx
-     * @return value of settings type [T]
+     * @return decoded value of settings type [T]
      */
-    suspend fun get(ctx: Context): T {
-        val raw = ctx.resolveDataStore(dataStoreName)
+    suspend fun get(ctx: Context): T? {
+
+        val appCtx = ctx.applicationContext
+
+        logD(
+            SETTINGS_TAG,
+            "ctx=${appCtx::class.java.name}, appCtx=${appCtx.applicationContext::class.java.name}, store=$dataStoreName"
+        )
+
+        val raw = appCtx
+            .resolveDataStore(dataStoreName)
             .data
             .first()[preferenceKey]
-        return raw?.let { decode(it) } ?: default
+
+
+        logW(SETTINGS_TAG, "[GET] $key -> raw: $raw; decoded: ${raw?.let { decode(it) }}" )
+        return raw?.let { decode(it) }
     }
+
+
+    /**
+     * Get the value one shot for logic, no flow
+     *
+     * @param ctx
+     * @return decoded value of settings type [T]
+     */
+    suspend fun getEncoded(ctx: Context): R? {
+
+        val appCtx = ctx.applicationContext
+
+        val raw = appCtx
+            .resolveDataStore(dataStoreName)
+            .data
+            .first()[preferenceKey]
+
+
+        logW(SETTINGS_TAG, "[GET ENCODED] $key -> raw: $raw" )
+
+        // Shitty but should work
+        return raw?.let { encode(decode(it)) }
+    }
+
 
     /**
      * Flow, outputs a flow of the value, for compose
@@ -83,15 +121,22 @@ class BaseSettingObject <T, R> (
      * @param ctx
      * @return [Flow] of the settings type [T]
      */
-    fun flow(ctx: Context): Flow<T> =
-        ctx.resolveDataStore(dataStoreName)
+    fun flow(ctx: Context): Flow<T> {
+
+        val appCtx = ctx.applicationContext
+
+        return appCtx.resolveDataStore(dataStoreName)
             .data
             .map { prefs ->
-                prefs[preferenceKey]?.let {
+
+                val raw = prefs[preferenceKey]
+                logW(SETTINGS_TAG, "[FLOW] $key -> raw: $raw; decoded: ${raw?.let { decode(it) }}" )
+
+                raw?.let {
                     decode(it)
                 } ?: default
             }
-
+    }
 
 
     /* ───────────── SETTERS ───────────── */
@@ -103,7 +148,9 @@ class BaseSettingObject <T, R> (
      * @param value either the good type or a null, to reset
      */
     suspend fun set(ctx: Context, value: T?) {
-        ctx.resolveDataStore(dataStoreName).edit {
+        val appCtx = ctx.applicationContext
+
+        appCtx.resolveDataStore(dataStoreName).edit {
             if (value != null) {
                 val encoded = encode(value)
                 logI(SETTINGS_TAG, "[SET] $preferenceKey > Value: $value; Encoded : $encoded")

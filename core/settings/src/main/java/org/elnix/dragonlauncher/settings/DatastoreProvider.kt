@@ -97,20 +97,23 @@ private val Context.statusBarDatastore by preferencesDataStore(name = DataStoreN
 private val Context.floatingAppsDatastore by preferencesDataStore(name = DataStoreName.FLOATING_APPS.value)
 
 
-fun Context.resolveDataStore(name: DataStoreName): DataStore<Preferences> =
-    when (name) {
-        DataStoreName.UI -> uiDatastore
-        DataStoreName.COLOR_MODE -> colorModeDatastore
-        DataStoreName.COLOR -> colorDatastore
-        DataStoreName.PRIVATE_SETTINGS -> privateSettingsStore
-        DataStoreName.SWIPE -> swipeDataStore
-        DataStoreName.LANGUAGE -> languageDatastore
-        DataStoreName.DRAWER -> drawerDataStore
-        DataStoreName.DEBUG -> debugDatastore
-        DataStoreName.WORKSPACES -> workspaceDataStore
-        DataStoreName.APPS -> appsDatastore
-        DataStoreName.BEHAVIOR -> behaviorDataStore
-        DataStoreName.BACKUP -> backupDatastore
-        DataStoreName.STATUS_BAR -> statusBarDatastore
-        DataStoreName.FLOATING_APPS -> floatingAppsDatastore
+
+fun Context.resolveDataStore(name: DataStoreName): DataStore<Preferences> {
+    val appCtx = applicationContext
+    return when (name) {
+        DataStoreName.UI -> appCtx.uiDatastore
+        DataStoreName.COLOR_MODE -> appCtx.colorModeDatastore
+        DataStoreName.COLOR -> appCtx.colorDatastore
+        DataStoreName.PRIVATE_SETTINGS -> appCtx.privateSettingsStore
+        DataStoreName.SWIPE -> appCtx.swipeDataStore
+        DataStoreName.LANGUAGE -> appCtx.languageDatastore
+        DataStoreName.DRAWER -> appCtx.drawerDataStore
+        DataStoreName.DEBUG -> appCtx.debugDatastore
+        DataStoreName.WORKSPACES -> appCtx.workspaceDataStore
+        DataStoreName.APPS -> appCtx.appsDatastore
+        DataStoreName.BEHAVIOR -> appCtx.behaviorDataStore
+        DataStoreName.BACKUP -> appCtx.backupDatastore
+        DataStoreName.STATUS_BAR -> appCtx.statusBarDatastore
+        DataStoreName.FLOATING_APPS -> appCtx.floatingAppsDatastore
     }
+}

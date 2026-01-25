@@ -233,7 +233,7 @@ class AppsViewModel(
     private suspend fun loadApps() {
         val cachedJson = AppsSettingsStore.cachedApps.get(ctx)
 
-        if (cachedJson.isNotEmpty()) {
+        if (!cachedJson.isNullOrEmpty()) {
             try {
                 val type = object : TypeToken<List<AppModel>>() {}.type
                 _apps.value = gson.fromJson(cachedJson, type) ?: emptyList()

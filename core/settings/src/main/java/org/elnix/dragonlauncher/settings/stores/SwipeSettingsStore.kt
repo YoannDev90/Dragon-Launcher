@@ -110,7 +110,9 @@ object SwipeSettingsStore : JsonSettingsStore() {
     }
 
 
-    override suspend fun setAll(ctx: Context, value: JSONObject) {
+    override suspend fun setAll(ctx: Context, value: JSONObject?) {
+        if (value == null) return
+
         if (value.has("points") || value.has("nests")) {
             value.optJSONArray("points")?.let {
                 savePoints(ctx, SwipeJson.decodePoints(it.toString()))
