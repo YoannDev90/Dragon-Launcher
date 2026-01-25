@@ -750,7 +750,6 @@ fun SettingsScreen(
             }
 
 
-
             IconButton(onClick = { undo() }, enabled = undoStack.isNotEmpty()) {
                 Icon(
                     imageVector = Icons.AutoMirrored.Filled.Undo,
@@ -764,6 +763,31 @@ fun SettingsScreen(
                     contentDescription = "Redo"
                 )
             }
+
+//            val undoButtonEnabled = undoStack.isNotEmpty()
+//            RepeatingPressButton(
+//                enabled = undoButtonEnabled,
+//                onPress = ::undo
+//            ) {
+//                Icon(
+//                    imageVector = Icons.AutoMirrored.Filled.Undo,
+//                    tint = MaterialTheme.colorScheme.primary.copy(if (undoButtonEnabled) 1f else 0.5f),
+//                    contentDescription = "Undo"
+//                )
+//            }
+//
+//
+//            val redoButtonEnabled = redoStack.isNotEmpty()
+//            RepeatingPressButton(
+//                enabled = redoButtonEnabled,
+//                onPress = ::redo
+//            ) {
+//                Icon(
+//                    imageVector = Icons.AutoMirrored.Filled.Redo,
+//                    tint = MaterialTheme.colorScheme.primary.copy(if (redoButtonEnabled) 1f else 0.5f),
+//                    contentDescription = "Redo"
+//                )
+//            }
         }
 
         Row(
@@ -819,7 +843,6 @@ fun SettingsScreen(
                     }
                 }
             ) {
-
                 CircleIconButton(
                     icon = Icons.Default.ChevronLeft,
                     contentDescription = stringResource(R.string.move_point_to_left),
@@ -870,8 +893,6 @@ fun SettingsScreen(
                     }
                 }
             ) {
-
-
                 CircleIconButton(
                     icon = Icons.Default.ChevronRight,
                     contentDescription = stringResource(R.string.move_point_to_right),

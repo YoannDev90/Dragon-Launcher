@@ -41,6 +41,18 @@ fun CircleIconButton(
 
     var showHelp by remember { mutableStateOf(false) }
 
+
+    // Only enable the click if onClick is actually enabled, else it let the parent handle click
+    val clickModifier =
+        if (onClick != null) {
+            Modifier.combinedClickable(
+                onLongClick = { showHelp = true },
+                onClick = { onClick() }
+            )
+        } else {
+            Modifier
+        }
+
     Box {
         Icon(
             imageVector = icon,
@@ -48,10 +60,7 @@ fun CircleIconButton(
             tint = displayColor,
             modifier = modifier
                 .clip(CircleShape)
-                .combinedClickable(
-                    onLongClick = { showHelp = true },
-                    onClick = { onClick?.invoke() }
-                )
+                .then(clickModifier)
                 .background(backgroundColor)
                 .border(width = 1.dp, color = borderColor, shape = CircleShape)
                 .padding(padding)
@@ -94,15 +103,23 @@ fun CircleIconButton(
 
     var showHelp by remember { mutableStateOf(false) }
 
+    // Only enable the click if onClick is actually enabled, else it let the parent handle click
+    val clickModifier =
+        if (onClick != null) {
+            Modifier.combinedClickable(
+                onLongClick = { showHelp = true },
+                onClick = { onClick() }
+            )
+        } else {
+            Modifier
+        }
+
     Box {
         Box(
             modifier = modifier
                 .size(40.dp)
                 .clip(CircleShape)
-                .combinedClickable(
-                    onLongClick = { showHelp = true },
-                    onClick = { onClick?.invoke() }
-                )
+                .then(clickModifier)
                 .background(backgroundColor)
                 .border(width = 1.dp, color = borderColor, shape = CircleShape)
                 .padding(padding),
