@@ -180,6 +180,7 @@ fun MainScreenOverlay(
 
     // The circle that corresponds to the distance of which the user drags
     val targetCircle = dragRadii.entries
+        .sortedBy { it.value }
         .firstOrNull { (_, distance) -> dist <= distance }
         ?.key
         ?: dragRadii.keys.maxOrNull() ?: -1
@@ -376,7 +377,7 @@ fun MainScreenOverlay(
                     hoveredPoint?.let { point ->
 
                         // same circle radii as SettingsScreen
-                        val radius = dragRadii[targetCircle -1]!!.toFloat()
+                        val radius = dragRadii[targetCircle]!!.toFloat()
                         // Main circle (the selected) drawn before any apps to be behind
                         if (showAppCirclePreview) {
                             drawCircle(
@@ -386,7 +387,6 @@ fun MainScreenOverlay(
                                 style = Stroke(4f)
                             )
                         }
-
 
 
                         // compute point position relative to origin
