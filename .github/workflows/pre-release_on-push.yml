@@ -12,6 +12,8 @@ on:
         - '**.kt'
         - '**.kts'
         - '**.java'
+  workflow_dispatch:
+
 
 jobs:
   build:
