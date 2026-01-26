@@ -4,8 +4,8 @@ import android.graphics.BitmapFactory
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.grid.GridCells
@@ -65,13 +65,20 @@ fun ThemesList(
                             }
                         }
                 ) {
-                    Column(
-                        horizontalAlignment = Alignment.CenterHorizontally,
-                        verticalArrangement = Arrangement.Center,
+                    Row (
+                        horizontalArrangement = Arrangement.SpaceBetween,
+                        verticalAlignment = Alignment.CenterVertically,
                         modifier = Modifier
                             .fillMaxWidth()
                             .padding(16.dp)
                     ) {
+                        Text(
+                            text = theme.name,
+                            style = MaterialTheme.typography.bodyMedium,
+                            textAlign = TextAlign.Center,
+                            modifier = Modifier.weight(1f)
+                        )
+
                         Image(
                             painter = if (theme.imageAssetPath != null) {
                                 rememberAssetPainter(theme.imageAssetPath!!)
@@ -80,15 +87,8 @@ fun ThemesList(
                             },
                             contentDescription = theme.name,
                             modifier = Modifier
-                                .fillMaxWidth()
+                                .weight(1f)
                                 .padding(bottom = 8.dp)
-                        )
-
-                        Text(
-                            text = theme.name,
-                            style = MaterialTheme.typography.bodyMedium,
-                            textAlign = TextAlign.Center,
-                            modifier = Modifier.fillMaxWidth()
                         )
                     }
                 }
