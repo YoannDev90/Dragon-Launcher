@@ -3,18 +3,24 @@ package org.elnix.dragonlauncher.enumsui
 import android.content.Context
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.DragIndicator
+import androidx.compose.material.icons.filled.TextRotationAngleup
 import androidx.compose.material.icons.filled.Vibration
+import org.elnix.dragonlauncher.common.R
+import org.elnix.dragonlauncher.enumsui.NestEditMode.DRAG
+import org.elnix.dragonlauncher.enumsui.NestEditMode.HAPTIC
+import org.elnix.dragonlauncher.enumsui.NestEditMode.MIN_ANGLE
 
 
-enum class NestEditMode { DRAG, HAPTIC }
+enum class NestEditMode { DRAG, HAPTIC, MIN_ANGLE }
 
 fun nestEditModeIcon(action: NestEditMode) = when (action) {
-    NestEditMode.DRAG -> Icons.Default.DragIndicator
-    NestEditMode.HAPTIC -> Icons.Default.Vibration
+    DRAG -> Icons.Default.DragIndicator
+    HAPTIC -> Icons.Default.Vibration
+    MIN_ANGLE -> Icons.Default.TextRotationAngleup
 }
 
 fun nestEditModeLabel(ctx: Context,action: NestEditMode) = when (action) {
-    NestEditMode.DRAG -> ctx.getString(org.elnix.dragonlauncher.common.R.string.drag_distances)
-    NestEditMode.HAPTIC -> ctx.getString(org.elnix.dragonlauncher.common.R.string.haptic_feedback)
-
+    DRAG -> ctx.getString(R.string.drag_distances)
+    HAPTIC -> ctx.getString(R.string.haptic_feedback)
+    MIN_ANGLE ->ctx.getString(R.string.min_angle_to_activate)
 }

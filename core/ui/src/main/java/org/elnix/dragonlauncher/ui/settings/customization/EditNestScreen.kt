@@ -26,7 +26,10 @@ import androidx.compose.runtime.setValue
 import androidx.compose.runtime.snapshots.SnapshotStateList
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.geometry.Rect
+import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.graphics.ImageBitmap
+import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
@@ -42,6 +45,7 @@ import org.elnix.dragonlauncher.settings.stores.SwipeSettingsStore
 import org.elnix.dragonlauncher.ui.components.generic.ActionRow
 import org.elnix.dragonlauncher.ui.defaultDragDistance
 import org.elnix.dragonlauncher.ui.defaultHapticFeedback
+import org.elnix.dragonlauncher.ui.defaultMinAngleActivation
 import org.elnix.dragonlauncher.ui.helpers.SliderWithLabel
 import org.elnix.dragonlauncher.ui.helpers.nests.circlesSettingsOverlay
 import org.elnix.dragonlauncher.ui.helpers.settings.SettingsLazyHeader
@@ -62,9 +66,7 @@ fun NestEditingScreen(
     val ctx = LocalContext.current
     val extraColors = LocalExtraColors.current
     val backgroundColor = MaterialTheme.colorScheme.background
-
-
-    val circles: SnapshotStateList<UiCircle> = remember { mutableStateListOf() }
+    val angleColor = MaterialTheme.colorScheme.tertiary
 
 
     val dragDistancesState = remember(currentNest.id) {
@@ -73,19 +75,34 @@ fun NestEditingScreen(
         }
     }
 
+    val hapticState = remember(currentNest.id) {
+        mutableStateMapOf<Int, Int>().apply {
+            putAll(currentNest.haptic)
+        }
+    }
+
+    val minAngleState = remember(currentNest.id) {
+        mutableStateMapOf<Int, Int>().apply {
+            putAll(currentNest.minAngleActivation)
+        }
+    }
+
+
+    // used to draw the circles in the preview
+    val circles: SnapshotStateList<UiCircle> = remember { mutableStateListOf() }
+
     LaunchedEffect(currentNest.dragDistances) {
         circles.clear()
         dragDistancesState
             .forEach { (circleNumber, radius) ->
-            circles.add(
-                UiCircle(
-                    id = circleNumber,
-                    radius = radius.toFloat()
+                circles.add(
+                    UiCircle(
+                        id = circleNumber,
+                        radius = radius.toFloat()
+                    )
                 )
-            )
-        }
+            }
     }
-
 
 
     var currentEditMode by remember { mutableStateOf(NestEditMode.DRAG) }
@@ -103,6 +120,7 @@ fun NestEditingScreen(
         }
     }
 
+
     fun commitDragDistances(state: Map<Int, Int>) {
         pendingNestUpdate = nests.map { nest ->
             if (nest.id == nestId) {
@@ -111,12 +129,31 @@ fun NestEditingScreen(
         }
     }
 
+    fun commitHaptic(state: Map<Int, Int>) {
+        pendingNestUpdate = nests.map { nest ->
+            if (nest.id == nestId) {
+                nest.copy(haptic = state.toMap())
+            } else nest
+        }
+    }
+
+    fun commitAngle(state: Map<Int, Int>) {
+        pendingNestUpdate = nests.map { nest ->
+            if (nest.id == nestId) {
+                nest.copy(minAngleActivation = state.toMap())
+            } else nest
+        }
+    }
+
+
+
+
     SettingsLazyHeader(
         title = stringResource(R.string.dragging_distance_selection),
         onBack = onBack,
         helpText = "Help",
         onReset = {
-           pendingNestUpdate = nests.filter { it.id != nestId }
+            pendingNestUpdate = nests.filter { it.id != nestId }
         },
 
         content = {
@@ -143,6 +180,29 @@ fun NestEditingScreen(
                     deepNest = 1,
                     preventBgErasing = true
                 )
+
+
+                // Show the min angle to activate
+                circles.forEach { circle ->
+                    val arcRadius = circle.radius + 10
+
+                    val rect = Rect(
+                        center.x - arcRadius,
+                        center.y - arcRadius,
+                        center.x + arcRadius,
+                        center.y + arcRadius
+                    )
+
+                    drawArc(
+                        color = angleColor,
+                        startAngle = -90f,
+                        sweepAngle = minAngleState[circle.id]?.toFloat() ?: 0f,
+                        useCenter = false,
+                        topLeft = rect.topLeft,
+                        size = Size(rect.width, rect.height),
+                        style = Stroke(width = 3f)
+                    )
+                }
             }
 
 
@@ -167,65 +227,83 @@ fun NestEditingScreen(
                     .padding(20.dp),
                 verticalArrangement = Arrangement.spacedBy(15.dp)
             ) {
-                if (currentEditMode == NestEditMode.DRAG) {
-                    dragDistancesState.toSortedMap().forEach { (index, distance) ->
-                        SliderWithLabel(
-                            label = if (index == -1) "${stringResource(R.string.cancel_zone)} ->"
-                            else "${stringResource(R.string.circle)}: $index ->",
-                            value = distance,
-                            valueRange = 0..1000,
-                            showValue = true,
-                            color = MaterialTheme.colorScheme.primary,
-                            onReset = {
-                                dragDistancesState[index] = defaultDragDistance(index)
-                                commitDragDistances(dragDistancesState)
-                            },
-                            onDragStateChange = { isDragging ->
-                                if (!isDragging) {
+                when (currentEditMode) {
+                    NestEditMode.DRAG -> {
+                        dragDistancesState.toSortedMap().forEach { (index, distance) ->
+                            SliderWithLabel(
+                                label = if (index == -1) "${stringResource(R.string.cancel_zone)} ->"
+                                else "${stringResource(R.string.circle)}: $index ->",
+                                value = distance,
+                                valueRange = 0..1000,
+                                showValue = true,
+                                color = MaterialTheme.colorScheme.primary,
+                                onReset = {
+                                    dragDistancesState[index] = defaultDragDistance(index)
                                     commitDragDistances(dragDistancesState)
+                                },
+                                onDragStateChange = { isDragging ->
+                                    if (!isDragging) {
+                                        commitDragDistances(dragDistancesState)
+                                    }
                                 }
+                            ) { newValue ->
+                                dragDistancesState[index] = newValue
                             }
-                        ) { newValue ->
-                            dragDistancesState[index] = newValue
                         }
                     }
-                } else {
-                    dragDistancesState.toSortedMap().forEach { (index, _) ->
-                        val milliseconds = currentNest.haptic[index] ?: defaultHapticFeedback(index)
-                        SliderWithLabel(
-                            label = if (index == -1) "${stringResource(R.string.cancel_zone)} ->"
-                            else "${stringResource(R.string.circle)}: $index ->",
-                            value = milliseconds,
-                            valueRange = 0..300,
-                            color = MaterialTheme.colorScheme.primary,
-                            onReset = {
-                                pendingNestUpdate = nests.map { nest ->
-                                    if (nest.id == nestId) {
 
-                                        // Remove the haptic for this index (circle) so it uses the default value
-                                        val newHaptic = nest.haptic.toMutableMap().filter {
-                                            it.key != index
+                    NestEditMode.HAPTIC -> {
+                        // Keep drag distance state here cause haptic may be empty dues to how it is handled
+                        dragDistancesState.toSortedMap().filter { it.key != -1 }
+                            .forEach { (index, _) ->
+                                val milliseconds =
+                                    hapticState[index] ?: defaultHapticFeedback(index)
+                                SliderWithLabel(
+                                    label = "${stringResource(R.string.circle)}: $index ->",
+                                    value = milliseconds,
+                                    valueRange = 0..300,
+                                    color = MaterialTheme.colorScheme.primary,
+                                    onReset = {
+                                        hapticState[index] = defaultHapticFeedback(index)
+                                        commitHaptic(hapticState)
+                                    },
+                                    onDragStateChange = { isDragging ->
+                                        if (!isDragging) {
+                                            commitHaptic(hapticState)
                                         }
 
-                                        nest.copy(haptic = newHaptic)
-                                    } else nest
-                                }
-                            },
-                            onDragStateChange = {
-                                if (!it && milliseconds > 0) {
-                                    vibrate(ctx, milliseconds.toLong())
-                                }
-                            }
-                        ) { newValue ->
-                            pendingNestUpdate = nests.map { nest ->
-                                if (nest.id == nestId) {
-                                    val newHaptic = nest.haptic.toMutableMap().apply {
-                                        this[index] = newValue
+                                        if (!isDragging && milliseconds > 0) {
+                                            vibrate(ctx, milliseconds.toLong())
+                                        }
                                     }
-                                    nest.copy(haptic = newHaptic)
-                                } else nest
+                                ) { newValue ->
+                                    hapticState[index] = newValue
+                                }
                             }
-                        }
+                    }
+
+                    NestEditMode.MIN_ANGLE -> {
+                        dragDistancesState.toSortedMap().filter { it.key != -1 }
+                            .forEach { (index, distance) ->
+                                val angle = minAngleState[index] ?: defaultMinAngleActivation(distance)
+                                SliderWithLabel(
+                                    label = "${stringResource(R.string.circle)}: $index ->",
+                                    value = angle,
+                                    valueRange = 0..360,
+                                    color = MaterialTheme.colorScheme.primary,
+                                    onReset = {
+                                        minAngleState[index] = defaultMinAngleActivation(distance)
+                                        commitAngle(minAngleState)
+                                    },
+                                    onDragStateChange = { isDragging ->
+                                        if (!isDragging) {
+                                            commitAngle(minAngleState)
+                                        }
+                                    }
+                                ) { newValue ->
+                                    minAngleState[index] = newValue
+                                }
+                            }
                     }
                 }
             }

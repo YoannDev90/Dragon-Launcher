@@ -44,6 +44,7 @@ import org.elnix.dragonlauncher.common.serializables.SwipePointSerializable
 import org.elnix.dragonlauncher.common.utils.vibrate
 import org.elnix.dragonlauncher.settings.stores.DebugSettingsStore
 import org.elnix.dragonlauncher.settings.stores.UiSettingsStore
+import org.elnix.dragonlauncher.settings.stores.UiSettingsStore.minAngleFromAPointToActivateIt
 import org.elnix.dragonlauncher.ui.components.AppPreviewTitle
 import org.elnix.dragonlauncher.ui.helpers.nests.actionsInCircle
 import org.elnix.dragonlauncher.ui.theme.LocalExtraColors
@@ -105,14 +106,15 @@ fun MainScreenOverlay(
     var cumulativeAngle by remember { mutableDoubleStateOf(0.0) }   // continuous rotation without jumps
 
 
-    val minAngleFromAPointToActivateIt by UiSettingsStore.minAngleFromAPointToActivateIt.flow(ctx)
-        .collectAsState(initial = 0)
+//    val minAngleFromAPointToActivateIt by UiSettingsStore.minAngleFromAPointToActivateIt.flow(ctx)
+//        .collectAsState(initial = 0)
 
 
 
 
     val dragRadii = nests.find { it.id == nestId }?.dragDistances ?: CircleNest().dragDistances
     val haptics = nests.find { it.id == nestId }?.haptic ?: CircleNest().haptic
+    val minAngles = nests.find { it.id == nestId }?.minAngleActivation ?: CircleNest().minAngleActivation
 
     val dx: Float
     val dy: Float
@@ -203,9 +205,12 @@ fun MainScreenOverlay(
             val shortest = minOf(d, 360 - d)
             exposedAsbAngle = shortest
 
-            // If minAngle == 0 => no limit, always accept closest
-            if (minAngleFromAPointToActivateIt == 0 ||
-                shortest <= minAngleFromAPointToActivateIt
+            // if not provided, uses infinite angle, aka no limit
+            val minAngleTargetCircle = minAngles[targetCircle] ?: 0
+
+            // If minAngle == 0 -> no limit, always accept closest
+            if (minAngleTargetCircle == 0 ||
+                shortest <= minAngleTargetCircle
             ) {
                 p
             } else {
@@ -539,3 +544,15 @@ fun defaultHapticFeedback(id: Int): Int = when (id) {
     0 -> 20  // First circle 20ms
     else -> 20 + 20 * id // others: add 20ms each
 }
+
+
+
+// TODO I'll need to compute the angle to make it always look stable, regardless of the radius, to have always same length
+fun defaultMinAngleActivation(size: Int): Int =
+
+       Math.toRadians(size.toDouble()).toInt()
+//        y = start.y - radius * cos(Math.toRadians(point.angleDeg)).toFloat()
+
+//    -1 -> 0 // Cancel zone, no points on it
+//    0 -> 30  // First circle 30°
+//    else -> 30 + 20 * size // others: add 20° each

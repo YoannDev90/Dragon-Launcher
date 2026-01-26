@@ -40,7 +40,6 @@ import org.elnix.dragonlauncher.settings.stores.UiSettingsStore
 import org.elnix.dragonlauncher.ui.components.AppPreviewTitle
 import org.elnix.dragonlauncher.ui.components.settings.SettingsSlider
 import org.elnix.dragonlauncher.ui.components.settings.SettingsSwitchRow
-import org.elnix.dragonlauncher.ui.helpers.SliderWithLabel
 import org.elnix.dragonlauncher.ui.helpers.TextDivider
 import org.elnix.dragonlauncher.ui.helpers.settings.SettingsItem
 import org.elnix.dragonlauncher.ui.helpers.settings.SettingsLazyHeader
@@ -64,9 +63,9 @@ fun AppearanceTab(
 
     val showAppAnglePreview by UiSettingsStore.showAnglePreview.flow(ctx)
         .collectAsState(initial = true)
-
-    val minAngleFromAPointToActivateIt by UiSettingsStore.minAngleFromAPointToActivateIt.flow(ctx)
-        .collectAsState(initial = 0)
+//
+//    val minAngleFromAPointToActivateIt by UiSettingsStore.minAngleFromAPointToActivateIt.flow(ctx)
+//        .collectAsState(initial = 0)
 
 
     val appLabelIconOverlayTopPadding by UiSettingsStore.appLabelIconOverlayTopPadding.flow(ctx)
@@ -282,34 +281,34 @@ fun AppearanceTab(
             )
         }
 
-        item {
-            Column(
-                modifier = Modifier
-                    .clip(RoundedCornerShape(12.dp))
-                    .background(MaterialTheme.colorScheme.surface.adjustBrightness(0.7f))
-                    .border(
-                        1.dp,
-                        MaterialTheme.colorScheme.primary.adjustBrightness(0.2f),
-                        RoundedCornerShape(12.dp)
-                    )
-                    .padding(8.dp)
-            ) {
-                SliderWithLabel(
-                    label = stringResource(R.string.min_dist_to_activate_action),
-                    value = minAngleFromAPointToActivateIt,
-                    showValue = true,
-                    valueRange = 0..360,
-                    color = MaterialTheme.colorScheme.primary,
-                    onReset = {
-                        scope.launch {
-                            UiSettingsStore.minAngleFromAPointToActivateIt.reset(ctx)
-                        }
-                    }
-                ) {
-                    scope.launch { UiSettingsStore.minAngleFromAPointToActivateIt.set(ctx, it) }
-                }
-            }
-        }
+//        item {
+//            Column(
+//                modifier = Modifier
+//                    .clip(RoundedCornerShape(12.dp))
+//                    .background(MaterialTheme.colorScheme.surface.adjustBrightness(0.7f))
+//                    .border(
+//                        1.dp,
+//                        MaterialTheme.colorScheme.primary.adjustBrightness(0.2f),
+//                        RoundedCornerShape(12.dp)
+//                    )
+//                    .padding(8.dp)
+//            ) {
+//                SliderWithLabel(
+//                    label = stringResource(R.string.min_dist_to_activate_action),
+//                    value = minAngleFromAPointToActivateIt,
+//                    showValue = true,
+//                    valueRange = 0..360,
+//                    color = MaterialTheme.colorScheme.primary,
+//                    onReset = {
+//                        scope.launch {
+//                            UiSettingsStore.minAngleFromAPointToActivateIt.reset(ctx)
+//                        }
+//                    }
+//                ) {
+//                    scope.launch { UiSettingsStore.minAngleFromAPointToActivateIt.set(ctx, it) }
+//                }
+//            }
+//        }
     }
 
     if (isDraggingAppPreviewOverlays) {

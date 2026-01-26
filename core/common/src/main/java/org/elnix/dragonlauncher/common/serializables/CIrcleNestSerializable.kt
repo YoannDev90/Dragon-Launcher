@@ -40,5 +40,10 @@ data class CircleNest(
     /**
      * Haptic feedback, as default for the points in  the circle, separated from the point system
      */
-    @SerializedName("haptic") val haptic: Map<Int, Int> = emptyMap()
+    @SerializedName("haptic") val haptic: Map<Int, Int> = emptyMap(),
+
+    /**
+     * Haptic feedback, as default for the points in  the circle, separated from the point system
+     */
+    @SerializedName("minAngleActivation") val minAngleActivation: Map<Int, Int> = emptyMap()
 )
