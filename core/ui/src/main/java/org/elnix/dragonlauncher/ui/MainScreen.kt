@@ -1,6 +1,7 @@
 package org.elnix.dragonlauncher.ui
 
 import android.annotation.SuppressLint
+import android.os.Build
 import android.util.DisplayMetrics
 import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.background
@@ -163,7 +164,9 @@ fun MainScreen(
     val mainBlurRadius by UiSettingsStore.wallpaperDimMainScreen.flow(ctx)
         .collectAsState(UiSettingsStore.wallpaperDimMainScreen.default)
 
-    WallpaperDim(mainBlurRadius)
+    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
+        WallpaperDim(mainBlurRadius)
+    }
 
 
 

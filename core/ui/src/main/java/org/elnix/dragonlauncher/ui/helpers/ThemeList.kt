@@ -24,6 +24,7 @@ import androidx.compose.ui.graphics.painter.BitmapPainter
 import androidx.compose.ui.graphics.painter.Painter
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import kotlinx.coroutines.launch
@@ -42,7 +43,7 @@ fun ThemesList(
     val scope = rememberCoroutineScope()
 
     if (loading) {
-        Text("Loading themes...")
+        Text(stringResource(R.string.loading_themes))
     } else if (themes != null) {
         LazyVerticalGrid(
             columns = GridCells.Fixed(2),

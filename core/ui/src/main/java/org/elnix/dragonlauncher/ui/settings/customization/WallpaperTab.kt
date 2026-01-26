@@ -5,6 +5,7 @@ package org.elnix.dragonlauncher.ui.settings.customization
 import android.annotation.SuppressLint
 import android.content.Intent
 import android.graphics.Bitmap
+import android.os.Build
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.IntrinsicSize
@@ -37,6 +38,7 @@ import androidx.compose.ui.unit.dp
 import kotlinx.coroutines.launch
 import org.elnix.dragonlauncher.common.R
 import org.elnix.dragonlauncher.common.utils.WallpaperHelper
+import org.elnix.dragonlauncher.common.utils.colors.adjustBrightness
 import org.elnix.dragonlauncher.common.utils.showToast
 import org.elnix.dragonlauncher.enumsui.WallpaperEditMode
 import org.elnix.dragonlauncher.enumsui.WallpaperTarget
@@ -81,7 +83,9 @@ fun WallpaperTab(onBack: () -> Unit) {
     }
 
 //    WallpaperBlur(blurRadius)
-    WallpaperDim(dimAmount)
+    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
+        WallpaperDim(dimAmount)
+    }
 
 
 
@@ -205,6 +209,7 @@ fun WallpaperTab(onBack: () -> Unit) {
                             else wallpaperDimDrawerScreen,
                         valueRange = 0f..1f,
                         color = MaterialTheme.colorScheme.primary,
+                        backgroundColor = MaterialTheme.colorScheme.surface.adjustBrightness(0.5f),
                         onReset = {
                             scope.launch {
                                 if (selectedView == WallpaperEditMode.MAIN) {

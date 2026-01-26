@@ -22,8 +22,8 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import org.elnix.dragonlauncher.common.R
-import org.elnix.dragonlauncher.ui.helpers.GradientBigButton
 import org.elnix.dragonlauncher.common.utils.isDefaultLauncher
+import org.elnix.dragonlauncher.ui.helpers.GradientBigButton
 
 @Composable
 fun WelcomePageLauncher() {
@@ -60,9 +60,9 @@ fun WelcomePageLauncher() {
 
         GradientBigButton(
             text = if (isDefaultLauncher)
-                "Already Default Launcher"
+                stringResource(R.string.already_default_launcher)
             else
-                "Open Default Launcher Settings",
+                stringResource(R.string.open_default_launcher_settings),
             enabled = !isDefaultLauncher,
             onClick = {
                 ctx.startActivity(Intent(Settings.ACTION_HOME_SETTINGS))

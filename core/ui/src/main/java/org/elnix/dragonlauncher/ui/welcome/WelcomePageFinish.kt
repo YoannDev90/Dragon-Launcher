@@ -55,7 +55,7 @@ fun WelcomePageFinish(
         Spacer(Modifier.height(32.dp))
 
         GradientBigButton(
-            text = "Customize applications",
+            text = stringResource(R.string.customize_apps),
             onClick = onEnterSettings
         )
 
@@ -65,7 +65,7 @@ fun WelcomePageFinish(
 
         TextButton(onClick = onEnterApp) {
             Text(
-                text = "Don't customize and start using directly Dragon Launcher",
+                text = stringResource(R.string.dont_customize),
                 color = MaterialTheme.colorScheme.onBackground.copy(0.5f),
                 textDecoration = TextDecoration.Underline
             )

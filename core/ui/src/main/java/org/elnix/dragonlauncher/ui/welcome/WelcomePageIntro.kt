@@ -45,7 +45,7 @@ fun WelcomePageIntro(onImport: () -> Unit) {
         Spacer(Modifier.height(32.dp))
 
         Text(
-            "Welcome to Dragon Launcher",
+            stringResource(R.string.welcome_to_dragon_launcher),
             color = MaterialTheme.colorScheme.onBackground,
             fontSize = 26.sp,
             textAlign = TextAlign.Center
@@ -62,7 +62,7 @@ fun WelcomePageIntro(onImport: () -> Unit) {
         Spacer(Modifier.height(12.dp))
 
         Text(
-            "Fast. Minimal. Powerful gestures.",
+            stringResource(R.string.fast_minimal_powerful_gestures),
             color = MaterialTheme.colorScheme.secondary,
             fontSize = 18.sp
         )
@@ -73,7 +73,7 @@ fun WelcomePageIntro(onImport: () -> Unit) {
             onClick = onImport
         ) {
             Text(
-                text = "Import settings",
+                text = stringResource(R.string.import_settings),
                 color = MaterialTheme.colorScheme.onBackground.copy(0.5f),
                 textDecoration = TextDecoration.Underline
             )

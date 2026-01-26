@@ -345,4 +345,12 @@
     <string name="min_angle_to_activate">Min Angle to activate</string>
     <string name="app_label_overlay_size">App label overlay size</string>
     <string name="app_icon_overlay_size">App Icon overlay size</string>
+    <string name="next">Next</string>
+    <string name="loading_themes">Loading themes...</string>
+    <string name="already_default_launcher">Already Default Launcher</string>
+    <string name="open_default_launcher_settings">Open Default Launcher Settings</string>
+    <string name="welcome_to_dragon_launcher">Welcome to Dragon Launcher</string>
+    <string name="fast_minimal_powerful_gestures">Fast. Minimal. Powerful gestures.</string>
+    <string name="customize_apps">Customize applications</string>
+    <string name="dont_customize">Don\'t customize and start using directly Dragon Launcher</string>
 </resources>

@@ -1,6 +1,7 @@
 package org.elnix.dragonlauncher.ui.drawer
 
 import android.content.Intent
+import android.os.Build
 import android.provider.Settings
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box
@@ -241,7 +242,9 @@ fun AppDrawerScreen(
     val drawerBlurRadius by UiSettingsStore.wallpaperDimDrawerScreen.flow(ctx)
         .collectAsState(UiSettingsStore.wallpaperDimDrawerScreen.default)
 
-    WallpaperDim(drawerBlurRadius)
+    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
+        WallpaperDim(drawerBlurRadius)
+    }
 
 
     Column(
