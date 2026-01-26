@@ -160,7 +160,6 @@
     <string name="right_padding">Right Padding</string>
     <string name="top_padding">Top Padding</string>
     <string name="bottom_padding">Bottom Padding</string>
-    <string name="up_padding">Top Padding</string>
     <string name="down_padding">Bottom Padding</string>
     <string name="wallpaper">Wallpaper</string>
     <string name="wallpaper_help">Set wallpaper for home/lock screen and use it or not in the launcher</string>

@@ -160,7 +160,6 @@
     <string name="right_padding">오른쪽 패딩</string>
     <string name="top_padding">탑 패딩</string>
     <string name="bottom_padding">하부 패딩</string>
-    <string name="up_padding">탑 패딩</string>
     <string name="down_padding">하부 패딩</string>
     <string name="wallpaper">벽지</string>
     <string name="wallpaper_help">홈/잠금 화면에 배경화면을 설정하고 런처에서 사용하거나 사용하지 않거나</string>

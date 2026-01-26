@@ -160,7 +160,6 @@
     <string name="right_padding">Acolchado derecho</string>
     <string name="top_padding">Acolchado superior</string>
     <string name="bottom_padding">Acolchado inferior</string>
-    <string name="up_padding">Acolchado superior</string>
     <string name="down_padding">Acolchado inferior</string>
     <string name="wallpaper">Papel pintado</string>
     <string name="wallpaper_help">Configura el fondo de pantalla para inicio/pantalla de bloqueo y úsalo o no en el lanzador</string>

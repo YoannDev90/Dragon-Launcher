@@ -32,8 +32,8 @@
     <string name="import_cancelled">Importation annulée</string>
     <string name="backup_restore">Sauvegarde / Restauration</string>
     <string name="backup_restore_text">Sauvegarde ou restauration des paramètres et des actions de l’application, les sauvegardes automatiques sont déclenchées automatiquement à chaque lancement/pause/fermeture de l’application ou en appuyant sur le bouton « Déclencher » ci-dessous</string>
-    <string name="export_settings">Paramètres d’exportation</string>
-    <string name="import_settings">Paramètres d’importation</string>
+    <string name="export_settings">Exporter les paramètres</string>
+    <string name="import_settings">Importer les paramètres</string>
     <string name="export_failed">Exportation échouée</string>
     <string name="import_failed">Importation ratée</string>
     <string name="import_successful">Importation réussie</string>
@@ -160,7 +160,6 @@
     <string name="right_padding">Rembourrage à droite</string>
     <string name="top_padding">Rembourrage supérieur</string>
     <string name="bottom_padding">Rembourrage inférieur</string>
-    <string name="up_padding">Rembourrage supérieur</string>
     <string name="down_padding">Rembourrage inférieur</string>
     <string name="wallpaper">Fond d’écran</string>
     <string name="wallpaper_help">Définissez le fond d’écran pour l’écran d’accueil/verrouillage et utilisez-le ou non dans le lanceur</string>

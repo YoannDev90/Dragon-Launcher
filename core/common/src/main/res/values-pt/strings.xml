@@ -160,7 +160,6 @@
     <string name="right_padding">Acolchoamento Direito</string>
     <string name="top_padding">Acolchoamento superior</string>
     <string name="bottom_padding">Acolchoamento inferior</string>
-    <string name="up_padding">Acolchoamento superior</string>
     <string name="down_padding">Acolchoamento inferior</string>
     <string name="wallpaper">Papel de parede</string>
     <string name="wallpaper_help">Defina o papel de parede para a tela inicial/bloqueio e use ou não no launcher</string>

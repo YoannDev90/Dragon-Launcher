@@ -160,7 +160,6 @@
     <string name="right_padding">右パディング</string>
     <string name="top_padding">トップパッド</string>
     <string name="bottom_padding">底面のパッド</string>
-    <string name="up_padding">トップパッド</string>
     <string name="down_padding">底面のパッド</string>
     <string name="wallpaper">壁紙</string>
     <string name="wallpaper_help">ホーム/ロック画面の壁紙を設定して、ランチャーで使うか使わないか</string>

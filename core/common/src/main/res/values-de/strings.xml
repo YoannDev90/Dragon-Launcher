@@ -160,7 +160,6 @@
     <string name="right_padding">Rechte Polsterung</string>
     <string name="top_padding">Top-Polsterung</string>
     <string name="bottom_padding">Bodenpolsterung</string>
-    <string name="up_padding">Top-Polsterung</string>
     <string name="down_padding">Bodenpolsterung</string>
     <string name="wallpaper">Tapete</string>
     <string name="wallpaper_help">Setze ein Hintergrundbild für Home/Sperrbildschirm und benutze es oder nicht im Launcher</string>

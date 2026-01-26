@@ -160,7 +160,6 @@
     <string name="right_padding">राइट पैडिंग</string>
     <string name="top_padding">शीर्ष पैडिंग</string>
     <string name="bottom_padding">बॉटम पैडिंग</string>
-    <string name="up_padding">शीर्ष पैडिंग</string>
     <string name="down_padding">बॉटम पैडिंग</string>
     <string name="wallpaper">वॉलपेपर</string>
     <string name="wallpaper_help">होम/लॉक स्क्रीन के लिए वॉलपेपर सेट करें और लॉन्चर में इसका उपयोग करें या नहीं</string>
