@@ -38,6 +38,8 @@ import org.elnix.dragonlauncher.common.utils.colors.adjustBrightness
 import org.elnix.dragonlauncher.models.AppsViewModel
 import org.elnix.dragonlauncher.settings.stores.UiSettingsStore
 import org.elnix.dragonlauncher.ui.components.AppPreviewTitle
+import org.elnix.dragonlauncher.ui.components.settings.SettingsSlider
+import org.elnix.dragonlauncher.ui.components.settings.SettingsSwitchRow
 import org.elnix.dragonlauncher.ui.helpers.SliderWithLabel
 import org.elnix.dragonlauncher.ui.helpers.SwitchRow
 import org.elnix.dragonlauncher.ui.helpers.TextDivider
@@ -54,15 +56,6 @@ fun AppearanceTab(
 
     val ctx = LocalContext.current
     val scope = rememberCoroutineScope()
-
-    val fullscreenApp by UiSettingsStore.fullScreen.flow(ctx)
-        .collectAsState(initial = false)
-
-    val rgbLoading by UiSettingsStore.rgbLoading.flow(ctx)
-        .collectAsState(initial = true)
-
-    val rgbLine by UiSettingsStore.rgbLine.flow(ctx)
-        .collectAsState(initial = true)
 
     val showLaunchingAppLabel by UiSettingsStore.showLaunchingAppLabel.flow(ctx)
         .collectAsState(initial = true)
@@ -173,41 +166,43 @@ fun AppearanceTab(
 
 
         item {
-            SwitchRow(
-                fullscreenApp,
-                stringResource(R.string.fullscreen_app),
-            ) {
-                scope.launch { UiSettingsStore.fullScreen.set(ctx, it) }
-            }
+            SettingsSwitchRow(
+                setting = UiSettingsStore.fullScreen,
+                title = stringResource(R.string.fullscreen_app),
+                description = stringResource(R.string.fullscreen_description)
+            )
         }
 
         item {
-            SwitchRow(
-                rgbLoading,
-                stringResource(R.string.rgb_loading_settings),
-            ) { scope.launch { UiSettingsStore.rgbLoading.set(ctx, it) } }
-
+            SettingsSwitchRow(
+                setting = UiSettingsStore.rgbLoading,
+                title = stringResource(R.string.rgb_loading_settings),
+                description = stringResource(R.string.rgb_loading_description)
+            )
         }
 
         item {
-            SwitchRow(
-                rgbLine,
-                stringResource(R.string.rgb_line_selector),
-            ) { scope.launch { UiSettingsStore.rgbLine.set(ctx, it) } }
+            SettingsSwitchRow(
+                setting = UiSettingsStore.rgbLine,
+                title = stringResource(R.string.rgb_line_selector),
+                description = stringResource(R.string.rgb_line_selector_description)
+            )
         }
 
         item {
-            SwitchRow(
-                showLaunchingAppLabel,
-                stringResource(R.string.show_launching_app_label),
-            ) { scope.launch { UiSettingsStore.showLaunchingAppLabel.set(ctx, it) } }
+            SettingsSwitchRow(
+                setting = UiSettingsStore.showLaunchingAppLabel,
+                title = stringResource(R.string.show_launching_app_label),
+                description = stringResource(R.string.show_launching_app_label_description)
+            )
         }
 
         item {
-            SwitchRow(
-                showLaunchingAppIcon,
-                stringResource(R.string.show_launching_app_icon),
-            ) { scope.launch { UiSettingsStore.showLaunchingAppIcon.set(ctx, it) } }
+            SettingsSwitchRow(
+                setting = UiSettingsStore.showLaunchingAppLabel,
+                title = stringResource(R.string.show_launching_app_icon),
+                description = stringResource(R.string.show_launching_app_icon_description)
+            )
         }
 
         item {
@@ -222,61 +217,25 @@ fun AppearanceTab(
                     )
                     .padding(8.dp)
             ) {
-                SliderWithLabel(
-                    label = stringResource(R.string.app_label_icon_overlay_top_padding),
-                    value = appLabelIconOverlayTopPadding,
-                    showValue = true,
+                SettingsSlider(
+                    setting = UiSettingsStore.appLabelIconOverlayTopPadding,
+                    title = stringResource(R.string.app_label_icon_overlay_top_padding),
                     valueRange = 0..360,
                     color = MaterialTheme.colorScheme.primary,
-                    onReset = {
-                        scope.launch {
-                            UiSettingsStore.appLabelIconOverlayTopPadding.reset(ctx)
-                        }
-                    },
-                    onChange = {
-                        scope.launch { UiSettingsStore.appLabelIconOverlayTopPadding.set(ctx, it) }
-                    },
-                    onDragStateChange = {
-                        isDraggingAppPreviewOverlays = it
-                    }
                 )
 
-                SliderWithLabel(
-                    label = stringResource(R.string.app_label_size),
-                    value = appLabelOverlaySize,
-                    showValue = true,
+                SettingsSlider(
+                    setting = UiSettingsStore.appLabelOverlaySize,
+                    title = stringResource(R.string.app_label_icon_overlay_top_padding),
                     valueRange = 0..70,
                     color = MaterialTheme.colorScheme.primary,
-                    onReset = {
-                        scope.launch {
-                            UiSettingsStore.appLabelOverlaySize.reset(ctx)
-                        }
-                    },
-                    onChange = {
-                        scope.launch { UiSettingsStore.appLabelOverlaySize.set(ctx, it) }
-                    },
-                    onDragStateChange = {
-                        isDraggingAppPreviewOverlays = it
-                    }
                 )
 
-                SliderWithLabel(
-                    label = stringResource(R.string.app_icon_size),
-                    value = appIconOverlaySize,
-                    showValue = true,
-                    valueRange = 0..70,
+                SettingsSlider(
+                    setting = UiSettingsStore.appIconOverlaySize,
+                    title = stringResource(R.string.app_label_icon_overlay_top_padding),
+                    valueRange = 0..360,
                     color = MaterialTheme.colorScheme.primary,
-                    onReset = {
-                        scope.launch {
-                            UiSettingsStore.appIconOverlaySize.reset(ctx)
-                        }
-                    },
-                    onChange = {
-                        scope.launch { UiSettingsStore.appIconOverlaySize.set(ctx, it) }
-                    },
-                    onDragStateChange = {
-                        isDraggingAppPreviewOverlays = it
-                    }
                 )
             }
         }

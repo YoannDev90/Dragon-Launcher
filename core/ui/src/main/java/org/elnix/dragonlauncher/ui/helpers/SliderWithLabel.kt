@@ -40,6 +40,8 @@ import kotlin.math.roundToInt
  * @param color Primary color for slider and text
  * @param showValue Whether to display the formatted value next to the label
  * @param valueText Pre-formatted value string to display
+ * @param backgroundColor Color of the background of the slider
+ * @param enabled Whether if the slider is interactable, slightly faded when disabled
  * @param onReset Optional reset button callback
  * @param onDragStateChange Optional callback invoked with true on drag start
  *                          and false on drag end
@@ -56,10 +58,13 @@ private fun SliderWithLabelInternal(
     showValue: Boolean,
     valueText: String,
     backgroundColor: Color,
+    enabled: Boolean,
     onReset: (() -> Unit)?,
     onDragStateChange: ((Boolean) -> Unit)?,
     onChange: (Float) -> Unit
 ) {
+    val displayColor = color.copy(if (enabled) 1f else 0.5f)
+
     Column(
         modifier = modifier.fillMaxWidth(),
         verticalArrangement = Arrangement.spacedBy(5.dp),
@@ -73,7 +78,7 @@ private fun SliderWithLabelInternal(
             if (label != null) {
                 Text(
                     text = label,
-                    color = color,
+                    color = displayColor,
                     textAlign = TextAlign.Center,
                     modifier = Modifier.weight(1f, fill = false)
                 )
@@ -82,12 +87,15 @@ private fun SliderWithLabelInternal(
             if (showValue) {
                 Text(
                     text = valueText,
-                    color = color
+                    color = displayColor
                 )
             }
 
             if (onReset != null) {
-                IconButton(onClick = onReset) {
+                IconButton(
+                    onClick = onReset,
+                    enabled = enabled
+                ) {
                     Icon(
                         imageVector = Icons.Default.Restore,
                         contentDescription = "Reset",
@@ -99,6 +107,7 @@ private fun SliderWithLabelInternal(
 
         Slider(
             value = value,
+            enabled = enabled,
             onValueChange = {
                 onChange(it)
                 onDragStateChange?.invoke(true)
@@ -108,7 +117,7 @@ private fun SliderWithLabelInternal(
             },
             valueRange = valueRange,
             steps = steps,
-            colors = AppObjectsColors.sliderColors(color, backgroundColor),
+            colors = AppObjectsColors.sliderColors(displayColor, backgroundColor),
             modifier = Modifier.height(25.dp)
         )
     }
@@ -126,6 +135,8 @@ private fun SliderWithLabelInternal(
  * @param value Current integer value
  * @param valueRange Allowed integer range (inclusive)
  * @param color Primary color for slider and text
+ * @param backgroundColor Color of the background of the slider
+ * @param enabled Whether if the slider is interactable, slightly faded when disabled
  * @param showValue Whether to display the current value next to the label
  * @param onReset Optional reset button callback
  * @param onDragStateChange Optional callback for drag start/end
@@ -138,6 +149,7 @@ fun SliderWithLabel(
     value: Int,
     valueRange: IntRange,
     color: Color,
+    enabled: Boolean = true,
     backgroundColor: Color = MaterialTheme.colorScheme.surface,
     showValue: Boolean = true,
     onReset: (() -> Unit)? = null,
@@ -160,9 +172,10 @@ fun SliderWithLabel(
         valueRange = floatRange,
         steps = steps,
         color = color,
-        backgroundColor = backgroundColor,
         showValue = showValue,
         valueText = value.toString(),
+        backgroundColor = backgroundColor,
+        enabled = enabled,
         onReset = onReset,
         onDragStateChange = onDragStateChange
     ) { floatValue ->
@@ -182,6 +195,8 @@ fun SliderWithLabel(
  * @param value Current float value
  * @param valueRange Allowed float range
  * @param color Primary color for slider and text
+ * @param backgroundColor Color of the background of the slider
+ * @param enabled Whether if the slider is interactable, slightly faded when disabled
  * @param showValue Whether to display the formatted value next to the label
  * @param decimals Number of decimal places shown in the value text
  * @param onReset Optional reset button callback
@@ -195,6 +210,7 @@ fun SliderWithLabel(
     value: Float,
     valueRange: ClosedFloatingPointRange<Float>,
     color: Color,
+    enabled: Boolean = true,
     backgroundColor: Color = MaterialTheme.colorScheme.surface,
     showValue: Boolean = true,
     decimals: Int = 2,
@@ -213,9 +229,10 @@ fun SliderWithLabel(
         valueRange = valueRange,
         steps = 0,
         color = color,
-        backgroundColor = backgroundColor,
         showValue = showValue,
         valueText = valueText,
+        backgroundColor = backgroundColor,
+        enabled = enabled,
         onReset = onReset,
         onDragStateChange = onDragStateChange,
         onChange = onChange
