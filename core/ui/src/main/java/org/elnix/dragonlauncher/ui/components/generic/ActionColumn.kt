@@ -47,7 +47,7 @@ fun <T> ActionColumn(
                 verticalAlignment = Alignment.CenterVertically,
                 modifier = Modifier
                     .fillMaxWidth()
-                    .clip(RoundedCornerShape(12.dp))
+                    .clip(RoundedCornerShape(5.dp))
                     .clickable(enabled) { onClick(mode) }
                     .background(
                         (

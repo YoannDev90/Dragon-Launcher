@@ -483,8 +483,15 @@ fun SettingsScreen(
                                     showEditDefaultPoint = true
                                 }
                             ) {
-                                Icon(Icons.Default.EditNote, null)
-                                Text(stringResource(R.string.edit_default_point_settings))
+                                Icon(
+                                    imageVector = Icons.Default.EditNote,
+                                    tint = MaterialTheme.colorScheme.onSurface,
+                                    contentDescription = null
+                                )
+                                Text(
+                                    text = stringResource(R.string.edit_default_point_settings),
+                                    color = MaterialTheme.colorScheme.onSurface
+                                )
                             },
                             BurgerAction(
                                 onClick = {
@@ -495,14 +502,27 @@ fun SettingsScreen(
                                     )
                                 }
                             ) {
-                                Icon(Icons.Default.Refresh, null)
-                                Text(stringResource(R.string.reload_point_icons))
+                                Icon(
+                                    imageVector = Icons.Default.Refresh,
+                                    tint = MaterialTheme.colorScheme.onSurface,
+                                    contentDescription = null)
+                                Text(
+                                    text = stringResource(R.string.reload_point_icons),
+                                    color = MaterialTheme.colorScheme.onSurface
+                                )
                             },
                             BurgerAction(
                                 onClick = { onNestEdit(currentNest.id) }
                             ) {
-                                Icon(Icons.Default.ChangeCircle, null)
-                                Text(stringResource(R.string.toggle_drag_distances_editing))
+                                Icon(
+                                    imageVector = Icons.Default.ChangeCircle,
+                                    tint = MaterialTheme.colorScheme.onSurface,
+                                    contentDescription = null
+                                )
+                                Text(
+                                    text = stringResource(R.string.toggle_drag_distances_editing),
+                                    color = MaterialTheme.colorScheme.onSurface
+                                )
                             }
                         )
                     )

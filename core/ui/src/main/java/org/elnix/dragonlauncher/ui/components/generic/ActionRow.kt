@@ -3,9 +3,12 @@ package org.elnix.dragonlauncher.ui.components.generic
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.IntrinsicSize
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.CircleShape
@@ -36,6 +39,7 @@ fun <T> ActionRow(
     Row(
         Modifier
             .fillMaxWidth()
+            .height(IntrinsicSize.Max)
             .clip(CircleShape),
         horizontalArrangement = Arrangement.spacedBy(5.dp)
     ) {
@@ -46,7 +50,8 @@ fun <T> ActionRow(
                 verticalAlignment = Alignment.CenterVertically,
                 modifier = Modifier
                     .weight(1f)
-                    .clip(RoundedCornerShape(12.dp))
+                    .fillMaxHeight()
+                    .clip(RoundedCornerShape(5.dp))
                     .clickable(enabled) { onClick(mode) }
                     .background(
                         (
@@ -54,6 +59,7 @@ fun <T> ActionRow(
                                 else backgroundColor
                                 ).copy(if (enabled) 1f else 0.5f)
                     )
+                    .padding(5.dp)
             ) {
                 actionIcon?.let {
                     Icon(
@@ -71,7 +77,7 @@ fun <T> ActionRow(
                         .padding(12.dp),
                     color = if (isSelected) MaterialTheme.colorScheme.onSecondary
                     else MaterialTheme.colorScheme.onSurface,
-                    style = MaterialTheme.typography.bodyMedium,
+                    style = MaterialTheme.typography.bodySmall,
                     textAlign = TextAlign.Center
                 )
             }
