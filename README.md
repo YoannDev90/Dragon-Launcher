@@ -122,14 +122,14 @@
 ## User Screenshots
 
 <p align="center">
-  <img src="https://github.com/Elnix90/Dragon-Launcher/blob/main/assets/elnix.webp" width="22%" alt="Elnix ScreenShot"/>
-  <img src="https://github.com/Elnix90/Dragon-Launcher/blob/main/assets/acress1.webp" width="22%" alt="acress1 ScreenShot"/>
-  <img src="https://github.com/Elnix90/Dragon-Launcher/blob/main/assets/infamous.webp" width="22%" alt="infamous ScreenShot"/>
-  <img src="https://github.com/Elnix90/Dragon-Launcher/blob/main/assets/m0n0lith.webp" width="22%" alt="m0n0lith ScreenShot"/>
-  <img src="https://github.com/Elnix90/Dragon-Launcher/blob/main/assets/prizewhisper.webp" width="22%" alt="prizewhisper ScreenShot"/>
-  <img src="https://github.com/Elnix90/Dragon-Launcher/blob/main/assets/sandsalamand.webp" width="22%" alt="sandsalamand ScreenShot"/>
-  <img src="https://github.com/Elnix90/Dragon-Launcher/blob/main/assets/speedhog.webp" width="22%" alt="speedhog ScreenShot"/>
-  <img src="https://github.com/Elnix90/Dragon-Launcher/blob/main/assets/yerminator.webp" width="22%" alt="yerminator ScreenShot"/>
+  <img src="https://github.com/Elnix90/Dragon-Launcher/blob/main/assets/user-screenshots/elnix.webp" width="22%" alt="Elnix ScreenShot"/>
+  <img src="https://github.com/Elnix90/Dragon-Launcher/blob/main/assets/user-screenshots/acress1.webp" width="22%" alt="acress1 ScreenShot"/>
+  <img src="https://github.com/Elnix90/Dragon-Launcher/blob/main/assets/user-screenshots/infamous.webp" width="22%" alt="infamous ScreenShot"/>
+  <img src="https://github.com/Elnix90/Dragon-Launcher/blob/main/assets/user-screenshots/m0n0lith.webp" width="22%" alt="m0n0lith ScreenShot"/>
+  <img src="https://github.com/Elnix90/Dragon-Launcher/blob/main/assets/user-screenshots/prizewhisper.webp" width="22%" alt="prizewhisper ScreenShot"/>
+  <img src="https://github.com/Elnix90/Dragon-Launcher/blob/main/assets/user-screenshots/sandsalamand.webp" width="22%" alt="sandsalamand ScreenShot"/>
+  <img src="https://github.com/Elnix90/Dragon-Launcher/blob/main/assets/user-screenshots/speedhog.webp" width="22%" alt="speedhog ScreenShot"/>
+  <img src="https://github.com/Elnix90/Dragon-Launcher/blob/main/assets/user-screenshots/yerminator.webp" width="22%" alt="yerminator ScreenShot"/>
 </p>
 
 ## Usage
