@@ -120,5 +120,4 @@ fun ColorPickerButton(
             }
         }
     }
-
 }
