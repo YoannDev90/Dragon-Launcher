@@ -246,7 +246,7 @@
     <string name="show_launching_app_label">Show App Label</string>
     <string name="clock_action">Uhrenaktion</string>
     <string name="date_action">Datumsaktion</string>
-    <string name="opens_alarmclock_app">Öffnet die AlarmClock-App</string>
+    <string name="opens_alarm_clock_app">Öffnet die AlarmClock-App</string>
     <string name="opens_calendar_app">Öffnet Kalender-App</string>
     <string name="edit_icon">Bearbeiten-Symbol</string>
     <string name="border_stroke">Border-Schlaganfall</string>
@@ -302,7 +302,7 @@
     <string name="copy_id">ID kopieren</string>
     <string name="edit_default_point_settings">Bearbeiten Sie die Standardpunkteinstellungen</string>
     <string name="open_burger_menu">Öffnen Sie das Burger-Menü</string>
-    <string name="selected">Ausgewählt</string>
+    <string name="selected_text">Ausgewählt</string>
     <string name="unselected">Nicht ausgewählt</string>
     <string name="individual_options">Individuelle Option</string>
     <string name="inner_padding">Innenpolsterung</string>

@@ -246,7 +246,7 @@
     <string name="show_launching_app_label">Exibir Rótulo do App</string>
     <string name="clock_action">Ação do Relógio</string>
     <string name="date_action">Ação de Data</string>
-    <string name="opens_alarmclock_app">Abre o aplicativo alarmClock</string>
+    <string name="opens_alarm_clock_app">Abre o aplicativo alarmClock</string>
     <string name="opens_calendar_app">Abre o aplicativo de calendário</string>
     <string name="edit_icon">Ícone de edição</string>
     <string name="border_stroke">Traço de Borda</string>
@@ -302,7 +302,7 @@
     <string name="copy_id">Copiar ID</string>
     <string name="edit_default_point_settings">Editar configurações de pontos padrão</string>
     <string name="open_burger_menu">Menu de hambúrguer aberto</string>
-    <string name="selected">Selecionado</string>
+    <string name="selected_text">Selecionado</string>
     <string name="unselected">Não selecionado</string>
     <string name="individual_options">Opção Individual</string>
     <string name="inner_padding">Preenchimento interno</string>

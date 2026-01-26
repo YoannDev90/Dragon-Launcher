@@ -246,7 +246,7 @@
     <string name="show_launching_app_label">アプリのラベル表示</string>
     <string name="clock_action">クロックアクション</string>
     <string name="date_action">日付の行動</string>
-    <string name="opens_alarmclock_app">alarmClockアプリを開く</string>
+    <string name="opens_alarm_clock_app">alarmClockアプリを開く</string>
     <string name="opens_calendar_app">カレンダーアプリを開く</string>
     <string name="edit_icon">編集アイコン</string>
     <string name="border_stroke">ボーダーストローク</string>
@@ -302,7 +302,7 @@
     <string name="copy_id">IDをコピーする</string>
     <string name="edit_default_point_settings">デフォルトのポイント設定を編集する</string>
     <string name="open_burger_menu">バーガーメニューを開く</string>
-    <string name="selected">選択済み</string>
+    <string name="selected_text">選択済み</string>
     <string name="unselected">未選択</string>
     <string name="individual_options">個別オプション</string>
     <string name="inner_padding">内側のパディング</string>

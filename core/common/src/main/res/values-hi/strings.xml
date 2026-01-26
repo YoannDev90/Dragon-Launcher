@@ -246,7 +246,7 @@
     <string name="show_launching_app_label">ऐप लेबल दिखाएं</string>
     <string name="clock_action">घड़ी की कार्रवाई</string>
     <string name="date_action">दिनांक कार्रवाई</string>
-    <string name="opens_alarmclock_app">अलार्मक्लॉक ऐप खोलता है</string>
+    <string name="opens_alarm_clock_app">अलार्मक्लॉक ऐप खोलता है</string>
     <string name="opens_calendar_app">कैलेंडर ऐप खोलता है</string>
     <string name="edit_icon">आइकन संपादित करें</string>
     <string name="border_stroke">बॉर्डर स्ट्रोक</string>
@@ -302,7 +302,7 @@
     <string name="copy_id">आईडी कॉपी करें</string>
     <string name="edit_default_point_settings">डिफ़ॉल्ट बिंदु सेटिंग संपादित करें</string>
     <string name="open_burger_menu">बर्गर मेनू खोलें</string>
-    <string name="selected">चयनित</string>
+    <string name="selected_text">चयनित</string>
     <string name="unselected">इसे नहीं चुना जाता</string>
     <string name="individual_options">व्यक्तिगत विकल्प</string>
     <string name="inner_padding">भीतरी गद्दी</string>

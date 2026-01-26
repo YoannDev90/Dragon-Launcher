@@ -11,7 +11,7 @@ enum class SelectedUnselectedViewMode {
 fun selectedUnselectedViewName(ctx: Context, mode: SelectedUnselectedViewMode): String {
     return when(mode) {
         SelectedUnselectedViewMode
-            .SELECTED -> ctx.getString(R.string.selected)
+            .SELECTED -> ctx.getString(R.string.selected_text)
         SelectedUnselectedViewMode
             .UNSELECTED -> ctx.getString(R.string.unselected)
     }

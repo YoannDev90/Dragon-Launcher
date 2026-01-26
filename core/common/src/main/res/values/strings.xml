@@ -246,7 +246,7 @@
     <string name="show_launching_app_label">Show App Label</string>
     <string name="clock_action">Clock Action</string>
     <string name="date_action">Date Action</string>
-    <string name="opens_alarmclock_app">Opens alarmClock app</string>
+    <string name="opens_alarm_clock_app">Opens alarmClock app</string>
     <string name="opens_calendar_app">Opens calendar app</string>
     <string name="edit_icon">Edit Icon</string>
     <string name="border_stroke">Border Stroke</string>
@@ -302,14 +302,14 @@
     <string name="copy_id">Copy Id</string>
     <string name="edit_default_point_settings">Edit default points settings</string>
     <string name="open_burger_menu">Open Burger Menu</string>
-    <string name="selected">Selected</string>
+    <string name="selected_text">Selected</string>
     <string name="unselected">Unselected</string>
     <string name="individual_options">Individual Option</string>
     <string name="inner_padding">Inner Padding</string>
     <string name="plain_color">Plain Color</string>
     <string name="tint">Tint</string>
     <string name="icon_pack_tint">Icon Pack Tint</string>
-    <string name="show_app_icon_start_drag_position">Show app icon in start drag positon</string>
+    <string name="show_app_icon_start_drag_position">Show app icon in start drag position</string>
     <string name="make_all_colors_identical">Make all colors identical</string>
     <string name="apply">Apply</string>
     <string name="reload_point_icons">Reload points icons</string>
@@ -322,7 +322,7 @@
     <string name="enable_grid">Enable Grid</string>
     <string name="enable_scale_snap">Enable scale snap</string>
     <string name="add_circle">Add circle</string>
-    <string name="remove_circle">Remove Crircle</string>
+    <string name="remove_circle">Remove Circle</string>
     <string name="home_action">Home Action</string>
     <string name="drawer_home_action">Drawer Home action</string>
     <string name="scroll_up_to_close_keyboard">Scroll up to close keyboard</string>

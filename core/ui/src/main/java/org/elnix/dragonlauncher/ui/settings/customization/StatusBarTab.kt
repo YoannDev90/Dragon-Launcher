@@ -201,7 +201,7 @@ fun StatusBarTab(
                     appsViewModel = appsViewModel,
                     currentAction = clockAction,
                     label = stringResource(R.string.clock_action),
-                    nullText = stringResource(R.string.opens_alarmclock_app),
+                    nullText = stringResource(R.string.opens_alarm_clock_app),
                     enabled = showTime,
                     switchEnabled = showTime,
                     onToggle = {

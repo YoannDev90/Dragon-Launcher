@@ -246,7 +246,7 @@
     <string name="show_launching_app_label">앱 라벨 표시하기</string>
     <string name="clock_action">시계 동작</string>
     <string name="date_action">날짜 작전</string>
-    <string name="opens_alarmclock_app">알람시계 앱 열기</string>
+    <string name="opens_alarm_clock_app">알람시계 앱 열기</string>
     <string name="opens_calendar_app">캘린더 앱 열기</string>
     <string name="edit_icon">아이콘 편집</string>
     <string name="border_stroke">국경 타격</string>
@@ -302,7 +302,7 @@
     <string name="copy_id">ID 복사</string>
     <string name="edit_default_point_settings">기본 포인트 설정 편집</string>
     <string name="open_burger_menu">버거 메뉴 열기</string>
-    <string name="selected">선택된</string>
+    <string name="selected_text">선택된</string>
     <string name="unselected">선택 해제됨</string>
     <string name="individual_options">개별 옵션</string>
     <string name="inner_padding">내부 패딩</string>
