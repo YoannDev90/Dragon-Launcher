@@ -1,6 +1,7 @@
 package org.elnix.dragonlauncher.settings.stores
 
 import org.elnix.dragonlauncher.enumsui.ColorCustomisationMode
+import org.elnix.dragonlauncher.enumsui.ColorPickerButtonAction
 import org.elnix.dragonlauncher.enumsui.ColorPickerMode
 import org.elnix.dragonlauncher.enumsui.DefaultThemes
 import org.elnix.dragonlauncher.settings.DataStoreName
@@ -41,5 +42,12 @@ object ColorModesSettingsStore : MapSettingsStore() {
         dataStoreName = dataStoreName,
         default = DefaultThemes.AMOLED,
         enumClass = DefaultThemes::class.java
+    )
+
+    val colorPickerButton = Settings.enum(
+        key = "colorPickerButton",
+        dataStoreName = dataStoreName,
+        default = ColorPickerButtonAction.RANDOM,
+        enumClass = ColorPickerButtonAction::class.java
     )
 }

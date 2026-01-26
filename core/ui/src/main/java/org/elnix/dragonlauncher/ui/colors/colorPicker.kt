@@ -2,6 +2,7 @@
 
 package org.elnix.dragonlauncher.ui.colors
 
+import android.content.Context
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
@@ -24,7 +25,6 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ContentCopy
 import androidx.compose.material.icons.filled.ContentPaste
 import androidx.compose.material.icons.filled.Restore
-import androidx.compose.material.icons.filled.Shuffle
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
@@ -50,12 +50,11 @@ import androidx.compose.ui.unit.dp
 import androidx.core.graphics.toColorInt
 import kotlinx.coroutines.launch
 import org.elnix.dragonlauncher.common.R
-import org.elnix.dragonlauncher.common.utils.colors.adjustBrightness
 import org.elnix.dragonlauncher.common.utils.colors.blendWith
-import org.elnix.dragonlauncher.common.utils.colors.randomColor
 import org.elnix.dragonlauncher.common.utils.colors.toHexWithAlpha
 import org.elnix.dragonlauncher.common.utils.copyToClipboard
 import org.elnix.dragonlauncher.common.utils.pasteClipboard
+import org.elnix.dragonlauncher.common.utils.showToast
 import org.elnix.dragonlauncher.enumsui.ColorPickerMode
 import org.elnix.dragonlauncher.enumsui.colorPickerText
 import org.elnix.dragonlauncher.settings.stores.ColorModesSettingsStore
@@ -86,6 +85,7 @@ fun ColorPickerRow(
     val savedMode by ColorModesSettingsStore.colorPickerMode.flow(ctx).collectAsState(initial = ColorPickerMode.SLIDERS)
     val initialPage = remember(savedMode) { ColorPickerMode.entries.indexOf(savedMode) }
 
+    val colorPickerButtons = ColorModesSettingsStore.colorPickerButton
 
     Row(
        modifier = modifier
@@ -113,40 +113,47 @@ fun ColorPickerRow(
             verticalAlignment = Alignment.CenterVertically,
             horizontalArrangement = Arrangement.End
         ) {
-            if (randomColorButton) {
-                Icon(
-                    imageVector = Icons.Default.Shuffle,
-                    contentDescription = "Random color",
-                    tint = MaterialTheme.colorScheme.onSurface,
-                    modifier = Modifier
-                        .clip(CircleShape)
-                        .background(backgroundColor.adjustBrightness(0.8f))
-                        .clickable(enabled) {
-                            onColorPicked(
-                                randomColor(
-                                    minLuminance = 0.2f,
-                                    maxLuminance = maxLuminance
-                                )
-                            )
-                        }
-                        .padding(5.dp)
-                )
-            }
 
-            Spacer(Modifier.width(8.dp))
+            ColorPickerButton(
+                currentColor = currentColor,
+                defaultColor = defaultColor,
+                backgroundColor = backgroundColor,
+                onColorPicked = onColorPicked
+            )
+//            if (randomColorButton) {
+//                Icon(
+//                    imageVector = Icons.Default.Shuffle,
+//                    contentDescription = "Random color",
+//                    tint = MaterialTheme.colorScheme.onSurface,
+//                    modifier = Modifier
+//                        .clip(CircleShape)
+//                        .background(backgroundColor.adjustBrightness(0.8f))
+//                        .clickable(enabled) {
+//                            onColorPicked(
+//                                randomColor(
+//                                    minLuminance = 0.2f,
+//                                    maxLuminance = maxLuminance
+//                                )
+//                            )
+//                        }
+//                        .padding(5.dp)
+//                )
+//            }
 
-            if (resetButton) {
-                Icon(
-                    imageVector = Icons.Default.Restore,
-                    contentDescription = "Reset color",
-                    tint = MaterialTheme.colorScheme.onSurface,
-                    modifier = Modifier
-                        .clip(CircleShape)
-                        .background(backgroundColor.adjustBrightness(0.8f))
-                        .clickable(enabled) { onColorPicked(defaultColor) }
-                        .padding(5.dp)
-                )
-            }
+//            Spacer(Modifier.width(8.dp))
+
+//            if (resetButton) {
+//                Icon(
+//                    imageVector = Icons.Default.Restore,
+//                    contentDescription = "Reset color",
+//                    tint = MaterialTheme.colorScheme.onSurface,
+//                    modifier = Modifier
+//                        .clip(CircleShape)
+//                        .background(backgroundColor.adjustBrightness(0.8f))
+//                        .clickable(enabled) { onColorPicked(defaultColor) }
+//                        .padding(5.dp)
+//                )
+//            }
 
             Spacer(Modifier.width(12.dp))
 
@@ -314,13 +321,10 @@ private fun ColorPicker(
 
                 IconButton(
                     onClick = {
-                        ctx.pasteClipboard()?.let { pasted ->
-                            hexText = pasted
-                            runCatching {
-                                if (pasted.startsWith("#") && pasted.length == 9) {
-                                    onColorSelected(Color(pasted.toColorInt()))
-                                }
-                            }
+                        val newColor = pasteColorHexFromClipboard(ctx)
+                        newColor?.let { pasted ->
+                            hexText = toHexWithAlpha(pasted)
+                            onColorSelected(pasted)
                         }
                     },
                     colors = AppObjectsColors.iconButtonColors(color, textBoxColor)
@@ -364,18 +368,21 @@ private fun ColorPicker(
             backgroundColor = MaterialTheme.colorScheme.surface.blendWith(MaterialTheme.colorScheme.primary, 0.2f),
             valueRange = 0f..1f
         ) { alpha -> onColorSelected(color.copy(alpha = alpha)) }
-
-//        Spacer(Modifier.height(15.dp))
-
-//        // --- HEX entry ---
-//
-//        Row(
-//            modifier = Modifier.fillMaxWidth(),
-//        ) {
-//
-//
-//
-//        }
-
     }
+}
+
+
+fun pasteColorHexFromClipboard(ctx: Context): Color? {
+    ctx.pasteClipboard()?.let { pasted ->
+        try {
+            if (pasted.startsWith("#") && pasted.length == 9) {
+                return Color(pasted.toColorInt())
+            }
+        } catch (e: Exception) {
+            e.printStackTrace()
+            ctx.showToast("Error while parsing clipboard color")
+            return null
+        }
+    }
+    return null
 }
