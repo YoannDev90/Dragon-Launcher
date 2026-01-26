@@ -41,7 +41,7 @@ fun BurgerListAction(
             Row(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .clip(RoundedCornerShape(12.dp))
+                    .clip(RoundedCornerShape(5.dp))
                     .background(MaterialTheme.colorScheme.surface)
                     .clickable { action.onClick() }
                     .padding(10.dp),
