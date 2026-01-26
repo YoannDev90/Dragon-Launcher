@@ -1,11 +1,5 @@
 {
-  "ui": {
-    "snapPoints": "false",
-    "autoSeparatePoints": "false",
-    "minAngleFromAPointToActivateIt": "26"
-  },
   "color_mode": {
-    "colorPickerMode": "GRADIENT",
     "colorCustomisationMode": "ALL"
   },
   "color": {
