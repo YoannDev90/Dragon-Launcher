@@ -770,21 +770,24 @@ fun SettingsScreen(
             }
 
 
-            IconButton(onClick = { undo() }, enabled = undoStack.isNotEmpty()) {
+            val undoButtonEnabled = undoStack.isNotEmpty()
+            IconButton(onClick = { undo() }, enabled = undoButtonEnabled) {
                 Icon(
                     imageVector = Icons.AutoMirrored.Filled.Undo,
+                    tint = MaterialTheme.colorScheme.primary.copy(if (undoButtonEnabled) 1f else 0.5f),
                     contentDescription = "Undo"
                 )
             }
 
-            IconButton(onClick = { redo() }, enabled = redoStack.isNotEmpty()) {
+            val redoButtonEnabled = redoStack.isNotEmpty()
+            IconButton(onClick = { redo() }, enabled = redoButtonEnabled) {
                 Icon(
                     imageVector = Icons.AutoMirrored.Filled.Redo,
+                    tint = MaterialTheme.colorScheme.primary.copy(if (redoButtonEnabled) 1f else 0.5f),
                     contentDescription = "Redo"
                 )
             }
 
-//            val undoButtonEnabled = undoStack.isNotEmpty()
 //            RepeatingPressButton(
 //                enabled = undoButtonEnabled,
 //                onPress = ::undo
@@ -797,14 +800,12 @@ fun SettingsScreen(
 //            }
 //
 //
-//            val redoButtonEnabled = redoStack.isNotEmpty()
 //            RepeatingPressButton(
 //                enabled = redoButtonEnabled,
 //                onPress = ::redo
 //            ) {
 //                Icon(
 //                    imageVector = Icons.AutoMirrored.Filled.Redo,
-//                    tint = MaterialTheme.colorScheme.primary.copy(if (redoButtonEnabled) 1f else 0.5f),
 //                    contentDescription = "Redo"
 //                )
 //            }

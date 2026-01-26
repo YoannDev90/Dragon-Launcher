@@ -330,7 +330,7 @@
     <string name="wallpaper_edit_main">Home screen wallpaper</string>
     <string name="wallpaper_edit_drawer">App drawer wallpaper</string>
     <string name="wallpaper_dim_amount">Wallpaper dim amount</string>
-    <string name="fullscreen_description">Display or not the top bar and the navigation's buttons / gesture button</string>
+    <string name="fullscreen_description">Display or not the top bar and the navigation buttons / gesture button</string>
     <string name="rgb_loading_description">Show a RBG gradient on the loading circle upon entering settings, while holding down for 3 seconds</string>
     <string name="rgb_line_selector_description">Show the action selector (the line that follows your finger) in a RGB gradient depending no the angle</string>
     <string name="show_launching_app_label_description">Whether the app / action label is visible when an action is selected in the top of the screen</string>
