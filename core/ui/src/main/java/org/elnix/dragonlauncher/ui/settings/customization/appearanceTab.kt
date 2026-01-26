@@ -41,7 +41,6 @@ import org.elnix.dragonlauncher.ui.components.AppPreviewTitle
 import org.elnix.dragonlauncher.ui.components.settings.SettingsSlider
 import org.elnix.dragonlauncher.ui.components.settings.SettingsSwitchRow
 import org.elnix.dragonlauncher.ui.helpers.SliderWithLabel
-import org.elnix.dragonlauncher.ui.helpers.SwitchRow
 import org.elnix.dragonlauncher.ui.helpers.TextDivider
 import org.elnix.dragonlauncher.ui.helpers.settings.SettingsItem
 import org.elnix.dragonlauncher.ui.helpers.settings.SettingsLazyHeader
@@ -63,29 +62,12 @@ fun AppearanceTab(
     val showLaunchingAppIcon by UiSettingsStore.showLaunchingAppIcon.flow(ctx)
         .collectAsState(initial = true)
 
-    val showAppLaunchPreview by UiSettingsStore.showAppLaunchingPreview.flow(ctx)
-        .collectAsState(initial = true)
-
-    val showAppCirclePreview by UiSettingsStore.showCirclePreview.flow(ctx)
-        .collectAsState(initial = true)
-
-    val showLinePreview by UiSettingsStore.showLinePreview.flow(ctx)
-        .collectAsState(initial = true)
-
     val showAppAnglePreview by UiSettingsStore.showAnglePreview.flow(ctx)
         .collectAsState(initial = true)
-
-    val showAppPreviewIconCenterStartPosition by UiSettingsStore.showAppPreviewIconCenterStartPosition.flow(ctx)
-        .collectAsState(initial = false)
-
-    val linePreviewSnapToAction by UiSettingsStore.linePreviewSnapToAction.flow(ctx)
-        .collectAsState(initial = false)
 
     val minAngleFromAPointToActivateIt by UiSettingsStore.minAngleFromAPointToActivateIt.flow(ctx)
         .collectAsState(initial = 0)
 
-    val showAllActionsOnCurrentCircle by UiSettingsStore.showAllActionsOnCurrentCircle.flow(ctx)
-        .collectAsState(initial = false)
 
     val appLabelIconOverlayTopPadding by UiSettingsStore.appLabelIconOverlayTopPadding.flow(ctx)
         .collectAsState(initial = 30)
@@ -241,50 +223,64 @@ fun AppearanceTab(
         }
 
         item {
-            SwitchRow(
-                showAppLaunchPreview,
-                stringResource(R.string.show_app_launch_preview),
-            ) { scope.launch { UiSettingsStore.showAppLaunchingPreview.set(ctx, it) } }
+            SettingsSwitchRow(
+                setting = UiSettingsStore.showAppLaunchingPreview,
+                title = stringResource(R.string.show_app_launch_preview),
+                description = stringResource(R.string.show_app_launch_preview_description)
+            )
         }
 
         item {
-            SwitchRow(
-                showAppCirclePreview,
-                stringResource(R.string.show_app_circle_preview),
-            ) { scope.launch { UiSettingsStore.showCirclePreview.set(ctx, it) } }
+            SettingsSwitchRow(
+                setting = UiSettingsStore.showCirclePreview,
+                title = stringResource(R.string.show_app_circle_preview),
+                description = stringResource(R.string.show_app_circle_preview_description)
+            )
         }
 
         item {
-            SwitchRow(
-                showLinePreview,
-                stringResource(R.string.show_app_line_preview),
-            ) { scope.launch { UiSettingsStore.showLinePreview.set(ctx, it) } }
+            SettingsSwitchRow(
+                setting = UiSettingsStore.showLinePreview,
+                title = stringResource(R.string.show_app_line_preview),
+                description = stringResource(R.string.show_app_line_preview_description)
+            )
         }
 
         item {
-            SwitchRow(
-                showAppAnglePreview,
-                stringResource(
+            SettingsSwitchRow(
+                setting = UiSettingsStore.showAnglePreview,
+                title = stringResource(
                     R.string.show_app_angle_preview,
                     if (!showAppAnglePreview) stringResource(R.string.do_you_hate_it) else ""
                 ),
-            ) { scope.launch { UiSettingsStore.showAnglePreview.set(ctx, it) } }
+                description = stringResource(R.string.show_app_angle_preview_description)
+            )
         }
 
         item {
-            SwitchRow(
-                showAppPreviewIconCenterStartPosition,
-                stringResource(R.string.show_app_icon_start_drag_position),
-            ) { scope.launch { UiSettingsStore.showAppPreviewIconCenterStartPosition.set(ctx, it) } }
+            SettingsSwitchRow(
+                setting = UiSettingsStore.showAppPreviewIconCenterStartPosition,
+                title = stringResource(R.string.show_app_icon_start_drag_position),
+                description = stringResource(R.string.show_app_icon_start_drag_position_description)
+            )
         }
 
         item {
-            SwitchRow(
-                linePreviewSnapToAction,
-                stringResource(R.string.line_preview_snap_to_action),
-            ) { scope.launch { UiSettingsStore.linePreviewSnapToAction.set(ctx, it) } }
+            SettingsSwitchRow(
+                setting = UiSettingsStore.linePreviewSnapToAction,
+                title = stringResource(R.string.line_preview_snap_to_action),
+                description = stringResource(R.string.line_preview_snap_to_action_description)
+            )
         }
 
+
+        item {
+            SettingsSwitchRow(
+                setting = UiSettingsStore.showAllActionsOnCurrentCircle,
+                title = stringResource(R.string.show_all_actions_on_current_circle),
+                description = stringResource(R.string.show_all_actions_on_current_circle_description)
+            )
+        }
 
         item {
             Column(
@@ -313,13 +309,6 @@ fun AppearanceTab(
                     scope.launch { UiSettingsStore.minAngleFromAPointToActivateIt.set(ctx, it) }
                 }
             }
-        }
-
-        item {
-            SwitchRow(
-                state = showAllActionsOnCurrentCircle,
-                text = stringResource(R.string.show_all_actions_on_current_circle),
-            ) { scope.launch { UiSettingsStore.showAllActionsOnCurrentCircle.set(ctx, it) } }
         }
     }
 
