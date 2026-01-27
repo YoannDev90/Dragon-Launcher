@@ -63,6 +63,7 @@ import org.elnix.dragonlauncher.models.AppsViewModel
 import org.elnix.dragonlauncher.settings.stores.DrawerSettingsStore
 import org.elnix.dragonlauncher.settings.stores.UiSettingsStore
 import org.elnix.dragonlauncher.ui.actions.launchSwipeAction
+import org.elnix.dragonlauncher.ui.dialogs.AppAliasesDialog
 import org.elnix.dragonlauncher.ui.dialogs.AppLongPressDialog
 import org.elnix.dragonlauncher.ui.dialogs.IconEditorDialog
 import org.elnix.dragonlauncher.ui.dialogs.RenameAppDialog
@@ -91,7 +92,6 @@ fun AppDrawerScreen(
     val scope = rememberCoroutineScope()
 
 
-
 //    val activity = LocalContext.current as? Activity
 //    val window = activity?.window
 //
@@ -115,6 +115,7 @@ fun AppDrawerScreen(
     val workspaceState by appsViewModel.enabledState.collectAsState()
     val workspaces = workspaceState.workspaces
     val overrides = workspaceState.appOverrides
+    val aliases = workspaceState.appAliases
 
     val selectedWorkspaceId by appsViewModel.selectedWorkspaceId.collectAsState()
     val initialIndex = workspaces.indexOfFirst { it.id == selectedWorkspaceId }
@@ -143,7 +144,6 @@ fun AppDrawerScreen(
         .collectAsState(initial = true)
 
 
-
     var haveToLaunchFirstApp by remember { mutableStateOf(false) }
 
     var searchQuery by remember { mutableStateOf("") }
@@ -157,6 +157,8 @@ fun AppDrawerScreen(
     var showRenameAppDialog by remember { mutableStateOf(false) }
     var renameTargetPackage by remember { mutableStateOf<String?>(null) }
     var renameText by remember { mutableStateOf("") }
+
+    var showAliasDialog by remember { mutableStateOf<AppModel?>(null) }
 
     var workspaceId by remember { mutableStateOf<String?>(null) }
 
@@ -181,6 +183,7 @@ fun AppDrawerScreen(
         focusManager.clearFocus()
         keyboardController?.hide()
     }
+
     fun openKeyboard() {
         focusRequester.requestFocus()
         keyboardController?.show()
@@ -204,6 +207,7 @@ fun AppDrawerScreen(
             DrawerActions.SEARCH_WEB -> {
                 if (searchQuery.isNotBlank()) ctx.openSearch(searchQuery)
             }
+
             DrawerActions.OPEN_FIRST_APP -> haveToLaunchFirstApp = true
             DrawerActions.NONE, DrawerActions.DISABLED -> {}
         }
@@ -297,8 +301,16 @@ fun AppDrawerScreen(
                     val filteredApps by remember(searchQuery, apps) {
                         derivedStateOf {
                             if (searchQuery.isBlank()) apps
-                            else apps.filter {
-                                it.name.contains(searchQuery, ignoreCase = true)
+                            else apps.filter { app ->
+                                app.name.contains(searchQuery, ignoreCase = true) ||
+
+                                // Also search for aliases
+                                aliases[app.packageName]?.any {
+                                    it.contains(
+                                        searchQuery,
+                                        ignoreCase = true
+                                    )
+                                } ?: false
                             }
                         }
                     }
@@ -380,6 +392,9 @@ fun AppDrawerScreen(
             },
             onChangeAppIcon = {
                 appTarget = app
+            },
+            onAliases = {
+                showAliasDialog = app
             }
         )
     }
@@ -462,9 +477,17 @@ fun AppDrawerScreen(
             appTarget = null
         }
     }
+
+    if (showAliasDialog != null) {
+        val app = showAliasDialog!!
+
+        AppAliasesDialog(
+            appsViewModel = appsViewModel,
+            app = app,
+            onDismiss = { showRenameAppDialog = false }
+        )
+    }
 }
-
-
 
 
 @Composable
@@ -491,10 +514,12 @@ private fun AppDrawerSearch(
                 }
                 // Keyboard hiding on focus loss is handled by system, IME actions, or explicit calls elsewhere (e.g., scroll logic)
             },
-        placeholder = { Text(
-            text = stringResource(R.string.search_apps),
-            color = MaterialTheme.colorScheme.onBackground
-        ) },
+        placeholder = {
+            Text(
+                text = stringResource(R.string.search_apps),
+                color = MaterialTheme.colorScheme.onBackground
+            )
+        },
         singleLine = true,
         keyboardOptions = KeyboardOptions(imeAction = ImeAction.Search),
         keyboardActions = KeyboardActions(onSearch = {

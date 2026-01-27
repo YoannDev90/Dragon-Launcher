@@ -118,10 +118,7 @@ class AppsViewModel(
 
     /* ───────────── Workspace things ───────────── */
     private val _workspacesState = MutableStateFlow(
-        WorkspaceState(
-            workspaces = defaultWorkspaces,
-            appOverrides = emptyMap()
-        )
+        WorkspaceState()
     )
     val state: StateFlow<WorkspaceState> = _workspacesState.asStateFlow()
 
@@ -601,17 +598,12 @@ class AppsViewModel(
 
             _workspacesState.value = loadedState?.copy(
                 workspaces = loadedState.workspaces,
-                appOverrides = loadedState.appOverrides
-            ) ?: WorkspaceState(
-                workspaces = defaultWorkspaces,
-                appOverrides = emptyMap()
-            )
+                appOverrides = loadedState.appOverrides,
+                appAliases = loadedState.appAliases
+            ) ?: WorkspaceState()
         } catch (e: Exception) {
             e.printStackTrace()
-            _workspacesState.value = WorkspaceState(
-                workspaces = defaultWorkspaces,
-                appOverrides = emptyMap()
-            )
+            _workspacesState.value = WorkspaceState()
         }
 
         // Load the appOverrides in the pointsIcons too
@@ -737,6 +729,37 @@ class AppsViewModel(
         persist()
     }
 
+    fun addAliasToApp(alias: String, packageName: String) {
+        _workspacesState.value = _workspacesState.value.copy(
+            appAliases = _workspacesState.value.appAliases +
+                    (packageName to (_workspacesState.value.appAliases[packageName] ?: emptySet()) + alias)
+        )
+        persist()
+    }
+
+    fun resetAliasesForApp(packageName: String) {
+        _workspacesState.value = _workspacesState.value.copy(
+            appAliases = _workspacesState.value.appAliases.filter { it.key != packageName }
+        )
+        persist()
+    }
+
+    fun removeAliasFromWorkspace(aliasToRemove: String, packageName: String) {
+
+        val current = _workspacesState.value.appAliases
+
+        val updated = current[packageName]
+            ?.minus(aliasToRemove)
+            ?.takeIf { it.isNotEmpty() }
+
+        _workspacesState.value = _workspacesState.value.copy(
+            appAliases = if (updated == null)
+                current - packageName
+            else
+                current + (packageName to updated)
+        )
+        persist()
+    }
 
     fun renameApp(packageName: String, name: String) {
         _workspacesState.value = _workspacesState.value.copy(

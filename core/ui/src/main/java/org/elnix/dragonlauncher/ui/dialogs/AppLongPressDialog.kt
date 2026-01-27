@@ -16,6 +16,7 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.OpenInNew
 import androidx.compose.material.icons.filled.Add
+import androidx.compose.material.icons.filled.AlternateEmail
 import androidx.compose.material.icons.filled.Close
 import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material.icons.filled.Edit
@@ -62,6 +63,7 @@ fun AppLongPressDialog(
     onAddToWorkspace: (() -> Unit)? = null,
     onRenameApp: (() -> Unit)? = null,
     onChangeAppIcon: (() -> Unit)? = null,
+    onAliases: (() -> Unit)? = null,
     onDismiss: () -> Unit
 ) {
 
@@ -99,6 +101,18 @@ fun AppLongPressDialog(
                     icon = Icons.Default.Delete,
                     backgroundColor = MaterialTheme.colorScheme.errorContainer.copy(alpha = 0.1f),
                     iconTint = MaterialTheme.colorScheme.error,
+                    onClick = { onDismiss(); it() }
+                )
+            )
+        }
+
+        onAliases?.let {
+            add(
+                DialogEntry(
+                    label = stringResource(R.string.app_aliases),
+                    icon = Icons.Default.AlternateEmail,
+                    backgroundColor = MaterialTheme.colorScheme.tertiaryContainer.copy(alpha = 0.1f),
+                    iconTint = MaterialTheme.colorScheme.tertiary,
                     onClick = { onDismiss(); it() }
                 )
             )

@@ -44,7 +44,8 @@ data class AppOverride(
 
 data class WorkspaceState(
     val workspaces: List<Workspace> = defaultWorkspaces,
-    val appOverrides: Map<String, AppOverride> = emptyMap()
+    val appOverrides: Map<String, AppOverride> = emptyMap(),
+    val appAliases: Map<String, Set<String>> = emptyMap()
 )
 
 fun resolveApp(
