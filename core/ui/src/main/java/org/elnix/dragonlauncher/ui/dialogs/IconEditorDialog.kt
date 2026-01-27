@@ -50,7 +50,6 @@ import com.canhub.cropper.CropImageOptions
 import com.canhub.cropper.CropImageView
 import kotlinx.coroutines.launch
 import org.elnix.dragonlauncher.common.R
-import org.elnix.dragonlauncher.common.serializables.BlendModes
 import org.elnix.dragonlauncher.common.serializables.CustomIconSerializable
 import org.elnix.dragonlauncher.common.serializables.IconType
 import org.elnix.dragonlauncher.common.serializables.SwipePointSerializable
@@ -63,7 +62,6 @@ import org.elnix.dragonlauncher.ui.colors.AppObjectsColors
 import org.elnix.dragonlauncher.ui.colors.ColorPickerRow
 import org.elnix.dragonlauncher.ui.components.PointPreviewCanvas
 import org.elnix.dragonlauncher.ui.components.ValidateCancelButtons
-import org.elnix.dragonlauncher.ui.components.generic.ActionColumn
 import org.elnix.dragonlauncher.ui.helpers.SliderWithLabel
 import org.elnix.dragonlauncher.ui.theme.LocalExtraColors
 
@@ -157,15 +155,14 @@ fun IconEditorDialog(
                 )
 
                 PointPreviewCanvas(
-                    previewPoint,
-                    nests,
-                    points,
-                    defaultPoint,
-                    ctx,
-                    circleColor,
-                    backgroundColor,
-                    extraColors,
-                    previewIcon,
+                    editPoint = previewPoint,
+                    nests = nests,
+                    points = points,
+                    defaultPoint = defaultPoint,
+                    circleColor = circleColor,
+                    backgroundSurfaceColor = backgroundColor,
+                    extraColors = extraColors,
+                    pointIcons = previewIcon,
                     modifier = Modifier.weight(1f)
                 )
 
@@ -419,19 +416,20 @@ fun IconEditorDialog(
                     }
 
 
-                    val selectedBlendMode =  selectedIcon?.blendMode?.let {
-                        BlendModes.valueOf(it)
-                    } ?: BlendModes.DEFAULT
-
-                    ActionColumn(
-                        actions = BlendModes.entries,
-                        selectedView = selectedBlendMode,
-                        backgroundColor = MaterialTheme.colorScheme.surface
-                    ) {
-                        selectedIcon = (selectedIcon ?: CustomIconSerializable()).copy(
-                            blendMode = it.toString()
-                        )
-                    }
+                    // TODO Disabled cause not used and not working yet
+//                    val selectedBlendMode =  selectedIcon?.blendMode?.let {
+//                        BlendModes.valueOf(it)
+//                    } ?: BlendModes.DEFAULT
+//
+//                    ActionColumn(
+//                        actions = BlendModes.entries,
+//                        selectedView = selectedBlendMode,
+//                        backgroundColor = MaterialTheme.colorScheme.surface
+//                    ) {
+//                        selectedIcon = (selectedIcon ?: CustomIconSerializable()).copy(
+//                            blendMode = it.toString()
+//                        )
+//                    }
                 }
             }
         },

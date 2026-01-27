@@ -9,11 +9,11 @@ import android.graphics.Canvas
 import android.graphics.Paint
 import android.graphics.PorterDuff
 import android.graphics.PorterDuffColorFilter
-import android.graphics.PorterDuffXfermode
 import android.graphics.Rect
 import android.graphics.drawable.AdaptiveIconDrawable
 import android.graphics.drawable.Drawable
 import android.net.Uri
+import android.os.Build
 import android.renderscript.Allocation
 import android.renderscript.Element
 import android.renderscript.RenderScript
@@ -29,7 +29,6 @@ import androidx.compose.ui.graphics.asImageBitmap
 import androidx.compose.ui.graphics.toArgb
 import androidx.core.content.ContextCompat
 import androidx.core.graphics.createBitmap
-import androidx.core.graphics.drawable.toBitmap
 import androidx.core.graphics.scale
 import androidx.core.graphics.withSave
 import org.elnix.dragonlauncher.common.R
@@ -56,19 +55,28 @@ object ImageUtils {
         height: Int,
         tint: Int? = null
     ): ImageBitmap {
-        // Adaptive icon support
-        val bmp = if (drawable is AdaptiveIconDrawable) {
-            val bitmap = createBitmap(width, height)
-            val canvas = Canvas(bitmap)
-            drawable.setBounds(0, 0, canvas.width, canvas.height)
-            drawable.draw(canvas)
-            bitmap
-        } else {
-            drawable.toBitmap(width, height)
-        }
-        val imageBitmap = bmp.asImageBitmap()
+        val bitmap = createBitmap(width, height)
+        val canvas = Canvas(bitmap)
 
-        // If tint is not unspecified (transparent)
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O &&
+            drawable is AdaptiveIconDrawable
+        ) {
+            // Adaptive icon (API 26+)
+            drawable.background?.setBounds(0, 0, width, height)
+            drawable.background?.draw(canvas)
+
+            drawable.foreground?.setBounds(0, 0, width, height)
+            drawable.foreground?.draw(canvas)
+        } else {
+            // Pre-O or non-adaptive drawable
+            drawable.setBounds(0, 0, width, height)
+            drawable.draw(canvas)
+        }
+
+        val imageBitmap = bitmap.asImageBitmap()
+
+        logE(ICONS_TAG, "Tint: $tint")
+//         If tint is not unspecified (transparent)
         return tint?.takeIf { it != 0 }?.let{
             tintBitmap(imageBitmap, tint)
         } ?: imageBitmap
@@ -122,6 +130,7 @@ object ImageUtils {
         }
     }
 
+    @Suppress("Unused")
     fun imageBitmapToBase64(imageBitmap: ImageBitmap): String? {
         return try {
             val androidBitmap = imageBitmap.asAndroidBitmap()
@@ -133,6 +142,7 @@ object ImageUtils {
     }
 
 
+    @Suppress("Unused")
     fun blurBitmap(ctx: Context, bitmap: Bitmap, radius: Float): Bitmap {
         if (radius <= 0f) return bitmap
 
@@ -333,25 +343,28 @@ object ImageUtils {
             )
         }
 
-        // Step 5: blend mode (best-effort)
-        icon.blendMode?.let {
-            paint.xfermode = when (it.uppercase()) {
-                "MULTIPLY" -> PorterDuffXfermode(PorterDuff.Mode.MULTIPLY)
-                "SCREEN" -> PorterDuffXfermode(PorterDuff.Mode.SCREEN)
-                "OVERLAY" -> PorterDuffXfermode(PorterDuff.Mode.OVERLAY)
-                else -> null
-            }
-        }
 
+        // TODO doesn't work
+        // Step 5: blend mode (best-effort)
+//        icon.blendMode?.let {
+//            paint.xfermode = when (it.uppercase()) {
+//                "MULTIPLY" -> PorterDuffXfermode(PorterDuff.Mode.MULTIPLY)
+//                "SCREEN" -> PorterDuffXfermode(PorterDuff.Mode.SCREEN)
+//                "OVERLAY" -> PorterDuffXfermode(PorterDuff.Mode.OVERLAY)
+//                else -> null
+//            }
+//        }
+
+        // TODO unused for now
         // Step 6: shadow
-        if (icon.shadowRadius != null) {
-            paint.setShadowLayer(
-                icon.shadowRadius,
-                icon.shadowOffsetX ?: 0f,
-                icon.shadowOffsetY ?: 0f,
-                (icon.shadowColor ?: 0x55000000).toInt()
-            )
-        }
+//        if (icon.shadowRadius != null) {
+//            paint.setShadowLayer(
+//                icon.shadowRadius,
+//                icon.shadowOffsetX ?: 0f,
+//                icon.shadowOffsetY ?: 0f,
+//                (icon.shadowColor ?: 0x55000000).toInt()
+//            )
+//        }
 
         // Step 7: transform (scale + rotation)
         canvas.withSave {
@@ -375,21 +388,23 @@ object ImageUtils {
 
         }
 
+
+        // TODO unused for now
         // Step 9: stroke (rectangular, corner clipping is UI-level)
-        if (icon.strokeWidth != null && icon.strokeColor != null) {
-            val strokePaint = Paint(Paint.ANTI_ALIAS_FLAG).apply {
-                style = Paint.Style.STROKE
-                strokeWidth = icon.strokeWidth
-                color = icon.strokeColor.toInt()
-            }
-            canvas.drawRect(
-                0f,
-                0f,
-                sizePx.toFloat(),
-                sizePx.toFloat(),
-                strokePaint
-            )
-        }
+//        if (icon.strokeWidth != null && icon.strokeColor != null) {
+//            val strokePaint = Paint(Paint.ANTI_ALIAS_FLAG).apply {
+//                style = Paint.Style.STROKE
+//                strokeWidth = icon.strokeWidth
+//                color = icon.strokeColor.toInt()
+//            }
+//            canvas.drawRect(
+//                0f,
+//                0f,
+//                sizePx.toFloat(),
+//                sizePx.toFloat(),
+//                strokePaint
+//            )
+//        }
 
         return outBitmap.asImageBitmap()
     }

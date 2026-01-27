@@ -241,7 +241,6 @@ fun EditPointDialog(
                         nests = nests,
                         points = points,
                         defaultPoint = defaultPoint,
-                        ctx = ctx,
                         circleColor = circleColor,
                         backgroundSurfaceColor = backgroundSurfaceColor,
                         extraColors = extraColors,

@@ -28,6 +28,7 @@ import kotlinx.coroutines.sync.withPermit
 import kotlinx.coroutines.withContext
 import org.elnix.dragonlauncher.common.logging.logD
 import org.elnix.dragonlauncher.common.logging.logE
+import org.elnix.dragonlauncher.common.logging.logI
 import org.elnix.dragonlauncher.common.serializables.AppModel
 import org.elnix.dragonlauncher.common.serializables.AppOverride
 import org.elnix.dragonlauncher.common.serializables.CustomIconSerializable
@@ -303,11 +304,21 @@ class AppsViewModel(
                 ?.let { source ->
                     val (drawable, packName) = source.split(',', limit = 2)
 
+                    logD(ICONS_TAG, "$drawable $packName")
+
                     // If source is a specified icon from icon pack, use it, else, load the action icon
                     loadIconFromPack(packName, drawable)
-                        ?.let { loadDrawableAsBitmap(it, sizePx, sizePx, packTint.value) }
+                        ?.let {
+                            logD(ICONS_TAG, "$it")
+
+                            loadDrawableAsBitmap(it, sizePx, sizePx, packTint.value)
+                        }
                 }
                 ?: orig
+
+        return base
+
+        //TODO RN here's the failing point, the function before mess the icons up, only when not an app surprisingly...
 
         return resolveCustomIconBitmap(
             base = base,
@@ -342,9 +353,12 @@ class AppsViewModel(
             height = sizePx
         )
 
+//        return orig
 
         // Returns either the icon rendered using the custom icon renderer, or the base icon if no render provided
         return point.customIcon?.let { customIcon ->
+
+            logD(ICONS_TAG, point.toString())
             renderCustomIcon(
                 orig = orig,
                 customIcon = customIcon,
@@ -464,6 +478,7 @@ class AppsViewModel(
         if (packPkg == null || iconName.isEmpty()) return null
 
         return try {
+            logI(ICONS_TAG, "packPkg: $packPkg; iconName: $iconName")
             val packResources = ctx.packageManager.getResourcesForApplication(packPkg)
             val resId = packResources.getIdentifier(iconName, "drawable", packPkg)
             if (resId != 0) {
@@ -500,16 +515,16 @@ class AppsViewModel(
         }
     }
 
-    fun loadSavedIconPack() {
-        scope.launch {
-            val savedPackName = UiSettingsStore.selectedIconPack.get(ctx)
-            savedPackName?.let { pkg ->
-                _iconPacksList.value.find { it.packageName == pkg }?.let { pack ->
-                    _selectedIconPack.value = pack
-                }
-            }
-        }
-    }
+//    fun loadSavedIconPack() {
+//        scope.launch {
+//            val savedPackName = UiSettingsStore.selectedIconPack.get(ctx)
+//            savedPackName?.let { pkg ->
+//                _iconPacksList.value.find { it.packageName == pkg }?.let { pack ->
+//                    _selectedIconPack.value = pack
+//                }
+//            }
+//        }
+//    }
 
     fun selectIconPack(pack: IconPackInfo) {
         _selectedIconPack.value = pack
@@ -734,12 +749,12 @@ class AppsViewModel(
         persist()
     }
 
-    fun resetAliasesForApp(packageName: String) {
-        _workspacesState.value = _workspacesState.value.copy(
-            appAliases = _workspacesState.value.appAliases.filter { it.key != packageName }
-        )
-        persist()
-    }
+//    fun resetAliasesForApp(packageName: String) {
+//        _workspacesState.value = _workspacesState.value.copy(
+//            appAliases = _workspacesState.value.appAliases.filter { it.key != packageName }
+//        )
+//        persist()
+//    }
 
     fun removeAliasFromWorkspace(aliasToRemove: String, packageName: String) {
 
