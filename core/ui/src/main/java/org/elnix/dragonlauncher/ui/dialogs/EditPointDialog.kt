@@ -54,10 +54,10 @@ import org.elnix.dragonlauncher.ui.actions.actionLabel
 import org.elnix.dragonlauncher.ui.colors.AppObjectsColors
 import org.elnix.dragonlauncher.ui.colors.ColorPickerRow
 import org.elnix.dragonlauncher.ui.components.PointPreviewCanvas
+import org.elnix.dragonlauncher.ui.components.TextDivider
 import org.elnix.dragonlauncher.ui.components.ValidateCancelButtons
 import org.elnix.dragonlauncher.ui.components.generic.ActionRow
 import org.elnix.dragonlauncher.ui.helpers.SliderWithLabel
-import org.elnix.dragonlauncher.ui.components.TextDivider
 import org.elnix.dragonlauncher.ui.theme.LocalExtraColors
 
 
@@ -184,6 +184,7 @@ fun EditPointDialog(
 
                     Text(
                         text = stringResource(R.string.edit_point),
+                        color = MaterialTheme.colorScheme.onSurface,
                         style = MaterialTheme.typography.titleLarge,
                     )
 
@@ -201,7 +202,8 @@ fun EditPointDialog(
                     ) {
                         Icon(
                             imageVector = Icons.Default.Restore,
-                            contentDescription = stringResource(R.string.reset)
+                            contentDescription = stringResource(R.string.reset),
+                            tint = MaterialTheme.colorScheme.onSurface
                         )
                     }
                 }
@@ -223,11 +225,13 @@ fun EditPointDialog(
                     ) {
                         Text(
                             text = stringResource(R.string.unselected_action),
+                            color = MaterialTheme.colorScheme.onSurface,
                             style = MaterialTheme.typography.labelSmall
                         )
 
                         Text(
                             text = stringResource(R.string.selected_action),
+                            color = MaterialTheme.colorScheme.onSurface,
                             style = MaterialTheme.typography.labelSmall
                         )
                     }
@@ -480,7 +484,8 @@ fun EditPointDialog(
                                 currentColor = editPoint.borderColorSelected?.let { Color(it) }
                                     ?: defaultBorderColorSelected
                             ) { selectedColor ->
-                                editPoint = editPoint.copy(borderColorSelected = selectedColor.toArgb())
+                                editPoint =
+                                    editPoint.copy(borderColorSelected = selectedColor.toArgb())
                             }
 
 
