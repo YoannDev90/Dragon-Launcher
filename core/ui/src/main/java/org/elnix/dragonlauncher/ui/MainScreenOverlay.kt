@@ -549,8 +549,8 @@ fun defaultHapticFeedback(id: Int): Int = when (id) {
 
 // TODO I'll need to compute the angle to make it always look stable, regardless of the radius, to have always same length
 fun defaultMinAngleActivation(size: Int): Int =
-
-       Math.toRadians(size.toDouble()).toInt()
+    0 // Just return 0 cause I found out that its annoying
+//       Math.toRadians(size.toDouble()).toInt()
 //        y = start.y - radius * cos(Math.toRadians(point.angleDeg)).toFloat()
 
 //    -1 -> 0 // Cancel zone, no points on it
