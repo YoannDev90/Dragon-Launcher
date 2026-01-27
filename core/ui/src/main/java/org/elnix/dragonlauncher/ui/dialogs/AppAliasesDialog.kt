@@ -10,12 +10,13 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.AlternateEmail
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
-import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
@@ -30,6 +31,7 @@ import org.elnix.dragonlauncher.common.R
 import org.elnix.dragonlauncher.common.serializables.AppModel
 import org.elnix.dragonlauncher.common.serializables.WorkspaceState
 import org.elnix.dragonlauncher.models.AppsViewModel
+import org.elnix.dragonlauncher.ui.components.ValidateCancelButtons
 import org.elnix.dragonlauncher.ui.helpers.Bubble
 
 @Composable
@@ -40,54 +42,68 @@ fun AppAliasesDialog(
 ) {
     var showAliasEditScreen by remember { mutableStateOf<String?>(null) }
 
-    val aliases by appsViewModel.enabledState
+    val state by appsViewModel.enabledState
         .collectAsState(WorkspaceState())
-        .value
-        .appAliases
+
+    @Suppress("UselessCallOnNotNull")
+    val aliases = state.appAliases.orEmpty()
 
     AlertDialog(
         title = {
-            Column {
+            Column(
+                verticalArrangement = Arrangement.spacedBy(10.dp)
+            ) {
                 Row(
                     modifier = Modifier.fillMaxWidth(),
                     verticalAlignment = Alignment.CenterVertically,
                     horizontalArrangement = Arrangement.SpaceBetween
                 ) {
+                    Icon(
+                        imageVector = Icons.Default.AlternateEmail,
+                        contentDescription = stringResource(R.string.app_aliases),
+                        tint = MaterialTheme.colorScheme.primary
+                    )
 
                     Text(
-                        text = app.name,
+                        text = stringResource(R.string.app_aliases),
                         color = MaterialTheme.colorScheme.onSurface
                     )
 
-                    Icon(
-                        imageVector = Icons.Default.AlternateEmail,
-                        contentDescription = "Details",
-                        tint = MaterialTheme.colorScheme.primary
-                    )
                 }
 
                 Text(
-                    text = stringResource(R.string.app_aliases),
-                    color = MaterialTheme.colorScheme.onSurface
+                    text = app.name,
+                    color = MaterialTheme.colorScheme.onSurface,
+                    style = MaterialTheme.typography.bodySmall
                 )
             }
-
         },
         onDismissRequest = onDismiss,
         text = {
             Column(
-                modifier = Modifier.fillMaxWidth(),
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .heightIn(max = 700.dp),
                 verticalArrangement = Arrangement.spacedBy(6.dp)
             ) {
                 FlowRow(
-                    modifier = Modifier
-                        .heightIn(700.dp)
+                    verticalArrangement = Arrangement.Center,
+                    horizontalArrangement = Arrangement.spacedBy(5.dp)
                 ) {
-                    aliases.forEach { alias ->
+                    IconButton(
+                        onClick = { showAliasEditScreen = "" }
+                    ) {
+                        Icon(
+                            imageVector = Icons.Default.Add,
+                            contentDescription = stringResource(R.string.add_alias)
+                        )
+                    }
+
+                    aliases[app.packageName]?.forEach { alias ->
 
                         Bubble(
                             onClick = { showAliasEditScreen = alias },
-                            onDelete = {
+                            onLongClick = {
                                 appsViewModel.removeAliasFromWorkspace(alias, app.packageName)
                             }
                         ) {
@@ -97,34 +113,15 @@ fun AppAliasesDialog(
                                 style = MaterialTheme.typography.titleMedium
                             )
                         }
-//                        Row(
-//                            modifier = Modifier
-//                                .fillMaxWidth()
-//                                .clip(RoundedCornerShape(12.dp))
-//                                .background(alias.backgroundColor)
-//                                .clickable { alias.onClick() }
-//                                .padding(16.dp),
-//                            verticalAlignment = Alignment.CenterVertically
-//                        ) {
-//                            Icon(
-//                                imageVector = alias.icon,
-//                                contentDescription = alias.label,
-//                                modifier = Modifier.size(24.dp),
-//                                tint = alias.iconTint
-//                            )
-//                            Spacer(modifier = Modifier.width(12.dp))
-//
-//                        }
                     }
                 }
             }
         },
         confirmButton = {
-            TextButton(
-                onClick = onDismiss
-            ) {
-                stringResource(R.string.ok)
-            }
+            ValidateCancelButtons(
+                validateText = stringResource(R.string.ok),
+                onValidate = onDismiss
+            )
         },
         dismissButton = {},
         containerColor = MaterialTheme.colorScheme.surface,
@@ -133,13 +130,13 @@ fun AppAliasesDialog(
 
     if (showAliasEditScreen != null) {
 
-        val aliasToEdit = showAliasEditScreen
+        val aliasToEdit = showAliasEditScreen!!
 
         EditAliasDialog(
-            initialAlias = showAliasEditScreen,
+            initialAlias = aliasToEdit,
             onDismiss = { showAliasEditScreen = null }
         ) {
-            appsViewModel.removeAliasFromWorkspace(aliasToEdit ?: "", app.packageName)
+            appsViewModel.removeAliasFromWorkspace(aliasToEdit, app.packageName)
             appsViewModel.addAliasToApp(it, app.packageName)
             showAliasEditScreen = null
         }

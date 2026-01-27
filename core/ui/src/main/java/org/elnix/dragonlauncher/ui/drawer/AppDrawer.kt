@@ -484,7 +484,7 @@ fun AppDrawerScreen(
         AppAliasesDialog(
             appsViewModel = appsViewModel,
             app = app,
-            onDismiss = { showRenameAppDialog = false }
+            onDismiss = { showAliasDialog = null }
         )
     }
 }

@@ -3,15 +3,17 @@ package org.elnix.dragonlauncher.ui.helpers
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.combinedClickable
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
-import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 
@@ -41,19 +43,17 @@ fun Bubble(
 
     Row(
         modifier = Modifier
-            .padding(4.dp)
+            .clip(RoundedCornerShape(12.dp))
             .then(clickableModifier)
             .border(
                 width = 1.dp,
                 color = borderColor.copy(alpha),
-                shape = CircleShape
+                shape = RoundedCornerShape(12.dp)
             )
-            .background(
-                color = backgroundColor.copy(alpha),
-                shape = CircleShape
-            )
+            .background(backgroundColor.copy(alpha))
             .padding(horizontal = 12.dp, vertical = 6.dp),
-        verticalAlignment = Alignment.CenterVertically
+        verticalAlignment = Alignment.CenterVertically,
+        horizontalArrangement = Arrangement.Center
     ) {
         if (leadingIcon != null) {
             leadingIcon()

@@ -27,6 +27,7 @@ fun ValidateCancelButtons(
     cancelText: String = stringResource(R.string.cancel),
     cancelColor: Color = MaterialTheme.colorScheme.error,
     cancelContainerColor: Color = MaterialTheme.colorScheme.surface,
+    validateEnabled: Boolean = true,
     onCancel: (() -> Unit)? = null,
     onValidate: () -> Unit
 ) {
@@ -51,6 +52,7 @@ fun ValidateCancelButtons(
         }
 
         Button(
+            enabled = validateEnabled,
             onClick = onValidate,
             colors = ButtonDefaults.buttonColors(
                 contentColor = validateColor,

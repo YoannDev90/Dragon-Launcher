@@ -132,10 +132,7 @@ class AppsViewModel(
         .stateIn(
             scope = scope,
             started = SharingStarted.Eagerly,
-            initialValue = WorkspaceState(
-                workspaces = emptyList(),
-                appOverrides = emptyMap()
-            )
+            initialValue = WorkspaceState()
         )
 
 

@@ -15,7 +15,6 @@ import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
-import androidx.compose.material3.TextButton
 import androidx.compose.material3.TextField
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
@@ -30,19 +29,21 @@ import androidx.compose.ui.unit.dp
 import org.elnix.dragonlauncher.common.R
 import org.elnix.dragonlauncher.common.utils.colors.adjustBrightness
 import org.elnix.dragonlauncher.ui.colors.AppObjectsColors
+import org.elnix.dragonlauncher.ui.components.ValidateCancelButtons
 
 
 @Composable
 fun EditAliasDialog(
-    initialAlias: String?,
+    initialAlias: String,
     onDismiss: () -> Unit,
     onValidate: (String) -> Unit
 ) {
-    var editAlias by remember { mutableStateOf(initialAlias ?: "") }
+    var editAlias by remember { mutableStateOf(initialAlias) }
 
+    val title = if (initialAlias == "") stringResource(R.string.create_alias)
+    else stringResource(R.string.edit_alias)
     AlertDialog(
         title = {
-
             Row(
                 modifier = Modifier.fillMaxWidth(),
                 verticalAlignment = Alignment.CenterVertically,
@@ -50,16 +51,14 @@ fun EditAliasDialog(
             ) {
                 Icon(
                     imageVector = Icons.Default.Edit,
-                    contentDescription = "Edit Alias",
+                    contentDescription = title,
                     tint = MaterialTheme.colorScheme.primary
                 )
 
                 Text(
-                    text = stringResource(R.string.edit_alias),
+                    text = title,
                     color = MaterialTheme.colorScheme.onSurface
                 )
-
-
             }
 
         },
@@ -75,7 +74,7 @@ fun EditAliasDialog(
                         contentDescription = stringResource(R.string.reset),
                         tint = MaterialTheme.colorScheme.error,
                         modifier = Modifier.clickable {
-                            editAlias = initialAlias ?: ""
+                            editAlias = initialAlias
                         }
                     )
                 },
@@ -95,14 +94,11 @@ fun EditAliasDialog(
             )
         },
         confirmButton = {
-            TextButton(
-                onClick = { onValidate(editAlias) }
-            ) {
-                Text(
-                    text = stringResource(R.string.ok),
-                    color = MaterialTheme.colorScheme.onSurface
-                )
-            }
+
+            ValidateCancelButtons(
+                validateEnabled = editAlias.trim() != "",
+                onCancel = onDismiss
+            ) { onValidate(editAlias.trim()) }
         },
         dismissButton = {},
         containerColor = MaterialTheme.colorScheme.surface,
