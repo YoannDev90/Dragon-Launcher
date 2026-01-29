@@ -42,17 +42,15 @@ import org.elnix.dragonlauncher.settings.stores.ColorModesSettingsStore
 
 
 @Composable
-fun ColorPickerButton(
+private fun ColorPickerButton(
+    button: ColorPickerButtonAction,
     currentColor: Color,
     defaultColor: Color,
     backgroundColor: Color,
+    onModeChanged: (ColorPickerButtonAction) -> Unit,
     onColorPicked: (Color) -> Unit
 ) {
     val ctx = LocalContext.current
-    val scope = rememberCoroutineScope()
-
-    val button by ColorModesSettingsStore.colorPickerButton.flow(ctx)
-        .collectAsState(ColorModesSettingsStore.colorPickerButton.default)
 
     val enabled = button != NONE
 
@@ -109,9 +107,7 @@ fun ColorPickerButton(
                             .clip(CircleShape)
                             .background(backgroundColor.adjustBrightness(0.8f))
                             .clickable {
-                                scope.launch {
-                                    ColorModesSettingsStore.colorPickerButton.set(ctx, it)
-                                }
+                                onModeChanged(it)
                                 showSelector = false
                             }
                             .padding(5.dp)
@@ -120,4 +116,60 @@ fun ColorPickerButton(
             }
         }
     }
+}
+
+
+@Composable
+fun ColorPickerButtonOne(
+    currentColor: Color,
+    defaultColor: Color,
+    backgroundColor: Color,
+    onColorPicked: (Color) -> Unit
+) {
+    val ctx = LocalContext.current
+    val scope = rememberCoroutineScope()
+
+    val button by ColorModesSettingsStore.colorPickerButtonOne.flow(ctx)
+        .collectAsState(ColorModesSettingsStore.colorPickerButtonOne.default)
+
+    ColorPickerButton(
+        button = button,
+        currentColor = currentColor,
+        defaultColor = defaultColor,
+        backgroundColor = backgroundColor,
+        onModeChanged = {
+            scope.launch {
+                ColorModesSettingsStore.colorPickerButtonOne.set(ctx, it)
+            }
+        },
+        onColorPicked = onColorPicked
+    )
+}
+
+
+@Composable
+fun ColorPickerButtonTwo(
+    currentColor: Color,
+    defaultColor: Color,
+    backgroundColor: Color,
+    onColorPicked: (Color) -> Unit
+) {
+    val ctx = LocalContext.current
+    val scope = rememberCoroutineScope()
+
+    val button by ColorModesSettingsStore.colorPickerButtonTwo.flow(ctx)
+        .collectAsState(ColorModesSettingsStore.colorPickerButtonTwo.default)
+
+    ColorPickerButton(
+        button = button,
+        currentColor = currentColor,
+        defaultColor = defaultColor,
+        backgroundColor = backgroundColor,
+        onModeChanged = {
+            scope.launch {
+                ColorModesSettingsStore.colorPickerButtonTwo.set(ctx, it)
+            }
+        },
+        onColorPicked = onColorPicked
+    )
 }

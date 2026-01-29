@@ -69,9 +69,6 @@ fun ColorPickerRow(
     enabled: Boolean = true,
     defaultColor: Color,
     currentColor: Color,
-    randomColorButton: Boolean = true,
-    resetButton: Boolean = true,
-    maxLuminance: Float = 1f,
     backgroundColor: Color = MaterialTheme.colorScheme.surface,
     onColorPicked: (Color) -> Unit
 ) {
@@ -85,7 +82,7 @@ fun ColorPickerRow(
     val savedMode by ColorModesSettingsStore.colorPickerMode.flow(ctx).collectAsState(initial = ColorPickerMode.SLIDERS)
     val initialPage = remember(savedMode) { ColorPickerMode.entries.indexOf(savedMode) }
 
-    val colorPickerButtons = ColorModesSettingsStore.colorPickerButton
+    val colorPickerButtons = ColorModesSettingsStore.colorPickerButtonOne
 
     Row(
        modifier = modifier
@@ -114,46 +111,19 @@ fun ColorPickerRow(
             horizontalArrangement = Arrangement.End
         ) {
 
-            ColorPickerButton(
+            ColorPickerButtonOne(
                 currentColor = currentColor,
                 defaultColor = defaultColor,
                 backgroundColor = backgroundColor,
                 onColorPicked = onColorPicked
             )
-//            if (randomColorButton) {
-//                Icon(
-//                    imageVector = Icons.Default.Shuffle,
-//                    contentDescription = "Random color",
-//                    tint = MaterialTheme.colorScheme.onSurface,
-//                    modifier = Modifier
-//                        .clip(CircleShape)
-//                        .background(backgroundColor.adjustBrightness(0.8f))
-//                        .clickable(enabled) {
-//                            onColorPicked(
-//                                randomColor(
-//                                    minLuminance = 0.2f,
-//                                    maxLuminance = maxLuminance
-//                                )
-//                            )
-//                        }
-//                        .padding(5.dp)
-//                )
-//            }
 
-//            Spacer(Modifier.width(8.dp))
-
-//            if (resetButton) {
-//                Icon(
-//                    imageVector = Icons.Default.Restore,
-//                    contentDescription = "Reset color",
-//                    tint = MaterialTheme.colorScheme.onSurface,
-//                    modifier = Modifier
-//                        .clip(CircleShape)
-//                        .background(backgroundColor.adjustBrightness(0.8f))
-//                        .clickable(enabled) { onColorPicked(defaultColor) }
-//                        .padding(5.dp)
-//                )
-//            }
+            ColorPickerButtonTwo(
+                currentColor = currentColor,
+                defaultColor = defaultColor,
+                backgroundColor = backgroundColor,
+                onColorPicked = onColorPicked
+            )
 
             Spacer(Modifier.width(12.dp))
 
@@ -362,7 +332,6 @@ private fun ColorPicker(
 
         SliderWithLabel(
             label = stringResource(R.string.transparency),
-            showValue = false,
             value = color.alpha,
             color = MaterialTheme.colorScheme.primary,
             backgroundColor = MaterialTheme.colorScheme.surface.blendWith(MaterialTheme.colorScheme.primary, 0.2f),

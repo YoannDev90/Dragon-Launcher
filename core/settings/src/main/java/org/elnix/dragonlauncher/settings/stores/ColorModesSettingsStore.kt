@@ -44,10 +44,16 @@ object ColorModesSettingsStore : MapSettingsStore() {
         enumClass = DefaultThemes::class.java
     )
 
-    val colorPickerButton = Settings.enum(
+    val colorPickerButtonOne = Settings.enum(
         key = "colorPickerButton",
         dataStoreName = dataStoreName,
         default = ColorPickerButtonAction.RANDOM,
+        enumClass = ColorPickerButtonAction::class.java
+    )
+    val colorPickerButtonTwo = Settings.enum(
+        key = "colorPickerButtonTwo",
+        dataStoreName = dataStoreName,
+        default = ColorPickerButtonAction.COPY,
         enumClass = ColorPickerButtonAction::class.java
     )
 }

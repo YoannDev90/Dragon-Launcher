@@ -1,5 +1,5 @@
 2.2.2
-2026-01-121
+2026-01-21
 [NEW]
 * Added up-scroll in drawer to close keyboard
 * Added customizable home action on drawer and main screen
