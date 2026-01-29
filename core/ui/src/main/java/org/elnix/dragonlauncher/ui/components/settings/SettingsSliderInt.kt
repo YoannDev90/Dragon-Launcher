@@ -4,7 +4,6 @@ package org.elnix.dragonlauncher.ui.components.settings
 
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
@@ -36,10 +35,6 @@ fun SettingsSlider(
     val state by setting.flow(ctx).collectAsState(setting.default)
 
     var tempState by remember { mutableIntStateOf(state) }
-
-    LaunchedEffect(state) {
-        tempState = state
-    }
 
     SliderWithLabel(
         modifier = modifier,
