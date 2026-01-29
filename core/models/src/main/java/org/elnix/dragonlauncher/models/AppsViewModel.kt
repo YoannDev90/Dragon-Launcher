@@ -316,10 +316,6 @@ class AppsViewModel(
                 }
                 ?: orig
 
-        return base
-
-        //TODO RN here's the failing point, the function before mess the icons up, only when not an app surprisingly...
-
         return resolveCustomIconBitmap(
             base = base,
             icon = customIcon,
@@ -352,8 +348,6 @@ class AppsViewModel(
             width = sizePx,
             height = sizePx
         )
-
-//        return orig
 
         // Returns either the icon rendered using the custom icon renderer, or the base icon if no render provided
         return point.customIcon?.let { customIcon ->
@@ -434,6 +428,7 @@ class AppsViewModel(
     }
 
     // TODO MAke a single function to load icons instead of 2 separated and shitty
+    // No, in fact they are working and well now, no need to change
 
     private fun loadSingleIcon(
         packageName: String,
