@@ -28,6 +28,10 @@ fun SettingsSwitchRow(
 
     var tempState by remember { mutableStateOf(state) }
 
+    LaunchedEffect(state) {
+        tempState = state
+    }
+
     SwitchRow(
         state = tempState,
         text = title,
