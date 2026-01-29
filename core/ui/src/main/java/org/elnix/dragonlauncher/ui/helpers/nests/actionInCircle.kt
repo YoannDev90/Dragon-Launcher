@@ -6,6 +6,7 @@ import androidx.compose.runtime.snapshots.SnapshotStateList
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.BlendMode
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.ColorFilter
 import androidx.compose.ui.graphics.ImageBitmap
 import androidx.compose.ui.graphics.drawscope.DrawScope
 import androidx.compose.ui.graphics.drawscope.Stroke
@@ -14,10 +15,12 @@ import androidx.compose.ui.unit.IntSize
 import org.elnix.dragonlauncher.common.R
 import org.elnix.dragonlauncher.common.serializables.CircleNest
 import org.elnix.dragonlauncher.common.serializables.SwipeActionSerializable
+import org.elnix.dragonlauncher.common.serializables.SwipeActionSerializable.OpenDragonLauncherSettings
 import org.elnix.dragonlauncher.common.serializables.SwipePointSerializable
 import org.elnix.dragonlauncher.common.serializables.defaultSwipePointsValues
 import org.elnix.dragonlauncher.common.utils.ImageUtils.loadDrawableResAsBitmap
 import org.elnix.dragonlauncher.common.utils.UiCircle
+import org.elnix.dragonlauncher.ui.actions.actionColor
 import org.elnix.dragonlauncher.ui.theme.ExtraColors
 
 
@@ -94,9 +97,7 @@ fun DrawScope.actionsInCircle(
             )
         } else {
             drawCircle(
-                color = backgroundColor,
-                radius = borderRadii,
-                center = center
+                color = backgroundColor, radius = borderRadii, center = center
             )
         }
 
@@ -111,12 +112,22 @@ fun DrawScope.actionsInCircle(
 
 
         val icon = point.id.let { pointIcons[it] }
+        val colorAction = actionColor(point.action, extraColors)
+
+        val applyActionColor = (
+                action !is SwipeActionSerializable.LaunchApp &&
+                action !is SwipeActionSerializable.LaunchShortcut &&
+                action !is OpenDragonLauncherSettings
+                ) &&
+                // Checks if the source is null (no custom icons, image, text or pack)
+                // to avoid drawing the tint on the rendered icon
+                point.customIcon?.type == null
 
         if (icon != null) {
             drawImage(
-                image = icon,
-                dstOffset = dstOffset,
-                dstSize = intSize
+                image = icon, dstOffset = dstOffset, dstSize = intSize, colorFilter =
+                if (applyActionColor) ColorFilter.tint(colorAction)
+                else null
             )
         }
 
@@ -129,8 +140,7 @@ fun DrawScope.actionsInCircle(
             val newCircles: SnapshotStateList<UiCircle> = mutableStateListOf()
 
 
-            nest.dragDistances.filter { it.key != -1 }
-                .forEach { (index, _) ->
+            nest.dragDistances.filter { it.key != -1 }.forEach { (index, _) ->
                     val radius = (100f / deepNest) * circlesWidthIncrement * (index + 1)
                     newCircles.add(
                         UiCircle(index, radius)
