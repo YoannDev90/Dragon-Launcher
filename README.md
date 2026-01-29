@@ -97,7 +97,8 @@
 ---
 ## Screenshots
 <p align="center">
-    <img src="metadata/images/demo.gif" alt="App demo animation"/>
+    <img src="assets/images/demo.gif" alt="App demo animation" width="50%">
+    <img src="assets/images/demo2.gif" alt="App demo animation" width="50%">
 </p>
 
 <p align="center">
