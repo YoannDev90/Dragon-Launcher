@@ -111,6 +111,7 @@ const val FLOATING_APPS_TAG = "FloatingAppsDebug"
 const val ACCESSIBILITY_TAG = "SystemControl"
 const val IMAGE_TAG = "ImageDebug"
 const val SETTINGS_TAG = "SettingsDebug"
+const val ICON_PACK_TAG = "IconsPacks"
 
 
 
