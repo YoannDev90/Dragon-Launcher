@@ -3,6 +3,8 @@ package org.elnix.dragonlauncher.ui.drawer
 import android.content.Intent
 import android.os.Build
 import android.provider.Settings
+import androidx.activity.compose.rememberLauncherForActivityResult
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -72,6 +74,8 @@ import org.elnix.dragonlauncher.models.AppLifecycleViewModel
 import org.elnix.dragonlauncher.models.AppsViewModel
 import org.elnix.dragonlauncher.settings.stores.DrawerSettingsStore
 import org.elnix.dragonlauncher.settings.stores.UiSettingsStore
+import org.elnix.dragonlauncher.settings.stores.WellbeingSettingsStore
+import org.elnix.dragonlauncher.ui.actions.launchAppDirectly
 import org.elnix.dragonlauncher.ui.actions.launchSwipeAction
 import org.elnix.dragonlauncher.ui.dialogs.AppAliasesDialog
 import org.elnix.dragonlauncher.ui.dialogs.AppLongPressDialog
@@ -79,6 +83,7 @@ import org.elnix.dragonlauncher.ui.dialogs.IconEditorDialog
 import org.elnix.dragonlauncher.ui.dialogs.RenameAppDialog
 import org.elnix.dragonlauncher.ui.helpers.AppGrid
 import org.elnix.dragonlauncher.ui.helpers.WallpaperDim
+import org.elnix.dragonlauncher.ui.wellbeing.DigitalPauseActivity
 
 @Suppress("AssignedValueIsNeverRead")
 @OptIn(ExperimentalComposeUiApi::class)
@@ -154,6 +159,32 @@ fun AppDrawerScreen(
     val drawerScrollUpAction by DrawerSettingsStore.scrollUpDrawerAction.flow(ctx)
         .collectAsState(TOGGLE_KB)
 
+
+    /*  ─────────────  Wellbeing Settings  ─────────────  */
+    val socialMediaPauseEnabled by WellbeingSettingsStore.socialMediaPauseEnabled.flow(ctx)
+        .collectAsState(initial = false)
+    val guiltModeEnabled by WellbeingSettingsStore.guiltModeEnabled.flow(ctx)
+        .collectAsState(initial = false)
+    val pauseDuration by WellbeingSettingsStore.pauseDurationSeconds.flow(ctx)
+        .collectAsState(initial = 10)
+    val pausedApps by WellbeingSettingsStore.getPausedAppsFlow(ctx)
+        .collectAsState(initial = emptySet())
+
+    var pendingPackageToLaunch by remember { mutableStateOf<String?>(null) }
+
+    val digitalPauseLauncher = rememberLauncherForActivityResult(
+        ActivityResultContracts.StartActivityForResult()
+    ) { result ->
+        if (result.resultCode == DigitalPauseActivity.RESULT_PROCEED && pendingPackageToLaunch != null) {
+            try {
+                launchAppDirectly(ctx, pendingPackageToLaunch!!)
+                onClose()
+            } catch (e: Exception) {
+                ctx.showToast("Error: ${e.message}")
+            }
+        }
+        pendingPackageToLaunch = null
+    }
 
 
     var haveToLaunchFirstApp by remember { mutableStateOf(false) }
@@ -246,9 +277,27 @@ fun AppDrawerScreen(
     }
 
     fun launchApp(action: SwipeActionSerializable) {
+        // Store package for potential pause callback
+        if (action is SwipeActionSerializable.LaunchApp) {
+            pendingPackageToLaunch = action.packageName
+        }
+
         try {
-            launchSwipeAction(ctx, action)
-            onClose()
+            launchSwipeAction(
+                ctx = ctx,
+                action = action,
+                pausedApps = pausedApps,
+                socialMediaPauseEnabled = socialMediaPauseEnabled,
+                guiltModeEnabled = guiltModeEnabled,
+                pauseDuration = pauseDuration,
+                digitalPauseLauncher = digitalPauseLauncher
+            )
+            // Only close if not paused (pause closes after user decision)
+            if (!socialMediaPauseEnabled ||
+                action !is SwipeActionSerializable.LaunchApp ||
+                action.packageName !in pausedApps) {
+                onClose()
+            }
         } catch (e: Exception) {
             onClose()
             ctx.showToast("Error: ${e.message}")

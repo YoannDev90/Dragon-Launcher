@@ -52,6 +52,8 @@ import org.elnix.dragonlauncher.ui.settings.debug.DebugTab
 import org.elnix.dragonlauncher.ui.settings.debug.LogsTab
 import org.elnix.dragonlauncher.ui.settings.debug.SettingsDebugTab
 import org.elnix.dragonlauncher.ui.settings.language.LanguageTab
+import org.elnix.dragonlauncher.ui.settings.wellbeing.WellbeingAppsScreen
+import org.elnix.dragonlauncher.ui.settings.wellbeing.WellbeingTab
 import org.elnix.dragonlauncher.ui.settings.workspace.WorkspaceDetailScreen
 import org.elnix.dragonlauncher.ui.settings.workspace.WorkspaceListScreen
 import org.elnix.dragonlauncher.ui.whatsnew.ChangelogsScreen
@@ -110,6 +112,7 @@ fun SettingsNavHost(
     fun goAdvSettingsRoot() =  navController.navigate(SETTINGS.ADVANCED_ROOT)
     fun goAppearance() = navController.navigate(SETTINGS.APPEARANCE)
     fun goDebug() = navController.navigate(SETTINGS.DEBUG)
+    fun goWellbeing() = navController.navigate(SETTINGS.WELLBEING)
     fun goNestEdit(nest: Int) {
         pendingNestToEdit = nest
         navController.navigate(SETTINGS.NESTS_EDIT)
@@ -175,6 +178,17 @@ fun SettingsNavHost(
             noAnimComposable(SETTINGS.LANGUAGE)      { LanguageTab (::goAdvSettingsRoot) }
             noAnimComposable(SETTINGS.BACKUP)        { BackupTab(backupViewModel, ::goAdvSettingsRoot) }
             noAnimComposable(SETTINGS.CHANGELOGS)    { ChangelogsScreen (::goAdvSettingsRoot) }
+
+            noAnimComposable(SETTINGS.WELLBEING)     { WellbeingTab(
+                appsViewModel = appsViewModel,
+                onManageApps = { navController.navigate(SETTINGS.WELLBEING_APPS) },
+                onBack = ::goAdvSettingsRoot
+            ) }
+            noAnimComposable(SETTINGS.WELLBEING_APPS) { WellbeingAppsScreen(
+                appsViewModel = appsViewModel,
+                onBack = ::goWellbeing
+            ) }
+
             noAnimComposable(SETTINGS.NESTS_EDIT)    { NestEditingScreen(
                 nestId = pendingNestToEdit,
                 nests = nests,

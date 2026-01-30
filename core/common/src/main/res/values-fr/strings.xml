@@ -350,4 +350,43 @@
     <string name="fast_minimal_powerful_gestures">Rapide. Minimal. Des gestes puissants.</string>
     <string name="customize_apps">Personnaliser les applications</string>
     <string name="dont_customize">Ne personnalisez pas et commencez à utiliser directement Dragon Launcher</string>
+
+    <!--  ─────────────  Wellbeing Section  ─────────────  -->
+    <string name="wellbeing">Bien-être numérique</string>
+    <string name="wellbeing_help">Prenez le contrôle de vos habitudes numériques. Faites une pause avant d\'ouvrir des applications distrayantes et réfléchissez à votre utilisation.</string>
+    <string name="social_media_pause">Pause Réseaux Sociaux</string>
+    <string name="social_media_pause_desc">Afficher un écran de pleine conscience avant d\'ouvrir des applications qui peuvent perturber votre attention (TikTok, Instagram, Snapchat…)</string>
+    <string name="guilt_mode">Mode Conscience du Temps</string>
+    <string name="guilt_mode_desc">Afficher les vraies statistiques d\'utilisation pour vous aider à réfléchir au temps passé sur les apps</string>
+    <string name="pause_duration">Durée de la pause</string>
+    <string name="pause_duration_desc">Combien de temps respirer avant de pouvoir continuer (%d secondes)</string>
+    <string name="manage_paused_apps">Gérer les apps en pause</string>
+    <string name="manage_paused_apps_desc">Choisir quelles applications déclenchent la pause de pleine conscience</string>
+    <string name="add_social_media_apps">Ajouter tous les réseaux sociaux</string>
+    <string name="add_social_media_apps_desc">Ajouter automatiquement les applications de réseaux sociaux connues à la liste de pause</string>
+    <string name="clear_paused_apps">Tout effacer</string>
+    <string name="paused_apps_count">%d applications en pause</string>
+    <string name="no_paused_apps">Aucune application en pause</string>
+    <string name="select_paused_apps">Sélectionner les apps à mettre en pause</string>
+    <string name="search_apps_to_pause">Rechercher des applications…</string>
+
+    <!--  ─────────────  Digital Pause Screen  ─────────────  -->
+    <string name="digital_pause_title">Pause Numérique</string>
+    <string name="pause_breathe_1">Prenez un moment pour respirer…</string>
+    <string name="pause_breathe_2">Soyez présent dans cet instant…</string>
+    <string name="pause_breathe_3">Est-ce vraiment ce dont vous avez besoin maintenant ?</string>
+    <string name="pause_breathe_4">Votre attention est précieuse…</string>
+    <string name="pause_breathe_5">Reconnectez-vous au présent…</string>
+    <string name="pause_question">Avez-vous vraiment besoin d\'ouvrir cette application ?</string>
+    <string name="pause_no_thanks">Non, je m\'en passe</string>
+    <string name="pause_yes_open">Oui, ouvrir quand même…</string>
+    <string name="usage_yesterday">Vous avez utilisé cette application pendant %s hier</string>
+    <string name="usage_today">Vous avez déjà passé %s aujourd\'hui sur cette application</string>
+    <string name="usage_guilt_yearly">Ça représente environ %s par an si vous continuez comme ça !</string>
+    <string name="usage_hours">%1$d heures</string>
+    <string name="usage_minutes">%1$d min</string>
+    <string name="usage_hours_minutes">%1$dh %2$dm</string>
+    <string name="usage_no_data">Aucune donnée d\'utilisation disponible</string>
+    <string name="usage_permission_needed">Permission d\'accès aux données d\'utilisation nécessaire</string>
+    <string name="grant_usage_permission">Accorder la permission</string>
 </resources>
