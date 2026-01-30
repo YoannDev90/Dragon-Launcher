@@ -62,7 +62,7 @@ fun AppGrid(
                 ) {
 
                     /* Launches onClose on any down drag */
-                    if (available.y > 0) {
+                    if (available.y > 15) {
                         onClose?.invoke()
                     }
 
