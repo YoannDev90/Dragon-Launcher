@@ -16,7 +16,6 @@ import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
@@ -57,12 +56,13 @@ import org.elnix.dragonlauncher.settings.DataStoreName
 import org.elnix.dragonlauncher.settings.SettingsBackupManager
 import org.elnix.dragonlauncher.settings.backupableStores
 import org.elnix.dragonlauncher.settings.stores.BackupSettingsStore
+import org.elnix.dragonlauncher.ui.components.TextDivider
+import org.elnix.dragonlauncher.ui.components.generic.ActionRow
 import org.elnix.dragonlauncher.ui.dialogs.ExportSettingsDialog
 import org.elnix.dragonlauncher.ui.dialogs.ImportSettingsDialog
 import org.elnix.dragonlauncher.ui.dialogs.UserValidation
 import org.elnix.dragonlauncher.ui.helpers.GradientBigButton
 import org.elnix.dragonlauncher.ui.helpers.SwitchRow
-import org.elnix.dragonlauncher.ui.components.TextDivider
 import org.elnix.dragonlauncher.ui.helpers.rememberSettingsImportLauncher
 import org.elnix.dragonlauncher.ui.helpers.settings.SettingsLazyHeader
 import org.json.JSONObject
@@ -283,7 +283,46 @@ fun BackupTab(
             }
 
             item {
+
                 if (backupPath != null) {
+                    val actions = listOf(
+                        "change", "remove", "trigger"
+                    )
+                    ActionRow(
+                        actions = actions,
+                        selectedView = "",
+                        backgroundColor = MaterialTheme.colorScheme.surface.copy(0.5f),
+                        actionName = {
+                            when (it) {
+                                "change" -> ctx.getString(R.string.change)
+                                "remove" -> ctx.getString(R.string.remove)
+                                "trigger" -> ctx.getString(R.string.trigger_backup)
+                                else -> ""
+                            }
+                        }
+                    ) {
+                        when (it) {
+                            "change" -> {
+                                autoBackupLauncher.launch("dragonlauncher-auto-backup.json")
+                            }
+
+                            "remove" -> {
+                                scope.launch {
+                                    BackupSettingsStore.autoBackupUri.set(ctx, null)
+                                }
+                            }
+
+                            "trigger" -> {
+                                scope.launch {
+                                    SettingsBackupManager.triggerBackup(ctx)
+                                }
+                            }
+
+                            else -> null
+                        }
+                    }
+                }
+                /*if (backupPath != null) {
                     Row(
                         modifier = Modifier
                             .fillMaxWidth()
@@ -359,7 +398,7 @@ fun BackupTab(
                             )
                         }
                     }
-                } else {
+                }*/ else {
                     Row(
                         modifier = Modifier
                             .fillMaxWidth()
