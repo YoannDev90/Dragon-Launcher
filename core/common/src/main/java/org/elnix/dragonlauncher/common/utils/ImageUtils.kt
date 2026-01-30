@@ -75,7 +75,6 @@ object ImageUtils {
 
         val imageBitmap = bitmap.asImageBitmap()
 
-        logE(ICONS_TAG, "Tint: $tint")
 //         If tint is not unspecified (transparent)
         return tint?.takeIf { it != 0 }?.let{
             tintBitmap(imageBitmap, tint)
