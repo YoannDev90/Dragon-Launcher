@@ -390,12 +390,8 @@ fun AppDrawerScreen(
                 renameTargetPackage = app.packageName
                 showRenameAppDialog = true
             },
-            onChangeAppIcon = {
-                appTarget = app
-            },
-            onAliases = {
-                showAliasDialog = app
-            }
+            onChangeAppIcon = { appTarget = app },
+            onAliases = { showAliasDialog = app }
         )
     }
 

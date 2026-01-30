@@ -16,6 +16,7 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -40,6 +41,7 @@ import org.elnix.dragonlauncher.models.AppsViewModel
 import org.elnix.dragonlauncher.settings.stores.DebugSettingsStore
 import org.elnix.dragonlauncher.ui.actions.launchSwipeAction
 import org.elnix.dragonlauncher.ui.components.generic.ActionRow
+import org.elnix.dragonlauncher.ui.dialogs.AppAliasesDialog
 import org.elnix.dragonlauncher.ui.dialogs.AppLongPressDialog
 import org.elnix.dragonlauncher.ui.dialogs.AppPickerDialog
 import org.elnix.dragonlauncher.ui.dialogs.IconEditorDialog
@@ -84,6 +86,7 @@ fun WorkspaceDetailScreen(
     var renameTargetPackage by remember { mutableStateOf<String?>(null) }
     var renameText by remember { mutableStateOf("") }
 
+    var showAliasDialog by remember { mutableStateOf<AppModel?>(null) }
 
     var iconTargetPackage by remember { mutableStateOf<String?>(null) }
 
@@ -208,7 +211,8 @@ fun WorkspaceDetailScreen(
                 val pkg = app.packageName
                 iconTargetPackage = pkg
             },
-            onDismiss = { showDetailScreen = null }
+            onDismiss = { showDetailScreen = null },
+            onAliases = { showAliasDialog = app }
         )
     }
 
@@ -256,9 +260,11 @@ fun WorkspaceDetailScreen(
                 customIcon = iconOverride
             )
 
-        if (iconOverride == null) {
-            scope.launch {
-                appsViewModel.reloadPointIcon(tempPoint)
+        LaunchedEffect(iconOverride) {
+            if (iconOverride == null) {
+                scope.launch {
+                    appsViewModel.reloadPointIcon(tempPoint)
+                }
             }
         }
 
@@ -281,5 +287,15 @@ fun WorkspaceDetailScreen(
             }
             iconTargetPackage = null
         }
+    }
+
+    if (showAliasDialog != null) {
+        val app = showAliasDialog!!
+
+        AppAliasesDialog(
+            appsViewModel = appsViewModel,
+            app = app,
+            onDismiss = { showAliasDialog = null }
+        )
     }
 }
