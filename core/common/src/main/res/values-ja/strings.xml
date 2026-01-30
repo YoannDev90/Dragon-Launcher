@@ -190,7 +190,6 @@
     <string name="no_icon_pack_found">アイコンパックは見つかりませんでした</string>
     <string name="default_no_icon_pack">デフォルト(アイコンパックなし)</string>
     <string name="use_original_app_icon">オリジナルのアプリのアイコンを使いましょう</string>
-    <string name="scroll_down_drawer">引き出しを閉じるためにスクロールしてください</string>
     <string name="show_actions_icon_border">アクションアイコンボーダー表示</string>
     <string name="status_bar">ステータスバー</string>
     <string name="status_bar_tab_text">ステータスバーに表示される内容をカスタマイズできます。</string>

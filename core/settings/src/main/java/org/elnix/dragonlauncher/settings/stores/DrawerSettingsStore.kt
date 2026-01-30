@@ -40,11 +40,11 @@ object DrawerSettingsStore : MapSettingsStore() {
         default = true
     )
 
-    val clickEmptySpaceToRaiseKeyboard = Settings.boolean(
-        key = "clickEmptySpaceToRaiseKeyboard",
+    val tapEmptySpaceAction = Settings.enum(
+        key = "tabEmptySpaceToRaiseKeyboard",
         dataStoreName = dataStoreName,
-        default = false
-    )
+        default = DrawerActions.CLOSE,
+        enumClass = DrawerActions::class.java    )
 
     val gridSize = Settings.int(
         key = "gridSize",
@@ -98,16 +98,18 @@ object DrawerSettingsStore : MapSettingsStore() {
         enumClass = DrawerActions::class.java
     )
 
-    val scrollDownToCloseDrawerOnTop = Settings.boolean(
-        key = "scrollDownToCloseDrawerOnTop",
+    val scrollDownDrawerAction = Settings.enum(
+        key = "scrollDownDrawerAction",
         dataStoreName = dataStoreName,
-        default = true
+        default = DrawerActions.CLOSE,
+        enumClass = DrawerActions::class.java
     )
 
-    val scrollUpToToggleKeyboard = Settings.boolean(
-        key = "scrollUpToCloseKeyboard",
+    val scrollUpDrawerAction = Settings.enum(
+        key = "scrollUpDrawerAction",
         dataStoreName = dataStoreName,
-        default = true
+        default = DrawerActions.CLOSE_KB,
+        enumClass = DrawerActions::class.java
     )
 
 
@@ -118,7 +120,7 @@ object DrawerSettingsStore : MapSettingsStore() {
             showAppLabelInDrawer,
             searchBarBottom,
             autoShowKeyboardOnDrawer,
-            clickEmptySpaceToRaiseKeyboard,
+            tapEmptySpaceAction,
             gridSize,
             initialPage,
             leftDrawerAction,
@@ -127,7 +129,7 @@ object DrawerSettingsStore : MapSettingsStore() {
             rightDrawerWidth,
             drawerEnterAction,
             drawerHomeAction,
-            scrollDownToCloseDrawerOnTop,
-            scrollUpToToggleKeyboard
+            scrollDownDrawerAction,
+            scrollUpDrawerAction
         )
 }

@@ -190,7 +190,6 @@
     <string name="no_icon_pack_found">No icon pack found</string>
     <string name="default_no_icon_pack">Default (No icon pack)</string>
     <string name="use_original_app_icon">Use original app icons</string>
-    <string name="scroll_down_drawer">Scroll down to close drawer</string>
     <string name="show_actions_icon_border">Show Action Icon Border</string>
     <string name="status_bar">Status bar</string>
     <string name="status_bar_tab_text">Customize what is displayed in the status bar.</string>
@@ -324,7 +323,6 @@
     <string name="remove_circle">Remove Circle</string>
     <string name="home_action">Home Action</string>
     <string name="drawer_home_action">Drawer Home action</string>
-    <string name="scroll_up_to_close_keyboard">Scroll up to close keyboard</string>
     <string name="drag_distances">Drag distances</string>
     <string name="wallpaper_edit_main">Home screen wallpaper</string>
     <string name="wallpaper_edit_drawer">App drawer wallpaper</string>
@@ -357,4 +355,13 @@
     <string name="alias">Alias</string>
     <string name="add_alias">Add alias</string>
     <string name="create_alias">Create Alias</string>
+    <string name="scroll_up_action">Scroll up action</string>
+    <string name="scroll_down_actiob">Scroll down action</string>
+    <string name="auto_launch_single_match">Auto launch single match</string>
+    <string name="auto_launch_single_match_desc">When only one app is visible in the drawer, it\'ll be automatically launched</string>
+    <string name="auto_show_keyboard">Auto show keyboard</string>
+    <string name="auto_show_keyboard_desc">Open the keyboard upon entering the drawer</string>
+    <string name="tap_empty_space_action">Tap empty space action</string>
+    <string name="close_kb">Close Keyboard</string>
+    <string name="open_kb">Open keyboard</string>
 </resources>

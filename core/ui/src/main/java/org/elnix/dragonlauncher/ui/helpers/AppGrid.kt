@@ -44,8 +44,8 @@ fun AppGrid(
     showIcons: Boolean,
     showLabels: Boolean,
     onLongClick: ((AppModel) -> Unit)? = null,
-    onClose: (() -> Unit)? = null,
-    onToggleKb: (() -> Unit)? = null,
+    onScrollDown: (() -> Unit)? = null,
+    onScrollUp: (() -> Unit)? = null,
     onClick: (AppModel) -> Unit
 ) {
 
@@ -61,14 +61,14 @@ fun AppGrid(
                     listState.firstVisibleItemScrollOffset == 0
                 ) {
 
-                    /* Launches onClose on any down drag */
+                    /* Launches onScrollDown on any down drag */
                     if (available.y > 15) {
-                        onClose?.invoke()
+                        onScrollDown?.invoke()
                     }
 
-                    /* Launches onToggleKb on any up drag */
-                    if (available.y < 0) {
-                        onToggleKb?.invoke()
+                    /* Launches onScrollUp on any up drag */
+                    if (available.y < 15) {
+                        onScrollUp?.invoke()
                     }
                 }
                 return Offset.Zero
@@ -82,7 +82,7 @@ fun AppGrid(
             modifier = Modifier
                 .fillMaxSize()
                 .then(
-                    if (onClose != null) Modifier.nestedScroll(nestedConnection)
+                    if (onScrollDown != null) Modifier.nestedScroll(nestedConnection)
                     else Modifier
                 )
         ) {
@@ -104,7 +104,7 @@ fun AppGrid(
             modifier = Modifier
                 .fillMaxSize()
                 .then(
-                    if (onClose != null) Modifier.nestedScroll(nestedConnection)
+                    if (onScrollDown != null) Modifier.nestedScroll(nestedConnection)
                     else Modifier
                 )
         ) {

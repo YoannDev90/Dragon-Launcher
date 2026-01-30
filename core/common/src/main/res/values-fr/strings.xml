@@ -190,7 +190,6 @@
     <string name="no_icon_pack_found">Aucun pack d’icônes trouvé</string>
     <string name="default_no_icon_pack">Par défaut (pas de pack d’icônes)</string>
     <string name="use_original_app_icon">Utilisez les icônes d’application originales</string>
-    <string name="scroll_down_drawer">Faites défiler vers le bas pour fermer le tiroir</string>
     <string name="show_actions_icon_border">Afficher la bordure de l’icône d’action</string>
     <string name="status_bar">Barre de statut</string>
     <string name="status_bar_tab_text">Personnalisez ce qui est affiché dans la barre de statut.</string>
@@ -324,7 +323,6 @@
     <string name="remove_circle">Supprimer le cercle</string>
     <string name="home_action">Action à domicile</string>
     <string name="drawer_home_action">Action de la maison du tiroir</string>
-    <string name="scroll_up_to_close_keyboard">Faites défiler vers le haut pour fermer le clavier</string>
     <string name="drag_distances">Distances de traînée</string>
     <string name="wallpaper_edit_main">Fond d\'écran de l\'écran d\'accueil</string>
     <string name="wallpaper_edit_drawer">Fond d\'écran du tiroir d\'applications</string>

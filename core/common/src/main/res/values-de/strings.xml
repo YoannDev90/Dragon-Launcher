@@ -190,7 +190,6 @@
     <string name="no_icon_pack_found">Kein Icon-Pack gefunden</string>
     <string name="default_no_icon_pack">Standard (Kein Icon-Pack)</string>
     <string name="use_original_app_icon">Verwenden Sie die Original-App-Icons</string>
-    <string name="scroll_down_drawer">Scrolle nach unten, um die Schublade zu schließen</string>
     <string name="show_actions_icon_border">Umrandung des Aktions-Symbols anzeigen</string>
     <string name="status_bar">Statusleiste</string>
     <string name="status_bar_tab_text">Passe an, was in der Statusleiste angezeigt wird.</string>
@@ -324,7 +323,6 @@
     <string name="remove_circle">Kreis entfernen</string>
     <string name="home_action">Home-Aktion</string>
     <string name="drawer_home_action">Schubladen-Home-Aktion</string>
-    <string name="scroll_up_to_close_keyboard">Scrollen Sie nach oben, um die Tastatur zu schließen</string>
     <string name="drag_distances">Distanzen ziehen</string>
     <string name="wallpaper_edit_main">Hintergrundbild für den Startbildschirm</string>
     <string name="wallpaper_edit_drawer">Hintergrundbild der App-Schublade</string>

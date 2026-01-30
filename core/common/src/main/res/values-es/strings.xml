@@ -190,7 +190,6 @@
     <string name="no_icon_pack_found">No se ha encontrado ningún paquete de iconos</string>
     <string name="default_no_icon_pack">Por defecto (Sin paquete de iconos)</string>
     <string name="use_original_app_icon">Usa iconos originales de la app</string>
-    <string name="scroll_down_drawer">Desplázate hacia abajo para cerrar el cajón</string>
     <string name="show_actions_icon_border">Borde de icono de Mostrar Acción</string>
     <string name="status_bar">Barra de estado</string>
     <string name="status_bar_tab_text">Personaliza lo que aparece en la barra de estado.</string>
@@ -324,7 +323,6 @@
     <string name="remove_circle">Quitar círculo</string>
     <string name="home_action">Inicio Acción</string>
     <string name="drawer_home_action">Acción de inicio del cajón</string>
-    <string name="scroll_up_to_close_keyboard">Desplácese hacia arriba para cerrar el teclado</string>
     <string name="drag_distances">Distancias de arrastre</string>
     <string name="wallpaper_edit_main">Fondo de pantalla de inicio</string>
     <string name="wallpaper_edit_drawer">Fondo de pantalla del cajón de aplicaciones</string>

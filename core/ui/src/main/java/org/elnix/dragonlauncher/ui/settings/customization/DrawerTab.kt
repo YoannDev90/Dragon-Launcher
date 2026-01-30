@@ -35,13 +35,13 @@ import kotlinx.coroutines.launch
 import org.elnix.dragonlauncher.common.R
 import org.elnix.dragonlauncher.enumsui.DrawerActions
 import org.elnix.dragonlauncher.enumsui.drawerActionIcon
-import org.elnix.dragonlauncher.enumsui.drawerActionsLabel
 import org.elnix.dragonlauncher.models.AppsViewModel
 import org.elnix.dragonlauncher.settings.stores.DrawerSettingsStore
-import org.elnix.dragonlauncher.ui.components.generic.ActionSelectorRow
+import org.elnix.dragonlauncher.ui.components.TextDivider
+import org.elnix.dragonlauncher.ui.components.settings.DrawerActionSelector
+import org.elnix.dragonlauncher.ui.components.settings.SettingsSwitchRow
 import org.elnix.dragonlauncher.ui.helpers.GridSizeSlider
 import org.elnix.dragonlauncher.ui.helpers.SwitchRow
-import org.elnix.dragonlauncher.ui.components.TextDivider
 import org.elnix.dragonlauncher.ui.helpers.settings.SettingsLazyHeader
 
 
@@ -57,21 +57,11 @@ fun DrawerTab(
     val apps by appsViewModel.userApps.collectAsState(initial = emptyList())
     val icons by appsViewModel.icons.collectAsState()
 
-    val autoLaunchSingleMatch by DrawerSettingsStore.autoOpenSingleMatch.flow(ctx)
-        .collectAsState(initial = true)
-
     val showAppIconsInDrawer by DrawerSettingsStore.showAppIconsInDrawer.flow(ctx)
         .collectAsState(initial = true)
 
     val showAppLabelsInDrawer by DrawerSettingsStore.showAppLabelInDrawer.flow(ctx)
         .collectAsState(initial = true)
-
-    val autoShowKeyboardOnDrawer by DrawerSettingsStore.autoShowKeyboardOnDrawer.flow(ctx)
-        .collectAsState(initial = false)
-
-    val clickEmptySpaceToRaiseKeyboard by DrawerSettingsStore.clickEmptySpaceToRaiseKeyboard.flow(ctx)
-        .collectAsState(initial = false)
-
 
 //    val searchBarBottom by DrawerSettingsStore.getSearchBarBottom(ctx)
 //        .collectAsState(initial = true)
@@ -88,18 +78,6 @@ fun DrawerTab(
     val rightDrawerWidth by DrawerSettingsStore.rightDrawerWidth.flow(ctx)
         .collectAsState(initial = 0.1f)
 
-    val drawerEnterAction by DrawerSettingsStore.drawerEnterAction.flow(ctx)
-        .collectAsState(initial = DrawerActions.CLEAR)
-
-
-    val drawerHomeAction by DrawerSettingsStore.drawerHomeAction.flow(ctx)
-        .collectAsState(initial = DrawerActions.CLOSE)
-
-    val scrollDownToCloseDrawerOnTop by DrawerSettingsStore.scrollDownToCloseDrawerOnTop.flow(ctx)
-        .collectAsState(initial = true)
-
-    val scrollUpToToggleKeyboard by DrawerSettingsStore.scrollUpToToggleKeyboard.flow(ctx)
-        .collectAsState(initial = true)
 
     var totalWidthPx by remember { mutableFloatStateOf(0f) }
 
@@ -126,39 +104,21 @@ fun DrawerTab(
         item { TextDivider(stringResource(R.string.behavior)) }
 
         item {
-            SwitchRow(
-                autoLaunchSingleMatch,
-                "Auto Launch Single Match",
-            ) { scope.launch { DrawerSettingsStore.autoOpenSingleMatch.set(ctx, it) } }
+            SettingsSwitchRow(
+                setting = DrawerSettingsStore.autoOpenSingleMatch,
+                title = stringResource(R.string.auto_launch_single_match),
+                description = stringResource(R.string.auto_launch_single_match_desc),
+            )
         }
 
         item {
-            SwitchRow(
-                autoShowKeyboardOnDrawer,
-                "Auto Show Keyboard on Drawer",
-            ) { scope.launch { DrawerSettingsStore.autoShowKeyboardOnDrawer.set(ctx, it) } }
+            SettingsSwitchRow(
+                setting = DrawerSettingsStore.autoShowKeyboardOnDrawer,
+                title = stringResource(R.string.auto_show_keyboard),
+                description = stringResource(R.string.auto_show_keyboard_desc),
+            )
         }
 
-        item {
-            SwitchRow(
-                clickEmptySpaceToRaiseKeyboard,
-                "Tap Empty Space to Raise Keyboard",
-            ) { scope.launch { DrawerSettingsStore.clickEmptySpaceToRaiseKeyboard.set(ctx, it) } }
-        }
-
-        item {
-            SwitchRow(
-                scrollDownToCloseDrawerOnTop,
-                stringResource(R.string.scroll_down_drawer),
-            ) { scope.launch { DrawerSettingsStore.scrollDownToCloseDrawerOnTop.set(ctx, it) } }
-        }
-
-        item {
-            SwitchRow(
-                scrollUpToToggleKeyboard,
-                stringResource(R.string.scroll_up_to_close_keyboard),
-            ) { scope.launch { DrawerSettingsStore.scrollUpToToggleKeyboard.set(ctx, it) } }
-        }
 
 //        item {
 //            SwitchRow(
@@ -201,7 +161,7 @@ fun DrawerTab(
             Row(
                 modifier = Modifier.fillMaxWidth(),
                 verticalAlignment = Alignment.CenterVertically
-            ){
+            ) {
                 Text(
                     text = stringResource(R.string.drawer_actions_width),
                     color = MaterialTheme.colorScheme.onBackground,
@@ -218,7 +178,7 @@ fun DrawerTab(
                         .clickable {
                             localLeft = 0.1f
                             localRight = 0.1f
-                            scope.launch{
+                            scope.launch {
                                 DrawerSettingsStore.leftDrawerWidth.reset(ctx)
                                 DrawerSettingsStore.rightDrawerWidth.reset(ctx)
                             }
@@ -303,7 +263,10 @@ fun DrawerTab(
                                     },
                                     onDragEnd = {
                                         scope.launch {
-                                            DrawerSettingsStore.rightDrawerWidth.set(ctx, localRight)
+                                            DrawerSettingsStore.rightDrawerWidth.set(
+                                                ctx,
+                                                localRight
+                                            )
                                         }
                                     }
                                 )
@@ -331,100 +294,176 @@ fun DrawerTab(
         }
 
         item {
-            ActionSelectorRow(
-                options = DrawerActions.entries.filter { it != DrawerActions.DISABLED },
-                selected = leftDrawerAction,
-                label = stringResource(R.string.left_drawer_action),
-                optionLabel = { drawerActionsLabel(ctx, it) },
-                onToggle = {
-                    scope.launch {
-                        if (leftActionNotDisabled) {
-                            DrawerSettingsStore.leftDrawerAction.set(ctx, DrawerActions.DISABLED)
-                        } else {
-                            DrawerSettingsStore.leftDrawerAction.set(ctx, DrawerActions.TOGGLE_KB)
-                        }
-                    }
-                },
-                toggled = leftDrawerAction != DrawerActions.DISABLED
-            ) {
-                scope.launch { DrawerSettingsStore.leftDrawerAction.set(ctx, it) }
-            }
+            DrawerActionSelector(
+                settingObject = DrawerSettingsStore.scrollUpDrawerAction,
+                label = stringResource(R.string.scroll_up_action),
+            )
         }
 
         item {
-            ActionSelectorRow(
-                options = DrawerActions.entries.filter { it != DrawerActions.DISABLED },
-                selected = rightDrawerAction,
+            DrawerActionSelector(
+                settingObject = DrawerSettingsStore.scrollDownDrawerAction,
+                label = stringResource(R.string.scroll_down_actiob),
+            )
+        }
+
+        item {
+            DrawerActionSelector(
+                settingObject = DrawerSettingsStore.tapEmptySpaceAction,
+                label = stringResource(R.string.tap_empty_space_action),
+            )
+        }
+
+        item {
+            DrawerActionSelector(
+                settingObject = DrawerSettingsStore.rightDrawerAction,
                 label = stringResource(R.string.right_drawer_action),
-                optionLabel = { drawerActionsLabel(ctx, it) },
-                onToggle = {
-                    scope.launch {
-                        if (rightActionNotDisabled) {
-                            DrawerSettingsStore.rightDrawerAction.set(ctx, DrawerActions.DISABLED)
-                        } else {
-                            DrawerSettingsStore.rightDrawerAction.set(ctx, DrawerActions.CLOSE)
-                        }
-                    }
-                },
-                toggled = rightDrawerAction != DrawerActions.DISABLED
-            ) {
-                scope.launch { DrawerSettingsStore.rightDrawerAction.set(ctx, it) }
-            }
+            )
         }
 
         item {
-            ActionSelectorRow(
-                options = DrawerActions.entries.filter { it != DrawerActions.NONE && it != DrawerActions.DISABLED },
-                selected = drawerEnterAction,
+            DrawerActionSelector(
+                settingObject = DrawerSettingsStore.leftDrawerAction,
+                label = stringResource(R.string.left_drawer_action),
+            )
+        }
+
+        item {
+            DrawerActionSelector(
+                settingObject = DrawerSettingsStore.drawerEnterAction,
                 label = stringResource(R.string.drawer_enter_key_action),
-                optionLabel = { drawerActionsLabel(ctx, it) },
-                onToggle = {
-                    scope.launch {
-                        if (drawerEnterAction == DrawerActions.NONE) {
-                            DrawerSettingsStore.drawerEnterAction.set(
-                                ctx,
-                                DrawerActions.CLEAR
-                            )
-                        } else {
-                            DrawerSettingsStore.drawerEnterAction.set(
-                                ctx,
-                                DrawerActions.NONE
-                            )
-                        }
-                    }
-                },
-                toggled = drawerEnterAction != DrawerActions.NONE
-            ) {
-                scope.launch { DrawerSettingsStore.drawerEnterAction.set(ctx, it) }
-            }
+            )
         }
-
 
         item {
-            ActionSelectorRow(
-                options = DrawerActions.entries.filter { it != DrawerActions.NONE && it != DrawerActions.DISABLED },
-                selected = drawerHomeAction,
+            DrawerActionSelector(
+                settingObject = DrawerSettingsStore.drawerHomeAction,
                 label = stringResource(R.string.drawer_home_action),
-                optionLabel = { drawerActionsLabel(ctx, it) },
-                onToggle = {
-                    scope.launch {
-                        if (drawerHomeAction == DrawerActions.NONE) {
-                            DrawerSettingsStore.drawerHomeAction.set(
-                                ctx,
-                                DrawerActions.CLEAR
-                            )
-                        } else {
-                            DrawerSettingsStore.drawerHomeAction.set(
-                                ctx,
-                                DrawerActions.NONE
-                            )
-                        }
-                    }
-                },
-                toggled = drawerHomeAction != DrawerActions.NONE
-            ) {
-                scope.launch { DrawerSettingsStore.drawerHomeAction.set(ctx, it) }
-            }
+            )
         }
+
+//        item {
+//            ActionSelectorRow(
+//                options = DrawerActions.entries.filter { it != DrawerActions.DISABLED },
+//                selected = scrollDownDrawerAction,
+//                label = stringResource(R.string.scroll_up_action),
+//                optionLabel = { drawerActionsLabel(ctx, it) },
+//                onToggle = {
+//                    scope.launch {
+//                        if (leftActionNotDisabled) {
+//                            DrawerSettingsStore.scrollDownDrawerAction.set(
+//                                ctx,
+//                                DrawerActions.DISABLED
+//                            )
+//                        } else {
+//                            DrawerSettingsStore.scrollDownDrawerAction.set(
+//                                ctx,
+//                                DrawerActions.TOGGLE_KB
+//                            )
+//                        }
+//                    }
+//                },
+//                toggled = leftDrawerAction != DrawerActions.DISABLED
+//            ) {
+//                scope.launch { DrawerSettingsStore.scrollDownDrawerAction.set(ctx, it) }
+//            }
+//        }
+//
+//        item {
+//            ActionSelectorRow(
+//                options = DrawerActions.entries.filter { it != DrawerActions.DISABLED },
+//                selected = leftDrawerAction,
+//                label = stringResource(R.string.left_drawer_action),
+//                optionLabel = { drawerActionsLabel(ctx, it) },
+//                onToggle = {
+//                    scope.launch {
+//                        if (leftActionNotDisabled) {
+//                            DrawerSettingsStore.leftDrawerAction.set(ctx, DrawerActions.DISABLED)
+//                        } else {
+//                            DrawerSettingsStore.leftDrawerAction.set(ctx, DrawerActions.TOGGLE_KB)
+//                        }
+//                    }
+//                },
+//                toggled = leftDrawerAction != DrawerActions.DISABLED
+//            ) {
+//                scope.launch { DrawerSettingsStore.leftDrawerAction.set(ctx, it) }
+//            }
+//        }
+//
+//        item {
+//            ActionSelectorRow(
+//                options = DrawerActions.entries.filter { it != DrawerActions.DISABLED },
+//                selected = rightDrawerAction,
+//                label = stringResource(R.string.right_drawer_action),
+//                optionLabel = { drawerActionsLabel(ctx, it) },
+//                onToggle = {
+//                    scope.launch {
+//                        if (rightActionNotDisabled) {
+//                            DrawerSettingsStore.rightDrawerAction.set(ctx, DrawerActions.DISABLED)
+//                        } else {
+//                            DrawerSettingsStore.rightDrawerAction.set(ctx, DrawerActions.CLOSE)
+//                        }
+//                    }
+//                },
+//                toggled = rightDrawerAction != DrawerActions.DISABLED
+//            ) {
+//                scope.launch { DrawerSettingsStore.rightDrawerAction.set(ctx, it) }
+//            }
+//        }
+//
+//        item {
+//            ActionSelectorRow(
+//                options = DrawerActions.entries.filter { it != DrawerActions.NONE && it != DrawerActions.DISABLED },
+//                selected = drawerEnterAction,
+//                label = stringResource(R.string.drawer_enter_key_action),
+//                optionLabel = { drawerActionsLabel(ctx, it) },
+//                onToggle = {
+//                    scope.launch {
+//                        if (drawerEnterAction == DrawerActions.NONE) {
+//                            DrawerSettingsStore.drawerEnterAction.set(
+//                                ctx,
+//                                DrawerActions.CLEAR
+//                            )
+//                        } else {
+//                            DrawerSettingsStore.drawerEnterAction.set(
+//                                ctx,
+//                                DrawerActions.NONE
+//                            )
+//                        }
+//                    }
+//                },
+//                toggled = drawerEnterAction != DrawerActions.NONE
+//            ) {
+//                scope.launch { DrawerSettingsStore.drawerEnterAction.set(ctx, it) }
+//            }
+//        }
+//
+//
+//        item {
+//            ActionSelectorRow(
+//                options = DrawerActions.entries.filter { it != DrawerActions.NONE && it != DrawerActions.DISABLED },
+//                selected = drawerHomeAction,
+//                label = stringResource(R.string.drawer_home_action),
+//                optionLabel = { drawerActionsLabel(ctx, it) },
+//                onToggle = {
+//                    scope.launch {
+//                        if (drawerHomeAction == DrawerActions.NONE) {
+//                            DrawerSettingsStore.drawerHomeAction.set(
+//                                ctx,
+//                                DrawerActions.CLEAR
+//                            )
+//                        } else {
+//                            DrawerSettingsStore.drawerHomeAction.set(
+//                                ctx,
+//                                DrawerActions.NONE
+//                            )
+//                        }
+//                    }
+//                },
+//                toggled = drawerHomeAction != DrawerActions.NONE
+//            ) {
+//                scope.launch { DrawerSettingsStore.drawerHomeAction.set(ctx, it) }
+//            }
+//        }
     }
 }

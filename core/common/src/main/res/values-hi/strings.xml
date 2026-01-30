@@ -190,7 +190,6 @@
     <string name="no_icon_pack_found">कोई आइकन पैक नहीं मिला</string>
     <string name="default_no_icon_pack">डिफ़ॉल्ट (कोई आइकन पैक नहीं)</string>
     <string name="use_original_app_icon">मूल ऐप आइकन का उपयोग करें</string>
-    <string name="scroll_down_drawer">दराज बंद करने के लिए नीचे स्क्रॉल करें</string>
     <string name="show_actions_icon_border">कार्रवाई चिह्न बॉर्डर दिखाएँ</string>
     <string name="status_bar">स्थिति पट्टी</string>
     <string name="status_bar_tab_text">स्टेटस बार में जो प्रदर्शित होता है उसे कस्टमाइज़ करें।</string>
@@ -324,7 +323,6 @@
     <string name="remove_circle">सर्कल हटाएं</string>
     <string name="home_action">होम एक्शन</string>
     <string name="drawer_home_action">दराज गृह क्रिया</string>
-    <string name="scroll_up_to_close_keyboard">कीबोर्ड बंद करने के लिए ऊपर स्क्रॉल करें</string>
     <string name="drag_distances">दूरियाँ खींचें</string>
     <string name="wallpaper_edit_main">होम स्क्रीन वॉलपेपर</string>
     <string name="wallpaper_edit_drawer">ऐप ड्रॉअर वॉलपेपर</string>

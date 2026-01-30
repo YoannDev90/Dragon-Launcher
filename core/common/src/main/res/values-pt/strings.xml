@@ -190,7 +190,6 @@
     <string name="no_icon_pack_found">Nenhum pacote de ícones encontrado</string>
     <string name="default_no_icon_pack">Padrão (Sem pacote de ícones)</string>
     <string name="use_original_app_icon">Use ícones originais do app</string>
-    <string name="scroll_down_drawer">Role para baixo até fechar a gaveta</string>
     <string name="show_actions_icon_border">Mostrar Ícone de Ação Borda</string>
     <string name="status_bar">Barra de status</string>
     <string name="status_bar_tab_text">Personalize o que é exibido na barra de status.</string>

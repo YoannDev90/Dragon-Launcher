@@ -190,7 +190,6 @@
     <string name="no_icon_pack_found">아이콘 팩을 찾지 못했습니다</string>
     <string name="default_no_icon_pack">기본값 (아이콘 팩 없음)</string>
     <string name="use_original_app_icon">원본 앱 아이콘을 사용하세요</string>
-    <string name="scroll_down_drawer">아래로 스크롤하여 서랍을 닫으세요</string>
     <string name="show_actions_icon_border">쇼 액션 아이콘 보더</string>
     <string name="status_bar">상태 바</string>
     <string name="status_bar_tab_text">상태 표시줄에 표시되는 내용을 맞춤 설정할 수 있습니다.</string>

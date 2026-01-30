@@ -58,6 +58,16 @@ import org.elnix.dragonlauncher.common.serializables.dummySwipePoint
 import org.elnix.dragonlauncher.common.utils.openSearch
 import org.elnix.dragonlauncher.common.utils.showToast
 import org.elnix.dragonlauncher.enumsui.DrawerActions
+import org.elnix.dragonlauncher.enumsui.DrawerActions.CLEAR
+import org.elnix.dragonlauncher.enumsui.DrawerActions.CLOSE
+import org.elnix.dragonlauncher.enumsui.DrawerActions.CLOSE_KB
+import org.elnix.dragonlauncher.enumsui.DrawerActions.DISABLED
+import org.elnix.dragonlauncher.enumsui.DrawerActions.NONE
+import org.elnix.dragonlauncher.enumsui.DrawerActions.OPEN_FIRST_APP
+import org.elnix.dragonlauncher.enumsui.DrawerActions.OPEN_KB
+import org.elnix.dragonlauncher.enumsui.DrawerActions.SEARCH_WEB
+import org.elnix.dragonlauncher.enumsui.DrawerActions.TOGGLE_KB
+import org.elnix.dragonlauncher.enumsui.isUsed
 import org.elnix.dragonlauncher.models.AppLifecycleViewModel
 import org.elnix.dragonlauncher.models.AppsViewModel
 import org.elnix.dragonlauncher.settings.stores.DrawerSettingsStore
@@ -108,9 +118,6 @@ fun AppDrawerScreen(
 //        scope.launch{ appsViewModel.reloadApps() }
 //    }
 
-    val drawerHomeAction by DrawerSettingsStore.drawerHomeAction.flow(ctx)
-        .collectAsState(initial = DrawerActions.CLOSE)
-
 
     val workspaceState by appsViewModel.enabledState.collectAsState()
     val workspaces = workspaceState.workspaces
@@ -130,18 +137,23 @@ fun AppDrawerScreen(
         .autoOpenSingleMatch.flow(ctx)
         .collectAsState(initial = true)
 
-    val clickEmptySpaceToRaiseKeyboard by DrawerSettingsStore
-        .clickEmptySpaceToRaiseKeyboard.flow(ctx)
-        .collectAsState(initial = false)
+
+    /* ───────────── Actions ───────────── */
+    val tapEmptySpaceToRaiseKeyboard by DrawerSettingsStore
+        .tapEmptySpaceAction.flow(ctx)
+        .collectAsState(TOGGLE_KB)
 
     val drawerEnterAction by DrawerSettingsStore.drawerEnterAction.flow(ctx)
-        .collectAsState(initial = DrawerActions.CLEAR)
+        .collectAsState(initial = CLEAR)
 
-    val scrollDownToCloseDrawerOnTop by DrawerSettingsStore.scrollDownToCloseDrawerOnTop.flow(ctx)
-        .collectAsState(initial = true)
+    val drawerHomeAction by DrawerSettingsStore.drawerHomeAction.flow(ctx)
+        .collectAsState(CLOSE)
+    val drawerScrollDownAction by DrawerSettingsStore.scrollDownDrawerAction.flow(ctx)
+        .collectAsState(CLOSE)
 
-    val scrollUpToCloseKeyboard by DrawerSettingsStore.scrollUpToToggleKeyboard.flow(ctx)
-        .collectAsState(initial = true)
+    val drawerScrollUpAction by DrawerSettingsStore.scrollUpDrawerAction.flow(ctx)
+        .collectAsState(TOGGLE_KB)
+
 
 
     var haveToLaunchFirstApp by remember { mutableStateOf(false) }
@@ -200,16 +212,18 @@ fun AppDrawerScreen(
 
     fun launchDrawerAction(action: DrawerActions) {
         when (action) {
-            DrawerActions.CLOSE -> onClose()
-            DrawerActions.TOGGLE_KB -> toggleKeyboard()
+            CLOSE -> onClose()
+            TOGGLE_KB -> toggleKeyboard()
+            CLOSE_KB -> closeKeyboard()
+            OPEN_KB -> openKeyboard()
 
-            DrawerActions.CLEAR -> searchQuery = ""
-            DrawerActions.SEARCH_WEB -> {
+            CLEAR -> searchQuery = ""
+            SEARCH_WEB -> {
                 if (searchQuery.isNotBlank()) ctx.openSearch(searchQuery)
             }
 
-            DrawerActions.OPEN_FIRST_APP -> haveToLaunchFirstApp = true
-            DrawerActions.NONE, DrawerActions.DISABLED -> {}
+            OPEN_FIRST_APP -> haveToLaunchFirstApp = true
+            NONE, DISABLED -> {}
         }
     }
 
@@ -255,7 +269,7 @@ fun AppDrawerScreen(
         modifier = Modifier
             .fillMaxSize()
             .clickable(
-                enabled = clickEmptySpaceToRaiseKeyboard,
+                enabled = tapEmptySpaceToRaiseKeyboard.isUsed(),
                 indication = null,
                 interactionSource = null
             ) {
@@ -270,7 +284,7 @@ fun AppDrawerScreen(
 
         Row(modifier = Modifier.fillMaxSize()) {
 
-            if (leftAction != DrawerActions.DISABLED) {
+            if (leftAction != DISABLED) {
                 Box(
                     modifier = Modifier
                         .fillMaxHeight()
@@ -330,15 +344,15 @@ fun AppDrawerScreen(
                         showIcons = showIcons,
                         showLabels = showLabels,
                         onLongClick = { dialogApp = it },
-                        onClose = if (scrollDownToCloseDrawerOnTop) onClose else null,
-                        onToggleKb = if (scrollUpToCloseKeyboard) ::closeKeyboard else null
+                        onScrollDown = { launchDrawerAction(drawerScrollDownAction) },
+                        onScrollUp = { launchDrawerAction(drawerScrollUpAction) }
                     ) {
                         launchApp(it.action)
                     }
                 }
             }
 
-            if (rightAction != DrawerActions.DISABLED) {
+            if (rightAction != DISABLED) {
                 Box(
                     modifier = Modifier
                         .fillMaxHeight()
