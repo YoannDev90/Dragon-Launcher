@@ -25,7 +25,7 @@ object SettingsBackupManager {
      * Automatic backup to pre-selected file
      */
     suspend fun triggerBackup(ctx: Context) {
-        if (BackupSettingsStore.autoBackupEnabled.get(ctx) != false) {
+        if (BackupSettingsStore.autoBackupEnabled.get(ctx) != true) {
             logW(BACKUP_TAG, "Auto-backup disabled")
             return
         }
