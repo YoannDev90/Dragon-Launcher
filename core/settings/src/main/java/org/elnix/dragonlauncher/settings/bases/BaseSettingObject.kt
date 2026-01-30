@@ -6,10 +6,6 @@ import androidx.datastore.preferences.core.edit
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.map
-import org.elnix.dragonlauncher.common.logging.logD
-import org.elnix.dragonlauncher.common.logging.logI
-import org.elnix.dragonlauncher.common.logging.logW
-import org.elnix.dragonlauncher.common.utils.SETTINGS_TAG
 import org.elnix.dragonlauncher.settings.DataStoreName
 import org.elnix.dragonlauncher.settings.resolveDataStore
 
@@ -76,10 +72,10 @@ class BaseSettingObject <T, R> (
 
         val appCtx = ctx.applicationContext
 
-        logD(
-            SETTINGS_TAG,
-            "ctx=${appCtx::class.java.name}, appCtx=${appCtx.applicationContext::class.java.name}, store=$dataStoreName"
-        )
+//        logD(
+//            SETTINGS_TAG,
+//            "ctx=${appCtx::class.java.name}, appCtx=${appCtx.applicationContext::class.java.name}, store=$dataStoreName"
+//        )
 
         val raw = appCtx
             .resolveDataStore(dataStoreName)
@@ -87,7 +83,7 @@ class BaseSettingObject <T, R> (
             .first()[preferenceKey]
 
 
-        logW(SETTINGS_TAG, "[GET] $key -> raw: $raw; decoded: ${raw?.let { decode(it) }}" )
+//        logW(SETTINGS_TAG, "[GET] $key -> raw: $raw; decoded: ${raw?.let { decode(it) }}" )
         return raw?.let { decode(it) }
     }
 
@@ -108,7 +104,7 @@ class BaseSettingObject <T, R> (
             .first()[preferenceKey]
 
 
-        logW(SETTINGS_TAG, "[GET ENCODED] $key -> raw: $raw" )
+//        logW(SETTINGS_TAG, "[GET ENCODED] $key -> raw: $raw" )
 
         // Shitty but should work
         return raw?.let { encode(decode(it)) }
@@ -128,10 +124,7 @@ class BaseSettingObject <T, R> (
         return appCtx.resolveDataStore(dataStoreName)
             .data
             .map { prefs ->
-
                 val raw = prefs[preferenceKey]
-                logW(SETTINGS_TAG, "[FLOW] $key -> raw: $raw; decoded: ${raw?.let { decode(it) }}" )
-
                 raw?.let {
                     decode(it)
                 } ?: default
@@ -152,10 +145,7 @@ class BaseSettingObject <T, R> (
 
         appCtx.resolveDataStore(dataStoreName).edit {
             if (value != null) {
-                val encoded = encode(value)
-                logI(SETTINGS_TAG, "[SET] $preferenceKey > Value: $value; Encoded : $encoded")
-
-                it[preferenceKey] = encoded
+                it[preferenceKey] = encode(value)
             } else {
                 it.remove(preferenceKey)
             }
