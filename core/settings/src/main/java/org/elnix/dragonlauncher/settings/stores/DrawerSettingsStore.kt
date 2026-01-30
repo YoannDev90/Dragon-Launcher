@@ -61,27 +61,27 @@ object DrawerSettingsStore : MapSettingsStore() {
     val leftDrawerAction = Settings.enum(
         key = "leftDrawerAction",
         dataStoreName = dataStoreName,
-        default = DrawerActions.TOGGLE_KB,
+        default = DrawerActions.DISABLED,
         enumClass = DrawerActions::class.java
     )
 
     val rightDrawerAction = Settings.enum(
         key = "rightDrawerAction",
         dataStoreName = dataStoreName,
-        default = DrawerActions.CLOSE,
+        default = DrawerActions.DISABLED,
         enumClass = DrawerActions::class.java
     )
 
     val leftDrawerWidth = Settings.float(
         key = "leftDrawerWidth",
         dataStoreName = dataStoreName,
-        default = 0.1f
+        default = 0f
     )
 
     val rightDrawerWidth = Settings.float(
         key = "rightDrawerWidth",
         dataStoreName = dataStoreName,
-        default = 0.1f
+        default = 0f
     )
 
     val drawerEnterAction = Settings.enum(
