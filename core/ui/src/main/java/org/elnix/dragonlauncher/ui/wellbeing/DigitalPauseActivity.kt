@@ -64,9 +64,6 @@ import kotlinx.coroutines.delay
 import org.elnix.dragonlauncher.common.R
 import org.elnix.dragonlauncher.ui.theme.DragonLauncherTheme
 import java.util.Calendar
-import kotlin.math.PI
-import kotlin.math.cos
-import kotlin.math.sin
 
 
 /**
@@ -290,16 +287,6 @@ private fun AnimatedLotus(
 ) {
     val infiniteTransition = rememberInfiniteTransition(label = "lotus")
 
-    val scale by infiniteTransition.animateFloat(
-        initialValue = 0.95f,
-        targetValue = 1.05f,
-        animationSpec = infiniteRepeatable(
-            animation = tween(2000, easing = FastOutSlowInEasing),
-            repeatMode = RepeatMode.Reverse
-        ),
-        label = "scale"
-    )
-
     val rotation by infiniteTransition.animateFloat(
         initialValue = 0f,
         targetValue = 360f,
@@ -308,6 +295,16 @@ private fun AnimatedLotus(
             repeatMode = RepeatMode.Restart
         ),
         label = "rotation"
+    )
+
+    val pulse by infiniteTransition.animateFloat(
+        initialValue = 0.95f,
+        targetValue = 1.05f,
+        animationSpec = infiniteRepeatable(
+            animation = tween(2000, easing = FastOutSlowInEasing),
+            repeatMode = RepeatMode.Reverse
+        ),
+        label = "pulse"
     )
 
     val glowAlpha by infiniteTransition.animateFloat(
@@ -320,95 +317,82 @@ private fun AnimatedLotus(
         label = "glow"
     )
 
-    val actualScale = if (isPulsing) scale else 1f
+    val actualScale = if (isPulsing) pulse else 1f
 
     Canvas(modifier = modifier) {
-        val center = Offset(size.width / 2, size.height / 2)
-        val radius = size.minDimension / 2 * actualScale
+        val centerX = size.width / 2
+        val centerY = size.height / 2
+        val radius = size.minDimension / 2.5f * actualScale
 
-        // Glow effect
+        // Glow effect - beautiful purple glow
         drawCircle(
             brush = Brush.radialGradient(
                 colors = listOf(
-                    Color(0xFFE8B5FF).copy(alpha = glowAlpha),
+                    Color(0xFF7C4DFF).copy(alpha = glowAlpha),
                     Color.Transparent
                 ),
-                center = center,
-                radius = radius * 1.5f
+                center = Offset(centerX, centerY),
+                radius = radius * 1.8f
             ),
-            radius = radius * 1.5f,
-            center = center
+            radius = radius * 1.8f,
+            center = Offset(centerX, centerY)
         )
 
-        // Draw lotus petals
+        // Draw lotus petals - vibrant gradient colors
         val petalCount = 8
         val petalColors = listOf(
-            Color(0xFFE8B5FF),
-            Color(0xFFB5D4FF),
-            Color(0xFFFFB5E8),
-            Color(0xFFB5FFD4)
+            Color(0xFFE040FB),  // Pink/Magenta
+            Color(0xFF7C4DFF),  // Purple
+            Color(0xFF536DFE),  // Indigo
+            Color(0xFF40C4FF)   // Cyan
         )
 
-        rotate(rotation, center) {
-            for (i in 0 until petalCount) {
-                val angle = (i * 360f / petalCount) - 90
-                val petalColor = petalColors[i % petalColors.size]
+        for (i in 0 until petalCount) {
+            val angle = (360f / petalCount) * i
+            val color = petalColors[i % petalColors.size]
 
-                drawPetal(
-                    center = center,
-                    radius = radius * 0.7f,
-                    angle = angle,
-                    color = petalColor.copy(alpha = 0.8f)
+            rotate(angle + rotation * 0.1f, pivot = Offset(centerX, centerY)) {
+                val path = Path().apply {
+                    moveTo(centerX, centerY - radius * 0.15f)
+                    cubicTo(
+                        centerX + radius * 0.4f, centerY - radius * 0.5f,
+                        centerX + radius * 0.3f, centerY - radius * 0.9f,
+                        centerX, centerY - radius
+                    )
+                    cubicTo(
+                        centerX - radius * 0.3f, centerY - radius * 0.9f,
+                        centerX - radius * 0.4f, centerY - radius * 0.5f,
+                        centerX, centerY - radius * 0.15f
+                    )
+                    close()
+                }
+
+                drawPath(
+                    path = path,
+                    brush = Brush.linearGradient(
+                        colors = listOf(
+                            color.copy(alpha = 0.8f),
+                            color.copy(alpha = 0.4f)
+                        )
+                    )
                 )
             }
         }
 
-        // Center circle
+        // Center circle - golden sun
         drawCircle(
             brush = Brush.radialGradient(
                 colors = listOf(
-                    Color(0xFFFFD700),
-                    Color(0xFFFF8C00)
+                    Color(0xFFFFD54F),
+                    Color(0xFFFF6F00)
                 ),
-                center = center,
-                radius = radius * 0.2f
+                center = Offset(centerX, centerY),
+                radius = radius * 0.25f
             ),
-            radius = radius * 0.15f,
-            center = center
+            radius = radius * 0.2f,
+            center = Offset(centerX, centerY)
         )
     }
-}
-
-private fun androidx.compose.ui.graphics.drawscope.DrawScope.drawPetal(
-    center: Offset,
-    radius: Float,
-    angle: Float,
-    color: Color
-) {
-    val angleRad = angle * PI.toFloat() / 180f
-    val petalLength = radius * 0.9f
-    val petalWidth = radius * 0.35f
-
-    val path = Path().apply {
-        moveTo(center.x, center.y)
-
-        // Control points for bezier curve
-        val cp1x = center.x + cos(angleRad - 0.3f) * petalLength * 0.5f
-        val cp1y = center.y + sin(angleRad - 0.3f) * petalLength * 0.5f
-
-        val tipX = center.x + cos(angleRad) * petalLength
-        val tipY = center.y + sin(angleRad) * petalLength
-
-        val cp2x = center.x + cos(angleRad + 0.3f) * petalLength * 0.5f
-        val cp2y = center.y + sin(angleRad + 0.3f) * petalLength * 0.5f
-
-        quadraticTo(cp1x, cp1y, tipX, tipY)
-        quadraticTo(cp2x, cp2y, center.x, center.y)
-
-        close()
-    }
-
-    drawPath(path, color)
 }
 
 

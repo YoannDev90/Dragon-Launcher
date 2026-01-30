@@ -52,7 +52,6 @@ import org.elnix.dragonlauncher.ui.settings.debug.DebugTab
 import org.elnix.dragonlauncher.ui.settings.debug.LogsTab
 import org.elnix.dragonlauncher.ui.settings.debug.SettingsDebugTab
 import org.elnix.dragonlauncher.ui.settings.language.LanguageTab
-import org.elnix.dragonlauncher.ui.settings.wellbeing.WellbeingAppsScreen
 import org.elnix.dragonlauncher.ui.settings.wellbeing.WellbeingTab
 import org.elnix.dragonlauncher.ui.settings.workspace.WorkspaceDetailScreen
 import org.elnix.dragonlauncher.ui.settings.workspace.WorkspaceListScreen
@@ -181,12 +180,7 @@ fun SettingsNavHost(
 
             noAnimComposable(SETTINGS.WELLBEING)     { WellbeingTab(
                 appsViewModel = appsViewModel,
-                onManageApps = { navController.navigate(SETTINGS.WELLBEING_APPS) },
                 onBack = ::goAdvSettingsRoot
-            ) }
-            noAnimComposable(SETTINGS.WELLBEING_APPS) { WellbeingAppsScreen(
-                appsViewModel = appsViewModel,
-                onBack = ::goWellbeing
             ) }
 
             noAnimComposable(SETTINGS.NESTS_EDIT)    { NestEditingScreen(
