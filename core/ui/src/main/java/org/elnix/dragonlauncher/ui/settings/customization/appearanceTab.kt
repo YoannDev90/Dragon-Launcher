@@ -176,7 +176,7 @@ fun AppearanceTab(
 
         item {
             SettingsSwitchRow(
-                setting = UiSettingsStore.showLaunchingAppLabel,
+                setting = UiSettingsStore.showLaunchingAppIcon,
                 title = stringResource(R.string.show_launching_app_icon),
                 description = stringResource(R.string.show_launching_app_icon_description)
             )
@@ -199,6 +199,7 @@ fun AppearanceTab(
                     title = stringResource(R.string.app_label_icon_overlay_top_padding),
                     valueRange = 0..360,
                     color = MaterialTheme.colorScheme.primary,
+                    onDragStateChange = { isDraggingAppPreviewOverlays = it }
                 )
 
                 SettingsSlider(
@@ -206,6 +207,7 @@ fun AppearanceTab(
                     title = stringResource(R.string.app_label_overlay_size),
                     valueRange = 0..70,
                     color = MaterialTheme.colorScheme.primary,
+                    onDragStateChange = { isDraggingAppPreviewOverlays = it }
                 )
 
                 SettingsSlider(
@@ -213,6 +215,7 @@ fun AppearanceTab(
                     title = stringResource(R.string.app_icon_overlay_size),
                     valueRange = 0..360,
                     color = MaterialTheme.colorScheme.primary,
+                    onDragStateChange = { isDraggingAppPreviewOverlays = it }
                 )
             }
         }

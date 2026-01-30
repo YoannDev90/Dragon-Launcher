@@ -58,19 +58,22 @@ fun AppPreviewTitle(
                 verticalAlignment = Alignment.CenterVertically,
             ) {
 
-                val colorAction = actionColor(action, extraColors, point.customActionColor?.let { Color(it) })
-                pointIcons[point.id]?.let {
-                    Image(
-                        bitmap = it,
-                        contentDescription = null,
-                        colorFilter = if (
-                            action !is SwipeActionSerializable.LaunchApp &&
-                            action !is SwipeActionSerializable.LaunchShortcut &&
-                            action !is SwipeActionSerializable.OpenDragonLauncherSettings
-                        ) ColorFilter.tint(colorAction)
-                        else null,
-                        modifier = Modifier.size(iconSize.dp)
-                    )
+                if (showIcon) {
+                    val colorAction =
+                        actionColor(action, extraColors, point.customActionColor?.let { Color(it) })
+                    pointIcons[point.id]?.let {
+                        Image(
+                            bitmap = it,
+                            contentDescription = null,
+                            colorFilter = if (
+                                action !is SwipeActionSerializable.LaunchApp &&
+                                action !is SwipeActionSerializable.LaunchShortcut &&
+                                action !is SwipeActionSerializable.OpenDragonLauncherSettings
+                            ) ColorFilter.tint(colorAction)
+                            else null,
+                            modifier = Modifier.size(iconSize.dp)
+                        )
+                    }
                 }
 
                 if (showLabel) {

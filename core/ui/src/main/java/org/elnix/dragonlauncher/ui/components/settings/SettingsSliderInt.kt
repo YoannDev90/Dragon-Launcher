@@ -27,7 +27,9 @@ fun SettingsSlider(
     backgroundColor: Color = MaterialTheme.colorScheme.surface,
     showValue: Boolean = true,
     decimals: Int = 2,
-    enabled: Boolean = true
+    enabled: Boolean = true,
+    onDragStateChange: ((Boolean) -> Unit)? = null,
+    onChange: ((Int) -> Unit)? = null,
 ) {
     val ctx = LocalContext.current
     val scope = rememberCoroutineScope()
@@ -52,8 +54,12 @@ fun SettingsSlider(
         },
         onDragStateChange = {
             scope.launch { setting.set(ctx, tempState) }
+            onDragStateChange?.invoke(it)
         }
-    ) { tempState = it }
+    ) {
+        tempState = it
+        onChange?.invoke(it)
+    }
 }
 
 @Composable
@@ -68,7 +74,9 @@ fun SettingsSlider(
     decimals: Int = 2,
     enabled: Boolean = true,
     instantUiUpdate: Boolean,
-) {
+    onDragStateChange: ((Boolean) -> Unit)? = null,
+    onChange: ((Int) -> Unit)? = null
+    ) {
     val ctx = LocalContext.current
     val scope = rememberCoroutineScope()
 
@@ -88,8 +96,9 @@ fun SettingsSlider(
                 setting.reset(ctx)
             }
         },
-        onDragStateChange = {}
+        onDragStateChange = onDragStateChange
     ) {
         scope.launch { setting.set(ctx, it) }
+        onChange?.invoke(it)
     }
 }

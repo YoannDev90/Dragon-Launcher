@@ -75,6 +75,7 @@ fun MainScreenOverlay(
         .collectAsState(initial = true)
     val debugInfos by DebugSettingsStore.debugInfos.flow(ctx)
         .collectAsState(initial = false)
+
     val showLaunchingAppLabel by UiSettingsStore.showLaunchingAppLabel.flow(ctx)
         .collectAsState(initial = true)
     val showLaunchingAppIcon by UiSettingsStore.showLaunchingAppIcon.flow(ctx)
