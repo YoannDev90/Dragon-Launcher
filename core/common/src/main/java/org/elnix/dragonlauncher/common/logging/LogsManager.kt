@@ -17,7 +17,7 @@ object DragonLogManager {
     private val scope = CoroutineScope(Dispatchers.IO)
     private var logFile: File? = null
     private var isLoggingEnabled = false
-    private var maxFileSizeBytes = 5 * 1024 * 1024 // 5MB
+    private var maxFileSizeBytes = 1024 * 1024 // 1MB
     private val logLock = Any()
 
     private var currentSessionFile: File? = null
@@ -32,7 +32,17 @@ object DragonLogManager {
         val logDir = File(ctx.filesDir, "logs")
         if (!logDir.exists()) logDir.mkdirs()
 
-        currentSessionFile = File(logDir, "dragon_logs_current.txt")
+//        currentSessionFile = File(logDir, "dragon_logs_current.txt")
+
+
+        // initialize a session file to avoid lag
+        currentSessionFile = File(
+            logDir,
+            "dragon_logs_${getDateString()}.txt"
+        )
+        logFile = currentSessionFile
+
+
         allLogFiles = (logDir.listFiles()?.filter {
             it.name.startsWith("dragon_logs_")
         }?.toList() ?: emptyList()).toMutableList()
@@ -41,6 +51,8 @@ object DragonLogManager {
     }
 
     fun getAllLogFiles(context: Context): List<File> {
+        rotateIfNeeded()
+
         updateLogDirectory(context)
         val sessionFile = currentSessionFile
         val uniqueFiles = allLogFiles.toMutableList().apply {
@@ -60,17 +72,17 @@ object DragonLogManager {
     }
 
     private fun rotateIfNeeded() {
-        logFile?.let { file ->
-            if (file.length() > maxFileSizeBytes) {
-                val newFile = File(file.parent, "dragon_logs_old_${getDateString()}.txt")
-                file.renameTo(newFile)
-                logFile = File(file.parent, "dragon_logs_${getDateString()}.txt")
-            }
-        }
+        val file = logFile ?: return
+        if (file.length() <= maxFileSizeBytes) return
+
+        val rotated = File(file.parent, "dragon_logs_${getDateString()}.txt")
+        logFile = rotated
+        currentSessionFile = rotated
     }
 
+
     private fun getDateString(): String {
-        return SimpleDateFormat("yyyyMMdd_HHmmss", Locale.getDefault()).format(Date()) // Fixed typo: HHmmss
+        return SimpleDateFormat("yyyyMMdd_HH:mm:ss", Locale.getDefault()).format(Date()) // Fixed typo: HH:mm:ss
     }
 
     fun log(priority: Int, tag: String, message: String, throwable: Throwable? = null) {
@@ -79,13 +91,13 @@ object DragonLogManager {
         scope.launch {
             try {
                 synchronized(logLock) {
-                    currentSessionFile?.let { file ->
-                        FileWriter(file, true).use { writer ->
-                            writer.append(logLine).append("\n").flush()
-                        }
-                    }
-
                     if (isLoggingEnabled) {
+                        currentSessionFile?.let { file ->
+                            FileWriter(file, true).use { writer ->
+                                writer.append(logLine).append("\n").flush()
+                            }
+                        }
+
                         logQueue.add(logLine)
                         if (logQueue.size > 1000) flushQueue()
                     }
@@ -126,6 +138,15 @@ object DragonLogManager {
             } catch (e: Exception) {
                 Log.e(TAG, "Failed to flush log queue: ${e.message}")
             }
+        }
+    }
+
+
+    fun deleteLogFile(file: File) {
+        try {
+            file.delete()
+        } catch (e: Exception) {
+            e.printStackTrace()
         }
     }
 

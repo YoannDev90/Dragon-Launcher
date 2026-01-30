@@ -5,19 +5,23 @@ package org.elnix.dragonlauncher.ui.settings.debug
 import android.content.Context
 import android.content.Intent
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.horizontalScroll
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.text.selection.SelectionContainer
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Close
 import androidx.compose.material.icons.filled.ContentCopy
+import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material.icons.filled.Share
 import androidx.compose.material3.Button
 import androidx.compose.material3.Card
@@ -26,7 +30,6 @@ import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.produceState
@@ -47,9 +50,11 @@ import org.elnix.dragonlauncher.common.logging.logD
 import org.elnix.dragonlauncher.common.logging.logE
 import org.elnix.dragonlauncher.common.utils.copyToClipboard
 import org.elnix.dragonlauncher.common.utils.formatDateTime
+import org.elnix.dragonlauncher.common.utils.showToast
 import org.elnix.dragonlauncher.settings.stores.DebugSettingsStore
 import org.elnix.dragonlauncher.ui.colors.AppObjectsColors
-import org.elnix.dragonlauncher.ui.helpers.SwitchRow
+import org.elnix.dragonlauncher.ui.components.settings.SettingsSwitchRow
+import org.elnix.dragonlauncher.ui.dialogs.UserValidation
 import org.elnix.dragonlauncher.ui.helpers.settings.SettingsLazyHeader
 import java.io.File
 
@@ -57,11 +62,8 @@ import java.io.File
 fun LogsTab(
     onBack: () -> Unit
 ) {
-    val scope = rememberCoroutineScope()
     val ctx = LocalContext.current
-
-    val enableLogging by DebugSettingsStore.enableLogging.flow(ctx)
-        .collectAsState(false)
+    val scope = rememberCoroutineScope()
 
     var logs by remember { mutableStateOf("") }
     var selectedFile by remember { mutableStateOf<File?>(null) }
@@ -72,6 +74,8 @@ fun LogsTab(
             delay(2000)
         }
     }
+
+    var showDeleteDialog by remember { mutableStateOf<File?>(null) }
 
     SettingsLazyHeader(
         title = "Logs",
@@ -85,118 +89,180 @@ fun LogsTab(
         resetText = "Clear all logs",
         content = {
 
-            SwitchRow(
-                state = enableLogging,
-                text = "Activate Logs"
+            Column(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .verticalScroll(rememberScrollState()),
+                verticalArrangement = Arrangement.spacedBy(12.dp)
             ) {
-                scope.launch { DebugSettingsStore.enableLogging.set(ctx, it) }
-                DragonLogManager.enableLogging(it)
-            }
+                SettingsSwitchRow(
+                    setting = DebugSettingsStore.enableLogging,
+                    title = "Enable logging",
+                    description = "Store all logs in memory, and can be printed or exported",
+                ) {
+                    DragonLogManager.enableLogging(it)
+                }
 
-            Button(
-                onClick = {
-                    DragonLogManager.clearLogs(ctx)
-                    selectedFile = null
-                    logs = ""
-                },
-                modifier = Modifier.padding(16.dp)
-            ) {
-                Text("Clear All Logs")
-            }
+                Button(
+                    onClick = {
+                        DragonLogManager.clearLogs(ctx)
+                        selectedFile = null
+                        logs = ""
+                    },
+                    modifier = Modifier.padding(16.dp)
+                ) {
+                    Text("Clear All Logs")
+                }
 
 
-            LazyColumn(
-                verticalArrangement = Arrangement.spacedBy(5.dp)
-            ) {
-                items(logFiles) { file ->
-                    Card(
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .clickable {
-                                selectedFile = file
-                                logs = DragonLogManager.readLogFile(file)
-                            },
-                        colors = AppObjectsColors.cardColors()
-                    ) {
-                        Row(
+                LazyColumn(
+                    verticalArrangement = Arrangement.spacedBy(5.dp),
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .heightIn(max = 600.dp)
+                ) {
+                    items(logFiles) { file ->
+                        Card(
                             modifier = Modifier
                                 .fillMaxWidth()
-                                .padding(5.dp),
-                            horizontalArrangement = Arrangement.SpaceBetween,
-                            verticalAlignment = Alignment.CenterVertically
+                                .clickable {
+                                    selectedFile = file
+                                    logs = "Loading…"
+                                    scope.launch {
+                                        logs = DragonLogManager.readLogFile(file)
+                                    }
+                                },
+                            colors = AppObjectsColors.cardColors()
                         ) {
-                            Column(modifier = Modifier.weight(1f)) {
-                                Text(
-                                    text = file.name,
-                                    style = MaterialTheme.typography.bodyLarge
-                                )
-                                Text(
-                                    text = "${(file.length() / 1024).toInt()}KB • ${file.lastModified().formatDateTime()}",
-                                    style = MaterialTheme.typography.bodySmall
-                                )
-                            }
-                            Row {
-                                IconButton(onClick = {
-                                    ctx.copyToClipboard(DragonLogManager.readLogFile(file))
-                                }) {
-                                    Icon(Icons.Default.ContentCopy, "Copy")
+                            Row(
+                                modifier = Modifier
+                                    .fillMaxWidth()
+                                    .padding(5.dp),
+                                horizontalArrangement = Arrangement.SpaceBetween,
+                                verticalAlignment = Alignment.CenterVertically
+                            ) {
+
+                                Column(modifier = Modifier.weight(1f)) {
+                                    Text(
+                                        text = file.name,
+                                        style = MaterialTheme.typography.bodyLarge
+                                    )
+                                    Text(
+                                        text = "${(file.length() / 1024).toInt()}KB • ${
+                                            file.lastModified().formatDateTime()
+                                        }",
+                                        style = MaterialTheme.typography.bodySmall
+                                    )
                                 }
-                                IconButton(onClick = {
-                                    exportLogFile(ctx, file)
-                                }) {
-                                    Icon(Icons.Default.Share, "Export")
+
+                                Row(
+                                    modifier = Modifier.padding(5.dp),
+                                    horizontalArrangement = Arrangement.SpaceBetween,
+                                    verticalAlignment = Alignment.CenterVertically
+                                ) {
+
+                                    IconButton(
+                                        onClick = {
+                                            showDeleteDialog = file
+                                        }
+                                    ) {
+                                        Icon(Icons.Default.Delete, "Delete")
+                                    }
+
+                                    IconButton(
+                                        onClick = {
+                                            exportLogFile(ctx, file)
+                                        }
+                                    ) {
+                                        Icon(Icons.Default.Share, "Export")
+                                    }
                                 }
                             }
                         }
                     }
                 }
-            }
 
-            if (logs.isNotEmpty()) {
-                Card(
-                    modifier = Modifier.fillMaxWidth(),
-                    colors = AppObjectsColors.cardColors()
-                ) {
-                    Column {
-                        Row(
-                            modifier = Modifier
-                                .fillMaxWidth()
-                                .padding(5.dp),
-                            horizontalArrangement = Arrangement.SpaceBetween
-                        ) {
-                            Text(
-                                text = selectedFile?.name ?: "Logs",
-                                style = MaterialTheme.typography.titleMedium
-                            )
-                            Row {
-                                IconButton(onClick = {
-                                    ctx.copyToClipboard(logs)
-                                }) {
-                                    Icon(Icons.Default.ContentCopy, "Copy All")
+                if (logs.isNotEmpty()) {
+                    Card(
+                        modifier = Modifier.fillMaxWidth(),
+                        colors = AppObjectsColors.cardColors()
+                    ) {
+                        Column {
+                            Row(
+                                modifier = Modifier
+                                    .fillMaxWidth()
+                                    .padding(5.dp),
+                                horizontalArrangement = Arrangement.SpaceBetween
+                            ) {
+                                Text(
+                                    text = selectedFile?.name ?: "Logs",
+                                    style = MaterialTheme.typography.titleMedium
+                                )
+                                Row {
+                                    IconButton(
+                                        onClick = {
+                                            try {
+                                                ctx.copyToClipboard(logs)
+                                            } catch (e: Exception) {
+                                                e.printStackTrace()
+                                                ctx.showToast("Failed to copy to clipboard, probably too long")
+                                            }
+                                        }
+                                    ) {
+                                        Icon(Icons.Default.ContentCopy, "Copy All")
+                                    }
+
+                                    IconButton(
+                                        onClick = {
+                                            logs = ""
+                                            selectedFile = null
+                                        }
+                                    ) {
+                                        Icon(Icons.Default.Close, "Close")
+                                    }
                                 }
-                                IconButton(onClick = {
-                                    logs = ""
-                                    selectedFile = null
-                                }) {
-                                    Icon(Icons.Default.Close, "Close")
+                            }
+
+                            LazyColumn(
+                                modifier = Modifier
+                                    .fillMaxWidth()
+                                    .height(400.dp)
+                                    .padding(16.dp)
+                            ) {
+                                items(logs.lines()) { line ->
+                                    SelectionContainer {
+                                        Text(
+                                            text = line,
+                                            softWrap = false,
+                                            modifier = Modifier
+                                                .fillMaxWidth()
+                                                .horizontalScroll(rememberScrollState()),
+
+                                            fontFamily = FontFamily.Monospace,
+                                            fontSize = 12.sp
+                                        )
+                                    }
                                 }
                             }
                         }
-                        Text(
-                            text = logs,
-                            modifier = Modifier
-                                .fillMaxWidth()
-                                .height(400.dp)
-                                .verticalScroll(rememberScrollState())
-                                .padding(16.dp),
-                            fontFamily = FontFamily.Monospace,
-                            fontSize = 12.sp
-                        )
                     }
                 }
             }
         }
     )
+
+    if (showDeleteDialog != null) {
+        val fileToDelete = showDeleteDialog!!
+
+        UserValidation(
+            title = "Delete file ${fileToDelete.name}",
+            message = "THis can't be undone",
+            onCancel = { showDeleteDialog = null }
+        ) {
+            DragonLogManager.deleteLogFile(fileToDelete)
+            showDeleteDialog = null
+        }
+    }
 }
 
 private fun exportLogFile(ctx: Context, file: File) {
