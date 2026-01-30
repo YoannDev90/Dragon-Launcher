@@ -20,7 +20,8 @@ fun SettingsSwitchRow(
     setting: BaseSettingObject<Boolean, Boolean>,
     title: String,
     description: String,
-    enabled: Boolean = true
+    enabled: Boolean = true,
+    onCheck: ((Boolean) -> Unit)? = null
 ) {
     val ctx = LocalContext.current
     val scope = rememberCoroutineScope()
@@ -43,5 +44,6 @@ fun SettingsSwitchRow(
         scope.launch {
             setting.set(ctx, it)
         }
+        onCheck?.invoke(it)
     }
 }
