@@ -42,6 +42,9 @@ sealed class IconShape {
     @Serializable
     data object Random : IconShape()
 
+
+    @Serializable
+    data object Dragon : IconShape()
     @Serializable
     data class Custom(
         val shape: CustomIconShapeSerializable
@@ -61,5 +64,6 @@ val allShapes = listOf(
     IconShape.Teardrop,
     IconShape.Pebble,
     IconShape.EasterEgg,
-    IconShape.Random
+    IconShape.Random,
+    IconShape.Dragon
 )

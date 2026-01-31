@@ -14,7 +14,6 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.wrapContentWidth
-import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.RadioButton
 import androidx.compose.material3.Switch
@@ -32,6 +31,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import org.elnix.dragonlauncher.common.utils.colors.adjustBrightness
+import org.elnix.dragonlauncher.ui.UiConstants.DragonShape
 import org.elnix.dragonlauncher.ui.colors.AppObjectsColors
 import org.elnix.dragonlauncher.ui.dialogs.CustomAlertDialog
 
@@ -59,7 +59,7 @@ fun <T> ActionSelectorRow(
         verticalAlignment = Alignment.CenterVertically,
         horizontalArrangement = if (label != null) Arrangement.SpaceBetween else Arrangement.Center,
         modifier = baseModifier
-            .clip(RoundedCornerShape(12.dp))
+            .clip(DragonShape)
             .background(
                 color = backgroundColor.copy(if (enabled) 1f else 0.5f),
             )
@@ -158,7 +158,7 @@ fun <T> ActionSelector(
                             verticalAlignment = Alignment.CenterVertically,
                             modifier = Modifier
                                 .fillMaxWidth()
-                                .clip(RoundedCornerShape(12.dp))
+                                .clip(DragonShape)
                                 .clickable {
                                     onSelected(option)
                                     onDismiss()
@@ -186,7 +186,7 @@ fun <T> ActionSelector(
                 }
             },
             containerColor = surfaceColor,
-            shape = RoundedCornerShape(16.dp)
+            shape = DragonShape
         )
     }
 }

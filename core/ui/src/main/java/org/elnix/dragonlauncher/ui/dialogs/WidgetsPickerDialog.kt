@@ -23,7 +23,6 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
-import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.CircularProgressIndicator
@@ -49,6 +48,7 @@ import androidx.compose.ui.window.Dialog
 import androidx.compose.ui.window.DialogProperties
 import androidx.core.content.res.ResourcesCompat
 import org.elnix.dragonlauncher.common.R
+import org.elnix.dragonlauncher.ui.UiConstants.DragonShape
 
 @Composable
 fun WidgetPickerDialog(
@@ -168,13 +168,13 @@ private fun WidgetPreviewImage(
         Image(
             bitmap = bitmap!!.asImageBitmap(),
             contentDescription = null,
-            modifier = modifier.clip(RoundedCornerShape(8.dp))
+            modifier = modifier.clip(DragonShape)
         )
     } else if (hasError) {
         AppIconFallback(provider, ctx, modifier)
     } else {
         Box(
-            modifier = modifier.clip(RoundedCornerShape(8.dp)),
+            modifier = modifier.clip(DragonShape),
             contentAlignment = Alignment.Center
         ) {
             CircularProgressIndicator(modifier = Modifier.size(20.dp))
@@ -243,7 +243,7 @@ private fun AppIconFallback(
         Image(
             bitmap = appIconBitmap.asImageBitmap(),
             contentDescription = null,
-            modifier = modifier.clip(RoundedCornerShape(8.dp))
+            modifier = modifier.clip(DragonShape)
         )
     } else {
         LetterFallback(text = fallbackText, modifier = modifier)
@@ -260,7 +260,7 @@ private fun LetterFallback(
     Box(
         modifier = modifier
             .background(MaterialTheme.colorScheme.primary)
-            .clip(RoundedCornerShape(8.dp)),
+            .clip(DragonShape),
         contentAlignment = Alignment.Center
     ) {
         Text(

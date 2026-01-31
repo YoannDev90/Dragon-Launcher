@@ -48,6 +48,7 @@ import org.elnix.dragonlauncher.enumsui.NestEditMode.MIN_ANGLE
 import org.elnix.dragonlauncher.enumsui.nestEditModeIcon
 import org.elnix.dragonlauncher.settings.stores.DrawerSettingsStore
 import org.elnix.dragonlauncher.settings.stores.SwipeSettingsStore
+import org.elnix.dragonlauncher.ui.UiConstants.DragonShape
 import org.elnix.dragonlauncher.ui.components.generic.ActionRow
 import org.elnix.dragonlauncher.ui.defaultDragDistance
 import org.elnix.dragonlauncher.ui.defaultHapticFeedback
@@ -240,9 +241,9 @@ fun NestEditingScreen(
                 Modifier
                     .fillMaxWidth()
                     .height(300.dp)
-                    .clip(RoundedCornerShape(12.dp))
+                    .clip(DragonShape)
                     .background(MaterialTheme.colorScheme.surface)
-                    .border(1.dp, MaterialTheme.colorScheme.primary, RoundedCornerShape(12.dp))
+                    .border(1.dp, MaterialTheme.colorScheme.primary, DragonShape)
                     .verticalScroll(rememberScrollState())
                     .padding(20.dp),
                 verticalArrangement = Arrangement.spacedBy(15.dp)

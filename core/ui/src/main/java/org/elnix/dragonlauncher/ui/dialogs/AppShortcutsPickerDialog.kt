@@ -14,7 +14,6 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.rememberScrollState
-import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.HorizontalDivider
@@ -32,6 +31,7 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
 import org.elnix.dragonlauncher.common.serializables.AppModel
 import org.elnix.dragonlauncher.common.utils.ImageUtils.loadDrawableAsBitmap
+import org.elnix.dragonlauncher.ui.UiConstants.DragonShape
 import org.elnix.dragonlauncher.ui.actions.appIcon
 
 @Composable
@@ -71,7 +71,7 @@ fun AppShortcutPickerDialog(
                             verticalAlignment = Alignment.CenterVertically,
                             modifier = Modifier
                                 .fillMaxWidth()
-                                .clip(RoundedCornerShape(12.dp))
+                                .clip(DragonShape)
                                 .clickable {
                                     onShortcutSelected(shortcut.`package`, shortcut.id)
                                 }
@@ -86,7 +86,7 @@ fun AppShortcutPickerDialog(
                                     contentDescription = shortcut.shortLabel?.toString(),
                                     modifier = Modifier
                                         .size(32.dp)
-                                        .clip(RoundedCornerShape(8.dp))
+                                        .clip(DragonShape)
                                 )
                                 Spacer(Modifier.width(8.dp))
                             }
@@ -107,7 +107,7 @@ fun AppShortcutPickerDialog(
                     verticalAlignment = Alignment.CenterVertically,
                     modifier = Modifier
                         .fillMaxWidth()
-                        .clip(RoundedCornerShape(12.dp))
+                        .clip(DragonShape)
                         .clickable { onOpenApp() }
                         .padding(8.dp)
                 ) {

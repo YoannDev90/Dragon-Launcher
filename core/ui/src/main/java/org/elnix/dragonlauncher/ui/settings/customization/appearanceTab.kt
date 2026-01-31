@@ -189,7 +189,7 @@ fun AppearanceTab(
         item {
             Column(
                 modifier = Modifier
-                    .clip(RoundedCornerShape(12.dp))
+                    .clip(DragonShape)
                     .background(MaterialTheme.colorScheme.surface.adjustBrightness(0.7f))
                     .border(
                         1.dp,

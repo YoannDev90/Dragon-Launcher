@@ -20,7 +20,6 @@ import androidx.compose.foundation.layout.wrapContentWidth
 import androidx.compose.foundation.pager.HorizontalPager
 import androidx.compose.foundation.pager.rememberPagerState
 import androidx.compose.foundation.shape.CircleShape
-import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ContentCopy
 import androidx.compose.material.icons.filled.ContentPaste
@@ -222,7 +221,7 @@ private fun ColorPicker(
                     text = colorPickerText(mode),
                     modifier = Modifier
                         .weight(1f)
-                        .clip(RoundedCornerShape(10.dp))
+                        .clip(DragonShape)
                         .clickable { scope.launch { pagerState.scrollToPage(idx) } }
                         .background(
                             if (pagerState.currentPage == idx) MaterialTheme.colorScheme.secondary

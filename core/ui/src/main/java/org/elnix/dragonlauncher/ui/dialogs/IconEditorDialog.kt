@@ -15,7 +15,6 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
-import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Check
 import androidx.compose.material.icons.filled.Close
@@ -59,6 +58,7 @@ import org.elnix.dragonlauncher.common.utils.ImageUtils.uriToBase64
 import org.elnix.dragonlauncher.common.utils.colors.adjustBrightness
 import org.elnix.dragonlauncher.models.AppsViewModel
 import org.elnix.dragonlauncher.settings.stores.SwipeSettingsStore
+import org.elnix.dragonlauncher.ui.UiConstants.DragonShape
 import org.elnix.dragonlauncher.ui.colors.AppObjectsColors
 import org.elnix.dragonlauncher.ui.colors.ColorPickerRow
 import org.elnix.dragonlauncher.ui.components.PointPreviewCanvas
@@ -250,7 +250,7 @@ fun IconEditorDialog(
                     ) {
                         Column(
                             modifier = Modifier
-                                .clip(RoundedCornerShape(12.dp))
+                                .clip(DragonShape)
                                 .background(
                                     MaterialTheme.colorScheme.surface.adjustBrightness(
                                         0.7f
@@ -339,7 +339,7 @@ fun IconEditorDialog(
                     modifier = Modifier
                         .fillMaxWidth()
                         .padding(10.dp)
-                        .clip(RoundedCornerShape(12.dp))
+                        .clip(DragonShape)
                         .background(MaterialTheme.colorScheme.surface.adjustBrightness(0.7f))
                         .padding(10.dp),
                     verticalArrangement = Arrangement.spacedBy(8.dp)
@@ -403,7 +403,7 @@ fun IconEditorDialog(
                     modifier = Modifier
                         .fillMaxWidth()
                         .padding(10.dp)
-                        .clip(RoundedCornerShape(12.dp))
+                        .clip(DragonShape)
                         .background(MaterialTheme.colorScheme.surface.adjustBrightness(0.7f))
                         .padding(10.dp),
                     verticalArrangement = Arrangement.spacedBy(8.dp)
@@ -489,7 +489,7 @@ private fun SelectableCard(
     Row(
         modifier = modifier
             .padding(6.dp)
-            .clip(RoundedCornerShape(12.dp))
+            .clip(DragonShape)
             .background(MaterialTheme.colorScheme.surface.adjustBrightness(0.7f))
             .clickable { onClick() }
             .padding(16.dp),

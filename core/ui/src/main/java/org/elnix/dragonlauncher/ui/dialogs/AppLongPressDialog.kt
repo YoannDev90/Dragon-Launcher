@@ -42,6 +42,7 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import org.elnix.dragonlauncher.common.R
 import org.elnix.dragonlauncher.common.serializables.AppModel
+import org.elnix.dragonlauncher.ui.UiConstants.DragonShape
 
 private data class DialogEntry(
     val label: String,
@@ -196,7 +197,7 @@ fun AppLongPressDialog(
                     Row(
                         modifier = Modifier
                             .fillMaxWidth()
-                            .clip(RoundedCornerShape(12.dp))
+                            .clip(DragonShape)
                             .background(entry.backgroundColor)
                             .clickable { entry.onClick() }
                             .padding(16.dp),
@@ -220,7 +221,7 @@ fun AppLongPressDialog(
         confirmButton = {},
         dismissButton = {},
         containerColor = MaterialTheme.colorScheme.surface,
-        shape = RoundedCornerShape(20.dp)
+        shape = DragonShape
     )
 
     if (showDetailedAppInfoDialog) {

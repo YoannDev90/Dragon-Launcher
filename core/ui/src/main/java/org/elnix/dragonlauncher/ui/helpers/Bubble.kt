@@ -44,7 +44,7 @@ fun Bubble(
 
     Row(
         modifier = Modifier
-            .clip(RoundedCornerShape(12.dp))
+            .clip(DragonShape)
             .then(clickableModifier)
             .border(
                 width = 1.dp,

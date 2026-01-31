@@ -8,7 +8,6 @@ import androidx.compose.foundation.layout.aspectRatio
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Shuffle
 import androidx.compose.material3.Icon
@@ -21,6 +20,7 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import org.elnix.dragonlauncher.common.R
 import org.elnix.dragonlauncher.common.serializables.IconShape
+import org.elnix.dragonlauncher.ui.UiConstants.DragonShape
 import org.elnix.dragonlauncher.ui.components.resolveShape
 import org.elnix.dragonlauncher.ui.modifiers.conditional
 
@@ -39,7 +39,7 @@ fun ShapePreview(
             .padding(5.dp)
             .size(60.dp)
             .aspectRatio(1f)
-            .clip(RoundedCornerShape(12.dp))
+            .clip(DragonShape)
             .conditional(
                 condition = onClick != null,
                 other = Modifier.clickable { onClick?.invoke() }
@@ -66,9 +66,9 @@ fun ShapePreview(
                 modifier = Modifier
                     .fillMaxSize()
                     .padding(5.dp)
-                    .clip(RoundedCornerShape(12.dp))
+                    .clip(DragonShape)
                     .background(bgColor.copy(0.5f))
-                    .border(1.dp, MaterialTheme.colorScheme.secondary, RoundedCornerShape(12.dp))
+                    .border(1.dp, MaterialTheme.colorScheme.secondary, DragonShape)
             )
         }
     }

@@ -44,7 +44,7 @@ fun SettingsItem(
     Row(
         modifier = modifier
             .fillMaxWidth()
-            .clip(RoundedCornerShape(12.dp))
+            .clip(DragonShape)
             .combinedClickable(
                 enabled,
                 onLongClick = onLongClick,

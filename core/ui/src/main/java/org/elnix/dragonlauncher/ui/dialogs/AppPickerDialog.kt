@@ -216,6 +216,6 @@ fun AppPickerDialog(
         },
         confirmButton = {},
         containerColor = MaterialTheme.colorScheme.surface,
-        shape = RoundedCornerShape(20.dp)
+        shape = DragonShape
     )
 }

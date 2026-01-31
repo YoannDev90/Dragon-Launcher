@@ -155,7 +155,7 @@ fun ColorSelectorTab(
                 ColorCustomisationMode.entries.forEach {
                     Column(
                         modifier = Modifier
-                            .clip(RoundedCornerShape(12.dp))
+                            .clip(DragonShape)
                             .clickable {
                                 scope.launch {
                                     ColorModesSettingsStore.colorCustomisationMode.set(ctx, it)
@@ -588,7 +588,7 @@ fun ColorSelectorTab(
                         DefaultThemes.entries.forEach {
                             Column(
                                 modifier = Modifier
-                                    .clip(RoundedCornerShape(12.dp))
+                                    .clip(DragonShape)
                                     .clickable {
                                         scope.launch {
                                             ColorModesSettingsStore.defaultTheme.set(ctx, it)
@@ -738,7 +738,7 @@ fun ColorSelectorTab(
                 ) { applyColor = it }
             },
             containerColor = MaterialTheme.colorScheme.surface,
-            shape = RoundedCornerShape(20.dp)
+            shape = DragonShape
         )
     }
 }

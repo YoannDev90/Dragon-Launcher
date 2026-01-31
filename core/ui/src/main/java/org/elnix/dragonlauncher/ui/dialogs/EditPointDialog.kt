@@ -51,6 +51,7 @@ import org.elnix.dragonlauncher.models.AppsViewModel
 import org.elnix.dragonlauncher.settings.stores.ColorSettingsStore
 import org.elnix.dragonlauncher.settings.stores.SwipeSettingsStore
 import org.elnix.dragonlauncher.settings.stores.UiSettingsStore
+import org.elnix.dragonlauncher.ui.UiConstants.DragonShape
 import org.elnix.dragonlauncher.ui.actions.actionColor
 import org.elnix.dragonlauncher.ui.actions.actionLabel
 import org.elnix.dragonlauncher.ui.colors.AppObjectsColors
@@ -225,7 +226,7 @@ fun EditPointDialog(
                     modifier = Modifier
                         .fillMaxWidth()
                         .height(120.dp)
-                        .clip(RoundedCornerShape(12.dp))
+                        .clip(DragonShape)
                         .background(backgroundSurfaceColor)
                         .padding(10.dp),
                     verticalArrangement = Arrangement.spacedBy(20.dp)
@@ -279,7 +280,7 @@ fun EditPointDialog(
                             Row(
                                 modifier = Modifier
                                     .weight(1f)
-                                    .clip(RoundedCornerShape(12.dp))
+                                    .clip(DragonShape)
                                     .background(backgroundSurfaceColor)
                                     .clickable {
                                         showEditActionDialog = true
@@ -308,7 +309,7 @@ fun EditPointDialog(
                             Row(
                                 modifier = Modifier
                                     .weight(1f)
-                                    .clip(RoundedCornerShape(12.dp))
+                                    .clip(DragonShape)
                                     .background(backgroundSurfaceColor)
                                     .clickable(editIconEnabled) {
                                         showEditIconDialog = true
@@ -381,7 +382,7 @@ fun EditPointDialog(
                         modifier = Modifier
                             .fillMaxWidth()
                             .padding(10.dp)
-                            .clip(RoundedCornerShape(12.dp))
+                            .clip(DragonShape)
                             .background(backgroundSurfaceColor)
                             .padding(10.dp),
                         verticalArrangement = Arrangement.spacedBy(5.dp)
@@ -423,7 +424,7 @@ fun EditPointDialog(
                             modifier = Modifier
                                 .fillMaxWidth()
                                 .padding(10.dp)
-                                .clip(RoundedCornerShape(12.dp))
+                                .clip(DragonShape)
                                 .background(backgroundSurfaceColor)
                                 .padding(10.dp),
                             verticalArrangement = Arrangement.spacedBy(5.dp)
@@ -470,7 +471,7 @@ fun EditPointDialog(
                             modifier = Modifier
                                 .fillMaxWidth()
                                 .padding(10.dp)
-                                .clip(RoundedCornerShape(12.dp))
+                                .clip(DragonShape)
                                 .background(backgroundSurfaceColor)
                                 .padding(10.dp),
                             verticalArrangement = Arrangement.spacedBy(5.dp)

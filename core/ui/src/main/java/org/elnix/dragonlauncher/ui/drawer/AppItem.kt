@@ -8,7 +8,6 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
-import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
@@ -22,6 +21,7 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
 import org.elnix.dragonlauncher.common.R
 import org.elnix.dragonlauncher.common.serializables.AppModel
+import org.elnix.dragonlauncher.ui.UiConstants.DragonShape
 
 @Composable
 fun AppItem(
@@ -38,7 +38,7 @@ fun AppItem(
     Row(
         modifier = Modifier
             .fillMaxWidth()
-            .clip(RoundedCornerShape(12.dp))
+            .clip(DragonShape)
             .combinedClickable(onClick = onClick, onLongClick = onLongClick)
             .padding(vertical = iconsSpacing.dp, horizontal = 6.dp),
         verticalAlignment = Alignment.CenterVertically

@@ -13,7 +13,6 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyListScope
 import androidx.compose.foundation.lazy.items
-import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Check
 import androidx.compose.material.icons.filled.Close
@@ -31,6 +30,7 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import org.elnix.dragonlauncher.common.R
 import org.elnix.dragonlauncher.common.serializables.IconPackInfo
+import org.elnix.dragonlauncher.ui.UiConstants.DragonShape
 
 fun LazyListScope.iconPackListContent(
     packs: List<IconPackInfo>,
@@ -66,7 +66,7 @@ fun LazyListScope.iconPackListContent(
         Row(
             modifier = Modifier
                 .fillMaxWidth()
-                .clip(RoundedCornerShape(12.dp))
+                .clip(DragonShape)
                 .background(MaterialTheme.colorScheme.surface)
                 .clickable { onPackClick(pack) }
                 .padding(16.dp),
@@ -124,7 +124,7 @@ fun LazyListScope.iconPackListContent(
             Row(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .clip(RoundedCornerShape(12.dp))
+                    .clip(DragonShape)
                     .background(MaterialTheme.colorScheme.surface)
                     .clickable { onClearClick() }
                     .padding(16.dp),

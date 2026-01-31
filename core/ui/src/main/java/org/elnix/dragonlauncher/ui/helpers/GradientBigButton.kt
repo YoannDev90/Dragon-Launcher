@@ -8,7 +8,6 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -21,6 +20,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import org.elnix.dragonlauncher.ui.UiConstants.DragonShape
 
 @Composable
 fun GradientBigButton(
@@ -51,11 +51,11 @@ fun GradientBigButton(
             .fillMaxWidth()
             .padding(horizontal = 20.dp)
             .height(70.dp)
-            .clip(RoundedCornerShape(30.dp))
+            .clip(DragonShape)
             .border(
                 width = 3.dp,
                 brush = gradient,
-                shape = RoundedCornerShape(30.dp)
+                shape = DragonShape
             )
             .background(
                 if (enabled) MaterialTheme.colorScheme.background

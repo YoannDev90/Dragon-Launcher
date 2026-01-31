@@ -8,6 +8,7 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.unit.dp
 import org.elnix.dragonlauncher.common.serializables.AppModel
+import org.elnix.dragonlauncher.ui.UiConstants.DragonShape
 
 @Composable
 fun AppModelInfoDialog(
@@ -32,6 +33,6 @@ fun AppModelInfoDialog(
         onDismissRequest = onDismiss,
         containerColor = MaterialTheme.colorScheme.surface,
         tonalElevation = 6.dp,
-        shape = RoundedCornerShape(20.dp)
+        shape = DragonShape
     )
 }

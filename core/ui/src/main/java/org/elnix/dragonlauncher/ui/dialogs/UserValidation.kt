@@ -35,6 +35,7 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import org.elnix.dragonlauncher.common.R
 import org.elnix.dragonlauncher.common.utils.copyToClipboard
+import org.elnix.dragonlauncher.ui.UiConstants.DragonShape
 import org.elnix.dragonlauncher.ui.colors.AppObjectsColors
 
 
@@ -94,7 +95,7 @@ fun UserValidation(
                     verticalAlignment = Alignment.CenterVertically,
                     modifier = Modifier
                         .padding(bottom = 4.dp)
-                        .clip(RoundedCornerShape(12.dp))
+                        .clip(DragonShape)
                         .background(MaterialTheme.colorScheme.surface.copy(0.5f))
                         .padding(8.dp)
 
@@ -122,7 +123,7 @@ fun UserValidation(
                         verticalAlignment = Alignment.CenterVertically,
                         horizontalArrangement = Arrangement.spacedBy(8.dp),
                         modifier = Modifier
-                            .clip(RoundedCornerShape(12.dp))
+                            .clip(DragonShape)
                             .clickable {
                                 doNotRemindMeAgainChecked = !doNotRemindMeAgainChecked
                             }
@@ -168,6 +169,6 @@ fun UserValidation(
         },
         containerColor = MaterialTheme.colorScheme.surface,
         tonalElevation = 6.dp,
-        shape = RoundedCornerShape(20.dp)
+        shape = DragonShape
     )
 }
