@@ -15,16 +15,15 @@ import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateMapOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
-import androidx.compose.runtime.snapshots.SnapshotStateList
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.geometry.Rect
@@ -39,10 +38,14 @@ import org.elnix.dragonlauncher.common.R
 import org.elnix.dragonlauncher.common.serializables.CircleNest
 import org.elnix.dragonlauncher.common.serializables.SwipePointSerializable
 import org.elnix.dragonlauncher.common.utils.UiCircle
+import org.elnix.dragonlauncher.common.utils.colors.adjustBrightness
 import org.elnix.dragonlauncher.common.utils.vibrate
 import org.elnix.dragonlauncher.enumsui.NestEditMode
+import org.elnix.dragonlauncher.enumsui.NestEditMode.DEEPNEST
+import org.elnix.dragonlauncher.enumsui.NestEditMode.DRAG
+import org.elnix.dragonlauncher.enumsui.NestEditMode.HAPTIC
+import org.elnix.dragonlauncher.enumsui.NestEditMode.MIN_ANGLE
 import org.elnix.dragonlauncher.enumsui.nestEditModeIcon
-import org.elnix.dragonlauncher.enumsui.nestEditModeLabel
 import org.elnix.dragonlauncher.settings.stores.DrawerSettingsStore
 import org.elnix.dragonlauncher.settings.stores.SwipeSettingsStore
 import org.elnix.dragonlauncher.ui.components.generic.ActionRow
@@ -95,23 +98,29 @@ fun NestEditingScreen(
 
 
     // used to draw the circles in the preview
-    val circles: SnapshotStateList<UiCircle> = remember { mutableStateListOf() }
+//    val circles: SnapshotStateList<UiCircle> = remember { mutableStateListOf() }
+//
+//    LaunchedEffect(currentNest.dragDistances, dragDistancesState) {
+//        circles.clear()
+//        dragDistancesState.forEach { (circleNumber, radius) ->
+//                circles.add(
+//                    UiCircle(
+//                        id = circleNumber,
+//                        radius = radius.toFloat()
+//                    )
+//                )
+//            }
+//    }
 
-    LaunchedEffect(currentNest.dragDistances) {
-        circles.clear()
-        dragDistancesState
-            .forEach { (circleNumber, radius) ->
-                circles.add(
-                    UiCircle(
-                        id = circleNumber,
-                        radius = radius.toFloat()
-                    )
-                )
-            }
+
+    val circles = dragDistancesState.map { (id, radius) ->
+        UiCircle(
+            id = id,
+            radius = radius.toFloat()
+        )
     }
 
-
-    var currentEditMode by remember { mutableStateOf(NestEditMode.DRAG) }
+    var currentEditMode by remember { mutableStateOf(DRAG) }
 
     var pendingNestUpdate by remember { mutableStateOf<List<CircleNest>?>(null) }
 
@@ -178,7 +187,11 @@ fun NestEditingScreen(
                     defaultPoint = defaultPoint,
                     selectedPoint = null,
                     backgroundColor = backgroundColor,
-                    nests = nests,
+                    nests = nests.map {
+                        if (it.id == nestId) it.copy(
+                            dragDistances = dragDistancesState
+                        ) else it
+                    },
                     ctx = ctx,
                     extraColors = extraColors,
                     pointIcons = pointIcons,
@@ -218,7 +231,6 @@ fun NestEditingScreen(
                 actions = NestEditMode.entries,
                 selectedView = currentEditMode,
                 backgroundColor = MaterialTheme.colorScheme.primary,
-                actionName = { nestEditModeLabel(ctx, it) },
                 actionIcon = { nestEditModeIcon(it) }
             ) {
                 currentEditMode = it
@@ -236,7 +248,7 @@ fun NestEditingScreen(
                 verticalArrangement = Arrangement.spacedBy(15.dp)
             ) {
                 when (currentEditMode) {
-                    NestEditMode.DRAG -> {
+                    DRAG -> {
                         dragDistancesState.toSortedMap().forEach { (index, distance) ->
                             SliderWithLabel(
                                 label = if (index == -1) "${stringResource(R.string.cancel_zone)} ->"
@@ -260,7 +272,7 @@ fun NestEditingScreen(
                         }
                     }
 
-                    NestEditMode.HAPTIC -> {
+                    HAPTIC -> {
                         // Keep drag distance state here cause haptic may be empty dues to how it is handled
                         dragDistancesState.toSortedMap().filter { it.key != -1 }
                             .forEach { (index, _) ->
@@ -290,7 +302,7 @@ fun NestEditingScreen(
                             }
                     }
 
-                    NestEditMode.MIN_ANGLE -> {
+                    MIN_ANGLE -> {
                         dragDistancesState.toSortedMap().filter { it.key != -1 }
                             .forEach { (index, distance) ->
                                 val angle = minAngleState[index] ?: defaultMinAngleActivation(distance)
@@ -312,6 +324,32 @@ fun NestEditingScreen(
                                     minAngleState[index] = newValue
                                 }
                             }
+                    }
+
+                    DEEPNEST -> {
+
+                        var tempDeepnest by remember { mutableStateOf(currentNest.deepnest) }
+                        SliderWithLabel(
+                            label = stringResource(R.string.deepnest),
+                            description = stringResource(R.string.deepnest_desc),
+                            backgroundColor = MaterialTheme.colorScheme.surface.adjustBrightness(0.7f),
+                            value = tempDeepnest,
+                            valueRange = 0..5
+                        ) {
+                            tempDeepnest = it
+                            pendingNestUpdate = nests.map { nest ->
+                                if (nest.id == nestId) {
+                                    nest.copy(deepnest = it)
+                                } else nest
+                            }
+                        }
+
+
+                        Text(
+                            text = stringResource(R.string.warning_large_values_can_lag_your_phone),
+                            color = MaterialTheme.colorScheme.onSurface,
+                            style = MaterialTheme.typography.labelLarge
+                        )
                     }
                 }
             }

@@ -20,6 +20,7 @@ import org.elnix.dragonlauncher.common.serializables.SwipeActionSerializable
 import org.elnix.dragonlauncher.common.serializables.SwipePointSerializable
 import org.elnix.dragonlauncher.common.serializables.applyColorAction
 import org.elnix.dragonlauncher.common.serializables.defaultSwipePointsValues
+import org.elnix.dragonlauncher.common.serializables.parent
 import org.elnix.dragonlauncher.common.utils.ImageUtils
 import org.elnix.dragonlauncher.common.utils.ImageUtils.loadDrawableResAsBitmap
 import org.elnix.dragonlauncher.common.utils.UiCircle
@@ -86,7 +87,7 @@ fun DrawScope.actionsInCircle(
         Color.Transparent
     }
 
-    val dshape = resolveShape(point.customIcon?.shape ?: iconShape)
+    val shape = resolveShape(point.customIcon?.shape ?: iconShape)
 
     // if in the settings, set the alpha
 //    if (preventBgErasing) backgroundColor = backgroundColor.copy(1f)
@@ -129,7 +130,7 @@ fun DrawScope.actionsInCircle(
 
             val clipped = ImageUtils.clipImageToShape(
                 image = icon,
-                shape = dshape,
+                shape = shape,
                 sizePx = size,
                 density = density
             )
@@ -160,7 +161,7 @@ fun DrawScope.actionsInCircle(
                     )
                 }
 
-            if (deepNest < 3) {
+            if (deepNest < nest.parent(nests).deepnest) {
                 circlesSettingsOverlay(
                     circles = newCircles,
                     circleColor = circleColor,

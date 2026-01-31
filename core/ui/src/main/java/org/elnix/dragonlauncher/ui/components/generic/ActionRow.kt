@@ -84,3 +84,51 @@ fun <T> ActionRow(
         }
     }
 }
+
+
+@Composable
+fun <T> ActionRow(
+    actions: List<T>,
+    selectedView: T,
+    enabled: Boolean = true,
+    selectedBackgroundColor: Color = MaterialTheme.colorScheme.secondary,
+    backgroundColor: Color,
+    actionIcon: (T) -> ImageVector,
+    onClick: (T) -> Unit
+) {
+    Row(
+        Modifier
+            .fillMaxWidth()
+            .height(IntrinsicSize.Max)
+            .clip(CircleShape),
+        horizontalArrangement = Arrangement.spacedBy(5.dp)
+    ) {
+        actions.forEach { mode ->
+            val isSelected = mode == selectedView
+            Row(
+                horizontalArrangement = Arrangement.Center,
+                verticalAlignment = Alignment.CenterVertically,
+                modifier = Modifier
+                    .weight(1f)
+                    .fillMaxHeight()
+                    .clip(RoundedCornerShape(5.dp))
+                    .clickable(enabled) { onClick(mode) }
+                    .background(
+                        (
+                                if (isSelected) selectedBackgroundColor
+                                else backgroundColor
+                                ).copy(if (enabled) 1f else 0.5f)
+                    )
+                    .padding(5.dp)
+            ) {
+                Icon(
+                    imageVector = actionIcon(mode),
+                    contentDescription = null,
+                    tint = if (isSelected) MaterialTheme.colorScheme.onSecondary
+                    else MaterialTheme.colorScheme.onSurface
+                )
+                Spacer(Modifier.width(5.dp))
+            }
+        }
+    }
+}

@@ -409,4 +409,7 @@
     <string name="max_icon_size">Max icon Size</string>
     <string name="icons_spacing_vertical">icons Spacing vertical</string>
     <string name="icons_spacing_horizontal">icons Spacing horizontal</string>
+    <string name="deepnest">Deepnest</string>
+    <string name="deepnest_desc">How many sub nests are drawn at max</string>
+    <string name="warning_large_values_can_lag_your_phone">Warning, large values can lag your phone if you have lots of actions and sub nests</string>
 </resources>

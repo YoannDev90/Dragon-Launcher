@@ -1,7 +1,6 @@
 package org.elnix.dragonlauncher.ui.helpers.nests
 
 import android.content.Context
-import androidx.compose.runtime.snapshots.SnapshotStateList
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.ImageBitmap
@@ -17,7 +16,7 @@ import kotlin.math.cos
 import kotlin.math.sin
 
 fun DrawScope.circlesSettingsOverlay(
-    circles: SnapshotStateList<UiCircle>,
+    circles: List<UiCircle>,
     circleColor: Color,
     showCircle: Boolean,
     center: Offset,
