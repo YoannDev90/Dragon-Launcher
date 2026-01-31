@@ -286,9 +286,9 @@ fun MainAppUi(
                     gridSize = gridSize,
                     searchBarBottom = searchBarBottom,
                     leftAction = leftDrawerAction,
-                    leftWidth = leftDrawerWidth,
+                    leftWeight = leftDrawerWidth,
                     rightAction = rightDrawerAction,
-                    rightWidth = rightDrawerWidth
+                    rightWeight = rightDrawerWidth
                 ) { goMainScreen() }
             }
 //
