@@ -364,6 +364,44 @@
     <string name="tap_empty_space_action">Tap empty space action</string>
     <string name="close_kb">Close Keyboard</string>
     <string name="open_kb">Open keyboard</string>
+    <string name="open_settings">Open Settings</string>
+    <string name="clear_all">Clear all</string>
+
+    <!--  ─────────────  Wellbeing Section  ─────────────  -->
+    <string name="wellbeing">Digital Wellbeing</string>
+    <string name="wellbeing_help">Take control of your digital habits. Pause before opening distracting apps and reflect on your usage.</string>
+    <string name="social_media_pause">Social Media Pause</string>
+    <string name="social_media_pause_description">Show a mindfulness screen before opening apps that may distract your attention (TikTok, Instagram, Snapchat…)</string>
+    <string name="guilt_mode">Time Awareness Mode</string>
+    <string name="guilt_mode_description">Display real usage statistics to help you reflect on time spent in apps</string>
+    <string name="pause_duration">Pause Duration</string>
+    <string name="pause_duration_description">How long to breathe before being able to continue (%d seconds)</string>
+    <string name="paused_apps">Paused Apps</string>
+    <string name="add_app">Add app</string>
+    <string name="add_social_media">Add all social media</string>
+    <string name="no_paused_apps">No apps paused yet. Add apps that distract you.</string>
+    <string name="usage_permission_required">Usage Access Permission</string>
+    <string name="usage_permission_description">To display your real usage statistics, Dragon Launcher needs access to app usage data. This helps you be more aware of the time you spend on apps.</string>
+
+    <!--  ─────────────  Digital Pause Screen  ─────────────  -->
+    <string name="digital_pause_title">Digital Pause</string>
+    <string name="pause_breathe_1">Take a moment to breathe…</string>
+    <string name="pause_breathe_2">Be present in this moment…</string>
+    <string name="pause_breathe_3">Is this what you really need right now?</string>
+    <string name="pause_breathe_4">Your attention is precious…</string>
+    <string name="pause_breathe_5">Reconnect with the present…</string>
+    <string name="pause_question">Do you really need to open this app?</string>
+    <string name="pause_no_thanks">No, I\'ll pass</string>
+    <string name="pause_yes_open">Yes, open anyway…</string>
+    <string name="usage_yesterday">You used this app for %s yesterday</string>
+    <string name="usage_today">You\'ve already spent %s today on this app</string>
+    <string name="usage_guilt_yearly">That\'s about %s per year if you keep this up!</string>
+    <string name="usage_hours">%1$d hours</string>
+    <string name="usage_minutes">%1$d min</string>
+    <string name="usage_hours_minutes">%1$dh %2$dm</string>
+    <string name="usage_no_data">No usage data available</string>
+    <string name="usage_permission_needed">Usage access permission needed</string>
+    <string name="grant_usage_permission">Grant Permission</string>
     <string name="edit_icons_shape">Edit Icons Shape</string>
     <string name="edit_icons_shape_desc">Customize the shape on the icons in the drawer and the rest of the app</string>
     <string name="random_shape">Random Shape</string>

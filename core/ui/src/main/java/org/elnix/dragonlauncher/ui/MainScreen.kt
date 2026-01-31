@@ -1,9 +1,13 @@
 package org.elnix.dragonlauncher.ui
 
 import android.annotation.SuppressLint
+import android.app.Activity
+import android.content.Intent
 import android.os.Build
 import android.util.DisplayMetrics
 import androidx.activity.compose.BackHandler
+import androidx.activity.compose.rememberLauncherForActivityResult
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.WindowInsets
@@ -57,7 +61,9 @@ import org.elnix.dragonlauncher.settings.stores.PrivateSettingsStore
 import org.elnix.dragonlauncher.settings.stores.StatusBarSettingsStore
 import org.elnix.dragonlauncher.settings.stores.SwipeSettingsStore
 import org.elnix.dragonlauncher.settings.stores.UiSettingsStore
+import org.elnix.dragonlauncher.settings.stores.WellbeingSettingsStore
 import org.elnix.dragonlauncher.ui.actions.AppLaunchException
+import org.elnix.dragonlauncher.ui.actions.launchAppDirectly
 import org.elnix.dragonlauncher.ui.actions.launchSwipeAction
 import org.elnix.dragonlauncher.ui.components.FloatingAppsHostView
 import org.elnix.dragonlauncher.ui.components.resolveShape
@@ -66,6 +72,7 @@ import org.elnix.dragonlauncher.ui.helpers.HoldToActivateArc
 import org.elnix.dragonlauncher.ui.helpers.WallpaperDim
 import org.elnix.dragonlauncher.ui.helpers.rememberHoldToOpenSettings
 import org.elnix.dragonlauncher.ui.statusbar.StatusBar
+import org.elnix.dragonlauncher.ui.wellbeing.DigitalPauseActivity
 import kotlin.math.max
 
 
@@ -124,6 +131,33 @@ fun MainScreen(
     val iconsShape by DrawerSettingsStore.iconsShape.flow(ctx)
         .collectAsState(DrawerSettingsStore.iconsShape.default)
 
+
+
+    /*  ─────────────  Wellbeing Settings  ─────────────  */
+    val socialMediaPauseEnabled by WellbeingSettingsStore.socialMediaPauseEnabled.flow(ctx)
+        .collectAsState(initial = false)
+    val guiltModeEnabled by WellbeingSettingsStore.guiltModeEnabled.flow(ctx)
+        .collectAsState(initial = false)
+    val pauseDuration by WellbeingSettingsStore.pauseDurationSeconds.flow(ctx)
+        .collectAsState(initial = 10)
+    val pausedApps by WellbeingSettingsStore.getPausedAppsFlow(ctx)
+        .collectAsState(initial = emptySet())
+
+    // Store pending package to launch after pause
+    var pendingPackageToLaunch by remember { mutableStateOf<String?>(null) }
+
+    val digitalPauseLauncher = rememberLauncherForActivityResult(
+        ActivityResultContracts.StartActivityForResult()
+    ) { result ->
+        if (result.resultCode == DigitalPauseActivity.RESULT_PROCEED && pendingPackageToLaunch != null) {
+            try {
+                launchAppDirectly(ctx, pendingPackageToLaunch!!)
+            } catch (e: Exception) {
+                ctx.logE(TAG, "Failed to launch after pause: ${e.message}")
+            }
+        }
+        pendingPackageToLaunch = null
+    }
 
 
     val icons by appsViewModel.icons.collectAsState()
@@ -231,11 +265,22 @@ fun MainScreen(
         current = null
         lastClickTime = 0
 
+        // Store package for potential pause callback
+        val action = point?.action
+        if (action is org.elnix.dragonlauncher.common.serializables.SwipeActionSerializable.LaunchApp) {
+            pendingPackageToLaunch = action.packageName
+        }
+
         try {
             launchSwipeAction(
                 ctx = ctx,
-                action = point?.action,
+                action = action,
                 useAccessibilityInsteadOfContextToExpandActionPanel = useAccessibilityInsteadOfContextToExpandActionPanel,
+                pausedApps = pausedApps,
+                socialMediaPauseEnabled = socialMediaPauseEnabled,
+                guiltModeEnabled = guiltModeEnabled,
+                pauseDuration = pauseDuration,
+                digitalPauseLauncher = digitalPauseLauncher,
 //                onAskWhatMethodToUseToOpenQuickActions = { showMethodDialog = true },
                 onReloadApps = { scope.launch { appsViewModel.reloadApps() } },
                 onReselectFile = { showFilePicker = point },

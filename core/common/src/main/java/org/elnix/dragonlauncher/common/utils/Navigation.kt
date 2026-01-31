@@ -18,6 +18,7 @@ object SETTINGS {
     const val WORKSPACE = "settings/advanced/workspace"
     const val WORKSPACE_DETAIL = "settings/advanced/workspace/{id}"
     const val BACKUP = "settings/advanced/backup"
+    const val WELLBEING = "settings/advanced/wellbeing"
     const val DEBUG = "settings//advanced/debug"
     const val LOGS = "settings/advanced/debug/logs"
     const val SETTINGS_JSON = "settings/advanced/debug/settings_json"

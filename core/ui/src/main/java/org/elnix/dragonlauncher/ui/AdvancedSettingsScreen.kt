@@ -35,6 +35,7 @@ import androidx.compose.material.icons.filled.Language
 import androidx.compose.material.icons.filled.QuestionMark
 import androidx.compose.material.icons.filled.ReportProblem
 import androidx.compose.material.icons.filled.Restore
+import androidx.compose.material.icons.filled.SelfImprovement
 import androidx.compose.material.icons.filled.SettingsSuggest
 import androidx.compose.material.icons.filled.Update
 import androidx.compose.material.icons.filled.Workspaces
@@ -192,6 +193,15 @@ fun AdvancedSettingsScreen(
                 icon = Icons.Default.Workspaces
             ) {
                 navController.navigate(SETTINGS.WORKSPACE)
+            }
+        }
+
+        item {
+            SettingsItem(
+                title = stringResource(R.string.wellbeing),
+                icon = Icons.Default.SelfImprovement
+            ) {
+                navController.navigate(SETTINGS.WELLBEING)
             }
         }
 

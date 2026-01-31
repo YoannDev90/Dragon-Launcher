@@ -18,6 +18,7 @@ import org.elnix.dragonlauncher.settings.stores.PrivateSettingsStore
 import org.elnix.dragonlauncher.settings.stores.StatusBarSettingsStore
 import org.elnix.dragonlauncher.settings.stores.SwipeSettingsStore
 import org.elnix.dragonlauncher.settings.stores.UiSettingsStore
+import org.elnix.dragonlauncher.settings.stores.WellbeingSettingsStore
 import org.elnix.dragonlauncher.settings.stores.WorkspaceSettingsStore
 
 enum class DataStoreName(
@@ -39,7 +40,8 @@ enum class DataStoreName(
     BEHAVIOR("behaviorDatastore", "behavior"),
     BACKUP("backupDatastore", "backup"),
     STATUS_BAR("statusDatastore", "status_bar"),
-    FLOATING_APPS("floatingAppsDatastore", "floating_apps")
+    FLOATING_APPS("floatingAppsDatastore", "floating_apps"),
+    WELLBEING("wellbeingDatastore", "wellbeing")
 }
 
 
@@ -58,7 +60,8 @@ object SettingsStoreRegistry {
         DataStoreName.BEHAVIOR to BehaviorSettingsStore,
         DataStoreName.BACKUP to BackupSettingsStore,
         DataStoreName.STATUS_BAR to StatusBarSettingsStore,
-        DataStoreName.FLOATING_APPS to FloatingAppsSettingsStore
+        DataStoreName.FLOATING_APPS to FloatingAppsSettingsStore,
+        DataStoreName.WELLBEING to WellbeingSettingsStore
     )
 }
 
@@ -95,6 +98,7 @@ private val Context.behaviorDataStore by preferencesDataStore(name = DataStoreNa
 private val Context.backupDatastore by preferencesDataStore(name = DataStoreName.BACKUP.value)
 private val Context.statusBarDatastore by preferencesDataStore(name = DataStoreName.STATUS_BAR.value)
 private val Context.floatingAppsDatastore by preferencesDataStore(name = DataStoreName.FLOATING_APPS.value)
+private val Context.wellbeingDatastore by preferencesDataStore(name = DataStoreName.WELLBEING.value)
 
 
 
@@ -115,5 +119,6 @@ fun Context.resolveDataStore(name: DataStoreName): DataStore<Preferences> {
         DataStoreName.BACKUP -> appCtx.backupDatastore
         DataStoreName.STATUS_BAR -> appCtx.statusBarDatastore
         DataStoreName.FLOATING_APPS -> appCtx.floatingAppsDatastore
+        DataStoreName.WELLBEING -> appCtx.wellbeingDatastore
     }
 }
