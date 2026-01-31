@@ -161,7 +161,7 @@ fun AddPointDialog(
         AppPickerDialog(
             appsViewModel = appsViewModel,
             gridSize = gridSize,
-            shape = resolveShape(iconsShape),
+            iconShape = iconsShape,
             showIcons = showIcons,
             showLabels = showLabels,
             onDismiss = { showAppPicker = false },

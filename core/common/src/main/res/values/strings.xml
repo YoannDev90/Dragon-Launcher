@@ -366,4 +366,9 @@
     <string name="open_kb">Open keyboard</string>
     <string name="edit_icons_shape">Edit Icons Shape</string>
     <string name="edit_icons_shape_desc">Customize the shape on the icons in the drawer and the rest of the app</string>
+    <string name="random_shape">Random Shape</string>
+    <string name="grid_size">Grid Size</string>
+    <string name="max_icon_size">Max icon Size</string>
+    <string name="icons_spacing_vertical">icons Spacing vertical</string>
+    <string name="icons_spacing_horizontal">icons Spacing horizontal</string>
 </resources>

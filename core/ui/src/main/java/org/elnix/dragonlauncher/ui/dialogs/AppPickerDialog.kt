@@ -36,14 +36,15 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.graphics.Shape
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import kotlinx.coroutines.launch
 import org.elnix.dragonlauncher.common.R
 import org.elnix.dragonlauncher.common.serializables.AppModel
+import org.elnix.dragonlauncher.common.serializables.IconShape
 import org.elnix.dragonlauncher.common.utils.colors.adjustBrightness
 import org.elnix.dragonlauncher.models.AppsViewModel
+import org.elnix.dragonlauncher.ui.UiConstants.DragonShape
 import org.elnix.dragonlauncher.ui.colors.AppObjectsColors
 import org.elnix.dragonlauncher.ui.helpers.AppGrid
 
@@ -52,7 +53,7 @@ import org.elnix.dragonlauncher.ui.helpers.AppGrid
 fun AppPickerDialog(
     appsViewModel: AppsViewModel,
     gridSize: Int,
-    shape: Shape,
+    iconShape: IconShape,
     showIcons: Boolean,
     showLabels: Boolean,
     onDismiss: () -> Unit,
@@ -168,7 +169,7 @@ fun AppPickerDialog(
                                     pagerState.animateScrollToPage(index)
                                 }
                             },
-                            shape = RoundedCornerShape(12.dp),
+                            shape = DragonShape,
                             colors = AppObjectsColors.buttonColors(
                                 if (!selected) MaterialTheme.colorScheme.surface else null
                             ),
@@ -202,7 +203,7 @@ fun AppPickerDialog(
                 AppGrid(
                     apps = filteredApps,
                     icons = icons,
-                    shape = shape,
+                    iconShape = iconShape,
                     gridSize = gridSize,
                     txtColor = MaterialTheme.colorScheme.onSurface,
                     showIcons = showIcons,

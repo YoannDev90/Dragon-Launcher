@@ -38,6 +38,7 @@ import org.elnix.dragonlauncher.common.utils.colors.adjustBrightness
 import org.elnix.dragonlauncher.models.AppsViewModel
 import org.elnix.dragonlauncher.settings.stores.DrawerSettingsStore
 import org.elnix.dragonlauncher.settings.stores.UiSettingsStore
+import org.elnix.dragonlauncher.ui.UiConstants.DragonShape
 import org.elnix.dragonlauncher.ui.components.AppPreviewTitle
 import org.elnix.dragonlauncher.ui.components.TextDivider
 import org.elnix.dragonlauncher.ui.components.settings.SettingsSlider
@@ -193,7 +194,7 @@ fun AppearanceTab(
                     .border(
                         1.dp,
                         MaterialTheme.colorScheme.primary.adjustBrightness(0.2f),
-                        RoundedCornerShape(12.dp)
+                        DragonShape
                     )
                     .padding(8.dp)
             ) {

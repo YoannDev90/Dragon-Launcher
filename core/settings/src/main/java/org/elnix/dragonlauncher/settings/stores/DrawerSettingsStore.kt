@@ -120,6 +120,25 @@ object DrawerSettingsStore : MapSettingsStore() {
     )
 
 
+    val iconsSpacingHorizontal = Settings.int(
+        key = "iconsSpacingHorizontal",
+        dataStoreName = dataStoreName,
+        default = 8
+    )
+
+
+    val iconsSpacingVertical = Settings.int(
+        key = "iconsSpacingVertical",
+        dataStoreName = dataStoreName,
+        default = 8
+    )
+    val maxIconSize = Settings.int(
+        key = "maxIconSize",
+        dataStoreName = dataStoreName,
+        default = 96
+    )
+
+
     override val ALL: List<BaseSettingObject<*,*>>
         get() = listOf(
             autoOpenSingleMatch,
@@ -137,6 +156,7 @@ object DrawerSettingsStore : MapSettingsStore() {
             drawerEnterAction,
             drawerHomeAction,
             scrollDownDrawerAction,
-            scrollUpDrawerAction
+            scrollUpDrawerAction,
+            iconsShape
         )
 }

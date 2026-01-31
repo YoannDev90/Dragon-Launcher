@@ -30,6 +30,7 @@ fun AppItem(
     showIcons: Boolean,
     showLabels: Boolean,
     txtColor: Color,
+    iconsSpacing: Int,
     icons: Map<String, ImageBitmap>,
     onLongClick: (() -> Unit)? = null,
     onClick: () -> Unit
@@ -39,7 +40,7 @@ fun AppItem(
             .fillMaxWidth()
             .clip(RoundedCornerShape(12.dp))
             .combinedClickable(onClick = onClick, onLongClick = onLongClick)
-            .padding(vertical = 10.dp, horizontal = 6.dp),
+            .padding(vertical = iconsSpacing.dp, horizontal = 6.dp),
         verticalAlignment = Alignment.CenterVertically
     ) {
         if (showIcons) {

@@ -16,6 +16,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
+import org.elnix.dragonlauncher.ui.UiConstants.DragonShape
 
 @Composable
 fun Bubble(
@@ -48,7 +49,7 @@ fun Bubble(
             .border(
                 width = 1.dp,
                 color = borderColor.copy(alpha),
-                shape = RoundedCornerShape(12.dp)
+                shape = DragonShape
             )
             .background(backgroundColor.copy(alpha))
             .padding(horizontal = 12.dp, vertical = 6.dp),

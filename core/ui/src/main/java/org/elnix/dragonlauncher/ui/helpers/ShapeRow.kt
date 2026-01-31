@@ -19,19 +19,26 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import org.elnix.dragonlauncher.common.R
+import org.elnix.dragonlauncher.common.logging.logD
 import org.elnix.dragonlauncher.common.serializables.IconShape
+import org.elnix.dragonlauncher.common.utils.SHAPES_TAG
 import org.elnix.dragonlauncher.ui.colors.AppObjectsColors
 
 
 @Composable
 fun ShapeRow(
     selected: IconShape,
-    onReset: (() -> Unit)? = null,
+    onReset:() -> Unit,
     onClick: () -> Unit
 ) {
+
+    val ctx = LocalContext.current
+
+    ctx.logD(SHAPES_TAG, "Selected: $selected")
 
     Row(
         modifier = Modifier
@@ -51,6 +58,7 @@ fun ShapeRow(
         ) {
 
             ShapePreview(selected)
+            logD(SHAPES_TAG, "Current Shape: $selected")
 
             Column(
                 verticalArrangement = Arrangement.spacedBy(2.dp),
@@ -71,16 +79,14 @@ fun ShapeRow(
             }
         }
 
-        onReset?.let {
-            IconButton(
-                onClick = onReset,
-                colors = AppObjectsColors.iconButtonColors()
-            ) {
-                Icon(
-                    imageVector = Icons.Default.Restore,
-                    contentDescription = stringResource(R.string.reset),
-                )
-            }
+        IconButton(
+            onClick = onReset,
+            colors = AppObjectsColors.iconButtonColors()
+        ) {
+            Icon(
+                imageVector = Icons.Default.Restore,
+                contentDescription = stringResource(R.string.reset),
+            )
         }
     }
 }

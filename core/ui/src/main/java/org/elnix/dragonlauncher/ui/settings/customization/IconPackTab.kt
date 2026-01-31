@@ -21,6 +21,7 @@ import kotlinx.coroutines.launch
 import org.elnix.dragonlauncher.common.R
 import org.elnix.dragonlauncher.models.AppsViewModel
 import org.elnix.dragonlauncher.settings.stores.DrawerSettingsStore
+import org.elnix.dragonlauncher.settings.stores.DrawerSettingsStore.gridSize
 import org.elnix.dragonlauncher.settings.stores.UiSettingsStore
 import org.elnix.dragonlauncher.ui.colors.ColorPickerRow
 import org.elnix.dragonlauncher.ui.components.resolveShape
@@ -75,7 +76,7 @@ fun IconPackTab(
                         AppGrid(
                             apps = apps.shuffled().take(6),
                             icons = icons,
-                            shape = resolveShape(iconsShape),
+                            iconShape = iconsShape,
                             txtColor = MaterialTheme.colorScheme.onBackground,
                             gridSize = 6,
                             showIcons = true,

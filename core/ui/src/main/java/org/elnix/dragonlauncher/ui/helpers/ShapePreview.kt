@@ -9,14 +9,20 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Shuffle
+import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
+import org.elnix.dragonlauncher.common.R
 import org.elnix.dragonlauncher.common.serializables.IconShape
 import org.elnix.dragonlauncher.ui.components.resolveShape
+import org.elnix.dragonlauncher.ui.modifiers.conditional
 
 @Composable
 fun ShapePreview(
@@ -24,8 +30,6 @@ fun ShapePreview(
     selected: Boolean = false,
     onClick: (() -> Unit)? = null
 ) {
-
-    val shape = resolveShape(iconShape)
 
     val bgColor = if (selected) MaterialTheme.colorScheme.primary
     else MaterialTheme.colorScheme.surface
@@ -36,16 +40,36 @@ fun ShapePreview(
             .size(60.dp)
             .aspectRatio(1f)
             .clip(RoundedCornerShape(12.dp))
-            .clickable(onClick != null) { onClick?.invoke() },
+            .conditional(
+                condition = onClick != null,
+                other = Modifier.clickable { onClick?.invoke() }
+            ),
         contentAlignment = Alignment.Center
     ) {
-        Box(
-            modifier = Modifier
-                .fillMaxSize()
-                .padding(5.dp)
-                .clip(shape)
-                .background(bgColor.copy(0.5f))
-                .border(1.dp, MaterialTheme.colorScheme.secondary, shape)
-        )
+        if (iconShape !is IconShape.Random) {
+            val shape = resolveShape(iconShape)
+
+            Box(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .padding(5.dp)
+                    .clip(shape)
+                    .background(bgColor.copy(0.5f))
+                    .border(1.dp, MaterialTheme.colorScheme.secondary, shape)
+            )
+        } else {
+
+            Icon(
+                imageVector = Icons.Default.Shuffle,
+                contentDescription = stringResource(R.string.random_shape),
+                tint = MaterialTheme.colorScheme.primary,
+                modifier = Modifier
+                    .fillMaxSize()
+                    .padding(5.dp)
+                    .clip(RoundedCornerShape(12.dp))
+                    .background(bgColor.copy(0.5f))
+                    .border(1.dp, MaterialTheme.colorScheme.secondary, RoundedCornerShape(12.dp))
+            )
+        }
     }
 }

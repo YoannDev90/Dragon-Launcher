@@ -73,7 +73,6 @@ import org.elnix.dragonlauncher.models.AppsViewModel
 import org.elnix.dragonlauncher.settings.stores.DrawerSettingsStore
 import org.elnix.dragonlauncher.settings.stores.UiSettingsStore
 import org.elnix.dragonlauncher.ui.actions.launchSwipeAction
-import org.elnix.dragonlauncher.ui.components.resolveShape
 import org.elnix.dragonlauncher.ui.dialogs.AppAliasesDialog
 import org.elnix.dragonlauncher.ui.dialogs.AppLongPressDialog
 import org.elnix.dragonlauncher.ui.dialogs.IconEditorDialog
@@ -94,9 +93,9 @@ fun AppDrawerScreen(
     gridSize: Int,
     searchBarBottom: Boolean,
     leftAction: DrawerActions,
-    leftWidth: Float,
+    leftWeight: Float,
     rightAction: DrawerActions,
-    rightWidth: Float,
+    rightWeight: Float,
     onClose: () -> Unit
 ) {
     val ctx = LocalContext.current
@@ -291,7 +290,7 @@ fun AppDrawerScreen(
                 Box(
                     modifier = Modifier
                         .fillMaxHeight()
-                        .fillMaxWidth(leftWidth)
+                        .weight(leftWeight)
                         .clickable(
                             indication = null,
                             interactionSource = null
@@ -343,7 +342,7 @@ fun AppDrawerScreen(
                         apps = filteredApps,
                         icons = icons,
                         gridSize = gridSize,
-                        shape = resolveShape(iconsShape),
+                        iconShape = iconsShape,
                         txtColor = MaterialTheme.colorScheme.onSurface,
                         showIcons = showIcons,
                         showLabels = showLabels,
@@ -360,7 +359,7 @@ fun AppDrawerScreen(
                 Box(
                     modifier = Modifier
                         .fillMaxHeight()
-                        .fillMaxWidth(rightWidth)
+                        .weight(rightWeight)
                         .clickable(
                             indication = null,
                             interactionSource = null

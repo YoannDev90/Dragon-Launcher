@@ -249,3 +249,23 @@ object Settings {
             }
         )
 }
+
+
+// TODO LATER REFACTOR AGAIN TO USE THAT
+
+//class BooleanSetting(
+//    private val dataStoreName: DataStoreName,
+//    private val default: Boolean
+//) {
+//    operator fun provideDelegate(
+//        thisRef: Any?,
+//        prop: KProperty<*>
+//    ): BaseSettingObject<Boolean, Boolean> {
+//        val key = prop.name
+//        return Settings.boolean(
+//            key = key,
+//            dataStoreName = dataStoreName,
+//            default = default
+//        )
+//    }
+//}

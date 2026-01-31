@@ -45,7 +45,6 @@ import org.elnix.dragonlauncher.settings.stores.DrawerSettingsStore
 import org.elnix.dragonlauncher.settings.stores.UiSettingsStore
 import org.elnix.dragonlauncher.ui.actions.launchSwipeAction
 import org.elnix.dragonlauncher.ui.components.generic.ActionRow
-import org.elnix.dragonlauncher.ui.components.resolveShape
 import org.elnix.dragonlauncher.ui.dialogs.AppAliasesDialog
 import org.elnix.dragonlauncher.ui.dialogs.AppLongPressDialog
 import org.elnix.dragonlauncher.ui.dialogs.AppPickerDialog
@@ -132,7 +131,7 @@ fun WorkspaceDetailScreen(
                 AppGrid(
                     apps = apps,
                     icons = icons,
-                    shape = resolveShape(iconsShape),
+                    iconShape = iconsShape,
                     gridSize = gridSize,
                     txtColor = Color.White,
                     showIcons = showIcons,
@@ -166,7 +165,7 @@ fun WorkspaceDetailScreen(
         AppPickerDialog(
             appsViewModel = appsViewModel,
             gridSize = gridSize,
-            shape = resolveShape(iconsShape),
+            iconShape = iconsShape,
             showIcons = showIcons,
             showLabels = showLabels,
             onDismiss = { showAppPicker = false }

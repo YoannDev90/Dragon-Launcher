@@ -7,11 +7,13 @@ import androidx.compose.foundation.clickable
 import androidx.compose.foundation.gestures.detectDragGestures
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Restore
@@ -19,6 +21,7 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableFloatStateOf
@@ -28,6 +31,7 @@ import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.layout.onGloballyPositioned
 import androidx.compose.ui.platform.LocalContext
@@ -36,12 +40,17 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import kotlinx.coroutines.launch
 import org.elnix.dragonlauncher.common.R
+import org.elnix.dragonlauncher.common.logging.logD
+import org.elnix.dragonlauncher.common.utils.SHAPES_TAG
+import org.elnix.dragonlauncher.common.utils.colors.adjustBrightness
 import org.elnix.dragonlauncher.enumsui.DrawerActions
 import org.elnix.dragonlauncher.enumsui.drawerActionIcon
 import org.elnix.dragonlauncher.models.AppsViewModel
 import org.elnix.dragonlauncher.settings.stores.DrawerSettingsStore
+import org.elnix.dragonlauncher.ui.UiConstants.DragonShape
 import org.elnix.dragonlauncher.ui.components.TextDivider
 import org.elnix.dragonlauncher.ui.components.settings.DrawerActionSelector
+import org.elnix.dragonlauncher.ui.components.settings.SettingsSlider
 import org.elnix.dragonlauncher.ui.components.settings.SettingsSwitchRow
 import org.elnix.dragonlauncher.ui.dialogs.ShapePickerDialog
 import org.elnix.dragonlauncher.ui.helpers.GridSizeSlider
@@ -88,8 +97,13 @@ fun DrawerTab(
 
     var totalWidthPx by remember { mutableFloatStateOf(0f) }
 
-    var localLeft by remember { mutableFloatStateOf(leftDrawerWidth) }
-    var localRight by remember { mutableFloatStateOf(rightDrawerWidth) }
+    var leftWeight by remember { mutableFloatStateOf(leftDrawerWidth) }
+    var rightWeight by remember { mutableFloatStateOf(rightDrawerWidth) }
+
+    LaunchedEffect(leftDrawerWidth, rightDrawerWidth) {
+        leftWeight = leftDrawerWidth
+        rightWeight = rightDrawerWidth
+    }
 
     val leftActionNotNone = leftDrawerAction != DrawerActions.NONE
     val rightActionNotNone = rightDrawerAction != DrawerActions.NONE
@@ -155,6 +169,33 @@ fun DrawerTab(
         }
 
         item {
+            Column(
+                modifier = Modifier
+                    .clip(DragonShape)
+                    .background(MaterialTheme.colorScheme.surface.adjustBrightness(0.7f))
+                    .padding(10.dp)
+            ) {
+                SettingsSlider(
+                    setting = DrawerSettingsStore.maxIconSize,
+                    title = stringResource(R.string.max_icon_size),
+                    valueRange = 0..200
+                )
+
+                SettingsSlider(
+                    setting = DrawerSettingsStore.iconsSpacingHorizontal,
+                    title = stringResource(R.string.icons_spacing_horizontal),
+                    valueRange = 0..50
+                )
+
+                SettingsSlider(
+                    setting = DrawerSettingsStore.iconsSpacingVertical,
+                    title = stringResource(R.string.icons_spacing_vertical),
+                    valueRange = 0..50
+                )
+            }
+        }
+
+        item {
             GridSizeSlider(
                 apps = apps,
                 icons = icons,
@@ -166,7 +207,10 @@ fun DrawerTab(
 
         //Shapes picker
         item {
-            ShapeRow(iconsShape) { showShapePickerDialog = true }
+            ShapeRow(
+                selected = iconsShape,
+                onReset = { scope.launch { DrawerSettingsStore.iconsShape.reset(ctx) } }
+            ) { showShapePickerDialog = true }
         }
 
 
@@ -191,8 +235,6 @@ fun DrawerTab(
                     tint = MaterialTheme.colorScheme.outline,
                     modifier = Modifier
                         .clickable {
-                            localLeft = 0.1f
-                            localRight = 0.1f
                             scope.launch {
                                 DrawerSettingsStore.leftDrawerWidth.reset(ctx)
                                 DrawerSettingsStore.rightDrawerWidth.reset(ctx)
@@ -218,7 +260,7 @@ fun DrawerTab(
                     Box(
                         modifier = Modifier
                             .fillMaxHeight()
-                            .fillMaxWidth(localLeft)
+                            .fillMaxWidth(leftWeight)
                             .background(MaterialTheme.colorScheme.primary.copy(if (leftActionNotNone) 1f else 0.5f)),
                         contentAlignment = Alignment.Center
                     ) {
@@ -231,28 +273,17 @@ fun DrawerTab(
                         }
                     }
 
-                    // DRAG HANDLE LEFT -----------------------------------------------------
-                    Box(
-                        modifier = Modifier
-                            .fillMaxHeight()
-                            .width(6.dp)
-                            .background(MaterialTheme.colorScheme.outline.copy(if (rightActionNotNone) 1f else 0.5f))
-                            .pointerInput(Unit) {
-                                detectDragGestures(
-                                    onDrag = { change, drag ->
-                                        change.consume()
-                                        if (totalWidthPx > 0f) {
-                                            val deltaPercent = drag.x / totalWidthPx
-                                            localLeft = (localLeft + deltaPercent).coerceIn(0f, 1f)
-                                        }
-                                    },
-                                    onDragEnd = {
-                                        scope.launch {
-                                            DrawerSettingsStore.leftDrawerWidth.set(ctx, localLeft)
-                                        }
-                                    }
-                                )
+                    DragHandle(
+                        onDrag = { dx ->
+                            if (totalWidthPx > 0f) {
+                                leftWeight = (leftWeight + dx / totalWidthPx).coerceIn(0f, 1f)
                             }
+                        },
+                        onDragEnd = {
+                            scope.launch {
+                                DrawerSettingsStore.leftDrawerWidth.set(ctx, leftWeight)
+                            }
+                        }
                     )
                 }
 
@@ -261,38 +292,24 @@ fun DrawerTab(
                 if (rightActionNotDisabled) {
 
                     // DRAG HANDLE RIGHT ----------------------------------------------------
-                    Box(
-                        modifier = Modifier
-                            .fillMaxHeight()
-                            .width(6.dp)
-                            .background(MaterialTheme.colorScheme.outline.copy(if (rightActionNotNone) 1f else 0.5f))
-                            .pointerInput(Unit) {
-                                detectDragGestures(
-                                    onDrag = { change, drag ->
-                                        change.consume()
-                                        if (totalWidthPx > 0f) {
-                                            val deltaPercent = -drag.x / totalWidthPx // reversed
-                                            localRight =
-                                                (localRight + deltaPercent).coerceIn(0f, 1f)
-                                        }
-                                    },
-                                    onDragEnd = {
-                                        scope.launch {
-                                            DrawerSettingsStore.rightDrawerWidth.set(
-                                                ctx,
-                                                localRight
-                                            )
-                                        }
-                                    }
-                                )
+                    DragHandle(
+                        onDrag = { dx ->
+                            if (totalWidthPx > 0f) {
+                                rightWeight = (rightWeight - dx / totalWidthPx).coerceIn(0f, 1f)
                             }
+                        },
+                        onDragEnd = {
+                            scope.launch {
+                                DrawerSettingsStore.rightDrawerWidth.set(ctx, rightWeight)
+                            }
+                        }
                     )
 
                     // RIGHT PANEL ----------------------------------------------------------
                     Box(
                         modifier = Modifier
                             .fillMaxHeight()
-                            .fillMaxWidth(localRight)
+                            .fillMaxWidth(rightWeight)
                             .background(MaterialTheme.colorScheme.primary.copy(if (rightActionNotNone) 1f else 0.5f)),
                         contentAlignment = Alignment.Center
                     ) {
@@ -331,15 +348,15 @@ fun DrawerTab(
 
         item {
             DrawerActionSelector(
-                settingObject = DrawerSettingsStore.rightDrawerAction,
-                label = stringResource(R.string.right_drawer_action),
+                settingObject = DrawerSettingsStore.leftDrawerAction,
+                label = stringResource(R.string.left_drawer_action),
             )
         }
 
         item {
             DrawerActionSelector(
-                settingObject = DrawerSettingsStore.leftDrawerAction,
-                label = stringResource(R.string.left_drawer_action),
+                settingObject = DrawerSettingsStore.rightDrawerAction,
+                label = stringResource(R.string.right_drawer_action),
             )
         }
 
@@ -487,11 +504,33 @@ fun DrawerTab(
             selected = iconsShape,
             onDismiss = { showShapePickerDialog = false }
         ) {
+            ctx.logD(SHAPES_TAG, "Picked: $it")
             scope.launch {
                 DrawerSettingsStore.iconsShape.set(ctx, it)
+                showShapePickerDialog = false
             }
-
-            showShapePickerDialog = false
         }
     }
+}
+
+@Composable
+private fun DragHandle(
+    onDrag: (dx: Float) -> Unit,
+    onDragEnd: () -> Unit
+) {
+    Box(
+        modifier = Modifier
+            .fillMaxHeight()
+            .width(6.dp)
+            .background(MaterialTheme.colorScheme.outline)
+            .pointerInput(Unit) {
+                detectDragGestures(
+                    onDrag = { change, drag ->
+                        change.consume()
+                        onDrag(drag.x)
+                    },
+                    onDragEnd = onDragEnd
+                )
+            }
+    )
 }

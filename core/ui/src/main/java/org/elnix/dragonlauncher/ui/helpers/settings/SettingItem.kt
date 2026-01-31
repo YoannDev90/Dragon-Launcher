@@ -24,6 +24,7 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import org.elnix.dragonlauncher.common.R
 import org.elnix.dragonlauncher.common.utils.colors.adjustBrightness
+import org.elnix.dragonlauncher.ui.UiConstants.DragonShape
 import org.elnix.dragonlauncher.ui.colors.AppObjectsColors
 import org.elnix.dragonlauncher.ui.helpers.IconC
 
@@ -145,7 +146,7 @@ fun SettingItemWithExternalOpen(
             colors = AppObjectsColors.iconButtonColors(),
             modifier = Modifier
                 .size(52.dp),
-            shape = RoundedCornerShape(12.dp)
+            shape = DragonShape
         ) {
             IconC(
                 icon = extIcon,

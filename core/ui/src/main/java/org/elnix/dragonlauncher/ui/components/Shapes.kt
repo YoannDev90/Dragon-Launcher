@@ -16,279 +16,11 @@ import org.elnix.dragonlauncher.common.serializables.CornerRadiusSerializable
 import org.elnix.dragonlauncher.common.serializables.CustomIconShapeSerializable
 import org.elnix.dragonlauncher.common.serializables.IconCornerType
 import org.elnix.dragonlauncher.common.serializables.IconShape
+import org.elnix.dragonlauncher.common.serializables.allShapes
 import kotlin.math.abs
 import kotlin.math.cbrt
 import kotlin.math.pow
 import kotlin.math.roundToInt
-
-//@Composable
-//fun ShapedLauncherIcon(
-//    modifier: Modifier = Modifier,
-//    size: Dp,
-//    icon: LauncherIcon,
-//    badge: Badge,
-//    shape: Shape = LocalIconShape.current
-//) {
-//
-//
-//    var currentIcon by remember(icon) {
-//        mutableStateOf(
-//            when (icon) {
-//                is DynamicLauncherIcon -> null
-//                is StaticLauncherIcon -> icon
-//                else -> null
-//            }
-//        )
-//    }
-//
-//    val defaultIconSize = 64.dp
-//
-//    val renderSettings = LauncherIconRenderSettings(
-//        size = defaultIconSize.toPixels().toInt(),
-//        fgThemeColor = MaterialTheme.colorScheme.onPrimaryContainer.toArgb(),
-//        bgThemeColor = MaterialTheme.colorScheme.primaryContainer.toArgb(),
-//        fgTone = if (LocalDarkTheme.current) 90 else 10,
-//        bgTone = if (LocalDarkTheme.current) 30 else 90,
-//    )
-//
-//    var currentBitmap by remember {
-//        mutableStateOf(currentIcon?.getCachedBitmap(renderSettings))
-//    }
-//
-//    LaunchedEffect(currentIcon, renderSettings) {
-//        currentBitmap = currentIcon?.render(renderSettings)
-//    }
-//
-//
-//    Box(
-//        modifier = modifier
-//            .size(size)
-//    ) {
-//        Box(
-//            modifier = Modifier
-//                .fillMaxSize(),
-//            contentAlignment = Alignment.Center
-//        ) {
-//            val bmp = currentBitmap
-//            val ic = currentIcon
-//            if (bmp != null && ic != null) {
-//                Canvas(
-//                    modifier = Modifier
-//                        .requiredSize(defaultIconSize)
-//                        .scale(size / defaultIconSize, TransformOrigin.Center)
-//                ) {
-//                    val brush = BitmapShaderBrush(bmp)
-//                    if (ic.backgroundLayer is TransparentLayer) {
-//                        drawRect(brush)
-//                    } else {
-//                        val outline =
-//                            shape.createOutline(
-//                                this.size,
-//                                layoutDirection,
-//                                Density(density, fontScale)
-//                            )
-//                        drawOutline(outline, brush)
-//                    }
-//                }
-//                // Background layer is always static layer, color layer, or transparent layer
-//                val fg = ic.foregroundLayer
-//                when (fg) {
-//                    is ClockLayer -> {
-//                        ClockLayer(
-//                            modifier = Modifier
-//                                .fillMaxSize()
-//                                .clip(shape),
-//                            sublayers = fg.sublayers,
-//                            defaultMinute = fg.defaultMinute,
-//                            defaultHour = fg.defaultHour,
-//                            defaultSecond = fg.defaultSecond,
-//                            scale = fg.scale,
-//                            tintColor = null,
-//                        )
-//                    }
-//
-//                    is TextLayer -> {
-//                        Text(
-//                            text = fg.text,
-//                            style = MaterialTheme.typography.headlineSmall.copy(
-//                                fontSize = 20.sp * (size / 48.dp)
-//                            ),
-//                            color = if (fg.color == 0) {
-//                                Color(renderSettings.fgThemeColor)
-//                            } else {
-//                                Color(getTone(fg.color, renderSettings.fgTone))
-//                            },
-//                        )
-//                    }
-//
-//                    is VectorLayer -> {
-//                        Icon(
-//                            painter = painterResource(fg.icon), contentDescription = null,
-//                            tint = if (fg.color == 0) {
-//                                Color(renderSettings.fgThemeColor)
-//                            } else {
-//                                Color(getTone(fg.color, renderSettings.fgTone))
-//                            },
-//                            modifier = Modifier.size(size / 2f),
-//                        )
-//                    }
-//
-//                    else -> {}
-//                }
-//            } else {
-//                val color = MaterialTheme.colorScheme.secondaryContainer
-//                Canvas(
-//                    modifier = Modifier
-//                        .fillMaxSize()
-//                ) {
-//                    val outline =
-//                        shape.createOutline(this.size, layoutDirection, Density(density, fontScale))
-//                    drawOutline(outline, color)
-//                }
-//            }
-//        }
-////        val _badge = badge()
-////        if (_badge != null) {
-////            Surface(
-////                tonalElevation = 1.dp,
-////                modifier = Modifier
-////                    .size(size * 0.33f)
-////                    .align(Alignment.BottomEnd),
-////                color = MaterialTheme.colorScheme.tertiary,
-////                shape = CircleShape
-////            ) {
-////                Box(
-////                    contentAlignment = Alignment.Center
-////                ) {
-////
-////                    _badge.progress?.let {
-////                        val progress by animateFloatAsState(it)
-////                        CircularProgressIndicator(
-////                            modifier = Modifier.fillMaxSize(0.8f),
-////                            progress = { progress },
-////                            strokeWidth = size / 48,
-////                            color = MaterialTheme.colorScheme.onTertiary
-////                        )
-////                    }
-////                    val badgeIcon = _badge.icon
-////
-////                    val number = _badge.number
-////                    if (badgeIcon is BadgeIcon.Vector) {
-////                        Icon(
-////                            modifier = Modifier
-////                                .fillMaxSize()
-////                                .padding(size / 24),
-////                            painter = painterResource(badgeIcon.iconRes),
-////                            contentDescription = null,
-////                            tint = MaterialTheme.colorScheme.onTertiary,
-////                        )
-////                    } else if (badgeIcon is BadgeIcon.Drawable) {
-////                        Canvas(
-////                            modifier = Modifier
-////                                .fillMaxSize()
-////                                .padding(size / 48)
-////                        ) {
-////                            badgeIcon.drawable.setBounds(
-////                                0,
-////                                0,
-////                                this.size.width.roundToInt(),
-////                                this.size.height.roundToInt()
-////                            )
-////                            drawIntoCanvas {
-////                                badgeIcon.drawable.draw(it.nativeCanvas)
-////                            }
-////                        }
-////                    } else if (number != null && number > 0 && number < 100) {
-////                        Text(
-////                            NumberFormat.getInstance(Locale.current.platformLocale).format(number),
-////                            color = MaterialTheme.colorScheme.secondaryContainer,
-////                            style = MaterialTheme.typography.labelSmall.copy(
-////                                fontSize = with(LocalDensity.current) {
-////                                    size.toSp() * 0.2f
-////                                }
-////                            ),
-////                        )
-////                    }
-////                }
-////            }
-////        }
-//    }
-//}
-//
-//@Composable
-//private fun ClockLayer(
-//    sublayers: List<ClockSublayer>,
-//    defaultMinute: Int,
-//    defaultHour: Int,
-//    defaultSecond: Int,
-//    scale: Float,
-//    tintColor: Color?,
-//    modifier: Modifier = Modifier,
-//) {
-//    val time = Instant.ofEpochMilli(LocalTime.current).atZone(ZoneId.systemDefault())
-//
-//    val second = time.second
-//    val minute = time.minute
-//    val hour = time.hour
-//
-//    Canvas(modifier = modifier) {
-//        val colorFilter = tintColor?.let {
-//            PorterDuffColorFilter(tintColor.toArgb(), PorterDuff.Mode.SRC_IN)
-//        }
-//        withTransform({
-//            this.scale(scale)
-//        }) {
-//            for (sublayer in sublayers) {
-//                when (sublayer.role) {
-//                    ClockSublayerRole.Hour -> {
-//                        sublayer.drawable.level = (((hour - defaultHour + 12) % 12) * 60
-//                                + ((minute) % 60))
-//                    }
-//
-//                    ClockSublayerRole.Minute -> sublayer.drawable.level =
-//                        ((minute - defaultMinute + 60) % 60)
-//
-//                    ClockSublayerRole.Second -> sublayer.drawable.level =
-//                        (((second - defaultSecond + 60) % 60) * 10)
-//
-//                    else -> {}
-//                }
-//                drawIntoCanvas {
-//                    sublayer.drawable.bounds = this.size.toRect().toAndroidRect()
-//                    sublayer.drawable.drawWithColorFilter(it.nativeCanvas, colorFilter)
-//                }
-//            }
-//        }
-//    }
-//}
-//
-//private fun getTone(argb: Int, tone: Int): Int {
-//    return TonalPalette
-//        .fromInt(argb)
-//        .tone(tone)
-//}
-//
-//class BitmapShaderBrush(
-//    val bitmap: Bitmap,
-//) : ShaderBrush() {
-//    override fun createShader(size: Size): Shader {
-//        return BitmapShader(bitmap, PlatformShader.TileMode.CLAMP, PlatformShader.TileMode.CLAMP)
-//    }
-//
-//}
-//
-//val LocalIconShape = compositionLocalOf<Shape> { CircleShape }
-//
-
-//
-//@Composable
-//fun ProvideIconShape(iconShape: IconShape, content: @Composable () -> Unit) {
-//    val shape = getShape(iconShape)
-//    CompositionLocalProvider(
-//        LocalIconShape provides shape,
-//        content = content
-//    )
-//}
 
 
 fun resolveShape(shape: IconShape?): Shape =
@@ -306,8 +38,9 @@ fun resolveShape(shape: IconShape?): Shape =
         IconShape.Pebble -> PebbleShape
         IconShape.EasterEgg -> EasterEggShape
 
-        is IconShape.Custom ->
-            customIconShape(s.shape)
+        IconShape.Random ->  resolveShape(allShapes.filter { it !is IconShape.Random }.random())
+
+        is IconShape.Custom -> customIconShape(s.shape)
     }
 
 
@@ -375,24 +108,24 @@ private val HexagonShape: Shape
 private val PentagonShape: Shape
     get() = GenericShape { size, _ ->
         moveTo(
-            0.49997027f * size.width,
+            0.49997026f * size.width,
             0.0060308f * size.height
         )
         lineTo(
-            0.99994053f * size.width,
-            0.36928048f * size.height
+            0.9999405f * size.width,
+            0.3692805f * size.height
         )
         lineTo(
-            0.80896887f * size.width,
-            0.95703078f * size.height
+            0.80896884f * size.width,
+            0.9570308f * size.height
         )
         lineTo(
-            0.19097162f * size.width,
-            0.95703076f * size.height
+            0.19097161f * size.width,
+            0.9570308f * size.height
         )
         lineTo(
             0f,
-            0.36928045f * size.height
+            0.36928046f * size.height
         )
         close()
     }
@@ -468,15 +201,15 @@ private val PebbleShape: Shape
 private val EasterEggShape: Shape
     get() = GenericShape { size, _ ->
         moveTo(
-            0.49999999f * size.width,
+            0.5f * size.width,
             1f * size.height
         )
         lineTo(
-            0.42749999f * size.width,
-            0.9339999999999999f * size.height
+            0.42749998f * size.width,
+            0.934f * size.height
         )
         cubicTo(
-            0.16999998f * size.width,
+            0.16999999f * size.width,
             0.7005004f * size.height,
             0f,
             0.5460004f * size.height,
@@ -500,7 +233,7 @@ private val EasterEggShape: Shape
             0.1865003f * size.height
         )
         cubicTo(
-            0.55449999f * size.width,
+            0.5545f * size.width,
             0.123f * size.height,
             0.638f * size.width,
             0.0825f * size.height,
@@ -508,7 +241,7 @@ private val EasterEggShape: Shape
             0.0825f * size.height
         )
         cubicTo(
-            0.87900006f * size.width,
+            0.87900007f * size.width,
             0.0825004f * size.height,
             1f * size.width,
             0.2030004f * size.height,
@@ -518,9 +251,9 @@ private val EasterEggShape: Shape
         cubicTo(
             1f * size.width,
             0.5460004f * size.height,
-            0.82999999f * size.width,
+            0.83f * size.width,
             0.7005004f * size.height,
-            0.57250001f * size.width,
+            0.5725f * size.width,
             0.9340004f * size.height
         )
         close()

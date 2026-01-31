@@ -66,6 +66,7 @@ object IconShapeGson {
                 "Teardrop" -> IconShape.Teardrop
                 "Pebble" -> IconShape.Pebble
                 "EasterEgg" -> IconShape.EasterEgg
+                "Random" -> IconShape.Random
                 "Custom" -> IconShape.Custom(
                     shape = context.deserialize(
                         obj.getAsJsonObject("shape"),

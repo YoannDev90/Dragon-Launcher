@@ -58,6 +58,7 @@ import org.elnix.dragonlauncher.common.utils.showToast
 import org.elnix.dragonlauncher.enumsui.ColorPickerMode
 import org.elnix.dragonlauncher.enumsui.colorPickerText
 import org.elnix.dragonlauncher.settings.stores.ColorModesSettingsStore
+import org.elnix.dragonlauncher.ui.UiConstants.DragonShape
 import org.elnix.dragonlauncher.ui.components.ValidateCancelButtons
 import org.elnix.dragonlauncher.ui.dialogs.CustomAlertDialog
 import org.elnix.dragonlauncher.ui.helpers.SliderWithLabel
@@ -89,7 +90,7 @@ fun ColorPickerRow(
            .clickable(enabled) { showPicker = true }
            .background(
                color = backgroundColor.copy(if (enabled) 1f else 0.5f),
-               shape = RoundedCornerShape(12.dp)
+               shape = DragonShape
            )
            .padding(horizontal = 16.dp, vertical = 14.dp),
 
