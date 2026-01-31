@@ -7,15 +7,14 @@ import android.view.ViewGroup
 import android.widget.FrameLayout
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.ImageBitmap
+import androidx.compose.ui.graphics.Shape
 import androidx.compose.ui.input.pointer.pointerInteropFilter
 import androidx.compose.ui.platform.LocalContext
-import androidx.compose.ui.unit.dp
 import androidx.compose.ui.viewinterop.AndroidView
 import org.elnix.dragonlauncher.common.FloatingAppObject
 import org.elnix.dragonlauncher.common.serializables.SwipeActionSerializable
@@ -28,6 +27,7 @@ import kotlin.math.min
 fun FloatingAppsHostView(
     floatingAppObject: FloatingAppObject,
     icons: Map<String, ImageBitmap>,
+    shape: Shape,
     cellSizePx: Float,
     modifier: Modifier = Modifier,
     blockTouches: Boolean = false,
@@ -81,7 +81,7 @@ fun FloatingAppsHostView(
             icons = icons,
             modifier = modifier
                 .fillMaxSize()
-                .clip(RoundedCornerShape(12.dp))
+                .clip(shape)
                 .let { mod ->
                     if (blockTouches) { mod } else { mod.clickable{ onLaunchAction() } }
                 },

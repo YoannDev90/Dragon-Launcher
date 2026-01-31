@@ -7,7 +7,9 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.ImageBitmap
 import androidx.compose.ui.graphics.drawscope.DrawScope
 import androidx.compose.ui.graphics.drawscope.Stroke
+import androidx.compose.ui.unit.Density
 import org.elnix.dragonlauncher.common.serializables.CircleNest
+import org.elnix.dragonlauncher.common.serializables.IconShape
 import org.elnix.dragonlauncher.common.serializables.SwipePointSerializable
 import org.elnix.dragonlauncher.common.utils.UiCircle
 import org.elnix.dragonlauncher.ui.theme.ExtraColors
@@ -29,6 +31,8 @@ fun DrawScope.circlesSettingsOverlay(
     pointIcons: Map<String, ImageBitmap>,
     nestId: Int,
     deepNest: Int,
+    shape: IconShape,
+    density: Density,
     selectedAll: Boolean = false,
     preventBgErasing: Boolean = false
 ) {
@@ -71,6 +75,8 @@ fun DrawScope.circlesSettingsOverlay(
                     pointIcons = pointIcons,
                     defaultPoint = defaultPoint,
                     deepNest = deepNest,
+                    iconShape = shape,
+                    density = density,
                     preventBgErasing = preventBgErasing
                 )
             }

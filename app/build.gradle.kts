@@ -26,7 +26,7 @@ android {
 
     defaultConfig {
         applicationId = "org.elnix.dragonlauncher"
-        minSdk = 25
+        minSdk = 26
         targetSdk = 36
         versionCode = 33
         versionName = "2.3.2"

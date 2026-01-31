@@ -26,6 +26,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.ImageBitmap
+import androidx.compose.ui.graphics.Shape
 import androidx.compose.ui.graphics.painter.BitmapPainter
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
@@ -37,6 +38,7 @@ import org.elnix.dragonlauncher.ui.actions.appIcon
 fun AppShortcutPickerDialog(
     app: AppModel,
     icons: Map<String, ImageBitmap>,
+    shape: Shape,
     shortcuts: List<ShortcutInfo>,
     onDismiss: () -> Unit,
     onShortcutSelected: (packageName: String, shortcutId: String) -> Unit,
@@ -115,7 +117,7 @@ fun AppShortcutPickerDialog(
                         contentDescription = "App icon",
                         modifier = Modifier
                             .size(32.dp)
-                            .clip(RoundedCornerShape(8.dp))
+                            .clip(shape)
                     )
                     Spacer(Modifier.width(8.dp))
 

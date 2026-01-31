@@ -364,4 +364,6 @@
     <string name="tap_empty_space_action">Tap empty space action</string>
     <string name="close_kb">Close Keyboard</string>
     <string name="open_kb">Open keyboard</string>
+    <string name="edit_icons_shape">Edit Icons Shape</string>
+    <string name="edit_icons_shape_desc">Customize the shape on the icons in the drawer and the rest of the app</string>
 </resources>

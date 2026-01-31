@@ -1,5 +1,6 @@
 package org.elnix.dragonlauncher.settings.stores
 
+import org.elnix.dragonlauncher.common.serializables.IconShape
 import org.elnix.dragonlauncher.enumsui.DrawerActions
 import org.elnix.dragonlauncher.settings.DataStoreName
 import org.elnix.dragonlauncher.settings.Settings
@@ -110,6 +111,12 @@ object DrawerSettingsStore : MapSettingsStore() {
         dataStoreName = dataStoreName,
         default = DrawerActions.CLOSE_KB,
         enumClass = DrawerActions::class.java
+    )
+
+    val iconsShape = Settings.shape(
+        key = "iconsShape",
+        dataStoreName = dataStoreName,
+        default = IconShape.PlatformDefault
     )
 
 

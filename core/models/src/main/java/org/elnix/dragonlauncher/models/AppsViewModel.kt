@@ -3,6 +3,7 @@ package org.elnix.dragonlauncher.models
 import android.annotation.SuppressLint
 import android.app.Application
 import android.content.Context
+import android.content.pm.PackageInfo
 import android.content.pm.PackageManager
 import android.content.res.Resources
 import android.content.res.XmlResourceParser
@@ -160,7 +161,7 @@ class AppsViewModel(
 
         val savedPackName = UiSettingsStore.selectedIconPack.get(ctx)
         savedPackName?.let { pkg ->
-            loadIconsPacks()
+            loadIconPacks()
             _selectedIconPack.value = _iconPacksList.value.find { it.packageName == pkg }
         }
 
@@ -264,7 +265,8 @@ class AppsViewModel(
 
             preloadPointIcons(
                 points = points,
-                reloadAll = true
+                sizePx = 128,
+                reloadAll = true,
             )
 
 
@@ -328,6 +330,13 @@ class AppsViewModel(
     }
 
 
+
+
+
+
+
+    /*  ────── THE MOST IMPORTANT FUNCTIONS BELOW, LOAD ALL ICONS ──────  */
+
     /**
      * Load point icon
      *
@@ -350,7 +359,7 @@ class AppsViewModel(
         )
 
         // Returns either the icon rendered using the custom icon renderer, or the base icon if no render provided
-        return point.customIcon?.let { customIcon ->
+        val rendered = point.customIcon?.let { customIcon ->
 
             logD(ICONS_TAG, point.toString())
             renderCustomIcon(
@@ -359,75 +368,13 @@ class AppsViewModel(
                 sizePx = sizePx
             )
         } ?: orig
-    }
 
-    fun preloadPointIcons(
-        points: List<SwipePointSerializable>,
-        sizePx: Int = 64,
-        reloadAll: Boolean = false
-    ) {
-        scope.launch(Dispatchers.Default) {
-            val newIcons = buildMap {
-                points.forEach { p ->
-                    val id = p.id
-                    if (_pointIcons.value.containsKey(id) && !reloadAll) return@forEach
 
-                    put(
-                        id,
-                        loadPointIcon(
-                            point = p,
-                            sizePx = sizePx
-                        )
-                    )
-                }
-            }
-
-            if (newIcons.isNotEmpty()) {
-                _pointIcons.update { it + newIcons }
-            }
-        }
+        return rendered
     }
 
 
-    fun reloadPointIcon(
-        point: SwipePointSerializable,
-        sizePx: Int = 64
-    ) {
-        val id = point.id
-
-        scope.launch(Dispatchers.IO) {
-            val bmp = loadPointIcon(
-                point = point,
-                sizePx = sizePx
-            )
-
-            _pointIcons.update { it + (id to bmp) }
-        }
-    }
-
-
-    private suspend fun loadIcons(
-        apps: List<AppModel>
-    ): Map<String, ImageBitmap> =
-        withContext(Dispatchers.IO) {
-            apps.mapNotNull { app ->
-                runCatching {
-                    iconSemaphore.withPermit {
-                        loadSingleIcon(app.packageName, app.userId, true)
-                    }
-                }.getOrNull()
-            }.toMap()
-        }
-
-
-    fun updateSingleIcon(
-        app: AppModel,
-        useOverride: Boolean
-    ) {
-        _icons.update { it + loadSingleIcon(app.packageName, app.userId, useOverride) }
-    }
-
-    // TODO MAke a single function to load icons instead of 2 separated and shitty
+    // DO a single function to load icons instead of 2 separated and shitty
     // No, in fact they are working and well now, no need to change
 
     private fun loadSingleIcon(
@@ -463,9 +410,79 @@ class AppsViewModel(
             }
         }
 
-
         return packageName to orig
     }
+
+
+     /* ──────────────────────────  */
+
+    fun preloadPointIcons(
+        points: List<SwipePointSerializable>,
+        sizePx: Int,
+        reloadAll: Boolean = false
+    ) {
+        scope.launch(Dispatchers.Default) {
+            val newIcons = buildMap {
+                points.forEach { p ->
+                    val id = p.id
+                    if (_pointIcons.value.containsKey(id) && !reloadAll) return@forEach
+
+                    put(
+                        id,
+                        loadPointIcon(
+                            point = p,
+                            sizePx = sizePx
+                        )
+                    )
+                }
+            }
+
+            if (newIcons.isNotEmpty()) {
+                _pointIcons.update { it + newIcons }
+            }
+        }
+    }
+
+
+    fun reloadPointIcon(
+        point: SwipePointSerializable,
+        sizePx: Int
+    ) {
+        val id = point.id
+
+        scope.launch(Dispatchers.IO) {
+            val bmp = loadPointIcon(
+                point = point,
+                sizePx = sizePx
+            )
+
+            _pointIcons.update { it + (id to bmp) }
+        }
+    }
+
+
+    private suspend fun loadIcons(
+        apps: List<AppModel>
+    ): Map<String, ImageBitmap> =
+        withContext(Dispatchers.IO) {
+            apps.mapNotNull { app ->
+                runCatching {
+                    iconSemaphore.withPermit {
+                        loadSingleIcon(app.packageName, app.userId, true)
+                    }
+                }.getOrNull()
+            }.toMap()
+        }
+
+
+    fun updateSingleIcon(
+        app: AppModel,
+        useOverride: Boolean
+    ) {
+        _icons.update { it + loadSingleIcon(app.packageName, app.userId, useOverride) }
+    }
+
+
 
 
     @SuppressLint("DiscouragedApi")
@@ -540,46 +557,84 @@ class AppsViewModel(
     }
 
 
-    fun loadIconsPacks() {
+    fun loadIconPacks() {
         val packs = mutableListOf<IconPackInfo>()
         val allPackages = pmCompat.getInstalledPackages()
 
-        logD(ICONS_TAG, "Scanning ${allPackages.size} packages...")
 
-        allPackages.forEach { pkgInfo ->
+       allPackages.forEach { pkgInfo ->
+            if (pkgInfo.packageName == ctx.packageName) return@forEach
+
             try {
                 val packResources = pmCompat.getResourcesForApplication(pkgInfo.packageName)
-                val hasAppfilter = hasAppfilterResource(packResources, pkgInfo.packageName)
+                val hasAppfilter = hasStandardAppFilter(packResources, pkgInfo.packageName)
+                val isIps = isIconPackStudioPack(pkgInfo)
 
-                if (hasAppfilter && pkgInfo.packageName != ctx.packageName) {
-                    val label = pkgInfo.applicationInfo?.loadLabel(pm).toString()
-                    logD(ICONS_TAG, "FOUND icon pack: $label (${pkgInfo.packageName})")
-                    packs.add(IconPackInfo(pkgInfo.packageName, label))
+                if (hasAppfilter || isIps) {
+                    val name = pkgInfo.applicationInfo?.loadLabel(pm).toString()
+                    logD(ICONS_TAG, "FOUND icon pack: $name (${pkgInfo.packageName}); is standard: $isIps")
+
+                    packs.add(
+                        IconPackInfo(
+                            packageName = pkgInfo.packageName,
+                            name = name,
+                            isManualOnly = isIps
+                        )
+                    )
                 }
-            } catch (_: Exception) {
+            } catch (e: Exception) {
+                e.printStackTrace()
             }
         }
-
         val uniquePacks = packs.distinctBy { it.packageName }
         logD(ICONS_TAG, "Total icon packs found: ${uniquePacks.size}")
-        _iconPacksList.value = uniquePacks
-    }
+        _iconPacksList.value = uniquePacks}
+
+//    fun loadIconsPacks() {
+//        val packs = mutableListOf<IconPackInfo>()
+//        val allPackages = pmCompat.getInstalledPackages()
+//
+//        logD(ICONS_TAG, "Scanning ${allPackages.size} packages...")
+//
+//        allPackages.forEach { pkgInfo ->
+//            try {
+//                val packResources = pmCompat.getResourcesForApplication(pkgInfo.packageName)
+//                var hasAppfilter = hasAppfilterResource(packResources, pkgInfo.packageName)
+//
+//                if (pkgInfo.packageName.contains("exported")) {
+//                    hasAppfilter = true
+//                }
+//
+//                if (hasAppfilter && pkgInfo.packageName != ctx.packageName) {
+//                    val label = pkgInfo.applicationInfo?.loadLabel(pm).toString()
+//                    logD(ICONS_TAG, "FOUND icon pack: $label (${pkgInfo.packageName})")
+//                    packs.add(IconPackInfo(pkgInfo.packageName, label))
+//                }
+//            } catch (e: Exception) {
+//                e.printStackTrace()
+//            }
+//        }
+//
+//        val uniquePacks = packs.distinctBy { it.packageName }
+//        logD(ICONS_TAG, "Total icon packs found: ${uniquePacks.size}")
+//        _iconPacksList.value = uniquePacks
+//    }
 
 
-    @SuppressLint("DiscouragedApi")
-    private fun hasAppfilterResource(
-        resources: Resources,
-        pkgName: String
-    ): Boolean {
-        val locations = listOf("appfilter", "theme_appfilter", "icon_appfilter")
-        return locations.any { name ->
-            val cacheKey = "$pkgName:$name"
-            val resId = resourceIdCache.getOrPut(cacheKey) {
-                resources.getIdentifier(name, "xml", pkgName)
-            }
-            resId != 0
-        }
-    }
+//    @SuppressLint("DiscouragedApi")
+//    private fun hasAppfilterResource(
+//        resources: Resources,
+//        pkgName: String
+//    ): Boolean {
+//        val locations = listOf("appfilter", "theme_appfilter", "icon_appfilter")
+//        return locations.any { name ->
+//            val cacheKey = "$pkgName:$name"
+//            val resId = resourceIdCache.getOrPut(cacheKey) {
+//                resources.getIdentifier(name, "xml", pkgName)
+//            }
+//            resId != 0
+//        }
+//    }
 
     fun loadIconPackMappings(packPkg: String): Map<String, String> {
         return try {
@@ -592,6 +647,19 @@ class AppsViewModel(
             emptyMap()
         }
     }
+
+    fun loadIpsIcons(packPkg: String): List<String> {
+        return try {
+            val clazz = Class.forName($$"$$packPkg.R$drawable")
+            clazz.fields
+                .filter { it.type == Int::class.javaPrimitiveType }
+                .map { it.name }
+        } catch (e: Exception) {
+            e.printStackTrace()
+            emptyList()
+        }
+    }
+
 
 
     /** Load the user's workspaces into the _state var, enforced safety due to some crash at start */
@@ -620,7 +688,8 @@ class AppsViewModel(
                     point = dummySwipePoint(SwipeActionSerializable.LaunchApp(packageName)).copy(
                         customIcon = customIcon,
                         id = packageName
-                    )
+                    ),
+                    128 // Dummy value, will be loaded later with the good one
                 )
             }
         }
@@ -867,6 +936,17 @@ class AppsViewModel(
         reloadApps()
     }
 }
+
+
+private fun isIconPackStudioPack(pkg: PackageInfo): Boolean {
+    return pkg.packageName == "ginlemon.iconpackstudio.exported"
+}
+
+@SuppressLint("DiscouragedApi")
+private fun hasStandardAppFilter(res: Resources, pkg: String): Boolean {
+    return res.getIdentifier("appfilter", "xml", pkg) != 0
+}
+
 
 @SuppressLint("DiscouragedApi")
 private fun parseAppFilterXml(ctx: Context, packPkg: String): List<IconMapping>? {

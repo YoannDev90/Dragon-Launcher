@@ -20,8 +20,10 @@ import androidx.compose.ui.unit.dp
 import kotlinx.coroutines.launch
 import org.elnix.dragonlauncher.common.R
 import org.elnix.dragonlauncher.models.AppsViewModel
+import org.elnix.dragonlauncher.settings.stores.DrawerSettingsStore
 import org.elnix.dragonlauncher.settings.stores.UiSettingsStore
 import org.elnix.dragonlauncher.ui.colors.ColorPickerRow
+import org.elnix.dragonlauncher.ui.components.resolveShape
 import org.elnix.dragonlauncher.ui.helpers.AppGrid
 import org.elnix.dragonlauncher.ui.helpers.iconPackListContent
 import org.elnix.dragonlauncher.ui.helpers.settings.SettingsLazyHeader
@@ -41,6 +43,10 @@ fun IconPackTab(
     val packs by appsViewModel.iconPacksList.collectAsState()
 
     val iconPackTint by UiSettingsStore.iconPackTint.flow(ctx).collectAsState(null)
+
+    val iconsShape by DrawerSettingsStore.iconsShape.flow(ctx)
+        .collectAsState(DrawerSettingsStore.iconsShape.default)
+
 
     // Used to delay the grid showing up, to prevent lag
     var showPreview by remember { mutableStateOf(false) }
@@ -69,6 +75,7 @@ fun IconPackTab(
                         AppGrid(
                             apps = apps.shuffled().take(6),
                             icons = icons,
+                            shape = resolveShape(iconsShape),
                             txtColor = MaterialTheme.colorScheme.onBackground,
                             gridSize = 6,
                             showIcons = true,
@@ -97,7 +104,7 @@ fun IconPackTab(
             selectedPackPackage = selectedPack?.packageName,
             showClearOption = true,
             onReloadPacks = {
-                appsViewModel.loadIconsPacks()
+                appsViewModel.loadIconPacks()
             },
             onPackClick = { pack ->
                 scope.launch {

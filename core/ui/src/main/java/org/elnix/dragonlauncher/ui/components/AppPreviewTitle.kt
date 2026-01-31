@@ -13,6 +13,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.ColorFilter
 import androidx.compose.ui.graphics.ImageBitmap
@@ -20,8 +21,9 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import org.elnix.dragonlauncher.common.serializables.SwipeActionSerializable
+import org.elnix.dragonlauncher.common.serializables.IconShape
 import org.elnix.dragonlauncher.common.serializables.SwipePointSerializable
+import org.elnix.dragonlauncher.common.serializables.applyColorAction
 import org.elnix.dragonlauncher.ui.actions.actionColor
 import org.elnix.dragonlauncher.ui.actions.actionLabel
 import org.elnix.dragonlauncher.ui.theme.LocalExtraColors
@@ -31,6 +33,7 @@ fun AppPreviewTitle(
     offsetY: Dp,
     alpha: Float,
     pointIcons: Map<String, ImageBitmap>,
+    iconsShape: IconShape,
     point: SwipePointSerializable,
     topPadding: Dp = 60.dp,
     labelSize: Int,
@@ -42,6 +45,8 @@ fun AppPreviewTitle(
     val extraColors = LocalExtraColors.current
 
     val label = actionLabel(point.action, point.customName)
+
+    val shape = point.customIcon?.shape ?: iconsShape
 
     val action = point.action
     if (showIcon || showLabel) {
@@ -65,13 +70,12 @@ fun AppPreviewTitle(
                         Image(
                             bitmap = it,
                             contentDescription = null,
-                            colorFilter = if (
-                                action !is SwipeActionSerializable.LaunchApp &&
-                                action !is SwipeActionSerializable.LaunchShortcut &&
-                                action !is SwipeActionSerializable.OpenDragonLauncherSettings
-                            ) ColorFilter.tint(colorAction)
-                            else null,
-                            modifier = Modifier.size(iconSize.dp)
+                            colorFilter =
+                                if (point.applyColorAction()) ColorFilter.tint(colorAction)
+                                else null,
+                            modifier = Modifier
+                                .size(iconSize.dp)
+                                .clip(resolveShape(shape))
                         )
                     }
                 }

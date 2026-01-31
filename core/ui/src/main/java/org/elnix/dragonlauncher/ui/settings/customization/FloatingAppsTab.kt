@@ -22,7 +22,6 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.systemBars
 import androidx.compose.foundation.shape.CircleShape
-import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.AccountCircle
 import androidx.compose.material.icons.filled.Add
@@ -55,6 +54,7 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.ImageBitmap
+import androidx.compose.ui.graphics.Shape
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalDensity
@@ -72,8 +72,10 @@ import org.elnix.dragonlauncher.common.utils.WidgetHostProvider
 import org.elnix.dragonlauncher.models.AppsViewModel
 import org.elnix.dragonlauncher.models.FloatingAppsViewModel
 import org.elnix.dragonlauncher.settings.stores.DebugSettingsStore
+import org.elnix.dragonlauncher.settings.stores.DrawerSettingsStore
 import org.elnix.dragonlauncher.settings.stores.StatusBarSettingsStore
 import org.elnix.dragonlauncher.ui.components.FloatingAppsHostView
+import org.elnix.dragonlauncher.ui.components.resolveShape
 import org.elnix.dragonlauncher.ui.dialogs.AddPointDialog
 import org.elnix.dragonlauncher.ui.dialogs.NestManagementDialog
 import org.elnix.dragonlauncher.ui.helpers.CircleIconButton
@@ -98,6 +100,9 @@ fun FloatingAppsTab(
 
     val widgetsDebugInfos by DebugSettingsStore.widgetsDebugInfo.flow(ctx)
         .collectAsState(initial = false)
+
+    val iconsShape by DrawerSettingsStore.iconsShape.flow(ctx)
+        .collectAsState(DrawerSettingsStore.iconsShape.default)
 
 
     val floatingApps by floatingAppsViewModel.floatingApps.collectAsState()
@@ -214,6 +219,7 @@ fun FloatingAppsTab(
                     floatingAppsViewModel = floatingAppsViewModel,
                     app = floatingApp,
                     icons = icons,
+                    shape = resolveShape(iconsShape),
                     selected = floatingApp.id == selected?.id,
                     widgetHostProvider = widgetHostProvider,
                     onSelect = { selected = floatingApp },
@@ -437,6 +443,7 @@ private fun DraggableFloatingApp(
     floatingAppsViewModel: FloatingAppsViewModel,
     app: FloatingAppObject,
     icons: Map<String, ImageBitmap>,
+    shape: Shape,
     selected: Boolean,
     widgetHostProvider: WidgetHostProvider,
     onSelect: () -> Unit,
@@ -449,7 +456,6 @@ private fun DraggableFloatingApp(
 ) {
     val ctx = LocalContext.current
     val borderColor = if (selected) MaterialTheme.colorScheme.primary else Color.Transparent
-    val shape = RoundedCornerShape(12.dp)
 
     val cellSizePx = floatingAppsViewModel.cellSizePx
 
@@ -492,6 +498,7 @@ private fun DraggableFloatingApp(
             floatingAppObject = app,
             blockTouches = true,
             icons = icons,
+            shape = shape,
             cellSizePx = cellSizePx,
             widgetHostProvider = widgetHostProvider
         ) { }

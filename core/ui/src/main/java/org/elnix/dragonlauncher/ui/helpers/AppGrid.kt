@@ -25,6 +25,7 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.ImageBitmap
+import androidx.compose.ui.graphics.Shape
 import androidx.compose.ui.input.nestedscroll.NestedScrollConnection
 import androidx.compose.ui.input.nestedscroll.NestedScrollSource
 import androidx.compose.ui.input.nestedscroll.nestedScroll
@@ -39,6 +40,7 @@ import org.elnix.dragonlauncher.ui.drawer.AppItem
 fun AppGrid(
     apps: List<AppModel>,
     icons: Map<String, ImageBitmap>,
+    shape: Shape,
     gridSize: Int,
     txtColor: Color,
     showIcons: Boolean,
@@ -93,6 +95,7 @@ fun AppGrid(
                     showLabels = showLabels,
                     txtColor = txtColor,
                     icons = icons,
+                    shape = shape,
                     onClick = { onClick(app) },
                     onLongClick = if (onLongClick != null) { { onLongClick(app) } } else null
                 )
@@ -128,8 +131,9 @@ fun AppGrid(
                             contentDescription = app.name,
                             modifier = Modifier
                                 .sizeIn(maxWidth = 96.dp)
-                                .aspectRatio(1f),
-                            contentScale = ContentScale.Crop
+                                .aspectRatio(1f)
+                                .clip(shape),
+                            contentScale = ContentScale.Fit
                         )
                     }
 

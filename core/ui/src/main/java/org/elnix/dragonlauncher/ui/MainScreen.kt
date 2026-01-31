@@ -37,6 +37,7 @@ import androidx.compose.ui.unit.IntSize
 import androidx.compose.ui.unit.dp
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
+import org.elnix.dragonlauncher.base.ktx.toPixels
 import org.elnix.dragonlauncher.common.FloatingAppObject
 import org.elnix.dragonlauncher.common.logging.logE
 import org.elnix.dragonlauncher.common.serializables.SwipePointSerializable
@@ -51,6 +52,7 @@ import org.elnix.dragonlauncher.models.AppsViewModel
 import org.elnix.dragonlauncher.models.FloatingAppsViewModel
 import org.elnix.dragonlauncher.settings.stores.BehaviorSettingsStore
 import org.elnix.dragonlauncher.settings.stores.DebugSettingsStore
+import org.elnix.dragonlauncher.settings.stores.DrawerSettingsStore
 import org.elnix.dragonlauncher.settings.stores.PrivateSettingsStore
 import org.elnix.dragonlauncher.settings.stores.StatusBarSettingsStore
 import org.elnix.dragonlauncher.settings.stores.SwipeSettingsStore
@@ -58,6 +60,7 @@ import org.elnix.dragonlauncher.settings.stores.UiSettingsStore
 import org.elnix.dragonlauncher.ui.actions.AppLaunchException
 import org.elnix.dragonlauncher.ui.actions.launchSwipeAction
 import org.elnix.dragonlauncher.ui.components.FloatingAppsHostView
+import org.elnix.dragonlauncher.ui.components.resolveShape
 import org.elnix.dragonlauncher.ui.dialogs.FilePickerDialog
 import org.elnix.dragonlauncher.ui.helpers.HoldToActivateArc
 import org.elnix.dragonlauncher.ui.helpers.WallpaperDim
@@ -120,6 +123,10 @@ fun MainScreen(
 
     val bottomPadding by BehaviorSettingsStore.bottomPadding.flow(ctx)
         .collectAsState(initial = 0)
+
+    val iconsShape by DrawerSettingsStore.iconsShape.flow(ctx)
+        .collectAsState(DrawerSettingsStore.iconsShape.default)
+
 
 
     val icons by appsViewModel.icons.collectAsState()
@@ -190,13 +197,14 @@ fun MainScreen(
     val appIconOverlaySize by UiSettingsStore.appIconOverlaySize.flow(ctx)
         .collectAsState(initial = 22)
 
+    val densityPixelsIconOverlaySize = appIconOverlaySize.dp.toPixels().toInt()
     /**
      * Reload all point icons on every change of the points, nestId, appIconOverlaySize, or default point
      * Set the size of the icons to the max size between the 2 overlays sizes preview to display them cleanly
      */
     LaunchedEffect(points, nestId, appIconOverlaySize, defaultPoint.hashCode()) {
 
-        val sizePx = max(appIconOverlaySize, defaultPoint.size ?: 64)
+        val sizePx = max(densityPixelsIconOverlaySize, defaultPoint.size ?: 128)
 
         appsViewModel.preloadPointIcons(
             points = points.filter { it.nestId == nestId },
@@ -357,6 +365,7 @@ fun MainScreen(
                 FloatingAppsHostView(
                     floatingAppObject = floatingAppObject,
                     icons = icons,
+                    shape = resolveShape(iconsShape),
                     cellSizePx = cellSizePx,
                     modifier = Modifier
                         .offset {

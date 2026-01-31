@@ -70,6 +70,7 @@ import androidx.compose.ui.graphics.ImageBitmap
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.layout.onSizeChanged
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
@@ -79,6 +80,7 @@ import androidx.compose.ui.unit.sp
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.launch
+import org.elnix.dragonlauncher.base.ktx.toPixels
 import org.elnix.dragonlauncher.common.R
 import org.elnix.dragonlauncher.common.logging.logD
 import org.elnix.dragonlauncher.common.logging.logE
@@ -102,6 +104,7 @@ import org.elnix.dragonlauncher.common.utils.circles.rememberNestNavigation
 import org.elnix.dragonlauncher.common.utils.showToast
 import org.elnix.dragonlauncher.models.AppsViewModel
 import org.elnix.dragonlauncher.settings.stores.DebugSettingsStore
+import org.elnix.dragonlauncher.settings.stores.DrawerSettingsStore
 import org.elnix.dragonlauncher.settings.stores.SwipeSettingsStore
 import org.elnix.dragonlauncher.settings.stores.UiSettingsStore
 import org.elnix.dragonlauncher.ui.components.AppPreviewTitle
@@ -137,6 +140,7 @@ fun SettingsScreen(
 ) {
     val ctx = LocalContext.current
     val extraColors = LocalExtraColors.current
+    val density = LocalDensity.current
     val scope = rememberCoroutineScope()
 
     val backgroundColor = MaterialTheme.colorScheme.background
@@ -152,6 +156,9 @@ fun SettingsScreen(
 
     val settingsDebugInfos by DebugSettingsStore.settingsDebugInfo.flow(ctx)
         .collectAsState(initial = false)
+
+    val iconsShape by DrawerSettingsStore.iconsShape.flow(ctx)
+        .collectAsState(DrawerSettingsStore.iconsShape.default)
 
     var center by remember { mutableStateOf(Offset.Zero) }
 
@@ -217,8 +224,8 @@ fun SettingsScreen(
         }
     }
 
-    val pointIconsSize = max(appIconOverlaySize, defaultPoint.size ?: 64)
-
+    val densityPixelsIconOverlaySize = appIconOverlaySize.dp.toPixels().toInt()
+    val sizePx = max(densityPixelsIconOverlaySize, defaultPoint.size ?: 128)
 
     /**
      * Reload all point icons on every change of the points, nestId, appIconOverlaySize, or default point
@@ -226,17 +233,16 @@ fun SettingsScreen(
      */
     LaunchedEffect(points, nestId, appIconOverlaySize, defaultPoint.hashCode()) {
 
-
         appsViewModel.preloadPointIcons(
             points = points.filter { it.nestId == nestId },
-            sizePx = pointIconsSize
+            sizePx = sizePx
         )
 
         /* Load asynchronously all the other points, to avoid lag */
         scope.launch(Dispatchers.IO) {
             appsViewModel.preloadPointIcons(
                 points = points,
-                sizePx = pointIconsSize
+                sizePx = sizePx
             )
         }
     }
@@ -497,7 +503,7 @@ fun SettingsScreen(
                                 onClick = {
                                     appsViewModel.preloadPointIcons(
                                         points = points,
-                                        sizePx = pointIconsSize,
+                                        sizePx = sizePx,
                                         reloadAll = true
                                     )
                                 }
@@ -586,6 +592,8 @@ fun SettingsScreen(
                         pointIcons = pointIcons,
                         nestId = nestId,
                         deepNest = 1,
+                        shape = iconsShape,
+                        density = density,
                         preventBgErasing = true
                     )
                 }
@@ -997,7 +1005,7 @@ fun SettingsScreen(
                         nestId = nestId
                     )
 
-                    appsViewModel.reloadPointIcon(newPoint)
+                    appsViewModel.reloadPointIcon(newPoint, sizePx)
 
                     applyChange {
                         points.add(newPoint)
@@ -1096,6 +1104,7 @@ fun SettingsScreen(
 
                 appsViewModel.reloadPointIcon(
                     point = point,
+                    sizePx = sizePx
                 )
 
                 applyChange {
@@ -1171,6 +1180,7 @@ fun SettingsScreen(
             alpha = alpha,
             pointIcons = pointIcons,
             point = currentPoint,
+            iconsShape = iconsShape,
             topPadding = 80.dp,
             labelSize = appLabelOverlaySize,
             iconSize = appIconOverlaySize,

@@ -1,6 +1,7 @@
 package org.elnix.dragonlauncher.common.serializables
 
 import com.google.gson.annotations.SerializedName
+import org.elnix.dragonlauncher.common.serializables.SwipeActionSerializable.OpenDragonLauncherSettings
 
 /**
  * Serializable model representing a single swipe point on a radial / circular UI.
@@ -88,3 +89,13 @@ data class SwipePointSerializable(
     @SerializedName("s")
     val size: Int? = null
 )
+
+
+fun SwipePointSerializable.applyColorAction(): Boolean = (
+            action !is SwipeActionSerializable.LaunchApp &&
+            action !is SwipeActionSerializable.LaunchShortcut &&
+            action !is OpenDragonLauncherSettings
+    ) &&
+    // Checks if the source is null (no custom icons, image, text or pack)
+    // to avoid drawing the tint on the rendered icon
+    customIcon?.type == null

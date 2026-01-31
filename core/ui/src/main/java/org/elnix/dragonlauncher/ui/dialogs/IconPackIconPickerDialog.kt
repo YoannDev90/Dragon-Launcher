@@ -33,7 +33,7 @@ fun IconPackPickerDialog(
     val packs by appsViewModel.iconPacksList.collectAsState()
 
     LaunchedEffect(Unit) {
-        appsViewModel.loadIconsPacks()
+        appsViewModel.loadIconPacks()
     }
 
     AlertDialog(
@@ -49,7 +49,7 @@ fun IconPackPickerDialog(
                     selectedPackPackage = null,
                     showClearOption = false,
                     onReloadPacks = {
-                        appsViewModel.loadIconsPacks()
+                        appsViewModel.loadIconPacks()
                     },
                     onPackClick = { pack ->
                         appsViewModel.loadAllIconsFromPack(pack)

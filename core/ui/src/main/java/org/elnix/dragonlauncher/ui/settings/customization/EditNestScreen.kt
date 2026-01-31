@@ -17,6 +17,7 @@ import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateMapOf
@@ -31,6 +32,7 @@ import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.graphics.ImageBitmap
 import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import org.elnix.dragonlauncher.common.R
@@ -41,6 +43,7 @@ import org.elnix.dragonlauncher.common.utils.vibrate
 import org.elnix.dragonlauncher.enumsui.NestEditMode
 import org.elnix.dragonlauncher.enumsui.nestEditModeIcon
 import org.elnix.dragonlauncher.enumsui.nestEditModeLabel
+import org.elnix.dragonlauncher.settings.stores.DrawerSettingsStore
 import org.elnix.dragonlauncher.settings.stores.SwipeSettingsStore
 import org.elnix.dragonlauncher.ui.components.generic.ActionRow
 import org.elnix.dragonlauncher.ui.defaultDragDistance
@@ -65,9 +68,12 @@ fun NestEditingScreen(
 
     val ctx = LocalContext.current
     val extraColors = LocalExtraColors.current
+    val density = LocalDensity.current
     val backgroundColor = MaterialTheme.colorScheme.background
     val angleColor = MaterialTheme.colorScheme.tertiary
 
+    val iconsShape by DrawerSettingsStore.iconsShape.flow(ctx)
+        .collectAsState(DrawerSettingsStore.iconsShape.default)
 
     val dragDistancesState = remember(currentNest.id) {
         mutableStateMapOf<Int, Int>().apply {
@@ -178,6 +184,8 @@ fun NestEditingScreen(
                     pointIcons = pointIcons,
                     nestId = nestId,
                     deepNest = 1,
+                    shape = iconsShape,
+                    density = density,
                     preventBgErasing = true
                 )
 

@@ -1,3 +1,5 @@
+@file:Suppress("AssignedValueIsNeverRead")
+
 package org.elnix.dragonlauncher.ui.settings.customization
 
 import androidx.compose.foundation.background
@@ -20,6 +22,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableFloatStateOf
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
@@ -40,7 +43,9 @@ import org.elnix.dragonlauncher.settings.stores.DrawerSettingsStore
 import org.elnix.dragonlauncher.ui.components.TextDivider
 import org.elnix.dragonlauncher.ui.components.settings.DrawerActionSelector
 import org.elnix.dragonlauncher.ui.components.settings.SettingsSwitchRow
+import org.elnix.dragonlauncher.ui.dialogs.ShapePickerDialog
 import org.elnix.dragonlauncher.ui.helpers.GridSizeSlider
+import org.elnix.dragonlauncher.ui.helpers.ShapeRow
 import org.elnix.dragonlauncher.ui.helpers.SwitchRow
 import org.elnix.dragonlauncher.ui.helpers.settings.SettingsLazyHeader
 
@@ -78,6 +83,8 @@ fun DrawerTab(
     val rightDrawerWidth by DrawerSettingsStore.rightDrawerWidth.flow(ctx)
         .collectAsState(initial = 0.1f)
 
+    val iconsShape by DrawerSettingsStore.iconsShape.flow(ctx)
+        .collectAsState(DrawerSettingsStore.iconsShape.default)
 
     var totalWidthPx by remember { mutableFloatStateOf(0f) }
 
@@ -89,6 +96,8 @@ fun DrawerTab(
 
     val leftActionNotDisabled = leftDrawerAction != DrawerActions.DISABLED
     val rightActionNotDisabled = rightDrawerAction != DrawerActions.DISABLED
+
+    var showShapePickerDialog by remember { mutableStateOf(false) }
 
     SettingsLazyHeader(
         title = stringResource(R.string.app_drawer),
@@ -152,6 +161,12 @@ fun DrawerTab(
                 showIcons = showAppIconsInDrawer,
                 showLabels = showAppLabelsInDrawer
             )
+        }
+
+
+        //Shapes picker
+        item {
+            ShapeRow(iconsShape) { showShapePickerDialog = true }
         }
 
 
@@ -465,5 +480,18 @@ fun DrawerTab(
 //                scope.launch { DrawerSettingsStore.drawerHomeAction.set(ctx, it) }
 //            }
 //        }
+    }
+
+    if (showShapePickerDialog) {
+        ShapePickerDialog(
+            selected = iconsShape,
+            onDismiss = { showShapePickerDialog = false }
+        ) {
+            scope.launch {
+                DrawerSettingsStore.iconsShape.set(ctx, it)
+            }
+
+            showShapePickerDialog = false
+        }
     }
 }

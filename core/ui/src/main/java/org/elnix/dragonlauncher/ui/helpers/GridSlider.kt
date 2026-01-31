@@ -39,6 +39,7 @@ import org.elnix.dragonlauncher.common.R
 import org.elnix.dragonlauncher.common.serializables.AppModel
 import org.elnix.dragonlauncher.settings.stores.DrawerSettingsStore
 import org.elnix.dragonlauncher.ui.colors.AppObjectsColors
+import org.elnix.dragonlauncher.ui.components.resolveShape
 
 @Composable
 fun GridSizeSlider(
@@ -52,6 +53,9 @@ fun GridSizeSlider(
 
     val gridSize by DrawerSettingsStore.gridSize.flow(ctx).collectAsState(initial = 1)
     var sliderValue by remember { mutableFloatStateOf(gridSize.toFloat()) }
+
+    val iconsShape by DrawerSettingsStore.iconsShape.flow(ctx)
+        .collectAsState(DrawerSettingsStore.iconsShape.default)
 
     LaunchedEffect(gridSize) {
         sliderValue = gridSize.toFloat()
@@ -97,6 +101,7 @@ fun GridSizeSlider(
             AppGrid(
                 apps = apps.take(if (gridSize == 1) 3 else gridSize),
                 icons = icons,
+                shape = resolveShape(iconsShape),
                 txtColor = MaterialTheme.colorScheme.onBackground,
                 gridSize = gridSize,
                 showIcons = showIcons,

@@ -376,7 +376,7 @@ fun AdvancedSettingsScreen(
                             ctx.openUrl("https://github.com/mlm-games/CCLauncher")
                         }
                         .background(MaterialTheme.colorScheme.surfaceVariant),
-                    contentScale = ContentScale.Crop
+                    contentScale = ContentScale.Fit
                 )
                 Image(
                     painter = painterResource(R.drawable.lucky_the_cookie),
@@ -388,7 +388,7 @@ fun AdvancedSettingsScreen(
                             ctx.openUrl("https://lthb.fr")
                         }
                         .background(MaterialTheme.colorScheme.surfaceVariant),
-                    contentScale = ContentScale.Crop
+                    contentScale = ContentScale.Fit
                 )
                 Image(
                     painter = painterResource(R.drawable.acress1),
@@ -400,7 +400,7 @@ fun AdvancedSettingsScreen(
                             ctx.openUrl("https://github.com/acress1")
                         }
                         .background(MaterialTheme.colorScheme.surfaceVariant),
-                    contentScale = ContentScale.Crop
+                    contentScale = ContentScale.Fit
                 )
                 Image(
                     painter = painterResource(R.drawable.yoanndev90),
@@ -412,7 +412,7 @@ fun AdvancedSettingsScreen(
                             ctx.openUrl("https://github.com/YoannDev90")
                         }
                         .background(MaterialTheme.colorScheme.surfaceVariant),
-                    contentScale = ContentScale.Crop
+                    contentScale = ContentScale.Fit
                 )
             }
         }

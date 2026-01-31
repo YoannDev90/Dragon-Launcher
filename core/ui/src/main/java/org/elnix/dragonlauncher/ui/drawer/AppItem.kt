@@ -16,6 +16,8 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.ImageBitmap
+import androidx.compose.ui.graphics.Shape
+import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
 import org.elnix.dragonlauncher.common.R
@@ -24,6 +26,7 @@ import org.elnix.dragonlauncher.common.serializables.AppModel
 @Composable
 fun AppItem(
     app: AppModel,
+    shape: Shape,
     showIcons: Boolean,
     showLabels: Boolean,
     txtColor: Color,
@@ -46,13 +49,19 @@ fun AppItem(
                 Image(
                     bitmap = icon,
                     contentDescription = app.name,
-                    modifier = Modifier.size(32.dp)
+                    modifier = Modifier
+                        .size(32.dp)
+                        .clip(shape),
+                    contentScale = ContentScale.Fit
                 )
             } else {
                 Image(
                     painter = painterResource(R.drawable.ic_app_default),
                     contentDescription = app.name,
-                    modifier = Modifier.size(32.dp)
+                    modifier = Modifier
+                        .size(32.dp)
+                        .clip(shape),
+                    contentScale = ContentScale.Fit
                 )
             }
             Spacer(Modifier.width(12.dp))
