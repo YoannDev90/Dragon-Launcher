@@ -15,6 +15,7 @@ import androidx.compose.foundation.layout.systemBars
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.key
 import androidx.compose.runtime.mutableLongStateOf
@@ -44,7 +45,6 @@ import org.elnix.dragonlauncher.common.serializables.SwipePointSerializable
 import org.elnix.dragonlauncher.common.serializables.defaultSwipePointsValues
 import org.elnix.dragonlauncher.common.serializables.dummySwipePoint
 import org.elnix.dragonlauncher.common.utils.TAG
-import org.elnix.dragonlauncher.common.utils.WIDGET_TAG
 import org.elnix.dragonlauncher.common.utils.WidgetHostProvider
 import org.elnix.dragonlauncher.common.utils.circles.rememberNestNavigation
 import org.elnix.dragonlauncher.models.AppLifecycleViewModel
@@ -94,9 +94,6 @@ fun MainScreen(
     val floatingAppObjects by floatingAppsViewModel.floatingApps.collectAsState()
     val defaultPoint by appsViewModel.defaultPoint.collectAsState(defaultSwipePointsValues)
 
-    LaunchedEffect(floatingAppObjects) {
-        logE(WIDGET_TAG, floatingAppObjects.toString())
-    }
 
 //    val showMethodAsking by PrivateSettingsStore.getShowMethodAsking(ctx)
 //        .collectAsState(initial = false)
@@ -189,6 +186,12 @@ fun MainScreen(
     val nestNavigation = rememberNestNavigation(nests)
     val nestId = nestNavigation.nestId
 
+    val filteredFloatingAppObjects by remember(floatingAppObjects, nestId) {
+        derivedStateOf {
+            floatingAppObjects.filter { it.nestId == nestId }
+        }
+    }
+
 
     val dm = ctx.resources.displayMetrics
     val density = LocalDensity.current
@@ -280,7 +283,7 @@ fun MainScreen(
         modifier = Modifier
             .fillMaxSize()
             .background(Color.Transparent)
-            .pointerInput(Unit) {
+            .pointerInput(Unit, nestId) {
                 awaitPointerEventScope {
                     while (true) {
                         val event = awaitPointerEvent(PointerEventPass.Initial)
@@ -303,9 +306,9 @@ fun MainScreen(
 
                         if (isInsideForegroundWidget(
                                 pos = pos,
-                                floatingAppObjects = floatingAppObjects, // 👈 Pass this
+                                floatingAppObjects = filteredFloatingAppObjects,
                                 dm = dm,
-                                density = density, // 👈 Pass this
+                                density = density,
                                 cellSizePx = cellSizePx
                             )
                         ) {
@@ -360,7 +363,7 @@ fun MainScreen(
             .then(hold.pointerModifier)
     ) {
 
-        floatingAppObjects.filter { it.nestId == nestId }.forEach { floatingAppObject ->
+        filteredFloatingAppObjects.forEach { floatingAppObject ->
             key(floatingAppObject.id, nestId) {
                 FloatingAppsHostView(
                     floatingAppObject = floatingAppObject,
