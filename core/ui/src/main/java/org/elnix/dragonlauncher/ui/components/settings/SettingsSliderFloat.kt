@@ -21,12 +21,14 @@ import org.elnix.dragonlauncher.ui.helpers.SliderWithLabel
 fun SettingsSlider(
     setting: BaseSettingObject<Float, Float>,
     title: String,
+    description: String? = null,
     valueRange: ClosedFloatingPointRange<Float>,
     modifier: Modifier = Modifier,
     color: Color = MaterialTheme.colorScheme.primary,
     backgroundColor: Color = MaterialTheme.colorScheme.surface,
     showValue: Boolean = true,
     decimals: Int = 2,
+    allowTextEditValue: Boolean = true,
     enabled: Boolean = true,
     onDragStateChange: ((Boolean) -> Unit)? = null,
     onChange: ((Float) -> Unit)? = null
@@ -41,6 +43,7 @@ fun SettingsSlider(
     SliderWithLabel(
         modifier = modifier,
         label = title,
+        description = description,
         value = state,
         valueRange = valueRange,
         color = color,
@@ -48,6 +51,7 @@ fun SettingsSlider(
         backgroundColor = backgroundColor,
         showValue = showValue,
         decimals = decimals,
+        allowTextEditValue = allowTextEditValue,
         onReset = {
             scope.launch {
                 setting.reset(ctx)
@@ -67,6 +71,7 @@ fun SettingsSlider(
 fun SettingsSlider(
     setting: BaseSettingObject<Float, Float>,
     title: String,
+    description: String? = null,
     valueRange: ClosedFloatingPointRange<Float>,
     modifier: Modifier = Modifier,
     color: Color = MaterialTheme.colorScheme.primary,
@@ -74,6 +79,7 @@ fun SettingsSlider(
     showValue: Boolean = true,
     decimals: Int = 2,
     enabled: Boolean = true,
+    allowTextEditValue: Boolean = true,
     instantUiUpdate: Boolean,
     onDragStateChange: ((Boolean) -> Unit)? = null,
     onChange: ((Float) -> Unit)? = null
@@ -86,6 +92,7 @@ fun SettingsSlider(
     SliderWithLabel(
         modifier = modifier,
         label = title,
+        description = description,
         value = state,
         valueRange = valueRange,
         color = color,
@@ -93,6 +100,7 @@ fun SettingsSlider(
         backgroundColor = backgroundColor,
         showValue = showValue,
         decimals = decimals,
+        allowTextEditValue = allowTextEditValue,
         onReset = {
             scope.launch {
                 setting.reset(ctx)

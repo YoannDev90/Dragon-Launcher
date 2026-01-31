@@ -1,14 +1,11 @@
+@file:Suppress("AssignedValueIsNeverRead")
+
 package org.elnix.dragonlauncher.ui.settings.wellbeing
 
-import android.app.AppOpsManager
-import android.content.Context
 import android.content.Intent
-import android.os.Process
 import android.provider.Settings
-import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
-import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -17,9 +14,7 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.items
-import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
@@ -30,8 +25,6 @@ import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.Slider
-import androidx.compose.material3.Switch
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
@@ -45,19 +38,25 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.ImageBitmap
-import androidx.compose.ui.graphics.asImageBitmap
+import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import androidx.core.graphics.drawable.toBitmap
 import kotlinx.coroutines.launch
 import org.elnix.dragonlauncher.common.R
+import org.elnix.dragonlauncher.common.serializables.IconShape
+import org.elnix.dragonlauncher.common.utils.hasUsageStatsPermission
 import org.elnix.dragonlauncher.models.AppsViewModel
+import org.elnix.dragonlauncher.settings.stores.DrawerSettingsStore
 import org.elnix.dragonlauncher.settings.stores.WellbeingSettingsStore
 import org.elnix.dragonlauncher.ui.components.TextDivider
+import org.elnix.dragonlauncher.ui.components.resolveShape
+import org.elnix.dragonlauncher.ui.components.settings.SettingsSlider
 import org.elnix.dragonlauncher.ui.components.settings.SettingsSwitchRow
+import org.elnix.dragonlauncher.ui.dialogs.AppPickerDialog
+import org.elnix.dragonlauncher.ui.helpers.SwitchRow
 import org.elnix.dragonlauncher.ui.helpers.settings.SettingsItem
 import org.elnix.dragonlauncher.ui.helpers.settings.SettingsLazyHeader
 
@@ -68,6 +67,8 @@ fun WellbeingTab(
 ) {
     val ctx = LocalContext.current
     val scope = rememberCoroutineScope()
+
+    val icons by appsViewModel.icons.collectAsState()
 
     val socialMediaPauseEnabled by WellbeingSettingsStore.socialMediaPauseEnabled.flow(ctx)
         .collectAsState(initial = false)
@@ -81,12 +82,21 @@ fun WellbeingTab(
     val pausedApps by WellbeingSettingsStore.getPausedAppsFlow(ctx)
         .collectAsState(initial = emptySet())
 
+    val gridSize by DrawerSettingsStore.gridSize.flow(ctx)
+        .collectAsState(initial = 1)
+    val showIcons by DrawerSettingsStore.showAppIconsInDrawer.flow(ctx)
+        .collectAsState(initial = true)
+    val showLabels by DrawerSettingsStore.showAppLabelInDrawer.flow(ctx)
+        .collectAsState(initial = true)
+    val iconsShape by DrawerSettingsStore.iconsShape.flow(ctx)
+        .collectAsState(DrawerSettingsStore.iconsShape.default)
+
+
+
     val allApps by appsViewModel.allApps.collectAsState()
 
-    var showAppSelector by remember { mutableStateOf(false) }
+    var showAppPicker by remember { mutableStateOf(false) }
     var showPermissionDialog by remember { mutableStateOf(false) }
-
-    BackHandler { onBack() }
 
     SettingsLazyHeader(
         title = stringResource(R.string.wellbeing),
@@ -111,19 +121,20 @@ fun WellbeingTab(
 
         // Guilt mode with usage permission check
         item {
-            GuiltModeRow(
+            SwitchRow(
+                state = guiltModeEnabled,
+                text = stringResource(R.string.guilt_mode),
+                subText = stringResource(R.string.guilt_mode_description),
                 enabled = socialMediaPauseEnabled,
-                checked = guiltModeEnabled,
-                onCheckedChange = { newValue ->
-                    if (newValue && !hasUsageStatsPermission(ctx)) {
-                        showPermissionDialog = true
-                    } else {
-                        scope.launch {
-                            WellbeingSettingsStore.guiltModeEnabled.set(ctx, newValue)
-                        }
+            ) { newValue ->
+                if (newValue && !hasUsageStatsPermission(ctx)) {
+                    showPermissionDialog = true
+                } else {
+                    scope.launch {
+                        WellbeingSettingsStore.guiltModeEnabled.set(ctx, newValue)
                     }
                 }
-            )
+            }
         }
 
         item {
@@ -138,26 +149,14 @@ fun WellbeingTab(
                     .background(MaterialTheme.colorScheme.surface)
                     .padding(16.dp)
             ) {
-                Text(
-                    text = stringResource(R.string.pause_duration),
-                    style = MaterialTheme.typography.bodyLarge,
-                    color = MaterialTheme.colorScheme.onSurface
-                )
-                Text(
-                    text = stringResource(R.string.pause_duration_description, pauseDuration),
-                    style = MaterialTheme.typography.bodySmall,
-                    color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.7f)
-                )
-                Spacer(modifier = Modifier.height(8.dp))
-                Slider(
-                    value = pauseDuration.toFloat(),
-                    onValueChange = { newValue ->
-                        scope.launch {
-                            WellbeingSettingsStore.pauseDurationSeconds.set(ctx, newValue.toInt())
-                        }
-                    },
-                    valueRange = 3f..60f,
-                    steps = 56,
+
+                SettingsSlider(
+                    setting = WellbeingSettingsStore.pauseDurationSeconds,
+                    title = stringResource(R.string.pause_duration),
+                    description = stringResource(R.string.pause_duration_description, pauseDuration),
+                    valueRange = 3..60,
+                    allowTextEditValue = false,
+                    showValue = false,
                     enabled = socialMediaPauseEnabled
                 )
             }
@@ -180,7 +179,7 @@ fun WellbeingTab(
                     modifier = Modifier.weight(1f),
                     enabled = socialMediaPauseEnabled
                 ) {
-                    showAppSelector = true
+                    showAppPicker = true
                 }
 
                 SettingsItem(
@@ -191,8 +190,8 @@ fun WellbeingTab(
                 ) {
                     scope.launch {
                         val installedPackages = allApps.map { it.packageName }.toSet()
-                        val socialApps = WellbeingSettingsStore.knownSocialMediaApps.filter { 
-                            it in installedPackages 
+                        val socialApps = WellbeingSettingsStore.knownSocialMediaApps.filter {
+                            it in installedPackages
                         }
                         WellbeingSettingsStore.setPausedApps(ctx, pausedApps + socialApps)
                     }
@@ -223,18 +222,12 @@ fun WellbeingTab(
             items(pausedApps.toList()) { packageName ->
                 val app = allApps.find { it.packageName == packageName }
                 val appName = app?.name ?: packageName
-                val appIcon = remember(packageName) {
-                    try {
-                        ctx.packageManager.getApplicationIcon(packageName).toBitmap().asImageBitmap()
-                    } catch (e: Exception) {
-                        null
-                    }
-                }
 
                 PausedAppItem(
                     appName = appName,
                     packageName = packageName,
-                    appIcon = appIcon,
+                    appIcon = icons[app?.packageName],
+                    iconsShape = iconsShape,
                     onRemove = {
                         scope.launch {
                             WellbeingSettingsStore.removePausedApp(ctx, packageName, pausedApps)
@@ -254,17 +247,20 @@ fun WellbeingTab(
         }
     }
 
-    if (showAppSelector) {
-        AppSelectorDialog(
-            apps = allApps.filter { it.packageName !in pausedApps },
-            onAppSelected = { packageName ->
-                scope.launch {
-                    WellbeingSettingsStore.addPausedApp(ctx, packageName, pausedApps)
-                }
-                showAppSelector = false
-            },
-            onDismiss = { showAppSelector = false }
-        )
+    if (showAppPicker) {
+        AppPickerDialog(
+            appsViewModel = appsViewModel,
+            gridSize = gridSize,
+            iconShape = iconsShape,
+            showIcons = showIcons,
+            showLabels = showLabels,
+            onDismiss = { showAppPicker = false }
+        ) {
+            scope.launch {
+                WellbeingSettingsStore.addPausedApp(ctx, it.packageName, pausedApps)
+            }
+            showAppPicker = false
+        }
     }
 
     // Usage permission dialog
@@ -294,63 +290,13 @@ fun WellbeingTab(
     }
 }
 
-/**
- * Check if the app has usage stats permission
- */
-private fun hasUsageStatsPermission(context: Context): Boolean {
-    val appOps = context.getSystemService(Context.APP_OPS_SERVICE) as AppOpsManager
-    val mode = appOps.unsafeCheckOpNoThrow(
-        AppOpsManager.OPSTR_GET_USAGE_STATS,
-        Process.myUid(),
-        context.packageName
-    )
-    return mode == AppOpsManager.MODE_ALLOWED
-}
-
-@Composable
-private fun GuiltModeRow(
-    enabled: Boolean,
-    checked: Boolean,
-    onCheckedChange: (Boolean) -> Unit
-) {
-    Row(
-        modifier = Modifier
-            .fillMaxWidth()
-            .clip(RoundedCornerShape(12.dp))
-            .background(MaterialTheme.colorScheme.surface)
-            .clickable(enabled = enabled) { onCheckedChange(!checked) }
-            .padding(16.dp),
-        verticalAlignment = Alignment.CenterVertically,
-        horizontalArrangement = Arrangement.SpaceBetween
-    ) {
-        Column(modifier = Modifier.weight(1f)) {
-            Text(
-                text = stringResource(R.string.guilt_mode),
-                style = MaterialTheme.typography.bodyLarge,
-                color = if (enabled) MaterialTheme.colorScheme.onSurface 
-                       else MaterialTheme.colorScheme.onSurface.copy(alpha = 0.5f)
-            )
-            Text(
-                text = stringResource(R.string.guilt_mode_description),
-                style = MaterialTheme.typography.bodySmall,
-                color = if (enabled) MaterialTheme.colorScheme.onSurface.copy(alpha = 0.7f)
-                       else MaterialTheme.colorScheme.onSurface.copy(alpha = 0.35f)
-            )
-        }
-        Spacer(modifier = Modifier.width(8.dp))
-        Switch(
-            checked = checked,
-            onCheckedChange = onCheckedChange,
-            enabled = enabled
-        )
-    }
-}
 
 @Composable
 private fun PausedAppItem(
     appName: String,
     packageName: String,
     appIcon: ImageBitmap?,
+    iconsShape: IconShape,
     onRemove: () -> Unit
 ) {
     Row(
@@ -373,7 +319,8 @@ private fun PausedAppItem(
                     contentDescription = appName,
                     modifier = Modifier
                         .size(40.dp)
-                        .clip(CircleShape)
+                        .clip(resolveShape(iconsShape)),
+                    contentScale = ContentScale.Fit
                 )
             } else {
                 Icon(
@@ -407,67 +354,4 @@ private fun PausedAppItem(
             )
         }
     }
-}
-
-@Composable
-private fun AppSelectorDialog(
-    apps: List<org.elnix.dragonlauncher.common.serializables.AppModel>,
-    onAppSelected: (String) -> Unit,
-    onDismiss: () -> Unit
-) {
-    val ctx = LocalContext.current
-
-    AlertDialog(
-        onDismissRequest = onDismiss,
-        title = { Text(stringResource(R.string.select_app)) },
-        text = {
-            Column(
-                modifier = Modifier.height(400.dp),
-                verticalArrangement = Arrangement.spacedBy(4.dp)
-            ) {
-                androidx.compose.foundation.lazy.LazyColumn {
-                    items(apps.sortedBy { it.name }) { app ->
-                        val appIcon = remember(app.packageName) {
-                            try {
-                                ctx.packageManager.getApplicationIcon(app.packageName)
-                                    .toBitmap().asImageBitmap()
-                            } catch (e: Exception) {
-                                null
-                            }
-                        }
-
-                        Row(
-                            modifier = Modifier
-                                .fillMaxWidth()
-                                .clip(RoundedCornerShape(8.dp))
-                                .clickable { onAppSelected(app.packageName) }
-                                .padding(12.dp),
-                            verticalAlignment = Alignment.CenterVertically,
-                            horizontalArrangement = Arrangement.spacedBy(12.dp)
-                        ) {
-                            if (appIcon != null) {
-                                Image(
-                                    bitmap = appIcon,
-                                    contentDescription = app.name,
-                                    modifier = Modifier
-                                        .size(36.dp)
-                                        .clip(CircleShape)
-                                )
-                            }
-                            Text(
-                                text = app.name,
-                                style = MaterialTheme.typography.bodyMedium
-                            )
-                        }
-                    }
-                }
-            }
-        },
-        confirmButton = {},
-        dismissButton = {
-            TextButton(onClick = onDismiss) {
-                Text(stringResource(R.string.cancel))
-            }
-        }
-    )
 }

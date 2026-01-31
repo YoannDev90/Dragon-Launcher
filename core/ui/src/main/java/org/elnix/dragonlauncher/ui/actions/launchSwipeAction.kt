@@ -1,6 +1,5 @@
 package org.elnix.dragonlauncher.ui.actions
 
-import android.app.Activity
 import android.content.Context
 import android.content.Intent
 import android.content.pm.LauncherApps
@@ -33,7 +32,6 @@ fun launchSwipeAction(
     guiltModeEnabled: Boolean = false,
     pauseDuration: Int = 10,
     digitalPauseLauncher: ActivityResultLauncher<Intent>? = null,
-//    onAskWhatMethodToUseToOpenQuickActions: (() -> Unit)? = null,
     onReloadApps: (() -> Unit)? = null,
     onReselectFile: (() -> Unit)? = null,
     onAppSettings: (() -> Unit)? = null,
@@ -87,8 +85,6 @@ fun launchSwipeAction(
                 )
             }
             else expandQuickActionsDrawer(ctx)
-//            onAskWhatMethodToUseToOpenQuickActions?.invoke()
-
         }
 
         SwipeActionSerializable.OpenAppDrawer -> {
@@ -152,6 +148,8 @@ fun launchSwipeAction(
 }
 
 
+
+// TODO Hee it may be a big bug related to launching package: if an app is in both normal  and work, it may launch the first that it finds
 /**
  * Launch an app directly without any pause check.
  * Used both by launchSwipeAction and after the digital pause screen.

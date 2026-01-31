@@ -19,12 +19,14 @@ import org.elnix.dragonlauncher.ui.helpers.SliderWithLabel
 fun SettingsSlider(
     setting: BaseSettingObject<Int, Int>,
     title: String,
+    description: String? = null,
     valueRange: IntRange,
     modifier: Modifier = Modifier,
     color: Color = MaterialTheme.colorScheme.primary,
     backgroundColor: Color = MaterialTheme.colorScheme.surface,
     showValue: Boolean = true,
     enabled: Boolean = true,
+    allowTextEditValue: Boolean = true,
     onDragStateChange: ((Boolean) -> Unit)? = null,
     onChange: ((Int) -> Unit)? = null,
 ) {
@@ -38,10 +40,12 @@ fun SettingsSlider(
     SliderWithLabel(
         modifier = modifier,
         label = title,
+        description = description,
         value = state,
         valueRange = valueRange,
         color = color,
         enabled = enabled,
+        allowTextEditValue = allowTextEditValue,
         backgroundColor = backgroundColor,
         showValue = showValue,
         onReset = {
@@ -63,12 +67,14 @@ fun SettingsSlider(
 fun SettingsSlider(
     setting: BaseSettingObject<Int, Int>,
     title: String,
+    description: String? = null,
     valueRange: IntRange,
     modifier: Modifier = Modifier,
     color: Color = MaterialTheme.colorScheme.primary,
     backgroundColor: Color = MaterialTheme.colorScheme.surface,
     showValue: Boolean = true,
     enabled: Boolean = true,
+    allowTextEditValue: Boolean = true,
     instantUiUpdate: Boolean,
     onDragStateChange: ((Boolean) -> Unit)? = null,
     onChange: ((Int) -> Unit)? = null
@@ -81,10 +87,12 @@ fun SettingsSlider(
     SliderWithLabel(
         modifier = modifier,
         label = title,
+        description = description,
         value = state,
         valueRange = valueRange,
         color = color,
         enabled = enabled,
+        allowTextEditValue = allowTextEditValue,
         backgroundColor = backgroundColor,
         showValue = showValue,
         onReset = {

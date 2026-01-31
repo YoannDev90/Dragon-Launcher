@@ -321,6 +321,17 @@ fun Long.formatDateTime(): String {
         .format(Date(this))
 }
 
+fun Long.formatDuration(): String {
+    return when {
+        this >= 60 -> {
+            val hours = this / 60
+            val mins = this % 60
+            if (mins > 0) "${hours}h ${mins}m" else "${hours}h"
+        }
+        else -> "$this min"
+    }
+}
+
 //fun Long.timeAgo(): String {
 //    val seconds = (System.currentTimeMillis() - this) / 1000
 //    return when {

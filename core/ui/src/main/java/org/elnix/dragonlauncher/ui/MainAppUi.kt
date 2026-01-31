@@ -271,7 +271,6 @@ fun MainAppUi(
                     widgetHostProvider = widgetHostProvider,
                     onAppDrawer = { goDrawer() },
                     onGoWelcome = { goWelcome() },
-//                    ontest = { navController.navigate("test") },
                     onLongPress3Sec = { goSettingsRoot() }
                 )
             }
@@ -291,19 +290,6 @@ fun MainAppUi(
                     rightWeight = rightDrawerWidth
                 ) { goMainScreen() }
             }
-//
-//            noAnimComposable("test") {
-//                SettingsLazyHeader(
-//                    title = "test",
-//                    onBack = ::goMainScreen,
-//                    helpText = "",
-//                    onReset = null
-//                ) {
-//                    item {
-//                        Text("Test")
-//                    }
-//                }
-//            }
 
             // Welcome screen
             noAnimComposable(ROUTES.WELCOME) {

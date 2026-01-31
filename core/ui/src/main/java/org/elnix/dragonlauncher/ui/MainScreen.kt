@@ -1,8 +1,6 @@
 package org.elnix.dragonlauncher.ui
 
 import android.annotation.SuppressLint
-import android.app.Activity
-import android.content.Intent
 import android.os.Build
 import android.util.DisplayMetrics
 import androidx.activity.compose.BackHandler
@@ -45,6 +43,7 @@ import kotlinx.coroutines.launch
 import org.elnix.dragonlauncher.base.ktx.toPixels
 import org.elnix.dragonlauncher.common.FloatingAppObject
 import org.elnix.dragonlauncher.common.logging.logE
+import org.elnix.dragonlauncher.common.serializables.SwipeActionSerializable
 import org.elnix.dragonlauncher.common.serializables.SwipePointSerializable
 import org.elnix.dragonlauncher.common.serializables.defaultSwipePointsValues
 import org.elnix.dragonlauncher.common.serializables.dummySwipePoint
@@ -83,29 +82,20 @@ fun MainScreen(
     appsViewModel: AppsViewModel,
     floatingAppsViewModel: FloatingAppsViewModel,
     appLifecycleViewModel: AppLifecycleViewModel,
-//    wallpaperViewModel: WallpaperViewModel,
     widgetHostProvider: WidgetHostProvider,
     onAppDrawer: () -> Unit,
     onGoWelcome: () -> Unit,
-//    ontest: () -> Unit,
     onLongPress3Sec: () -> Unit
 ) {
     val ctx = LocalContext.current
-//    val extraColors = LocalExtraColors.current
     val scope = rememberCoroutineScope()
 
     var showFilePicker: SwipePointSerializable? by remember { mutableStateOf(null) }
-//    var showMethodDialog by remember { mutableStateOf(false) }
     var lastClickTime by remember { mutableLongStateOf(0L) }
 
     val floatingAppObjects by floatingAppsViewModel.floatingApps.collectAsState()
     val defaultPoint by appsViewModel.defaultPoint.collectAsState(defaultSwipePointsValues)
 
-
-//    val showMethodAsking by PrivateSettingsStore.getShowMethodAsking(ctx)
-//        .collectAsState(initial = false)
-    // Removed hacky popup on notifications, use debug on my phone to open quick settings
-//    val showMethodAsking = false
 
     val doubleClickAction by BehaviorSettingsStore.doubleClickAction.flow(ctx)
         .collectAsState(initial = null)
@@ -267,7 +257,7 @@ fun MainScreen(
 
         // Store package for potential pause callback
         val action = point?.action
-        if (action is org.elnix.dragonlauncher.common.serializables.SwipeActionSerializable.LaunchApp) {
+        if (action is SwipeActionSerializable.LaunchApp) {
             pendingPackageToLaunch = action.packageName
         }
 
@@ -281,7 +271,6 @@ fun MainScreen(
                 guiltModeEnabled = guiltModeEnabled,
                 pauseDuration = pauseDuration,
                 digitalPauseLauncher = digitalPauseLauncher,
-//                onAskWhatMethodToUseToOpenQuickActions = { showMethodDialog = true },
                 onReloadApps = { scope.launch { appsViewModel.reloadApps() } },
                 onReselectFile = { showFilePicker = point },
                 onAppSettings = onLongPress3Sec,
@@ -491,36 +480,6 @@ fun MainScreen(
             }
         )
     }
-
-
-//    if (showMethodDialog and showMethodAsking) {
-//        UserValidation(
-//            title = stringResource(R.string.what_method_to_open_quick_actions),
-//            message = stringResource(R.string.did_the_notif_or_quick_actions),
-//            validateText = stringResource(R.string.quick_actions),
-//            cancelText = stringResource(R.string.notifications),
-//            canDismissByOuterClick = false,
-//            doNotRemindMeAgain = {
-//                scope.launch {
-//                    PrivateSettingsStore.setShowMethodAsking(ctx, false)
-//                }
-//            },
-//            onCancel = {
-//                // The simple ctx method didn't work, so forced to use the accessibility method, that doesn't work well on my phone
-//                scope.launch {
-//                    DebugSettingsStore.setUseAccessibilityInsteadOfContextToExpandActionPanel(ctx, false)
-//                }
-//                showMethodDialog = false
-//            },
-//            onAgree = {
-//                // The simple ctx method worked, keep it
-//                scope.launch {
-//                    DebugSettingsStore.setUseAccessibilityInsteadOfContextToExpandActionPanel(ctx, true)
-//                }
-//                showMethodDialog = false
-//            }
-//        )
-//    }
 }
 
 

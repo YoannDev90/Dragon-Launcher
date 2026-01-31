@@ -59,6 +59,7 @@ import kotlin.math.roundToInt
 private fun SliderWithLabelInternal(
     modifier: Modifier,
     label: String?,
+    description: String? = null,
     value: Float,
     valueRange: ClosedFloatingPointRange<Float>,
     steps: Int,
@@ -67,6 +68,7 @@ private fun SliderWithLabelInternal(
     valueText: String,
     backgroundColor: Color,
     enabled: Boolean,
+    allowTextEditValue: Boolean,
     onReset: (() -> Unit)?,
     onDragStateChange: ((Boolean) -> Unit)?,
     onChange: (Float) -> Unit
@@ -83,18 +85,33 @@ private fun SliderWithLabelInternal(
             horizontalArrangement = Arrangement.spacedBy(5.dp),
             verticalAlignment = Alignment.CenterVertically
         ) {
-            if (label != null) {
-                Text(
-                    text = label,
-                    color = displayColor,
-                    textAlign = TextAlign.Center,
-                    modifier = Modifier.weight(1f)
-                )
+            Column(
+                modifier = Modifier.weight(1f)
+
+            ) {
+                if (label != null) {
+                    Text(
+                        text = label,
+                        color = displayColor,
+                        textAlign = TextAlign.Center,
+                        style = MaterialTheme.typography.bodyLarge,
+//                        modifier = Modifier.weight(1f)
+                    )
+                }
+                if (description != null) {
+                    Text(
+                        text = description,
+                        color = displayColor.copy(0.8f),
+                        style = MaterialTheme.typography.bodySmall,
+//                        modifier = Modifier.weight(1f)
+                    )
+                }
             }
 
             if (showValue) {
 
                 TextField(
+                    enabled = allowTextEditValue,
                     value = valueText,
                     onValueChange = {
                         try {
@@ -119,6 +136,8 @@ private fun SliderWithLabelInternal(
                     colors = AppObjectsColors.outlinedTextFieldColors(
                         removeBorder = true,
                         backgroundColor = backgroundColor
+                    ).copy(
+                        disabledTextColor = MaterialTheme.colorScheme.primary
                     ),
                     keyboardOptions = KeyboardOptions(
                         keyboardType = KeyboardType.Number
@@ -185,12 +204,14 @@ private fun SliderWithLabelInternal(
 fun SliderWithLabel(
     modifier: Modifier = Modifier,
     label: String? = null,
+    description: String? = null,
     value: Int,
     valueRange: IntRange,
     enabled: Boolean = true,
     color: Color = MaterialTheme.colorScheme.primary,
     backgroundColor: Color = MaterialTheme.colorScheme.surface,
     showValue: Boolean = true,
+    allowTextEditValue: Boolean = true,
     onReset: (() -> Unit)? = null,
     onDragStateChange: ((Boolean) -> Unit)? = null,
     onChange: (Int) -> Unit
@@ -207,6 +228,7 @@ fun SliderWithLabel(
     SliderWithLabelInternal(
         modifier = modifier,
         label = label,
+        description = description,
         value = value.toFloat(),
         valueRange = floatRange,
         steps = steps,
@@ -215,6 +237,7 @@ fun SliderWithLabel(
         valueText = value.toString(),
         backgroundColor = backgroundColor,
         enabled = enabled,
+        allowTextEditValue = allowTextEditValue,
         onReset = onReset,
         onDragStateChange = onDragStateChange
     ) { floatValue ->
@@ -246,6 +269,7 @@ fun SliderWithLabel(
 fun SliderWithLabel(
     modifier: Modifier = Modifier,
     label: String? = null,
+    description: String? = null,
     value: Float,
     valueRange: ClosedFloatingPointRange<Float>,
     color: Color = MaterialTheme.colorScheme.primary,
@@ -253,6 +277,7 @@ fun SliderWithLabel(
     backgroundColor: Color = MaterialTheme.colorScheme.surface,
     showValue: Boolean = true,
     decimals: Int = 2,
+    allowTextEditValue: Boolean = true,
     onReset: (() -> Unit)? = null,
     onDragStateChange: ((Boolean) -> Unit)? = null,
     onChange: (Float) -> Unit
@@ -264,6 +289,7 @@ fun SliderWithLabel(
     SliderWithLabelInternal(
         modifier = modifier,
         label = label,
+        description = description,
         value = value,
         valueRange = valueRange,
         steps = 0,
@@ -272,6 +298,7 @@ fun SliderWithLabel(
         valueText = valueText,
         backgroundColor = backgroundColor,
         enabled = enabled,
+        allowTextEditValue = allowTextEditValue,
         onReset = onReset,
         onDragStateChange = onDragStateChange,
         onChange = onChange

@@ -1,30 +1,65 @@
 package org.elnix.dragonlauncher.ui.wellbeing
 
-import android.app.AppOpsManager
 import android.app.usage.UsageStatsManager
 import android.content.Context
 import android.content.Intent
-import android.os.Build
 import android.os.Bundle
 import android.provider.Settings
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
-import androidx.compose.animation.*
-import androidx.compose.animation.core.*
+import androidx.compose.animation.AnimatedContent
+import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.animation.animateColor
+import androidx.compose.animation.core.FastOutSlowInEasing
+import androidx.compose.animation.core.LinearEasing
+import androidx.compose.animation.core.RepeatMode
+import androidx.compose.animation.core.animateFloat
+import androidx.compose.animation.core.infiniteRepeatable
+import androidx.compose.animation.core.keyframes
+import androidx.compose.animation.core.rememberInfiniteTransition
+import androidx.compose.animation.core.tween
+import androidx.compose.animation.expandVertically
+import androidx.compose.animation.fadeIn
+import androidx.compose.animation.fadeOut
+import androidx.compose.animation.shrinkVertically
+import androidx.compose.animation.slideInVertically
+import androidx.compose.animation.togetherWith
 import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
-import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.ColumnScope
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.offset
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.systemBarsPadding
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material3.*
-import androidx.compose.runtime.*
+import androidx.compose.material3.Button
+import androidx.compose.material3.ButtonDefaults
+import androidx.compose.material3.HorizontalDivider
+import androidx.compose.material3.OutlinedButton
+import androidx.compose.material3.Surface
+import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableIntStateOf
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.draw.scale
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
@@ -32,7 +67,6 @@ import androidx.compose.ui.graphics.Path
 import androidx.compose.ui.graphics.drawscope.rotate
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.platform.LocalContext
-import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontStyle
@@ -43,6 +77,8 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import kotlinx.coroutines.delay
 import org.elnix.dragonlauncher.common.R
+import org.elnix.dragonlauncher.common.utils.formatDuration
+import org.elnix.dragonlauncher.common.utils.hasUsageStatsPermission
 import org.elnix.dragonlauncher.ui.theme.DragonLauncherTheme
 import java.util.Calendar
 import kotlin.random.Random
@@ -95,6 +131,7 @@ class DigitalPauseActivity : ComponentActivity() {
     @Deprecated("Deprecated in Java")
     override fun onBackPressed() {
         setResult(RESULT_CANCEL)
+        @Suppress("DEPRECATION")
         super.onBackPressed()
     }
 }
@@ -120,7 +157,8 @@ fun DigitalPauseScreen(
     var showChoice by remember { mutableStateOf(false) }
     var currentPhraseIndex by remember { mutableIntStateOf(0) }
 
-    // Ta liste de phrases restaurée
+
+    // List of sentence to make user feel bad
     val breathingPhrases = listOf(
         stringResource(R.string.pause_breathe_1),
         stringResource(R.string.pause_breathe_2),
@@ -130,11 +168,11 @@ fun DigitalPauseScreen(
     )
 
     val usageStats = remember(packageName, guiltMode) {
-        if (guiltMode && hasUsagePermission(ctx)) getUsageStats(ctx, packageName) else null
+        if (guiltMode && hasUsageStatsPermission(ctx)) getUsageStats(ctx, packageName) else null
     }
-    val hasPermission = remember { hasUsagePermission(ctx) }
+    val hasPermission = remember { hasUsageStatsPermission(ctx) }
 
-    // Logique Timer
+    // Logic Timer
     LaunchedEffect(Unit) {
         while (countdown > 0) {
             delay(1000)
@@ -158,17 +196,16 @@ fun DigitalPauseScreen(
                 .systemBarsPadding()
                 .padding(24.dp)
         ) {
-            
+
             // --- LOTUS ---
-            // Le lotus est seul ici, sans texte à l'intérieur
             AnimatedLotus(
-                modifier = Modifier.size(220.dp), // Légèrement plus grand
+                modifier = Modifier.size(220.dp),
                 isPulsing = !showChoice
             )
 
-            // --- TIMER (DÉPLACÉ EN DESSOUS) ---
+            // --- TIMER ---
             Spacer(modifier = Modifier.height(32.dp))
-            
+
             AnimatedVisibility(
                 visible = !showChoice,
                 enter = fadeIn() + expandVertically(),
@@ -182,7 +219,7 @@ fun DigitalPauseScreen(
                         fontFamily = FontFamily.SansSerif,
                         color = Color.White.copy(alpha = 0.9f)
                     )
-                    
+
                     Spacer(modifier = Modifier.height(24.dp))
 
                     // Phrase de respiration
@@ -190,7 +227,7 @@ fun DigitalPauseScreen(
                 }
             }
 
-            // --- CHOIX FINAL ---
+            // --- FINAL CHOICE ---
             AnimatedVisibility(
                 visible = showChoice,
                 enter = fadeIn(tween(600)) + slideInVertically { it / 4 },
@@ -221,7 +258,7 @@ fun DigitalPauseScreen(
                         Spacer(modifier = Modifier.height(32.dp))
                     }
 
-                    // Bouton Annuler (Non merci)
+                    // Cancel Button
                     Button(
                         onClick = onCancel,
                         modifier = Modifier
@@ -242,7 +279,7 @@ fun DigitalPauseScreen(
 
                     Spacer(modifier = Modifier.height(16.dp))
 
-                    // Bouton Continuer (Oui)
+                    // Button Continue
                     TextButton(
                         onClick = onProceed,
                         colors = ButtonDefaults.textButtonColors(contentColor = TextSecondary)
@@ -258,9 +295,6 @@ fun DigitalPauseScreen(
     }
 }
 
-// -------------------------------------------------------------------------
-// COMPOSANT LOTUS CORRIGÉ (PLUS DE TROUS)
-// -------------------------------------------------------------------------
 @Composable
 private fun AnimatedLotus(
     modifier: Modifier = Modifier,
@@ -268,7 +302,7 @@ private fun AnimatedLotus(
 ) {
     val infiniteTransition = rememberInfiniteTransition(label = "lotus")
 
-    // Rotation très lente pour l'effet zen
+    // Slow rotation for ZEN effect
     val rotation by infiniteTransition.animateFloat(
         initialValue = 0f,
         targetValue = 360f,
@@ -279,7 +313,7 @@ private fun AnimatedLotus(
         label = "rotation"
     )
 
-    // Respiration (Scale)
+    // Breathing (Scale)
     val pulseScale by infiniteTransition.animateFloat(
         initialValue = 1f,
         targetValue = if (isPulsing) 1.1f else 1f,
@@ -297,8 +331,7 @@ private fun AnimatedLotus(
     }) {
         val centerX = size.width / 2
         val centerY = size.height / 2
-        // Rayon légèrement réduit pour laisser de la place aux pointes
-        val radius = size.minDimension / 2.2f 
+        val radius = size.minDimension / 2.2f
 
         // 1. Glow global derrière
         drawCircle(
@@ -310,26 +343,25 @@ private fun AnimatedLotus(
             radius = radius * 1.5f
         )
 
-        // Fonction locale pour dessiner une couche de pétales
+        // Local function that draw a petal layer
         fun drawPetalLayer(count: Int, scale: Float, alphaMult: Float, colorOffset: Int) {
             for (i in 0 until count) {
                 val angle = (360f / count) * i
-                // On utilise HSV/HSL (via copie de couleur) pour varier les teintes
-                // Simulé ici avec une liste simple interpolée
+                // uses HSV/HSL via color copy to vary
                 val baseColor = if ((i + colorOffset) % 2 == 0) Color(0xFFE056FD) else Color(0xFF686DE0)
-                
+
                 rotate(angle, pivot = center) {
                     val path = Path().apply {
                         val r = radius * scale
                         moveTo(centerX, centerY)
-                        // Pétale plus large à la base (cubicTo ajusté)
-                        // Gauche
+                        // Petal larger at root (cubicTo adjusted)
+                        // Left
                         cubicTo(
-                            centerX + r * 0.35f, centerY - r * 0.4f, // Control 1 (plus large)
-                            centerX + r * 0.15f, centerY - r * 0.95f, // Control 2 (pointe)
-                            centerX, centerY - r                      // Sommet
+                            centerX + r * 0.35f, centerY - r * 0.4f, // Control 1 (larger)
+                            centerX + r * 0.15f, centerY - r * 0.95f, // Control 2 (tip)
+                            centerX, centerY - r                      // Summit
                         )
-                        // Droite
+                        // Right
                         cubicTo(
                             centerX - r * 0.15f, centerY - r * 0.95f,
                             centerX - r * 0.35f, centerY - r * 0.4f,
@@ -349,7 +381,7 @@ private fun AnimatedLotus(
                             end = Offset(centerX, centerY - radius * scale)
                         )
                     )
-                    // Contour très fin
+                    // Thin outline
                     androidx.compose.ui.graphics.drawscope.Stroke(
                         width = 1.dp.toPx(),
                         pathEffect = null
@@ -360,15 +392,15 @@ private fun AnimatedLotus(
             }
         }
 
-        // COUCHE 1 (Arrière-plan, plus grande, plus de pétales)
+        // LAYER 1: More petals
         drawPetalLayer(count = 12, scale = 1.0f, alphaMult = 0.7f, colorOffset = 0)
 
-        // COUCHE 2 (Avant-plan, légèrement plus petite, décalée)
-        rotate(15f, pivot = center) { // Décalage angulaire pour boucher les trous
+        // Layer 2, a little offset, less petals
+        rotate(15f, pivot = center) { // angular offset to fill gaps
             drawPetalLayer(count = 8, scale = 0.75f, alphaMult = 1.0f, colorOffset = 1)
         }
 
-        // Cœur du Lotus (Lumière centrale)
+        // LOTUS HEART (light)
         drawCircle(
             brush = Brush.radialGradient(
                 colors = listOf(Color.White, Color(0xFFFFD700).copy(alpha = 0.5f), Color.Transparent),
@@ -379,10 +411,6 @@ private fun AnimatedLotus(
         )
     }
 }
-
-// -------------------------------------------------------------------------
-// RESTE DES COMPOSANTS (GlassCard, Aurora, etc. inchangés mais inclus pour copier/coller)
-// -------------------------------------------------------------------------
 
 @Composable
 private fun AuroraBackground() {
@@ -411,7 +439,7 @@ private fun AuroraBackground() {
 @Composable
 private fun FloatingParticles(modifier: Modifier = Modifier) {
     val particles = remember {
-        List(15) { // Un peu moins de particules pour la performance
+        List(15) {
             ParticleData(
                 x = Random.nextFloat(),
                 y = Random.nextFloat(),
@@ -451,7 +479,7 @@ private fun FloatingParticles(modifier: Modifier = Modifier) {
             Box(
                 modifier = Modifier
                     .offset(
-                        x = (particle.x * 1000).dp, // Approximation pour couvrir l'écran
+                        x = (particle.x * 1000).dp,
                         y = (particle.y * 2000).dp + yOffset.dp
                     )
                     .size(particle.size)
@@ -502,14 +530,13 @@ private fun BreathingText(text: String) {
     }
 }
 
-// --- LOGIQUE STATS (Identique) ---
 
 @Composable
 private fun UsageStatsDisplay(stats: AppUsageStats) {
     Column(horizontalAlignment = Alignment.CenterHorizontally) {
         if (stats.yesterdayMinutes > 0) {
             Text(
-                text = stringResource(R.string.usage_yesterday, formatDuration(stats.yesterdayMinutes)),
+                text = stringResource(R.string.usage_yesterday, stats.yesterdayMinutes.formatDuration()),
                 fontSize = 16.sp,
                 color = TextSecondary
             )
@@ -529,8 +556,8 @@ private fun UsageStatsDisplay(stats: AppUsageStats) {
         HorizontalDivider(color = Color.White.copy(alpha=0.1f), thickness = 1.dp)
         Spacer(modifier = Modifier.height(12.dp))
         Text(
-            text = if (stats.todayMinutes > 0) 
-                stringResource(R.string.usage_today, formatDuration(stats.todayMinutes))
+            text = if (stats.todayMinutes > 0)
+                stringResource(R.string.usage_today, stats.todayMinutes.formatDuration())
             else stringResource(R.string.usage_no_data),
             fontSize = 14.sp,
             color = TextWhite.copy(alpha = 0.8f)
@@ -564,27 +591,6 @@ private fun PermissionNeededContent(ctx: Context) {
 
 data class AppUsageStats(val yesterdayMinutes: Long, val todayMinutes: Long)
 
-private fun formatDuration(minutes: Long): String {
-    return when {
-        minutes >= 60 -> {
-            val hours = minutes / 60
-            val mins = minutes % 60
-            if (mins > 0) "${hours}h ${mins}m" else "${hours}h"
-        }
-        else -> "${minutes}min"
-    }
-}
-
-private fun hasUsagePermission(ctx: Context): Boolean {
-    val appOps = ctx.getSystemService(Context.APP_OPS_SERVICE) as AppOpsManager
-    val mode = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
-        appOps.unsafeCheckOpNoThrow(AppOpsManager.OPSTR_GET_USAGE_STATS, android.os.Process.myUid(), ctx.packageName)
-    } else {
-        @Suppress("DEPRECATION")
-        appOps.checkOpNoThrow(AppOpsManager.OPSTR_GET_USAGE_STATS, android.os.Process.myUid(), ctx.packageName)
-    }
-    return mode == AppOpsManager.MODE_ALLOWED
-}
 
 private fun getUsageStats(ctx: Context, packageName: String): AppUsageStats? {
     return try {

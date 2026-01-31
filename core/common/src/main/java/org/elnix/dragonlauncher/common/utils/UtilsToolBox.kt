@@ -1,8 +1,11 @@
 package org.elnix.dragonlauncher.common.utils
 
 import android.app.ActivityManager
+import android.app.AppOpsManager
 import android.content.Context
 import android.content.Intent
+import android.os.Build
+import android.os.Process
 import androidx.compose.runtime.Composable
 import java.time.LocalDate
 import java.time.LocalTime
@@ -71,4 +74,29 @@ fun detectSystemLauncher(ctx: Context): String? {
     }
 
     return null  // No system launcher detected
+}
+
+
+
+fun hasUsageStatsPermission(context: Context): Boolean {
+    val appOps = context.getSystemService(Context.APP_OPS_SERVICE) as AppOpsManager
+    val uid = Process.myUid()
+    val pkg = context.packageName
+
+    val mode = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
+        appOps.unsafeCheckOpNoThrow(
+            AppOpsManager.OPSTR_GET_USAGE_STATS,
+            uid,
+            pkg
+        )
+    } else {
+        @Suppress("DEPRECATION")
+        appOps.checkOpNoThrow(
+            AppOpsManager.OPSTR_GET_USAGE_STATS,
+            uid,
+            pkg
+        )
+    }
+
+    return mode == AppOpsManager.MODE_ALLOWED
 }
