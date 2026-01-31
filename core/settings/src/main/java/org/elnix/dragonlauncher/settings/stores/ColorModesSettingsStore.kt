@@ -19,7 +19,8 @@ object ColorModesSettingsStore : MapSettingsStore() {
         get() = listOf(
             colorPickerMode,
             colorCustomisationMode,
-            defaultTheme
+            defaultTheme,
+            dynamicColor
         )
 
 
@@ -55,5 +56,11 @@ object ColorModesSettingsStore : MapSettingsStore() {
         dataStoreName = dataStoreName,
         default = ColorPickerButtonAction.COPY,
         enumClass = ColorPickerButtonAction::class.java
+    )
+
+    val dynamicColor = Settings.boolean(
+        key = "dynamicColor",
+        dataStoreName = ColorSettingsStore.dataStoreName,
+        default = false
     )
 }

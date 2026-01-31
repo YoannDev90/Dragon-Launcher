@@ -14,7 +14,6 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.CircleShape
-import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.AllInclusive
 import androidx.compose.material.icons.filled.InvertColors
@@ -43,6 +42,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
@@ -55,9 +55,13 @@ import org.elnix.dragonlauncher.common.utils.colors.adjustBrightness
 import org.elnix.dragonlauncher.common.utils.colors.blendWith
 import org.elnix.dragonlauncher.enumsui.ColorCustomisationMode
 import org.elnix.dragonlauncher.enumsui.DefaultThemes
+import org.elnix.dragonlauncher.enumsui.DefaultThemes.AMOLED
+import org.elnix.dragonlauncher.enumsui.DefaultThemes.CUSTOM
+import org.elnix.dragonlauncher.enumsui.DefaultThemes.DARK
+import org.elnix.dragonlauncher.enumsui.DefaultThemes.LIGHT
+import org.elnix.dragonlauncher.enumsui.DefaultThemes.SYSTEM
 import org.elnix.dragonlauncher.enumsui.colorCustomizationModeName
 import org.elnix.dragonlauncher.enumsui.defaultThemeName
-import org.elnix.dragonlauncher.settings.applyDefaultThemeColors
 import org.elnix.dragonlauncher.settings.stores.ColorModesSettingsStore
 import org.elnix.dragonlauncher.settings.stores.ColorSettingsStore
 import org.elnix.dragonlauncher.ui.UiConstants.DragonShape
@@ -66,6 +70,7 @@ import org.elnix.dragonlauncher.ui.colors.ColorPickerRow
 import org.elnix.dragonlauncher.ui.components.TextDivider
 import org.elnix.dragonlauncher.ui.components.burger.BurgerAction
 import org.elnix.dragonlauncher.ui.components.burger.BurgerListAction
+import org.elnix.dragonlauncher.ui.components.settings.SettingsSwitchRow
 import org.elnix.dragonlauncher.ui.dialogs.UserValidation
 import org.elnix.dragonlauncher.ui.helpers.settings.SettingsLazyHeader
 import org.elnix.dragonlauncher.ui.theme.LocalExtraColors
@@ -116,7 +121,7 @@ fun ColorSelectorTab(
     val goParentCircle by ColorSettingsStore.goParentNestColor.flow(ctx).collectAsState(initial = null)
 
     val colorCustomisationMode by ColorModesSettingsStore.colorCustomisationMode.flow(ctx).collectAsState(initial = ColorCustomisationMode.DEFAULT)
-    val selectedDefaultTheme by ColorModesSettingsStore.defaultTheme.flow(ctx).collectAsState(initial = DefaultThemes.DARK)
+    val selectedDefaultTheme by ColorModesSettingsStore.defaultTheme.flow(ctx).collectAsState(initial = DARK)
 
 
     var showResetValidation by remember { mutableStateOf(false) }
@@ -213,77 +218,79 @@ fun ColorSelectorTab(
             }
         }
 
-        item {
-            Row(
-                horizontalArrangement = Arrangement.spacedBy(10.dp),
-                verticalAlignment = Alignment.CenterVertically
-            ) {
-                Button(
-                    onClick = { showResetValidation = true },
-                    modifier = Modifier.weight(1f),
-                    colors = AppObjectsColors.buttonColors()
+        if (colorCustomisationMode != ColorCustomisationMode.DEFAULT) {
+            item {
+                Row(
+                    horizontalArrangement = Arrangement.spacedBy(10.dp),
+                    verticalAlignment = Alignment.CenterVertically
                 ) {
-                    Icon(
-                        imageVector = Icons.Default.Restore,
-                        contentDescription = stringResource(R.string.reset),
-                        tint = MaterialTheme.colorScheme.onPrimary,
-                        modifier = Modifier
-                            .clip(CircleShape)
-                            .padding(5.dp)
-                    )
+                    Button(
+                        onClick = { showResetValidation = true },
+                        modifier = Modifier.weight(1f),
+                        colors = AppObjectsColors.buttonColors()
+                    ) {
+                        Icon(
+                            imageVector = Icons.Default.Restore,
+                            contentDescription = stringResource(R.string.reset),
+                            tint = MaterialTheme.colorScheme.onPrimary,
+                            modifier = Modifier
+                                .clip(CircleShape)
+                                .padding(5.dp)
+                        )
 
-                    Text(
-                        text = stringResource(R.string.reset_to_default_colors),
-                        color = MaterialTheme.colorScheme.onPrimary
-                    )
-                }
-                if (colorCustomisationMode == ColorCustomisationMode.ALL) {
+                        Text(
+                            text = stringResource(R.string.reset_to_default_colors),
+                            color = MaterialTheme.colorScheme.onPrimary
+                        )
+                    }
+                    if (colorCustomisationMode == ColorCustomisationMode.ALL) {
 
-                    Box {
-                        IconButton(
-                            onClick = { showBurgerMenu = true },
-                            colors = AppObjectsColors.iconButtonColors(
-                                backgroundColor = MaterialTheme.colorScheme.primary.copy(0.5f)
-                            )
-                        ) {
-                            Icon(
-                                imageVector = Icons.Default.MoreVert,
-                                contentDescription = stringResource(R.string.open_burger_menu),
-                                modifier = Modifier
-                                    .clip(CircleShape)
-                                    .padding(5.dp)
-                            )
-                        }
-
-                        DropdownMenu(
-                            expanded = showBurgerMenu,
-                            onDismissRequest = { showBurgerMenu = false },
-                            containerColor = Color.Transparent,
-                            shadowElevation = 0.dp,
-                            tonalElevation = 0.dp
-                        ) {
-                            BurgerListAction(
-                                actions = listOf(
-                                    BurgerAction(
-                                        onClick = {
-                                            showRandomColorsValidation = true
-                                            showBurgerMenu = false
-                                        }
-                                    ) {
-                                        Icon(Icons.Default.Shuffle, null)
-                                        Text(stringResource(R.string.make_every_colors_random))
-                                    },
-                                    BurgerAction(
-                                        onClick = {
-                                            showAllColorsValidation = true
-                                            showBurgerMenu = false
-                                        }
-                                    ) {
-                                        Icon(Icons.Default.SelectAll, null)
-                                        Text(stringResource(R.string.make_all_colors_identical))
-                                    }
+                        Box {
+                            IconButton(
+                                onClick = { showBurgerMenu = true },
+                                colors = AppObjectsColors.iconButtonColors(
+                                    backgroundColor = MaterialTheme.colorScheme.primary.copy(0.5f)
                                 )
-                            )
+                            ) {
+                                Icon(
+                                    imageVector = Icons.Default.MoreVert,
+                                    contentDescription = stringResource(R.string.open_burger_menu),
+                                    modifier = Modifier
+                                        .clip(CircleShape)
+                                        .padding(5.dp)
+                                )
+                            }
+
+                            DropdownMenu(
+                                expanded = showBurgerMenu,
+                                onDismissRequest = { showBurgerMenu = false },
+                                containerColor = Color.Transparent,
+                                shadowElevation = 0.dp,
+                                tonalElevation = 0.dp
+                            ) {
+                                BurgerListAction(
+                                    actions = listOf(
+                                        BurgerAction(
+                                            onClick = {
+                                                showRandomColorsValidation = true
+                                                showBurgerMenu = false
+                                            }
+                                        ) {
+                                            Icon(Icons.Default.Shuffle, null)
+                                            Text(stringResource(R.string.make_every_colors_random))
+                                        },
+                                        BurgerAction(
+                                            onClick = {
+                                                showAllColorsValidation = true
+                                                showBurgerMenu = false
+                                            }
+                                        ) {
+                                            Icon(Icons.Default.SelectAll, null)
+                                            Text(stringResource(R.string.make_all_colors_identical))
+                                        }
+                                    )
+                                )
+                            }
                         }
                     }
                 }
@@ -592,7 +599,6 @@ fun ColorSelectorTab(
                                     .clickable {
                                         scope.launch {
                                             ColorModesSettingsStore.defaultTheme.set(ctx, it)
-                                            applyDefaultThemeColors(ctx, it)
                                         }
                                     }
                                     .padding(5.dp),
@@ -600,7 +606,7 @@ fun ColorSelectorTab(
                             ) {
 
                                 when (it) {
-                                    DefaultThemes.AMOLED -> Box(
+                                    AMOLED -> Box(
                                         modifier = Modifier
                                             .size(40.dp)
                                             .clip(CircleShape)
@@ -612,7 +618,7 @@ fun ColorSelectorTab(
                                             )
                                     )
 
-                                    DefaultThemes.DARK -> Box(
+                                    DARK -> Box(
                                         modifier = Modifier
                                             .size(40.dp)
                                             .clip(CircleShape)
@@ -624,7 +630,7 @@ fun ColorSelectorTab(
                                             )
                                     )
 
-                                    DefaultThemes.LIGHT -> Box(
+                                    LIGHT -> Box(
                                         modifier = Modifier
                                             .size(40.dp)
                                             .clip(CircleShape)
@@ -636,11 +642,34 @@ fun ColorSelectorTab(
                                             )
                                     )
 
-                                    DefaultThemes.SYSTEM -> Box(
+                                    SYSTEM -> Box(
                                         modifier = Modifier
                                             .size(40.dp)
                                             .clip(CircleShape)
                                             .background(MaterialTheme.colorScheme.primary)
+                                            .border(
+                                                1.dp,
+                                                MaterialTheme.colorScheme.outline.copy(0.5f),
+                                                CircleShape
+                                            )
+                                    )
+
+                                    CUSTOM -> Box(
+                                        modifier = Modifier
+                                            .size(40.dp)
+                                            .clip(CircleShape)
+                                            .background(
+                                                Brush.sweepGradient(
+                                                    colors = listOf(
+                                                        Color.Red,
+                                                        Color.Yellow,
+                                                        Color.Green,
+                                                        Color.Cyan,
+                                                        Color.Blue,
+                                                        Color.Magenta
+                                                    )
+                                                )
+                                            )
                                             .border(
                                                 1.dp,
                                                 MaterialTheme.colorScheme.outline.copy(0.5f),
@@ -663,7 +692,6 @@ fun ColorSelectorTab(
                                     onClick = {
                                         scope.launch {
                                             ColorModesSettingsStore.defaultTheme.set(ctx, it)
-                                            applyDefaultThemeColors(ctx, it)
                                         }
                                     },
                                     colors = AppObjectsColors.radioButtonColors()
@@ -671,6 +699,14 @@ fun ColorSelectorTab(
                             }
                         }
                     }
+                }
+
+                item {
+                    SettingsSwitchRow(
+                        setting = ColorModesSettingsStore.dynamicColor,
+                        title = stringResource(R.string.dynamic_colors),
+                        description = stringResource(R.string.dynamic_colors_desc)
+                    )
                 }
             }
         }
@@ -683,10 +719,10 @@ fun ColorSelectorTab(
             onCancel = { showResetValidation = false }
         ) {
             scope.launch {
-                ColorSettingsStore.resetColors(
+                ColorSettingsStore.resetAll(
                     ctx,
-                    colorCustomisationMode,
-                    selectedDefaultTheme
+//                    colorCustomisationMode,
+//                    selectedDefaultTheme
                 )
                 showResetValidation = false
             }

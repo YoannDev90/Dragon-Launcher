@@ -1,65 +1,59 @@
 package org.elnix.dragonlauncher.ui.theme
 
 
+import android.os.Build
+import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.material3.ColorScheme
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.darkColorScheme
+import androidx.compose.material3.dynamicDarkColorScheme
+import androidx.compose.material3.dynamicLightColorScheme
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalContext
+import org.elnix.dragonlauncher.base.theme.AmoledDragonColorScheme
+import org.elnix.dragonlauncher.base.theme.DarkDragonColorScheme
+import org.elnix.dragonlauncher.base.theme.LightDragonColorScheme
 import org.elnix.dragonlauncher.common.theme.AmoledDefault
+import org.elnix.dragonlauncher.enumsui.DefaultThemes
+import org.elnix.dragonlauncher.enumsui.DefaultThemes.AMOLED
+import org.elnix.dragonlauncher.enumsui.DefaultThemes.CUSTOM
+import org.elnix.dragonlauncher.enumsui.DefaultThemes.DARK
+import org.elnix.dragonlauncher.enumsui.DefaultThemes.LIGHT
+import org.elnix.dragonlauncher.enumsui.DefaultThemes.SYSTEM
 
 
-fun generateColorScheme(
-    primary: Color,
-    onPrimary: Color,
-    secondary: Color,
-    onSecondary: Color,
-    tertiary: Color,
-    onTertiary: Color,
-    background: Color,
-    onBackground: Color,
-    surface: Color,
-    onSurface: Color,
-    error: Color,
-    onError: Color,
-    outline: Color
-): ColorScheme {
+@Composable
+fun getDefaultColorScheme(
+    defaultTheme: DefaultThemes,
+    dynamicColor: Boolean
+): ColorScheme? =
+    when (defaultTheme) {
+        LIGHT -> LightDragonColorScheme
+        DARK -> DarkDragonColorScheme
+        AMOLED -> AmoledDragonColorScheme
+        SYSTEM -> {
+            val darkTheme = isSystemInDarkTheme()
+            when {
+                dynamicColor && Build.VERSION.SDK_INT >= Build.VERSION_CODES.S -> {
+                    val context = LocalContext.current
+                    if (darkTheme) dynamicDarkColorScheme(context) else dynamicLightColorScheme(context)
+                }
 
-    val base = darkColorScheme()
+                darkTheme -> DarkDragonColorScheme
+                else -> LightDragonColorScheme
+            }
+        }
 
-    return base.copy(
-        primary = primary,
-        onPrimary = onPrimary,
-        secondary = secondary,
-        onSecondary = onSecondary,
-        tertiary = tertiary,
-        onTertiary = onTertiary,
-        background = background,
-        onBackground = onBackground,
-        surface = surface,
-        onSurface = onSurface,
-        error = error,
-        onError = onError,
-        outline = outline
-    )
-}
+        CUSTOM -> null
+    }
 
 @Composable
 fun DragonLauncherTheme(
-    customPrimary: Color? = null,
-    customOnPrimary: Color? = null,
-    customSecondary: Color? = null,
-    customOnSecondary: Color? = null,
-    customTertiary: Color? = null,
-    customOnTertiary: Color? = null,
-    customBackground: Color? = null,
-    customOnBackground: Color? = null,
-    customSurface: Color? = null,
-    customOnSurface: Color? = null,
-    customError: Color? = null,
-    customOnError: Color? = null,
-    customOutline: Color? = null,
+    defaultTheme: DefaultThemes,
+    dynamicColor: Boolean,
+    customColorScheme: ColorScheme?,
+
     customAngleLineColor: Color? = null,
     customCircleColor: Color? = null,
     customLaunchAppColor: Color? = null,
@@ -77,25 +71,6 @@ fun DragonLauncherTheme(
 
     content: @Composable () -> Unit
 ) {
-    val primary = customPrimary ?: AmoledDefault.Primary
-    val onPrimary = customOnPrimary ?: AmoledDefault.OnPrimary
-
-    val secondary = customSecondary ?: AmoledDefault.Secondary
-    val onSecondary = customOnSecondary ?: AmoledDefault.OnSecondary
-
-    val tertiary = customTertiary ?: AmoledDefault.Tertiary
-    val onTertiary = customOnTertiary ?: AmoledDefault.OnTertiary
-
-    val background = customBackground ?: AmoledDefault.Background
-    val onBackground = customOnBackground ?: AmoledDefault.OnBackground
-
-    val surface = customSurface ?: AmoledDefault.Surface
-    val onSurface = customOnSurface ?: AmoledDefault.OnSurface
-
-    val error = customError ?: AmoledDefault.Error
-    val onError = customOnError ?: AmoledDefault.OnError
-
-    val outline = customOutline ?: AmoledDefault.Outline
 
     val angleLine = customAngleLineColor ?: AmoledDefault.AngleLineColor
     val circle = customCircleColor ?: AmoledDefault.CircleColor
@@ -130,21 +105,7 @@ fun DragonLauncherTheme(
         goParentNest
     )
 
-    val colorScheme = generateColorScheme(
-        primary = primary,
-        onPrimary = onPrimary,
-        secondary = secondary,
-        onSecondary = onSecondary,
-        tertiary = tertiary,
-        onTertiary = onTertiary,
-        background = background,
-        onBackground = onBackground,
-        surface = surface,
-        onSurface = onSurface,
-        error = error,
-        onError = onError,
-        outline = outline,
-    )
+    val colorScheme = getDefaultColorScheme(defaultTheme, dynamicColor) ?: customColorScheme ?: AmoledDragonColorScheme
 
     CompositionLocalProvider(LocalExtraColors provides extraColors) {
         MaterialTheme(

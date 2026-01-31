@@ -70,20 +70,11 @@ class BaseSettingObject <T, R> (
      */
     suspend fun get(ctx: Context): T? {
 
-        val appCtx = ctx.applicationContext
-
-//        logD(
-//            SETTINGS_TAG,
-//            "ctx=${appCtx::class.java.name}, appCtx=${appCtx.applicationContext::class.java.name}, store=$dataStoreName"
-//        )
-
-        val raw = appCtx
+        val raw = ctx.applicationContext
             .resolveDataStore(dataStoreName)
             .data
             .first()[preferenceKey]
 
-
-//        logW(SETTINGS_TAG, "[GET] $key -> raw: $raw; decoded: ${raw?.let { decode(it) }}" )
         return raw?.let { decode(it) }
     }
 
@@ -96,15 +87,10 @@ class BaseSettingObject <T, R> (
      */
     suspend fun getEncoded(ctx: Context): R? {
 
-        val appCtx = ctx.applicationContext
-
-        val raw = appCtx
+        val raw = ctx.applicationContext
             .resolveDataStore(dataStoreName)
             .data
             .first()[preferenceKey]
-
-
-//        logW(SETTINGS_TAG, "[GET ENCODED] $key -> raw: $raw" )
 
         // Shitty but should work
         return raw?.let { encode(decode(it)) }
@@ -119,9 +105,9 @@ class BaseSettingObject <T, R> (
      */
     fun flow(ctx: Context): Flow<T> {
 
-        val appCtx = ctx.applicationContext
 
-        return appCtx.resolveDataStore(dataStoreName)
+        return ctx.applicationContext
+            .resolveDataStore(dataStoreName)
             .data
             .map { prefs ->
                 val raw = prefs[preferenceKey]
@@ -141,9 +127,9 @@ class BaseSettingObject <T, R> (
      * @param value either the good type or a null, to reset
      */
     suspend fun set(ctx: Context, value: T?) {
-        val appCtx = ctx.applicationContext
 
-        appCtx.resolveDataStore(dataStoreName).edit {
+        ctx.applicationContext
+            .resolveDataStore(dataStoreName).edit {
             if (value != null) {
                 it[preferenceKey] = encode(value)
             } else {

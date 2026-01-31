@@ -107,8 +107,3 @@ object LightDefault : ThemeColors {
         get() = Color(0xFF1BEE14)
 
 }
-
-
-val copyColor = Color(0xFFE19807)
-val moveColor = Color(0xFF14E7EE)
-val addRemoveCirclesColor = Color(0xFF00D950)

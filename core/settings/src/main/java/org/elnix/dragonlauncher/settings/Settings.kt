@@ -269,3 +269,128 @@ object Settings {
 //        )
 //    }
 //}
+//
+//
+//
+//class IntSetting(
+//    private val dataStoreName: DataStoreName,
+//    private val default: Int
+//) {
+//    operator fun provideDelegate(
+//        thisRef: Any?,
+//        prop: KProperty<*>
+//    ): BaseSettingObject<Int, Int> {
+//        val key = prop.name
+//        return Settings.int(
+//            key = key,
+//            dataStoreName = dataStoreName,
+//            default = default
+//        )
+//    }
+//}
+//
+//
+//class FloatSetting(
+//    private val dataStoreName: DataStoreName,
+//    private val default: Float
+//) {
+//    operator fun provideDelegate(
+//        thisRef: Any?,
+//        prop: KProperty<*>
+//    ): BaseSettingObject<Float, Float> {
+//        val key = prop.name
+//        return Settings.float(
+//            key = key,
+//            dataStoreName = dataStoreName,
+//            default = default
+//        )
+//    }
+//}
+//
+//class LongSetting(
+//    private val dataStoreName: DataStoreName,
+//    private val default: Long
+//) {
+//    operator fun provideDelegate(
+//        thisRef: Any?,
+//        prop: KProperty<*>
+//    ): BaseSettingObject<Long, Long> {
+//        val key = prop.name
+//        return Settings.long(
+//            key = key,
+//            dataStoreName = dataStoreName,
+//            default = default
+//        )
+//    }
+//}
+//
+//class DoubleSetting(
+//    private val dataStoreName: DataStoreName,
+//    private val default: Double
+//) {
+//    operator fun provideDelegate(
+//        thisRef: Any?,
+//        prop: KProperty<*>
+//    ): BaseSettingObject<Double, Double> {
+//        val key = prop.name
+//        return Settings.double(
+//            key = key,
+//            dataStoreName = dataStoreName,
+//            default = default
+//        )
+//    }
+//}
+//
+//class StringSetting(
+//    private val dataStoreName: DataStoreName,
+//    private val default: String
+//) {
+//    operator fun provideDelegate(
+//        thisRef: Any?,
+//        prop: KProperty<*>
+//    ): BaseSettingObject<String, String> {
+//        val key = prop.name
+//        return Settings.string(
+//            key = key,
+//            dataStoreName = dataStoreName,
+//            default = default
+//        )
+//    }
+//}
+//
+//
+//class StringSetSetting(
+//    private val dataStoreName: DataStoreName,
+//    private val default: Set<String>
+//) {
+//    operator fun provideDelegate(
+//        thisRef: Any?,
+//        prop: KProperty<*>
+//    ): BaseSettingObject<Set<String>, Set<String>> {
+//        val key = prop.name
+//        return Settings.stringSet(
+//            key = key,
+//            dataStoreName = dataStoreName,
+//            default = default
+//        )
+//    }
+//}
+//
+//
+//
+//class StringSetSetting(
+//    private val dataStoreName: DataStoreName,
+//    private val default: Set<String>
+//) {
+//    operator fun provideDelegate(
+//        thisRef: Any?,
+//        prop: KProperty<*>
+//    ): BaseSettingObject<Set<String>, Set<String>> {
+//        val key = prop.name
+//        return Settings.stringSet(
+//            key = key,
+//            dataStoreName = dataStoreName,
+//            default = default
+//        )
+//    }
+//}

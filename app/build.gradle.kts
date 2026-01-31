@@ -171,6 +171,7 @@ dependencies {
     implementation(libs.material3)
 
     implementation(project(":core:ui"))
+    implementation(project(":core:base"))
     implementation(project(":core:enumsui"))
     implementation(project(":core:common"))
     implementation(project(":core:settings"))

@@ -3,15 +3,11 @@ package org.elnix.dragonlauncher.settings.stores
 import android.content.Context
 import androidx.compose.ui.graphics.Color
 import org.elnix.dragonlauncher.common.theme.AmoledDefault
-import org.elnix.dragonlauncher.common.theme.ThemeColors
 import org.elnix.dragonlauncher.common.utils.colors.randomColor
-import org.elnix.dragonlauncher.enumsui.ColorCustomisationMode
-import org.elnix.dragonlauncher.enumsui.DefaultThemes
 import org.elnix.dragonlauncher.settings.DataStoreName
 import org.elnix.dragonlauncher.settings.Settings
 import org.elnix.dragonlauncher.settings.bases.BaseSettingObject
 import org.elnix.dragonlauncher.settings.bases.MapSettingsStore
-import org.elnix.dragonlauncher.settings.getDefaultColorScheme
 
 
 object ColorSettingsStore : MapSettingsStore() {
@@ -21,95 +17,307 @@ object ColorSettingsStore : MapSettingsStore() {
 
     /* ───────────── Colors ───────────── */
 
+
     val primaryColor = Settings.color(
         key = "primary_color",
         dataStoreName = dataStoreName,
-        default = AmoledDefault.Primary
+        default = Color.Unspecified
     )
 
     val onPrimaryColor = Settings.color(
         key = "on_primary_color",
         dataStoreName = dataStoreName,
-        default = AmoledDefault.OnPrimary
+        default = Color.Unspecified
     )
 
     val secondaryColor = Settings.color(
         key = "secondary_color",
         dataStoreName = dataStoreName,
-        default = AmoledDefault.Secondary
+        default = Color.Unspecified
     )
 
     val onSecondaryColor = Settings.color(
         key = "on_secondary_color",
         dataStoreName = dataStoreName,
-        default = AmoledDefault.OnSecondary
+        default = Color.Unspecified
     )
 
     val tertiaryColor = Settings.color(
         key = "tertiary_color",
         dataStoreName = dataStoreName,
-        default = AmoledDefault.Tertiary
+        default = Color.Unspecified
     )
 
     val onTertiaryColor = Settings.color(
         key = "on_tertiary_color",
         dataStoreName = dataStoreName,
-        default = AmoledDefault.OnTertiary
+        default = Color.Unspecified
     )
 
     val backgroundColor = Settings.color(
         key = "background_color",
         dataStoreName = dataStoreName,
-        default = AmoledDefault.Background
+        default = Color.Unspecified
     )
 
     val onBackgroundColor = Settings.color(
         key = "on_background_color",
         dataStoreName = dataStoreName,
-        default = AmoledDefault.OnBackground
+        default = Color.Unspecified
     )
 
     val surfaceColor = Settings.color(
         key = "surface_color",
         dataStoreName = dataStoreName,
-        default = AmoledDefault.Surface
+        default = Color.Unspecified
     )
 
     val onSurfaceColor = Settings.color(
         key = "on_surface_color",
         dataStoreName = dataStoreName,
-        default = AmoledDefault.OnSecondary
+        default = Color.Unspecified
     )
 
     val errorColor = Settings.color(
         key = "error_color",
         dataStoreName = dataStoreName,
-        default = AmoledDefault.Error
+        default = Color.Unspecified
     )
 
     val onErrorColor = Settings.color(
         key = "on_error_color",
         dataStoreName = dataStoreName,
-        default = AmoledDefault.OnError
+        default = Color.Unspecified
     )
 
     val outlineColor = Settings.color(
         key = "outline_color",
         dataStoreName = dataStoreName,
-        default = AmoledDefault.Outline
+        default = Color.Unspecified
     )
 
     val angleLineColor = Settings.color(
         key = "angle_line_color",
         dataStoreName = dataStoreName,
-        default = AmoledDefault.AngleLineColor
+        default = Color.Unspecified
     )
 
     val circleColor = Settings.color(
         key = "circle_color",
         dataStoreName = dataStoreName,
-        default = AmoledDefault.CircleColor
+        default = Color.Unspecified
     )
+
+    val primaryContainerColor = Settings.color(
+        key = "primary_container_color",
+        dataStoreName = dataStoreName,
+        default = Color.Unspecified
+    )
+
+    val onPrimaryContainerColor = Settings.color(
+        key = "on_primary_container_color",
+        dataStoreName = dataStoreName,
+        default = Color.Unspecified
+    )
+
+    val inversePrimaryColor = Settings.color(
+        key = "inverse_primary_color",
+        dataStoreName = dataStoreName,
+        default = Color.Unspecified
+    )
+
+    val secondaryContainerColor = Settings.color(
+        key = "secondary_container_color",
+        dataStoreName = dataStoreName,
+        default = Color.Unspecified
+    )
+
+    val onSecondaryContainerColor = Settings.color(
+        key = "on_secondary_container_color",
+        dataStoreName = dataStoreName,
+        default = Color.Unspecified
+    )
+
+    val tertiaryContainerColor = Settings.color(
+        key = "tertiary_container_color",
+        dataStoreName = dataStoreName,
+        default = Color.Unspecified
+    )
+
+    val onTertiaryContainerColor = Settings.color(
+        key = "on_tertiary_container_color",
+        dataStoreName = dataStoreName,
+        default = Color.Unspecified
+    )
+
+    val surfaceVariantColor = Settings.color(
+        key = "surface_variant_color",
+        dataStoreName = dataStoreName,
+        default = Color.Unspecified
+    )
+
+    val onSurfaceVariantColor = Settings.color(
+        key = "on_surface_variant_color",
+        dataStoreName = dataStoreName,
+        default = Color.Unspecified
+    )
+
+    val surfaceTintColor = Settings.color(
+        key = "surface_tint_color",
+        dataStoreName = dataStoreName,
+        default = Color.Unspecified
+    )
+
+    val inverseSurfaceColor = Settings.color(
+        key = "inverse_surface_color",
+        dataStoreName = dataStoreName,
+        default = Color.Unspecified
+    )
+
+    val inverseOnSurfaceColor = Settings.color(
+        key = "inverse_on_surface_color",
+        dataStoreName = dataStoreName,
+        default = Color.Unspecified
+    )
+
+    val errorContainerColor = Settings.color(
+        key = "error_container_color",
+        dataStoreName = dataStoreName,
+        default = Color.Unspecified
+    )
+
+    val onErrorContainerColor = Settings.color(
+        key = "on_error_container_color",
+        dataStoreName = dataStoreName,
+        default = Color.Unspecified
+    )
+
+    val outlineVariantColor = Settings.color(
+        key = "outline_variant_color",
+        dataStoreName = dataStoreName,
+        default = Color.Unspecified
+    )
+
+    val scrimColor = Settings.color(
+        key = "scrim_color",
+        dataStoreName = dataStoreName,
+        default = Color.Unspecified
+    )
+
+    val surfaceBrightColor = Settings.color(
+        key = "surface_bright_color",
+        dataStoreName = dataStoreName,
+        default = Color.Unspecified
+    )
+
+    val surfaceContainerColor = Settings.color(
+        key = "surface_container_color",
+        dataStoreName = dataStoreName,
+        default = Color.Unspecified
+    )
+
+    val surfaceContainerHighColor = Settings.color(
+        key = "surface_container_high_color",
+        dataStoreName = dataStoreName,
+        default = Color.Unspecified
+    )
+
+    val surfaceContainerHighestColor = Settings.color(
+        key = "surface_container_highest_color",
+        dataStoreName = dataStoreName,
+        default = Color.Unspecified
+    )
+
+    val surfaceContainerLowColor = Settings.color(
+        key = "surface_container_low_color",
+        dataStoreName = dataStoreName,
+        default = Color.Unspecified
+    )
+
+    val surfaceContainerLowestColor = Settings.color(
+        key = "surface_container_lowest_color",
+        dataStoreName = dataStoreName,
+        default = Color.Unspecified
+    )
+
+    val surfaceDimColor = Settings.color(
+        key = "surface_dim_color",
+        dataStoreName = dataStoreName,
+        default = Color.Unspecified
+    )
+
+    val primaryFixedColor = Settings.color(
+        key = "primary_fixed_color",
+        dataStoreName = dataStoreName,
+        default = Color.Unspecified
+    )
+
+    val primaryFixedDimColor = Settings.color(
+        key = "primary_fixed_dim_color",
+        dataStoreName = dataStoreName,
+        default = Color.Unspecified
+    )
+
+    val onPrimaryFixedColor = Settings.color(
+        key = "on_primary_fixed_color",
+        dataStoreName = dataStoreName,
+        default = Color.Unspecified
+    )
+
+    val onPrimaryFixedVariantColor = Settings.color(
+        key = "on_primary_fixed_variant_color",
+        dataStoreName = dataStoreName,
+        default = Color.Unspecified
+    )
+
+    val secondaryFixedColor = Settings.color(
+        key = "secondary_fixed_color",
+        dataStoreName = dataStoreName,
+        default = Color.Unspecified
+    )
+
+    val secondaryFixedDimColor = Settings.color(
+        key = "secondary_fixed_dim_color",
+        dataStoreName = dataStoreName,
+        default = Color.Unspecified
+    )
+
+    val onSecondaryFixedColor = Settings.color(
+        key = "on_secondary_fixed_color",
+        dataStoreName = dataStoreName,
+        default = Color.Unspecified
+    )
+
+    val onSecondaryFixedVariantColor = Settings.color(
+        key = "on_secondary_fixed_variant_color",
+        dataStoreName = dataStoreName,
+        default = Color.Unspecified
+    )
+
+    val tertiaryFixedColor = Settings.color(
+        key = "tertiary_fixed_color",
+        dataStoreName = dataStoreName,
+        default = Color.Unspecified
+    )
+
+    val tertiaryFixedDimColor = Settings.color(
+        key = "tertiary_fixed_dim_color",
+        dataStoreName = dataStoreName,
+        default = Color.Unspecified
+    )
+
+    val onTertiaryFixedColor = Settings.color(
+        key = "on_tertiary_fixed_color",
+        dataStoreName = dataStoreName,
+        default = Color.Unspecified
+    )
+
+    val onTertiaryFixedVariantColor = Settings.color(
+        key = "on_tertiary_fixed_variant_color",
+        dataStoreName = dataStoreName,
+        default = Color.Unspecified
+    )
+
 
     /* ───────────── Action colors ───────────── */
 
@@ -191,17 +399,52 @@ object ColorSettingsStore : MapSettingsStore() {
         get() = listOf(
             primaryColor,
             onPrimaryColor,
+            primaryContainerColor,
+            onPrimaryContainerColor,
+            inversePrimaryColor,
             secondaryColor,
             onSecondaryColor,
+            secondaryContainerColor,
+            onSecondaryContainerColor,
             tertiaryColor,
             onTertiaryColor,
+            tertiaryContainerColor,
+            onTertiaryContainerColor,
             backgroundColor,
             onBackgroundColor,
             surfaceColor,
             onSurfaceColor,
+            surfaceVariantColor,
+            onSurfaceVariantColor,
+            surfaceTintColor,
+            inverseSurfaceColor,
+            inverseOnSurfaceColor,
             errorColor,
             onErrorColor,
+            errorContainerColor,
+            onErrorContainerColor,
             outlineColor,
+            outlineVariantColor,
+            scrimColor,
+            surfaceBrightColor,
+            surfaceContainerColor,
+            surfaceContainerHighColor,
+            surfaceContainerHighestColor,
+            surfaceContainerLowColor,
+            surfaceContainerLowestColor,
+            surfaceDimColor,
+            primaryFixedColor,
+            primaryFixedDimColor,
+            onPrimaryFixedColor,
+            onPrimaryFixedVariantColor,
+            secondaryFixedColor,
+            secondaryFixedDimColor,
+            onSecondaryFixedColor,
+            onSecondaryFixedVariantColor,
+            tertiaryFixedColor,
+            tertiaryFixedDimColor,
+            onTertiaryFixedColor,
+            onTertiaryFixedVariantColor,
             angleLineColor,
             circleColor,
             launchAppColor,
@@ -218,21 +461,6 @@ object ColorSettingsStore : MapSettingsStore() {
             goParentNestColor
         )
 
-    suspend fun resetColors(
-        ctx: Context,
-        selectedColorCustomisationMode: ColorCustomisationMode,
-        selectedMode: DefaultThemes
-    ) {
-
-        val themeColors: ThemeColors = when (selectedColorCustomisationMode) {
-            ColorCustomisationMode.DEFAULT -> getDefaultColorScheme(ctx, selectedMode)
-            ColorCustomisationMode.NORMAL, ColorCustomisationMode.ALL -> AmoledDefault
-        }
-
-        applyThemeColors(ctx, themeColors)
-    }
-
-
     suspend fun setAllRandomColors(ctx: Context) {
         setAllColors(ctx) { randomColor() }
     }
@@ -242,44 +470,6 @@ object ColorSettingsStore : MapSettingsStore() {
     }
 
     suspend fun setAllColors(ctx: Context, color: () -> Color) {
-
         ALL.forEach { it.set(ctx, color()) }
     }
-}
-
-
-suspend fun applyThemeColors(ctx: Context, colors: ThemeColors) {
-
-    /* ───────────── MaterialTheme Colors ───────────── */
-    ColorSettingsStore.primaryColor.set(ctx, colors.Primary)
-    ColorSettingsStore.onPrimaryColor.set(ctx, colors.OnPrimary)
-    ColorSettingsStore.secondaryColor.set(ctx, colors.Secondary)
-    ColorSettingsStore.onSecondaryColor.set(ctx, colors.OnSecondary)
-    ColorSettingsStore.tertiaryColor.set(ctx, colors.Tertiary)
-    ColorSettingsStore.onTertiaryColor.set(ctx, colors.OnTertiary)
-    ColorSettingsStore.backgroundColor.set(ctx, colors.Background)
-    ColorSettingsStore.onBackgroundColor.set(ctx, colors.OnBackground)
-    ColorSettingsStore.surfaceColor.set(ctx, colors.Surface)
-    ColorSettingsStore.onSurfaceColor.set(ctx, colors.OnSurface)
-    ColorSettingsStore.errorColor.set(ctx, colors.Error)
-    ColorSettingsStore.onErrorColor.set(ctx, colors.OnError)
-    ColorSettingsStore.outlineColor.set(ctx, colors.Outline)
-
-    /* ───────────── Custom Colors ───────────── */
-    ColorSettingsStore.angleLineColor.set(ctx, colors.AngleLineColor)
-    ColorSettingsStore.circleColor.set(ctx, colors.CircleColor)
-
-    /* ───────────── Actions Colors ───────────── */
-    ColorSettingsStore.launchAppColor.set(ctx, colors.LaunchAppColor)
-    ColorSettingsStore.openUrlColor.set(ctx, colors.OpenUrlColor)
-    ColorSettingsStore.notificationShadeColor.set(ctx, colors.NotificationShadeColor)
-    ColorSettingsStore.controlPanelColor.set(ctx, colors.ControlPanelColor)
-    ColorSettingsStore.openAppDrawerColor.set(ctx, colors.OpenAppDrawerColor)
-    ColorSettingsStore.launcherSettingsColor.set(ctx, colors.LauncherSettingsColor)
-    ColorSettingsStore.lockColor.set(ctx, colors.LockColor)
-    ColorSettingsStore.openFileColor.set(ctx, colors.OpenFileColor)
-    ColorSettingsStore.reloadColor.set(ctx, colors.ReloadColor)
-    ColorSettingsStore.openRecentAppsColor.set(ctx, colors.OpenRecentAppsColor)
-    ColorSettingsStore.openCircleNestColor.set(ctx, colors.OpenCircleNestColor)
-    ColorSettingsStore.goParentNestColor.set(ctx, colors.GoParentNestColor)
 }

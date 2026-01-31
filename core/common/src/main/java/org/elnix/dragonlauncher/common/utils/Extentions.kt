@@ -14,6 +14,7 @@ import android.provider.AlarmClock
 import android.provider.CalendarContract
 import android.provider.Settings
 import android.widget.Toast
+import androidx.compose.ui.graphics.Color
 import androidx.core.net.toUri
 import org.elnix.dragonlauncher.common.R
 import org.elnix.dragonlauncher.common.logging.logD
@@ -342,3 +343,8 @@ fun Long.formatDuration(): String {
 //        else -> "${seconds / 2592000}mo ago"
 //    }
 //}
+
+
+fun Color?.definedOrNull(): Color? = this.takeIf { it != Color.Unspecified }
+
+val a = null.definedOrNull()

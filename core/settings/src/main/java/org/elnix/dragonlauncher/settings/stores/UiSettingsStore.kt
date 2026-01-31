@@ -143,6 +143,7 @@ object UiSettingsStore : MapSettingsStore() {
         default = 0f
     )
 
+
     override val ALL: List<BaseSettingObject<*,*>> = listOf(
         rgbLoading,
         rgbLine,
