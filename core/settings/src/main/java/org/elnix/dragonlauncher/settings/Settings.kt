@@ -10,6 +10,8 @@ import androidx.datastore.preferences.core.longPreferencesKey
 import androidx.datastore.preferences.core.stringPreferencesKey
 import androidx.datastore.preferences.core.stringSetPreferencesKey
 import org.elnix.dragonlauncher.common.logging.logD
+import org.elnix.dragonlauncher.common.serializables.IconShape
+import org.elnix.dragonlauncher.common.serializables.IconShapeGson
 import org.elnix.dragonlauncher.common.serializables.SwipeActionSerializable
 import org.elnix.dragonlauncher.common.serializables.SwipeJson
 import org.elnix.dragonlauncher.common.utils.SETTINGS_TAG
@@ -223,4 +225,47 @@ object Settings {
                 a
             }
         )
+
+
+    fun shape(
+        key: String,
+        dataStoreName: DataStoreName,
+        default: IconShape
+    ): BaseSettingObject<IconShape, String> =
+        BaseSettingObject(
+            key = key,
+            dataStoreName = dataStoreName,
+            default = default,
+            preferenceKey = stringPreferencesKey(key),
+            encode = { value ->
+                val encoded = IconShapeGson.encode(value)
+                logD(SETTINGS_TAG, "Encoded IconShape $value -> $encoded")
+                encoded
+            },
+            decode = { raw ->
+                val decoded = IconShapeGson.decode(raw, default)
+                logD(SETTINGS_TAG, "Decoded IconShape $raw -> $decoded")
+                decoded
+            }
+        )
 }
+
+
+// TODO LATER REFACTOR AGAIN TO USE THAT
+
+//class BooleanSetting(
+//    private val dataStoreName: DataStoreName,
+//    private val default: Boolean
+//) {
+//    operator fun provideDelegate(
+//        thisRef: Any?,
+//        prop: KProperty<*>
+//    ): BaseSettingObject<Boolean, Boolean> {
+//        val key = prop.name
+//        return Settings.boolean(
+//            key = key,
+//            dataStoreName = dataStoreName,
+//            default = default
+//        )
+//    }
+//}

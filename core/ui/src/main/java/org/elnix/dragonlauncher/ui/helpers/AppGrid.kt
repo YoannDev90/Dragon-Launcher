@@ -6,6 +6,7 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.aspectRatio
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.sizeIn
@@ -18,6 +19,8 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -29,16 +32,21 @@ import androidx.compose.ui.input.nestedscroll.NestedScrollConnection
 import androidx.compose.ui.input.nestedscroll.NestedScrollSource
 import androidx.compose.ui.input.nestedscroll.nestedScroll
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import org.elnix.dragonlauncher.common.serializables.AppModel
+import org.elnix.dragonlauncher.common.serializables.IconShape
+import org.elnix.dragonlauncher.settings.stores.DrawerSettingsStore
 import org.elnix.dragonlauncher.ui.actions.appIcon
+import org.elnix.dragonlauncher.ui.components.resolveShape
 import org.elnix.dragonlauncher.ui.drawer.AppItem
 
 @Composable
 fun AppGrid(
     apps: List<AppModel>,
     icons: Map<String, ImageBitmap>,
+    iconShape: IconShape,
     gridSize: Int,
     txtColor: Color,
     showIcons: Boolean,
@@ -48,6 +56,17 @@ fun AppGrid(
     onScrollUp: (() -> Unit)? = null,
     onClick: (AppModel) -> Unit
 ) {
+    val ctx = LocalContext.current
+
+    val maxIconSize by DrawerSettingsStore.maxIconSize.flow(ctx)
+        .collectAsState(DrawerSettingsStore.maxIconSize.default)
+
+    val iconsSpacingVertical by DrawerSettingsStore.iconsSpacingVertical.flow(ctx)
+        .collectAsState(DrawerSettingsStore.iconsSpacingVertical.default)
+
+    val iconsSpacingHorizontal by DrawerSettingsStore.iconsSpacingHorizontal.flow(ctx)
+        .collectAsState(DrawerSettingsStore.iconsSpacingHorizontal.default)
+
 
     val listState = rememberLazyListState()
     val nestedConnection = remember {
@@ -93,6 +112,8 @@ fun AppGrid(
                     showLabels = showLabels,
                     txtColor = txtColor,
                     icons = icons,
+                    iconsSpacing = iconsSpacingVertical,
+                    shape = resolveShape(iconShape),
                     onClick = { onClick(app) },
                     onLongClick = if (onLongClick != null) { { onLongClick(app) } } else null
                 )
@@ -106,7 +127,9 @@ fun AppGrid(
                 .then(
                     if (onScrollDown != null) Modifier.nestedScroll(nestedConnection)
                     else Modifier
-                )
+                ),
+//            verticalArrangement = Arrangement.spacedBy(iconsSpacing.dp),
+//            horizontalArrangement = Arrangement.spacedBy(iconsSpacing.dp)
         ) {
             items(apps.size) { index ->
                 val app = apps[index]
@@ -114,22 +137,24 @@ fun AppGrid(
                 Column(
                     horizontalAlignment = Alignment.CenterHorizontally,
                     modifier = Modifier
+                        .fillMaxWidth()
                         .clip(RoundedCornerShape(12.dp))
                         .combinedClickable(
                             onLongClick = if (onLongClick != null) {
                                 { onLongClick(app) }
                             } else null
                         ) { onClick(app) }
-                        .padding(8.dp)
+                        .padding(iconsSpacingHorizontal.dp, iconsSpacingVertical.dp)
                 ) {
                     if (showIcons) {
                         Image(
                             painter = appIcon(app.packageName, icons),
                             contentDescription = app.name,
                             modifier = Modifier
-                                .sizeIn(maxWidth = 96.dp)
-                                .aspectRatio(1f),
-                            contentScale = ContentScale.Crop
+                                .sizeIn(maxWidth = maxIconSize.dp)
+                                .aspectRatio(1f)
+                                .clip(resolveShape(iconShape)),
+                            contentScale = ContentScale.Fit
                         )
                     }
 

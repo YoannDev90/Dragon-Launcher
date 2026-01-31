@@ -11,7 +11,7 @@ android {
     }
 
     defaultConfig {
-        minSdk = 25
+        minSdk = 26
 
         consumerProguardFiles("consumer-rules.pro")
     }
@@ -73,9 +73,10 @@ dependencies {
     implementation(libs.material)
     implementation(libs.material3)
 
+    implementation(project(":core:base"))
     implementation(project(":core:models"))
-    implementation(project(":core:services"))
     implementation(project(":core:common"))
     implementation(project(":core:enumsui"))
+    implementation(project(":core:services"))
     implementation(project(":core:settings"))
 }

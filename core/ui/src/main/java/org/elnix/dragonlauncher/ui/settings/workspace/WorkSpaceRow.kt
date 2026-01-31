@@ -5,7 +5,6 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.DragIndicator
 import androidx.compose.material3.Card
@@ -24,6 +23,7 @@ import org.burnoutcrew.reorderable.ReorderableLazyListState
 import org.burnoutcrew.reorderable.detectReorder
 import org.elnix.dragonlauncher.common.serializables.Workspace
 import org.elnix.dragonlauncher.enumsui.WorkspaceAction
+import org.elnix.dragonlauncher.ui.UiConstants.DragonShape
 import org.elnix.dragonlauncher.ui.colors.AppObjectsColors
 
 @Composable
@@ -41,7 +41,7 @@ fun WorkspaceRow(
 
     Card(
         colors = AppObjectsColors.cardColors(),
-        shape = RoundedCornerShape(12.dp),
+        shape = DragonShape,
         elevation = CardDefaults.cardElevation(elevation),
         modifier = Modifier
             .scale(scale)

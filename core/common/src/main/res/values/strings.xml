@@ -402,4 +402,11 @@
     <string name="usage_no_data">No usage data available</string>
     <string name="usage_permission_needed">Usage access permission needed</string>
     <string name="grant_usage_permission">Grant Permission</string>
+    <string name="edit_icons_shape">Edit Icons Shape</string>
+    <string name="edit_icons_shape_desc">Customize the shape on the icons in the drawer and the rest of the app</string>
+    <string name="random_shape">Random Shape</string>
+    <string name="grid_size">Grid Size</string>
+    <string name="max_icon_size">Max icon Size</string>
+    <string name="icons_spacing_vertical">icons Spacing vertical</string>
+    <string name="icons_spacing_horizontal">icons Spacing horizontal</string>
 </resources>

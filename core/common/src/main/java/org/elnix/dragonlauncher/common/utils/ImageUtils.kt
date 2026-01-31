@@ -7,13 +7,13 @@ import android.graphics.Bitmap
 import android.graphics.BitmapFactory
 import android.graphics.Canvas
 import android.graphics.Paint
+import android.graphics.Path
 import android.graphics.PorterDuff
 import android.graphics.PorterDuffColorFilter
 import android.graphics.Rect
 import android.graphics.drawable.AdaptiveIconDrawable
 import android.graphics.drawable.Drawable
 import android.net.Uri
-import android.os.Build
 import android.renderscript.Allocation
 import android.renderscript.Element
 import android.renderscript.RenderScript
@@ -22,11 +22,17 @@ import android.text.Layout
 import android.text.StaticLayout
 import android.text.TextPaint
 import android.util.Base64
+import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.ImageBitmap
+import androidx.compose.ui.graphics.Outline
+import androidx.compose.ui.graphics.Shape
 import androidx.compose.ui.graphics.asAndroidBitmap
+import androidx.compose.ui.graphics.asAndroidPath
 import androidx.compose.ui.graphics.asImageBitmap
 import androidx.compose.ui.graphics.toArgb
+import androidx.compose.ui.unit.Density
+import androidx.compose.ui.unit.LayoutDirection
 import androidx.core.content.ContextCompat
 import androidx.core.graphics.createBitmap
 import androidx.core.graphics.scale
@@ -58,17 +64,21 @@ object ImageUtils {
         val bitmap = createBitmap(width, height)
         val canvas = Canvas(bitmap)
 
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O &&
-            drawable is AdaptiveIconDrawable
-        ) {
-            // Adaptive icon (API 26+)
-            drawable.background?.setBounds(0, 0, width, height)
-            drawable.background?.draw(canvas)
+        if (drawable is AdaptiveIconDrawable) {
+            val bg = drawable.background
+            val fg = drawable.foreground
 
-            drawable.foreground?.setBounds(0, 0, width, height)
-            drawable.foreground?.draw(canvas)
+            // Draw background first, scaled to full bounds
+            bg.setBounds(0, 0, width, height)
+            bg.draw(canvas)
+
+            // Draw foreground with inset scaling
+            val scale = 1.15f
+            val inset = ((width - width / scale) / 2).toInt()
+            fg.setBounds(-inset, -inset, width + inset, height + inset)
+            fg.draw(canvas)
         } else {
-            // Pre-O or non-adaptive drawable
+            // Non-adaptive drawable
             drawable.setBounds(0, 0, width, height)
             drawable.draw(canvas)
         }
@@ -320,8 +330,6 @@ object ImageUtils {
                     base
                 }
             } ?: base
-
-            IconType.SHAPE,
             null -> base
         }
 
@@ -407,4 +415,76 @@ object ImageUtils {
 
         return outBitmap.asImageBitmap()
     }
+
+
+    fun clipImageToShape(
+        image: ImageBitmap,
+        shape: Shape,
+        sizePx: Int,
+        density: Density
+    ): ImageBitmap {
+        val bitmap = Bitmap.createBitmap(sizePx, sizePx, Bitmap.Config.ARGB_8888)
+        val canvas = Canvas(bitmap)
+
+        canvas.drawColor(Color.Transparent.toArgb(), PorterDuff.Mode.CLEAR)
+
+        val outline = shape.createOutline(
+            size = Size(sizePx.toFloat(), sizePx.toFloat()),
+            layoutDirection = LayoutDirection.Ltr,
+            density = density
+        )
+
+        val path = Path()
+
+        when (outline) {
+            is Outline.Rectangle -> {
+                path.addRect(
+                    0f,
+                    0f,
+                    sizePx.toFloat(),
+                    sizePx.toFloat(),
+                    Path.Direction.CW
+                )
+            }
+
+            is Outline.Rounded -> {
+                val rr = outline.roundRect
+                path.addRoundRect(
+                    rr.left,
+                    rr.top,
+                    rr.right,
+                    rr.bottom,
+                    rr.topLeftCornerRadius.x,
+                    rr.topLeftCornerRadius.y,
+                    Path.Direction.CW
+                )
+            }
+
+
+            is Outline.Generic -> {
+                path.set(outline.path.asAndroidPath())
+            }
+        }
+
+        canvas.clipPath(path)
+
+        val src = Rect(
+            0,
+            0,
+            image.width,
+            image.height
+        )
+
+        val dst = Rect(
+            0,
+            0,
+            sizePx,
+            sizePx
+        )
+
+        canvas.drawBitmap(image.asAndroidBitmap(), src, dst, null)
+
+        return bitmap.asImageBitmap()
+    }
+
 }

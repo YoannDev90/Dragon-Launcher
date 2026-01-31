@@ -1,5 +1,6 @@
 package org.elnix.dragonlauncher.settings.stores
 
+import org.elnix.dragonlauncher.common.serializables.IconShape
 import org.elnix.dragonlauncher.enumsui.DrawerActions
 import org.elnix.dragonlauncher.settings.DataStoreName
 import org.elnix.dragonlauncher.settings.Settings
@@ -112,6 +113,31 @@ object DrawerSettingsStore : MapSettingsStore() {
         enumClass = DrawerActions::class.java
     )
 
+    val iconsShape = Settings.shape(
+        key = "iconsShape",
+        dataStoreName = dataStoreName,
+        default = IconShape.PlatformDefault
+    )
+
+
+    val iconsSpacingHorizontal = Settings.int(
+        key = "iconsSpacingHorizontal",
+        dataStoreName = dataStoreName,
+        default = 8
+    )
+
+
+    val iconsSpacingVertical = Settings.int(
+        key = "iconsSpacingVertical",
+        dataStoreName = dataStoreName,
+        default = 8
+    )
+    val maxIconSize = Settings.int(
+        key = "maxIconSize",
+        dataStoreName = dataStoreName,
+        default = 96
+    )
+
 
     override val ALL: List<BaseSettingObject<*,*>>
         get() = listOf(
@@ -130,6 +156,7 @@ object DrawerSettingsStore : MapSettingsStore() {
             drawerEnterAction,
             drawerHomeAction,
             scrollDownDrawerAction,
-            scrollUpDrawerAction
+            scrollUpDrawerAction,
+            iconsShape
         )
 }

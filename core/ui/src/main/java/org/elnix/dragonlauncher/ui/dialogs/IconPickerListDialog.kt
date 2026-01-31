@@ -15,7 +15,6 @@ import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.lazy.grid.items
 import androidx.compose.foundation.shape.CircleShape
-import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Close
 import androidx.compose.material3.CircularProgressIndicator
@@ -46,6 +45,7 @@ import org.elnix.dragonlauncher.common.serializables.IconPackInfo
 import org.elnix.dragonlauncher.common.utils.ImageUtils.loadDrawableAsBitmap
 import org.elnix.dragonlauncher.common.utils.colors.adjustBrightness
 import org.elnix.dragonlauncher.models.AppsViewModel
+import org.elnix.dragonlauncher.ui.UiConstants.DragonShape
 import org.elnix.dragonlauncher.ui.colors.AppObjectsColors
 
 @OptIn(ExperimentalFoundationApi::class)
@@ -162,7 +162,7 @@ fun IconPickerListDialog(
         },
         confirmButton = {},
         containerColor = MaterialTheme.colorScheme.surface,
-        shape = RoundedCornerShape(12.dp)
+        shape = DragonShape
     )
 }
 

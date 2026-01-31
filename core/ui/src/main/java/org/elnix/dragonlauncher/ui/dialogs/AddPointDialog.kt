@@ -43,6 +43,7 @@ import org.elnix.dragonlauncher.settings.stores.DrawerSettingsStore
 import org.elnix.dragonlauncher.ui.actions.ActionIcon
 import org.elnix.dragonlauncher.ui.actions.actionColor
 import org.elnix.dragonlauncher.ui.actions.actionLabel
+import org.elnix.dragonlauncher.ui.components.resolveShape
 import org.elnix.dragonlauncher.ui.theme.LocalExtraColors
 
 @Suppress("AssignedValueIsNeverRead")
@@ -73,6 +74,8 @@ fun AddPointDialog(
         .collectAsState(initial = true)
     val showLabels by DrawerSettingsStore.showAppLabelInDrawer.flow(ctx)
         .collectAsState(initial = true)
+    val iconsShape by DrawerSettingsStore.iconsShape.flow(ctx)
+        .collectAsState(DrawerSettingsStore.iconsShape.default)
 
 
     var selectedApp by remember { mutableStateOf<AppModel?>(null) }
@@ -158,6 +161,7 @@ fun AddPointDialog(
         AppPickerDialog(
             appsViewModel = appsViewModel,
             gridSize = gridSize,
+            iconShape = iconsShape,
             showIcons = showIcons,
             showLabels = showLabels,
             onDismiss = { showAppPicker = false },
@@ -205,6 +209,7 @@ fun AddPointDialog(
         AppShortcutPickerDialog(
             app = selectedApp!!,
             icons = icons,
+            shape = resolveShape(iconsShape),
             shortcuts = shortcuts,
             onDismiss = { shortcutDialogVisible = false },
             onShortcutSelected = {pkg, id ->

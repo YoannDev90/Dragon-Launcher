@@ -51,6 +51,7 @@ import com.canhub.cropper.CropImageView
 import kotlinx.coroutines.launch
 import org.elnix.dragonlauncher.common.R
 import org.elnix.dragonlauncher.common.serializables.CustomIconSerializable
+import org.elnix.dragonlauncher.common.serializables.IconShape
 import org.elnix.dragonlauncher.common.serializables.IconType
 import org.elnix.dragonlauncher.common.serializables.SwipePointSerializable
 import org.elnix.dragonlauncher.common.serializables.defaultSwipePointsValues
@@ -62,6 +63,7 @@ import org.elnix.dragonlauncher.ui.colors.AppObjectsColors
 import org.elnix.dragonlauncher.ui.colors.ColorPickerRow
 import org.elnix.dragonlauncher.ui.components.PointPreviewCanvas
 import org.elnix.dragonlauncher.ui.components.ValidateCancelButtons
+import org.elnix.dragonlauncher.ui.helpers.ShapeRow
 import org.elnix.dragonlauncher.ui.helpers.SliderWithLabel
 import org.elnix.dragonlauncher.ui.theme.LocalExtraColors
 
@@ -102,6 +104,8 @@ fun IconEditorDialog(
         }
     }
     var showIconPackPicker by remember { mutableStateOf(false) }
+    var showShapePickerDialog by remember { mutableStateOf(false) }
+
 
     val cropLauncher = rememberLauncherForActivityResult(
         CropImageContract()
@@ -415,6 +419,14 @@ fun IconEditorDialog(
                         )
                     }
 
+                    ShapeRow(
+                        selected = selectedIcon?.shape ?: IconShape.PlatformDefault,
+                        onReset = {
+                            selectedIcon = (selectedIcon ?: CustomIconSerializable()).copy(
+                                shape = null
+                            )
+                        }
+                    ) { showShapePickerDialog = true }
 
                     // TODO Disabled cause not used and not working yet
 //                    val selectedBlendMode =  selectedIcon?.blendMode?.let {
@@ -451,6 +463,19 @@ fun IconEditorDialog(
                 showIconPackPicker = false
             }
         )
+    }
+
+    if (showShapePickerDialog) {
+        ShapePickerDialog(
+            selected = selectedIcon?.shape ?: IconShape.PlatformDefault,
+            onDismiss = { showShapePickerDialog = false }
+        ) {
+            selectedIcon = (selectedIcon ?: CustomIconSerializable()).copy(
+                shape = it
+            )
+
+            showShapePickerDialog = false
+        }
     }
 }
 

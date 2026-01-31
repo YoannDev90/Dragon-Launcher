@@ -56,7 +56,7 @@ fun ContributorItem(
                 .size(48.dp)
                 .clip(CircleShape)
                 .background(MaterialTheme.colorScheme.surfaceVariant),
-            contentScale = ContentScale.Crop
+            contentScale = ContentScale.Fit
         )
 
         Column(

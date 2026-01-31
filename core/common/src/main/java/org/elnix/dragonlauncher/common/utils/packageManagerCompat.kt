@@ -113,15 +113,6 @@ class PackageManagerCompat(private val pm: PackageManager, private val ctx: Cont
                 (appInfo.packageName.startsWith("com.android.") || appInfo.packageName.startsWith("android"))
     }
 
-//    fun getAppIcon(pkgName: String): Drawable {
-//        return try {
-//            val appInfo = pm.getApplicationInfo(pkgName, 0)
-//            appInfo.loadUnbadgedIcon(pm)
-//        } catch (_: Exception) {
-//            ContextCompat.getDrawable(ctx, R.drawable.ic_app_default)!!
-//        }
-//    }
-
     fun getAppIcon(
         packageName: String,
         userId: Int
@@ -144,17 +135,22 @@ class PackageManagerCompat(private val pm: PackageManager, private val ctx: Cont
                 }
 
                 // Fallback: application icon via LauncherApps
-                val appInfo = launcherApps.getApplicationInfo(
-                    packageName,
-                    0,
-                    userHandle
-                )
-                return appInfo.loadUnbadgedIcon(pm)
+                val appInfo = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+                    launcherApps.getApplicationInfo(
+                        packageName,
+                        0,
+                        userHandle
+                    )
+                } else {
+                    pm.getApplicationInfo(packageName, 0)
+                }
+
+                return appInfo.loadIcon(pm)
             }
 
             // ─── PERSONAL PROFILE ───
             val appInfo = pm.getApplicationInfo(packageName, 0)
-            appInfo.loadUnbadgedIcon(pm)
+            appInfo.loadIcon(pm)
 
         } catch (e: Exception) {
             logE(TAG, "Failed to load icon for $packageName (userId=$userId)", e)

@@ -98,9 +98,9 @@ fun AppDrawerScreen(
     gridSize: Int,
     searchBarBottom: Boolean,
     leftAction: DrawerActions,
-    leftWidth: Float,
+    leftWeight: Float,
     rightAction: DrawerActions,
-    rightWidth: Float,
+    rightWeight: Float,
     onClose: () -> Unit
 ) {
     val ctx = LocalContext.current
@@ -158,6 +158,8 @@ fun AppDrawerScreen(
 
     val drawerScrollUpAction by DrawerSettingsStore.scrollUpDrawerAction.flow(ctx)
         .collectAsState(TOGGLE_KB)
+    val iconsShape by DrawerSettingsStore.iconsShape.flow(ctx)
+        .collectAsState(DrawerSettingsStore.iconsShape.default)
 
 
     /*  ─────────────  Wellbeing Settings  ─────────────  */
@@ -337,7 +339,7 @@ fun AppDrawerScreen(
                 Box(
                     modifier = Modifier
                         .fillMaxHeight()
-                        .fillMaxWidth(leftWidth)
+                        .weight(leftWeight)
                         .clickable(
                             indication = null,
                             interactionSource = null
@@ -389,6 +391,7 @@ fun AppDrawerScreen(
                         apps = filteredApps,
                         icons = icons,
                         gridSize = gridSize,
+                        iconShape = iconsShape,
                         txtColor = MaterialTheme.colorScheme.onSurface,
                         showIcons = showIcons,
                         showLabels = showLabels,
@@ -405,7 +408,7 @@ fun AppDrawerScreen(
                 Box(
                     modifier = Modifier
                         .fillMaxHeight()
-                        .fillMaxWidth(rightWidth)
+                        .weight(rightWeight)
                         .clickable(
                             indication = null,
                             interactionSource = null

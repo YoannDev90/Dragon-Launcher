@@ -17,7 +17,6 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.systemBars
-import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Button
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
@@ -46,6 +45,7 @@ import org.elnix.dragonlauncher.enumsui.wallpaperEditModeIcon
 import org.elnix.dragonlauncher.enumsui.wallpaperEditModeLabel
 import org.elnix.dragonlauncher.settings.stores.StatusBarSettingsStore
 import org.elnix.dragonlauncher.settings.stores.UiSettingsStore
+import org.elnix.dragonlauncher.ui.UiConstants.DragonShape
 import org.elnix.dragonlauncher.ui.colors.AppObjectsColors
 import org.elnix.dragonlauncher.ui.colors.ColorPickerRow
 import org.elnix.dragonlauncher.ui.components.generic.ActionRow
@@ -200,7 +200,7 @@ fun WallpaperTab(onBack: () -> Unit) {
 
             item {
                 Surface(
-                    shape = RoundedCornerShape(12.dp)
+                    shape = DragonShape
                 ) {
                     SliderWithLabel(
                         modifier = Modifier.padding(10.dp),

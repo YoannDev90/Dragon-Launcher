@@ -10,17 +10,21 @@ import androidx.compose.ui.graphics.ColorFilter
 import androidx.compose.ui.graphics.ImageBitmap
 import androidx.compose.ui.graphics.drawscope.DrawScope
 import androidx.compose.ui.graphics.drawscope.Stroke
+import androidx.compose.ui.unit.Density
 import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.IntSize
 import org.elnix.dragonlauncher.common.R
 import org.elnix.dragonlauncher.common.serializables.CircleNest
+import org.elnix.dragonlauncher.common.serializables.IconShape
 import org.elnix.dragonlauncher.common.serializables.SwipeActionSerializable
-import org.elnix.dragonlauncher.common.serializables.SwipeActionSerializable.OpenDragonLauncherSettings
 import org.elnix.dragonlauncher.common.serializables.SwipePointSerializable
+import org.elnix.dragonlauncher.common.serializables.applyColorAction
 import org.elnix.dragonlauncher.common.serializables.defaultSwipePointsValues
+import org.elnix.dragonlauncher.common.utils.ImageUtils
 import org.elnix.dragonlauncher.common.utils.ImageUtils.loadDrawableResAsBitmap
 import org.elnix.dragonlauncher.common.utils.UiCircle
 import org.elnix.dragonlauncher.ui.actions.actionColor
+import org.elnix.dragonlauncher.ui.components.resolveShape
 import org.elnix.dragonlauncher.ui.theme.ExtraColors
 
 
@@ -38,6 +42,8 @@ fun DrawScope.actionsInCircle(
     pointIcons: Map<String, ImageBitmap>,
     defaultPoint: SwipePointSerializable,
     deepNest: Int,
+    iconShape: IconShape,
+    density: Density,
     preventBgErasing: Boolean = false
 ) {
     val action = point.action
@@ -80,6 +86,8 @@ fun DrawScope.actionsInCircle(
         Color.Transparent
     }
 
+    val dshape = resolveShape(point.customIcon?.shape ?: iconShape)
+
     // if in the settings, set the alpha
 //    if (preventBgErasing) backgroundColor = backgroundColor.copy(1f)
 
@@ -114,20 +122,25 @@ fun DrawScope.actionsInCircle(
         val icon = point.id.let { pointIcons[it] }
         val colorAction = actionColor(point.action, extraColors)
 
-        val applyActionColor = (
-                action !is SwipeActionSerializable.LaunchApp &&
-                action !is SwipeActionSerializable.LaunchShortcut &&
-                action !is OpenDragonLauncherSettings
-                ) &&
-                // Checks if the source is null (no custom icons, image, text or pack)
-                // to avoid drawing the tint on the rendered icon
-                point.customIcon?.type == null
+
+
 
         if (icon != null) {
+
+            val clipped = ImageUtils.clipImageToShape(
+                image = icon,
+                shape = dshape,
+                sizePx = size,
+                density = density
+            )
+
             drawImage(
-                image = icon, dstOffset = dstOffset, dstSize = intSize, colorFilter =
-                if (applyActionColor) ColorFilter.tint(colorAction)
-                else null
+                image = clipped,
+                dstOffset = dstOffset,
+                dstSize = intSize,
+                colorFilter =
+                    if (point.applyColorAction()) ColorFilter.tint(colorAction)
+                    else null
             )
         }
 
@@ -163,6 +176,8 @@ fun DrawScope.actionsInCircle(
                     pointIcons = pointIcons,
                     nestId = nest.id,
                     deepNest = deepNest + 1,
+                    shape = iconShape,
+                    density = density,
                     selectedAll = selected,
                     preventBgErasing = preventBgErasing
                 )

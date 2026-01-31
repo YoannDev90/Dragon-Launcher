@@ -1,10 +1,8 @@
 package org.elnix.dragonlauncher.settings
 
 import androidx.compose.ui.graphics.Color
-import org.elnix.dragonlauncher.common.logging.logI
 import org.elnix.dragonlauncher.common.serializables.SwipeActionSerializable
 import org.elnix.dragonlauncher.common.serializables.SwipeJson
-import org.elnix.dragonlauncher.common.utils.SETTINGS_TAG
 
 
 fun getBooleanStrict(
@@ -160,7 +158,7 @@ fun MutableMap<String, Any>.putIfNonDefault(
     value: Any?,
     def: Any?
 ) {
-    logI(SETTINGS_TAG, "[PIND] $key -> value: $value;    putting it: ${value != null && value != def}" )
+//    logI(SETTINGS_TAG, "[PIND] $key -> value: $value;    putting it: ${value != null && value != def}" )
 
     if (value != null && value != def) {
         put(key, value)

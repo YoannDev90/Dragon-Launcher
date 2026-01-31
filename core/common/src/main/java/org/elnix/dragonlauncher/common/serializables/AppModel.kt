@@ -67,5 +67,9 @@ val defaultWorkspaces = listOf(
 
 
 
-data class IconPackInfo(val packageName: String, val name: String)
+data class IconPackInfo(
+    val packageName: String,
+    val name: String,
+    val isManualOnly: Boolean
+)
 data class IconMapping(val component: String, val drawable: String)

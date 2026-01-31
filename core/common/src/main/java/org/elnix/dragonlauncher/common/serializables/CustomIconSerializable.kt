@@ -33,8 +33,8 @@ data class CustomIconSerializable(
     val opacity: Float? = null,
 
     /** Per-corner radius override for icon clipping. */
-    @SerializedName("f")
-    val corners: CornerRadiusSerializable? = null,
+    @SerializedName("shape")
+    val shape: IconShape? = null,
 
     /** Stroke width (dp) around the icon shape. */
     @SerializedName("g")
@@ -90,10 +90,7 @@ enum class IconType {
 
     /** Text-based icon (emoji, glyph, font icon). */
     TEXT,
-    PLAIN_COLOR,
-
-    /** Procedural or primitive shape rendered by code. */
-    SHAPE
+    PLAIN_COLOR
 }
 
 /**
@@ -106,16 +103,3 @@ enum class BlendModes {
     SCREEN,
     OVERLAY
 }
-
-
-/**
- * Defines independent corner radii for a rectangular shape.
- *
- * Any null value falls back to renderer defaults or global radius.
- */
-data class CornerRadiusSerializable(
-    @SerializedName("a") val topLeft: Float? = null,
-    @SerializedName("b") val topRight: Float? = null,
-    @SerializedName("c") val bottomRight: Float? = null,
-    @SerializedName("d") val bottomLeft: Float? = null
-)

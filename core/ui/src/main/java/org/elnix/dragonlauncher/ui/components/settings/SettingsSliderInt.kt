@@ -1,5 +1,3 @@
-@file:Suppress("AssignedValueIsNeverRead", "unused")
-
 package org.elnix.dragonlauncher.ui.components.settings
 
 import androidx.compose.material3.MaterialTheme
@@ -26,7 +24,6 @@ fun SettingsSlider(
     color: Color = MaterialTheme.colorScheme.primary,
     backgroundColor: Color = MaterialTheme.colorScheme.surface,
     showValue: Boolean = true,
-    decimals: Int = 2,
     enabled: Boolean = true,
     onDragStateChange: ((Boolean) -> Unit)? = null,
     onChange: ((Int) -> Unit)? = null,
@@ -71,7 +68,6 @@ fun SettingsSlider(
     color: Color = MaterialTheme.colorScheme.primary,
     backgroundColor: Color = MaterialTheme.colorScheme.surface,
     showValue: Boolean = true,
-    decimals: Int = 2,
     enabled: Boolean = true,
     instantUiUpdate: Boolean,
     onDragStateChange: ((Boolean) -> Unit)? = null,

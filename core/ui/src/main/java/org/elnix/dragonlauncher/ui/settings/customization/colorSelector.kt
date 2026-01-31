@@ -60,12 +60,13 @@ import org.elnix.dragonlauncher.enumsui.defaultThemeName
 import org.elnix.dragonlauncher.settings.applyDefaultThemeColors
 import org.elnix.dragonlauncher.settings.stores.ColorModesSettingsStore
 import org.elnix.dragonlauncher.settings.stores.ColorSettingsStore
+import org.elnix.dragonlauncher.ui.UiConstants.DragonShape
 import org.elnix.dragonlauncher.ui.colors.AppObjectsColors
 import org.elnix.dragonlauncher.ui.colors.ColorPickerRow
+import org.elnix.dragonlauncher.ui.components.TextDivider
 import org.elnix.dragonlauncher.ui.components.burger.BurgerAction
 import org.elnix.dragonlauncher.ui.components.burger.BurgerListAction
 import org.elnix.dragonlauncher.ui.dialogs.UserValidation
-import org.elnix.dragonlauncher.ui.components.TextDivider
 import org.elnix.dragonlauncher.ui.helpers.settings.SettingsLazyHeader
 import org.elnix.dragonlauncher.ui.theme.LocalExtraColors
 
@@ -146,7 +147,7 @@ fun ColorSelectorTab(
                     .fillMaxWidth()
                     .background(
                         color = MaterialTheme.colorScheme.surface,
-                        shape = RoundedCornerShape(12.dp)
+                        shape = DragonShape
                     )
                     .padding(vertical = 12.dp),
                 horizontalArrangement = Arrangement.SpaceEvenly
@@ -579,7 +580,7 @@ fun ColorSelectorTab(
                             .fillMaxWidth()
                             .background(
                                 color = MaterialTheme.colorScheme.surface,
-                                shape = RoundedCornerShape(12.dp)
+                                shape = DragonShape
                             )
                             .padding(vertical = 12.dp),
                         horizontalArrangement = Arrangement.SpaceEvenly

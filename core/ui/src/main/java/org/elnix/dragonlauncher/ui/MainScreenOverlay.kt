@@ -35,6 +35,7 @@ import androidx.compose.ui.graphics.drawscope.Fill
 import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.IntSize
 import androidx.compose.ui.unit.dp
@@ -43,6 +44,7 @@ import org.elnix.dragonlauncher.common.serializables.CircleNest
 import org.elnix.dragonlauncher.common.serializables.SwipePointSerializable
 import org.elnix.dragonlauncher.common.utils.vibrate
 import org.elnix.dragonlauncher.settings.stores.DebugSettingsStore
+import org.elnix.dragonlauncher.settings.stores.DrawerSettingsStore
 import org.elnix.dragonlauncher.settings.stores.UiSettingsStore
 import org.elnix.dragonlauncher.settings.stores.UiSettingsStore.minAngleFromAPointToActivateIt
 import org.elnix.dragonlauncher.ui.components.AppPreviewTitle
@@ -101,6 +103,10 @@ fun MainScreenOverlay(
         .collectAsState(initial = 18)
     val appIconOverlaySize by UiSettingsStore.appIconOverlaySize.flow(ctx)
         .collectAsState(initial = 22)
+
+    val iconsShape by DrawerSettingsStore.iconsShape.flow(ctx)
+        .collectAsState(DrawerSettingsStore.iconsShape.default)
+    val density = LocalDensity.current
 
 
     var lastAngle by remember { mutableStateOf<Double?>(null) }
@@ -435,7 +441,9 @@ fun MainScreenOverlay(
                                     extraColors = extraColors,
                                     pointIcons = pointIcons,
                                     defaultPoint = defaultPoint,
-                                    deepNest = 1
+                                    deepNest = 1,
+                                    iconShape = iconsShape,
+                                    density = density
                                 )
                             }
                         }
@@ -455,7 +463,9 @@ fun MainScreenOverlay(
                                 extraColors = extraColors,
                                 pointIcons = pointIcons,
                                 defaultPoint = defaultPoint,
-                                deepNest = 1
+                                deepNest = 1,
+                                iconShape = iconsShape,
+                                density = density
                             )
                         }
                     }
@@ -479,7 +489,9 @@ fun MainScreenOverlay(
                         extraColors = extraColors,
                         pointIcons = pointIcons,
                         defaultPoint = defaultPoint,
-                        deepNest = 1
+                        deepNest = 1,
+                        iconShape = iconsShape,
+                        density = density
                     )
                 }
             }
@@ -496,6 +508,7 @@ fun MainScreenOverlay(
             alpha = alpha,
             pointIcons = pointIcons,
             point = currentPoint,
+            iconsShape = iconsShape,
             topPadding = appLabelIconOverlayTopPadding.dp,
             labelSize = appLabelOverlaySize,
             iconSize = appIconOverlaySize,

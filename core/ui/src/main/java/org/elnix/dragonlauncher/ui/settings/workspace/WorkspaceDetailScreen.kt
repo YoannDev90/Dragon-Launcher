@@ -31,14 +31,18 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.core.net.toUri
 import kotlinx.coroutines.launch
+import org.elnix.dragonlauncher.base.ktx.toPixels
 import org.elnix.dragonlauncher.common.R
 import org.elnix.dragonlauncher.common.serializables.AppModel
 import org.elnix.dragonlauncher.common.serializables.SwipeActionSerializable
+import org.elnix.dragonlauncher.common.serializables.defaultSwipePointsValues
 import org.elnix.dragonlauncher.common.serializables.dummySwipePoint
 import org.elnix.dragonlauncher.enumsui.WorkspaceViewMode
 import org.elnix.dragonlauncher.enumsui.workspaceViewMode
 import org.elnix.dragonlauncher.models.AppsViewModel
 import org.elnix.dragonlauncher.settings.stores.DebugSettingsStore
+import org.elnix.dragonlauncher.settings.stores.DrawerSettingsStore
+import org.elnix.dragonlauncher.settings.stores.UiSettingsStore
 import org.elnix.dragonlauncher.ui.actions.launchSwipeAction
 import org.elnix.dragonlauncher.ui.components.generic.ActionRow
 import org.elnix.dragonlauncher.ui.dialogs.AppAliasesDialog
@@ -48,6 +52,7 @@ import org.elnix.dragonlauncher.ui.dialogs.IconEditorDialog
 import org.elnix.dragonlauncher.ui.dialogs.RenameAppDialog
 import org.elnix.dragonlauncher.ui.helpers.AppGrid
 import org.elnix.dragonlauncher.ui.helpers.settings.SettingsLazyHeader
+import kotlin.math.max
 
 @Composable
 fun WorkspaceDetailScreen(
@@ -67,6 +72,10 @@ fun WorkspaceDetailScreen(
 
     val workspaceDebugInfos by DebugSettingsStore.workspacesDebugInfo.flow(ctx)
         .collectAsState(initial = false)
+
+    val iconsShape by DrawerSettingsStore.iconsShape.flow(ctx)
+        .collectAsState(DrawerSettingsStore.iconsShape.default)
+
 
     var selectedView by remember { mutableStateOf(WorkspaceViewMode.DEFAULTS) }
 
@@ -89,6 +98,15 @@ fun WorkspaceDetailScreen(
     var showAliasDialog by remember { mutableStateOf<AppModel?>(null) }
 
     var iconTargetPackage by remember { mutableStateOf<String?>(null) }
+
+    val appIconOverlaySize by UiSettingsStore.appIconOverlaySize.flow(ctx)
+        .collectAsState(initial = 22)
+
+
+    val defaultPoint by appsViewModel.defaultPoint.collectAsState(defaultSwipePointsValues)
+
+    val densityPixelsIconOverlaySize = appIconOverlaySize.dp.toPixels().toInt()
+    val sizePx = max(densityPixelsIconOverlaySize, defaultPoint.size ?: 128)
 
 
 
@@ -113,6 +131,7 @@ fun WorkspaceDetailScreen(
                 AppGrid(
                     apps = apps,
                     icons = icons,
+                    iconShape = iconsShape,
                     gridSize = gridSize,
                     txtColor = Color.White,
                     showIcons = showIcons,
@@ -146,6 +165,7 @@ fun WorkspaceDetailScreen(
         AppPickerDialog(
             appsViewModel = appsViewModel,
             gridSize = gridSize,
+            iconShape = iconsShape,
             showIcons = showIcons,
             showLabels = showLabels,
             onDismiss = { showAppPicker = false }
@@ -263,7 +283,10 @@ fun WorkspaceDetailScreen(
         LaunchedEffect(iconOverride) {
             if (iconOverride == null) {
                 scope.launch {
-                    appsViewModel.reloadPointIcon(tempPoint)
+                    appsViewModel.reloadPointIcon(
+                        point = tempPoint,
+                        sizePx = sizePx
+                    )
                 }
             }
         }

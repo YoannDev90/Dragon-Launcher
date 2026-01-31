@@ -29,12 +29,6 @@ fun DrawerActionSelector(
 
     LaunchedEffect(state) { tempState = state }
 
-    LaunchedEffect(tempState) {
-        scope.launch {
-            settingObject.set(ctx, tempState)
-        }
-    }
-
     val stateNotDisabled = tempState != DrawerActions.DISABLED
 
     ActionSelectorRow(
@@ -43,15 +37,16 @@ fun DrawerActionSelector(
         label = label,
         optionLabel = { drawerActionsLabel(ctx, it) },
         onToggle = {
-
-            tempState = if (stateNotDisabled) {
-                DrawerActions.TOGGLE_KB
-            } else {
-                DrawerActions.TOGGLE_KB
+            tempState = DrawerActions.DISABLED
+            scope.launch {
+                settingObject.reset(ctx)
             }
         },
         toggled = stateNotDisabled
     ) {
         tempState = it
+        scope.launch {
+            settingObject.set(ctx, tempState)
+        }
     }
 }

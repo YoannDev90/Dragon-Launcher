@@ -40,10 +40,12 @@ import androidx.compose.ui.geometry.center
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.ImageBitmap
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import org.elnix.dragonlauncher.common.R
 import org.elnix.dragonlauncher.common.serializables.CircleNest
+import org.elnix.dragonlauncher.common.serializables.IconShape
 import org.elnix.dragonlauncher.common.serializables.SwipeActionSerializable
 import org.elnix.dragonlauncher.common.serializables.SwipePointSerializable
 import org.elnix.dragonlauncher.common.serializables.defaultSwipePointsValues
@@ -52,6 +54,7 @@ import org.elnix.dragonlauncher.common.utils.colors.adjustBrightness
 import org.elnix.dragonlauncher.common.utils.copyToClipboard
 import org.elnix.dragonlauncher.models.AppsViewModel
 import org.elnix.dragonlauncher.settings.stores.ColorSettingsStore
+import org.elnix.dragonlauncher.settings.stores.DrawerSettingsStore
 import org.elnix.dragonlauncher.settings.stores.SwipeSettingsStore
 import org.elnix.dragonlauncher.ui.colors.AppObjectsColors
 import org.elnix.dragonlauncher.ui.helpers.nests.actionsInCircle
@@ -78,6 +81,8 @@ fun NestManagementDialog(
     val pointIcons by appsViewModel.pointIcons.collectAsState()
     val defaultPoint by appsViewModel.defaultPoint.collectAsState(defaultSwipePointsValues)
 
+    val iconsShape by DrawerSettingsStore.iconsShape.flow(ctx)
+        .collectAsState(DrawerSettingsStore.iconsShape.default)
 
     CustomAlertDialog(
         modifier = Modifier.padding(15.dp),
@@ -132,6 +137,7 @@ fun NestManagementDialog(
                         circleColor = circleColor,
                         pointIcons = pointIcons,
                         canCopyId = canCopyId,
+                        shape = iconsShape,
                         onNameChange = onNameChange,
                         onDelete = onDelete,
                         onSelect = { onSelect?.invoke(nest) }
@@ -153,12 +159,15 @@ private fun NestManagementItem(
     circleColor: Color,
     pointIcons: Map<String, ImageBitmap>,
     canCopyId: Boolean,
+    shape: IconShape,
     onNameChange: ((id: Int, name: String) -> Unit)?,
     onDelete: ((id: Int) -> Unit)?,
     onSelect: (() -> Unit)? = null
 ) {
     val ctx = LocalContext.current
     val extraColors = LocalExtraColors.current
+    val density = LocalDensity.current
+
 
     var tempCustomName by remember { mutableStateOf(nest.name ?: "") }
 
@@ -202,7 +211,9 @@ private fun NestManagementItem(
                 pointIcons = pointIcons,
                 defaultPoint = defaultPoint,
                 deepNest = 1,
-                preventBgErasing = true
+                preventBgErasing = true,
+                iconShape = shape,
+                density = density
             )
         }
 

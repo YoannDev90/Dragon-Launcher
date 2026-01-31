@@ -3,6 +3,7 @@ package org.elnix.dragonlauncher.ui.actions
 import androidx.compose.foundation.Image
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.ColorFilter
 import androidx.compose.ui.graphics.ImageBitmap
 import androidx.compose.ui.graphics.painter.BitmapPainter
@@ -13,6 +14,7 @@ import org.elnix.dragonlauncher.common.R
 import org.elnix.dragonlauncher.common.serializables.SwipeActionSerializable
 import org.elnix.dragonlauncher.common.utils.ImageUtils.createUntintedBitmap
 import org.elnix.dragonlauncher.common.utils.ImageUtils.loadDrawableResAsBitmap
+import org.elnix.dragonlauncher.ui.components.PlatformShape
 import org.elnix.dragonlauncher.ui.theme.LocalExtraColors
 
 @Composable
@@ -69,5 +71,6 @@ fun ActionIcon(
         ) ColorFilter.tint(actionColor(action, extraColors))
         else null,
         modifier = modifier
+            .clip(PlatformShape)
     )
 }

@@ -36,7 +36,9 @@ import org.elnix.dragonlauncher.common.serializables.dummySwipePoint
 import org.elnix.dragonlauncher.common.utils.SETTINGS
 import org.elnix.dragonlauncher.common.utils.colors.adjustBrightness
 import org.elnix.dragonlauncher.models.AppsViewModel
+import org.elnix.dragonlauncher.settings.stores.DrawerSettingsStore
 import org.elnix.dragonlauncher.settings.stores.UiSettingsStore
+import org.elnix.dragonlauncher.ui.UiConstants.DragonShape
 import org.elnix.dragonlauncher.ui.components.AppPreviewTitle
 import org.elnix.dragonlauncher.ui.components.TextDivider
 import org.elnix.dragonlauncher.ui.components.settings.SettingsSlider
@@ -70,6 +72,8 @@ fun AppearanceTab(
         .collectAsState(initial = 18)
     val appIconOverlaySize by UiSettingsStore.appIconOverlaySize.flow(ctx)
         .collectAsState(initial = 22)
+    val iconsShape by DrawerSettingsStore.iconsShape.flow(ctx)
+        .collectAsState(DrawerSettingsStore.iconsShape.default)
 
     var isDraggingAppPreviewOverlays by remember { mutableStateOf(false) }
 
@@ -190,7 +194,7 @@ fun AppearanceTab(
                     .border(
                         1.dp,
                         MaterialTheme.colorScheme.primary.adjustBrightness(0.2f),
-                        RoundedCornerShape(12.dp)
+                        DragonShape
                     )
                     .padding(8.dp)
             ) {
@@ -290,6 +294,7 @@ fun AppearanceTab(
                 customName = "Preview",
                 id = icons.keys.random() // Kinda funny so I'll keep it :)
             ),
+            iconsShape = iconsShape,
             topPadding = appLabelIconOverlayTopPadding.dp,
             labelSize = appLabelOverlaySize,
             iconSize = appIconOverlaySize,
