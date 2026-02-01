@@ -413,6 +413,7 @@ fun EditPointDialog(
                     ActionRow(
                         actions = SelectedUnselectedViewMode.entries,
                         selectedView = selectedView,
+                        backgroundColorUnselected = backgroundSurfaceColor,
                         actionName = { selectedUnselectedViewName(ctx, it) },
                     ) { selectedView = it }
                 }
