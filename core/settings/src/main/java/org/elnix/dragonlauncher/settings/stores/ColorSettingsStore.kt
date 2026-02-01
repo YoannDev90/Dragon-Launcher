@@ -2,7 +2,6 @@ package org.elnix.dragonlauncher.settings.stores
 
 import android.content.Context
 import androidx.compose.ui.graphics.Color
-import org.elnix.dragonlauncher.common.theme.AmoledDefault
 import org.elnix.dragonlauncher.common.utils.colors.randomColor
 import org.elnix.dragonlauncher.settings.DataStoreName
 import org.elnix.dragonlauncher.settings.Settings
@@ -16,7 +15,6 @@ object ColorSettingsStore : MapSettingsStore() {
 
 
     /* ───────────── Colors ───────────── */
-
 
     val primaryColor = Settings.color(
         key = "primary_color",
@@ -324,73 +322,73 @@ object ColorSettingsStore : MapSettingsStore() {
     val launchAppColor = Settings.color(
         key = "launch_app_color",
         dataStoreName = dataStoreName,
-        default = AmoledDefault.LaunchAppColor
+        default = Color.Unspecified
     )
 
     val openUrlColor = Settings.color(
         key = "open_url_color",
         dataStoreName = dataStoreName,
-        default = AmoledDefault.OpenUrlColor
+        default = Color.Unspecified
     )
 
     val notificationShadeColor = Settings.color(
         key = "notification_shade_color",
         dataStoreName = dataStoreName,
-        default = AmoledDefault.NotificationShadeColor
+        default = Color.Unspecified
     )
 
     val controlPanelColor = Settings.color(
         key = "control_panel_color",
         dataStoreName = dataStoreName,
-        default = AmoledDefault.ControlPanelColor
+        default = Color.Unspecified
     )
 
     val openAppDrawerColor = Settings.color(
         key = "open_app_drawer_color",
         dataStoreName = dataStoreName,
-        default = AmoledDefault.OpenAppDrawerColor
+        default = Color.Unspecified
     )
 
     val launcherSettingsColor = Settings.color(
         key = "launcher_settings_color",
         dataStoreName = dataStoreName,
-        default = AmoledDefault.LauncherSettingsColor
+        default = Color.Unspecified
     )
 
     val lockColor = Settings.color(
         key = "lock_color",
         dataStoreName = dataStoreName,
-        default = AmoledDefault.LockColor
+        default = Color.Unspecified
     )
 
     val openFileColor = Settings.color(
         key = "open_file_color",
         dataStoreName = dataStoreName,
-        default = AmoledDefault.OpenFileColor
+        default = Color.Unspecified
     )
 
     val reloadColor = Settings.color(
         key = "reload_color",
         dataStoreName = dataStoreName,
-        default = AmoledDefault.ReloadColor
+        default = Color.Unspecified
     )
 
     val openRecentAppsColor = Settings.color(
         key = "open_recent_apps",
         dataStoreName = dataStoreName,
-        default = AmoledDefault.OpenRecentAppsColor
+        default = Color.Unspecified
     )
 
     val openCircleNestColor = Settings.color(
         key = "open_circle_nest",
         dataStoreName = dataStoreName,
-        default = AmoledDefault.OpenCircleNestColor
+        default = Color.Unspecified
     )
 
     val goParentNestColor = Settings.color(
         key = "go_parent_nest",
         dataStoreName = dataStoreName,
-        default = AmoledDefault.GoParentNestColor
+        default = Color.Unspecified
     )
 
     /* ───────────── Registry ───────────── */

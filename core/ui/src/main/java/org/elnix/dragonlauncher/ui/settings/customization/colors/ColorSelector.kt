@@ -20,6 +20,7 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyListScope
+import androidx.compose.foundation.selection.selectableGroup
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
@@ -27,12 +28,12 @@ import androidx.compose.material.icons.filled.MoreVert
 import androidx.compose.material.icons.filled.Restore
 import androidx.compose.material.icons.filled.SelectAll
 import androidx.compose.material.icons.filled.Shuffle
+import androidx.compose.material.icons.filled.Warning
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
 import androidx.compose.material3.DropdownMenu
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
-import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
@@ -55,6 +56,7 @@ import androidx.compose.ui.unit.dp
 import kotlinx.coroutines.launch
 import org.elnix.dragonlauncher.common.R
 import org.elnix.dragonlauncher.common.utils.colors.adjustBrightness
+import org.elnix.dragonlauncher.common.utils.definedOrNull
 import org.elnix.dragonlauncher.enumsui.CustomColorModeEditing
 import org.elnix.dragonlauncher.enumsui.DefaultThemes
 import org.elnix.dragonlauncher.enumsui.DefaultThemes.AMOLED
@@ -71,6 +73,7 @@ import org.elnix.dragonlauncher.settings.stores.ColorSettingsStore
 import org.elnix.dragonlauncher.ui.UiConstants.DragonShape
 import org.elnix.dragonlauncher.ui.colors.AppObjectsColors
 import org.elnix.dragonlauncher.ui.colors.ColorPickerRow
+import org.elnix.dragonlauncher.ui.components.DragonIconButton
 import org.elnix.dragonlauncher.ui.components.burger.BurgerAction
 import org.elnix.dragonlauncher.ui.components.burger.BurgerListAction
 import org.elnix.dragonlauncher.ui.components.generic.ActionRow
@@ -82,7 +85,7 @@ import org.elnix.dragonlauncher.ui.dialogs.UserValidation
 import org.elnix.dragonlauncher.ui.helpers.SwitchRow
 import org.elnix.dragonlauncher.ui.helpers.settings.SettingsLazyHeader
 import org.elnix.dragonlauncher.ui.modifiers.conditional
-import org.elnix.dragonlauncher.ui.theme.LocalExtraColors
+import org.elnix.dragonlauncher.ui.theme.DefaultExtraColors
 import org.elnix.dragonlauncher.ui.theme.getSystemColorScheme
 
 @Suppress("AssignedValueIsNeverRead")
@@ -209,6 +212,7 @@ fun ColorSelectorTab(
     var showResetValidation by remember { mutableStateOf(false) }
 
     var showBurgerMenu by remember { mutableStateOf(false) }
+    var showRequestHelpDialog by remember { mutableStateOf(false) }
 
     var selectedCustomView by remember { mutableStateOf(CustomColorModeEditing.NORMAL) }
 
@@ -357,7 +361,7 @@ fun ColorSelectorTab(
                     }
 
                     Box {
-                        IconButton(
+                        DragonIconButton(
                             onClick = { showBurgerMenu = true },
                             colors = AppObjectsColors.iconButtonColors(
                                 backgroundColor = MaterialTheme.colorScheme.primary.copy(0.5f)
@@ -402,6 +406,21 @@ fun ColorSelectorTab(
                                 )
                             )
                         }
+                    }
+
+                    DragonIconButton(
+                        onClick = { showRequestHelpDialog = true },
+                        colors = AppObjectsColors.iconButtonColors(
+                            backgroundColor = MaterialTheme.colorScheme.primary.copy(0.5f)
+                        )
+                    ) {
+                        Icon(
+                            imageVector = Icons.Default.Warning,
+                            contentDescription = null,
+                            modifier = Modifier
+                                .clip(CircleShape)
+                                .padding(5.dp)
+                        )
                     }
                 }
             }
@@ -456,102 +475,117 @@ fun ColorSelectorTab(
 
                 // === Extra custom action colors ===
                 item {
-                    ColorPickerRow(
-                        currentColor = angleLineColor ?: LocalExtraColors.current.angleLine,
-                        label = stringResource(R.string.angle_line_color),
-                    ) { scope.launch { ColorSettingsStore.angleLineColor.set(ctx, it) } }
+                    SettingsColorPicker(
+                        settingObject = ColorSettingsStore.angleLineColor,
+                        defaultColor = angleLineColor.definedOrNull() ?: DefaultExtraColors.angleLine,
+                        label = stringResource(R.string.angle_line_color)
+                    )
                 }
 
                 item {
-                    ColorPickerRow(
-                        currentColor = circleColor ?: LocalExtraColors.current.circle,
-                        label = stringResource(R.string.circle_color),
-                    ) { scope.launch { ColorSettingsStore.circleColor.set(ctx, it) } }
+                    SettingsColorPicker(
+                        settingObject = ColorSettingsStore.circleColor,
+                        defaultColor = circleColor.definedOrNull() ?: DefaultExtraColors.circle,
+                        label = stringResource(R.string.circle_color)
+                    )
                 }
 
                 item {
-                    ColorPickerRow(
-                        currentColor = launchAppColor ?: LocalExtraColors.current.launchApp,
-                        label = stringResource(R.string.launch_app_color),
-                    ) { scope.launch { ColorSettingsStore.launchAppColor.set(ctx, it) } }
+                    SettingsColorPicker(
+                        settingObject = ColorSettingsStore.launchAppColor,
+                        defaultColor = launchAppColor.definedOrNull() ?: DefaultExtraColors.launchApp,
+                        label = stringResource(R.string.launch_app_color)
+                    )
                 }
 
                 item {
-                    ColorPickerRow(
-                        currentColor = openUrlColor ?: LocalExtraColors.current.openUrl,
-                        label = stringResource(R.string.open_url_color),
-                    ) { scope.launch { ColorSettingsStore.openUrlColor.set(ctx, it) } }
+                    SettingsColorPicker(
+                        settingObject = ColorSettingsStore.openUrlColor,
+                        defaultColor = openUrlColor.definedOrNull() ?: DefaultExtraColors.openUrl,
+                        label = stringResource(R.string.open_url_color)
+                    )
                 }
 
                 item {
-                    ColorPickerRow(
-                        currentColor = notificationShadeColor
-                            ?: LocalExtraColors.current.notificationShade,
-                        label = stringResource(R.string.notification_shade_color),
-                    ) { scope.launch { ColorSettingsStore.notificationShadeColor.set(ctx, it) } }
+                    SettingsColorPicker(
+                        settingObject = ColorSettingsStore.notificationShadeColor,
+                        defaultColor = notificationShadeColor.definedOrNull() ?: DefaultExtraColors.notificationShade,
+                        label = stringResource(R.string.notification_shade_color)
+                    )
                 }
 
                 item {
-                    ColorPickerRow(
-                        currentColor = controlPanelColor ?: LocalExtraColors.current.controlPanel,
-                        label = stringResource(R.string.control_panel_color),
-                    ) { scope.launch { ColorSettingsStore.controlPanelColor.set(ctx, it) } }
+                    SettingsColorPicker(
+                        settingObject = ColorSettingsStore.controlPanelColor,
+                        defaultColor = controlPanelColor.definedOrNull() ?: DefaultExtraColors.controlPanel,
+                        label = stringResource(R.string.control_panel_color)
+                    )
                 }
 
                 item {
-                    ColorPickerRow(
-                        currentColor = openAppDrawerColor ?: LocalExtraColors.current.openAppDrawer,
-                        label = stringResource(R.string.open_app_drawer_color),
-                    ) { scope.launch { ColorSettingsStore.openAppDrawerColor.set(ctx, it) } }
+                    SettingsColorPicker(
+                        settingObject = ColorSettingsStore.openAppDrawerColor,
+                        defaultColor = openAppDrawerColor.definedOrNull() ?: DefaultExtraColors.openAppDrawer,
+                        label = stringResource(R.string.open_app_drawer_color)
+                    )
                 }
 
                 item {
-                    ColorPickerRow(
-                        currentColor = launcherSettingsColor
-                            ?: LocalExtraColors.current.launcherSettings,
-                        label = stringResource(R.string.launcher_settings_color),
-                    ) { scope.launch { ColorSettingsStore.launcherSettingsColor.set(ctx, it) } }
+                    SettingsColorPicker(
+                        settingObject = ColorSettingsStore.launcherSettingsColor,
+                        defaultColor = launcherSettingsColor.definedOrNull() ?: DefaultExtraColors.launcherSettings,
+                        label = stringResource(R.string.launcher_settings_color)
+                    )
                 }
 
                 item {
-                    ColorPickerRow(
-                        currentColor = lockColor ?: LocalExtraColors.current.lock,
-                        label = stringResource(R.string.lock_color),
-                    ) { scope.launch { ColorSettingsStore.lockColor.set(ctx, it) } }
+                    SettingsColorPicker(
+                        settingObject = ColorSettingsStore.lockColor,
+                        defaultColor = lockColor.definedOrNull() ?: DefaultExtraColors.lock,
+                        label = stringResource(R.string.lock_color)
+                    )
                 }
 
                 item {
-                    ColorPickerRow(
-                        currentColor = openFileColor ?: LocalExtraColors.current.openFile,
-                        label = stringResource(R.string.open_file_color),
-                    ) { scope.launch { ColorSettingsStore.openFileColor.set(ctx, it) } }
+                    SettingsColorPicker(
+                        settingObject = ColorSettingsStore.openFileColor,
+                        defaultColor = openFileColor.definedOrNull() ?: DefaultExtraColors.openFile,
+                        label = stringResource(R.string.open_file_color)
+                    )
                 }
 
                 item {
-                    ColorPickerRow(
-                        currentColor = reloadColor ?: LocalExtraColors.current.reload,
-                        label = stringResource(R.string.reload_color),
-                    ) { scope.launch { ColorSettingsStore.reloadColor.set(ctx, it) } }
+                    SettingsColorPicker(
+                        settingObject = ColorSettingsStore.reloadColor,
+                        defaultColor = reloadColor.definedOrNull() ?: DefaultExtraColors.reload,
+                        label = stringResource(R.string.reload_color)
+                    )
                 }
+
                 item {
-                    ColorPickerRow(
-                        currentColor = openRecentAppsColor
-                            ?: LocalExtraColors.current.openRecentApps,
-                        label = stringResource(R.string.open_recent_apps_color),
-                    ) { scope.launch { ColorSettingsStore.openRecentAppsColor.set(ctx, it) } }
+                    SettingsColorPicker(
+                        settingObject = ColorSettingsStore.openRecentAppsColor,
+                        defaultColor = openRecentAppsColor.definedOrNull() ?: DefaultExtraColors.openRecentApps,
+                        label = stringResource(R.string.open_recent_apps_color)
+                    )
                 }
+
                 item {
-                    ColorPickerRow(
-                        currentColor = openCircleNest ?: LocalExtraColors.current.openCircleNest,
-                        label = stringResource(R.string.open_circle_nest_color),
-                    ) { scope.launch { ColorSettingsStore.openCircleNestColor.set(ctx, it) } }
+                    SettingsColorPicker(
+                        settingObject = ColorSettingsStore.openCircleNestColor,
+                        defaultColor = openCircleNest.definedOrNull() ?: DefaultExtraColors.openCircleNest,
+                        label = stringResource(R.string.open_circle_nest_color)
+                    )
                 }
+
                 item {
-                    ColorPickerRow(
-                        currentColor = goParentCircle ?: LocalExtraColors.current.goParentNest,
-                        label = stringResource(R.string.go_parent_nest_color),
-                    ) { scope.launch { ColorSettingsStore.goParentNestColor.set(ctx, it) } }
+                    SettingsColorPicker(
+                        settingObject = ColorSettingsStore.goParentNestColor,
+                        defaultColor = goParentCircle.definedOrNull() ?: DefaultExtraColors.goParentNest,
+                        label = stringResource(R.string.go_parent_nest_color)
+                    )
                 }
+
             }
         }
 
@@ -646,6 +680,17 @@ fun ColorSelectorTab(
             shape = DragonShape
         )
     }
+
+
+    if (showRequestHelpDialog) {
+        UserValidation(
+            title = stringResource(R.string.help_wanted),
+            message = stringResource(R.string.help_wanted_on_colors),
+            onCancel = {},
+            cancelText = null,
+            onAgree = { showRequestHelpDialog = false }
+        )
+    }
 }
 
 private data class ColorEdit(
@@ -668,7 +713,8 @@ private fun LazyListScope.colorsGroup(
                 .clip(DragonShape)
                 .background(MaterialTheme.colorScheme.surfaceVariant)
                 .border(1.dp, MaterialTheme.colorScheme.primary, DragonShape)
-                .padding(5.dp),
+                .padding(16.dp)
+                .selectableGroup(),
             verticalArrangement = Arrangement.spacedBy(5.dp)
         ) {
 

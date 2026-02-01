@@ -2,9 +2,10 @@ package org.elnix.dragonlauncher.ui.remembers
 
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
-import org.elnix.dragonlauncher.common.theme.AmoledDefault
+import org.elnix.dragonlauncher.common.utils.definedOrNull
 import org.elnix.dragonlauncher.settings.stores.ColorSettingsStore
 import org.elnix.dragonlauncher.ui.components.settings.asStateNull
+import org.elnix.dragonlauncher.ui.theme.DefaultExtraColors
 import org.elnix.dragonlauncher.ui.theme.ExtraColors
 
 @Composable
@@ -29,20 +30,20 @@ fun rememberExtraColors(): ExtraColors {
     val goParentNestColor by ColorSettingsStore.goParentNestColor.asStateNull()
 
     return ExtraColors(
-        angleLineColor ?: AmoledDefault.AngleLineColor,
-        circleColor ?: AmoledDefault.CircleColor,
+        angleLine = angleLineColor.definedOrNull() ?: DefaultExtraColors.angleLine,
+        circle = circleColor.definedOrNull() ?: DefaultExtraColors.circle,
 
-        launchAppColor ?: AmoledDefault.LaunchAppColor,
-        openUrlColor ?: AmoledDefault.OpenUrlColor,
-        notificationShadeColor ?: AmoledDefault.NotificationShadeColor,
-        controlPanelColor ?: AmoledDefault.ControlPanelColor,
-        openAppDrawerColor ?: AmoledDefault.OpenAppDrawerColor,
-        launcherSettingsColor ?: AmoledDefault.LauncherSettingsColor,
-        lockColor ?: AmoledDefault.LockColor,
-        openFileColor ?: AmoledDefault.OpenFileColor,
-        reloadAppsColor ?: AmoledDefault.ReloadColor,
-        openRecentAppsColor ?: AmoledDefault.OpenRecentAppsColor,
-        openCircleNestColor ?: AmoledDefault.OpenCircleNestColor,
-        goParentNestColor ?: AmoledDefault.GoParentNestColor
+        launchApp = launchAppColor.definedOrNull() ?: DefaultExtraColors.launchApp,
+        openUrl = openUrlColor.definedOrNull() ?: DefaultExtraColors.openUrl,
+        notificationShade = notificationShadeColor.definedOrNull() ?: DefaultExtraColors.notificationShade,
+        controlPanel = controlPanelColor.definedOrNull() ?: DefaultExtraColors.controlPanel,
+        openAppDrawer = openAppDrawerColor.definedOrNull() ?: DefaultExtraColors.openAppDrawer,
+        launcherSettings = launcherSettingsColor.definedOrNull() ?: DefaultExtraColors.launcherSettings,
+        lock = lockColor.definedOrNull() ?: DefaultExtraColors.lock,
+        openFile = openFileColor.definedOrNull() ?: DefaultExtraColors.openFile,
+        reload = reloadAppsColor.definedOrNull() ?: DefaultExtraColors.reload,
+        openRecentApps = openRecentAppsColor.definedOrNull() ?: DefaultExtraColors.openRecentApps,
+        openCircleNest = openCircleNestColor.definedOrNull() ?: DefaultExtraColors.openCircleNest,
+        goParentNest = goParentNestColor.definedOrNull() ?: DefaultExtraColors.goParentNest
     )
 }

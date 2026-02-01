@@ -48,7 +48,6 @@ import org.elnix.dragonlauncher.common.serializables.IconShape
 import org.elnix.dragonlauncher.common.serializables.SwipeActionSerializable
 import org.elnix.dragonlauncher.common.serializables.SwipePointSerializable
 import org.elnix.dragonlauncher.common.serializables.defaultSwipePointsValues
-import org.elnix.dragonlauncher.common.theme.AmoledDefault
 import org.elnix.dragonlauncher.common.utils.colors.adjustBrightness
 import org.elnix.dragonlauncher.common.utils.copyToClipboard
 import org.elnix.dragonlauncher.models.AppsViewModel
@@ -57,6 +56,7 @@ import org.elnix.dragonlauncher.settings.stores.DrawerSettingsStore
 import org.elnix.dragonlauncher.settings.stores.SwipeSettingsStore
 import org.elnix.dragonlauncher.ui.UiConstants.DragonShape
 import org.elnix.dragonlauncher.ui.colors.AppObjectsColors
+import org.elnix.dragonlauncher.ui.components.settings.asState
 import org.elnix.dragonlauncher.ui.helpers.nests.actionsInCircle
 import org.elnix.dragonlauncher.ui.theme.LocalExtraColors
 
@@ -75,8 +75,7 @@ fun NestManagementDialog(
 
     val points by SwipeSettingsStore.getPointsFlow(ctx).collectAsState(emptyList())
     val nests by SwipeSettingsStore.getNestsFlow(ctx).collectAsState(emptyList())
-    val circleColor by ColorSettingsStore.circleColor.flow(ctx)
-        .collectAsState(initial = AmoledDefault.CircleColor)
+    val circleColor by ColorSettingsStore.circleColor.asState()
 
     val pointIcons by appsViewModel.pointIcons.collectAsState()
     val defaultPoint by appsViewModel.defaultPoint.collectAsState(defaultSwipePointsValues)

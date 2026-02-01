@@ -2,7 +2,6 @@ package org.elnix.dragonlauncher.ui.theme
 
 import androidx.compose.runtime.staticCompositionLocalOf
 import androidx.compose.ui.graphics.Color
-import org.elnix.dragonlauncher.common.theme.AmoledDefault
 
 data class ExtraColors(
     val angleLine: Color,
@@ -23,20 +22,19 @@ data class ExtraColors(
 
 
 val DefaultExtraColors = ExtraColors(
-    angleLine = AmoledDefault.AngleLineColor,
-    circle = AmoledDefault.CircleColor,
-    launchApp = AmoledDefault.LaunchAppColor,
-    openUrl = AmoledDefault.OpenUrlColor,
-    notificationShade = AmoledDefault.NotificationShadeColor,
-    controlPanel = AmoledDefault.ControlPanelColor,
-    openAppDrawer = AmoledDefault.OpenAppDrawerColor,
-    launcherSettings = AmoledDefault.LauncherSettingsColor,
-    lock = AmoledDefault.LockColor,
-    openFile = AmoledDefault.OpenFileColor,
-    reload = AmoledDefault.ReloadColor,
-    openRecentApps = AmoledDefault.OpenRecentAppsColor,
-    openCircleNest = AmoledDefault.OpenCircleNestColor,
-    goParentNest = AmoledDefault.GoParentNestColor
+    angleLine = Color.Red,
+    circle = Color(0xFF960000),
+    launchApp = Color(0xFF55AAFF),
+    openUrl = Color(0xFF66DD77),
+    notificationShade = Color(0xFFFFBB44),
+    controlPanel = Color(0xFFFF6688),
+    openAppDrawer = Color(0xFFDD55FF),
+    launcherSettings = Color.Red,
+    lock = Color(0xFF555555),
+    openFile = Color(0xFF00FFF7),
+    reload = Color(0xFF886300),
+    openRecentApps = Color(0xFF880081),
+    openCircleNest = Color(0xFF1BEE14),
+    goParentNest = Color(0xFF1BEE14)
 )
-
 val LocalExtraColors = staticCompositionLocalOf { DefaultExtraColors }

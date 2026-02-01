@@ -42,7 +42,6 @@ import org.elnix.dragonlauncher.common.R
 import org.elnix.dragonlauncher.common.serializables.SwipeActionSerializable
 import org.elnix.dragonlauncher.common.serializables.SwipePointSerializable
 import org.elnix.dragonlauncher.common.serializables.defaultSwipePointsValues
-import org.elnix.dragonlauncher.common.theme.AmoledDefault
 import org.elnix.dragonlauncher.common.utils.colors.adjustBrightness
 import org.elnix.dragonlauncher.common.utils.definedOrNull
 import org.elnix.dragonlauncher.enumsui.SelectedUnselectedViewMode
@@ -60,6 +59,7 @@ import org.elnix.dragonlauncher.ui.components.PointPreviewCanvas
 import org.elnix.dragonlauncher.ui.components.TextDivider
 import org.elnix.dragonlauncher.ui.components.ValidateCancelButtons
 import org.elnix.dragonlauncher.ui.components.generic.ActionRow
+import org.elnix.dragonlauncher.ui.components.settings.asState
 import org.elnix.dragonlauncher.ui.helpers.SliderWithLabel
 import org.elnix.dragonlauncher.ui.theme.LocalExtraColors
 import kotlin.math.max
@@ -84,8 +84,7 @@ fun EditPointDialog(
     var showEditIconDialog by remember { mutableStateOf(false) }
     var showEditActionDialog by remember { mutableStateOf(false) }
 
-    val circleColor by ColorSettingsStore.circleColor.flow(ctx)
-        .collectAsState(initial = AmoledDefault.CircleColor)
+    val circleColor by ColorSettingsStore.circleColor.asState()
 
     val pointIcons by appsViewModel.pointIcons.collectAsState()
     val defaultPoint by appsViewModel.defaultPoint.collectAsState(defaultSwipePointsValues)
