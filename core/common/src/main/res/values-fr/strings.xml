@@ -385,7 +385,7 @@
     <string name="usage_hours">%1$d heures</string>
     <string name="usage_minutes">%1$d min</string>
     <string name="usage_hours_minutes">%1$dh %2$dm</string>
-    <string name="usage_no_data">Aucune donnée d\'utilisation disponible</string>
+    <string name="not_used_yet">Vous n\'avez pas encore utilisé cette application aujourd\'hui, peut-être devriez vous y renoncer?</string>
     <string name="usage_permission_needed">Permission d\'accès aux données d\'utilisation nécessaire</string>
     <string name="grant_usage_permission">Accorder la permission</string>
 </resources>

@@ -386,7 +386,7 @@
     <string name="usage_hours">%1$d hours</string>
     <string name="usage_minutes">%1$d min</string>
     <string name="usage_hours_minutes">%1$dh %2$dm</string>
-    <string name="usage_no_data">No usage data available</string>
+    <string name="not_used_yet">You have not used this app yet, maybe it is good to keep going?</string>
     <string name="usage_permission_needed">Usage access permission needed</string>
     <string name="grant_usage_permission">Grant Permission</string>
     <string name="edit_icons_shape">Edit Icons Shape</string>

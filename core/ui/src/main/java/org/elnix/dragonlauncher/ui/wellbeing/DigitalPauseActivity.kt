@@ -564,7 +564,7 @@ private fun UsageStatsDisplay(stats: AppUsageStats) {
         Text(
             text = if (stats.todayMinutes > 0)
                 stringResource(R.string.usage_today, stats.todayMinutes.formatDuration())
-            else stringResource(R.string.usage_no_data),
+            else stringResource(R.string.not_used_yet),
             fontSize = 14.sp,
             color = TextWhite.copy(alpha = 0.8f)
         )
