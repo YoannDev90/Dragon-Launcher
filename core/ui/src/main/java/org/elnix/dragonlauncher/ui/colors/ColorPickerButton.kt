@@ -45,7 +45,8 @@ import org.elnix.dragonlauncher.settings.stores.ColorModesSettingsStore
 private fun ColorPickerButton(
     button: ColorPickerButtonAction,
     currentColor: Color,
-    defaultColor: Color,
+//    defaultColor: Color,
+    onReset: () -> Unit,
     backgroundColor: Color,
     onModeChanged: (ColorPickerButtonAction) -> Unit,
     onColorPicked: (Color) -> Unit
@@ -70,8 +71,8 @@ private fun ColorPickerButton(
                 ) {
                     when (button) {
                         RANDOM -> onColorPicked(randomColor(minLuminance = 0.2f))
-                        RESET -> onColorPicked(defaultColor)
-                        COPY -> ctx.copyToClipboard(toHexWithAlpha(currentColor))
+                        RESET -> { onReset() }
+                        COPY -> ctx.copyToClipboard(currentColor.toHexWithAlpha())
 
                         PASTE -> {
                             val newColor = pasteColorHexFromClipboard(ctx)
@@ -122,7 +123,9 @@ private fun ColorPickerButton(
 @Composable
 fun ColorPickerButtonOne(
     currentColor: Color,
-    defaultColor: Color,
+//    defaultColor: Color,
+    onReset: () -> Unit,
+
     backgroundColor: Color,
     onColorPicked: (Color) -> Unit
 ) {
@@ -135,8 +138,9 @@ fun ColorPickerButtonOne(
     ColorPickerButton(
         button = button,
         currentColor = currentColor,
-        defaultColor = defaultColor,
+//        defaultColor = defaultColor,
         backgroundColor = backgroundColor,
+        onReset = onReset,
         onModeChanged = {
             scope.launch {
                 ColorModesSettingsStore.colorPickerButtonOne.set(ctx, it)
@@ -150,7 +154,8 @@ fun ColorPickerButtonOne(
 @Composable
 fun ColorPickerButtonTwo(
     currentColor: Color,
-    defaultColor: Color,
+//    defaultColor: Color,
+    onReset: () -> Unit,
     backgroundColor: Color,
     onColorPicked: (Color) -> Unit
 ) {
@@ -163,8 +168,9 @@ fun ColorPickerButtonTwo(
     ColorPickerButton(
         button = button,
         currentColor = currentColor,
-        defaultColor = defaultColor,
+//        defaultColor = defaultColor,
         backgroundColor = backgroundColor,
+        onReset = onReset,
         onModeChanged = {
             scope.launch {
                 ColorModesSettingsStore.colorPickerButtonTwo.set(ctx, it)

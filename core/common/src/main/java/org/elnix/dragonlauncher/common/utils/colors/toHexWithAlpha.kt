@@ -12,7 +12,4 @@ import androidx.compose.ui.graphics.toArgb
 //}
 
 // --- Utility: convert color → #AARRGGBB ---
-fun toHexWithAlpha(color: Color): String {
-    val argb = color.toArgb() // already AARRGGBB
-    return "#%08X".format(argb)
-}
+fun Color?.toHexWithAlpha(): String = "#%08X".format(this?.toArgb())

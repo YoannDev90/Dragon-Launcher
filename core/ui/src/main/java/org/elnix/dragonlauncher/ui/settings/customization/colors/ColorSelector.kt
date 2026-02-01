@@ -50,9 +50,9 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import kotlinx.coroutines.launch
 import org.elnix.dragonlauncher.common.R
-import org.elnix.dragonlauncher.common.theme.AmoledDefault
 import org.elnix.dragonlauncher.common.utils.colors.adjustBrightness
 import org.elnix.dragonlauncher.common.utils.colors.blendWith
+import org.elnix.dragonlauncher.common.utils.orDefault
 import org.elnix.dragonlauncher.enumsui.ColorCustomisationMode
 import org.elnix.dragonlauncher.enumsui.DefaultThemes
 import org.elnix.dragonlauncher.enumsui.DefaultThemes.AMOLED
@@ -71,6 +71,7 @@ import org.elnix.dragonlauncher.ui.components.TextDivider
 import org.elnix.dragonlauncher.ui.components.burger.BurgerAction
 import org.elnix.dragonlauncher.ui.components.burger.BurgerListAction
 import org.elnix.dragonlauncher.ui.components.settings.SettingsSwitchRow
+import org.elnix.dragonlauncher.ui.components.settings.asStateNull
 import org.elnix.dragonlauncher.ui.dialogs.UserValidation
 import org.elnix.dragonlauncher.ui.helpers.SwitchRow
 import org.elnix.dragonlauncher.ui.helpers.settings.SettingsLazyHeader
@@ -85,41 +86,41 @@ fun ColorSelectorTab(
     val scope = rememberCoroutineScope()
 
     // === Collect all theme color states ===
-    val primary by ColorSettingsStore.primaryColor.flow(ctx).collectAsState(initial = null)
-    val onPrimary by ColorSettingsStore.onPrimaryColor.flow(ctx).collectAsState(initial = null)
+    val primary by ColorSettingsStore.primaryColor.asStateNull()
+    val onPrimary by ColorSettingsStore.onPrimaryColor.asStateNull()
 
-    val secondary by ColorSettingsStore.secondaryColor.flow(ctx).collectAsState(initial = null)
-    val onSecondary by ColorSettingsStore.onSecondaryColor.flow(ctx).collectAsState(initial = null)
+    val secondary by ColorSettingsStore.secondaryColor.asStateNull()
+    val onSecondary by ColorSettingsStore.onSecondaryColor.asStateNull()
 
-    val tertiary by ColorSettingsStore.tertiaryColor.flow(ctx).collectAsState(initial = null)
-    val onTertiary by ColorSettingsStore.onTertiaryColor.flow(ctx).collectAsState(initial = null)
+    val tertiary by ColorSettingsStore.tertiaryColor.asStateNull()
+    val onTertiary by ColorSettingsStore.onTertiaryColor.asStateNull()
 
-    val background by ColorSettingsStore.backgroundColor.flow(ctx).collectAsState(initial = null)
-    val onBackground by ColorSettingsStore.onBackgroundColor.flow(ctx).collectAsState(initial = null)
+    val background by ColorSettingsStore.backgroundColor.asStateNull()
+    val onBackground by ColorSettingsStore.onBackgroundColor.asStateNull()
 
-    val surface by ColorSettingsStore.surfaceColor.flow(ctx).collectAsState(initial = null)
-    val onSurface by ColorSettingsStore.onSurfaceColor.flow(ctx).collectAsState(initial = null)
+    val surface by ColorSettingsStore.surfaceColor.asStateNull()
+    val onSurface by ColorSettingsStore.onSurfaceColor.asStateNull()
 
-    val error by ColorSettingsStore.errorColor.flow(ctx).collectAsState(initial = null)
-    val onError by ColorSettingsStore.onErrorColor.flow(ctx).collectAsState(initial = null)
+    val error by ColorSettingsStore.errorColor.asStateNull()
+    val onError by ColorSettingsStore.onErrorColor.asStateNull()
 
-    val outline by ColorSettingsStore.outlineColor.flow(ctx).collectAsState(initial = null)
+    val outline by ColorSettingsStore.outlineColor.asStateNull()
 
-    val angleLineColor by ColorSettingsStore.angleLineColor.flow(ctx).collectAsState(initial = null)
-    val circleColor by ColorSettingsStore.circleColor.flow(ctx).collectAsState(initial = null)
+    val angleLineColor by ColorSettingsStore.angleLineColor.asStateNull()
+    val circleColor by ColorSettingsStore.circleColor.asStateNull()
 
-    val launchAppColor by ColorSettingsStore.launchAppColor.flow(ctx).collectAsState(initial = null)
-    val openUrlColor by ColorSettingsStore.openUrlColor.flow(ctx).collectAsState(initial = null)
-    val notificationShadeColor by ColorSettingsStore.notificationShadeColor.flow(ctx).collectAsState(initial = null)
-    val controlPanelColor by ColorSettingsStore.controlPanelColor.flow(ctx).collectAsState(initial = null)
-    val openAppDrawerColor by ColorSettingsStore.openAppDrawerColor.flow(ctx).collectAsState(initial = null)
-    val launcherSettingsColor by ColorSettingsStore.launcherSettingsColor.flow(ctx).collectAsState(initial = null)
-    val lockColor by ColorSettingsStore.lockColor.flow(ctx).collectAsState(initial = null)
-    val openFileColor by ColorSettingsStore.openFileColor.flow(ctx).collectAsState(initial = null)
-    val reloadColor by ColorSettingsStore.reloadColor.flow(ctx).collectAsState(initial = null)
-    val openRecentAppsColor by ColorSettingsStore.openRecentAppsColor.flow(ctx).collectAsState(initial = null)
-    val openCircleNest by ColorSettingsStore.openCircleNestColor.flow(ctx).collectAsState(initial = null)
-    val goParentCircle by ColorSettingsStore.goParentNestColor.flow(ctx).collectAsState(initial = null)
+    val launchAppColor by ColorSettingsStore.launchAppColor.asStateNull()
+    val openUrlColor by ColorSettingsStore.openUrlColor.asStateNull()
+    val notificationShadeColor by ColorSettingsStore.notificationShadeColor.asStateNull()
+    val controlPanelColor by ColorSettingsStore.controlPanelColor.asStateNull()
+    val openAppDrawerColor by ColorSettingsStore.openAppDrawerColor.asStateNull()
+    val launcherSettingsColor by ColorSettingsStore.launcherSettingsColor.asStateNull()
+    val lockColor by ColorSettingsStore.lockColor.asStateNull()
+    val openFileColor by ColorSettingsStore.openFileColor.asStateNull()
+    val reloadColor by ColorSettingsStore.reloadColor.asStateNull()
+    val openRecentAppsColor by ColorSettingsStore.openRecentAppsColor.asStateNull()
+    val openCircleNest by ColorSettingsStore.openCircleNestColor.asStateNull()
+    val goParentCircle by ColorSettingsStore.goParentNestColor.asStateNull()
 
     val colorCustomisationMode by ColorModesSettingsStore.colorCustomisationMode.flow(ctx).collectAsState(initial = ColorCustomisationMode.DEFAULT)
     val selectedDefaultTheme by ColorModesSettingsStore.defaultTheme.flow(ctx).collectAsState(initial = DARK)
@@ -292,49 +293,43 @@ fun ColorSelectorTab(
 
                 item {
                     ColorPickerRow(
+                        currentColor = primary ?: MaterialTheme.colorScheme.primary,
                         label = stringResource(R.string.primary_color),
-                        defaultColor = AmoledDefault.Primary,
-                        currentColor = primary ?: MaterialTheme.colorScheme.primary
-                    ) { scope.launch { ColorSettingsStore.primaryColor.set(ctx, it) } }
+                        ) { scope.launch { ColorSettingsStore.primaryColor.set(ctx, it) } }
                 }
 
                 item {
                     ColorPickerRow(
+                        currentColor = onPrimary ?: MaterialTheme.colorScheme.onPrimary,
                         label = stringResource(R.string.on_primary_color),
-                        defaultColor = AmoledDefault.OnPrimary,
-                        currentColor = onPrimary ?: MaterialTheme.colorScheme.onPrimary
-                    ) { scope.launch { ColorSettingsStore.onPrimaryColor.set(ctx, it) } }
+                        ) { scope.launch { ColorSettingsStore.onPrimaryColor.set(ctx, it) } }
                 }
 
                 item {
                     ColorPickerRow(
+                        currentColor = secondary ?: MaterialTheme.colorScheme.secondary,
                         label = stringResource(R.string.secondary_color),
-                        defaultColor = AmoledDefault.Secondary,
-                        currentColor = secondary ?: MaterialTheme.colorScheme.secondary
-                    ) { scope.launch { ColorSettingsStore.secondaryColor.set(ctx, it) } }
+                        ) { scope.launch { ColorSettingsStore.secondaryColor.set(ctx, it) } }
                 }
 
                 item {
                     ColorPickerRow(
-                        label = stringResource(R.string.on_secondary_color),
-                        defaultColor = AmoledDefault.OnSecondary,
                         currentColor = onSecondary
-                            ?: MaterialTheme.colorScheme.onSecondary
-                    ) { scope.launch { ColorSettingsStore.onSecondaryColor.set(ctx, it) } }
+                            ?: MaterialTheme.colorScheme.onSecondary,
+                        label = stringResource(R.string.on_secondary_color),
+                        ) { scope.launch { ColorSettingsStore.onSecondaryColor.set(ctx, it) } }
                 }
 
                 item {
                     ColorPickerRow(
+                        currentColor = tertiary ?: MaterialTheme.colorScheme.tertiary,
                         label = stringResource(R.string.tertiary_color),
-                        defaultColor = AmoledDefault.Tertiary,
-                        currentColor = tertiary ?: MaterialTheme.colorScheme.tertiary
-                    ) { scope.launch { ColorSettingsStore.tertiaryColor.set(ctx, it) } }
+                        ) { scope.launch { ColorSettingsStore.tertiaryColor.set(ctx, it) } }
                 }
 
                 item {
                     ColorPickerRow(
                         label = stringResource(R.string.on_tertiary_color),
-                        defaultColor = AmoledDefault.OnTertiary,
                         currentColor = onTertiary
                             ?: MaterialTheme.colorScheme.onTertiary
                     ) { scope.launch { ColorSettingsStore.onTertiaryColor.set(ctx, it) } }
@@ -342,173 +337,152 @@ fun ColorSelectorTab(
 
                 item {
                     ColorPickerRow(
-                        label = stringResource(R.string.background_color),
-                        defaultColor = AmoledDefault.Background,
                         currentColor = background
-                            ?: MaterialTheme.colorScheme.background
-                    ) { scope.launch { ColorSettingsStore.backgroundColor.set(ctx, it) } }
+                            ?: MaterialTheme.colorScheme.background,
+                        label = stringResource(R.string.background_color),
+                        ) { scope.launch { ColorSettingsStore.backgroundColor.set(ctx, it) } }
                 }
 
                 item {
                     ColorPickerRow(
-                        label = stringResource(R.string.on_background_color),
-                        defaultColor = AmoledDefault.OnBackground,
                         currentColor = onBackground
-                            ?: MaterialTheme.colorScheme.onBackground
-                    ) { scope.launch { ColorSettingsStore.onBackgroundColor.set(ctx, it) } }
+                            ?: MaterialTheme.colorScheme.onBackground,
+                        label = stringResource(R.string.on_background_color),
+                        ) { scope.launch { ColorSettingsStore.onBackgroundColor.set(ctx, it) } }
                 }
 
                 item {
                     ColorPickerRow(
+                        currentColor = surface ?: MaterialTheme.colorScheme.surface,
                         label = stringResource(R.string.surface_color),
-                        defaultColor = AmoledDefault.Surface,
-                        currentColor = surface ?: MaterialTheme.colorScheme.surface
-                    ) { scope.launch { ColorSettingsStore.surfaceColor.set(ctx, it) } }
+                        ) { scope.launch { ColorSettingsStore.surfaceColor.set(ctx, it) } }
                 }
 
                 item {
                     ColorPickerRow(
+                        currentColor = onSurface ?: MaterialTheme.colorScheme.onSurface,
                         label = stringResource(R.string.on_surface_color),
-                        defaultColor = AmoledDefault.OnSurface,
-                        currentColor = onSurface ?: MaterialTheme.colorScheme.onSurface
-                    ) { scope.launch { ColorSettingsStore.onSurfaceColor.set(ctx, it) } }
+                        ) { scope.launch { ColorSettingsStore.onSurfaceColor.set(ctx, it) } }
                 }
 
                 item {
                     ColorPickerRow(
+                        currentColor = error ?: MaterialTheme.colorScheme.error,
                         label = stringResource(R.string.error_color),
-                        defaultColor = AmoledDefault.Error,
-                        currentColor = error ?: MaterialTheme.colorScheme.error
-                    ) { scope.launch { ColorSettingsStore.errorColor.set(ctx, it) } }
+                        ) { scope.launch { ColorSettingsStore.errorColor.set(ctx, it) } }
                 }
 
                 item {
                     ColorPickerRow(
+                        currentColor = onError ?: MaterialTheme.colorScheme.onError,
                         label = stringResource(R.string.on_error_color),
-                        defaultColor = AmoledDefault.OnError,
-                        currentColor = onError ?: MaterialTheme.colorScheme.onError
-                    ) { scope.launch { ColorSettingsStore.onErrorColor.set(ctx, it) } }
+                        ) { scope.launch { ColorSettingsStore.onErrorColor.set(ctx, it) } }
                 }
 
                 item {
                     ColorPickerRow(
+                        currentColor = outline ?: MaterialTheme.colorScheme.outline,
                         label = stringResource(R.string.outline_color),
-                        defaultColor = AmoledDefault.Outline,
-                        currentColor = outline ?: MaterialTheme.colorScheme.outline
-                    ) { scope.launch { ColorSettingsStore.outlineColor.set(ctx, it) } }
+                        ) { scope.launch { ColorSettingsStore.outlineColor.set(ctx, it) } }
                 }
 
                 // === Extra custom action colors ===
                 item {
                     ColorPickerRow(
+                        currentColor = angleLineColor ?: LocalExtraColors.current.angleLine,
                         label = stringResource(R.string.angle_line_color),
-                        defaultColor = AmoledDefault.AngleLineColor,
-                        currentColor = angleLineColor ?: LocalExtraColors.current.angleLine
-                    ) { scope.launch { ColorSettingsStore.angleLineColor.set(ctx, it) } }
+                        ) { scope.launch { ColorSettingsStore.angleLineColor.set(ctx, it) } }
                 }
 
                 item {
                     ColorPickerRow(
+                        currentColor = circleColor ?: LocalExtraColors.current.circle,
                         label = stringResource(R.string.circle_color),
-                        defaultColor = AmoledDefault.CircleColor,
-                        currentColor = circleColor ?: LocalExtraColors.current.circle
-                    ) { scope.launch { ColorSettingsStore.circleColor.set(ctx, it) } }
+                        ) { scope.launch { ColorSettingsStore.circleColor.set(ctx, it) } }
                 }
 
                 item {
                     ColorPickerRow(
+                        currentColor = launchAppColor ?: LocalExtraColors.current.launchApp,
                         label = stringResource(R.string.launch_app_color),
-                        defaultColor = AmoledDefault.LaunchAppColor,
-                        currentColor = launchAppColor ?: LocalExtraColors.current.launchApp
-                    ) { scope.launch { ColorSettingsStore.launchAppColor.set(ctx, it) } }
+                        ) { scope.launch { ColorSettingsStore.launchAppColor.set(ctx, it) } }
                 }
 
                 item {
                     ColorPickerRow(
+                        currentColor = openUrlColor ?: LocalExtraColors.current.openUrl,
                         label = stringResource(R.string.open_url_color),
-                        defaultColor = AmoledDefault.OpenUrlColor,
-                        currentColor = openUrlColor ?: LocalExtraColors.current.openUrl
-                    ) { scope.launch { ColorSettingsStore.openUrlColor.set(ctx, it) } }
+                        ) { scope.launch { ColorSettingsStore.openUrlColor.set(ctx, it) } }
                 }
 
                 item {
                     ColorPickerRow(
-                        label = stringResource(R.string.notification_shade_color),
-                        defaultColor = AmoledDefault.NotificationShadeColor,
                         currentColor = notificationShadeColor
-                            ?: LocalExtraColors.current.notificationShade
-                    ) { scope.launch { ColorSettingsStore.notificationShadeColor.set(ctx, it) } }
+                            ?: LocalExtraColors.current.notificationShade,
+                        label = stringResource(R.string.notification_shade_color),
+                        ) { scope.launch { ColorSettingsStore.notificationShadeColor.set(ctx, it) } }
                 }
 
                 item {
                     ColorPickerRow(
+                        currentColor = controlPanelColor ?: LocalExtraColors.current.controlPanel,
                         label = stringResource(R.string.control_panel_color),
-                        defaultColor = AmoledDefault.ControlPanelColor,
-                        currentColor = controlPanelColor ?: LocalExtraColors.current.controlPanel
-                    ) { scope.launch { ColorSettingsStore.controlPanelColor.set(ctx, it) } }
+                        ) { scope.launch { ColorSettingsStore.controlPanelColor.set(ctx, it) } }
                 }
 
                 item {
                     ColorPickerRow(
+                        currentColor = openAppDrawerColor ?: LocalExtraColors.current.openAppDrawer,
                         label = stringResource(R.string.open_app_drawer_color),
-                        defaultColor = AmoledDefault.OpenAppDrawerColor,
-                        currentColor = openAppDrawerColor ?: LocalExtraColors.current.openAppDrawer
-                    ) { scope.launch { ColorSettingsStore.openAppDrawerColor.set(ctx, it) } }
+                        ) { scope.launch { ColorSettingsStore.openAppDrawerColor.set(ctx, it) } }
                 }
 
                 item {
                     ColorPickerRow(
-                        label = stringResource(R.string.launcher_settings_color),
-                        defaultColor = AmoledDefault.LauncherSettingsColor,
                         currentColor = launcherSettingsColor
-                            ?: LocalExtraColors.current.launcherSettings
-                    ) { scope.launch { ColorSettingsStore.launcherSettingsColor.set(ctx, it) } }
+                            ?: LocalExtraColors.current.launcherSettings,
+                        label = stringResource(R.string.launcher_settings_color),
+                        ) { scope.launch { ColorSettingsStore.launcherSettingsColor.set(ctx, it) } }
                 }
 
                 item {
                     ColorPickerRow(
+                        currentColor = lockColor ?: LocalExtraColors.current.lock,
                         label = stringResource(R.string.lock_color),
-                        defaultColor = AmoledDefault.LockColor,
-                        currentColor = lockColor ?: LocalExtraColors.current.lock
-                    ) { scope.launch { ColorSettingsStore.lockColor.set(ctx, it) } }
+                        ) { scope.launch { ColorSettingsStore.lockColor.set(ctx, it) } }
                 }
 
                 item {
                     ColorPickerRow(
+                        currentColor = openFileColor ?: LocalExtraColors.current.openFile,
                         label = stringResource(R.string.open_file_color),
-                        defaultColor = AmoledDefault.OpenFileColor,
-                        currentColor = openFileColor ?: LocalExtraColors.current.openFile
-                    ) { scope.launch { ColorSettingsStore.openFileColor.set(ctx, it) } }
+                        ) { scope.launch { ColorSettingsStore.openFileColor.set(ctx, it) } }
                 }
 
                 item {
                     ColorPickerRow(
+                        currentColor = reloadColor ?: LocalExtraColors.current.reload,
                         label = stringResource(R.string.reload_color),
-                        defaultColor = AmoledDefault.ReloadColor,
-                        currentColor = reloadColor ?: LocalExtraColors.current.reload
-                    ) { scope.launch { ColorSettingsStore.reloadColor.set(ctx, it) } }
+                        ) { scope.launch { ColorSettingsStore.reloadColor.set(ctx, it) } }
                 }
                 item {
                     ColorPickerRow(
-                        label = stringResource(R.string.open_recent_apps_color),
-                        defaultColor = AmoledDefault.OpenRecentAppsColor,
                         currentColor = openRecentAppsColor
-                            ?: LocalExtraColors.current.openRecentApps
-                    ) { scope.launch { ColorSettingsStore.openRecentAppsColor.set(ctx, it) } }
+                            ?: LocalExtraColors.current.openRecentApps,
+                        label = stringResource(R.string.open_recent_apps_color),
+                        ) { scope.launch { ColorSettingsStore.openRecentAppsColor.set(ctx, it) } }
                 }
                 item {
                     ColorPickerRow(
+                        currentColor = openCircleNest ?: LocalExtraColors.current.openCircleNest,
                         label = stringResource(R.string.open_circle_nest_color),
-                        defaultColor = AmoledDefault.OpenCircleNestColor,
-                        currentColor = openCircleNest ?: LocalExtraColors.current.openCircleNest
-                    ) { scope.launch { ColorSettingsStore.openCircleNestColor.set(ctx, it) } }
+                        ) { scope.launch { ColorSettingsStore.openCircleNestColor.set(ctx, it) } }
                 }
                 item {
                     ColorPickerRow(
+                        currentColor = goParentCircle ?: LocalExtraColors.current.goParentNest,
                         label = stringResource(R.string.go_parent_nest_color),
-                        defaultColor = AmoledDefault.GoParentNestColor,
-                        currentColor = goParentCircle ?: LocalExtraColors.current.goParentNest
-                    ) { scope.launch { ColorSettingsStore.goParentNestColor.set(ctx, it) } }
+                        ) { scope.launch { ColorSettingsStore.goParentNestColor.set(ctx, it) } }
                 }
             }
 
@@ -516,16 +490,17 @@ fun ColorSelectorTab(
                 item {
                     val bgColorFromTheme = MaterialTheme.colorScheme.background
                     ColorPickerRow(
+                        currentColor = primary ?: MaterialTheme.colorScheme.primary,
                         label = stringResource(R.string.primary_color),
-                        defaultColor = AmoledDefault.Primary,
-                        currentColor = primary ?: MaterialTheme.colorScheme.primary
-                    ) { newColor ->
+                        ) { newColor ->
 
                         val backgroundColor = background ?: bgColorFromTheme
+                        val color = newColor.orDefault(backgroundColor)
 
-                        val secondaryColor = newColor.adjustBrightness(1.2f)
+
+                        val secondaryColor = color.adjustBrightness(1.2f)
                         val tertiaryColor = secondaryColor.adjustBrightness(1.2f)
-                        val surfaceColor = newColor.blendWith(backgroundColor, 0.7f)
+                        val surfaceColor = color.blendWith(backgroundColor, 0.7f)
 
                         scope.launch {
                             ColorSettingsStore.primaryColor.set(ctx, newColor)
@@ -538,11 +513,10 @@ fun ColorSelectorTab(
 
                 item {
                     ColorPickerRow(
-                        label = stringResource(R.string.background_color),
-                        defaultColor = AmoledDefault.Background,
                         currentColor = background
-                            ?: MaterialTheme.colorScheme.background
-                    ) {
+                            ?: MaterialTheme.colorScheme.background,
+                        label = stringResource(R.string.background_color),
+                        ) {
                         scope.launch {
                             ColorSettingsStore.backgroundColor.set(ctx, it)
                         }
@@ -551,10 +525,9 @@ fun ColorSelectorTab(
 
                 item {
                     ColorPickerRow(
+                        currentColor = onPrimary ?: MaterialTheme.colorScheme.onPrimary,
                         label = stringResource(R.string.text_color),
-                        defaultColor = AmoledDefault.OnPrimary,
-                        currentColor = onPrimary ?: MaterialTheme.colorScheme.onPrimary
-                    ) {
+                        ) {
                         scope.launch {
                             ColorSettingsStore.onPrimaryColor.set(ctx, it)
                             ColorSettingsStore.onSecondaryColor.set(ctx, it)
@@ -744,11 +717,10 @@ fun ColorSelectorTab(
             },
             title = {
                 ColorPickerRow(
-                    label = stringResource(R.string.color_mode_all),
-                    defaultColor = Color.Black,
                     currentColor = applyColor,
+                    label = stringResource(R.string.color_mode_all),
                     backgroundColor = MaterialTheme.colorScheme.surface.adjustBrightness(0.7f)
-                ) { applyColor = it }
+                ) { applyColor = it ?: Color.Black }
             },
             containerColor = MaterialTheme.colorScheme.surface,
             shape = DragonShape

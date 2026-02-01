@@ -161,7 +161,7 @@ fun DrawScope.actionsInCircle(
                     )
                 }
 
-            if (deepNest < nest.parent(nests).deepnest) {
+            if (deepNest < nest.parent(nests).deepNest) {
                 circlesSettingsOverlay(
                     circles = newCircles,
                     circleColor = circleColor,

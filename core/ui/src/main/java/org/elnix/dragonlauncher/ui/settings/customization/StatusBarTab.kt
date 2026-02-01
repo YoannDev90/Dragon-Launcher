@@ -33,10 +33,10 @@ import org.elnix.dragonlauncher.models.AppsViewModel
 import org.elnix.dragonlauncher.settings.stores.StatusBarSettingsStore
 import org.elnix.dragonlauncher.ui.colors.AppObjectsColors
 import org.elnix.dragonlauncher.ui.colors.ColorPickerRow
+import org.elnix.dragonlauncher.ui.components.TextDivider
 import org.elnix.dragonlauncher.ui.helpers.CustomActionSelector
 import org.elnix.dragonlauncher.ui.helpers.SliderWithLabel
 import org.elnix.dragonlauncher.ui.helpers.SwitchRow
-import org.elnix.dragonlauncher.ui.components.TextDivider
 import org.elnix.dragonlauncher.ui.helpers.settings.SettingsLazyHeader
 import org.elnix.dragonlauncher.ui.statusbar.StatusBar
 
@@ -166,7 +166,6 @@ fun StatusBarTab(
             item {
                 ColorPickerRow(
                     label = stringResource(R.string.status_bar_background),
-                    defaultColor = Color.Transparent,
                     currentColor = statusBarBackground,
                 ) {
                     scope.launch {
@@ -178,7 +177,6 @@ fun StatusBarTab(
             item {
                 ColorPickerRow(
                     label = stringResource(R.string.status_bar_text_color),
-                    defaultColor = MaterialTheme.colorScheme.onBackground,
                     currentColor = statusBarText,
                 ) {
                     scope.launch {

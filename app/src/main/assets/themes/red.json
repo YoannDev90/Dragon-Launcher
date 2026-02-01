@@ -33,5 +33,9 @@
     "open_recent_apps": "-65536",
     "open_circle_nest": "-65536",
     "go_parent_nest": "-65536"
+  },
+  "color_mode": {
+    "colorCustomisationMode": "ALL",
+    "defaultTheme": "CUSTOM"
   }
 }

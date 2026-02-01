@@ -198,7 +198,7 @@ object Settings {
             },
             decode = { raw ->
                 val a = getColorStrict(raw, default)
-                logD(SETTINGS_TAG, "key: $key; Decoded $raw -> $a (${toHexWithAlpha(a)})")
+                logD(SETTINGS_TAG, "key: $key; Decoded $raw -> $a (${a.toHexWithAlpha()})")
                 a
             }
         )

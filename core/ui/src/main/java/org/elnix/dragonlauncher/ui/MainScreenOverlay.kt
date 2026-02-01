@@ -46,7 +46,6 @@ import org.elnix.dragonlauncher.common.utils.vibrate
 import org.elnix.dragonlauncher.settings.stores.DebugSettingsStore
 import org.elnix.dragonlauncher.settings.stores.DrawerSettingsStore
 import org.elnix.dragonlauncher.settings.stores.UiSettingsStore
-import org.elnix.dragonlauncher.settings.stores.UiSettingsStore.minAngleFromAPointToActivateIt
 import org.elnix.dragonlauncher.ui.components.AppPreviewTitle
 import org.elnix.dragonlauncher.ui.helpers.nests.actionsInCircle
 import org.elnix.dragonlauncher.ui.theme.LocalExtraColors
@@ -304,10 +303,6 @@ fun MainScreenOverlay(
                 )
                 Text(
                     text = "asb angle to closest point= $exposedAsbAngle",
-                    color = Color.White, fontSize = 12.sp
-                )
-                Text(
-                    text = "min angle gap = $minAngleFromAPointToActivateIt",
                     color = Color.White, fontSize = 12.sp
                 )
                 Text(

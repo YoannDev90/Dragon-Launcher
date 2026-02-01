@@ -1,6 +1,7 @@
 {
   "color_mode": {
-    "colorCustomisationMode": "ALL"
+    "colorCustomisationMode": "ALL",
+    "defaultTheme": "CUSTOM"
   },
   "color": {
     "primary_color": "-10071900",

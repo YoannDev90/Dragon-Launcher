@@ -12,7 +12,6 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Edit
 import androidx.compose.material.icons.filled.Restore
@@ -45,6 +44,7 @@ import org.elnix.dragonlauncher.common.serializables.SwipePointSerializable
 import org.elnix.dragonlauncher.common.serializables.defaultSwipePointsValues
 import org.elnix.dragonlauncher.common.theme.AmoledDefault
 import org.elnix.dragonlauncher.common.utils.colors.adjustBrightness
+import org.elnix.dragonlauncher.common.utils.definedOrNull
 import org.elnix.dragonlauncher.enumsui.SelectedUnselectedViewMode
 import org.elnix.dragonlauncher.enumsui.selectedUnselectedViewName
 import org.elnix.dragonlauncher.models.AppsViewModel
@@ -367,12 +367,12 @@ fun EditPointDialog(
                     item {
                         ColorPickerRow(
                             label = stringResource(R.string.custom_action_color),
-                            defaultColor = currentActionColor,
+//                            defaultColor = currentActionColor,
                             currentColor = editPoint.customActionColor?.let { Color(it) }
                                 ?: currentActionColor,
                             backgroundColor = backgroundSurfaceColor
                         ) { selectedColor ->
-                            editPoint = editPoint.copy(customActionColor = selectedColor.toArgb())
+                            editPoint = editPoint.copy(customActionColor = selectedColor?.toArgb())
                         }
                     }
                 }
@@ -444,21 +444,21 @@ fun EditPointDialog(
 
                             ColorPickerRow(
                                 label = stringResource(R.string.border_color),
-                                defaultColor = defaultBorderColor,
+//                                defaultColor = defaultBorderColor,
                                 currentColor = editPoint.borderColor?.let { Color(it) }
                                     ?: defaultBorderColor
                             ) { selectedColor ->
-                                editPoint = editPoint.copy(borderColor = selectedColor.toArgb())
+                                editPoint = editPoint.copy(borderColor = selectedColor?.toArgb())
                             }
 
                             ColorPickerRow(
                                 label = stringResource(R.string.background_color),
-                                defaultColor = defaultBackgroundColor,
+//                                defaultColor = defaultBackgroundColor,
                                 currentColor = editPoint.backgroundColor?.let { Color(it) }
                                     ?: defaultBackgroundColor
                             ) { selectedColor ->
                                 editPoint = editPoint.copy(
-                                    backgroundColor = selectedColor.takeIf { it != Color.Unspecified }
+                                    backgroundColor = selectedColor.definedOrNull()
                                         ?.toArgb()
                                 )
                             }
@@ -493,23 +493,21 @@ fun EditPointDialog(
 
                             ColorPickerRow(
                                 label = stringResource(R.string.border_color_selected),
-                                defaultColor = defaultBorderColorSelected,
                                 currentColor = editPoint.borderColorSelected?.let { Color(it) }
                                     ?: defaultBorderColorSelected
                             ) { selectedColor ->
                                 editPoint =
-                                    editPoint.copy(borderColorSelected = selectedColor.toArgb())
+                                    editPoint.copy(borderColorSelected = selectedColor?.toArgb())
                             }
 
 
                             ColorPickerRow(
                                 label = stringResource(R.string.background_selected),
-                                defaultColor = defaultBackgroundColorSelected,
                                 currentColor = editPoint.backgroundColorSelected?.let { Color(it) }
                                     ?: defaultBackgroundColorSelected
                             ) { selectedColor ->
                                 editPoint = editPoint.copy(
-                                    backgroundColorSelected = selectedColor.takeIf { it != Color.Unspecified }
+                                    backgroundColorSelected = selectedColor.definedOrNull()
                                         ?.toArgb()
                                 )
                             }

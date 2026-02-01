@@ -56,6 +56,7 @@ import org.elnix.dragonlauncher.common.serializables.SwipePointSerializable
 import org.elnix.dragonlauncher.common.serializables.defaultSwipePointsValues
 import org.elnix.dragonlauncher.common.utils.ImageUtils.uriToBase64
 import org.elnix.dragonlauncher.common.utils.colors.adjustBrightness
+import org.elnix.dragonlauncher.common.utils.definedOrNull
 import org.elnix.dragonlauncher.models.AppsViewModel
 import org.elnix.dragonlauncher.settings.stores.SwipeSettingsStore
 import org.elnix.dragonlauncher.ui.UiConstants.DragonShape
@@ -301,12 +302,12 @@ fun IconEditorDialog(
 
                     ColorPickerRow(
                         label = stringResource(R.string.plain_color),
-                        defaultColor = Color.Black,
+//                        defaultColor = Color.Black,
                         currentColor = currentColor
                     ) {
                         selectedIcon = (selectedIcon ?: CustomIconSerializable()).copy(
                             type = IconType.PLAIN_COLOR,
-                            source = it.toArgb().toString()
+                            source = it?.toArgb().toString()
                         )
                     }
                 }
@@ -410,10 +411,10 @@ fun IconEditorDialog(
                 ) {
                     ColorPickerRow(
                         label = stringResource(R.string.tint),
-                        defaultColor = Color.Unspecified,
+//                        defaultColor = Color.Unspecified,
                         currentColor = selectedIcon?.tint?.let { Color(it) } ?: Color.Unspecified
                     ) {
-                        val tintColor = it.takeIf { it != Color.Unspecified }?.toArgb()
+                        val tintColor = it.definedOrNull()?.toArgb()
                         selectedIcon = (selectedIcon ?: CustomIconSerializable()).copy(
                            tint = tintColor
                         )

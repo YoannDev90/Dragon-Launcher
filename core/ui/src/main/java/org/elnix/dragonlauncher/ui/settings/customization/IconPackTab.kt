@@ -19,12 +19,11 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import kotlinx.coroutines.launch
 import org.elnix.dragonlauncher.common.R
+import org.elnix.dragonlauncher.common.utils.definedOrNull
 import org.elnix.dragonlauncher.models.AppsViewModel
 import org.elnix.dragonlauncher.settings.stores.DrawerSettingsStore
-import org.elnix.dragonlauncher.settings.stores.DrawerSettingsStore.gridSize
 import org.elnix.dragonlauncher.settings.stores.UiSettingsStore
 import org.elnix.dragonlauncher.ui.colors.ColorPickerRow
-import org.elnix.dragonlauncher.ui.components.resolveShape
 import org.elnix.dragonlauncher.ui.helpers.AppGrid
 import org.elnix.dragonlauncher.ui.helpers.iconPackListContent
 import org.elnix.dragonlauncher.ui.helpers.settings.SettingsLazyHeader
@@ -91,11 +90,9 @@ fun IconPackTab(
         item {
             ColorPickerRow(
                 label = stringResource(R.string.icon_pack_tint),
-                defaultColor = Color.Unspecified,
                 currentColor = iconPackTint ?: Color.Unspecified
             ) {
-                val newColor = if (it == Color.Unspecified) null else it
-                scope.launch { appsViewModel.setIconPackTint(newColor) }
+                scope.launch { appsViewModel.setIconPackTint(it.definedOrNull()) }
             }
         }
 

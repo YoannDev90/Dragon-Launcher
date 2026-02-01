@@ -12,7 +12,6 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.rememberScrollState
-import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
@@ -329,7 +328,7 @@ fun NestEditingScreen(
 
                     DEEPNEST -> {
 
-                        var tempDeepnest by remember { mutableStateOf(currentNest.deepnest) }
+                        var tempDeepnest by remember { mutableStateOf(currentNest.deepNest) }
                         SliderWithLabel(
                             label = stringResource(R.string.deepnest),
                             description = stringResource(R.string.deepnest_desc),
@@ -340,7 +339,7 @@ fun NestEditingScreen(
                             tempDeepnest = it
                             pendingNestUpdate = nests.map { nest ->
                                 if (nest.id == nestId) {
-                                    nest.copy(deepnest = it)
+                                    nest.copy(deepNest = it)
                                 } else nest
                             }
                         }

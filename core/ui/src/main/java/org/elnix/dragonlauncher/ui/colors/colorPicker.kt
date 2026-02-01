@@ -67,10 +67,10 @@ fun ColorPickerRow(
     label: String,
     showLabel: Boolean = true,
     enabled: Boolean = true,
-    defaultColor: Color,
+//    defaultColor: Color,
     currentColor: Color,
     backgroundColor: Color = MaterialTheme.colorScheme.surface,
-    onColorPicked: (Color) -> Unit
+    onColorPicked: (Color?) -> Unit
 ) {
     val ctx = LocalContext.current
 
@@ -81,8 +81,6 @@ fun ColorPickerRow(
 
     val savedMode by ColorModesSettingsStore.colorPickerMode.flow(ctx).collectAsState(initial = ColorPickerMode.SLIDERS)
     val initialPage = remember(savedMode) { ColorPickerMode.entries.indexOf(savedMode) }
-
-    val colorPickerButtons = ColorModesSettingsStore.colorPickerButtonOne
 
     Row(
        modifier = modifier
@@ -113,14 +111,16 @@ fun ColorPickerRow(
 
             ColorPickerButtonOne(
                 currentColor = currentColor,
-                defaultColor = defaultColor,
+//                defaultColor = defaultColor,
+                onReset = { onColorPicked(null) },
                 backgroundColor = backgroundColor,
                 onColorPicked = onColorPicked
             )
 
             ColorPickerButtonTwo(
                 currentColor = currentColor,
-                defaultColor = defaultColor,
+//                defaultColor = defaultColor,
+                onReset = { onColorPicked(null) },
                 backgroundColor = backgroundColor,
                 onColorPicked = onColorPicked
             )
@@ -153,7 +153,7 @@ fun ColorPickerRow(
                     modifier = Modifier
                         .clip(CircleShape)
                         .padding(8.dp)
-                        .clickable { actualColor = defaultColor }
+                        .clickable { onColorPicked(null) }
                 )
             },
             title = {
@@ -198,10 +198,10 @@ private fun ColorPicker(
     // Synchronize pager state with stored mode
     val pagerState = rememberPagerState(initialPage = initialPage) { pickerModes.size }
 
-    var hexText by remember { mutableStateOf(toHexWithAlpha(color)) }
+    var hexText by remember { mutableStateOf(color.toHexWithAlpha()) }
 
     LaunchedEffect(color) {
-        hexText = toHexWithAlpha(color)
+        hexText = color.toHexWithAlpha()
     }
 
     // Save the current page as mode whenever changed
@@ -293,7 +293,7 @@ private fun ColorPicker(
                     onClick = {
                         val newColor = pasteColorHexFromClipboard(ctx)
                         newColor?.let { pasted ->
-                            hexText = toHexWithAlpha(pasted)
+                            hexText = pasted.toHexWithAlpha()
                             onColorSelected(pasted)
                         }
                     },

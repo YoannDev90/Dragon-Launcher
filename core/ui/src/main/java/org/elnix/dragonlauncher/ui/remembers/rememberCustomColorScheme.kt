@@ -2,245 +2,95 @@ package org.elnix.dragonlauncher.ui.remembers
 
 import androidx.compose.material3.ColorScheme
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.remember
 import androidx.compose.ui.platform.LocalContext
+import org.elnix.dragonlauncher.common.logging.logD
+import org.elnix.dragonlauncher.common.utils.COLORS_TAG
+import org.elnix.dragonlauncher.common.utils.colors.toHexWithAlpha
 import org.elnix.dragonlauncher.common.utils.definedOrNull
 import org.elnix.dragonlauncher.settings.stores.ColorSettingsStore
+import org.elnix.dragonlauncher.ui.components.settings.asStateNull
 
 @Composable
-fun rememberCustomColorScheme(defaultColorScheme: ColorScheme): ColorScheme {
+internal fun rememberCustomColorScheme(defaultColorScheme: ColorScheme): ColorScheme {
 
     val ctx = LocalContext.current
 
 
     /* ───────────── PRIMARY ───────────── */
-
-    val primary by ColorSettingsStore.primaryColor
-        .flow(ctx)
-        .collectAsState(initial = null)
-
-    val onPrimary by ColorSettingsStore.onPrimaryColor
-        .flow(ctx)
-        .collectAsState(initial = null)
-
-    val primaryContainer by ColorSettingsStore.primaryContainerColor
-        .flow(ctx)
-        .collectAsState(initial = null)
-
-    val onPrimaryContainer by ColorSettingsStore.onPrimaryContainerColor
-        .flow(ctx)
-        .collectAsState(initial = null)
-
-    val inversePrimary by ColorSettingsStore.inversePrimaryColor
-        .flow(ctx)
-        .collectAsState(initial = null)
-
-    val primaryFixed by ColorSettingsStore.primaryFixedColor
-        .flow(ctx)
-        .collectAsState(initial = null)
-
-    val primaryFixedDim by ColorSettingsStore.primaryFixedDimColor
-        .flow(ctx)
-        .collectAsState(initial = null)
-
-    val onPrimaryFixed by ColorSettingsStore.onPrimaryFixedColor
-        .flow(ctx)
-        .collectAsState(initial = null)
-
-    val onPrimaryFixedVariant by ColorSettingsStore.onPrimaryFixedVariantColor
-        .flow(ctx)
-        .collectAsState(initial = null)
+    val primary by ColorSettingsStore.primaryColor.asStateNull()
+    val onPrimary by ColorSettingsStore.onPrimaryColor.asStateNull()
+    val primaryContainer by ColorSettingsStore.primaryContainerColor.asStateNull()
+    val onPrimaryContainer by ColorSettingsStore.onPrimaryContainerColor.asStateNull()
+    val inversePrimary by ColorSettingsStore.inversePrimaryColor.asStateNull()
+    val primaryFixed by ColorSettingsStore.primaryFixedColor.asStateNull()
+    val primaryFixedDim by ColorSettingsStore.primaryFixedDimColor.asStateNull()
+    val onPrimaryFixed by ColorSettingsStore.onPrimaryFixedColor.asStateNull()
+    val onPrimaryFixedVariant by ColorSettingsStore.onPrimaryFixedVariantColor.asStateNull()
 
 
     /* ───────────── SECONDARY ───────────── */
-
-    val secondary by ColorSettingsStore.secondaryColor
-        .flow(ctx)
-        .collectAsState(initial = null)
-
-    val onSecondary by ColorSettingsStore.onSecondaryColor
-        .flow(ctx)
-        .collectAsState(initial = null)
-
-    val secondaryContainer by ColorSettingsStore.secondaryContainerColor
-        .flow(ctx)
-        .collectAsState(initial = null)
-
-    val onSecondaryContainer by ColorSettingsStore.onSecondaryContainerColor
-        .flow(ctx)
-        .collectAsState(initial = null)
-
-    val secondaryFixed by ColorSettingsStore.secondaryFixedColor
-        .flow(ctx)
-        .collectAsState(initial = null)
-
-    val secondaryFixedDim by ColorSettingsStore.secondaryFixedDimColor
-        .flow(ctx)
-        .collectAsState(initial = null)
-
-    val onSecondaryFixed by ColorSettingsStore.onSecondaryFixedColor
-        .flow(ctx)
-        .collectAsState(initial = null)
-
-    val onSecondaryFixedVariant by ColorSettingsStore.onSecondaryFixedVariantColor
-        .flow(ctx)
-        .collectAsState(initial = null)
+    val secondary by ColorSettingsStore.secondaryColor.asStateNull()
+    val onSecondary by ColorSettingsStore.onSecondaryColor.asStateNull()
+    val secondaryContainer by ColorSettingsStore.secondaryContainerColor.asStateNull()
+    val onSecondaryContainer by ColorSettingsStore.onSecondaryContainerColor.asStateNull()
+    val secondaryFixed by ColorSettingsStore.secondaryFixedColor.asStateNull()
+    val secondaryFixedDim by ColorSettingsStore.secondaryFixedDimColor.asStateNull()
+    val onSecondaryFixed by ColorSettingsStore.onSecondaryFixedColor.asStateNull()
+    val onSecondaryFixedVariant by ColorSettingsStore.onSecondaryFixedVariantColor.asStateNull()
 
 
     /* ───────────── TERTIARY ───────────── */
-
-    val tertiary by ColorSettingsStore.tertiaryColor
-        .flow(ctx)
-        .collectAsState(initial = null)
-
-    val onTertiary by ColorSettingsStore.onTertiaryColor
-        .flow(ctx)
-        .collectAsState(initial = null)
-
-    val tertiaryContainer by ColorSettingsStore.tertiaryContainerColor
-        .flow(ctx)
-        .collectAsState(initial = null)
-
-    val onTertiaryContainer by ColorSettingsStore.onTertiaryContainerColor
-        .flow(ctx)
-        .collectAsState(initial = null)
-
-    val tertiaryFixed by ColorSettingsStore.tertiaryFixedColor
-        .flow(ctx)
-        .collectAsState(initial = null)
-
-    val tertiaryFixedDim by ColorSettingsStore.tertiaryFixedDimColor
-        .flow(ctx)
-        .collectAsState(initial = null)
-
-    val onTertiaryFixed by ColorSettingsStore.onTertiaryFixedColor
-        .flow(ctx)
-        .collectAsState(initial = null)
-
-    val onTertiaryFixedVariant by ColorSettingsStore.onTertiaryFixedVariantColor
-        .flow(ctx)
-        .collectAsState(initial = null)
+    val tertiary by ColorSettingsStore.tertiaryColor.asStateNull()
+    val onTertiary by ColorSettingsStore.onTertiaryColor.asStateNull()
+    val tertiaryContainer by ColorSettingsStore.tertiaryContainerColor.asStateNull()
+    val onTertiaryContainer by ColorSettingsStore.onTertiaryContainerColor.asStateNull()
+    val tertiaryFixed by ColorSettingsStore.tertiaryFixedColor.asStateNull()
+    val tertiaryFixedDim by ColorSettingsStore.tertiaryFixedDimColor.asStateNull()
+    val onTertiaryFixed by ColorSettingsStore.onTertiaryFixedColor.asStateNull()
+    val onTertiaryFixedVariant by ColorSettingsStore.onTertiaryFixedVariantColor.asStateNull()
 
 
     /* ───────────── BACKGROUND / SURFACE ───────────── */
-
-    val background by ColorSettingsStore.backgroundColor
-        .flow(ctx)
-        .collectAsState(initial = null)
-
-    val onBackground by ColorSettingsStore.onBackgroundColor
-        .flow(ctx)
-        .collectAsState(initial = null)
-
-    val surface by ColorSettingsStore.surfaceColor
-        .flow(ctx)
-        .collectAsState(initial = null)
-
-    val onSurface by ColorSettingsStore.onSurfaceColor
-        .flow(ctx)
-        .collectAsState(initial = null)
-
-    val surfaceVariant by ColorSettingsStore.surfaceVariantColor
-        .flow(ctx)
-        .collectAsState(initial = null)
-
-    val onSurfaceVariant by ColorSettingsStore.onSurfaceVariantColor
-        .flow(ctx)
-        .collectAsState(initial = null)
-
-    val surfaceTint by ColorSettingsStore.surfaceTintColor
-        .flow(ctx)
-        .collectAsState(initial = null)
-
-    val inverseSurface by ColorSettingsStore.inverseSurfaceColor
-        .flow(ctx)
-        .collectAsState(initial = null)
-
-    val inverseOnSurface by ColorSettingsStore.inverseOnSurfaceColor
-        .flow(ctx)
-        .collectAsState(initial = null)
+    val background by ColorSettingsStore.backgroundColor.asStateNull()
+    val onBackground by ColorSettingsStore.onBackgroundColor.asStateNull()
+    val surface by ColorSettingsStore.surfaceColor.asStateNull()
+    val onSurface by ColorSettingsStore.onSurfaceColor.asStateNull()
+    val surfaceVariant by ColorSettingsStore.surfaceVariantColor.asStateNull()
+    val onSurfaceVariant by ColorSettingsStore.onSurfaceVariantColor.asStateNull()
+    val surfaceTint by ColorSettingsStore.surfaceTintColor.asStateNull()
+    val inverseSurface by ColorSettingsStore.inverseSurfaceColor.asStateNull()
+    val inverseOnSurface by ColorSettingsStore.inverseOnSurfaceColor.asStateNull()
 
 
     /* ───────────── SURFACE CONTAINERS ───────────── */
-
-    val surfaceBright by ColorSettingsStore.surfaceBrightColor
-        .flow(ctx)
-        .collectAsState(initial = null)
-
-    val surfaceDim by ColorSettingsStore.surfaceDimColor
-        .flow(ctx)
-        .collectAsState(initial = null)
-
-    val surfaceContainer by ColorSettingsStore.surfaceContainerColor
-        .flow(ctx)
-        .collectAsState(initial = null)
-
-    val surfaceContainerLow by ColorSettingsStore.surfaceContainerLowColor
-        .flow(ctx)
-        .collectAsState(initial = null)
-
-    val surfaceContainerLowest by ColorSettingsStore.surfaceContainerLowestColor
-        .flow(ctx)
-        .collectAsState(initial = null)
-
-    val surfaceContainerHigh by ColorSettingsStore.surfaceContainerHighColor
-        .flow(ctx)
-        .collectAsState(initial = null)
-
-    val surfaceContainerHighest by ColorSettingsStore.surfaceContainerHighestColor
-        .flow(ctx)
-        .collectAsState(initial = null)
+    val surfaceBright by ColorSettingsStore.surfaceBrightColor.asStateNull()
+    val surfaceDim by ColorSettingsStore.surfaceDimColor.asStateNull()
+    val surfaceContainer by ColorSettingsStore.surfaceContainerColor.asStateNull()
+    val surfaceContainerLow by ColorSettingsStore.surfaceContainerLowColor.asStateNull()
+    val surfaceContainerLowest by ColorSettingsStore.surfaceContainerLowestColor.asStateNull()
+    val surfaceContainerHigh by ColorSettingsStore.surfaceContainerHighColor.asStateNull()
+    val surfaceContainerHighest by ColorSettingsStore.surfaceContainerHighestColor.asStateNull()
 
 
     /* ───────────── ERROR ───────────── */
-
-    val error by ColorSettingsStore.errorColor
-        .flow(ctx)
-        .collectAsState(initial = null)
-
-    val onError by ColorSettingsStore.onErrorColor
-        .flow(ctx)
-        .collectAsState(initial = null)
-
-    val errorContainer by ColorSettingsStore.errorContainerColor
-        .flow(ctx)
-        .collectAsState(initial = null)
-
-    val onErrorContainer by ColorSettingsStore.onErrorContainerColor
-        .flow(ctx)
-        .collectAsState(initial = null)
+    val error by ColorSettingsStore.errorColor.asStateNull()
+    val onError by ColorSettingsStore.onErrorColor.asStateNull()
+    val errorContainer by ColorSettingsStore.errorContainerColor.asStateNull()
+    val onErrorContainer by ColorSettingsStore.onErrorContainerColor.asStateNull()
 
 
     /* ───────────── OUTLINE / MISC ───────────── */
-
-    val outline by ColorSettingsStore.outlineColor
-        .flow(ctx)
-        .collectAsState(initial = null)
-
-    val outlineVariant by ColorSettingsStore.outlineVariantColor
-        .flow(ctx)
-        .collectAsState(initial = null)
-
-    val scrim by ColorSettingsStore.scrimColor
-        .flow(ctx)
-        .collectAsState(initial = null)
+    val outline by ColorSettingsStore.outlineColor.asStateNull()
+    val outlineVariant by ColorSettingsStore.outlineVariantColor.asStateNull()
+    val scrim by ColorSettingsStore.scrimColor.asStateNull()
 
 
 
-//    val dynamicColor by ColorModesSettingsStore.dynamicColor.flow(ctx)
-//        .collectAsState(ColorModesSettingsStore.dynamicColor.default)
-//
-//    val defaultTheme by ColorModesSettingsStore.defaultTheme.flow(ctx)
-//        .collectAsState(ColorModesSettingsStore.defaultTheme.default)
-//
+    ctx.logD(COLORS_TAG, "Primary: ${primary.toHexWithAlpha()}, definedOrNull: ${primary.definedOrNull().toHexWithAlpha()}, default fallback: ${defaultColorScheme.primary.toHexWithAlpha()}")
+    ctx.logD(COLORS_TAG, "Used: ${(primary.definedOrNull() ?: defaultColorScheme.primary).toHexWithAlpha()}")
 
-//    val defaultColorScheme: ColorScheme = getDefaultColorScheme(defaultTheme, dynamicColor) ?: AmoledDragonColorScheme
-
-
-    return remember {
-        ColorScheme(
+    return ColorScheme(
             primary                    = primary                   .definedOrNull() ?: defaultColorScheme.primary,
             onPrimary                  = onPrimary                 .definedOrNull() ?: defaultColorScheme.onPrimary,
             primaryContainer           = primaryContainer          .definedOrNull() ?: defaultColorScheme.primaryContainer,
@@ -301,6 +151,4 @@ fun rememberCustomColorScheme(defaultColorScheme: ColorScheme): ColorScheme {
             onTertiaryFixed            = onTertiaryFixed           .definedOrNull() ?: defaultColorScheme.onTertiaryFixed,
             onTertiaryFixedVariant     = onTertiaryFixedVariant    .definedOrNull() ?: defaultColorScheme.onTertiaryFixedVariant,
         )
-
-    }
 }

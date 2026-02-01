@@ -50,7 +50,7 @@ data class CircleNest(
     /**
      * DeepNest: how many sub circles are drawn for current nest, defaults to 2 levels, more may lag and crash
      */
-    @SerializedName("deepNest") val deepnest: Int = 2
+    @SerializedName("deepNest") val deepNest: Int = 2
 )
 
 

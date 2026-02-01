@@ -9,7 +9,6 @@ import androidx.compose.material3.dynamicDarkColorScheme
 import androidx.compose.material3.dynamicLightColorScheme
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
-import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.platform.LocalContext
 import org.elnix.dragonlauncher.base.theme.AmoledDragonColorScheme
@@ -22,6 +21,7 @@ import org.elnix.dragonlauncher.enumsui.DefaultThemes.DARK
 import org.elnix.dragonlauncher.enumsui.DefaultThemes.LIGHT
 import org.elnix.dragonlauncher.enumsui.DefaultThemes.SYSTEM
 import org.elnix.dragonlauncher.settings.stores.ColorModesSettingsStore
+import org.elnix.dragonlauncher.ui.components.settings.asState
 import org.elnix.dragonlauncher.ui.remembers.rememberCustomColorScheme
 import org.elnix.dragonlauncher.ui.remembers.rememberExtraColors
 
@@ -48,7 +48,7 @@ private fun getSystemColorScheme(
 }
 
 @Composable
-fun getDefaultColorScheme(
+private fun getDefaultColorScheme(
     defaultTheme: DefaultThemes,
     dynamicColor: Boolean
 ): ColorScheme =
@@ -57,22 +57,15 @@ fun getDefaultColorScheme(
         DARK -> DarkDragonColorScheme
         AMOLED -> AmoledDragonColorScheme
         SYSTEM -> getSystemColorScheme(defaultTheme, dynamicColor)
-
-        CUSTOM -> rememberCustomColorScheme(getSystemColorScheme(defaultTheme, dynamicColor))
+        CUSTOM -> rememberCustomColorScheme(getSystemColorScheme(SYSTEM, dynamicColor))
     }
 
 @Composable
 fun DragonLauncherTheme(
     content: @Composable () -> Unit
 ) {
-    val ctx = LocalContext.current
-
-    val dynamicColor by ColorModesSettingsStore.dynamicColor.flow(ctx)
-        .collectAsState(ColorModesSettingsStore.dynamicColor.default)
-
-    val defaultTheme by ColorModesSettingsStore.defaultTheme.flow(ctx)
-        .collectAsState(ColorModesSettingsStore.defaultTheme.default)
-
+    val dynamicColor by ColorModesSettingsStore.dynamicColor.asState()
+    val defaultTheme by ColorModesSettingsStore.defaultTheme.asState()
 
     val colorScheme = getDefaultColorScheme(defaultTheme, dynamicColor)
     val extraColors = rememberExtraColors()

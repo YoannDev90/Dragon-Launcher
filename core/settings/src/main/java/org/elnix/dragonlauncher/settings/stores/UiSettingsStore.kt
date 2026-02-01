@@ -89,12 +89,6 @@ object UiSettingsStore : MapSettingsStore() {
         default = false
     )
 
-    val minAngleFromAPointToActivateIt = Settings.int(
-        key = "minAngleFromAPointToActivateIt",
-        dataStoreName = dataStoreName,
-        default = 0
-    )
-
     val showAllActionsOnCurrentCircle = Settings.boolean(
         key = "showAllActionsOnCurrentCircle",
         dataStoreName = dataStoreName,
@@ -158,7 +152,6 @@ object UiSettingsStore : MapSettingsStore() {
         autoSeparatePoints,
         showAppPreviewIconCenterStartPosition,
         linePreviewSnapToAction,
-        minAngleFromAPointToActivateIt,
         showAllActionsOnCurrentCircle,
         selectedIconPack,
         iconPackTint,

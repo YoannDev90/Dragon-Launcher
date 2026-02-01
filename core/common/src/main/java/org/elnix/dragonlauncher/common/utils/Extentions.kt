@@ -346,5 +346,4 @@ fun Long.formatDuration(): String {
 
 
 fun Color?.definedOrNull(): Color? = this.takeIf { it != Color.Unspecified }
-
-val a = null.definedOrNull()
+fun Color?.orDefault(default: Color = Color.Unspecified): Color = this ?: default
