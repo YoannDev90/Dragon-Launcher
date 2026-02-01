@@ -36,7 +36,7 @@ fun DrawerActionSelector(
         selected = tempState,
         label = label,
         optionLabel = { drawerActionsLabel(ctx, it) },
-        onToggle = {
+        onToggle = { enabled ->
             tempState = DrawerActions.DISABLED
             scope.launch {
                 settingObject.reset(ctx)

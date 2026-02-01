@@ -260,7 +260,7 @@ fun DrawerTab(
                     Box(
                         modifier = Modifier
                             .fillMaxHeight()
-                            .fillMaxWidth(leftWeight)
+                            .weight(leftWeight.coerceIn(0.001f, 1f))
                             .background(MaterialTheme.colorScheme.primary.copy(if (leftActionNotNone) 1f else 0.5f)),
                         contentAlignment = Alignment.Center
                     ) {
@@ -276,7 +276,7 @@ fun DrawerTab(
                     DragHandle(
                         onDrag = { dx ->
                             if (totalWidthPx > 0f) {
-                                leftWeight = (leftWeight + dx / totalWidthPx).coerceIn(0f, 1f)
+                                leftWeight = (leftWeight + dx / totalWidthPx).coerceIn(0.001f, 1f)
                             }
                         },
                         onDragEnd = {
@@ -295,7 +295,7 @@ fun DrawerTab(
                     DragHandle(
                         onDrag = { dx ->
                             if (totalWidthPx > 0f) {
-                                rightWeight = (rightWeight - dx / totalWidthPx).coerceIn(0f, 1f)
+                                rightWeight = (rightWeight - dx / totalWidthPx).coerceIn(0.001f, 1f)
                             }
                         },
                         onDragEnd = {
@@ -309,7 +309,7 @@ fun DrawerTab(
                     Box(
                         modifier = Modifier
                             .fillMaxHeight()
-                            .fillMaxWidth(rightWeight)
+                            .weight(rightWeight.coerceIn(0.001f, 1f))
                             .background(MaterialTheme.colorScheme.primary.copy(if (rightActionNotNone) 1f else 0.5f)),
                         contentAlignment = Alignment.Center
                     ) {

@@ -339,7 +339,7 @@ fun AppDrawerScreen(
                 Box(
                     modifier = Modifier
                         .fillMaxHeight()
-                        .weight(leftWeight)
+                        .weight(leftWeight.coerceIn(0.001f, 1f))
                         .clickable(
                             indication = null,
                             interactionSource = null
@@ -408,7 +408,7 @@ fun AppDrawerScreen(
                 Box(
                     modifier = Modifier
                         .fillMaxHeight()
-                        .weight(rightWeight)
+                        .weight(rightWeight.coerceIn(0.001f, 1f))
                         .clickable(
                             indication = null,
                             interactionSource = null
