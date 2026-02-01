@@ -75,6 +75,8 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.core.view.WindowInsetsCompat
+import androidx.core.view.WindowInsetsControllerCompat
 import kotlinx.coroutines.delay
 import org.elnix.dragonlauncher.common.R
 import org.elnix.dragonlauncher.common.utils.formatDuration
@@ -103,6 +105,10 @@ class DigitalPauseActivity : ComponentActivity() {
         }
         val pauseDuration = intent.getIntExtra(EXTRA_PAUSE_DURATION, 10)
         val guiltMode = intent.getBooleanExtra(EXTRA_GUILT_MODE, false)
+
+        val controller = WindowInsetsControllerCompat(window, window.decorView)
+        controller.hide(WindowInsetsCompat.Type.systemBars())
+        controller.systemBarsBehavior = WindowInsetsControllerCompat.BEHAVIOR_SHOW_TRANSIENT_BARS_BY_SWIPE
 
         setContent {
             DragonLauncherTheme {
