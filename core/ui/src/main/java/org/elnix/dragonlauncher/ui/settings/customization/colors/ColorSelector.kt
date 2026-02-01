@@ -242,7 +242,7 @@ fun ColorSelectorTab(
                 horizontalArrangement = Arrangement.SpaceEvenly
             ) {
                 DefaultThemes.entries.filter { it != AMOLED }.forEach {
-                    val selected = it == defaultTheme
+                    val selected = it == defaultTheme || (it == DARK && defaultTheme == AMOLED)
 
                     Column(
                         modifier = Modifier
