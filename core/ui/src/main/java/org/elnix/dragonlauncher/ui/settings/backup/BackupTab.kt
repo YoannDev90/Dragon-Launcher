@@ -63,8 +63,8 @@ import org.elnix.dragonlauncher.ui.dialogs.ImportSettingsDialog
 import org.elnix.dragonlauncher.ui.dialogs.UserValidation
 import org.elnix.dragonlauncher.ui.helpers.GradientBigButton
 import org.elnix.dragonlauncher.ui.helpers.SwitchRow
-import org.elnix.dragonlauncher.ui.remembers.rememberSettingsImportLauncher
 import org.elnix.dragonlauncher.ui.helpers.settings.SettingsLazyHeader
+import org.elnix.dragonlauncher.ui.remembers.rememberSettingsImportLauncher
 import org.json.JSONObject
 
 @SuppressLint("LocalContextGetResourceValueCall")
@@ -291,7 +291,6 @@ fun BackupTab(
                     ActionRow(
                         actions = actions,
                         selectedView = "",
-                        backgroundColor = MaterialTheme.colorScheme.surface.copy(0.5f),
                         actionName = {
                             when (it) {
                                 "change" -> ctx.getString(R.string.change)

@@ -48,9 +48,9 @@ data class CircleNest(
     @SerializedName("minAngleActivation") val minAngleActivation: Map<Int, Int> = emptyMap(),
 
     /**
-     * DeepNest: how many sub circles are drawn for current nest, defaults to 2 levels, more may lag and crash
+     * depth: how many sub circles are drawn for current nest, defaults to 2 levels, more may lag and crash
      */
-    @SerializedName("deepNest") val deepNest: Int = 2
+    @SerializedName("depth") val depth: Int = 2
 )
 
 

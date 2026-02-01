@@ -22,22 +22,21 @@ data class ExtraColors(
 )
 
 
-// default fallback values
-val LocalExtraColors = staticCompositionLocalOf {
-    ExtraColors(
-        angleLine = AmoledDefault.AngleLineColor,
-        circle = AmoledDefault.CircleColor,
-        launchApp = AmoledDefault.LaunchAppColor,
-        openUrl = AmoledDefault.OpenUrlColor,
-        notificationShade = AmoledDefault.NotificationShadeColor,
-        controlPanel = AmoledDefault.ControlPanelColor,
-        openAppDrawer = AmoledDefault.OpenAppDrawerColor,
-        launcherSettings = AmoledDefault.LauncherSettingsColor,
-        lock = AmoledDefault.LockColor,
-        openFile = AmoledDefault.OpenFileColor,
-        reload = AmoledDefault.ReloadColor,
-        openRecentApps = AmoledDefault.OpenRecentAppsColor,
-        openCircleNest = AmoledDefault.OpenCircleNestColor,
-        goParentNest = AmoledDefault.GoParentNestColor
-    )
-}
+val DefaultExtraColors = ExtraColors(
+    angleLine = AmoledDefault.AngleLineColor,
+    circle = AmoledDefault.CircleColor,
+    launchApp = AmoledDefault.LaunchAppColor,
+    openUrl = AmoledDefault.OpenUrlColor,
+    notificationShade = AmoledDefault.NotificationShadeColor,
+    controlPanel = AmoledDefault.ControlPanelColor,
+    openAppDrawer = AmoledDefault.OpenAppDrawerColor,
+    launcherSettings = AmoledDefault.LauncherSettingsColor,
+    lock = AmoledDefault.LockColor,
+    openFile = AmoledDefault.OpenFileColor,
+    reload = AmoledDefault.ReloadColor,
+    openRecentApps = AmoledDefault.OpenRecentAppsColor,
+    openCircleNest = AmoledDefault.OpenCircleNestColor,
+    goParentNest = AmoledDefault.GoParentNestColor
+)
+
+val LocalExtraColors = staticCompositionLocalOf { DefaultExtraColors }

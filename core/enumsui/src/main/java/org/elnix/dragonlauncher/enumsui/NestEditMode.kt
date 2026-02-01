@@ -5,19 +5,19 @@ import androidx.compose.material.icons.filled.DragIndicator
 import androidx.compose.material.icons.filled.TextRotationAngleup
 import androidx.compose.material.icons.filled.Vibration
 import androidx.compose.material.icons.filled.Visibility
-import org.elnix.dragonlauncher.enumsui.NestEditMode.DEEPNEST
+import org.elnix.dragonlauncher.enumsui.NestEditMode.depth
 import org.elnix.dragonlauncher.enumsui.NestEditMode.DRAG
 import org.elnix.dragonlauncher.enumsui.NestEditMode.HAPTIC
 import org.elnix.dragonlauncher.enumsui.NestEditMode.MIN_ANGLE
 
 
-enum class NestEditMode { DRAG, HAPTIC, MIN_ANGLE, DEEPNEST }
+enum class NestEditMode { DRAG, HAPTIC, MIN_ANGLE, depth }
 
 fun nestEditModeIcon(action: NestEditMode) = when (action) {
     DRAG -> Icons.Default.DragIndicator
     HAPTIC -> Icons.Default.Vibration
     MIN_ANGLE -> Icons.Default.TextRotationAngleup
-    DEEPNEST -> Icons.Default.Visibility
+    depth -> Icons.Default.Visibility
 }
 
 //fun nestEditModeLabel(ctx: Context,action: NestEditMode) = when (action) {

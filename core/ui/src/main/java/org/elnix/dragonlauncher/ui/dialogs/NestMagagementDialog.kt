@@ -210,7 +210,7 @@ private fun NestManagementItem(
                 extraColors = extraColors,
                 pointIcons = pointIcons,
                 defaultPoint = defaultPoint,
-                deepNest = 1,
+                depth = 1,
                 preventBgErasing = true,
                 iconShape = shape,
                 density = density

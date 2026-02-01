@@ -29,7 +29,7 @@ fun DrawScope.circlesSettingsOverlay(
     extraColors: ExtraColors,
     pointIcons: Map<String, ImageBitmap>,
     nestId: Int,
-    deepNest: Int,
+    depth: Int,
     shape: IconShape,
     density: Density,
     selectedAll: Boolean = false,
@@ -73,7 +73,7 @@ fun DrawScope.circlesSettingsOverlay(
                     extraColors = extraColors,
                     pointIcons = pointIcons,
                     defaultPoint = defaultPoint,
-                    deepNest = deepNest,
+                    depth = depth,
                     iconShape = shape,
                     density = density,
                     preventBgErasing = preventBgErasing

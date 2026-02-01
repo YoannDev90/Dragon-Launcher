@@ -20,7 +20,6 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
@@ -30,10 +29,8 @@ fun <T> ActionRow(
     actions: List<T>,
     selectedView: T,
     enabled: Boolean = true,
-    selectedBackgroundColor: Color = MaterialTheme.colorScheme.secondary,
-    backgroundColor: Color,
-    actionName: (T) -> String,
-    actionIcon: ((T) -> ImageVector)? = null,
+    actionName: @Composable ((T) -> String)? = null,
+    actionIcon: @Composable ((T) -> ImageVector)? = null,
     onClick: (T) -> Unit
 ) {
     Row(
@@ -45,6 +42,17 @@ fun <T> ActionRow(
     ) {
         actions.forEach { mode ->
             val isSelected = mode == selectedView
+
+            val backgroundColor = (
+                    if (isSelected) MaterialTheme.colorScheme.primary
+                    else MaterialTheme.colorScheme.surface
+                    ).copy(if (enabled) 1f else 0.5f)
+
+            val textColor = (
+                    if (isSelected) MaterialTheme.colorScheme.onPrimary
+                    else MaterialTheme.colorScheme.onSurface
+                    ).copy(if (enabled) 1f else 0.5f)
+
             Row(
                 horizontalArrangement = Arrangement.Center,
                 verticalAlignment = Alignment.CenterVertically,
@@ -53,81 +61,28 @@ fun <T> ActionRow(
                     .fillMaxHeight()
                     .clip(RoundedCornerShape(5.dp))
                     .clickable(enabled) { onClick(mode) }
-                    .background(
-                        (
-                                if (isSelected) selectedBackgroundColor
-                                else backgroundColor
-                                ).copy(if (enabled) 1f else 0.5f)
-                    )
+                    .background(backgroundColor)
                     .padding(5.dp)
             ) {
                 actionIcon?.let {
                     Icon(
                         imageVector = it(mode),
                         contentDescription = null,
-                        tint = if (isSelected) MaterialTheme.colorScheme.onSecondary
-                        else MaterialTheme.colorScheme.onSurface
+                        tint = textColor
                     )
                     Spacer(Modifier.width(5.dp))
                 }
 
-                Text(
-                    text = actionName(mode),
-                    modifier = Modifier
-                        .padding(12.dp),
-                    color = if (isSelected) MaterialTheme.colorScheme.onSecondary
-                    else MaterialTheme.colorScheme.onSurface,
-                    style = MaterialTheme.typography.bodySmall,
-                    textAlign = TextAlign.Center
-                )
-            }
-        }
-    }
-}
-
-
-@Composable
-fun <T> ActionRow(
-    actions: List<T>,
-    selectedView: T,
-    enabled: Boolean = true,
-    selectedBackgroundColor: Color = MaterialTheme.colorScheme.secondary,
-    backgroundColor: Color,
-    actionIcon: (T) -> ImageVector,
-    onClick: (T) -> Unit
-) {
-    Row(
-        Modifier
-            .fillMaxWidth()
-            .height(IntrinsicSize.Max)
-            .clip(CircleShape),
-        horizontalArrangement = Arrangement.spacedBy(5.dp)
-    ) {
-        actions.forEach { mode ->
-            val isSelected = mode == selectedView
-            Row(
-                horizontalArrangement = Arrangement.Center,
-                verticalAlignment = Alignment.CenterVertically,
-                modifier = Modifier
-                    .weight(1f)
-                    .fillMaxHeight()
-                    .clip(RoundedCornerShape(5.dp))
-                    .clickable(enabled) { onClick(mode) }
-                    .background(
-                        (
-                                if (isSelected) selectedBackgroundColor
-                                else backgroundColor
-                                ).copy(if (enabled) 1f else 0.5f)
+                actionName?.let {
+                    Text(
+                        text = it(mode),
+                        modifier = Modifier
+                            .padding(12.dp),
+                        color = textColor,
+                        style = MaterialTheme.typography.bodySmall,
+                        textAlign = TextAlign.Center
                     )
-                    .padding(5.dp)
-            ) {
-                Icon(
-                    imageVector = actionIcon(mode),
-                    contentDescription = null,
-                    tint = if (isSelected) MaterialTheme.colorScheme.onSecondary
-                    else MaterialTheme.colorScheme.onSurface
-                )
-                Spacer(Modifier.width(5.dp))
+                }
             }
         }
     }

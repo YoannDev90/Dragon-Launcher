@@ -42,7 +42,7 @@ fun DrawScope.actionsInCircle(
     extraColors: ExtraColors,
     pointIcons: Map<String, ImageBitmap>,
     defaultPoint: SwipePointSerializable,
-    deepNest: Int,
+    depth: Int,
     iconShape: IconShape,
     density: Density,
     preventBgErasing: Boolean = false
@@ -56,8 +56,8 @@ fun DrawScope.actionsInCircle(
     val innerPadding =
         point.innerPadding ?: defaultPoint.innerPadding ?: defaultSwipePointsValues.innerPadding!!
 
-    val iconSize = size / deepNest
-    val borderRadii = ((size / 2 + innerPadding).coerceAtLeast(0) / deepNest).toFloat()
+    val iconSize = size / depth
+    val borderRadii = ((size / 2 + innerPadding).coerceAtLeast(0) / depth).toFloat()
 
     val dstOffset = IntOffset(px.toInt() - iconSize / 2, py.toInt() - iconSize / 2)
     val intSize = IntSize(iconSize, iconSize)
@@ -155,13 +155,13 @@ fun DrawScope.actionsInCircle(
 
 
             nest.dragDistances.filter { it.key != -1 }.forEach { (index, _) ->
-                    val radius = (100f / deepNest) * circlesWidthIncrement * (index + 1)
+                    val radius = (100f / depth) * circlesWidthIncrement * (index + 1)
                     newCircles.add(
                         UiCircle(index, radius)
                     )
                 }
 
-            if (deepNest < nest.parent(nests).deepNest) {
+            if (depth < nest.parent(nests).depth) {
                 circlesSettingsOverlay(
                     circles = newCircles,
                     circleColor = circleColor,
@@ -176,7 +176,7 @@ fun DrawScope.actionsInCircle(
                     extraColors = extraColors,
                     pointIcons = pointIcons,
                     nestId = nest.id,
-                    deepNest = deepNest + 1,
+                    depth = depth + 1,
                     shape = iconShape,
                     density = density,
                     selectedAll = selected,

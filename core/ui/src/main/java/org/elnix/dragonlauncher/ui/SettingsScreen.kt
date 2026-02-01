@@ -591,7 +591,7 @@ fun SettingsScreen(
                         extraColors = extraColors,
                         pointIcons = pointIcons,
                         nestId = nestId,
-                        deepNest = 1,
+                        depth = 1,
                         shape = iconsShape,
                         density = density,
                         preventBgErasing = true

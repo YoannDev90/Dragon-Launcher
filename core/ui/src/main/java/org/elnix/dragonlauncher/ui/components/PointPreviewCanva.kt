@@ -64,7 +64,7 @@ fun PointPreviewCanvas(
             extraColors = extraColors,
             pointIcons = pointIcons,
             defaultPoint = defaultPoint,
-            deepNest = 1,
+            depth = 1,
             preventBgErasing = true,
             iconShape = iconsShape,
             density = density
@@ -84,7 +84,7 @@ fun PointPreviewCanvas(
             extraColors = extraColors,
             pointIcons = pointIcons,
             defaultPoint = defaultPoint,
-            deepNest = 1,
+            depth = 1,
             preventBgErasing = true,
             iconShape = iconsShape,
             density = density

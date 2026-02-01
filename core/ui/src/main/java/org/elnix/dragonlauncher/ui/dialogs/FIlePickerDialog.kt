@@ -13,15 +13,15 @@ fun FilePickerDialog(
     onDismiss: () -> Unit,
     onFileSelected: (SwipeActionSerializable.OpenFile) -> Unit
 ) {
-    val context = LocalContext.current
+    val ctx = LocalContext.current
     val launcher = rememberLauncherForActivityResult(
         contract = ActivityResultContracts.OpenDocument(),
         onResult = { uri ->
             uri?.let {
-                val mimeType = context.contentResolver.getType(it)
+                val mimeType = ctx.contentResolver.getType(it)
 
                 // Take persistable permission
-                context.contentResolver.takePersistableUriPermission(
+                ctx.contentResolver.takePersistableUriPermission(
                     it,
                     Intent.FLAG_GRANT_READ_URI_PERMISSION or
                             Intent.FLAG_GRANT_WRITE_URI_PERMISSION

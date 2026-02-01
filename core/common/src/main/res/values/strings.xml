@@ -47,19 +47,6 @@
     <string name="reset">Reset</string>
     <string name="reset_to_default_colors">Reset to Default Colors</string>
     <string name="make_every_colors_random">Randomize All Colors</string>
-    <string name="primary_color">Primary Color</string>
-    <string name="on_primary_color">On Primary Color</string>
-    <string name="secondary_color">Secondary Color</string>
-    <string name="on_secondary_color">On Secondary Color</string>
-    <string name="tertiary_color">Tertiary Color</string>
-    <string name="on_tertiary_color">On Tertiary Color</string>
-    <string name="background_color">Background Color</string>
-    <string name="on_background_color">On Background Color</string>
-    <string name="surface_color">Surface Color</string>
-    <string name="on_surface_color">On Surface Color</string>
-    <string name="error_color">Error Color</string>
-    <string name="on_error_color">On Error Color</string>
-    <string name="outline_color">Outline Color</string>
     <string name="angle_line_color">Angle Line Color</string>
     <string name="circle_color">Circle Color</string>
     <string name="launch_app_color">Launch App Color</string>
@@ -409,11 +396,80 @@
     <string name="max_icon_size">Max icon Size</string>
     <string name="icons_spacing_vertical">icons Spacing vertical</string>
     <string name="icons_spacing_horizontal">icons Spacing horizontal</string>
-    <string name="deepnest">Deepnest</string>
-    <string name="deepnest_desc">How many sub nests are drawn at max</string>
+    <string name="depth">Depth</string>
+    <string name="depth_desc">How many sub nests are drawn at max</string>
     <string name="warning_large_values_can_lag_your_phone">Warning, large values can lag your phone if you have lots of actions and sub nests</string>
     <string name="custom_theme">Custom Theme</string>
     <string name="dynamic_colors">Dynamic Colors</string>
     <string name="dynamic_colors_desc">Use android dynamic colors to provide you a dynamic colors scheme</string>
     <string name="use_pure_black_background">Use pure black background</string>
+
+
+    <!--  ───────────── Colors  ─────────────  -->
+    <string name="primary_colors_section">Primary Colors</string>
+    <string name="primary_color">Primary</string>
+    <string name="on_primary_color">On Primary</string>
+    <string name="primary_container_color">Primary Container</string>
+    <string name="on_primary_container_color">On Primary Container</string>
+    <string name="inverse_primary_color">Inverse Primary</string>
+
+    <string name="secondary_colors_section">Secondary Colors</string>
+    <string name="secondary_color">Secondary</string>
+    <string name="on_secondary_color">On Secondary</string>
+    <string name="secondary_container_color">Secondary Container</string>
+    <string name="on_secondary_container_color">On Secondary Container</string>
+
+    <string name="tertiary_colors_section">Tertiary Colors</string>
+    <string name="tertiary_color">Tertiary</string>
+    <string name="on_tertiary_color">On Tertiary</string>
+    <string name="tertiary_container_color">Tertiary Container</string>
+    <string name="on_tertiary_container_color">On Tertiary Container</string>
+
+    <string name="background_surface_colors_section">Background / Surface Colors</string>
+    <string name="background_color">Background</string>
+    <string name="on_background_color">On Background</string>
+    <string name="surface_color">Surface</string>
+    <string name="on_surface_color">On Surface</string>
+    <string name="surface_variant_color">Surface Variant</string>
+    <string name="on_surface_variant_color">On Surface Variant</string>
+    <string name="surface_tint_color">Surface Tint</string>
+    <string name="inverse_surface_color">Inverse Surface</string>
+    <string name="inverse_on_surface_color">Inverse On Surface</string>
+
+    <string name="error_colors_section">Error Colors</string>
+    <string name="error_color">Error</string>
+    <string name="on_error_color">On Error</string>
+    <string name="error_container_color">Error Container</string>
+    <string name="on_error_container_color">On Error Container</string>
+
+    <string name="outline_colors_section">Outline / Misc Colors</string>
+    <string name="outline_color">Outline</string>
+    <string name="outline_variant_color">Outline Variant</string>
+    <string name="scrim_color">Scrim</string>
+
+    <string name="surface_container_colors_section">Surface Container Colors</string>
+    <string name="surface_bright_color">Surface Bright</string>
+    <string name="surface_container_color">Surface Container</string>
+    <string name="surface_container_high_color">Surface Container High</string>
+    <string name="surface_container_highest_color">Surface Container Highest</string>
+    <string name="surface_container_low_color">Surface Container Low</string>
+    <string name="surface_container_lowest_color">Surface Container Lowest</string>
+    <string name="surface_dim_color">Surface Dim</string>
+
+    <string name="fixed_colors_section">Fixed Colors</string>
+    <string name="primary_fixed_color">Primary Fixed</string>
+    <string name="primary_fixed_dim_color">Primary Fixed Dim</string>
+    <string name="on_primary_fixed_color">On Primary Fixed</string>
+    <string name="on_primary_fixed_variant_color">On Primary Fixed Variant</string>
+    <string name="secondary_fixed_color">Secondary Fixed</string>
+    <string name="secondary_fixed_dim_color">Secondary Fixed Dim</string>
+    <string name="on_secondary_fixed_color">On Secondary Fixed</string>
+    <string name="on_secondary_fixed_variant_color">On Secondary Fixed Variant</string>
+    <string name="tertiary_fixed_color">Tertiary Fixed</string>
+    <string name="tertiary_fixed_dim_color">Tertiary Fixed Dim</string>
+    <string name="on_tertiary_fixed_color">On Tertiary Fixed</string>
+    <string name="on_tertiary_fixed_variant_color">On Tertiary Fixed Variant</string>
+    <string name="custom_colors">Custom Colors</string>
+    <string name="normal_colors">Normal Colors</string>
+
 </resources>

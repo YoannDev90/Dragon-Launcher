@@ -40,10 +40,10 @@ import org.elnix.dragonlauncher.common.utils.UiCircle
 import org.elnix.dragonlauncher.common.utils.colors.adjustBrightness
 import org.elnix.dragonlauncher.common.utils.vibrate
 import org.elnix.dragonlauncher.enumsui.NestEditMode
-import org.elnix.dragonlauncher.enumsui.NestEditMode.DEEPNEST
 import org.elnix.dragonlauncher.enumsui.NestEditMode.DRAG
 import org.elnix.dragonlauncher.enumsui.NestEditMode.HAPTIC
 import org.elnix.dragonlauncher.enumsui.NestEditMode.MIN_ANGLE
+import org.elnix.dragonlauncher.enumsui.NestEditMode.depth
 import org.elnix.dragonlauncher.enumsui.nestEditModeIcon
 import org.elnix.dragonlauncher.settings.stores.DrawerSettingsStore
 import org.elnix.dragonlauncher.settings.stores.SwipeSettingsStore
@@ -196,7 +196,7 @@ fun NestEditingScreen(
                     extraColors = extraColors,
                     pointIcons = pointIcons,
                     nestId = nestId,
-                    deepNest = 1,
+                    depth = 1,
                     shape = iconsShape,
                     density = density,
                     preventBgErasing = true
@@ -230,7 +230,6 @@ fun NestEditingScreen(
             ActionRow(
                 actions = NestEditMode.entries,
                 selectedView = currentEditMode,
-                backgroundColor = MaterialTheme.colorScheme.primary,
                 actionIcon = { nestEditModeIcon(it) }
             ) {
                 currentEditMode = it
@@ -326,20 +325,20 @@ fun NestEditingScreen(
                             }
                     }
 
-                    DEEPNEST -> {
+                    depth -> {
 
-                        var tempDeepnest by remember { mutableStateOf(currentNest.deepNest) }
+                        var tempdepth by remember { mutableStateOf(currentNest.depth) }
                         SliderWithLabel(
-                            label = stringResource(R.string.deepnest),
-                            description = stringResource(R.string.deepnest_desc),
+                            label = stringResource(R.string.depth),
+                            description = stringResource(R.string.depth_desc),
                             backgroundColor = MaterialTheme.colorScheme.surface.adjustBrightness(0.7f),
-                            value = tempDeepnest,
+                            value = tempdepth,
                             valueRange = 0..5
                         ) {
-                            tempDeepnest = it
+                            tempdepth = it
                             pendingNestUpdate = nests.map { nest ->
                                 if (nest.id == nestId) {
-                                    nest.copy(deepNest = it)
+                                    nest.copy(depth = it)
                                 } else nest
                             }
                         }

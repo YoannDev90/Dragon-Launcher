@@ -436,7 +436,7 @@ fun MainScreenOverlay(
                                     extraColors = extraColors,
                                     pointIcons = pointIcons,
                                     defaultPoint = defaultPoint,
-                                    deepNest = 1,
+                                    depth = 1,
                                     iconShape = iconsShape,
                                     density = density
                                 )
@@ -458,7 +458,7 @@ fun MainScreenOverlay(
                                 extraColors = extraColors,
                                 pointIcons = pointIcons,
                                 defaultPoint = defaultPoint,
-                                deepNest = 1,
+                                depth = 1,
                                 iconShape = iconsShape,
                                 density = density
                             )
@@ -484,7 +484,7 @@ fun MainScreenOverlay(
                         extraColors = extraColors,
                         pointIcons = pointIcons,
                         defaultPoint = defaultPoint,
-                        deepNest = 1,
+                        depth = 1,
                         iconShape = iconsShape,
                         density = density
                     )

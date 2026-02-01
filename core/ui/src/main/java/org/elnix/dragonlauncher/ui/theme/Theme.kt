@@ -27,7 +27,7 @@ import org.elnix.dragonlauncher.ui.remembers.rememberExtraColors
 
 
 @Composable
-private fun getSystemColorScheme(
+fun getSystemColorScheme(
     defaultTheme: DefaultThemes,
     dynamicColor: Boolean
 ): ColorScheme {
@@ -48,6 +48,11 @@ private fun getSystemColorScheme(
 }
 
 @Composable
+fun getCustomColorScheme(dynamicColor: Boolean): ColorScheme =
+    rememberCustomColorScheme(getSystemColorScheme(SYSTEM, dynamicColor))
+
+
+@Composable
 private fun getDefaultColorScheme(
     defaultTheme: DefaultThemes,
     dynamicColor: Boolean
@@ -57,7 +62,7 @@ private fun getDefaultColorScheme(
         DARK -> DarkDragonColorScheme
         AMOLED -> AmoledDragonColorScheme
         SYSTEM -> getSystemColorScheme(defaultTheme, dynamicColor)
-        CUSTOM -> rememberCustomColorScheme(getSystemColorScheme(SYSTEM, dynamicColor))
+        CUSTOM -> getCustomColorScheme(dynamicColor)
     }
 
 @Composable

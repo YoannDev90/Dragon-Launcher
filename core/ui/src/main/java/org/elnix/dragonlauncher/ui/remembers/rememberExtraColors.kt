@@ -2,7 +2,6 @@ package org.elnix.dragonlauncher.ui.remembers
 
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
-import androidx.compose.ui.platform.LocalContext
 import org.elnix.dragonlauncher.common.theme.AmoledDefault
 import org.elnix.dragonlauncher.settings.stores.ColorSettingsStore
 import org.elnix.dragonlauncher.ui.components.settings.asStateNull
@@ -10,9 +9,6 @@ import org.elnix.dragonlauncher.ui.theme.ExtraColors
 
 @Composable
 fun rememberExtraColors(): ExtraColors {
-
-    val ctx = LocalContext.current
-
 
     /*  ─────────────  CUSTOM COLORS ─────────────  */
 

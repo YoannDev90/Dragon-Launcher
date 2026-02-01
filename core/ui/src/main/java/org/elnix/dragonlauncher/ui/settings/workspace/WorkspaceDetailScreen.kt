@@ -125,7 +125,6 @@ fun WorkspaceDetailScreen(
                     actions = WorkspaceViewMode.entries,
                     selectedView = selectedView,
                     actionName = { workspaceViewMode(ctx, it) },
-                    backgroundColor = MaterialTheme.colorScheme.surface
                 ) { selectedView = it }
 
                 AppGrid(

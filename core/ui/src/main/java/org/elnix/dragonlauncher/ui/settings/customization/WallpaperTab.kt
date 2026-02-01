@@ -194,7 +194,6 @@ fun WallpaperTab(onBack: () -> Unit) {
                     selectedView = selectedView,
                     actionName = { wallpaperEditModeLabel(ctx, it) },
                     actionIcon = { wallpaperEditModeIcon(it) },
-                    backgroundColor = MaterialTheme.colorScheme.primary
                 ) { selectedView = it }
             }
 
