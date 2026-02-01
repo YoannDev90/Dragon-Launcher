@@ -9,103 +9,73 @@ import androidx.compose.material3.dynamicDarkColorScheme
 import androidx.compose.material3.dynamicLightColorScheme
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
-import androidx.compose.ui.graphics.Color
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
 import androidx.compose.ui.platform.LocalContext
 import org.elnix.dragonlauncher.base.theme.AmoledDragonColorScheme
 import org.elnix.dragonlauncher.base.theme.DarkDragonColorScheme
 import org.elnix.dragonlauncher.base.theme.LightDragonColorScheme
-import org.elnix.dragonlauncher.common.theme.AmoledDefault
 import org.elnix.dragonlauncher.enumsui.DefaultThemes
 import org.elnix.dragonlauncher.enumsui.DefaultThemes.AMOLED
 import org.elnix.dragonlauncher.enumsui.DefaultThemes.CUSTOM
 import org.elnix.dragonlauncher.enumsui.DefaultThemes.DARK
 import org.elnix.dragonlauncher.enumsui.DefaultThemes.LIGHT
 import org.elnix.dragonlauncher.enumsui.DefaultThemes.SYSTEM
+import org.elnix.dragonlauncher.settings.stores.ColorModesSettingsStore
+import org.elnix.dragonlauncher.ui.remembers.rememberCustomColorScheme
+import org.elnix.dragonlauncher.ui.remembers.rememberExtraColors
 
+
+@Composable
+private fun getSystemColorScheme(
+    defaultTheme: DefaultThemes,
+    dynamicColor: Boolean
+): ColorScheme {
+    val darkTheme = isSystemInDarkTheme()
+    return when {
+        dynamicColor && Build.VERSION.SDK_INT >= Build.VERSION_CODES.S -> {
+            val context = LocalContext.current
+            if (darkTheme) dynamicDarkColorScheme(context) else dynamicLightColorScheme(context)
+        }
+
+        darkTheme -> {
+            if (defaultTheme == AMOLED) AmoledDragonColorScheme
+            else DarkDragonColorScheme
+        }
+
+        else -> LightDragonColorScheme
+    }
+}
 
 @Composable
 fun getDefaultColorScheme(
     defaultTheme: DefaultThemes,
     dynamicColor: Boolean
-): ColorScheme? =
+): ColorScheme =
     when (defaultTheme) {
         LIGHT -> LightDragonColorScheme
         DARK -> DarkDragonColorScheme
         AMOLED -> AmoledDragonColorScheme
-        SYSTEM -> {
-            val darkTheme = isSystemInDarkTheme()
-            when {
-                dynamicColor && Build.VERSION.SDK_INT >= Build.VERSION_CODES.S -> {
-                    val context = LocalContext.current
-                    if (darkTheme) dynamicDarkColorScheme(context) else dynamicLightColorScheme(context)
-                }
+        SYSTEM -> getSystemColorScheme(defaultTheme, dynamicColor)
 
-                darkTheme -> DarkDragonColorScheme
-                else -> LightDragonColorScheme
-            }
-        }
-
-        CUSTOM -> null
+        CUSTOM -> rememberCustomColorScheme(getSystemColorScheme(defaultTheme, dynamicColor))
     }
 
 @Composable
 fun DragonLauncherTheme(
-    defaultTheme: DefaultThemes,
-    dynamicColor: Boolean,
-    customColorScheme: ColorScheme?,
-
-    customAngleLineColor: Color? = null,
-    customCircleColor: Color? = null,
-    customLaunchAppColor: Color? = null,
-    customOpenUrlColor: Color? = null,
-    customNotificationShadeColor: Color? = null,
-    customControlPanelColor: Color? = null,
-    customOpenAppDrawerColor: Color? = null,
-    customLauncherSettingsColor: Color? = null,
-    customLockColor: Color? = null,
-    customOpenFileColor: Color? = null,
-    customReloadAppsColor: Color? = null,
-    customOpenRecentAppsColor: Color? = null,
-    customOpenCircleNest: Color? = null,
-    customGoParentNest: Color? = null,
-
     content: @Composable () -> Unit
 ) {
+    val ctx = LocalContext.current
 
-    val angleLine = customAngleLineColor ?: AmoledDefault.AngleLineColor
-    val circle = customCircleColor ?: AmoledDefault.CircleColor
+    val dynamicColor by ColorModesSettingsStore.dynamicColor.flow(ctx)
+        .collectAsState(ColorModesSettingsStore.dynamicColor.default)
 
-    val launchApp = customLaunchAppColor ?: AmoledDefault.LaunchAppColor
-    val openUrl = customOpenUrlColor ?: AmoledDefault.OpenUrlColor
-    val notificationShade = customNotificationShadeColor ?: AmoledDefault.NotificationShadeColor
-    val controlPanel = customControlPanelColor ?: AmoledDefault.ControlPanelColor
-    val openAppDrawer = customOpenAppDrawerColor ?: AmoledDefault.OpenAppDrawerColor
-    val launcherSettings = customLauncherSettingsColor ?: AmoledDefault.LauncherSettingsColor
-    val lock = customLockColor ?: AmoledDefault.LockColor
-    val openFile = customOpenFileColor ?: AmoledDefault.OpenFileColor
-    val reloadApps = customReloadAppsColor ?: AmoledDefault.ReloadColor
-    val openRecentApps = customOpenRecentAppsColor ?: AmoledDefault.OpenRecentAppsColor
-    val openCircleNest = customOpenCircleNest ?: AmoledDefault.OpenCircleNestColor
-    val goParentNest = customGoParentNest ?: AmoledDefault.GoParentNestColor
+    val defaultTheme by ColorModesSettingsStore.defaultTheme.flow(ctx)
+        .collectAsState(ColorModesSettingsStore.defaultTheme.default)
 
-    val extraColors = ExtraColors(
-        angleLine,
-        circle,
-        launchApp,
-        openUrl,
-        notificationShade,
-        controlPanel,
-        openAppDrawer,
-        launcherSettings,
-        lock,
-        openFile,
-        reloadApps,
-        openRecentApps,
-        openCircleNest,
-        goParentNest
-    )
 
-    val colorScheme = getDefaultColorScheme(defaultTheme, dynamicColor) ?: customColorScheme ?: AmoledDragonColorScheme
+    val colorScheme = getDefaultColorScheme(defaultTheme, dynamicColor)
+    val extraColors = rememberExtraColors()
 
     CompositionLocalProvider(LocalExtraColors provides extraColors) {
         MaterialTheme(

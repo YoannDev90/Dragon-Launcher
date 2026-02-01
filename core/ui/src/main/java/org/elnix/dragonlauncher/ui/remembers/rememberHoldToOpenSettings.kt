@@ -1,4 +1,4 @@
-package org.elnix.dragonlauncher.ui.helpers
+package org.elnix.dragonlauncher.ui.remembers
 
 import androidx.compose.foundation.gestures.awaitEachGesture
 import androidx.compose.foundation.gestures.awaitFirstDown
@@ -18,7 +18,7 @@ import kotlinx.coroutines.launch
 
 /**
  * Remember hold to open settings
- * Handles the drawing of the [HoldToActivateArc]
+ * Handles the drawing of the [org.elnix.dragonlauncher.ui.helpers.HoldToActivateArc]
  *
  * @param onSettings callback that fires when fully loaded
  * @param holdDelay how long to wait before circle starts showing

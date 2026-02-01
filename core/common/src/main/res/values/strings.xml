@@ -415,4 +415,5 @@
     <string name="custom_theme">Custom Theme</string>
     <string name="dynamic_colors">Dynamic Colors</string>
     <string name="dynamic_colors_desc">Use android dynamic colors to provide you a dynamic colors scheme</string>
+    <string name="use_pure_black_background">Use pure black background</string>
 </resources>

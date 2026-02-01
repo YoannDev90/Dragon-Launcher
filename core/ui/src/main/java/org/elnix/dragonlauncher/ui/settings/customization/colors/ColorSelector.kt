@@ -1,4 +1,4 @@
-package org.elnix.dragonlauncher.ui.settings.customization
+package org.elnix.dragonlauncher.ui.settings.customization.colors
 
 
 import androidx.compose.foundation.background
@@ -72,6 +72,7 @@ import org.elnix.dragonlauncher.ui.components.burger.BurgerAction
 import org.elnix.dragonlauncher.ui.components.burger.BurgerListAction
 import org.elnix.dragonlauncher.ui.components.settings.SettingsSwitchRow
 import org.elnix.dragonlauncher.ui.dialogs.UserValidation
+import org.elnix.dragonlauncher.ui.helpers.SwitchRow
 import org.elnix.dragonlauncher.ui.helpers.settings.SettingsLazyHeader
 import org.elnix.dragonlauncher.ui.theme.LocalExtraColors
 
@@ -160,6 +161,7 @@ fun ColorSelectorTab(
                 ColorCustomisationMode.entries.forEach {
                     Column(
                         modifier = Modifier
+                            .weight(1f)
                             .clip(DragonShape)
                             .clickable {
                                 scope.launch {
@@ -170,31 +172,17 @@ fun ColorSelectorTab(
                         horizontalAlignment = Alignment.CenterHorizontally
                     ) {
 
-                        when (it) {
-                            ColorCustomisationMode.DEFAULT -> {
-                                Icon(
-                                    imageVector = Icons.Default.InvertColors,
-                                    contentDescription = stringResource(R.string.color_mode_default),
-                                    tint = MaterialTheme.colorScheme.onSurface
-                                )
-                            }
-
-                            ColorCustomisationMode.NORMAL -> {
-                                Icon(
-                                    imageVector = Icons.Default.Palette,
-                                    contentDescription = stringResource(R.string.color_mode_normal),
-                                    tint = MaterialTheme.colorScheme.onSurface
-                                )
-                            }
-
-                            ColorCustomisationMode.ALL -> {
-                                Icon(
-                                    imageVector = Icons.Default.AllInclusive,
-                                    contentDescription = stringResource(R.string.color_mode_all),
-                                    tint = MaterialTheme.colorScheme.onSurface
-                                )
-                            }
+                        val icon = when (it) {
+                            ColorCustomisationMode.DEFAULT -> Icons.Default.InvertColors
+                            ColorCustomisationMode.NORMAL -> Icons.Default.Palette
+                            ColorCustomisationMode.ALL -> Icons.Default.AllInclusive
                         }
+
+                        Icon(
+                            imageVector = icon,
+                            contentDescription = stringResource(R.string.color_mode_all),
+                            tint = MaterialTheme.colorScheme.onSurface
+                        )
 
                         Spacer(Modifier.height(5.dp))
 
@@ -592,9 +580,10 @@ fun ColorSelectorTab(
                             .padding(vertical = 12.dp),
                         horizontalArrangement = Arrangement.SpaceEvenly
                     ) {
-                        DefaultThemes.entries.forEach {
+                        DefaultThemes.entries.filter { it != AMOLED }.forEach {
                             Column(
                                 modifier = Modifier
+                                    .weight(1f)
                                     .clip(DragonShape)
                                     .clickable {
                                         scope.launch {
@@ -605,78 +594,45 @@ fun ColorSelectorTab(
                                 horizontalAlignment = Alignment.CenterHorizontally
                             ) {
 
-                                when (it) {
-                                    AMOLED -> Box(
-                                        modifier = Modifier
-                                            .size(40.dp)
-                                            .clip(CircleShape)
-                                            .background(Color.Black)
-                                            .border(
-                                                1.dp,
-                                                MaterialTheme.colorScheme.outline.copy(0.5f),
-                                                CircleShape
-                                            )
-                                    )
+                                val background = when (it) {
+                                    AMOLED -> null
 
-                                    DARK -> Box(
-                                        modifier = Modifier
-                                            .size(40.dp)
-                                            .clip(CircleShape)
-                                            .background(Color.DarkGray)
-                                            .border(
-                                                1.dp,
-                                                MaterialTheme.colorScheme.outline.copy(0.5f),
-                                                CircleShape
-                                            )
-                                    )
+                                    DARK   -> Color.DarkGray
+                                    LIGHT  -> Color.White
+                                    SYSTEM -> MaterialTheme.colorScheme.primary
 
-                                    LIGHT -> Box(
-                                        modifier = Modifier
-                                            .size(40.dp)
-                                            .clip(CircleShape)
-                                            .background(Color.White)
-                                            .border(
-                                                1.dp,
-                                                MaterialTheme.colorScheme.outline.copy(0.5f),
-                                                CircleShape
-                                            )
+                                    CUSTOM -> Brush.sweepGradient(
+                                        colors = listOf(
+                                            Color.Red,
+                                            Color.Yellow,
+                                            Color.Green,
+                                            Color.Cyan,
+                                            Color.Blue,
+                                            Color.Magenta
+                                        )
                                     )
+                                }
 
-                                    SYSTEM -> Box(
+                                if (background != null) {
+                                    Box(
                                         modifier = Modifier
                                             .size(40.dp)
                                             .clip(CircleShape)
-                                            .background(MaterialTheme.colorScheme.primary)
-                                            .border(
-                                                1.dp,
-                                                MaterialTheme.colorScheme.outline.copy(0.5f),
-                                                CircleShape
-                                            )
-                                    )
-
-                                    CUSTOM -> Box(
-                                        modifier = Modifier
-                                            .size(40.dp)
-                                            .clip(CircleShape)
-                                            .background(
-                                                Brush.sweepGradient(
-                                                    colors = listOf(
-                                                        Color.Red,
-                                                        Color.Yellow,
-                                                        Color.Green,
-                                                        Color.Cyan,
-                                                        Color.Blue,
-                                                        Color.Magenta
-                                                    )
-                                                )
+                                            .then(
+                                                when (background) {
+                                                    is Color -> Modifier.background(background)
+                                                    is Brush -> Modifier.background(background)
+                                                    else     -> Modifier
+                                                }
                                             )
                                             .border(
                                                 1.dp,
-                                                MaterialTheme.colorScheme.outline.copy(0.5f),
+                                                MaterialTheme.colorScheme.outline.copy(alpha = 0.5f),
                                                 CircleShape
                                             )
                                     )
                                 }
+
 
                                 Spacer(Modifier.height(5.dp))
 
@@ -701,12 +657,33 @@ fun ColorSelectorTab(
                     }
                 }
 
-                item {
-                    SettingsSwitchRow(
-                        setting = ColorModesSettingsStore.dynamicColor,
-                        title = stringResource(R.string.dynamic_colors),
-                        description = stringResource(R.string.dynamic_colors_desc)
-                    )
+                if (selectedDefaultTheme == DARK || selectedDefaultTheme == AMOLED) {
+                    item {
+                        SwitchRow(
+                            state = selectedDefaultTheme == AMOLED,
+                            text = stringResource(R.string.amoled_theme),
+                            subText = stringResource(R.string.use_pure_black_background)
+                        ) {
+                            val theme = if (it) {
+                                AMOLED
+                            } else DARK
+
+                            scope.launch {
+                                ColorModesSettingsStore.defaultTheme.set(ctx, theme)
+                            }
+                        }
+                    }
+                }
+
+                // Only show the dynamic colors switch when in SYSTEM view
+                if (selectedDefaultTheme == SYSTEM) {
+                    item {
+                        SettingsSwitchRow(
+                            setting = ColorModesSettingsStore.dynamicColor,
+                            title = stringResource(R.string.dynamic_colors),
+                            description = stringResource(R.string.dynamic_colors_desc)
+                        )
+                    }
                 }
             }
         }

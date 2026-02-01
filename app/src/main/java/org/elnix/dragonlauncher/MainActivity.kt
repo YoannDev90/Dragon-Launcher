@@ -17,7 +17,6 @@ import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.activity.viewModels
-import androidx.compose.material3.ColorScheme
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
@@ -32,7 +31,6 @@ import androidx.navigation.NavHostController
 import androidx.navigation.compose.rememberNavController
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
-import org.elnix.dragonlauncher.base.theme.AmoledDragonColorScheme
 import org.elnix.dragonlauncher.common.R
 import org.elnix.dragonlauncher.common.logging.DragonLogManager
 import org.elnix.dragonlauncher.common.logging.logD
@@ -43,7 +41,6 @@ import org.elnix.dragonlauncher.common.utils.HOME_REENTER_WINDOW_MS
 import org.elnix.dragonlauncher.common.utils.ROUTES
 import org.elnix.dragonlauncher.common.utils.WIDGET_TAG
 import org.elnix.dragonlauncher.common.utils.WidgetHostProvider
-import org.elnix.dragonlauncher.common.utils.definedOrNull
 import org.elnix.dragonlauncher.common.utils.ignoredReturnRoutes
 import org.elnix.dragonlauncher.common.utils.showToast
 import org.elnix.dragonlauncher.models.AppLifecycleViewModel
@@ -51,14 +48,11 @@ import org.elnix.dragonlauncher.models.BackupViewModel
 import org.elnix.dragonlauncher.models.FloatingAppsViewModel
 import org.elnix.dragonlauncher.settings.SettingsBackupManager
 import org.elnix.dragonlauncher.settings.stores.BehaviorSettingsStore
-import org.elnix.dragonlauncher.settings.stores.ColorModesSettingsStore
-import org.elnix.dragonlauncher.settings.stores.ColorSettingsStore
 import org.elnix.dragonlauncher.settings.stores.PrivateSettingsStore
 import org.elnix.dragonlauncher.settings.stores.SwipeSettingsStore
 import org.elnix.dragonlauncher.settings.stores.UiSettingsStore
 import org.elnix.dragonlauncher.ui.MainAppUi
 import org.elnix.dragonlauncher.ui.theme.DragonLauncherTheme
-import org.elnix.dragonlauncher.ui.theme.getDefaultColorScheme
 import java.util.UUID
 
 class MainActivity : ComponentActivity(), WidgetHostProvider {
@@ -369,329 +363,7 @@ class MainActivity : ComponentActivity(), WidgetHostProvider {
                 }
             }
 
-            // Colors
-            val dynamicColor by ColorModesSettingsStore.dynamicColor.flow(ctx)
-                .collectAsState(ColorModesSettingsStore.dynamicColor.default)
-
-            val defaultTheme by ColorModesSettingsStore.defaultTheme.flow(ctx)
-                .collectAsState(ColorModesSettingsStore.defaultTheme.default)
-
-
-            /* ─────────────────────────────────────────────────────────────────
-                        ───────────── COLOR GETTERS ─────────────
-             ───────────────────────────────────────────────────────────────────*/
-
-
-            /* ───────────── PRIMARY ───────────── */
-
-            val primary by ColorSettingsStore.primaryColor
-                .flow(ctx)
-                .collectAsState(initial = null)
-
-            val onPrimary by ColorSettingsStore.onPrimaryColor
-                .flow(ctx)
-                .collectAsState(initial = null)
-
-            val primaryContainer by ColorSettingsStore.primaryContainerColor
-                .flow(ctx)
-                .collectAsState(initial = null)
-
-            val onPrimaryContainer by ColorSettingsStore.onPrimaryContainerColor
-                .flow(ctx)
-                .collectAsState(initial = null)
-
-            val inversePrimary by ColorSettingsStore.inversePrimaryColor
-                .flow(ctx)
-                .collectAsState(initial = null)
-
-            val primaryFixed by ColorSettingsStore.primaryFixedColor
-                .flow(ctx)
-                .collectAsState(initial = null)
-
-            val primaryFixedDim by ColorSettingsStore.primaryFixedDimColor
-                .flow(ctx)
-                .collectAsState(initial = null)
-
-            val onPrimaryFixed by ColorSettingsStore.onPrimaryFixedColor
-                .flow(ctx)
-                .collectAsState(initial = null)
-
-            val onPrimaryFixedVariant by ColorSettingsStore.onPrimaryFixedVariantColor
-                .flow(ctx)
-                .collectAsState(initial = null)
-
-
-            /* ───────────── SECONDARY ───────────── */
-
-            val secondary by ColorSettingsStore.secondaryColor
-                .flow(ctx)
-                .collectAsState(initial = null)
-
-            val onSecondary by ColorSettingsStore.onSecondaryColor
-                .flow(ctx)
-                .collectAsState(initial = null)
-
-            val secondaryContainer by ColorSettingsStore.secondaryContainerColor
-                .flow(ctx)
-                .collectAsState(initial = null)
-
-            val onSecondaryContainer by ColorSettingsStore.onSecondaryContainerColor
-                .flow(ctx)
-                .collectAsState(initial = null)
-
-            val secondaryFixed by ColorSettingsStore.secondaryFixedColor
-                .flow(ctx)
-                .collectAsState(initial = null)
-
-            val secondaryFixedDim by ColorSettingsStore.secondaryFixedDimColor
-                .flow(ctx)
-                .collectAsState(initial = null)
-
-            val onSecondaryFixed by ColorSettingsStore.onSecondaryFixedColor
-                .flow(ctx)
-                .collectAsState(initial = null)
-
-            val onSecondaryFixedVariant by ColorSettingsStore.onSecondaryFixedVariantColor
-                .flow(ctx)
-                .collectAsState(initial = null)
-
-
-            /* ───────────── TERTIARY ───────────── */
-
-            val tertiary by ColorSettingsStore.tertiaryColor
-                .flow(ctx)
-                .collectAsState(initial = null)
-
-            val onTertiary by ColorSettingsStore.onTertiaryColor
-                .flow(ctx)
-                .collectAsState(initial = null)
-
-            val tertiaryContainer by ColorSettingsStore.tertiaryContainerColor
-                .flow(ctx)
-                .collectAsState(initial = null)
-
-            val onTertiaryContainer by ColorSettingsStore.onTertiaryContainerColor
-                .flow(ctx)
-                .collectAsState(initial = null)
-
-            val tertiaryFixed by ColorSettingsStore.tertiaryFixedColor
-                .flow(ctx)
-                .collectAsState(initial = null)
-
-            val tertiaryFixedDim by ColorSettingsStore.tertiaryFixedDimColor
-                .flow(ctx)
-                .collectAsState(initial = null)
-
-            val onTertiaryFixed by ColorSettingsStore.onTertiaryFixedColor
-                .flow(ctx)
-                .collectAsState(initial = null)
-
-            val onTertiaryFixedVariant by ColorSettingsStore.onTertiaryFixedVariantColor
-                .flow(ctx)
-                .collectAsState(initial = null)
-
-
-            /* ───────────── BACKGROUND / SURFACE ───────────── */
-
-            val background by ColorSettingsStore.backgroundColor
-                .flow(ctx)
-                .collectAsState(initial = null)
-
-            val onBackground by ColorSettingsStore.onBackgroundColor
-                .flow(ctx)
-                .collectAsState(initial = null)
-
-            val surface by ColorSettingsStore.surfaceColor
-                .flow(ctx)
-                .collectAsState(initial = null)
-
-            val onSurface by ColorSettingsStore.onSurfaceColor
-                .flow(ctx)
-                .collectAsState(initial = null)
-
-            val surfaceVariant by ColorSettingsStore.surfaceVariantColor
-                .flow(ctx)
-                .collectAsState(initial = null)
-
-            val onSurfaceVariant by ColorSettingsStore.onSurfaceVariantColor
-                .flow(ctx)
-                .collectAsState(initial = null)
-
-            val surfaceTint by ColorSettingsStore.surfaceTintColor
-                .flow(ctx)
-                .collectAsState(initial = null)
-
-            val inverseSurface by ColorSettingsStore.inverseSurfaceColor
-                .flow(ctx)
-                .collectAsState(initial = null)
-
-            val inverseOnSurface by ColorSettingsStore.inverseOnSurfaceColor
-                .flow(ctx)
-                .collectAsState(initial = null)
-
-
-            /* ───────────── SURFACE CONTAINERS ───────────── */
-
-            val surfaceBright by ColorSettingsStore.surfaceBrightColor
-                .flow(ctx)
-                .collectAsState(initial = null)
-
-            val surfaceDim by ColorSettingsStore.surfaceDimColor
-                .flow(ctx)
-                .collectAsState(initial = null)
-
-            val surfaceContainer by ColorSettingsStore.surfaceContainerColor
-                .flow(ctx)
-                .collectAsState(initial = null)
-
-            val surfaceContainerLow by ColorSettingsStore.surfaceContainerLowColor
-                .flow(ctx)
-                .collectAsState(initial = null)
-
-            val surfaceContainerLowest by ColorSettingsStore.surfaceContainerLowestColor
-                .flow(ctx)
-                .collectAsState(initial = null)
-
-            val surfaceContainerHigh by ColorSettingsStore.surfaceContainerHighColor
-                .flow(ctx)
-                .collectAsState(initial = null)
-
-            val surfaceContainerHighest by ColorSettingsStore.surfaceContainerHighestColor
-                .flow(ctx)
-                .collectAsState(initial = null)
-
-
-            /* ───────────── ERROR ───────────── */
-
-            val error by ColorSettingsStore.errorColor
-                .flow(ctx)
-                .collectAsState(initial = null)
-
-            val onError by ColorSettingsStore.onErrorColor
-                .flow(ctx)
-                .collectAsState(initial = null)
-
-            val errorContainer by ColorSettingsStore.errorContainerColor
-                .flow(ctx)
-                .collectAsState(initial = null)
-
-            val onErrorContainer by ColorSettingsStore.onErrorContainerColor
-                .flow(ctx)
-                .collectAsState(initial = null)
-
-
-            /* ───────────── OUTLINE / MISC ───────────── */
-
-            val outline by ColorSettingsStore.outlineColor
-                .flow(ctx)
-                .collectAsState(initial = null)
-
-            val outlineVariant by ColorSettingsStore.outlineVariantColor
-                .flow(ctx)
-                .collectAsState(initial = null)
-
-            val scrim by ColorSettingsStore.scrimColor
-                .flow(ctx)
-                .collectAsState(initial = null)
-
-
-            /*  ─────────────  CUSTOM COLORS ─────────────  */
-
-            val angleLineColor by ColorSettingsStore.angleLineColor.flow(ctx).collectAsState(initial = null)
-            val circleColor by ColorSettingsStore.circleColor.flow(ctx).collectAsState(initial = null)
-
-            val launchAppColor by ColorSettingsStore.launchAppColor.flow(ctx).collectAsState(initial = null)
-            val openUrlColor by ColorSettingsStore.openUrlColor.flow(ctx).collectAsState(initial = null)
-            val notificationShadeColor by ColorSettingsStore.notificationShadeColor.flow(ctx).collectAsState(initial = null)
-            val controlPanelColor by ColorSettingsStore.controlPanelColor.flow(ctx).collectAsState(initial = null)
-            val openAppDrawerColor by ColorSettingsStore.openAppDrawerColor.flow(ctx).collectAsState(initial = null)
-            val launcherSettingsColor by ColorSettingsStore.launcherSettingsColor.flow(ctx).collectAsState(initial = null)
-            val lockColor by ColorSettingsStore.lockColor.flow(ctx).collectAsState(initial = null)
-            val openFileColor by ColorSettingsStore.openFileColor.flow(ctx).collectAsState(initial = null)
-            val reloadColor by ColorSettingsStore.reloadColor.flow(ctx).collectAsState(initial = null)
-            val openRecentAppsColor by ColorSettingsStore.openRecentAppsColor.flow(ctx).collectAsState(initial = null)
-            val openCircleNestColor by ColorSettingsStore.openCircleNestColor.flow(ctx).collectAsState(initial = null)
-            val goParentNestColor by ColorSettingsStore.goParentNestColor.flow(ctx).collectAsState(initial = null)
-
-            /* ───────────────────────────────────────────────────────────────────────────────────────────────────── */
-
-
-
-            val defaultColorScheme: ColorScheme = getDefaultColorScheme(defaultTheme, dynamicColor) ?: AmoledDragonColorScheme
-
-
-            val customColorScheme = ColorScheme(
-                primary = primary.definedOrNull() ?: defaultColorScheme.primary,
-                onPrimary = onPrimary ?: defaultColorScheme.onPrimary,
-                primaryContainer = primaryContainer ?: defaultColorScheme.primaryContainer,
-                onPrimaryContainer = onPrimaryContainer ?: defaultColorScheme.onPrimaryContainer,
-                inversePrimary = inversePrimary ?: defaultColorScheme.inversePrimary,
-                secondary = secondary ?: defaultColorScheme.secondary,
-                onSecondary = onSecondary ?: defaultColorScheme.onSecondary,
-                secondaryContainer = secondaryContainer ?: defaultColorScheme.secondaryContainer,
-                onSecondaryContainer = onSecondaryContainer ?: defaultColorScheme.onSecondaryContainer,
-                tertiary = tertiary ?: defaultColorScheme.tertiary,
-                onTertiary = onTertiary ?: defaultColorScheme.onTertiary,
-                tertiaryContainer = tertiaryContainer ?: defaultColorScheme.tertiaryContainer,
-                onTertiaryContainer = onTertiaryContainer ?: defaultColorScheme.onTertiaryContainer,
-                background = background ?: defaultColorScheme.background,
-                onBackground = onBackground ?: defaultColorScheme.onBackground,
-                surface = surface ?: defaultColorScheme.surface,
-                onSurface = onSurface ?: defaultColorScheme.onSurface,
-                surfaceVariant = surfaceVariant ?: defaultColorScheme.surfaceVariant,
-                onSurfaceVariant = onSurfaceVariant ?: defaultColorScheme.onSurfaceVariant,
-                surfaceTint = surfaceTint ?: primary ?: defaultColorScheme.primary,
-                inverseSurface = inverseSurface ?: defaultColorScheme.inverseSurface,
-                inverseOnSurface = inverseOnSurface ?: defaultColorScheme.inverseOnSurface,
-                error = error ?: defaultColorScheme.error,
-                onError = onError ?: defaultColorScheme.onError,
-                errorContainer = errorContainer ?: defaultColorScheme.errorContainer,
-                onErrorContainer = onErrorContainer ?: defaultColorScheme.onErrorContainer,
-                outline = outline ?: defaultColorScheme.outline,
-                outlineVariant = outlineVariant ?: defaultColorScheme.outlineVariant,
-                scrim = scrim ?: defaultColorScheme.scrim,
-                surfaceBright = surfaceBright ?: defaultColorScheme.surfaceBright,
-                surfaceContainer = surfaceContainer ?: defaultColorScheme.surfaceContainer,
-                surfaceContainerHigh = surfaceContainerHigh ?: defaultColorScheme.surfaceContainerHigh,
-                surfaceContainerHighest = surfaceContainerHighest ?: defaultColorScheme.surfaceContainerHighest,
-                surfaceContainerLow = surfaceContainerLow ?: defaultColorScheme.surfaceContainerLow,
-                surfaceContainerLowest = surfaceContainerLowest ?: defaultColorScheme.surfaceContainerLowest,
-                surfaceDim = surfaceDim ?: defaultColorScheme.surfaceDim,
-                primaryFixed = primaryFixed ?: defaultColorScheme.primaryFixed,
-                primaryFixedDim = primaryFixedDim ?: defaultColorScheme.primaryFixedDim,
-                onPrimaryFixed = onPrimaryFixed ?: defaultColorScheme.onPrimaryFixed,
-                onPrimaryFixedVariant = onPrimaryFixedVariant ?: defaultColorScheme.onPrimaryFixedVariant,
-                secondaryFixed = secondaryFixed ?: defaultColorScheme.secondaryFixed,
-                secondaryFixedDim = secondaryFixedDim ?: defaultColorScheme.secondaryFixedDim,
-                onSecondaryFixed = onSecondaryFixed ?: defaultColorScheme.onSecondaryFixed,
-                onSecondaryFixedVariant = onSecondaryFixedVariant ?: defaultColorScheme.onSecondaryFixedVariant,
-                tertiaryFixed = tertiaryFixed ?: defaultColorScheme.tertiaryFixed,
-                tertiaryFixedDim = tertiaryFixedDim ?: defaultColorScheme.tertiaryFixedDim,
-                onTertiaryFixed = onTertiaryFixed ?: defaultColorScheme.onTertiaryFixed,
-                onTertiaryFixedVariant = onTertiaryFixedVariant ?: defaultColorScheme.onTertiaryFixedVariant,
-            )
-
-            DragonLauncherTheme(
-                dynamicColor = dynamicColor,
-                defaultTheme = defaultTheme,
-                customColorScheme = customColorScheme,
-
-
-                customAngleLineColor = angleLineColor,
-                customCircleColor = circleColor,
-                customLaunchAppColor = launchAppColor,
-                customOpenUrlColor = openUrlColor,
-                customNotificationShadeColor = notificationShadeColor,
-                customControlPanelColor = controlPanelColor,
-                customOpenAppDrawerColor = openAppDrawerColor,
-                customLauncherSettingsColor = launcherSettingsColor,
-                customLockColor = lockColor,
-                customOpenFileColor = openFileColor,
-                customReloadAppsColor = reloadColor,
-                customOpenRecentAppsColor = openRecentAppsColor,
-                customOpenCircleNest = openCircleNestColor,
-                customGoParentNest = goParentNestColor
-            ) {
+            DragonLauncherTheme {
 
                 val navController = rememberNavController()
                 navControllerHolder.value = navController

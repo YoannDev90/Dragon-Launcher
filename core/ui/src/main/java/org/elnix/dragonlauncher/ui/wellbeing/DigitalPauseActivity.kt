@@ -44,16 +44,13 @@ import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
-import androidx.compose.material3.ColorScheme
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
-import androidx.compose.material3.darkColorScheme
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
@@ -79,15 +76,10 @@ import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import kotlinx.coroutines.delay
-import org.elnix.dragonlauncher.base.theme.AmoledDragonColorScheme
 import org.elnix.dragonlauncher.common.R
-import org.elnix.dragonlauncher.common.utils.definedOrNull
 import org.elnix.dragonlauncher.common.utils.formatDuration
 import org.elnix.dragonlauncher.common.utils.hasUsageStatsPermission
-import org.elnix.dragonlauncher.settings.stores.ColorModesSettingsStore
-import org.elnix.dragonlauncher.settings.stores.ColorSettingsStore
 import org.elnix.dragonlauncher.ui.theme.DragonLauncherTheme
-import org.elnix.dragonlauncher.ui.theme.getDefaultColorScheme
 import java.util.Calendar
 import kotlin.random.Random
 
@@ -113,29 +105,7 @@ class DigitalPauseActivity : ComponentActivity() {
         val guiltMode = intent.getBooleanExtra(EXTRA_GUILT_MODE, false)
 
         setContent {
-            val ctx = LocalContext.current
-
-            val dynamicColor by ColorModesSettingsStore.dynamicColor.flow(ctx)
-                .collectAsState(ColorModesSettingsStore.dynamicColor.default)
-
-            val defaultTheme by ColorModesSettingsStore.defaultTheme.flow(ctx)
-                .collectAsState(ColorModesSettingsStore.defaultTheme.default)
-
-
-            val background by ColorSettingsStore.backgroundColor.flow(ctx).collectAsState(initial = null)
-
-            val defaultColorScheme: ColorScheme = getDefaultColorScheme(defaultTheme, dynamicColor) ?: AmoledDragonColorScheme
-
-            val customColorScheme = darkColorScheme(
-                background = background.definedOrNull() ?: defaultColorScheme.background
-            )
-
-
-            DragonLauncherTheme(
-                defaultTheme = defaultTheme,
-                dynamicColor = dynamicColor,
-                customColorScheme = customColorScheme
-            ) {
+            DragonLauncherTheme {
                 Surface(
                     modifier = Modifier.fillMaxSize(),
                     color = Color(0xFF0F111A) // Deep Midnight
