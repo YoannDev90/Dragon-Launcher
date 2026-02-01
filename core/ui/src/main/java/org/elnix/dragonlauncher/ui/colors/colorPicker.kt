@@ -25,7 +25,6 @@ import androidx.compose.material.icons.filled.ContentCopy
 import androidx.compose.material.icons.filled.ContentPaste
 import androidx.compose.material.icons.filled.Restore
 import androidx.compose.material3.Icon
-import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextField
@@ -58,6 +57,7 @@ import org.elnix.dragonlauncher.enumsui.ColorPickerMode
 import org.elnix.dragonlauncher.enumsui.colorPickerText
 import org.elnix.dragonlauncher.settings.stores.ColorModesSettingsStore
 import org.elnix.dragonlauncher.ui.UiConstants.DragonShape
+import org.elnix.dragonlauncher.ui.components.DragonIconButton
 import org.elnix.dragonlauncher.ui.components.ValidateCancelButtons
 import org.elnix.dragonlauncher.ui.dialogs.CustomAlertDialog
 import org.elnix.dragonlauncher.ui.helpers.SliderWithLabel
@@ -277,7 +277,7 @@ private fun ColorPicker(
 
                 Spacer(Modifier.width(50.dp))
 
-                IconButton(
+                DragonIconButton(
                     onClick = {
                         ctx.copyToClipboard(hexText)
                     },
@@ -289,7 +289,7 @@ private fun ColorPicker(
                     )
                 }
 
-                IconButton(
+                DragonIconButton(
                     onClick = {
                         val newColor = pasteColorHexFromClipboard(ctx)
                         newColor?.let { pasted ->

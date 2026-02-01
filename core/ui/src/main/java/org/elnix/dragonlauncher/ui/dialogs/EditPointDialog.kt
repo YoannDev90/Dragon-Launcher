@@ -55,6 +55,7 @@ import org.elnix.dragonlauncher.ui.actions.actionColor
 import org.elnix.dragonlauncher.ui.actions.actionLabel
 import org.elnix.dragonlauncher.ui.colors.AppObjectsColors
 import org.elnix.dragonlauncher.ui.colors.ColorPickerRow
+import org.elnix.dragonlauncher.ui.components.DragonIconButton
 import org.elnix.dragonlauncher.ui.components.PointPreviewCanvas
 import org.elnix.dragonlauncher.ui.components.TextDivider
 import org.elnix.dragonlauncher.ui.components.ValidateCancelButtons
@@ -202,7 +203,7 @@ fun EditPointDialog(
                     )
 
                     Spacer(Modifier.weight(1f))
-                    IconButton(
+                    DragonIconButton(
                         onClick = {
                             editPoint = SwipePointSerializable(
                                 circleNumber = editPoint.circleNumber,
@@ -342,7 +343,7 @@ fun EditPointDialog(
                             label = { Text(stringResource(R.string.custom_name)) },
                             trailingIcon = {
                                 if (editPoint.customName != null && editPoint.customName!!.isNotEmpty()) {
-                                    IconButton(
+                                    DragonIconButton(
                                         onClick = {
                                             editPoint = editPoint.copy(customName = null)
                                         }

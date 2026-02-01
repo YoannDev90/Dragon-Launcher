@@ -14,13 +14,11 @@ import androidx.compose.foundation.pager.HorizontalPager
 import androidx.compose.foundation.pager.rememberPagerState
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
-import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Close
 import androidx.compose.material.icons.filled.RestartAlt
 import androidx.compose.material.icons.filled.Search
 import androidx.compose.material3.Icon
-import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
@@ -46,6 +44,7 @@ import org.elnix.dragonlauncher.common.utils.colors.adjustBrightness
 import org.elnix.dragonlauncher.models.AppsViewModel
 import org.elnix.dragonlauncher.ui.UiConstants.DragonShape
 import org.elnix.dragonlauncher.ui.colors.AppObjectsColors
+import org.elnix.dragonlauncher.ui.components.DragonIconButton
 import org.elnix.dragonlauncher.ui.helpers.AppGrid
 
 @OptIn(ExperimentalFoundationApi::class)
@@ -103,7 +102,7 @@ fun AppPickerDialog(
                             modifier = Modifier.weight(1f)
                         )
 
-                        IconButton(
+                        DragonIconButton(
                             onClick = { isSearchBarEnabled = true },
                             colors = AppObjectsColors.iconButtonColors()
                         ) {
@@ -113,7 +112,7 @@ fun AppPickerDialog(
                             )
                         }
 
-                        IconButton(
+                        DragonIconButton(
                             onClick = { scope.launch { appsViewModel.reloadApps() } },
                             colors = AppObjectsColors.iconButtonColors()
                         ) {

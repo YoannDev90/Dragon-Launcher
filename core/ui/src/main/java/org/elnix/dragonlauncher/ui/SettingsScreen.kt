@@ -43,7 +43,6 @@ import androidx.compose.material.icons.filled.Remove
 import androidx.compose.material.icons.filled.Settings
 import androidx.compose.material3.DropdownMenu
 import androidx.compose.material3.Icon
-import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -108,6 +107,7 @@ import org.elnix.dragonlauncher.settings.stores.DrawerSettingsStore
 import org.elnix.dragonlauncher.settings.stores.SwipeSettingsStore
 import org.elnix.dragonlauncher.settings.stores.UiSettingsStore
 import org.elnix.dragonlauncher.ui.components.AppPreviewTitle
+import org.elnix.dragonlauncher.ui.components.DragonIconButton
 import org.elnix.dragonlauncher.ui.components.burger.BurgerAction
 import org.elnix.dragonlauncher.ui.components.burger.BurgerListAction
 import org.elnix.dragonlauncher.ui.dialogs.AddPointDialog
@@ -448,7 +448,7 @@ fun SettingsScreen(
             horizontalArrangement = Arrangement.SpaceBetween,
             verticalAlignment = Alignment.CenterVertically
         ) {
-            IconButton(onClick = onBack) {
+            DragonIconButton(onClick = onBack) {
                 Icon(
                     imageVector = Icons.Default.Home,
                     contentDescription = stringResource(R.string.home),
@@ -466,7 +466,7 @@ fun SettingsScreen(
             )
 
             Row {
-                IconButton(onClick = { showBurgerMenu = true }) {
+                DragonIconButton(onClick = { showBurgerMenu = true }) {
                     Icon(
                         imageVector = Icons.Default.MoreVert,
                         contentDescription = stringResource(R.string.open_burger_menu),
@@ -534,7 +534,7 @@ fun SettingsScreen(
                     )
                 }
 
-                IconButton(onClick = onAdvSettings) {
+                DragonIconButton(onClick = onAdvSettings) {
                     Icon(
                         imageVector = Icons.Default.Settings,
                         contentDescription = stringResource(R.string.settings),
@@ -779,7 +779,7 @@ fun SettingsScreen(
 
 
             val undoButtonEnabled = undoStack.isNotEmpty()
-            IconButton(onClick = { undo() }, enabled = undoButtonEnabled) {
+            DragonIconButton(onClick = { undo() }, enabled = undoButtonEnabled) {
                 Icon(
                     imageVector = Icons.AutoMirrored.Filled.Undo,
                     tint = MaterialTheme.colorScheme.primary.copy(if (undoButtonEnabled) 1f else 0.5f),
@@ -788,7 +788,7 @@ fun SettingsScreen(
             }
 
             val redoButtonEnabled = redoStack.isNotEmpty()
-            IconButton(onClick = { redo() }, enabled = redoButtonEnabled) {
+            DragonIconButton(onClick = { redo() }, enabled = redoButtonEnabled) {
                 Icon(
                     imageVector = Icons.AutoMirrored.Filled.Redo,
                     tint = MaterialTheme.colorScheme.primary.copy(if (redoButtonEnabled) 1f else 0.5f),

@@ -11,7 +11,6 @@ import androidx.compose.foundation.layout.sizeIn
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Restore
 import androidx.compose.material3.Icon
-import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -27,6 +26,7 @@ import org.elnix.dragonlauncher.common.serializables.IconShape
 import org.elnix.dragonlauncher.common.utils.SHAPES_TAG
 import org.elnix.dragonlauncher.ui.UiConstants.DragonShape
 import org.elnix.dragonlauncher.ui.colors.AppObjectsColors
+import org.elnix.dragonlauncher.ui.components.DragonIconButton
 
 
 @Composable
@@ -79,7 +79,7 @@ fun ShapeRow(
             }
         }
 
-        IconButton(
+        DragonIconButton(
             onClick = onReset,
             colors = AppObjectsColors.iconButtonColors()
         ) {

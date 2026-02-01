@@ -9,10 +9,8 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.sizeIn
-import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.OpenInNew
-import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -26,6 +24,7 @@ import org.elnix.dragonlauncher.common.R
 import org.elnix.dragonlauncher.common.utils.colors.adjustBrightness
 import org.elnix.dragonlauncher.ui.UiConstants.DragonShape
 import org.elnix.dragonlauncher.ui.colors.AppObjectsColors
+import org.elnix.dragonlauncher.ui.components.DragonIconButton
 import org.elnix.dragonlauncher.ui.helpers.IconC
 
 @Composable
@@ -141,12 +140,10 @@ fun SettingItemWithExternalOpen(
             onClick = onClick
         )
 
-        IconButton(
+        DragonIconButton(
             onClick = onExtClick,
             colors = AppObjectsColors.iconButtonColors(),
-            modifier = Modifier
-                .size(52.dp),
-            shape = DragonShape
+            modifier = Modifier.size(52.dp)
         ) {
             IconC(
                 icon = extIcon,

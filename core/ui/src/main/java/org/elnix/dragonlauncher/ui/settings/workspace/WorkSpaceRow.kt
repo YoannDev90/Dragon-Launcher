@@ -11,7 +11,6 @@ import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.Checkbox
 import androidx.compose.material3.Icon
-import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -25,6 +24,7 @@ import org.elnix.dragonlauncher.common.serializables.Workspace
 import org.elnix.dragonlauncher.enumsui.WorkspaceAction
 import org.elnix.dragonlauncher.ui.UiConstants.DragonShape
 import org.elnix.dragonlauncher.ui.colors.AppObjectsColors
+import org.elnix.dragonlauncher.ui.components.DragonIconButton
 
 @Composable
 fun WorkspaceRow(
@@ -74,7 +74,7 @@ fun WorkspaceRow(
                     WorkspaceAction.Rename,
                     WorkspaceAction.Delete
                 ).forEach { action ->
-                    IconButton(onClick = { onAction(action) }) {
+                    DragonIconButton(onClick = { onAction(action) }) {
                         Icon(action.icon, action.label)
                     }
                 }

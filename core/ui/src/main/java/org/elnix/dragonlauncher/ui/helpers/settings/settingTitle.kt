@@ -8,7 +8,6 @@ import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.automirrored.filled.Help
 import androidx.compose.material.icons.filled.Restore
 import androidx.compose.material3.Icon
-import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -17,6 +16,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import org.elnix.dragonlauncher.common.R
+import org.elnix.dragonlauncher.ui.components.DragonIconButton
 
 
 @Composable
@@ -34,13 +34,12 @@ fun SettingsTitle(
 //            .background(MaterialTheme.colorScheme.background)
     ) {
 
-        IconButton(
+        DragonIconButton(
             onClick = { onBack() },
         ) {
             Icon(
                 imageVector = Icons.AutoMirrored.Filled.ArrowBack,
-                contentDescription = stringResource(R.string.back),
-                tint = MaterialTheme.colorScheme.outline
+                contentDescription = stringResource(R.string.back)
             )
         }
 
@@ -53,24 +52,22 @@ fun SettingsTitle(
 
 
         if (resetIcon != null){
-            IconButton(
+            DragonIconButton(
                 onClick = { resetIcon() },
             ) {
                 Icon(
                     imageVector = Icons.Default.Restore,
-                    contentDescription = stringResource(R.string.reset),
-                    tint = MaterialTheme.colorScheme.primary
+                    contentDescription = stringResource(R.string.reset)
                 )
             }
         }
 
-        IconButton(
+        DragonIconButton(
             onClick = { helpIcon() },
         ) {
             Icon(
                 imageVector = Icons.AutoMirrored.Filled.Help,
-                contentDescription = stringResource(R.string.help),
-                tint = MaterialTheme.colorScheme.primary
+                contentDescription = stringResource(R.string.help)
             )
         }
     }

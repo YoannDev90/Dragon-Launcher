@@ -17,7 +17,6 @@ import androidx.compose.material.icons.filled.ContentCopy
 import androidx.compose.material.icons.filled.Loop
 import androidx.compose.material3.Button
 import androidx.compose.material3.Icon
-import androidx.compose.material3.IconButton
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -33,6 +32,7 @@ import kotlinx.coroutines.launch
 import org.elnix.dragonlauncher.common.utils.copyToClipboard
 import org.elnix.dragonlauncher.settings.allStores
 import org.elnix.dragonlauncher.settings.defaultDebugStores
+import org.elnix.dragonlauncher.ui.components.DragonIconButton
 import org.elnix.dragonlauncher.ui.dialogs.ExportSettingsDialog
 import org.elnix.dragonlauncher.ui.helpers.settings.SettingsLazyHeader
 import org.json.JSONObject
@@ -94,13 +94,13 @@ fun SettingsDebugTab(
                     }
 
                     Spacer(Modifier.weight(1f))
-                    IconButton(
+                    DragonIconButton(
                         onClick = { settingsJson?.let { ctx.copyToClipboard(it.toString(2)) } }
                     ) {
                         Icon(Icons.Default.ContentCopy, null)
                     }
 
-                    IconButton(
+                    DragonIconButton(
                         onClick = { loadSettings() }
                     ) {
                         Icon(Icons.Default.Loop, null)

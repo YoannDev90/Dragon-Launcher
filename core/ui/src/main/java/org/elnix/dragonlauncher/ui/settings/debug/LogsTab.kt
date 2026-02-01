@@ -26,7 +26,6 @@ import androidx.compose.material.icons.filled.Share
 import androidx.compose.material3.Button
 import androidx.compose.material3.Card
 import androidx.compose.material3.Icon
-import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -53,6 +52,7 @@ import org.elnix.dragonlauncher.common.utils.formatDateTime
 import org.elnix.dragonlauncher.common.utils.showToast
 import org.elnix.dragonlauncher.settings.stores.DebugSettingsStore
 import org.elnix.dragonlauncher.ui.colors.AppObjectsColors
+import org.elnix.dragonlauncher.ui.components.DragonIconButton
 import org.elnix.dragonlauncher.ui.components.settings.SettingsSwitchRow
 import org.elnix.dragonlauncher.ui.dialogs.UserValidation
 import org.elnix.dragonlauncher.ui.helpers.settings.SettingsLazyHeader
@@ -161,7 +161,7 @@ fun LogsTab(
                                     verticalAlignment = Alignment.CenterVertically
                                 ) {
 
-                                    IconButton(
+                                    DragonIconButton(
                                         onClick = {
                                             showDeleteDialog = file
                                         }
@@ -169,7 +169,7 @@ fun LogsTab(
                                         Icon(Icons.Default.Delete, "Delete")
                                     }
 
-                                    IconButton(
+                                    DragonIconButton(
                                         onClick = {
                                             exportLogFile(ctx, file)
                                         }
@@ -199,7 +199,7 @@ fun LogsTab(
                                     style = MaterialTheme.typography.titleMedium
                                 )
                                 Row {
-                                    IconButton(
+                                    DragonIconButton(
                                         onClick = {
                                             try {
                                                 ctx.copyToClipboard(logs)
@@ -212,7 +212,7 @@ fun LogsTab(
                                         Icon(Icons.Default.ContentCopy, "Copy All")
                                     }
 
-                                    IconButton(
+                                    DragonIconButton(
                                         onClick = {
                                             logs = ""
                                             selectedFile = null

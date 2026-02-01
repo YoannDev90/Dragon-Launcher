@@ -190,7 +190,7 @@ object AppObjectsColors {
         val colors = MaterialTheme.colorScheme
         return IconButtonDefaults.iconButtonColors(
             containerColor = backgroundColor ?: colors.surface,
-            contentColor = contentColor ?: colors.onSurface,
+            contentColor = contentColor ?: colors.primary,
             disabledContainerColor = backgroundColor ?: colors.surface.copy(0.5f),
             disabledContentColor = contentColor ?: colors.onSurface.copy(0.5f)
         )

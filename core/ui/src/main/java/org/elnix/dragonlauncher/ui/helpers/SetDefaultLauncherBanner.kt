@@ -11,7 +11,6 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Close
 import androidx.compose.material3.Icon
-import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -24,6 +23,7 @@ import androidx.compose.ui.unit.dp
 import kotlinx.coroutines.launch
 import org.elnix.dragonlauncher.common.R
 import org.elnix.dragonlauncher.settings.stores.PrivateSettingsStore
+import org.elnix.dragonlauncher.ui.components.DragonIconButton
 
 
 @Composable
@@ -46,7 +46,7 @@ fun SetDefaultLauncherBanner() {
             color = MaterialTheme.colorScheme.onPrimary,
             modifier = Modifier.weight(1f)
         )
-        IconButton(onClick = {
+        DragonIconButton(onClick = {
             scope.launch { PrivateSettingsStore.showSetDefaultLauncherBanner.set(ctx, false) }
         }) {
             Icon(

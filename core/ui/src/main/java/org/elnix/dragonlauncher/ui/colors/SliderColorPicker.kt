@@ -9,7 +9,6 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Replay
 import androidx.compose.material.icons.filled.Shuffle
 import androidx.compose.material3.Icon
-import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
@@ -24,6 +23,7 @@ import androidx.compose.ui.unit.dp
 import org.elnix.dragonlauncher.common.utils.colors.adjustBrightness
 import org.elnix.dragonlauncher.common.utils.colors.blendWith
 import org.elnix.dragonlauncher.common.utils.colors.randomColor
+import org.elnix.dragonlauncher.ui.components.DragonIconButton
 import org.elnix.dragonlauncher.ui.helpers.SliderWithLabel
 
 @Composable
@@ -66,7 +66,7 @@ fun SliderColorPicker(
             verticalAlignment = Alignment.CenterVertically
         ) {
 
-            IconButton(
+            DragonIconButton(
                 onClick = { popLastColor() },
                 modifier = Modifier.weight(1f),
                 enabled = canPopLastColor
@@ -78,7 +78,7 @@ fun SliderColorPicker(
                 )
             }
 
-            IconButton(
+            DragonIconButton(
                 onClick = {
                     pushCurrentColor()
                     val color = randomColor()
