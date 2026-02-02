@@ -129,7 +129,9 @@
   <img src="https://github.com/Elnix90/Dragon-Launcher/blob/main/assets/user-screenshots/m0n0lith.webp" width="22%" alt="m0n0lith ScreenShot"/>
   <img src="https://github.com/Elnix90/Dragon-Launcher/blob/main/assets/user-screenshots/prizewhisper.webp" width="22%" alt="prizewhisper ScreenShot"/>
   <img src="https://github.com/Elnix90/Dragon-Launcher/blob/main/assets/user-screenshots/sandsalamand.webp" width="22%" alt="sandsalamand ScreenShot"/>
-  <img src="https://github.com/Elnix90/Dragon-Launcher/blob/main/assets/user-screenshots/speedhog.webp" width="22%" alt="speedhog ScreenShot"/>
+  <img src="https://github.com/Elnix90/Dragon-Launcher/blob/main/assets/user-screenshots/drBrigth.jpg" width="22%" alt="drBrigth ScreenShot"/>
+  <img src="https://github.com/Elnix90/Dragon-Launcher/blob/main/assets/user-screenshots/speedhog.jpg" width="22%" alt="speedhog ScreenShot"/>
+  <img src="https://github.com/Elnix90/Dragon-Launcher/blob/main/assets/user-screenshots/oniyon.jpg" width="22%" alt="oniyon ScreenShot"/>
   <img src="https://github.com/Elnix90/Dragon-Launcher/blob/main/assets/user-screenshots/yerminator.webp" width="22%" alt="yerminator ScreenShot"/>
 </p>
 
