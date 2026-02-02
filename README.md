@@ -167,10 +167,6 @@ Verify:
 apksigner verify --print-certs DragonLauncher-*.apk
 ```
 
-## Credits
-
-* Dragon Launcher was inspired by [CCLauncher](https://github.com/mlm-games/CCLauncher). Some concepts, features, and code structures are adapted from this project
-
 ## Contributing
 
 * Contributions are welcome! Feel free to submit pull requests or open issues.
