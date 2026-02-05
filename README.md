@@ -26,6 +26,8 @@
 [<img src="https://www.openapk.net/images/openapk-badge.png" alt="Get it on OpenAPK" height="80">](https://www.openapk.net/dragon-launcher/org.elnix.dragonlauncher/)
 ---
 [<img src="https://raw.githubusercontent.com/ImranR98/Obtainium/main/assets/graphics/badge_obtainium.png" alt="Get it on Obtainium" height="60">](http://apps.obtainium.imranr.dev/redirect.html?r=obtainium://add/https://github.com/Elnix90/Dragon-Launcher)
+---
+**Due to Android restrictions, you may disable android Play protect during installation, to avoid it being blocked**
 </div>
 
 ---
