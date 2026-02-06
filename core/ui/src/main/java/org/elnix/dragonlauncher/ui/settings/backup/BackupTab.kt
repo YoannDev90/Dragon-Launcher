@@ -18,10 +18,8 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Check
 import androidx.compose.material.icons.filled.Download
 import androidx.compose.material.icons.filled.Upload
-import androidx.compose.material.icons.filled.Warning
 import androidx.compose.material3.Checkbox
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
@@ -37,7 +35,6 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontStyle
@@ -60,7 +57,6 @@ import org.elnix.dragonlauncher.ui.components.TextDivider
 import org.elnix.dragonlauncher.ui.components.generic.ActionRow
 import org.elnix.dragonlauncher.ui.dialogs.ExportSettingsDialog
 import org.elnix.dragonlauncher.ui.dialogs.ImportSettingsDialog
-import org.elnix.dragonlauncher.ui.dialogs.UserValidation
 import org.elnix.dragonlauncher.ui.helpers.GradientBigButton
 import org.elnix.dragonlauncher.ui.helpers.SwitchRow
 import org.elnix.dragonlauncher.ui.helpers.settings.SettingsLazyHeader
@@ -541,21 +537,21 @@ fun BackupTab(
         }
     }
 
-    // ───────────────────────────────────────
-    // RESULT DIALOG
-    // ───────────────────────────────────────
-    result?.let { res ->
-        val isError = res.error
-        UserValidation(
-            title = res.title,
-            message = res.message,
-            titleIcon = if (isError) Icons.Default.Warning else Icons.Default.Check,
-            titleColor = if (isError) MaterialTheme.colorScheme.error else Color.Green,
-            copy = isError,
-            onDismiss = {},
-            onValidate = { backupViewModel.setResult(null) }
-        )
-    }
+//    // ───────────────────────────────────────
+//    // RESULT DIALOG
+//    // ───────────────────────────────────────
+//    result?.let { res ->
+//        val isError = res.error
+//        UserValidation(
+//            title = res.title,
+//            message = res.message,
+//            titleIcon = if (isError) Icons.Default.Warning else Icons.Default.Check,
+//            titleColor = if (isError) MaterialTheme.colorScheme.error else Color.Green,
+//            copy = isError,
+//            onDismiss = {},
+//            onValidate = { backupViewModel.setResult(null) }
+//        )
+//    }
 }
 
 

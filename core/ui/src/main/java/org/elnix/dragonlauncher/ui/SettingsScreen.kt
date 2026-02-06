@@ -40,6 +40,7 @@ import androidx.compose.material.icons.filled.Home
 import androidx.compose.material.icons.filled.MoreVert
 import androidx.compose.material.icons.filled.Refresh
 import androidx.compose.material.icons.filled.Remove
+import androidx.compose.material.icons.filled.Restore
 import androidx.compose.material.icons.filled.Settings
 import androidx.compose.material3.DropdownMenu
 import androidx.compose.material3.Icon
@@ -107,12 +108,13 @@ import org.elnix.dragonlauncher.settings.stores.DrawerSettingsStore
 import org.elnix.dragonlauncher.settings.stores.SwipeSettingsStore
 import org.elnix.dragonlauncher.settings.stores.UiSettingsStore
 import org.elnix.dragonlauncher.ui.components.AppPreviewTitle
-import org.elnix.dragonlauncher.ui.components.DragonIconButton
 import org.elnix.dragonlauncher.ui.components.burger.BurgerAction
 import org.elnix.dragonlauncher.ui.components.burger.BurgerListAction
+import org.elnix.dragonlauncher.ui.components.dragon.DragonIconButton
 import org.elnix.dragonlauncher.ui.dialogs.AddPointDialog
 import org.elnix.dragonlauncher.ui.dialogs.EditPointDialog
 import org.elnix.dragonlauncher.ui.dialogs.NestManagementDialog
+import org.elnix.dragonlauncher.ui.dialogs.UserValidation
 import org.elnix.dragonlauncher.ui.helpers.CircleIconButton
 import org.elnix.dragonlauncher.ui.helpers.RepeatingPressButton
 import org.elnix.dragonlauncher.ui.helpers.nests.circlesSettingsOverlay
@@ -180,6 +182,7 @@ fun SettingsScreen(
 
 //    var showDeleteNestDialog by remember { mutableStateOf<Int?>(null) }
     var showNestManagementDialog by remember { mutableStateOf(false) }
+    var showResetPointsAndNestsDialog by remember { mutableStateOf(false) }
 
     /** ──────────────────── NESTS SYSTEM ────────────────────
      * - Collects the nests from the datastore, then initialize the base nest to 0 (always the default)
@@ -390,7 +393,7 @@ fun SettingsScreen(
     }
 
     // Load points
-    LaunchedEffect(Unit) {
+    LaunchedEffect(Unit, showResetPointsAndNestsDialog) {
         val saved = SwipeSettingsStore.getPoints(ctx)
         points.clear()
         try {
@@ -498,6 +501,7 @@ fun SettingsScreen(
                             },
                             BurgerAction(
                                 onClick = {
+                                    showBurgerMenu = false
                                     appsViewModel.preloadPointIcons(
                                         points = points,
                                         sizePx = sizePx,
@@ -528,16 +532,19 @@ fun SettingsScreen(
                                 )
                             },
                             BurgerAction(
-                                onClick = { onNestEdit(currentNest.id) }
+                                onClick = {
+                                    showBurgerMenu = false
+                                    showResetPointsAndNestsDialog = true
+                                }
                             ) {
                                 Icon(
-                                    imageVector = Icons.Default.ChangeCircle,
-                                    tint = MaterialTheme.colorScheme.onSurface,
+                                    imageVector = Icons.Default.Restore,
+                                    tint = MaterialTheme.colorScheme.error,
                                     contentDescription = null
                                 )
                                 Text(
-                                    text = stringResource(R.string.toggle_drag_distances_editing),
-                                    color = MaterialTheme.colorScheme.onSurface
+                                    text = stringResource(R.string.reset_all_points),
+                                    color = MaterialTheme.colorScheme.error
                                 )
                             }
                         )
@@ -1173,7 +1180,6 @@ fun SettingsScreen(
                     // Delete nest, leave points on it for now
                     pendingNestUpdate = nests.filter { it.id != nestToDelete }
                 }
-
             },
             onSelect = {
                 nestNavigation.goToNest(it.id)
@@ -1214,6 +1220,25 @@ fun SettingsScreen(
         }
     }
 
+    if (showResetPointsAndNestsDialog) {
+        UserValidation(
+            title = stringResource(R.string.reset_all_points),
+            message = stringResource(R.string.reset_all_points_desc),
+            onDismiss = { showResetPointsAndNestsDialog = false }
+        ) {
+            scope.launch {
+                SwipeSettingsStore.resetAll(ctx)
+                selectedPoint = null
+                showResetPointsAndNestsDialog = false
+            }
+        }
+    }
+
+
+    /**
+     * Debug Infos section
+     * Shows various information about the current settings state, may be unreadable when lots of points
+     */
     if (settingsDebugInfos) {
         Box(
             modifier = Modifier
