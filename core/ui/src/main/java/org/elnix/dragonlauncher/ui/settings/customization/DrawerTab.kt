@@ -53,10 +53,10 @@ import org.elnix.dragonlauncher.ui.components.TextDivider
 import org.elnix.dragonlauncher.ui.components.settings.DrawerActionSelector
 import org.elnix.dragonlauncher.ui.components.settings.SettingsSlider
 import org.elnix.dragonlauncher.ui.components.settings.SettingsSwitchRow
+import org.elnix.dragonlauncher.ui.components.settings.asState
 import org.elnix.dragonlauncher.ui.dialogs.ShapePickerDialog
 import org.elnix.dragonlauncher.ui.helpers.GridSizeSlider
 import org.elnix.dragonlauncher.ui.helpers.ShapeRow
-import org.elnix.dragonlauncher.ui.helpers.SwitchRow
 import org.elnix.dragonlauncher.ui.helpers.settings.SettingsLazyHeader
 
 
@@ -72,29 +72,14 @@ fun DrawerTab(
     val apps by appsViewModel.userApps.collectAsState(initial = emptyList())
     val icons by appsViewModel.icons.collectAsState()
 
-    val showAppIconsInDrawer by DrawerSettingsStore.showAppIconsInDrawer.flow(ctx)
-        .collectAsState(initial = true)
+    val leftDrawerAction by DrawerSettingsStore.leftDrawerAction.asState()
 
-    val showAppLabelsInDrawer by DrawerSettingsStore.showAppLabelInDrawer.flow(ctx)
-        .collectAsState(initial = true)
+    val rightDrawerAction by DrawerSettingsStore.rightDrawerAction.asState()
 
-//    val searchBarBottom by DrawerSettingsStore.getSearchBarBottom(ctx)
-//        .collectAsState(initial = true)
+    val leftDrawerWidth by DrawerSettingsStore.leftDrawerWidth.asState()
+    val rightDrawerWidth by DrawerSettingsStore.rightDrawerWidth.asState()
 
-
-    val leftDrawerAction by DrawerSettingsStore.leftDrawerAction.flow(ctx)
-        .collectAsState(initial = DrawerActions.TOGGLE_KB)
-
-    val rightDrawerAction by DrawerSettingsStore.rightDrawerAction.flow(ctx)
-        .collectAsState(initial = DrawerActions.CLOSE)
-
-    val leftDrawerWidth by DrawerSettingsStore.leftDrawerWidth.flow(ctx)
-        .collectAsState(initial = 0.1f)
-    val rightDrawerWidth by DrawerSettingsStore.rightDrawerWidth.flow(ctx)
-        .collectAsState(initial = 0.1f)
-
-    val iconsShape by DrawerSettingsStore.iconsShape.flow(ctx)
-        .collectAsState(DrawerSettingsStore.iconsShape.default)
+    val iconsShape by DrawerSettingsStore.iconsShape.asState()
 
     var totalWidthPx by remember { mutableFloatStateOf(0f) }
 
@@ -143,30 +128,31 @@ fun DrawerTab(
             )
         }
 
-
-//        item {
-//            SwitchRow(
-//                searchBarBottom,
-//                "Search bar ${if (searchBarBottom) "Bottom" else "Top"}",
-//                enabled = false
-//            ) { scope.launch { DrawerSettingsStore.setSearchBarBottom(ctx, it) } }
-//        }
-
         item { TextDivider(stringResource(R.string.appearance)) }
 
 
         item {
-            SwitchRow(
-                showAppIconsInDrawer,
-                "Show App Icons in Drawer",
-            ) { scope.launch { DrawerSettingsStore.showAppIconsInDrawer.set(ctx, it) } }
+            SettingsSwitchRow(
+                setting = DrawerSettingsStore.showAppIconsInDrawer,
+                title = stringResource(R.string.show_app_icons_in_drawer),
+                description = stringResource(R.string.show_app_icons_in_drawer_desc)
+            )
         }
 
         item {
-            SwitchRow(
-                showAppLabelsInDrawer,
-                "Show App Labels in Drawer",
-            ) { scope.launch { DrawerSettingsStore.showAppLabelInDrawer.set(ctx, it) } }
+            SettingsSwitchRow(
+                setting = DrawerSettingsStore.showAppLabelInDrawer,
+                title = stringResource(R.string.show_app_labels_in_drawer),
+                description = stringResource(R.string.show_app_labels_in_drawer_desc)
+            )
+        }
+
+        item {
+            SettingsSwitchRow(
+                setting = DrawerSettingsStore.useCategories,
+                title = stringResource(R.string.use_categories),
+                description = stringResource(R.string.use_categories_desc)
+            )
         }
 
         item {
@@ -178,6 +164,7 @@ fun DrawerTab(
             ) {
                 SettingsSlider(
                     setting = DrawerSettingsStore.maxIconSize,
+                    description = stringResource(R.string.max_icon_size_desc),
                     title = stringResource(R.string.max_icon_size),
                     valueRange = 0..200
                 )
@@ -185,12 +172,14 @@ fun DrawerTab(
                 SettingsSlider(
                     setting = DrawerSettingsStore.iconsSpacingHorizontal,
                     title = stringResource(R.string.icons_spacing_horizontal),
+                    description = stringResource(R.string.icons_spacing_horizontal_desc),
                     valueRange = 0..50
                 )
 
                 SettingsSlider(
                     setting = DrawerSettingsStore.iconsSpacingVertical,
                     title = stringResource(R.string.icons_spacing_vertical),
+                    description = stringResource(R.string.icons_spacing_vertical_desc),
                     valueRange = 0..50
                 )
             }
@@ -199,9 +188,7 @@ fun DrawerTab(
         item {
             GridSizeSlider(
                 apps = apps,
-                icons = icons,
-                showIcons = showAppIconsInDrawer,
-                showLabels = showAppLabelsInDrawer
+                icons = icons
             )
         }
 

@@ -4,7 +4,6 @@ package org.elnix.dragonlauncher.ui.components.settings
 
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -26,7 +25,7 @@ fun SettingsSwitchRow(
     val ctx = LocalContext.current
     val scope = rememberCoroutineScope()
 
-    val state by setting.flow(ctx).collectAsState(setting.default)
+    val state by setting.asState()
 
     var tempState by remember { mutableStateOf(state) }
 

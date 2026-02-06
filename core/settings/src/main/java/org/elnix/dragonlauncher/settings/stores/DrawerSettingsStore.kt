@@ -146,6 +146,12 @@ object DrawerSettingsStore : MapSettingsStore() {
         default = 96
     )
 
+    val useCategories = Settings.boolean(
+        key = "useCategories",
+        dataStoreName = dataStoreName,
+        default = false
+    )
+
 
     override val ALL: List<BaseSettingObject<*,*>>
         get() = listOf(
@@ -165,6 +171,10 @@ object DrawerSettingsStore : MapSettingsStore() {
             drawerHomeAction,
             scrollDownDrawerAction,
             scrollUpDrawerAction,
-            iconsShape
+            iconsShape,
+            iconsSpacingVertical,
+            iconsSpacingHorizontal,
+            maxIconSize,
+            useCategories
         )
 }
