@@ -1,35 +1,36 @@
-package org.elnix.dragonlauncher.ui.components
+package org.elnix.dragonlauncher.ui.modifiers
 
 import androidx.compose.animation.core.animateDp
 import androidx.compose.animation.core.updateTransition
+import androidx.compose.foundation.Indication
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.interaction.collectIsPressedAsState
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material3.IconButton
-import androidx.compose.material3.IconButtonColors
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
+import androidx.compose.ui.semantics.Role
 import org.elnix.dragonlauncher.ui.UiConstants
-import org.elnix.dragonlauncher.ui.colors.AppObjectsColors
 
 
 @Composable
-fun DragonIconButton(
-    onClick: () -> Unit,
-    modifier: Modifier = Modifier,
+fun Modifier.shapedClickable(
+    indication: Indication?,
     enabled: Boolean = true,
-    colors: IconButtonColors = AppObjectsColors.iconButtonColors(),
-    content: @Composable () -> Unit,
-) {
+    onClickLabel: String? = null,
+    role: Role? = null,
+    onClick: () -> Unit,
+): Modifier {
 
     val interactionSource = remember { MutableInteractionSource() }
     val isPressed by interactionSource.collectIsPressedAsState()
 
     val transition = updateTransition(
         targetState = isPressed,
-        label = "button_press_transition"
+        label = "press_transition"
     )
 
     val shapeRound by transition.animateDp(
@@ -42,13 +43,14 @@ fun DragonIconButton(
     val shape = RoundedCornerShape(shapeRound)
 
 
-    IconButton(
-        onClick = onClick,
-        modifier = modifier,
-        enabled = enabled,
-        colors = colors,
+    return this
+        .clip(shape)
+        .clickable(
         interactionSource = interactionSource,
-        shape = shape,
-        content = content
+        indication = indication,
+        enabled = enabled,
+        onClickLabel = onClickLabel,
+        role = role,
+        onClick = onClick
     )
 }

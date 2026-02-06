@@ -4,16 +4,18 @@ package org.elnix.dragonlauncher.ui.components.generic
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.IntrinsicSize
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
-import androidx.compose.foundation.layout.wrapContentWidth
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.RadioButton
 import androidx.compose.material3.Switch
@@ -42,53 +44,68 @@ fun <T> ActionSelectorRow(
     selected: T,
     enabled: Boolean = true,
     switchEnabled: Boolean = true,
-    label: String? = null,
+    label: String,
     backgroundColor: Color = MaterialTheme.colorScheme.surface,
     surfaceColor: Color = MaterialTheme.colorScheme.surface,
     textColor: Color = MaterialTheme.colorScheme.onSurface,
     optionLabel: (T) -> String = { it.toString() },
-    onToggle: ((Boolean) -> Unit)? = null,
     toggled: Boolean? = null,
-    onSelected: (T) -> Unit
+    onSelected: (T?) -> Unit
 ) {
     var showDialog by remember { mutableStateOf(false) }
 
-    val baseModifier = if (label != null) Modifier.fillMaxWidth() else Modifier.wrapContentWidth()
+    val baseModifier = Modifier.fillMaxWidth()
+
+    val switchInteractionSource = remember { MutableInteractionSource() }
 
     Row(
         verticalAlignment = Alignment.CenterVertically,
-        horizontalArrangement = if (label != null) Arrangement.SpaceBetween else Arrangement.Center,
         modifier = baseModifier
             .clip(DragonShape)
+            .height(IntrinsicSize.Max)
             .background(
                 color = backgroundColor.copy(if (enabled) 1f else 0.5f),
             )
-            .clickable(enabled) { showDialog = true }
-            .padding(horizontal = 16.dp, vertical = 14.dp)
     ) {
-        if (label != null) {
+        Row(
+            verticalAlignment = Alignment.CenterVertically,
+            horizontalArrangement = Arrangement.SpaceBetween,
+            modifier = Modifier
+                .weight(1f)
+                .fillMaxHeight()
+                .clickable(enabled) { showDialog = true }
+                .padding(horizontal = 16.dp, vertical = 14.dp)
+        ) {
             Text(
                 text = label,
                 color = textColor.copy(if (enabled) 1f else 0.5f),
-                style = MaterialTheme.typography.bodyLarge,
-                modifier = Modifier.weight(1f)
+                style = MaterialTheme.typography.bodyLarge
             )
-        }
 
-        if (toggled == true) {
             Text(
                 text = optionLabel(selected),
                 color = textColor.adjustBrightness(if (enabled) 1f else 0.5f),
                 style = MaterialTheme.typography.labelLarge
             )
+
         }
 
         // Right side toggle + divider wrapped in a clickable container
-        if (onToggle != null && toggled != null) {
+        if (toggled != null) {
             Row(
                 verticalAlignment = Alignment.CenterVertically,
                 modifier = Modifier
-                    .clickable(enabled = switchEnabled) { onToggle(!toggled) }
+                    .clickable(enabled = switchEnabled) {
+                        if (!toggled) {
+                            // Not toggled show dialog to select an entry
+                            showDialog = true
+                        } else {
+                            // Disables, selects nothing
+                            onSelected(null)
+                        }
+                    }
+                    .fillMaxHeight()
+                    .padding(top = 10.dp, bottom = 10.dp, end = 10.dp)
             ) {
                 VerticalDivider(
                     modifier = Modifier
@@ -101,8 +118,8 @@ fun <T> ActionSelectorRow(
                 Switch(
                     checked = toggled,
                     enabled = switchEnabled,
-                    onCheckedChange = { onToggle(it) },
-                    colors = AppObjectsColors.switchColors()
+                    onCheckedChange = null,
+                    colors = AppObjectsColors.switchColors(),
                 )
             }
         }

@@ -3,7 +3,6 @@ package org.elnix.dragonlauncher.ui.dialogs
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
@@ -18,10 +17,10 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import org.elnix.dragonlauncher.common.R
-import org.elnix.dragonlauncher.ui.components.ValidateCancelButtons
 import org.elnix.dragonlauncher.common.serializables.WorkspaceType
 import org.elnix.dragonlauncher.ui.UiConstants.DragonShape
 import org.elnix.dragonlauncher.ui.colors.AppObjectsColors
+import org.elnix.dragonlauncher.ui.components.ValidateCancelButtons
 import org.elnix.dragonlauncher.ui.components.generic.ActionSelectorRow
 
 @Composable
@@ -70,10 +69,9 @@ fun CreateOrEditWorkspaceDialog(
                     options = WorkspaceType.entries,
                     selected = selectedType,
                     switchEnabled = false,
-                    toggled = true,
                     label = stringResource(R.string.workspace_type)
                 ) {
-                    selectedType = it
+                    selectedType = it!!
                 }
             }
         },

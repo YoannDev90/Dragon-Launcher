@@ -2,7 +2,6 @@ package org.elnix.dragonlauncher.ui.components.settings
 
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -23,7 +22,7 @@ fun DrawerActionSelector(
     val ctx = LocalContext.current
     val scope = rememberCoroutineScope()
 
-    val state by settingObject.flow(ctx).collectAsState(settingObject.default)
+    val state by settingObject.asState()
 
     var tempState by remember { mutableStateOf(state) }
 
@@ -36,15 +35,9 @@ fun DrawerActionSelector(
         selected = tempState,
         label = label,
         optionLabel = { drawerActionsLabel(ctx, it) },
-        onToggle = { enabled ->
-            tempState = DrawerActions.DISABLED
-            scope.launch {
-                settingObject.reset(ctx)
-            }
-        },
         toggled = stateNotDisabled
     ) {
-        tempState = it
+        tempState = it ?: DrawerActions.DISABLED
         scope.launch {
             settingObject.set(ctx, tempState)
         }
