@@ -1,4 +1,4 @@
-T2.4.0
+2.4.0
 2026-02-01
 [NEW]
 * Added Digital Wellbeing screen
