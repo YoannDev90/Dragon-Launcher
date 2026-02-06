@@ -60,6 +60,7 @@ import org.elnix.dragonlauncher.ui.components.TextDivider
 import org.elnix.dragonlauncher.ui.components.ValidateCancelButtons
 import org.elnix.dragonlauncher.ui.components.generic.ActionRow
 import org.elnix.dragonlauncher.ui.components.settings.asState
+import org.elnix.dragonlauncher.ui.helpers.ShapeRow
 import org.elnix.dragonlauncher.ui.helpers.SliderWithLabel
 import org.elnix.dragonlauncher.ui.theme.LocalExtraColors
 import kotlin.math.max
@@ -83,6 +84,8 @@ fun EditPointDialog(
     var editPoint by remember { mutableStateOf(point) }
     var showEditIconDialog by remember { mutableStateOf(false) }
     var showEditActionDialog by remember { mutableStateOf(false) }
+    var showShapePickerDialog by remember { mutableStateOf(false) }
+    var showSelectedShapePickerDialog by remember { mutableStateOf(false) }
 
     val circleColor by ColorSettingsStore.circleColor.asState()
 
@@ -365,7 +368,6 @@ fun EditPointDialog(
                     item {
                         ColorPickerRow(
                             label = stringResource(R.string.custom_action_color),
-//                            defaultColor = currentActionColor,
                             currentColor = editPoint.customActionColor?.let { Color(it) }
                                 ?: currentActionColor,
                             backgroundColor = backgroundSurfaceColor
@@ -379,7 +381,6 @@ fun EditPointDialog(
                     Column(
                         modifier = Modifier
                             .fillMaxWidth()
-                            .padding(10.dp)
                             .clip(DragonShape)
                             .background(backgroundSurfaceColor)
                             .padding(10.dp),
@@ -421,7 +422,6 @@ fun EditPointDialog(
                         Column(
                             modifier = Modifier
                                 .fillMaxWidth()
-                                .padding(10.dp)
                                 .clip(DragonShape)
                                 .background(backgroundSurfaceColor)
                                 .padding(10.dp),
@@ -442,7 +442,6 @@ fun EditPointDialog(
 
                             ColorPickerRow(
                                 label = stringResource(R.string.border_color),
-//                                defaultColor = defaultBorderColor,
                                 currentColor = editPoint.borderColor?.let { Color(it) }
                                     ?: defaultBorderColor
                             ) { selectedColor ->
@@ -451,7 +450,6 @@ fun EditPointDialog(
 
                             ColorPickerRow(
                                 label = stringResource(R.string.background_color),
-//                                defaultColor = defaultBackgroundColor,
                                 currentColor = editPoint.backgroundColor?.let { Color(it) }
                                     ?: defaultBackgroundColor
                             ) { selectedColor ->
@@ -460,6 +458,13 @@ fun EditPointDialog(
                                         ?.toArgb()
                                 )
                             }
+
+                            ShapeRow(
+                                selected = editPoint.borderShape ?: defaultSwipePointsValues.borderShape!!,
+                                onReset = {
+                                    editPoint = editPoint.copy(borderShape = null)
+                                }
+                            ) { showShapePickerDialog = true }
                         }
                     }
                 } else {
@@ -468,7 +473,6 @@ fun EditPointDialog(
                         Column(
                             modifier = Modifier
                                 .fillMaxWidth()
-                                .padding(10.dp)
                                 .clip(DragonShape)
                                 .background(backgroundSurfaceColor)
                                 .padding(10.dp),
@@ -509,6 +513,13 @@ fun EditPointDialog(
                                         ?.toArgb()
                                 )
                             }
+
+                            ShapeRow(
+                                selected = editPoint.borderShapeSelected ?: defaultSwipePointsValues.borderShapeSelected!!,
+                                onReset = {
+                                    editPoint = editPoint.copy(borderShapeSelected = null)
+                                }
+                            ) { showSelectedShapePickerDialog = true }
                         }
                     }
                 }
@@ -516,16 +527,26 @@ fun EditPointDialog(
 
                 if (!isDefaultEditing) {
                     item {
-                        SliderWithLabel(
-                            value = editPoint.haptic ?: 0,
-                            label = stringResource(R.string.haptic_feedback),
-                            valueRange = 0..1000,
-                            color = MaterialTheme.colorScheme.primary,
-                            onReset = {
-                                editPoint = editPoint.copy(haptic = null)
-                            }
+                        Column(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .padding(10.dp)
+                                .clip(DragonShape)
+                                .background(backgroundSurfaceColor)
+                                .padding(10.dp),
+                            verticalArrangement = Arrangement.spacedBy(5.dp)
                         ) {
-                            editPoint = editPoint.copy(haptic = it)
+                            SliderWithLabel(
+                                value = editPoint.haptic ?: 0,
+                                label = stringResource(R.string.haptic_feedback),
+                                valueRange = 0..1000,
+                                color = MaterialTheme.colorScheme.primary,
+                                onReset = {
+                                    editPoint = editPoint.copy(haptic = null)
+                                }
+                            ) {
+                                editPoint = editPoint.copy(haptic = it)
+                            }
                         }
                     }
                 }
@@ -559,6 +580,30 @@ fun EditPointDialog(
         ) { selectedAction ->
             editPoint = editPoint.copy(action = selectedAction)
             showEditActionDialog = false
+        }
+    }
+
+    if (showShapePickerDialog) {
+        ShapePickerDialog(
+            selected = editPoint.borderShape ?: defaultSwipePointsValues.borderShape!!,
+            onDismiss = { showShapePickerDialog = false }
+        ) {
+            editPoint = editPoint.copy(borderShape = it)
+
+
+            showShapePickerDialog = false
+        }
+    }
+
+    if (showSelectedShapePickerDialog) {
+        ShapePickerDialog(
+            selected = editPoint.borderShapeSelected ?: defaultSwipePointsValues.borderShapeSelected!!,
+            onDismiss = { showSelectedShapePickerDialog = false }
+        ) {
+            editPoint = editPoint.copy(borderShapeSelected = it)
+
+
+            showSelectedShapePickerDialog = false
         }
     }
 }

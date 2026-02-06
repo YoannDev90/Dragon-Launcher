@@ -49,7 +49,6 @@ import com.canhub.cropper.CropImageView
 import kotlinx.coroutines.launch
 import org.elnix.dragonlauncher.common.R
 import org.elnix.dragonlauncher.common.serializables.CustomIconSerializable
-import org.elnix.dragonlauncher.common.serializables.IconShape
 import org.elnix.dragonlauncher.common.serializables.IconType
 import org.elnix.dragonlauncher.common.serializables.SwipePointSerializable
 import org.elnix.dragonlauncher.common.serializables.defaultSwipePointsValues
@@ -475,7 +474,7 @@ fun IconEditorDialog(
 
     if (showShapePickerDialog) {
         ShapePickerDialog(
-            selected = selectedIcon?.shape ?: IconShape.PlatformDefault,
+            selected = selectedIcon?.shape ?: iconsShape,
             onDismiss = { showShapePickerDialog = false }
         ) {
             selectedIcon = (selectedIcon ?: CustomIconSerializable()).copy(

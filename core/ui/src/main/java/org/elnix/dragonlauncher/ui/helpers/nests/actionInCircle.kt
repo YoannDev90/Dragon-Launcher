@@ -4,12 +4,16 @@ import android.content.Context
 import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.snapshots.SnapshotStateList
 import androidx.compose.ui.geometry.Offset
+import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.graphics.BlendMode
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.ColorFilter
 import androidx.compose.ui.graphics.ImageBitmap
+import androidx.compose.ui.graphics.Outline
+import androidx.compose.ui.graphics.Path
 import androidx.compose.ui.graphics.drawscope.DrawScope
 import androidx.compose.ui.graphics.drawscope.Stroke
+import androidx.compose.ui.graphics.drawscope.translate
 import androidx.compose.ui.unit.Density
 import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.IntSize
@@ -75,6 +79,12 @@ fun DrawScope.actionsInCircle(
         point.borderStroke ?: defaultPoint.borderStroke ?: 4f
     }
 
+    val borderIconShape = if (selected) {
+        point.borderShapeSelected ?: defaultPoint.borderShapeSelected
+    } else point.borderShape ?: defaultPoint.borderShape
+        ?: IconShape.Circle
+
+    val borderShape = resolveShape(borderIconShape)
 
     val backgroundColor = if (selected) {
         point.backgroundColorSelected?.let { Color(it) }
@@ -93,36 +103,68 @@ fun DrawScope.actionsInCircle(
 //    if (preventBgErasing) backgroundColor = backgroundColor.copy(1f)
 
     if (action !is SwipeActionSerializable.OpenCircleNest) {
+
+
+        val iconSizeF = borderRadii * 2f
+
+
+        val outline = borderShape.createOutline(
+            size = Size(iconSizeF, iconSizeF),
+            layoutDirection = layoutDirection,
+            density = this
+        )
+
+        val path = when (outline) {
+            is Outline.Rectangle -> Path().apply { addRect(outline.rect) }
+            is Outline.Rounded -> Path().apply { addRoundRect(outline.roundRect) }
+            is Outline.Generic -> outline.path
+        }
+
         // if no background color provided, erases the background
         val eraseBg = backgroundColor == Color.Transparent && !preventBgErasing
 
-        // Erases the color, instead of putting it, that lets the wallpaper pass trough
-        if (eraseBg) {
-            drawCircle(
-                color = Color.Transparent,
-                radius = borderRadii,
-                center = center,
-                blendMode = BlendMode.Clear
-            )
-        } else {
-            drawCircle(
-                color = backgroundColor, radius = borderRadii, center = center
-            )
-        }
 
-        if (borderColor.alpha != 0f && borderStroke > 0f) {
-            drawCircle(
-                color = borderColor,
-                radius = borderRadii,
-                center = center,
-                style = Stroke(borderStroke)
-            )
+//        drawCircle(
+//            color = Color.Red,
+//            center = center,
+//            radius = 8f
+//        )
+        // Move drawing to icon position
+        translate(
+            left = center.x - borderRadii,
+            top = center.y - borderRadii
+        ) {
+
+
+            if (eraseBg) {
+                // Erases the color, instead of putting it, that lets the wallpaper pass trough
+                drawPath(
+                    path = path,
+                    color = borderColor,
+                    style = Stroke(width = borderStroke),
+                    blendMode = BlendMode.Clear
+                )
+            } else {
+                drawPath(
+                    path = path,
+                    color = backgroundColor,
+                    style = Stroke(width = borderStroke)
+                )
+            }
+            if (borderColor.alpha != 0f && borderStroke > 0f) {
+
+                drawPath(
+                    path = path,
+                    color = borderColor,
+                    style = Stroke(width = borderStroke)
+
+                )
+            }
         }
 
 
         val icon = point.id.let { pointIcons[it] }
         val colorAction = actionColor(point.action, extraColors)
-
 
 
 
@@ -155,11 +197,11 @@ fun DrawScope.actionsInCircle(
 
 
             nest.dragDistances.filter { it.key != -1 }.forEach { (index, _) ->
-                    val radius = (100f / depth) * circlesWidthIncrement * (index + 1)
-                    newCircles.add(
-                        UiCircle(index, radius)
-                    )
-                }
+                val radius = (100f / depth) * circlesWidthIncrement * (index + 1)
+                newCircles.add(
+                    UiCircle(index, radius)
+                )
+            }
 
             if (depth < nest.parent(nests).depth) {
                 circlesSettingsOverlay(

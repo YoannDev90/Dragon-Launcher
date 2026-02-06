@@ -34,7 +34,9 @@ val defaultSwipePointsValues = dummySwipePoint(null).copy(
     opacity = 1f,
     cornerRadius = null,
     innerPadding = 16,
-    size = 56
+    size = 56,
+    borderShape = IconShape.Circle,
+    borderShapeSelected = IconShape.Circle
 )
 
 

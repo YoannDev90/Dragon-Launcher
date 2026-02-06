@@ -87,7 +87,19 @@ data class SwipePointSerializable(
 
     /** Optional size override */
     @SerializedName("s")
-    val size: Int? = null
+    val size: Int? = null,
+
+    /**
+     * Shape of the border icon, default is a circle
+     */
+    @SerializedName("borderShape")
+    val borderShape: IconShape? = IconShape.Circle,
+
+    /**
+     * Shape of the selected border icon, default is a circle
+     */
+    @SerializedName("borderShapeSelected")
+    val borderShapeSelected: IconShape? = IconShape.Circle
 )
 
 
