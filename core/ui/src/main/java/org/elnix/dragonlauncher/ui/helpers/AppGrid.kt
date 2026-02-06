@@ -13,14 +13,18 @@ import androidx.compose.foundation.layout.sizeIn
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
+import androidx.compose.foundation.lazy.grid.items
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -34,6 +38,7 @@ import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
+import org.elnix.dragonlauncher.common.serializables.AppCategory
 import org.elnix.dragonlauncher.common.serializables.AppModel
 import org.elnix.dragonlauncher.common.serializables.IconShape
 import org.elnix.dragonlauncher.settings.stores.DrawerSettingsStore
@@ -51,6 +56,7 @@ fun AppGrid(
     txtColor: Color,
     showIcons: Boolean,
     showLabels: Boolean,
+    useCategory: Boolean = false,
     onLongClick: ((AppModel) -> Unit)? = null,
     onScrollDown: (() -> Unit)? = null,
     onScrollUp: (() -> Unit)? = null,
@@ -67,6 +73,17 @@ fun AppGrid(
     val iconsSpacingHorizontal by DrawerSettingsStore.iconsSpacingHorizontal.flow(ctx)
         .collectAsState(DrawerSettingsStore.iconsSpacingHorizontal.default)
 
+
+    var openedCategory by remember { mutableStateOf<AppCategory?>(null) }
+
+    val visibleApps by remember { derivedStateOf {
+
+        // Only display the apps that belongs to the selected category, if enabled
+        apps.filter {
+            if (useCategory) openedCategory?.let { cat -> cat == it.category } ?: true
+            else true
+        }
+    } }
 
     val listState = rememberLazyListState()
     val nestedConnection = remember {
@@ -95,79 +112,84 @@ fun AppGrid(
         }
     }
 
-    if (gridSize == 1) {
-        LazyColumn(
-            state = listState,
-            modifier = Modifier
-                .fillMaxSize()
-                .then(
-                    if (onScrollDown != null) Modifier.nestedScroll(nestedConnection)
-                    else Modifier
-                )
-        ) {
-            items(apps, key = { it.packageName }) { app ->
-                AppItem(
-                    app = app,
-                    showIcons = showIcons,
-                    showLabels = showLabels,
-                    txtColor = txtColor,
-                    icons = icons,
-                    iconsSpacing = iconsSpacingVertical,
-                    shape = resolveShape(iconShape),
-                    onClick = { onClick(app) },
-                    onLongClick = if (onLongClick != null) { { onLongClick(app) } } else null
-                )
+    when {
+        useCategory && openedCategory != null -> {
+            TODO("Display categories")
+        }
+
+        gridSize == 1 -> {
+            LazyColumn(
+                state = listState,
+                modifier = Modifier
+                    .fillMaxSize()
+                    .then(
+                        if (onScrollDown != null) Modifier.nestedScroll(nestedConnection)
+                        else Modifier
+                    )
+            ) {
+                items(visibleApps, key = { it.packageName }) { app ->
+                    AppItem(
+                        app = app,
+                        showIcons = showIcons,
+                        showLabels = showLabels,
+                        txtColor = txtColor,
+                        icons = icons,
+                        iconsSpacing = iconsSpacingVertical,
+                        shape = resolveShape(iconShape),
+                        onClick = { onClick(app) },
+                        onLongClick = if (onLongClick != null) {
+                            { onLongClick(app) }
+                        } else null
+                    )
+                }
             }
         }
-    } else {
-        LazyVerticalGrid(
-            columns = GridCells.Fixed(gridSize),
-            modifier = Modifier
-                .fillMaxSize()
-                .then(
-                    if (onScrollDown != null) Modifier.nestedScroll(nestedConnection)
-                    else Modifier
-                ),
-//            verticalArrangement = Arrangement.spacedBy(iconsSpacing.dp),
-//            horizontalArrangement = Arrangement.spacedBy(iconsSpacing.dp)
-        ) {
-            items(apps.size) { index ->
-                val app = apps[index]
+        else -> {
+            LazyVerticalGrid(
+                columns = GridCells.Fixed(gridSize),
+                modifier = Modifier
+                    .fillMaxSize()
+                    .then(
+                        if (onScrollDown != null) Modifier.nestedScroll(nestedConnection)
+                        else Modifier
+                    )
+            ) {
+                items(visibleApps, key = { it.packageName }) { app ->
+                    Column(
+                        horizontalAlignment = Alignment.CenterHorizontally,
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .clip(DragonShape)
+                            .combinedClickable(
+                                onLongClick = if (onLongClick != null) {
+                                    { onLongClick(app) }
+                                } else null
+                            ) { onClick(app) }
+                            .padding(iconsSpacingHorizontal.dp, iconsSpacingVertical.dp)
+                    ) {
+                        if (showIcons) {
+                            Image(
+                                painter = appIcon(app.packageName, icons),
+                                contentDescription = app.name,
+                                modifier = Modifier
+                                    .sizeIn(maxWidth = maxIconSize.dp)
+                                    .aspectRatio(1f)
+                                    .clip(resolveShape(iconShape)),
+                                contentScale = ContentScale.Fit
+                            )
+                        }
 
-                Column(
-                    horizontalAlignment = Alignment.CenterHorizontally,
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .clip(DragonShape)
-                        .combinedClickable(
-                            onLongClick = if (onLongClick != null) {
-                                { onLongClick(app) }
-                            } else null
-                        ) { onClick(app) }
-                        .padding(iconsSpacingHorizontal.dp, iconsSpacingVertical.dp)
-                ) {
-                    if (showIcons) {
-                        Image(
-                            painter = appIcon(app.packageName, icons),
-                            contentDescription = app.name,
-                            modifier = Modifier
-                                .sizeIn(maxWidth = maxIconSize.dp)
-                                .aspectRatio(1f)
-                                .clip(resolveShape(iconShape)),
-                            contentScale = ContentScale.Fit
-                        )
-                    }
+                        if (showLabels) {
+                            Spacer(Modifier.height(6.dp))
 
-                    if (showLabels) {
-                        Spacer(Modifier.height(6.dp))
-
-                        Text(
-                            text = app.name,
-                            color = txtColor,
-                            style = MaterialTheme.typography.labelSmall,
-                            maxLines = 1,
-                            overflow = TextOverflow.Ellipsis
-                        )
+                            Text(
+                                text = app.name,
+                                color = txtColor,
+                                style = MaterialTheme.typography.labelSmall,
+                                maxLines = 1,
+                                overflow = TextOverflow.Ellipsis
+                            )
+                        }
                     }
                 }
             }

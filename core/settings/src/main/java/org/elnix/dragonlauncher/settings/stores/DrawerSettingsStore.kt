@@ -146,10 +146,16 @@ object DrawerSettingsStore : MapSettingsStore() {
         default = 96
     )
 
-    val useCategories = Settings.boolean(
-        key = "useCategories",
+    val useCategory = Settings.boolean(
+        key = "useCategory",
         dataStoreName = dataStoreName,
         default = false
+    )
+
+    val categoryGridWidth = Settings.int(
+        key = "categoryGridWidth",
+        dataStoreName = dataStoreName,
+        default = 2
     )
 
 
@@ -175,6 +181,6 @@ object DrawerSettingsStore : MapSettingsStore() {
             iconsSpacingVertical,
             iconsSpacingHorizontal,
             maxIconSize,
-            useCategories
+            useCategory
         )
 }

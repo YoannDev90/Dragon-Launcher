@@ -2,6 +2,8 @@
 
 package org.elnix.dragonlauncher.ui.settings.customization
 
+import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.animation.core.Animatable
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.gestures.detectDragGestures
@@ -16,6 +18,7 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.ChevronRight
 import androidx.compose.material.icons.filled.Restore
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
@@ -33,6 +36,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.draw.rotate
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.layout.onGloballyPositioned
 import androidx.compose.ui.platform.LocalContext
@@ -43,7 +47,6 @@ import kotlinx.coroutines.launch
 import org.elnix.dragonlauncher.common.R
 import org.elnix.dragonlauncher.common.logging.logD
 import org.elnix.dragonlauncher.common.utils.SHAPES_TAG
-import org.elnix.dragonlauncher.common.utils.colors.adjustBrightness
 import org.elnix.dragonlauncher.enumsui.DrawerActions
 import org.elnix.dragonlauncher.enumsui.drawerActionIcon
 import org.elnix.dragonlauncher.models.AppsViewModel
@@ -80,6 +83,8 @@ fun DrawerTab(
     val rightDrawerWidth by DrawerSettingsStore.rightDrawerWidth.asState()
 
     val iconsShape by DrawerSettingsStore.iconsShape.asState()
+
+    var drawerCategorySettingsExpanded by remember { mutableStateOf(false) }
 
     var totalWidthPx by remember { mutableFloatStateOf(0f) }
 
@@ -149,17 +154,70 @@ fun DrawerTab(
 
         item {
             SettingsSwitchRow(
-                setting = DrawerSettingsStore.useCategories,
+                setting = DrawerSettingsStore.useCategory,
                 title = stringResource(R.string.use_categories),
                 description = stringResource(R.string.use_categories_desc)
             )
         }
 
         item {
+
+            val rotationDegrees = remember {
+                Animatable(0f)
+            }
+
+            LaunchedEffect(drawerCategorySettingsExpanded) {
+                rotationDegrees.animateTo(if (drawerCategorySettingsExpanded) 90f else 0f)
+            }
+
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .clip(DragonShape)
+                    .background(MaterialTheme.colorScheme.surface)
+                    .clickable {
+                        drawerCategorySettingsExpanded = !drawerCategorySettingsExpanded
+                    }
+                    .padding(10.dp),
+                verticalAlignment = Alignment.CenterVertically,
+                horizontalArrangement = Arrangement.SpaceBetween
+            ) {
+                Text(
+                    text = stringResource(R.string.category_settings)
+                )
+
+                Icon(
+                    imageVector = Icons.Default.ChevronRight,
+                    contentDescription = stringResource(R.string.expanded_chevron_indicator),
+                    modifier = Modifier
+                        .rotate(rotationDegrees.value)
+                )
+            }
+            Spacer(Modifier.height(10.dp))
+
+            AnimatedVisibility(
+                visible = drawerCategorySettingsExpanded
+            ) {
+                Column(
+                    modifier = Modifier
+                        .clip(DragonShape)
+                        .background(MaterialTheme.colorScheme.surfaceVariant)
+                        .padding(10.dp)
+                ) {
+                    SettingsSlider(
+                        setting = DrawerSettingsStore.categoryGridWidth,
+                        title = stringResource(R.string.category_grid_width),
+                        valueRange = 1..3
+                    )
+                }
+            }
+        }
+
+        item {
             Column(
                 modifier = Modifier
                     .clip(DragonShape)
-                    .background(MaterialTheme.colorScheme.surface.adjustBrightness(0.7f))
+                    .background(MaterialTheme.colorScheme.surfaceVariant)
                     .padding(10.dp)
             ) {
                 SettingsSlider(

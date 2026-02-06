@@ -485,5 +485,8 @@
     <string name="max_icon_size_desc">The maximum size that the icons can reach, play with other settigns to achieve something you like</string>
     <string name="icons_spacing_vertical_desc">Vertical icons padding</string>
     <string name="icons_spacing_horizontal_desc">Horizontal icons padding</string>
+    <string name="category_settings">Catagory settings</string>
+    <string name="expanded_chevron_indicator">Expanded chevron indicator</string>
+    <string name="category_grid_width">Category grid width</string>
 
 </resources>
