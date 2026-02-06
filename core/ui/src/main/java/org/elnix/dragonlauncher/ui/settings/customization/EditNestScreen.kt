@@ -255,7 +255,6 @@ fun NestEditingScreen(
                                 value = distance,
                                 valueRange = 0..1000,
                                 showValue = true,
-                                color = MaterialTheme.colorScheme.onSurface,
                                 backgroundColor = MaterialTheme.colorScheme.surfaceVariant,
                                 onReset = {
                                     dragDistancesState[index] = defaultDragDistance(index)
@@ -282,7 +281,6 @@ fun NestEditingScreen(
                                     label = "${stringResource(R.string.haptic_feedback)}: $index ->",
                                     value = milliseconds,
                                     valueRange = 0..300,
-                                    color = MaterialTheme.colorScheme.onSurface,
                                     backgroundColor = MaterialTheme.colorScheme.surfaceVariant,
                                     onReset = {
                                         hapticState[index] = defaultHapticFeedback(index)
@@ -311,7 +309,6 @@ fun NestEditingScreen(
                                     label = "${stringResource(R.string.min_angle_to_activate)}: $index ->",
                                     value = angle,
                                     valueRange = 0..360,
-                                    color = MaterialTheme.colorScheme.onSurface,
                                     backgroundColor = MaterialTheme.colorScheme.surfaceVariant,
                                     onReset = {
                                         minAngleState[index] = defaultMinAngleActivation(distance)
@@ -334,7 +331,6 @@ fun NestEditingScreen(
                         SliderWithLabel(
                             label = stringResource(R.string.depth),
                             description = stringResource(R.string.depth_desc),
-                            color = MaterialTheme.colorScheme.onSurface,
                             backgroundColor = MaterialTheme.colorScheme.surfaceVariant,
                             value = tempDepth,
                             valueRange = 0..5
