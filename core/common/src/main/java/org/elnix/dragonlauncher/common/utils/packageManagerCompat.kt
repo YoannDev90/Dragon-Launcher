@@ -17,6 +17,7 @@ import androidx.core.content.ContextCompat
 import org.elnix.dragonlauncher.common.R
 import org.elnix.dragonlauncher.common.logging.logE
 import org.elnix.dragonlauncher.common.serializables.AppModel
+import org.elnix.dragonlauncher.common.serializables.mapAppToSection
 import org.elnix.dragonlauncher.common.utils.ImageUtils.loadDrawableAsBitmap
 
 class PackageManagerCompat(private val pm: PackageManager, private val ctx: Context) {
@@ -48,6 +49,8 @@ class PackageManagerCompat(private val pm: PackageManager, private val ctx: Cont
 
             activities.forEach { activity ->
                 val appInfo = activity.applicationInfo
+
+                val category = mapAppToSection(appInfo)
                 val pkg = appInfo.packageName
 
                 if (!isAppEnabled(pkg)) return@forEach
@@ -59,7 +62,8 @@ class PackageManagerCompat(private val pm: PackageManager, private val ctx: Cont
                     isEnabled = true,
                     isSystem = isSystemApp(appInfo),
                     isWorkProfile = isWorkProfile,
-                    isLaunchable = true
+                    isLaunchable = true,
+                    category = category
                 )
             }
 
@@ -68,6 +72,8 @@ class PackageManagerCompat(private val pm: PackageManager, private val ctx: Cont
             pm.getInstalledApplications(PackageManager.GET_META_DATA)
                 .forEach { appInfo ->
                     val pkg = appInfo.packageName
+                    val category = mapAppToSection(appInfo)
+
 
                     // Skip apps already added via LauncherApps
                     if (result.any { it.packageName == pkg && it.userId == userId }) return@forEach
@@ -85,7 +91,8 @@ class PackageManagerCompat(private val pm: PackageManager, private val ctx: Cont
                         isEnabled = true,
                         isSystem = true,
                         isWorkProfile = isWorkProfile,
-                        isLaunchable = false
+                        isLaunchable = false,
+                        category = category
                     )
                 }
         }
