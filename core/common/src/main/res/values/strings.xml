@@ -473,5 +473,6 @@
     <string name="normal_colors">Normal Colors</string>
     <string name="help_wanted">Help Wanted</string>
     <string name="help_wanted_on_colors">I seek for good people that could make a clean color scheme, as this one\'s pretty empty and bad, so if someone has the determination, he could sent me the colors for every field and if it fits good, I\'ll set it by default</string>
+    <string name="source">Source</string>
 
 </resources>

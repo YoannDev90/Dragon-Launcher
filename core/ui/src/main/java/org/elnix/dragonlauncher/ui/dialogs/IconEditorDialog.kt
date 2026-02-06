@@ -57,13 +57,16 @@ import org.elnix.dragonlauncher.common.utils.ImageUtils.uriToBase64
 import org.elnix.dragonlauncher.common.utils.colors.adjustBrightness
 import org.elnix.dragonlauncher.common.utils.definedOrNull
 import org.elnix.dragonlauncher.models.AppsViewModel
+import org.elnix.dragonlauncher.settings.stores.DrawerSettingsStore
 import org.elnix.dragonlauncher.settings.stores.SwipeSettingsStore
 import org.elnix.dragonlauncher.ui.UiConstants.DragonShape
 import org.elnix.dragonlauncher.ui.colors.AppObjectsColors
 import org.elnix.dragonlauncher.ui.colors.ColorPickerRow
 import org.elnix.dragonlauncher.ui.components.DragonIconButton
 import org.elnix.dragonlauncher.ui.components.PointPreviewCanvas
+import org.elnix.dragonlauncher.ui.components.TextDivider
 import org.elnix.dragonlauncher.ui.components.ValidateCancelButtons
+import org.elnix.dragonlauncher.ui.components.settings.asState
 import org.elnix.dragonlauncher.ui.helpers.ShapeRow
 import org.elnix.dragonlauncher.ui.helpers.SliderWithLabel
 import org.elnix.dragonlauncher.ui.theme.LocalExtraColors
@@ -83,6 +86,8 @@ fun IconEditorDialog(
 
     val points by SwipeSettingsStore.getPointsFlow(ctx).collectAsState(emptyList())
     val nests by SwipeSettingsStore.getNestsFlow(ctx).collectAsState(emptyList())
+
+    val iconsShape by DrawerSettingsStore.iconsShape.asState()
 
     val circleColor = LocalExtraColors.current.circle
     val backgroundColor = MaterialTheme.colorScheme.surface
@@ -194,152 +199,156 @@ fun IconEditorDialog(
         },
         text = {
             Column(
-                modifier = Modifier.fillMaxWidth(),
                 verticalArrangement = Arrangement.spacedBy(8.dp)
             ) {
-                Row(
-                    horizontalArrangement = Arrangement.SpaceEvenly
-                ) {
-                    Column(
-                        verticalArrangement = Arrangement.spacedBy(5.dp),
-                        modifier = Modifier.fillMaxWidth(0.5f) // Hacky lol
-                    ) {
-                        SelectableCard(
-                            selected = selectedIcon?.type == IconType.BITMAP && source != null,
-                            onClick = {
-                                imagePicker.launch(arrayOf("image/*"))
-                                textValue = ""
-                            }
+                TextDivider(stringResource(R.string.source))
+
+
+                Column {
+                    Row(horizontalArrangement = Arrangement.SpaceEvenly) {
+                        Column(
+                            verticalArrangement = Arrangement.SpaceBetween,
+                            modifier = Modifier
+                                .fillMaxWidth(0.5f) // Hacky lol
                         ) {
-                            Icon(
-                                imageVector = Icons.Default.Image,
-                                contentDescription = null,
-                                tint = MaterialTheme.colorScheme.onSurface
-                            )
-                            Spacer(Modifier.width(12.dp))
-                            Text(
-                                text = stringResource(R.string.pick_image),
-                                color = MaterialTheme.colorScheme.onSurface
-                            )
+                            SelectableCard(
+                                selected = selectedIcon?.type == IconType.BITMAP && source != null,
+                                onClick = {
+                                    imagePicker.launch(arrayOf("image/*"))
+                                    textValue = ""
+                                }
+                            ) {
+                                Icon(
+                                    imageVector = Icons.Default.Image,
+                                    contentDescription = null,
+                                    tint = MaterialTheme.colorScheme.onSurface
+                                )
+                                Spacer(Modifier.width(12.dp))
+                                Text(
+                                    text = stringResource(R.string.pick_image),
+                                    color = MaterialTheme.colorScheme.onSurface
+                                )
+                            }
+
+
+                            SelectableCard(
+                                selected = selectedIcon?.type == IconType.ICON_PACK && source != null,
+                                onClick = {
+                                    showIconPackPicker = true
+                                    textValue = ""
+                                }
+                            ) {
+                                Icon(
+                                    imageVector = Icons.Default.Palette,
+                                    contentDescription = null,
+                                    tint = MaterialTheme.colorScheme.onSurface
+                                )
+                                Spacer(Modifier.width(12.dp))
+                                Text(
+                                    text = stringResource(R.string.pick_from_icon_pack),
+                                    color = MaterialTheme.colorScheme.onSurface
+                                )
+                            }
                         }
 
-
                         SelectableCard(
-                            selected = selectedIcon?.type == IconType.ICON_PACK && source != null,
-                            onClick = {
-                                showIconPackPicker = true
-                                textValue = ""
-                            }
+                            modifier = Modifier.fillMaxWidth(),
+                            selected = selectedIcon?.type == IconType.TEXT && source != null,
+                            onClick = { }
                         ) {
-                            Icon(
-                                imageVector = Icons.Default.Palette,
-                                contentDescription = null,
-                                tint = MaterialTheme.colorScheme.onSurface
-                            )
-                            Spacer(Modifier.width(12.dp))
-                            Text(
-                                text = stringResource(R.string.pick_from_icon_pack),
-                                color = MaterialTheme.colorScheme.onSurface
-                            )
+                            Column(
+                                modifier = Modifier
+                                    .clip(DragonShape)
+                                    .background(
+                                        MaterialTheme.colorScheme.surface.adjustBrightness(
+                                            0.7f
+                                        )
+                                    )
+                                    .padding(12.dp)
+                            ) {
+                                Text(
+                                    stringResource(R.string.text_emoji),
+                                    color = MaterialTheme.colorScheme.onSurface,
+                                    fontWeight = FontWeight.Bold
+                                )
+                                Spacer(Modifier.height(8.dp))
+                                TextField(
+                                    value = textValue,
+                                    onValueChange = {
+                                        textValue = it
+                                        selectedIcon =
+                                            if (it.isNotBlank()) {
+                                                (selectedIcon ?: CustomIconSerializable()).copy(
+                                                    type = IconType.TEXT,
+                                                    source = it
+                                                )
+                                            } else {
+                                                null
+                                            }
+                                    },
+                                    placeholder = { Text("😀  A  ★") },
+                                    singleLine = true,
+                                    colors = AppObjectsColors.outlinedTextFieldColors(
+                                        removeBorder = true,
+                                        backgroundColor = MaterialTheme.colorScheme.surface
+                                    )
+                                )
+                            }
                         }
                     }
 
                     SelectableCard(
-                        modifier = Modifier.fillMaxWidth(),
-                        selected = selectedIcon?.type == IconType.TEXT && source != null,
+                        selected = selectedIcon?.type == IconType.PLAIN_COLOR && source != null,
                         onClick = {}
                     ) {
-                        Column(
-                            modifier = Modifier
-                                .clip(DragonShape)
-                                .background(
-                                    MaterialTheme.colorScheme.surface.adjustBrightness(
-                                        0.7f
-                                    )
-                                )
-                                .padding(12.dp)
-                        ) {
-                            Text(
-                                stringResource(R.string.text_emoji),
-                                color = MaterialTheme.colorScheme.onSurface,
-                                fontWeight = FontWeight.Bold
-                            )
-                            Spacer(Modifier.height(8.dp))
-                            TextField(
-                                value = textValue,
-                                onValueChange = {
-                                    textValue = it
-                                    selectedIcon =
-                                        if (it.isNotBlank()) {
-                                            (selectedIcon ?: CustomIconSerializable()).copy(
-                                                type = IconType.TEXT,
-                                                source = it
-                                            )
-                                        } else {
-                                            null
-                                        }
-                                },
-                                placeholder = { Text("😀  A  ★") },
-                                singleLine = true,
-                                colors = AppObjectsColors.outlinedTextFieldColors(
-                                    removeBorder = true,
-                                    backgroundColor = MaterialTheme.colorScheme.surface
-                                )
-                            )
-                        }
-                    }
-                }
-
-                SelectableCard(
-                    selected = selectedIcon?.type == IconType.PLAIN_COLOR && source != null,
-                    onClick = {}
-                ) {
-                    val currentColor = run {
+                        val currentColor = run {
                             source
                                 ?.takeIf { selectedIcon?.type == IconType.PLAIN_COLOR }
                                 ?.let { Color(it.toInt()) }
                         } ?: Color.Black
 
-                    ColorPickerRow(
-                        label = stringResource(R.string.plain_color),
+                        ColorPickerRow(
+                            label = stringResource(R.string.plain_color),
 //                        defaultColor = Color.Black,
-                        currentColor = currentColor
+                            currentColor = currentColor
+                        ) {
+                            selectedIcon = (selectedIcon ?: CustomIconSerializable()).copy(
+                                type = IconType.PLAIN_COLOR,
+                                source = it?.toArgb().toString()
+                            )
+                        }
+                    }
+
+                    SelectableCard(
+                        selected = selectedIcon?.type == null || source == null,
+                        onClick = {
+                            selectedIcon = selectedIcon?.copy(
+                                type = null,
+                                source = null
+                            )
+                            textValue = ""
+                        }
                     ) {
-                        selectedIcon = (selectedIcon ?: CustomIconSerializable()).copy(
-                            type = IconType.PLAIN_COLOR,
-                            source = it?.toArgb().toString()
+                        Icon(
+                            Icons.Default.Close,
+                            null,
+                            tint = MaterialTheme.colorScheme.onSurface
+                        )
+                        Spacer(Modifier.width(12.dp))
+                        Text(
+                            text = stringResource(R.string.no_custom_icon),
+                            color = MaterialTheme.colorScheme.onSurface
                         )
                     }
                 }
 
-                SelectableCard(
-                    selected = selectedIcon?.type == null || source == null,
-                    onClick = {
-                        selectedIcon = selectedIcon?.copy(
-                            type = null,
-                            source = null
-                        )
-                        textValue = ""
-                    }
-                ) {
-                    Icon(
-                        Icons.Default.Close,
-                        null,
-                        tint = MaterialTheme.colorScheme.onSurface
-                    )
-                    Spacer(Modifier.width(12.dp))
-                    Text(
-                        text = stringResource(R.string.no_custom_icon),
-                        color = MaterialTheme.colorScheme.onSurface
-                    )
-                }
 
+                TextDivider(stringResource(R.string.appearance))
 
 
                 Column(
                     modifier = Modifier
                         .fillMaxWidth()
-                        .padding(10.dp)
                         .clip(DragonShape)
                         .background(MaterialTheme.colorScheme.surface.adjustBrightness(0.7f))
                         .padding(10.dp),
@@ -403,7 +412,6 @@ fun IconEditorDialog(
                 Column(
                     modifier = Modifier
                         .fillMaxWidth()
-                        .padding(10.dp)
                         .clip(DragonShape)
                         .background(MaterialTheme.colorScheme.surface.adjustBrightness(0.7f))
                         .padding(10.dp),
@@ -411,7 +419,6 @@ fun IconEditorDialog(
                 ) {
                     ColorPickerRow(
                         label = stringResource(R.string.tint),
-//                        defaultColor = Color.Unspecified,
                         currentColor = selectedIcon?.tint?.let { Color(it) } ?: Color.Unspecified
                     ) {
                         val tintColor = it.definedOrNull()?.toArgb()
@@ -421,7 +428,7 @@ fun IconEditorDialog(
                     }
 
                     ShapeRow(
-                        selected = selectedIcon?.shape ?: IconShape.PlatformDefault,
+                        selected = selectedIcon?.shape ?: iconsShape,
                         onReset = {
                             selectedIcon = (selectedIcon ?: CustomIconSerializable()).copy(
                                 shape = null
@@ -489,7 +496,7 @@ private fun SelectableCard(
 ) {
     Row(
         modifier = modifier
-            .padding(6.dp)
+            .padding(3.dp)
             .clip(DragonShape)
             .background(MaterialTheme.colorScheme.surface.adjustBrightness(0.7f))
             .clickable { onClick() }
