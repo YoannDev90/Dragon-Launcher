@@ -93,7 +93,7 @@ fun SettingsItem(
                     icon = leadIcon,
                     contentDescription = null,
                     tint = MaterialTheme.colorScheme.primary.adjustBrightness(if (enabled) 1f else 0.5f),
-                    modifier = Modifier.sizeIn(maxHeight = 30.dp)
+                    modifier = Modifier.sizeIn(maxHeight = 25.dp)
                 )
             }
         }
