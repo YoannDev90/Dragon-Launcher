@@ -68,15 +68,27 @@ object ImageUtils {
             val bg = drawable.background
             val fg = drawable.foreground
 
-            // Draw background first, scaled to full bounds
-            bg.setBounds(0, 0, width, height)
-            bg.draw(canvas)
 
-            // Draw foreground with inset scaling
-            val scale = 1.15f
-            val inset = ((width - width / scale) / 2).toInt()
-            fg.setBounds(-inset, -inset, width + inset, height + inset)
-            fg.draw(canvas)
+            if (bg != null) {
+                // Draw background first, scaled to full bounds
+                bg.setBounds(0, 0, width, height)
+                bg.draw(canvas)
+            }
+
+            if (fg != null) {
+                // Draw foreground with inset scaling
+                val scale = 1.15f
+                val inset = ((width - width / scale) / 2).toInt()
+                fg.setBounds(-inset, -inset, width + inset, height + inset)
+                fg.draw(canvas)
+            }
+
+            // Fallback if BOTH are null (yes, it happens)
+            if (bg == null && fg == null) {
+                drawable.setBounds(0, 0, width, height)
+                drawable.draw(canvas)
+            }
+
         } else {
             // Non-adaptive drawable
             drawable.setBounds(0, 0, width, height)
