@@ -91,7 +91,6 @@ import org.elnix.dragonlauncher.ui.wellbeing.DigitalPauseActivity
 fun AppDrawerScreen(
     appsViewModel: AppsViewModel,
     appLifecycleViewModel: AppLifecycleViewModel,
-//    wallpaperViewModel: WallpaperViewModel,
     showIcons: Boolean,
     showLabels: Boolean,
     autoShowKeyboard: Boolean,
@@ -105,23 +104,6 @@ fun AppDrawerScreen(
 ) {
     val ctx = LocalContext.current
     val scope = rememberCoroutineScope()
-
-
-//    val activity = LocalContext.current as? Activity
-//    val window = activity?.window
-//
-//    val drawerBlurRadius by wallpaperViewModel.blurRadiusDrawerScreen.collectAsState(0)
-//
-//    LaunchedEffect(Unit, drawerBlurRadius) {
-//        if (Build.VERSION.SDK_INT >= 31) {
-//            window?.setBackgroundBlurRadius(drawerBlurRadius)
-//        }
-//    }
-
-//    /* ───────────── Reload all apps asynchronously on entering drawer (icons + apps) ───────────── */
-//    LaunchedEffect(Unit) {
-//        scope.launch{ appsViewModel.reloadApps() }
-//    }
 
 
     val workspaceState by appsViewModel.enabledState.collectAsState()
