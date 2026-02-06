@@ -92,7 +92,7 @@ private fun SliderWithLabelInternal(
                 if (label != null) {
                     Text(
                         text = label,
-                        color = displayColor,
+                        color = MaterialTheme.colorScheme.onSurface,
                         textAlign = TextAlign.Center,
                         style = MaterialTheme.typography.bodyLarge,
                     )
@@ -100,7 +100,7 @@ private fun SliderWithLabelInternal(
                 if (description != null) {
                     Text(
                         text = description,
-                        color = displayColor.copy(0.8f),
+                        color = MaterialTheme.colorScheme.onSurface.copy(0.8f),
                         style = MaterialTheme.typography.bodySmall,
                     )
                 }
