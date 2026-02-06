@@ -1,6 +1,6 @@
 package org.elnix.dragonlauncher.ui.components.generic
 
-import androidx.compose.animation.core.animateInt
+import androidx.compose.animation.core.animateDp
 import androidx.compose.animation.core.updateTransition
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -69,11 +69,11 @@ fun <T> ActionRow(
                     ).copy(if (enabled) 1f else 0.5f)
 
 
-            val shapeRound by transition.animateInt(
+            val shapeRound by transition.animateDp(
                 label = "shape_round"
             ) { pressed ->
-                if (pressed) UiConstants.DRAGON_SHAPE_CORNER
-                else UiConstants.CIRCLE_SHAPE_CORNER
+                if (pressed) UiConstants.DRAGON_SHAPE_CORNER_DP
+                else UiConstants.CIRCLE_SHAPE_CORNER_DP
             }
 
             val shape = RoundedCornerShape(shapeRound)

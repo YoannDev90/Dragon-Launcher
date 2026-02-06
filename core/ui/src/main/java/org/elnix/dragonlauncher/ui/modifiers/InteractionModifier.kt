@@ -1,6 +1,6 @@
 package org.elnix.dragonlauncher.ui.modifiers
 
-import androidx.compose.animation.core.animateInt
+import androidx.compose.animation.core.animateDp
 import androidx.compose.animation.core.updateTransition
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.interaction.MutableInteractionSource
@@ -31,11 +31,11 @@ fun Modifier.shapedClickable(
         label = "press_transition"
     )
 
-    val shapeRound by transition.animateInt(
+    val shapeRound by transition.animateDp(
         label = "shape_round"
     ) { pressed ->
-        if (pressed) UiConstants.DRAGON_SHAPE_CORNER
-        else UiConstants.DRAGON_SHAPE_CORNER_MORE_ROUNDED
+        if (pressed) UiConstants.DRAGON_SHAPE_CORNER_DP
+        else UiConstants.CIRCLE_SHAPE_CORNER_DP
     }
 
     val shape = RoundedCornerShape(shapeRound)
