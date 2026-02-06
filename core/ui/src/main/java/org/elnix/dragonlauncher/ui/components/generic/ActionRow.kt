@@ -72,7 +72,7 @@ fun <T> ActionRow(
             val shapeRound by transition.animateDp(
                 label = "shape_round"
             ) { pressed ->
-                if (pressed) UiConstants.DRAGON_SHAPE_CORNER_DP
+                if (pressed || isSelected) UiConstants.DRAGON_SHAPE_CORNER_DP
                 else UiConstants.CIRCLE_SHAPE_CORNER_DP
             }
 

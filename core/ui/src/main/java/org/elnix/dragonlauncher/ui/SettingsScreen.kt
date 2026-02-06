@@ -181,11 +181,10 @@ fun SettingsScreen(
 //    var showDeleteNestDialog by remember { mutableStateOf<Int?>(null) }
     var showNestManagementDialog by remember { mutableStateOf(false) }
 
-    /** ───────────────────────────────────────────────────────────────────────────────────────────
-     * NESTS SYSTEM
+    /** ──────────────────── NESTS SYSTEM ────────────────────
      * - Collects the nests from the datastore, then initialize the base nest to 0 (always the default)
      * while all the other have a random id
-    ─────────────────────────────────────────────────────────────────────────────────────────── */
+     */
 
 
     val nestNavigation = rememberNestNavigation(nests)
@@ -451,8 +450,7 @@ fun SettingsScreen(
             DragonIconButton(onClick = onBack) {
                 Icon(
                     imageVector = Icons.Default.Home,
-                    contentDescription = stringResource(R.string.home),
-                    tint = MaterialTheme.colorScheme.onBackground
+                    contentDescription = stringResource(R.string.home)
                 )
             }
 
@@ -469,8 +467,7 @@ fun SettingsScreen(
                 DragonIconButton(onClick = { showBurgerMenu = true }) {
                     Icon(
                         imageVector = Icons.Default.MoreVert,
-                        contentDescription = stringResource(R.string.open_burger_menu),
-                        tint = MaterialTheme.colorScheme.onBackground
+                        contentDescription = stringResource(R.string.open_burger_menu)
                     )
                 }
 
@@ -537,8 +534,7 @@ fun SettingsScreen(
                 DragonIconButton(onClick = onAdvSettings) {
                     Icon(
                         imageVector = Icons.Default.Settings,
-                        contentDescription = stringResource(R.string.settings),
-                        tint = MaterialTheme.colorScheme.onBackground
+                        contentDescription = stringResource(R.string.settings)
                     )
                 }
             }

@@ -16,7 +16,6 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Edit
 import androidx.compose.material.icons.filled.Restore
 import androidx.compose.material3.Icon
-import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextField
@@ -216,8 +215,7 @@ fun EditPointDialog(
                     ) {
                         Icon(
                             imageVector = Icons.Default.Restore,
-                            contentDescription = stringResource(R.string.reset),
-                            tint = MaterialTheme.colorScheme.onSurface
+                            contentDescription = stringResource(R.string.reset)
                         )
                     }
                 }
