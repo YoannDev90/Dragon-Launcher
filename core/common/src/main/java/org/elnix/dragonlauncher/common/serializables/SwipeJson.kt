@@ -180,11 +180,13 @@ class SwipeActionAdapter : JsonSerializer<SwipeActionSerializable>, JsonDeserial
 object SwipeJson {
     private val gson: Gson = GsonBuilder()
         .registerTypeAdapter(SwipeActionSerializable::class.java, SwipeActionAdapter())
+        .registerTypeAdapter(IconShape::class.java, IconShapeAdapter())
         .create()
 
     private val gsonPretty: Gson = GsonBuilder()
         .setPrettyPrinting()
         .registerTypeAdapter(SwipeActionSerializable::class.java, SwipeActionAdapter())
+        .registerTypeAdapter(IconShape::class.java, IconShapeAdapter())
         .create()
 
     private val pointsType = object : TypeToken<List<SwipePointSerializable>>() {}.type

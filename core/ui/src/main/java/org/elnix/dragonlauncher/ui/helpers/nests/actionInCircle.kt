@@ -81,8 +81,12 @@ fun DrawScope.actionsInCircle(
 
     val borderIconShape = if (selected) {
         point.borderShapeSelected ?: defaultPoint.borderShapeSelected
-    } else point.borderShape ?: defaultPoint.borderShape
-        ?: IconShape.Circle
+    } else {
+        point.borderShape ?: defaultPoint.borderShape
+    } ?: IconShape.Circle
+
+
+
 
     val borderShape = resolveShape(borderIconShape)
 

@@ -5,6 +5,7 @@ import com.google.gson.GsonBuilder
 import com.google.gson.JsonDeserializationContext
 import com.google.gson.JsonDeserializer
 import com.google.gson.JsonElement
+import com.google.gson.JsonNull
 import com.google.gson.JsonObject
 import com.google.gson.JsonSerializationContext
 import com.google.gson.JsonSerializer
@@ -12,10 +13,8 @@ import java.lang.reflect.Type
 
 object IconShapeGson {
 
-    private const val TYPE = "type"
-
     private val gson: Gson = GsonBuilder()
-        .registerTypeAdapter(IconShape::class.java, Adapter())
+        .registerTypeAdapter(IconShape::class.java, IconShapeAdapter())
         .create()
 
     fun encode(value: IconShape): String =
@@ -26,58 +25,79 @@ object IconShapeGson {
             val stringRaw = raw?.toString() ?: ""
             gson.fromJson(stringRaw, IconShape::class.java)
         }.getOrElse { fallback }
+}
 
-    private class Adapter : JsonSerializer<IconShape>, JsonDeserializer<IconShape> {
 
-        override fun serialize(
-            src: IconShape,
-            typeOfSrc: Type,
-            context: JsonSerializationContext
-        ): JsonElement {
-            val obj = JsonObject()
 
-            when (src) {
-                is IconShape.Custom -> {
-                    obj.addProperty(TYPE, "Custom")
-                    obj.add("shape", context.serialize(src.shape))
-                }
-                else -> {
-                    obj.addProperty(TYPE, src.javaClass.simpleName)
-                }
+class IconShapeAdapter :
+    JsonSerializer<IconShape>,
+    JsonDeserializer<IconShape> {
+
+    override fun serialize(
+        src: IconShape?,
+        typeOfSrc: Type?,
+        context: JsonSerializationContext?
+    ): JsonElement {
+        if (src == null) return JsonNull.INSTANCE
+
+        val obj = JsonObject()
+
+        when (src) {
+            IconShape.PlatformDefault -> obj.addProperty("type", "PlatformDefault")
+            IconShape.Circle -> obj.addProperty("type", "Circle")
+            IconShape.Square -> obj.addProperty("type", "Square")
+            IconShape.RoundedSquare -> obj.addProperty("type", "RoundedSquare")
+            IconShape.Triangle -> obj.addProperty("type", "Triangle")
+            IconShape.Squircle -> obj.addProperty("type", "Squircle")
+            IconShape.Hexagon -> obj.addProperty("type", "Hexagon")
+            IconShape.Pentagon -> obj.addProperty("type", "Pentagon")
+            IconShape.Teardrop -> obj.addProperty("type", "Teardrop")
+            IconShape.Pebble -> obj.addProperty("type", "Pebble")
+            IconShape.EasterEgg -> obj.addProperty("type", "EasterEgg")
+            IconShape.Random -> obj.addProperty("type", "Random")
+            IconShape.Dragon -> obj.addProperty("type", "Dragon")
+
+            is IconShape.Custom -> {
+                obj.addProperty("type", "Custom")
+                obj.add("shape", context?.serialize(src.shape))
             }
-            return obj
         }
 
-        override fun deserialize(
-            json: JsonElement,
-            typeOfT: Type,
-            context: JsonDeserializationContext
-        ): IconShape {
-            val obj = json.asJsonObject
-            return when (obj[TYPE].asString) {
-                "PlatformDefault" -> IconShape.PlatformDefault
-                "Circle" -> IconShape.Circle
-                "Square" -> IconShape.Square
-                "RoundedSquare" -> IconShape.RoundedSquare
-                "Triangle" -> IconShape.Triangle
-                "Squircle" -> IconShape.Squircle
-                "Hexagon" -> IconShape.Hexagon
-                "Dragon" -> IconShape.Dragon
-                "Pentagon" -> IconShape.Pentagon
-                "Teardrop" -> IconShape.Teardrop
-                "Pebble" -> IconShape.Pebble
-                "EasterEgg" -> IconShape.EasterEgg
-                "Random" -> IconShape.Random
-                "Custom" -> IconShape.Custom(
-                    shape = context.deserialize(
-                        obj.getAsJsonObject("shape"),
-                        CustomIconShapeSerializable::class.java
-                    )
-                )
+        return obj
+    }
 
-                // in case of error of decoding,  use the platform default
-                else -> IconShape.PlatformDefault
+    override fun deserialize(
+        json: JsonElement?,
+        typeOfT: Type?,
+        context: JsonDeserializationContext?
+    ): IconShape? {
+        if (json == null || !json.isJsonObject) return null
+
+        val obj = json.asJsonObject
+        val type = obj.get("type")?.asString ?: return null
+
+        return when (type) {
+            "PlatformDefault" -> IconShape.PlatformDefault
+            "Circle" -> IconShape.Circle
+            "Square" -> IconShape.Square
+            "RoundedSquare" -> IconShape.RoundedSquare
+            "Triangle" -> IconShape.Triangle
+            "Squircle" -> IconShape.Squircle
+            "Hexagon" -> IconShape.Hexagon
+            "Pentagon" -> IconShape.Pentagon
+            "Teardrop" -> IconShape.Teardrop
+            "Pebble" -> IconShape.Pebble
+            "EasterEgg" -> IconShape.EasterEgg
+            "Random" -> IconShape.Random
+            "Dragon" -> IconShape.Dragon
+            "Custom" -> {
+                val shape = context?.deserialize<CustomIconShapeSerializable>(
+                    obj.get("shape"),
+                    CustomIconShapeSerializable::class.java
+                )
+                IconShape.Custom(shape!!)
             }
+            else -> IconShape.Circle
         }
     }
 }

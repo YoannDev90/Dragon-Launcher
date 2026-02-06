@@ -81,6 +81,15 @@ private val SquircleShape: Shape
         translate(Offset(size.width / 2f, size.height / 2f))
     }
 
+//private val SquircleShape = GenericShape { _, _ ->
+//    moveTo(0.0f, 100.0f)
+//    cubicTo(0.0f, 33.0f, 33.0f, 0.0f, 100.0f, 0.0f)
+//    cubicTo(167.0f, 0.0f, 200.0f, 33.0f, 200.0f, 100.0f)
+//    cubicTo(200.0f, 167.0f, 167.0f, 200.0f, 100.0f, 200.0f)
+//    cubicTo(33.0f, 200.0f, 0.0f, 167.0f, 0.0f, 100.0f)
+//    close()
+//}
+
 private val HexagonShape: Shape
     get() = GenericShape { size, _ ->
         moveTo(
