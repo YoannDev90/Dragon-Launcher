@@ -6,7 +6,7 @@ T2.4.0
 * Implemented per-nest depth configuration
 [FIXED]
 * Fixed drawer crash on small action width (0 weight issue)
-IMPROVED]
+[IMPROVED]
 * Complete colors system refactor - simpler, scalable, dynamic colors support
 * Replaced all IconButton with new DragonIconButton for better interaction
 * Unified all rounded corners to Dragon shape (12.dp)

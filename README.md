@@ -26,6 +26,8 @@
 [<img src="https://www.openapk.net/images/openapk-badge.png" alt="Get it on OpenAPK" height="80">](https://www.openapk.net/dragon-launcher/org.elnix.dragonlauncher/)
 ---
 [<img src="https://raw.githubusercontent.com/ImranR98/Obtainium/main/assets/graphics/badge_obtainium.png" alt="Get it on Obtainium" height="60">](http://apps.obtainium.imranr.dev/redirect.html?r=obtainium://add/https://github.com/Elnix90/Dragon-Launcher)
+---
+**Due to Android restrictions, you may disable android Play protect during installation, to avoid it being blocked**
 </div>
 
 ---
@@ -129,7 +131,9 @@
   <img src="https://github.com/Elnix90/Dragon-Launcher/blob/main/assets/user-screenshots/m0n0lith.webp" width="22%" alt="m0n0lith ScreenShot"/>
   <img src="https://github.com/Elnix90/Dragon-Launcher/blob/main/assets/user-screenshots/prizewhisper.webp" width="22%" alt="prizewhisper ScreenShot"/>
   <img src="https://github.com/Elnix90/Dragon-Launcher/blob/main/assets/user-screenshots/sandsalamand.webp" width="22%" alt="sandsalamand ScreenShot"/>
-  <img src="https://github.com/Elnix90/Dragon-Launcher/blob/main/assets/user-screenshots/speedhog.webp" width="22%" alt="speedhog ScreenShot"/>
+  <img src="https://github.com/Elnix90/Dragon-Launcher/blob/main/assets/user-screenshots/drBrigth.jpg" width="22%" alt="drBrigth ScreenShot"/>
+  <img src="https://github.com/Elnix90/Dragon-Launcher/blob/main/assets/user-screenshots/speedhog.jpg" width="22%" alt="speedhog ScreenShot"/>
+  <img src="https://github.com/Elnix90/Dragon-Launcher/blob/main/assets/user-screenshots/oniyon.jpg" width="22%" alt="oniyon ScreenShot"/>
   <img src="https://github.com/Elnix90/Dragon-Launcher/blob/main/assets/user-screenshots/yerminator.webp" width="22%" alt="yerminator ScreenShot"/>
 </p>
 
@@ -164,10 +168,6 @@ Verify:
 ```bash 
 apksigner verify --print-certs DragonLauncher-*.apk
 ```
-
-## Credits
-
-* Dragon Launcher was inspired by [CCLauncher](https://github.com/mlm-games/CCLauncher). Some concepts, features, and code structures are adapted from this project
 
 ## Contributing
 
