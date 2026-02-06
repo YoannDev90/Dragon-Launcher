@@ -23,7 +23,7 @@ val AmoledDragonColorScheme: ColorScheme = darkColorScheme(
     surface = Color(0xFF1A1328),
     onSurface = Color(0xFFCECECE),
 
-    surfaceVariant = Color(0xFF241C36),
+    surfaceVariant = Color(0xFF0F0A17),
     onSurfaceVariant = Color(0xFFCECECE),
 
     error = Color(0xFFCF6679),
@@ -56,7 +56,7 @@ val DarkDragonColorScheme: ColorScheme = darkColorScheme(
     surface = Color(0xFF261F36),
     onSurface = Color(0xFFE6E6E6),
 
-    surfaceVariant = Color(0xFF322948),
+    surfaceVariant = Color(0xFF0F0A17),
     onSurfaceVariant = Color(0xFFD6CCE6),
 
     error = Color(0xFFCF6679),

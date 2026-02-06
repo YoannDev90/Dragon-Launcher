@@ -95,7 +95,6 @@ private fun SliderWithLabelInternal(
                         color = displayColor,
                         textAlign = TextAlign.Center,
                         style = MaterialTheme.typography.bodyLarge,
-//                        modifier = Modifier.weight(1f)
                     )
                 }
                 if (description != null) {
@@ -103,7 +102,6 @@ private fun SliderWithLabelInternal(
                         text = description,
                         color = displayColor.copy(0.8f),
                         style = MaterialTheme.typography.bodySmall,
-//                        modifier = Modifier.weight(1f)
                     )
                 }
             }
@@ -156,8 +154,7 @@ private fun SliderWithLabelInternal(
                 ) {
                     Icon(
                         imageVector = Icons.Default.Restore,
-                        contentDescription = "Reset",
-                        tint = MaterialTheme.colorScheme.primary
+                        contentDescription = "Reset"
                     )
                 }
             }

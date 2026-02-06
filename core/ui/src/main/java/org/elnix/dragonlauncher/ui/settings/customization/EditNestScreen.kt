@@ -19,6 +19,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateMapOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -37,7 +38,6 @@ import org.elnix.dragonlauncher.common.R
 import org.elnix.dragonlauncher.common.serializables.CircleNest
 import org.elnix.dragonlauncher.common.serializables.SwipePointSerializable
 import org.elnix.dragonlauncher.common.utils.UiCircle
-import org.elnix.dragonlauncher.common.utils.colors.adjustBrightness
 import org.elnix.dragonlauncher.common.utils.vibrate
 import org.elnix.dragonlauncher.enumsui.NestEditMode
 import org.elnix.dragonlauncher.enumsui.NestEditMode.DRAG
@@ -255,7 +255,8 @@ fun NestEditingScreen(
                                 value = distance,
                                 valueRange = 0..1000,
                                 showValue = true,
-                                color = MaterialTheme.colorScheme.primary,
+                                color = MaterialTheme.colorScheme.onSurface,
+                                backgroundColor = MaterialTheme.colorScheme.surfaceVariant,
                                 onReset = {
                                     dragDistancesState[index] = defaultDragDistance(index)
                                     commitDragDistances(dragDistancesState)
@@ -278,10 +279,11 @@ fun NestEditingScreen(
                                 val milliseconds =
                                     hapticState[index] ?: defaultHapticFeedback(index)
                                 SliderWithLabel(
-                                    label = "${stringResource(R.string.circle)}: $index ->",
+                                    label = "${stringResource(R.string.haptic_feedback)}: $index ->",
                                     value = milliseconds,
                                     valueRange = 0..300,
-                                    color = MaterialTheme.colorScheme.primary,
+                                    color = MaterialTheme.colorScheme.onSurface,
+                                    backgroundColor = MaterialTheme.colorScheme.surfaceVariant,
                                     onReset = {
                                         hapticState[index] = defaultHapticFeedback(index)
                                         commitHaptic(hapticState)
@@ -306,10 +308,11 @@ fun NestEditingScreen(
                             .forEach { (index, distance) ->
                                 val angle = minAngleState[index] ?: defaultMinAngleActivation(distance)
                                 SliderWithLabel(
-                                    label = "${stringResource(R.string.circle)}: $index ->",
+                                    label = "${stringResource(R.string.min_angle_to_activate)}: $index ->",
                                     value = angle,
                                     valueRange = 0..360,
-                                    color = MaterialTheme.colorScheme.primary,
+                                    color = MaterialTheme.colorScheme.onSurface,
+                                    backgroundColor = MaterialTheme.colorScheme.surfaceVariant,
                                     onReset = {
                                         minAngleState[index] = defaultMinAngleActivation(distance)
                                         commitAngle(minAngleState)
@@ -327,15 +330,16 @@ fun NestEditingScreen(
 
                     depth -> {
 
-                        var tempdepth by remember { mutableStateOf(currentNest.depth) }
+                        var tempDepth by remember { mutableIntStateOf(currentNest.depth) }
                         SliderWithLabel(
                             label = stringResource(R.string.depth),
                             description = stringResource(R.string.depth_desc),
-                            backgroundColor = MaterialTheme.colorScheme.surface.adjustBrightness(0.7f),
-                            value = tempdepth,
+                            color = MaterialTheme.colorScheme.onSurface,
+                            backgroundColor = MaterialTheme.colorScheme.surfaceVariant,
+                            value = tempDepth,
                             valueRange = 0..5
                         ) {
-                            tempdepth = it
+                            tempDepth = it
                             pendingNestUpdate = nests.map { nest ->
                                 if (nest.id == nestId) {
                                     nest.copy(depth = it)
