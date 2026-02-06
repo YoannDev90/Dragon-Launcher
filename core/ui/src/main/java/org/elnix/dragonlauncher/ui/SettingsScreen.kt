@@ -526,6 +526,19 @@ fun SettingsScreen(
                                     text = stringResource(R.string.toggle_drag_distances_editing),
                                     color = MaterialTheme.colorScheme.onSurface
                                 )
+                            },
+                            BurgerAction(
+                                onClick = { onNestEdit(currentNest.id) }
+                            ) {
+                                Icon(
+                                    imageVector = Icons.Default.ChangeCircle,
+                                    tint = MaterialTheme.colorScheme.onSurface,
+                                    contentDescription = null
+                                )
+                                Text(
+                                    text = stringResource(R.string.toggle_drag_distances_editing),
+                                    color = MaterialTheme.colorScheme.onSurface
+                                )
                             }
                         )
                     )

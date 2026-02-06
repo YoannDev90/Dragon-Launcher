@@ -364,10 +364,8 @@ fun MainAppUi(
             },
             titleIcon = if (isError) Icons.Default.Warning else Icons.Default.Check,
             titleColor = if (isError) MaterialTheme.colorScheme.error else Color.Green,
-            cancelText = null,
             copy = isError,
-            onCancel = {},
-            onAgree = { backupViewModel.setResult(null) }
+            onValidate = { backupViewModel.setResult(null) }
         )
     }
 }

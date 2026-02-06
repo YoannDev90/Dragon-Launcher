@@ -161,7 +161,7 @@ fun WorkspaceListScreen(
         UserValidation(
             title = stringResource(R.string.delete_workspace),
             message = "${stringResource(R.string.are_you_sure_to_delete_workspace)} '${workSpaceToDelete.name}' ?",
-            onCancel = { showDeleteConfirm = null }
+            onDismiss = { showDeleteConfirm = null }
         ) {
             scope.launch {
                 appsViewModel.deleteWorkspace(workSpaceToDelete.id)

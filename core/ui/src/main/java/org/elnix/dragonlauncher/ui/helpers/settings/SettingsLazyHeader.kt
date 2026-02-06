@@ -142,8 +142,7 @@ fun SettingsLazyHeader(
         UserValidation(
             title = "$title ${stringResource(R.string.help)}",
             message = helpText,
-            cancelText = null,
-            onCancel = { showHelpDialog = false },
+            onDismiss = { showHelpDialog = false },
             titleIcon = Icons.AutoMirrored.Filled.Help,
             titleColor = MaterialTheme.colorScheme.onSurface
         ) {
@@ -154,7 +153,7 @@ fun SettingsLazyHeader(
         UserValidation(
             title = resetTitle,
             message = resetText,
-            onCancel = { showResetDialog = false }
+            onDismiss = { showResetDialog = false }
         ) {
             onReset()
             showResetDialog = false

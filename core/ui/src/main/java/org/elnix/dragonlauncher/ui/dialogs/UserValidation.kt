@@ -12,12 +12,10 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ContentCopy
 import androidx.compose.material.icons.filled.Warning
 import androidx.compose.material3.AlertDialog
-import androidx.compose.material3.Button
 import androidx.compose.material3.Checkbox
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
-import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -30,64 +28,41 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.window.DialogProperties
 import org.elnix.dragonlauncher.common.R
 import org.elnix.dragonlauncher.common.utils.copyToClipboard
 import org.elnix.dragonlauncher.ui.UiConstants.DragonShape
 import org.elnix.dragonlauncher.ui.colors.AppObjectsColors
+import org.elnix.dragonlauncher.ui.components.ValidateCancelButtons
 
 
-@Deprecated("Old function, I have to make one better")
 @Composable
 fun UserValidation(
     title: String? = null,
     message: String,
     validateText: String = stringResource(R.string.ok),
-    cancelText: String? = stringResource(R.string.cancel),
     doNotRemindMeAgain: (() -> Unit)? = null,
     titleIcon: ImageVector = Icons.Default.Warning,
     titleColor: Color = MaterialTheme.colorScheme.error,
     copy: Boolean = false,
-    canDismissByOuterClick: Boolean = true,
-    onCancel: () -> Unit,
-    onAgree: () -> Unit
+    properties: DialogProperties = DialogProperties(),
+    onDismiss: (() -> Unit)? = null,
+    onValidate: () -> Unit
 ) {
     val ctx = LocalContext.current
     var doNotRemindMeAgainChecked by remember { mutableStateOf(false) }
 
     AlertDialog(
-        onDismissRequest = if (canDismissByOuterClick) { { onCancel() } } else { {} },
+        onDismissRequest = onDismiss ?: onValidate,
         confirmButton = {
-            Row(
-                horizontalArrangement = Arrangement.spacedBy(8.dp),
-                modifier = Modifier.padding(horizontal = 8.dp)
-            ) {
-                if (cancelText != null) {
-                    TextButton(
-                        onClick = { onCancel(); ; if (doNotRemindMeAgain != null && doNotRemindMeAgainChecked) doNotRemindMeAgain() },
-                        colors = AppObjectsColors.cancelButtonColors()
-                    ) {
-                        Text(
-                            cancelText,
-                            color = MaterialTheme.colorScheme.error,
-                            style = MaterialTheme.typography.labelLarge
-                        )
-                    }
-                }
-                Button(
-                    onClick = { onAgree(); if (doNotRemindMeAgain != null && doNotRemindMeAgainChecked) doNotRemindMeAgain() },
-                    colors = AppObjectsColors.buttonColors()
-                ) {
-                    Text(
-                        text = validateText,
-                        color = MaterialTheme.colorScheme.onPrimary,
-                        style = MaterialTheme.typography.labelLarge,
-                        textAlign = TextAlign.Center
-                    )
-                }
-            }
+            ValidateCancelButtons(
+                validateText = validateText,
+                onCancel = onDismiss,
+                onValidate = onValidate
+            )
         },
+        properties = properties,
         title = {
             if (title != null) {
                 Row(
@@ -110,7 +85,7 @@ fun UserValidation(
             }
         },
         text = {
-            Column{
+            Column {
                 Text(
                     text = message,
                     style = MaterialTheme.typography.bodyMedium,

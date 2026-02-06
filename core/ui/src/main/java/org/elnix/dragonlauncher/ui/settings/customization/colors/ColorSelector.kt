@@ -624,7 +624,7 @@ fun ColorSelectorTab(
         UserValidation(
             title = stringResource(R.string.reset_to_default_colors),
             message = stringResource(R.string.reset_to_default_colors_explanation),
-            onCancel = { showResetValidation = false }
+            onDismiss = { showResetValidation = false }
         ) {
             scope.launch {
                 ColorSettingsStore.resetAll(ctx)
@@ -636,7 +636,7 @@ fun ColorSelectorTab(
         UserValidation(
             title = stringResource(R.string.make_every_colors_random),
             message = stringResource(R.string.make_every_colors_random_explanation),
-            onCancel = { showRandomColorsValidation = false }
+            onDismiss = { showRandomColorsValidation = false }
         ) {
             scope.launch {
                 ColorSettingsStore.setAllRandomColors(ctx)
@@ -686,9 +686,8 @@ fun ColorSelectorTab(
         UserValidation(
             title = stringResource(R.string.help_wanted),
             message = stringResource(R.string.help_wanted_on_colors),
-            onCancel = {},
-            cancelText = null,
-            onAgree = { showRequestHelpDialog = false }
+            onDismiss = {},
+            onValidate = { showRequestHelpDialog = false }
         )
     }
 }

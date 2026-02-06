@@ -257,7 +257,7 @@ fun LogsTab(
         UserValidation(
             title = "Delete file ${fileToDelete.name}",
             message = "THis can't be undone",
-            onCancel = { showDeleteDialog = null }
+            onDismiss = { showDeleteDialog = null }
         ) {
             DragonLogManager.deleteLogFile(fileToDelete)
             showDeleteDialog = null

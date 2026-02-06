@@ -551,10 +551,9 @@ fun BackupTab(
             message = res.message,
             titleIcon = if (isError) Icons.Default.Warning else Icons.Default.Check,
             titleColor = if (isError) MaterialTheme.colorScheme.error else Color.Green,
-            cancelText = null,
             copy = isError,
-            onCancel = {},
-            onAgree = { backupViewModel.setResult(null) }
+            onDismiss = {},
+            onValidate = { backupViewModel.setResult(null) }
         )
     }
 }
