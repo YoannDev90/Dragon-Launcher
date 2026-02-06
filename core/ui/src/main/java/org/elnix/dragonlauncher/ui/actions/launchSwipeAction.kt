@@ -31,6 +31,11 @@ fun launchSwipeAction(
     socialMediaPauseEnabled: Boolean = false,
     guiltModeEnabled: Boolean = false,
     pauseDuration: Int = 10,
+    reminderEnabled: Boolean = false,
+    reminderIntervalMinutes: Int = 5,
+    reminderMode: String = "overlay",
+    returnToLauncherEnabled: Boolean = false,
+    appName: String = "",
     digitalPauseLauncher: ActivityResultLauncher<Intent>? = null,
     onReloadApps: (() -> Unit)? = null,
     onReselectFile: (() -> Unit)? = null,
@@ -48,8 +53,13 @@ fun launchSwipeAction(
             if (socialMediaPauseEnabled && action.packageName in pausedApps && digitalPauseLauncher != null) {
                 val intent = Intent(ctx, DigitalPauseActivity::class.java).apply {
                     putExtra(DigitalPauseActivity.EXTRA_PACKAGE_NAME, action.packageName)
+                    putExtra(DigitalPauseActivity.EXTRA_APP_NAME, appName)
                     putExtra(DigitalPauseActivity.EXTRA_PAUSE_DURATION, pauseDuration)
                     putExtra(DigitalPauseActivity.EXTRA_GUILT_MODE, guiltModeEnabled)
+                    putExtra(DigitalPauseActivity.EXTRA_REMINDER_ENABLED, reminderEnabled)
+                    putExtra(DigitalPauseActivity.EXTRA_REMINDER_INTERVAL, reminderIntervalMinutes)
+                    putExtra(DigitalPauseActivity.EXTRA_REMINDER_MODE, reminderMode)
+                    putExtra(DigitalPauseActivity.EXTRA_RETURN_TO_LAUNCHER, returnToLauncherEnabled)
                 }
                 digitalPauseLauncher.launch(intent)
                 return

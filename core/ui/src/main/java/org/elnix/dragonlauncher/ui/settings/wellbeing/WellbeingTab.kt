@@ -4,6 +4,7 @@ package org.elnix.dragonlauncher.ui.settings.wellbeing
 
 import android.content.Intent
 import android.provider.Settings
+import android.net.Uri
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
@@ -97,6 +98,16 @@ fun WellbeingTab(
 
     var showAppPicker by remember { mutableStateOf(false) }
     var showPermissionDialog by remember { mutableStateOf(false) }
+    var showOverlayPermissionDialog by remember { mutableStateOf(false) }
+
+    val reminderEnabled by WellbeingSettingsStore.reminderEnabled.flow(ctx)
+        .collectAsState(initial = false)
+    val reminderInterval by WellbeingSettingsStore.reminderIntervalMinutes.flow(ctx)
+        .collectAsState(initial = 5)
+    val reminderMode by WellbeingSettingsStore.reminderMode.flow(ctx)
+        .collectAsState(initial = "overlay")
+    val returnToLauncherEnabled by WellbeingSettingsStore.returnToLauncherEnabled.flow(ctx)
+        .collectAsState(initial = false)
 
     SettingsLazyHeader(
         title = stringResource(R.string.wellbeing),
@@ -159,6 +170,168 @@ fun WellbeingTab(
                     showValue = false,
                     enabled = socialMediaPauseEnabled
                 )
+            }
+        }
+
+        item {
+            TextDivider(stringResource(R.string.reminder_mode_title))
+        }
+
+        // Reminder switch
+        item {
+            SwitchRow(
+                state = reminderEnabled,
+                text = stringResource(R.string.reminder_mode_title),
+                subText = stringResource(R.string.reminder_mode_description),
+                enabled = socialMediaPauseEnabled,
+            ) { newValue ->
+                if (newValue && reminderMode == "overlay" && !android.provider.Settings.canDrawOverlays(ctx)) {
+                    showOverlayPermissionDialog = true
+                } else {
+                    scope.launch {
+                        WellbeingSettingsStore.reminderEnabled.set(ctx, newValue)
+                    }
+                }
+            }
+        }
+
+        // Reminder interval slider
+        item {
+            Column(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .clip(DragonShape)
+                    .background(MaterialTheme.colorScheme.surface)
+                    .padding(16.dp)
+            ) {
+                SettingsSlider(
+                    setting = WellbeingSettingsStore.reminderIntervalMinutes,
+                    title = stringResource(R.string.reminder_interval),
+                    description = stringResource(R.string.reminder_interval_description, reminderInterval),
+                    valueRange = 1..30,
+                    allowTextEditValue = false,
+                    showValue = false,
+                    enabled = socialMediaPauseEnabled && reminderEnabled
+                )
+            }
+        }
+
+        // Reminder mode toggle (notification vs overlay)
+        item {
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(horizontal = 8.dp),
+                horizontalArrangement = Arrangement.spacedBy(8.dp)
+            ) {
+                SettingsItem(
+                    title = stringResource(R.string.reminder_mode_notification),
+                    icon = Icons.Default.Apps,
+                    modifier = Modifier.weight(1f),
+                    enabled = socialMediaPauseEnabled && reminderEnabled,
+                    backgroundColor = if (reminderMode == "notification") MaterialTheme.colorScheme.primaryContainer
+                        else MaterialTheme.colorScheme.surface
+                ) {
+                    scope.launch {
+                        WellbeingSettingsStore.reminderMode.set(ctx, "notification")
+                    }
+                }
+
+                SettingsItem(
+                    title = stringResource(R.string.reminder_mode_overlay),
+                    icon = Icons.Default.Apps,
+                    modifier = Modifier.weight(1f),
+                    enabled = socialMediaPauseEnabled && reminderEnabled,
+                    backgroundColor = if (reminderMode == "overlay") MaterialTheme.colorScheme.primaryContainer
+                        else MaterialTheme.colorScheme.surface
+                ) {
+                    if (!android.provider.Settings.canDrawOverlays(ctx)) {
+                        showOverlayPermissionDialog = true
+                    } else {
+                        scope.launch {
+                            WellbeingSettingsStore.reminderMode.set(ctx, "overlay")
+                        }
+                    }
+                }
+            }
+        }
+        
+        // Popup Display Options (only visible when overlay mode is selected)
+        if (reminderMode == "overlay" && socialMediaPauseEnabled && reminderEnabled) {
+            item {
+                TextDivider(stringResource(R.string.popup_display_title))
+            }
+            
+            item {
+                Text(
+                    text = stringResource(R.string.popup_display_description),
+                    style = MaterialTheme.typography.bodySmall,
+                    color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.7f),
+                    modifier = Modifier.padding(horizontal = 16.dp, vertical = 8.dp)
+                )
+            }
+            
+            item {
+                val popupShowSessionTime by WellbeingSettingsStore.popupShowSessionTime.flow(ctx).collectAsState(initial = true)
+                
+                SwitchRow(
+                    state = popupShowSessionTime,
+                    text = stringResource(R.string.popup_show_session_time),
+                    subText = stringResource(R.string.popup_show_session_time_desc),
+                    enabled = true
+                ) { newValue ->
+                    scope.launch {
+                        WellbeingSettingsStore.popupShowSessionTime.set(ctx, newValue)
+                    }
+                }
+            }
+            
+            item {
+                val popupShowTodayTime by WellbeingSettingsStore.popupShowTodayTime.flow(ctx).collectAsState(initial = true)
+                
+                SwitchRow(
+                    state = popupShowTodayTime,
+                    text = stringResource(R.string.popup_show_today_time),
+                    subText = stringResource(R.string.popup_show_today_time_desc),
+                    enabled = true
+                ) { newValue ->
+                    scope.launch {
+                        WellbeingSettingsStore.popupShowTodayTime.set(ctx, newValue)
+                    }
+                }
+            }
+            
+            item {
+                val popupShowRemainingTime by WellbeingSettingsStore.popupShowRemainingTime.flow(ctx).collectAsState(initial = true)
+                
+                SwitchRow(
+                    state = popupShowRemainingTime,
+                    text = stringResource(R.string.popup_show_remaining_time),
+                    subText = stringResource(R.string.popup_show_remaining_time_desc),
+                    enabled = true
+                ) { newValue ->
+                    scope.launch {
+                        WellbeingSettingsStore.popupShowRemainingTime.set(ctx, newValue)
+                    }
+                }
+            }
+        }
+
+        item {
+            TextDivider(stringResource(R.string.return_to_launcher_title))
+        }
+
+        // Return-to-launcher switch
+        item {
+            SwitchRow(
+                state = returnToLauncherEnabled,
+                text = stringResource(R.string.return_to_launcher_title),
+                subText = stringResource(R.string.return_to_launcher_description),
+                enabled = socialMediaPauseEnabled,
+            ) { newValue ->
+                scope.launch {
+                    WellbeingSettingsStore.returnToLauncherEnabled.set(ctx, newValue)
+                }
             }
         }
 
@@ -283,6 +456,37 @@ fun WellbeingTab(
             },
             dismissButton = {
                 TextButton(onClick = { showPermissionDialog = false }) {
+                    Text(stringResource(R.string.cancel))
+                }
+            }
+        )
+    }
+
+    // Overlay permission dialog
+    if (showOverlayPermissionDialog) {
+        AlertDialog(
+            onDismissRequest = { showOverlayPermissionDialog = false },
+            title = { Text(stringResource(R.string.overlay_permission_required)) },
+            text = { Text(stringResource(R.string.overlay_permission_description)) },
+            confirmButton = {
+                TextButton(
+                    onClick = {
+                        showOverlayPermissionDialog = false
+                        ctx.startActivity(
+                            Intent(
+                                Settings.ACTION_MANAGE_OVERLAY_PERMISSION,
+                                Uri.parse("package:${ctx.packageName}")
+                            ).apply {
+                                flags = Intent.FLAG_ACTIVITY_NEW_TASK
+                            }
+                        )
+                    }
+                ) {
+                    Text(stringResource(R.string.open_settings))
+                }
+            },
+            dismissButton = {
+                TextButton(onClick = { showOverlayPermissionDialog = false }) {
                     Text(stringResource(R.string.cancel))
                 }
             }

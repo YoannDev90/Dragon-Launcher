@@ -2,6 +2,7 @@
 
 package org.elnix.dragonlauncher.ui.settings.debug
 
+import android.content.Intent
 import android.os.Build
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.layout.Arrangement
@@ -41,12 +42,14 @@ import org.elnix.dragonlauncher.common.logging.logD
 import org.elnix.dragonlauncher.common.serializables.dummySwipePoint
 import org.elnix.dragonlauncher.common.utils.SETTINGS
 import org.elnix.dragonlauncher.common.utils.detectSystemLauncher
+import org.elnix.dragonlauncher.common.utils.showToast
 import org.elnix.dragonlauncher.models.AppsViewModel
 import org.elnix.dragonlauncher.services.SystemControl
 import org.elnix.dragonlauncher.services.SystemControl.activateDeviceAdmin
 import org.elnix.dragonlauncher.services.SystemControl.isDeviceAdminActive
 import org.elnix.dragonlauncher.settings.allStores
 import org.elnix.dragonlauncher.settings.stores.DebugSettingsStore
+import org.elnix.dragonlauncher.ui.wellbeing.OverlayReminderActivity
 import org.elnix.dragonlauncher.settings.stores.PrivateSettingsStore
 import org.elnix.dragonlauncher.ui.colors.AppObjectsColors
 import org.elnix.dragonlauncher.ui.dialogs.IconEditorDialog
@@ -54,6 +57,8 @@ import org.elnix.dragonlauncher.ui.helpers.SwitchRow
 import org.elnix.dragonlauncher.ui.components.TextDivider
 import org.elnix.dragonlauncher.ui.helpers.settings.SettingsItem
 import org.elnix.dragonlauncher.ui.helpers.settings.SettingsLazyHeader
+import org.elnix.dragonlauncher.ui.wellbeing.AppTimerService
+import org.elnix.dragonlauncher.ui.wellbeing.OverlayReminderService
 
 @Composable
 fun DebugTab(
@@ -221,6 +226,70 @@ fun DebugTab(
                 Text(
                     text = "Show what's new sheet",
                 )
+            }
+        }
+
+        item { TextDivider("Wellbeing tests") }
+
+        item {
+            Button(
+                onClick = {
+                    AppTimerService.sendTestReminderNotification(ctx, "TikTok", 42)
+                },
+                colors = AppObjectsColors.buttonColors(),
+                modifier = Modifier.fillMaxWidth()
+            ) {
+                Text(text = "Test: Reminder notification (42 min)")
+            }
+        }
+
+        item {
+            Button(
+                onClick = {
+                    if (!android.provider.Settings.canDrawOverlays(ctx)) {
+                        ctx.showToast("Overlay permission not granted")
+                        return@Button
+                    }
+                    val intent = Intent(ctx, OverlayReminderActivity::class.java).apply {
+                        putExtra(OverlayReminderActivity.EXTRA_APP_NAME, "TikTok")
+                        putExtra(OverlayReminderActivity.EXTRA_MODE, "reminder")
+                        putExtra(OverlayReminderActivity.EXTRA_SESSION_TIME, "15 min")
+                        putExtra(OverlayReminderActivity.EXTRA_TODAY_TIME, "42 min")
+                        putExtra(OverlayReminderActivity.EXTRA_REMAINING_TIME, "10 min")
+                        putExtra(OverlayReminderActivity.EXTRA_HAS_LIMIT, true)
+                        flags = Intent.FLAG_ACTIVITY_NEW_TASK
+                    }
+                    ctx.startActivity(intent)
+                },
+                colors = AppObjectsColors.buttonColors(),
+                modifier = Modifier.fillMaxWidth()
+            ) {
+                Text(text = "Test: Reminder overlay popup")
+            }
+        }
+
+        item {
+            Button(
+                onClick = {
+                    if (!android.provider.Settings.canDrawOverlays(ctx)) {
+                        ctx.showToast("Overlay permission not granted")
+                        return@Button
+                    }
+                    val intent = Intent(ctx, OverlayReminderActivity::class.java).apply {
+                        putExtra(OverlayReminderActivity.EXTRA_APP_NAME, "TikTok")
+                        putExtra(OverlayReminderActivity.EXTRA_MODE, "time_warning")
+                        putExtra(OverlayReminderActivity.EXTRA_SESSION_TIME, "25 min")
+                        putExtra(OverlayReminderActivity.EXTRA_TODAY_TIME, "58 min")
+                        putExtra(OverlayReminderActivity.EXTRA_REMAINING_TIME, "5 min")
+                        putExtra(OverlayReminderActivity.EXTRA_HAS_LIMIT, true)
+                        flags = Intent.FLAG_ACTIVITY_NEW_TASK
+                    }
+                    ctx.startActivity(intent)
+                },
+                colors = AppObjectsColors.buttonColors(),
+                modifier = Modifier.fillMaxWidth()
+            ) {
+                Text(text = "Test: Time almost up overlay")
             }
         }
 

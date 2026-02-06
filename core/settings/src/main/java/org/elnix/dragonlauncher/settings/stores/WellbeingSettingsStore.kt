@@ -26,7 +26,14 @@ object WellbeingSettingsStore : MapSettingsStore() {
             socialMediaPauseEnabled,
             guiltModeEnabled,
             pauseDurationSeconds,
-            showUsageStats
+            showUsageStats,
+            reminderEnabled,
+            reminderIntervalMinutes,
+            reminderMode,
+            popupShowSessionTime,
+            popupShowTodayTime,
+            popupShowRemainingTime,
+            returnToLauncherEnabled
         )
 
     /*  ─────────────  Main toggles  ─────────────  */
@@ -67,6 +74,76 @@ object WellbeingSettingsStore : MapSettingsStore() {
         key = "PAUSE_DURATION_SECONDS",
         dataStoreName = dataStoreName,
         default = 10
+    )
+
+    /*  ─────────────  Periodic Reminder  ─────────────  */
+
+    /**
+     * Whether the periodic reminder feature is enabled.
+     * When active, the user gets reminded every X minutes that they are still on a paused app.
+     */
+    val reminderEnabled = Settings.boolean(
+        key = "REMINDER_ENABLED",
+        dataStoreName = dataStoreName,
+        default = false
+    )
+
+    /**
+     * How often to remind (in minutes). Default 5.
+     */
+    val reminderIntervalMinutes = Settings.int(
+        key = "REMINDER_INTERVAL_MINUTES",
+        dataStoreName = dataStoreName,
+        default = 5
+    )
+
+    /**
+     * Reminder delivery mode: "notification" or "overlay"
+     */
+    val reminderMode = Settings.string(
+        key = "REMINDER_MODE",
+        dataStoreName = dataStoreName,
+        default = "overlay"
+    )
+
+    /**
+     * Show session time in popup overlay (time since app opened)
+     */
+    val popupShowSessionTime = Settings.boolean(
+        key = "POPUP_SHOW_SESSION_TIME",
+        dataStoreName = dataStoreName,
+        default = true
+    )
+
+    /**
+     * Show today's total time in popup overlay
+     */
+    val popupShowTodayTime = Settings.boolean(
+        key = "POPUP_SHOW_TODAY_TIME",
+        dataStoreName = dataStoreName,
+        default = true
+    )
+
+    /**
+     * Show remaining time before limit in popup overlay (when return to launcher enabled)
+     */
+    val popupShowRemainingTime = Settings.boolean(
+        key = "POPUP_SHOW_REMAINING_TIME",
+        dataStoreName = dataStoreName,
+        default = true
+    )
+
+    /*  ─────────────  Return to Launcher  ─────────────  */
+
+    /**
+     * Whether the auto-return-to-launcher feature is enabled.
+     * User must set a time limit before opening a paused app; after the limit
+     * they are brought back to Dragon Launcher.
+     */
+    val returnToLauncherEnabled = Settings.boolean(
+        key = "RETURN_TO_LAUNCHER_ENABLED",
+        dataStoreName = dataStoreName,
+        default = false
     )
 
     /*  ─────────────  Paused Apps Management  ─────────────  */

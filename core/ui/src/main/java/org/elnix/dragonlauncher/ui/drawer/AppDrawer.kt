@@ -85,6 +85,7 @@ import org.elnix.dragonlauncher.ui.dialogs.IconEditorDialog
 import org.elnix.dragonlauncher.ui.dialogs.RenameAppDialog
 import org.elnix.dragonlauncher.ui.helpers.AppGrid
 import org.elnix.dragonlauncher.ui.helpers.WallpaperDim
+import org.elnix.dragonlauncher.ui.wellbeing.AppTimerService
 import org.elnix.dragonlauncher.ui.wellbeing.DigitalPauseActivity
 
 @Suppress("AssignedValueIsNeverRead")
@@ -146,13 +147,52 @@ fun AppDrawerScreen(
     val pausedApps by WellbeingSettingsStore.getPausedAppsFlow(ctx)
         .collectAsState(initial = emptySet())
 
+    val reminderEnabled by WellbeingSettingsStore.reminderEnabled.asState()
+    val reminderInterval by WellbeingSettingsStore.reminderIntervalMinutes.asState()
+    val reminderMode by WellbeingSettingsStore.reminderMode.asState()
+    val returnToLauncherEnabled by WellbeingSettingsStore.returnToLauncherEnabled.asState()
+
     var pendingPackageToLaunch by remember { mutableStateOf<String?>(null) }
+    var pendingAppName by remember { mutableStateOf<String?>(null) }
 
     val digitalPauseLauncher = rememberLauncherForActivityResult(
         ActivityResultContracts.StartActivityForResult()
     ) { result ->
         if (result.resultCode == DigitalPauseActivity.RESULT_PROCEED && pendingPackageToLaunch != null) {
             try {
+                if (reminderEnabled) {
+                    AppTimerService.start(
+                        ctx = ctx,
+                        packageName = pendingPackageToLaunch!!,
+                        appName = pendingAppName ?: pendingPackageToLaunch!!,
+                        reminderEnabled = true,
+                        reminderIntervalMinutes = reminderInterval,
+                        reminderMode = reminderMode
+                    )
+                }
+                launchAppDirectly(ctx, pendingPackageToLaunch!!)
+                onClose()
+            } catch (e: Exception) {
+                ctx.showToast("Error: ${e.message}")
+            }
+        } else if (result.resultCode == DigitalPauseActivity.RESULT_PROCEED_WITH_TIMER && pendingPackageToLaunch != null) {
+            try {
+                val data = result.data
+                val timeLimitMin = data?.getIntExtra(DigitalPauseActivity.RESULT_EXTRA_TIME_LIMIT, 10) ?: 10
+                val hasReminder = data?.getBooleanExtra(DigitalPauseActivity.EXTRA_REMINDER_ENABLED, false) ?: false
+                val remInterval = data?.getIntExtra(DigitalPauseActivity.EXTRA_REMINDER_INTERVAL, 5) ?: 5
+                val remMode = data?.getStringExtra(DigitalPauseActivity.EXTRA_REMINDER_MODE) ?: "overlay"
+
+                AppTimerService.start(
+                    ctx = ctx,
+                    packageName = pendingPackageToLaunch!!,
+                    appName = pendingAppName ?: pendingPackageToLaunch!!,
+                    reminderEnabled = hasReminder,
+                    reminderIntervalMinutes = remInterval,
+                    reminderMode = remMode,
+                    timeLimitEnabled = true,
+                    timeLimitMinutes = timeLimitMin
+                )
                 launchAppDirectly(ctx, pendingPackageToLaunch!!)
                 onClose()
             } catch (e: Exception) {
@@ -160,6 +200,7 @@ fun AppDrawerScreen(
             }
         }
         pendingPackageToLaunch = null
+        pendingAppName = null
     }
 
 
@@ -252,10 +293,11 @@ fun AppDrawerScreen(
         )
     }
 
-    fun launchApp(action: SwipeActionSerializable) {
+    fun launchApp(action: SwipeActionSerializable, name: String = "") {
         // Store package for potential pause callback
         if (action is SwipeActionSerializable.LaunchApp) {
             pendingPackageToLaunch = action.packageName
+            pendingAppName = name.ifBlank { action.packageName }
         }
 
         try {
@@ -266,6 +308,11 @@ fun AppDrawerScreen(
                 socialMediaPauseEnabled = socialMediaPauseEnabled,
                 guiltModeEnabled = guiltModeEnabled,
                 pauseDuration = pauseDuration,
+                reminderEnabled = reminderEnabled,
+                reminderIntervalMinutes = reminderInterval,
+                reminderMode = reminderMode,
+                returnToLauncherEnabled = returnToLauncherEnabled,
+                appName = name,
                 digitalPauseLauncher = digitalPauseLauncher
             )
             // Only close if not paused (pause closes after user decision)
@@ -360,7 +407,7 @@ fun AppDrawerScreen(
 
                     LaunchedEffect(haveToLaunchFirstApp, filteredApps) {
                         if ((autoLaunchSingleMatch && filteredApps.size == 1 && searchQuery.isNotEmpty()) || haveToLaunchFirstApp) {
-                            launchApp(filteredApps.first().action)
+                            launchApp(filteredApps.first().action, filteredApps.first().name)
                         }
                     }
 
@@ -377,7 +424,7 @@ fun AppDrawerScreen(
                         onScrollDown = { launchDrawerAction(drawerScrollDownAction) },
                         onScrollUp = { launchDrawerAction(drawerScrollUpAction) }
                     ) {
-                        launchApp(it.action)
+                        launchApp(it.action, it.name)
                     }
                 }
             }
@@ -402,7 +449,7 @@ fun AppDrawerScreen(
         AppLongPressDialog(
             app = app,
             onDismiss = { dialogApp = null },
-            onOpen = { launchApp(app.action) },
+            onOpen = { launchApp(app.action, app.name) },
             onSettings = {
                 ctx.startActivity(
                     Intent(Settings.ACTION_APPLICATION_DETAILS_SETTINGS).apply {
