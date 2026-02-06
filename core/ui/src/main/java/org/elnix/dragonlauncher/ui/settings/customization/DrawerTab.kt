@@ -330,6 +330,7 @@ fun DrawerTab(
             DrawerActionSelector(
                 settingObject = DrawerSettingsStore.leftDrawerAction,
                 label = stringResource(R.string.left_drawer_action),
+                allowNone = true
             )
         }
 
@@ -337,6 +338,7 @@ fun DrawerTab(
             DrawerActionSelector(
                 settingObject = DrawerSettingsStore.rightDrawerAction,
                 label = stringResource(R.string.right_drawer_action),
+                allowNone = true
             )
         }
 

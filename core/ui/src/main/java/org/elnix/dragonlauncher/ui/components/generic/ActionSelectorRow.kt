@@ -87,7 +87,6 @@ fun <T> ActionSelectorRow(
                 color = textColor.adjustBrightness(if (enabled) 1f else 0.5f),
                 style = MaterialTheme.typography.labelLarge
             )
-
         }
 
         // Right side toggle + divider wrapped in a clickable container

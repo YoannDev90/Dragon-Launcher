@@ -17,7 +17,8 @@ import org.elnix.dragonlauncher.ui.components.generic.ActionSelectorRow
 @Composable
 fun DrawerActionSelector(
     settingObject: BaseSettingObject<DrawerActions, String>,
-    label: String
+    label: String,
+    allowNone: Boolean = false
 ) {
     val ctx = LocalContext.current
     val scope = rememberCoroutineScope()
@@ -30,8 +31,12 @@ fun DrawerActionSelector(
 
     val stateNotDisabled = tempState != DrawerActions.DISABLED
 
+    val actions = DrawerActions.entries
+        .filter { it != DrawerActions.DISABLED }
+        .filter { if (!allowNone) it != DrawerActions.NONE else true }
+
     ActionSelectorRow(
-        options = DrawerActions.entries.filter { it != DrawerActions.DISABLED },
+        options = actions,
         selected = tempState,
         label = label,
         optionLabel = { drawerActionsLabel(ctx, it) },
