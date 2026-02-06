@@ -3,6 +3,7 @@ package org.elnix.dragonlauncher.ui.drawer
 import android.content.Intent
 import android.os.Build
 import android.provider.Settings
+import androidx.activity.compose.BackHandler
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.clickable
@@ -77,6 +78,7 @@ import org.elnix.dragonlauncher.settings.stores.UiSettingsStore
 import org.elnix.dragonlauncher.settings.stores.WellbeingSettingsStore
 import org.elnix.dragonlauncher.ui.actions.launchAppDirectly
 import org.elnix.dragonlauncher.ui.actions.launchSwipeAction
+import org.elnix.dragonlauncher.ui.components.settings.asState
 import org.elnix.dragonlauncher.ui.dialogs.AppAliasesDialog
 import org.elnix.dragonlauncher.ui.dialogs.AppLongPressDialog
 import org.elnix.dragonlauncher.ui.dialogs.IconEditorDialog
@@ -121,36 +123,26 @@ fun AppDrawerScreen(
     val icons by appsViewModel.icons.collectAsState()
 
     val autoLaunchSingleMatch by DrawerSettingsStore
-        .autoOpenSingleMatch.flow(ctx)
-        .collectAsState(initial = true)
+        .autoOpenSingleMatch.asState()
 
 
     /* ───────────── Actions ───────────── */
     val tapEmptySpaceToRaiseKeyboard by DrawerSettingsStore
-        .tapEmptySpaceAction.flow(ctx)
-        .collectAsState(TOGGLE_KB)
+        .tapEmptySpaceAction.asState()
 
-    val drawerEnterAction by DrawerSettingsStore.drawerEnterAction.flow(ctx)
-        .collectAsState(initial = CLEAR)
+    val drawerEnterAction by DrawerSettingsStore.drawerEnterAction.asState()
+    val drawerBackAction by DrawerSettingsStore.drawerEnterAction.asState()
+    val drawerHomeAction by DrawerSettingsStore.drawerHomeAction.asState()
+    val drawerScrollDownAction by DrawerSettingsStore.scrollDownDrawerAction.asState()
+    val drawerScrollUpAction by DrawerSettingsStore.scrollUpDrawerAction.asState()
 
-    val drawerHomeAction by DrawerSettingsStore.drawerHomeAction.flow(ctx)
-        .collectAsState(CLOSE)
-    val drawerScrollDownAction by DrawerSettingsStore.scrollDownDrawerAction.flow(ctx)
-        .collectAsState(CLOSE)
-
-    val drawerScrollUpAction by DrawerSettingsStore.scrollUpDrawerAction.flow(ctx)
-        .collectAsState(TOGGLE_KB)
-    val iconsShape by DrawerSettingsStore.iconsShape.flow(ctx)
-        .collectAsState(DrawerSettingsStore.iconsShape.default)
+    val iconsShape by DrawerSettingsStore.iconsShape.asState()
 
 
     /*  ─────────────  Wellbeing Settings  ─────────────  */
-    val socialMediaPauseEnabled by WellbeingSettingsStore.socialMediaPauseEnabled.flow(ctx)
-        .collectAsState(initial = false)
-    val guiltModeEnabled by WellbeingSettingsStore.guiltModeEnabled.flow(ctx)
-        .collectAsState(initial = false)
-    val pauseDuration by WellbeingSettingsStore.pauseDurationSeconds.flow(ctx)
-        .collectAsState(initial = 10)
+    val socialMediaPauseEnabled by WellbeingSettingsStore.socialMediaPauseEnabled.asState()
+    val guiltModeEnabled by WellbeingSettingsStore.guiltModeEnabled.asState()
+    val pauseDuration by WellbeingSettingsStore.pauseDurationSeconds.asState()
     val pausedApps by WellbeingSettingsStore.getPausedAppsFlow(ctx)
         .collectAsState(initial = emptySet())
 
@@ -290,13 +282,17 @@ fun AppDrawerScreen(
 
 
     /* Dim wallpaper system */
-    val drawerBlurRadius by UiSettingsStore.wallpaperDimDrawerScreen.flow(ctx)
+    val drawerDimRadius by UiSettingsStore.wallpaperDimDrawerScreen.flow(ctx)
         .collectAsState(UiSettingsStore.wallpaperDimDrawerScreen.default)
 
     if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
-        WallpaperDim(drawerBlurRadius)
+        WallpaperDim(drawerDimRadius)
     }
 
+
+    BackHandler {
+        launchDrawerAction(drawerBackAction)
+    }
 
     Column(
         modifier = Modifier
@@ -487,9 +483,6 @@ fun AppDrawerScreen(
                 customIcon = iconOverride
             )
 
-//        if (iconOverride == null) {
-//            scope.launch { appsViewModel.reloadPointIcon(tempPoint) }
-//        }
 
         IconEditorDialog(
             point = tempPoint,

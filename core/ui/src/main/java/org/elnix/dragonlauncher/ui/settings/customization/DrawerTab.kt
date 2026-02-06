@@ -17,6 +17,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Restore
+import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
@@ -327,6 +328,22 @@ fun DrawerTab(
 
         item {
             DrawerActionSelector(
+                settingObject = DrawerSettingsStore.leftDrawerAction,
+                label = stringResource(R.string.left_drawer_action),
+            )
+        }
+
+        item {
+            DrawerActionSelector(
+                settingObject = DrawerSettingsStore.rightDrawerAction,
+                label = stringResource(R.string.right_drawer_action),
+            )
+        }
+
+        item { HorizontalDivider() }
+
+        item {
+            DrawerActionSelector(
                 settingObject = DrawerSettingsStore.scrollUpDrawerAction,
                 label = stringResource(R.string.scroll_up_action),
             )
@@ -348,15 +365,8 @@ fun DrawerTab(
 
         item {
             DrawerActionSelector(
-                settingObject = DrawerSettingsStore.leftDrawerAction,
-                label = stringResource(R.string.left_drawer_action),
-            )
-        }
-
-        item {
-            DrawerActionSelector(
-                settingObject = DrawerSettingsStore.rightDrawerAction,
-                label = stringResource(R.string.right_drawer_action),
+                settingObject = DrawerSettingsStore.backDrawerAction,
+                label = stringResource(R.string.back_action),
             )
         }
 

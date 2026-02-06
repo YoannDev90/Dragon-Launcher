@@ -113,6 +113,14 @@ object DrawerSettingsStore : MapSettingsStore() {
         enumClass = DrawerActions::class.java
     )
 
+
+    val backDrawerAction = Settings.enum(
+        key = "backDrawerAction",
+        dataStoreName = dataStoreName,
+        default = DrawerActions.CLOSE,
+        enumClass = DrawerActions::class.java
+    )
+
     val iconsShape = Settings.shape(
         key = "iconsShape",
         dataStoreName = dataStoreName,
