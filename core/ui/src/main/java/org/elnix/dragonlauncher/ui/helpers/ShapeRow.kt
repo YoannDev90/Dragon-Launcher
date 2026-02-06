@@ -1,7 +1,6 @@
 package org.elnix.dragonlauncher.ui.helpers
 
 import androidx.compose.foundation.background
-import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -27,6 +26,7 @@ import org.elnix.dragonlauncher.common.utils.SHAPES_TAG
 import org.elnix.dragonlauncher.ui.UiConstants.DragonShape
 import org.elnix.dragonlauncher.ui.colors.AppObjectsColors
 import org.elnix.dragonlauncher.ui.components.DragonIconButton
+import org.elnix.dragonlauncher.ui.modifiers.shapedClickable
 
 
 @Composable
@@ -44,7 +44,7 @@ fun ShapeRow(
         modifier = Modifier
             .fillMaxWidth()
             .clip(DragonShape)
-            .clickable { onClick() }
+            .shapedClickable { onClick() }
             .background(MaterialTheme.colorScheme.surface)
             .padding(horizontal = 16.dp, vertical = 14.dp),
         verticalAlignment = Alignment.CenterVertically,

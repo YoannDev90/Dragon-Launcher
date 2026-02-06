@@ -62,6 +62,7 @@ object IconShapeGson {
                 "Triangle" -> IconShape.Triangle
                 "Squircle" -> IconShape.Squircle
                 "Hexagon" -> IconShape.Hexagon
+                "Dragon" -> IconShape.Dragon
                 "Pentagon" -> IconShape.Pentagon
                 "Teardrop" -> IconShape.Teardrop
                 "Pebble" -> IconShape.Pebble

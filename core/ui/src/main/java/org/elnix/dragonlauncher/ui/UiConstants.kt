@@ -1,13 +1,14 @@
 package org.elnix.dragonlauncher.ui
 
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.ui.unit.dp
 
 object UiConstants {
 
-    val DRAGON_SHAPE_CORNER_DP = 12.dp
+    const val DRAGON_SHAPE_CORNER = 12
 
-    val CIRCLE_SHAPE_CORNER_DP = 50.dp
 
-    val DragonShape = RoundedCornerShape(DRAGON_SHAPE_CORNER_DP)
+    const val DRAGON_SHAPE_CORNER_MORE_ROUNDED = 20
+    const val CIRCLE_SHAPE_CORNER = 50
+
+    val DragonShape = RoundedCornerShape(DRAGON_SHAPE_CORNER)
 }

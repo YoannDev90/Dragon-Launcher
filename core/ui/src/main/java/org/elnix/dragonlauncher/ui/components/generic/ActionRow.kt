@@ -29,6 +29,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
+import org.elnix.dragonlauncher.ui.UiConstants
 
 @Composable
 fun <T> ActionRow(
@@ -71,7 +72,8 @@ fun <T> ActionRow(
             val shapeRound by transition.animateInt(
                 label = "shape_round"
             ) { pressed ->
-                if (pressed || isSelected) 15 else 50
+                if (pressed) UiConstants.DRAGON_SHAPE_CORNER
+                else UiConstants.CIRCLE_SHAPE_CORNER
             }
 
             val shape = RoundedCornerShape(shapeRound)
