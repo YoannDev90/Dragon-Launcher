@@ -6,45 +6,43 @@ import kotlinx.serialization.Serializable
 sealed class IconShape {
 
     @Serializable
-    data object PlatformDefault : IconShape()
+    object PlatformDefault : IconShape()
 
     @Serializable
-    data object Circle : IconShape()
+    object Circle : IconShape()
 
     @Serializable
-    data object Square : IconShape()
+    object Square : IconShape()
 
     @Serializable
-    data object RoundedSquare : IconShape()
+    object RoundedSquare : IconShape()
 
     @Serializable
-    data object Triangle : IconShape()
+    object Triangle : IconShape()
 
     @Serializable
-    data object Squircle : IconShape()
+    object Squircle : IconShape()
 
     @Serializable
-    data object Hexagon : IconShape()
+    object Hexagon : IconShape()
 
     @Serializable
-    data object Pentagon : IconShape()
+    object Pentagon : IconShape()
 
     @Serializable
-    data object Teardrop : IconShape()
+    object Teardrop : IconShape()
 
     @Serializable
-    data object Pebble : IconShape()
+    object Pebble : IconShape()
 
     @Serializable
-    data object EasterEgg : IconShape()
-
-
-    @Serializable
-    data object Random : IconShape()
-
+    object EasterEgg : IconShape()
 
     @Serializable
-    data object Dragon : IconShape()
+    object Random : IconShape()
+
+    @Serializable
+    object Dragon : IconShape()
     @Serializable
     data class Custom(
         val shape: CustomIconShapeSerializable
