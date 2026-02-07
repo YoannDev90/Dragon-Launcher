@@ -435,13 +435,15 @@ object ImageUtils {
         sizePx: Int,
         density: Density
     ): ImageBitmap {
-        val bitmap = Bitmap.createBitmap(sizePx, sizePx, Bitmap.Config.ARGB_8888)
+
+        val safeSize = sizePx.coerceAtLeast(0)
+        val bitmap = createBitmap(safeSize, safeSize)
         val canvas = Canvas(bitmap)
 
         canvas.drawColor(Color.Transparent.toArgb(), PorterDuff.Mode.CLEAR)
 
         val outline = shape.createOutline(
-            size = Size(sizePx.toFloat(), sizePx.toFloat()),
+            size = Size(safeSize.toFloat(), safeSize.toFloat()),
             layoutDirection = LayoutDirection.Ltr,
             density = density
         )
@@ -453,8 +455,8 @@ object ImageUtils {
                 path.addRect(
                     0f,
                     0f,
-                    sizePx.toFloat(),
-                    sizePx.toFloat(),
+                    safeSize.toFloat(),
+                    safeSize.toFloat(),
                     Path.Direction.CW
                 )
             }
@@ -490,8 +492,8 @@ object ImageUtils {
         val dst = Rect(
             0,
             0,
-            sizePx,
-            sizePx
+            safeSize,
+            safeSize
         )
 
         canvas.drawBitmap(image.asAndroidBitmap(), src, dst, null)
