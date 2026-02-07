@@ -333,7 +333,7 @@ fun NestEditingScreen(
                             description = stringResource(R.string.depth_desc),
                             backgroundColor = MaterialTheme.colorScheme.surfaceVariant,
                             value = tempDepth,
-                            valueRange = 0..5
+                            valueRange = 1..5
                         ) {
                             tempDepth = it
                             pendingNestUpdate = nests.map { nest ->
