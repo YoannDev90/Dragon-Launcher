@@ -11,7 +11,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
@@ -43,7 +43,7 @@ fun GridSizeSlider(
     val iconsShape by DrawerSettingsStore.iconsShape.asState()
 
 
-    var tempGridSize by remember { mutableStateOf(gridSize) }
+    var tempGridSize by remember { mutableIntStateOf(gridSize) }
 
     LaunchedEffect(gridSize) { tempGridSize = gridSize }
 

@@ -22,6 +22,7 @@ import androidx.compose.ui.draw.rotate
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import org.elnix.dragonlauncher.common.R
+import org.elnix.dragonlauncher.ui.modifiers.conditional
 import org.elnix.dragonlauncher.ui.modifiers.settingsGroup
 
 @Composable
@@ -38,7 +39,7 @@ fun ExpandableSection(
         Animatable(0f)
     }
 
-    val backgroundColor =  remember {
+    val backgroundColor = remember {
         androidx.compose.animation.Animatable(
             collapsedColor
         )
@@ -49,11 +50,16 @@ fun ExpandableSection(
     }
     LaunchedEffect(expanded()) {
         backgroundColor.animateTo(if (expanded()) expandedColor else collapsedColor)
-}
+    }
 
     Column(
         modifier = Modifier.settingsGroup(
-
+            clickModifier = Modifier.conditional(
+                !expanded(),
+                Modifier.clickable {
+                    onExpand(!expanded())
+                }
+            ),
             backgroundColor = backgroundColor.value
         ),
         verticalArrangement = Arrangement.spacedBy(10.dp)
@@ -61,9 +67,12 @@ fun ExpandableSection(
         Row(
             modifier = Modifier
                 .settingsGroup(
-                    clickModifier = Modifier.clickable{
-                        onExpand(!expanded())
-                    },
+                    clickModifier = Modifier.conditional(
+                        expanded(),
+                        Modifier.clickable {
+                            onExpand(!expanded())
+                        }
+                    ),
                     backgroundColor = backgroundColor.value
                 )
                 .fillMaxWidth(),
