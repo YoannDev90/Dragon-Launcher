@@ -219,7 +219,7 @@ fun SliderWithLabel(
 
     val steps = remember(valueRange) {
         // Number of discrete selectable values minus endpoints
-        (valueRange.last - valueRange.first).coerceAtLeast(0)
+        (valueRange.last - valueRange.first - 1).coerceAtLeast(0)
     }
 
     SliderWithLabelInternal(
