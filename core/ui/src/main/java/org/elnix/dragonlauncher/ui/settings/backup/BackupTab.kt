@@ -18,10 +18,8 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Check
 import androidx.compose.material.icons.filled.Download
 import androidx.compose.material.icons.filled.Upload
-import androidx.compose.material.icons.filled.Warning
 import androidx.compose.material3.Checkbox
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
@@ -37,7 +35,6 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontStyle
@@ -60,7 +57,6 @@ import org.elnix.dragonlauncher.ui.components.TextDivider
 import org.elnix.dragonlauncher.ui.components.generic.ActionRow
 import org.elnix.dragonlauncher.ui.dialogs.ExportSettingsDialog
 import org.elnix.dragonlauncher.ui.dialogs.ImportSettingsDialog
-import org.elnix.dragonlauncher.ui.dialogs.UserValidation
 import org.elnix.dragonlauncher.ui.helpers.GradientBigButton
 import org.elnix.dragonlauncher.ui.helpers.SwitchRow
 import org.elnix.dragonlauncher.ui.helpers.settings.SettingsLazyHeader
@@ -82,8 +78,6 @@ fun BackupTab(
     val lastBackupTime by BackupSettingsStore.lastBackupTime.flow(ctx).collectAsState(initial = 0L)
 
     val backupStores by BackupSettingsStore.backupStores.flow(ctx).collectAsState(initial = emptySet())
-
-    val result by backupViewModel.result.collectAsState()
 
     LaunchedEffect(lastBackupTime) {
         ctx.showToast(lastBackupTime)
@@ -320,84 +314,7 @@ fun BackupTab(
                             else -> null
                         }
                     }
-                }
-                /*if (backupPath != null) {
-                    Row(
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .height(60.dp)
-                            .clip(CircleShape)
-                            .background(MaterialTheme.colorScheme.surface.copy(0.5f))
-                            .border(2.dp, MaterialTheme.colorScheme.primary, CircleShape),
-                        verticalAlignment = Alignment.CenterVertically
-                    ) {
-                        Box(
-                            modifier = Modifier
-                                .weight(1f)
-                                .fillMaxHeight()
-                                .clickable {
-                                    autoBackupLauncher.launch("dragonlauncher-auto-backup.json")
-                                },
-
-                            contentAlignment = Alignment.Center
-                        ) {
-                            Text(
-                                text = ctx.getString(R.string.change),
-                                color = MaterialTheme.colorScheme.onSurface
-                            )
-                        }
-
-                        Box(
-                            modifier = Modifier
-                                .width(2.dp)
-                                .fillMaxHeight()
-                                .background(MaterialTheme.colorScheme.primary)
-                        )
-
-                        Box(
-                            modifier = Modifier
-                                .weight(1f)
-                                .fillMaxHeight()
-                                .clickable {
-                                    scope.launch {
-                                        BackupSettingsStore.autoBackupUri.set(ctx, null)
-                                    }
-                                },
-
-                            contentAlignment = Alignment.Center
-                        ) {
-                            Text(
-                                text = ctx.getString(R.string.remove),
-                                color = MaterialTheme.colorScheme.onSurface
-                            )
-                        }
-
-                        Box(
-                            modifier = Modifier
-                                .width(2.dp)
-                                .fillMaxHeight()
-                                .background(MaterialTheme.colorScheme.primary)
-                        )
-
-                        Box(
-                            modifier = Modifier
-                                .weight(1f)
-                                .fillMaxHeight()
-                                .clickable {
-                                    scope.launch {
-                                        SettingsBackupManager.triggerBackup(ctx)
-                                    }
-                                },
-
-                            contentAlignment = Alignment.Center
-                        ) {
-                            Text(
-                                text = ctx.getString(R.string.trigger_backup),
-                                color = MaterialTheme.colorScheme.onSurface
-                            )
-                        }
-                    }
-                }*/ else {
+                } else {
                     Row(
                         modifier = Modifier
                             .fillMaxWidth()
@@ -539,22 +456,6 @@ fun BackupTab(
                 }
             )
         }
-    }
-
-    // ───────────────────────────────────────
-    // RESULT DIALOG
-    // ───────────────────────────────────────
-    result?.let { res ->
-        val isError = res.error
-        UserValidation(
-            title = res.title,
-            message = res.message,
-            titleIcon = if (isError) Icons.Default.Warning else Icons.Default.Check,
-            titleColor = if (isError) MaterialTheme.colorScheme.error else Color.Green,
-            copy = isError,
-            onDismiss = {},
-            onValidate = { backupViewModel.setResult(null) }
-        )
     }
 }
 

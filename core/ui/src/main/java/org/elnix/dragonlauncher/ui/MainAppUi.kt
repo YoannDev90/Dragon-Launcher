@@ -360,7 +360,7 @@ fun MainAppUi(
             message = when {
                 isError -> errorMessage.ifBlank { stringResource(R.string.unknown_error) }
                 isExport -> stringResource(R.string.export_successful)
-                else -> stringResource(R.string.import_successful)
+                else -> null
             },
             titleIcon = if (isError) Icons.Default.Warning else Icons.Default.Check,
             titleColor = if (isError) MaterialTheme.colorScheme.error else Color.Green,

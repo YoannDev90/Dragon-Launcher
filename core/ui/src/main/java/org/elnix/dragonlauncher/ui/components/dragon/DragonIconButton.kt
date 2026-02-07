@@ -1,4 +1,4 @@
-package org.elnix.dragonlauncher.ui.components
+package org.elnix.dragonlauncher.ui.components.dragon
 
 import androidx.compose.animation.core.animateDp
 import androidx.compose.animation.core.updateTransition

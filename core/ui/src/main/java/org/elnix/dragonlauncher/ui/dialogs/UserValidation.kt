@@ -40,7 +40,7 @@ import org.elnix.dragonlauncher.ui.components.ValidateCancelButtons
 @Composable
 fun UserValidation(
     title: String? = null,
-    message: String,
+    message: String?,
     validateText: String = stringResource(R.string.ok),
     doNotRemindMeAgain: (() -> Unit)? = null,
     titleIcon: ImageVector = Icons.Default.Warning,
@@ -85,51 +85,53 @@ fun UserValidation(
             }
         },
         text = {
-            Column {
-                Text(
-                    text = message,
-                    style = MaterialTheme.typography.bodyMedium,
-                    color = MaterialTheme.colorScheme.onSurface,
-                    modifier = Modifier.padding(top = 8.dp)
-                )
-                if (doNotRemindMeAgain != null || copy) {
-                    Spacer(Modifier.height(15.dp))
-                    Row(
-                        verticalAlignment = Alignment.CenterVertically,
-                        horizontalArrangement = Arrangement.spacedBy(8.dp),
-                        modifier = Modifier
-                            .clip(DragonShape)
-                            .clickable {
-                                doNotRemindMeAgainChecked = !doNotRemindMeAgainChecked
-                            }
-                    ) {
-                        if (doNotRemindMeAgain != null) {
-                            Checkbox(
-                                checked = doNotRemindMeAgainChecked,
-                                onCheckedChange = {
+            if (message != null) {
+                Column {
+                    Text(
+                        text = message,
+                        style = MaterialTheme.typography.bodyMedium,
+                        color = MaterialTheme.colorScheme.onSurface,
+                        modifier = Modifier.padding(top = 8.dp)
+                    )
+                    if (doNotRemindMeAgain != null || copy) {
+                        Spacer(Modifier.height(15.dp))
+                        Row(
+                            verticalAlignment = Alignment.CenterVertically,
+                            horizontalArrangement = Arrangement.spacedBy(8.dp),
+                            modifier = Modifier
+                                .clip(DragonShape)
+                                .clickable {
                                     doNotRemindMeAgainChecked = !doNotRemindMeAgainChecked
-                                },
-                                colors = AppObjectsColors.checkboxColors()
-                            )
-                            Text(
-                                text = stringResource(R.string.do_not_remind_me_again),
-                                style = MaterialTheme.typography.bodySmall,
-                                color = MaterialTheme.colorScheme.onSurface,
-                                modifier = Modifier.padding(end = 8.dp)
-                            )
-                        }
+                                }
+                        ) {
+                            if (doNotRemindMeAgain != null) {
+                                Checkbox(
+                                    checked = doNotRemindMeAgainChecked,
+                                    onCheckedChange = {
+                                        doNotRemindMeAgainChecked = !doNotRemindMeAgainChecked
+                                    },
+                                    colors = AppObjectsColors.checkboxColors()
+                                )
+                                Text(
+                                    text = stringResource(R.string.do_not_remind_me_again),
+                                    style = MaterialTheme.typography.bodySmall,
+                                    color = MaterialTheme.colorScheme.onSurface,
+                                    modifier = Modifier.padding(end = 8.dp)
+                                )
+                            }
 
-                        Spacer(Modifier.weight(1f))
+                            Spacer(Modifier.weight(1f))
 
-                        if (copy) {
-                            Icon(
-                                imageVector = Icons.Default.ContentCopy,
-                                contentDescription = "Copy",
-                                modifier = Modifier
-                                    .padding(8.dp)
-                                    .clickable { ctx.copyToClipboard(message) },
-                                tint = MaterialTheme.colorScheme.primary
-                            )
+                            if (copy) {
+                                Icon(
+                                    imageVector = Icons.Default.ContentCopy,
+                                    contentDescription = "Copy",
+                                    modifier = Modifier
+                                        .padding(8.dp)
+                                        .clickable { ctx.copyToClipboard(message) },
+                                    tint = MaterialTheme.colorScheme.primary
+                                )
+                            }
                         }
                     }
                 }
