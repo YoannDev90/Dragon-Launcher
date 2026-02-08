@@ -58,7 +58,6 @@ import org.elnix.dragonlauncher.ui.components.TextDivider
 import org.elnix.dragonlauncher.ui.helpers.settings.SettingsItem
 import org.elnix.dragonlauncher.ui.helpers.settings.SettingsLazyHeader
 import org.elnix.dragonlauncher.ui.wellbeing.AppTimerService
-import org.elnix.dragonlauncher.ui.wellbeing.OverlayReminderService
 
 @Composable
 fun DebugTab(

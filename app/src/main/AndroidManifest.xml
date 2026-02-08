@@ -94,9 +94,7 @@
             android:exported="false"
             android:foregroundServiceType="specialUse" />
 
-        <service
-            android:name="org.elnix.dragonlauncher.ui.wellbeing.OverlayReminderService"
-            android:exported="false" />
+
 
 
         <service

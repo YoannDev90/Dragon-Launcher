@@ -3,11 +3,13 @@
 package org.elnix.dragonlauncher.ui.settings.wellbeing
 
 import android.content.Intent
-import android.provider.Settings
 import android.net.Uri
+import android.provider.Settings
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
+import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
@@ -15,18 +17,23 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.Apps
 import androidx.compose.material.icons.filled.Clear
 import androidx.compose.material.icons.filled.Close
+import androidx.compose.material.icons.outlined.Layers
+import androidx.compose.material.icons.outlined.Notifications
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -36,11 +43,13 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.ImageBitmap
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import kotlinx.coroutines.launch
@@ -92,8 +101,6 @@ fun WellbeingTab(
     val iconsShape by DrawerSettingsStore.iconsShape.flow(ctx)
         .collectAsState(DrawerSettingsStore.iconsShape.default)
 
-
-
     val allApps by appsViewModel.allApps.collectAsState()
 
     var showAppPicker by remember { mutableStateOf(false) }
@@ -109,6 +116,13 @@ fun WellbeingTab(
     val returnToLauncherEnabled by WellbeingSettingsStore.returnToLauncherEnabled.flow(ctx)
         .collectAsState(initial = false)
 
+    LaunchedEffect(reminderEnabled, reminderMode) {
+        if (reminderEnabled && reminderMode == "overlay" && !Settings.canDrawOverlays(ctx)) {
+            WellbeingSettingsStore.reminderEnabled.set(ctx, false)
+            showOverlayPermissionDialog = true
+        }
+    }
+
     SettingsLazyHeader(
         title = stringResource(R.string.wellbeing),
         onBack = onBack,
@@ -123,6 +137,20 @@ fun WellbeingTab(
         }
     ) {
         item {
+            WellbeingIntroCard(
+                title = stringResource(R.string.wellbeing),
+                description = stringResource(R.string.wellbeing_help),
+                reminderEnabled = reminderEnabled,
+                reminderModeLabel = if (reminderMode == "overlay") {
+                    stringResource(R.string.reminder_mode_overlay)
+                } else {
+                    stringResource(R.string.reminder_mode_notification)
+                }
+            )
+        }
+
+        // Pause Screen
+        item {
             SettingsSwitchRow(
                 setting = WellbeingSettingsStore.socialMediaPauseEnabled,
                 title = stringResource(R.string.social_media_pause),
@@ -130,7 +158,6 @@ fun WellbeingTab(
             )
         }
 
-        // Guilt mode with usage permission check
         item {
             SwitchRow(
                 state = guiltModeEnabled,
@@ -149,18 +176,14 @@ fun WellbeingTab(
         }
 
         item {
-            Spacer(modifier = Modifier.height(8.dp))
-        }
-
-        item {
             Column(
                 modifier = Modifier
                     .fillMaxWidth()
                     .clip(DragonShape)
-                    .background(MaterialTheme.colorScheme.surface)
+                    .background(MaterialTheme.colorScheme.surfaceVariant)
+                    .border(1.dp, MaterialTheme.colorScheme.outlineVariant, DragonShape)
                     .padding(16.dp)
             ) {
-
                 SettingsSlider(
                     setting = WellbeingSettingsStore.pauseDurationSeconds,
                     title = stringResource(R.string.pause_duration),
@@ -173,11 +196,11 @@ fun WellbeingTab(
             }
         }
 
+        // Reminders
         item {
             TextDivider(stringResource(R.string.reminder_mode_title))
         }
 
-        // Reminder switch
         item {
             SwitchRow(
                 state = reminderEnabled,
@@ -185,7 +208,7 @@ fun WellbeingTab(
                 subText = stringResource(R.string.reminder_mode_description),
                 enabled = socialMediaPauseEnabled,
             ) { newValue ->
-                if (newValue && reminderMode == "overlay" && !android.provider.Settings.canDrawOverlays(ctx)) {
+                if (newValue && reminderMode == "overlay" && !Settings.canDrawOverlays(ctx)) {
                     showOverlayPermissionDialog = true
                 } else {
                     scope.launch {
@@ -195,13 +218,13 @@ fun WellbeingTab(
             }
         }
 
-        // Reminder interval slider
         item {
             Column(
                 modifier = Modifier
                     .fillMaxWidth()
                     .clip(DragonShape)
-                    .background(MaterialTheme.colorScheme.surface)
+                    .background(MaterialTheme.colorScheme.surfaceVariant)
+                    .border(1.dp, MaterialTheme.colorScheme.outlineVariant, DragonShape)
                     .padding(16.dp)
             ) {
                 SettingsSlider(
@@ -216,7 +239,6 @@ fun WellbeingTab(
             }
         }
 
-        // Reminder mode toggle (notification vs overlay)
         item {
             Row(
                 modifier = Modifier
@@ -226,11 +248,14 @@ fun WellbeingTab(
             ) {
                 SettingsItem(
                     title = stringResource(R.string.reminder_mode_notification),
-                    icon = Icons.Default.Apps,
+                    icon = Icons.Outlined.Notifications,
                     modifier = Modifier.weight(1f),
                     enabled = socialMediaPauseEnabled && reminderEnabled,
-                    backgroundColor = if (reminderMode == "notification") MaterialTheme.colorScheme.primaryContainer
-                        else MaterialTheme.colorScheme.surface
+                    backgroundColor = if (reminderMode == "notification") {
+                        MaterialTheme.colorScheme.primaryContainer
+                    } else {
+                        MaterialTheme.colorScheme.surface
+                    }
                 ) {
                     scope.launch {
                         WellbeingSettingsStore.reminderMode.set(ctx, "notification")
@@ -239,13 +264,16 @@ fun WellbeingTab(
 
                 SettingsItem(
                     title = stringResource(R.string.reminder_mode_overlay),
-                    icon = Icons.Default.Apps,
+                    icon = Icons.Outlined.Layers,
                     modifier = Modifier.weight(1f),
                     enabled = socialMediaPauseEnabled && reminderEnabled,
-                    backgroundColor = if (reminderMode == "overlay") MaterialTheme.colorScheme.primaryContainer
-                        else MaterialTheme.colorScheme.surface
+                    backgroundColor = if (reminderMode == "overlay") {
+                        MaterialTheme.colorScheme.primaryContainer
+                    } else {
+                        MaterialTheme.colorScheme.surface
+                    }
                 ) {
-                    if (!android.provider.Settings.canDrawOverlays(ctx)) {
+                    if (!Settings.canDrawOverlays(ctx)) {
                         showOverlayPermissionDialog = true
                     } else {
                         scope.launch {
@@ -255,73 +283,69 @@ fun WellbeingTab(
                 }
             }
         }
-        
-        // Popup Display Options (only visible when overlay mode is selected)
+
         if (reminderMode == "overlay" && socialMediaPauseEnabled && reminderEnabled) {
             item {
                 TextDivider(stringResource(R.string.popup_display_title))
             }
-            
+
             item {
-                Text(
-                    text = stringResource(R.string.popup_display_description),
-                    style = MaterialTheme.typography.bodySmall,
-                    color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.7f),
-                    modifier = Modifier.padding(horizontal = 16.dp, vertical = 8.dp)
-                )
-            }
-            
-            item {
-                val popupShowSessionTime by WellbeingSettingsStore.popupShowSessionTime.flow(ctx).collectAsState(initial = true)
-                
-                SwitchRow(
-                    state = popupShowSessionTime,
-                    text = stringResource(R.string.popup_show_session_time),
-                    subText = stringResource(R.string.popup_show_session_time_desc),
-                    enabled = true
-                ) { newValue ->
-                    scope.launch {
-                        WellbeingSettingsStore.popupShowSessionTime.set(ctx, newValue)
+                Column(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .clip(DragonShape)
+                        .background(MaterialTheme.colorScheme.surfaceVariant)
+                        .border(1.dp, MaterialTheme.colorScheme.outlineVariant, DragonShape)
+                        .padding(vertical = 4.dp)
+                ) {
+                    val popupShowSessionTime by WellbeingSettingsStore.popupShowSessionTime.flow(ctx)
+                        .collectAsState(initial = true)
+                    val popupShowTodayTime by WellbeingSettingsStore.popupShowTodayTime.flow(ctx)
+                        .collectAsState(initial = true)
+                    val popupShowRemainingTime by WellbeingSettingsStore.popupShowRemainingTime.flow(ctx)
+                        .collectAsState(initial = true)
+
+                    SwitchRow(
+                        state = popupShowSessionTime,
+                        text = stringResource(R.string.popup_show_session_time),
+                        subText = stringResource(R.string.popup_show_session_time_desc),
+                        enabled = true
+                    ) { newValue ->
+                        scope.launch {
+                            WellbeingSettingsStore.popupShowSessionTime.set(ctx, newValue)
+                        }
                     }
-                }
-            }
-            
-            item {
-                val popupShowTodayTime by WellbeingSettingsStore.popupShowTodayTime.flow(ctx).collectAsState(initial = true)
-                
-                SwitchRow(
-                    state = popupShowTodayTime,
-                    text = stringResource(R.string.popup_show_today_time),
-                    subText = stringResource(R.string.popup_show_today_time_desc),
-                    enabled = true
-                ) { newValue ->
-                    scope.launch {
-                        WellbeingSettingsStore.popupShowTodayTime.set(ctx, newValue)
+
+                    SwitchRow(
+                        state = popupShowTodayTime,
+                        text = stringResource(R.string.popup_show_today_time),
+                        subText = stringResource(R.string.popup_show_today_time_desc),
+                        enabled = true
+                    ) { newValue ->
+                        scope.launch {
+                            WellbeingSettingsStore.popupShowTodayTime.set(ctx, newValue)
+                        }
                     }
-                }
-            }
-            
-            item {
-                val popupShowRemainingTime by WellbeingSettingsStore.popupShowRemainingTime.flow(ctx).collectAsState(initial = true)
-                
-                SwitchRow(
-                    state = popupShowRemainingTime,
-                    text = stringResource(R.string.popup_show_remaining_time),
-                    subText = stringResource(R.string.popup_show_remaining_time_desc),
-                    enabled = true
-                ) { newValue ->
-                    scope.launch {
-                        WellbeingSettingsStore.popupShowRemainingTime.set(ctx, newValue)
+
+                    SwitchRow(
+                        state = popupShowRemainingTime,
+                        text = stringResource(R.string.popup_show_remaining_time),
+                        subText = stringResource(R.string.popup_show_remaining_time_desc),
+                        enabled = true
+                    ) { newValue ->
+                        scope.launch {
+                            WellbeingSettingsStore.popupShowRemainingTime.set(ctx, newValue)
+                        }
                     }
                 }
             }
         }
 
+        // Return to Launcher
         item {
             TextDivider(stringResource(R.string.return_to_launcher_title))
         }
 
-        // Return-to-launcher switch
         item {
             SwitchRow(
                 state = returnToLauncherEnabled,
@@ -335,8 +359,14 @@ fun WellbeingTab(
             }
         }
 
+        // Paused Apps
         item {
-            TextDivider(stringResource(R.string.paused_apps))
+            val countText = if (pausedApps.isNotEmpty()) {
+                "${stringResource(R.string.paused_apps)} (${pausedApps.size})"
+            } else {
+                stringResource(R.string.paused_apps)
+            }
+            TextDivider(countText)
         }
 
         item {
@@ -372,10 +402,8 @@ fun WellbeingTab(
             }
         }
 
-        // Clear all button when there are apps
         if (pausedApps.isNotEmpty()) {
             item {
-                Spacer(modifier = Modifier.height(8.dp))
                 SettingsItem(
                     title = stringResource(R.string.clear_all),
                     icon = Icons.Default.Clear,
@@ -386,12 +414,11 @@ fun WellbeingTab(
                     }
                 }
             }
-        }
 
-        if (pausedApps.isNotEmpty()) {
             item {
-                Spacer(modifier = Modifier.height(8.dp))
+                Spacer(modifier = Modifier.height(4.dp))
             }
+
             items(pausedApps.toList()) { packageName ->
                 val app = allApps.find { it.packageName == packageName }
                 val appName = app?.name ?: packageName
@@ -410,12 +437,41 @@ fun WellbeingTab(
             }
         } else {
             item {
-                Text(
-                    text = stringResource(R.string.no_paused_apps),
-                    style = MaterialTheme.typography.bodyMedium,
-                    color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.6f),
-                    modifier = Modifier.padding(16.dp)
-                )
+                Box(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .clip(DragonShape)
+                        .background(MaterialTheme.colorScheme.surfaceVariant)
+                        .border(1.dp, MaterialTheme.colorScheme.outlineVariant, DragonShape)
+                        .padding(vertical = 24.dp),
+                    contentAlignment = Alignment.Center
+                ) {
+                    Column(
+                        horizontalAlignment = Alignment.CenterHorizontally,
+                        verticalArrangement = Arrangement.spacedBy(8.dp)
+                    ) {
+                        Box(
+                            modifier = Modifier
+                                .size(40.dp)
+                                .clip(CircleShape)
+                                .background(MaterialTheme.colorScheme.surfaceVariant),
+                            contentAlignment = Alignment.Center
+                        ) {
+                            Icon(
+                                imageVector = Icons.Default.Apps,
+                                contentDescription = null,
+                                modifier = Modifier.size(20.dp),
+                                tint = MaterialTheme.colorScheme.onSurfaceVariant
+                            )
+                        }
+                        Text(
+                            text = stringResource(R.string.no_paused_apps),
+                            style = MaterialTheme.typography.bodyMedium,
+                            color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.6f),
+                            textAlign = TextAlign.Center
+                        )
+                    }
+                }
             }
         }
     }
@@ -436,7 +492,6 @@ fun WellbeingTab(
         }
     }
 
-    // Usage permission dialog
     if (showPermissionDialog) {
         AlertDialog(
             onDismissRequest = { showPermissionDialog = false },
@@ -462,7 +517,6 @@ fun WellbeingTab(
         )
     }
 
-    // Overlay permission dialog
     if (showOverlayPermissionDialog) {
         AlertDialog(
             onDismissRequest = { showOverlayPermissionDialog = false },
@@ -494,6 +548,87 @@ fun WellbeingTab(
     }
 }
 
+@Composable
+private fun WellbeingIntroCard(
+    title: String,
+    description: String,
+    reminderEnabled: Boolean,
+    reminderModeLabel: String
+) {
+    val gradient = Brush.linearGradient(
+        colors = listOf(
+            MaterialTheme.colorScheme.primaryContainer,
+            MaterialTheme.colorScheme.secondaryContainer
+        )
+    )
+
+    Box(
+        modifier = Modifier
+            .fillMaxWidth()
+            .clip(DragonShape)
+            .background(gradient)
+            .border(1.dp, MaterialTheme.colorScheme.outlineVariant, DragonShape)
+            .padding(16.dp)
+    ) {
+        Row(
+            horizontalArrangement = Arrangement.spacedBy(12.dp),
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            Box(
+                modifier = Modifier
+                    .size(44.dp)
+                    .clip(CircleShape)
+                    .background(MaterialTheme.colorScheme.surface),
+                contentAlignment = Alignment.Center
+            ) {
+                Icon(
+                    imageVector = Icons.Outlined.Notifications,
+                    contentDescription = null,
+                    modifier = Modifier.size(22.dp),
+                    tint = MaterialTheme.colorScheme.primary
+                )
+            }
+
+            Column(
+                verticalArrangement = Arrangement.spacedBy(6.dp),
+                modifier = Modifier.weight(1f)
+            ) {
+                Text(
+                    text = title,
+                    style = MaterialTheme.typography.titleMedium,
+                    fontWeight = FontWeight.Bold
+                )
+                Text(
+                    text = description,
+                    style = MaterialTheme.typography.bodySmall,
+                    color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.7f)
+                )
+                Box(
+                    modifier = Modifier
+                        .clip(CircleShape)
+                        .background(
+                            if (reminderEnabled) {
+                                MaterialTheme.colorScheme.primary
+                            } else {
+                                MaterialTheme.colorScheme.surfaceVariant
+                            }
+                        )
+                        .padding(horizontal = 10.dp, vertical = 4.dp)
+                ) {
+                    Text(
+                        text = reminderModeLabel,
+                        style = MaterialTheme.typography.labelMedium,
+                        color = if (reminderEnabled) {
+                            MaterialTheme.colorScheme.onPrimary
+                        } else {
+                            MaterialTheme.colorScheme.onSurfaceVariant
+                        }
+                    )
+                }
+            }
+        }
+    }
+}
 
 @Composable
 private fun PausedAppItem(
@@ -527,12 +662,20 @@ private fun PausedAppItem(
                     contentScale = ContentScale.Fit
                 )
             } else {
-                Icon(
-                    imageVector = Icons.Default.Apps,
-                    contentDescription = null,
-                    modifier = Modifier.size(40.dp),
-                    tint = MaterialTheme.colorScheme.primary
-                )
+                Box(
+                    modifier = Modifier
+                        .size(40.dp)
+                        .clip(resolveShape(iconsShape))
+                        .background(MaterialTheme.colorScheme.surfaceVariant),
+                    contentAlignment = Alignment.Center
+                ) {
+                    Icon(
+                        imageVector = Icons.Default.Apps,
+                        contentDescription = null,
+                        modifier = Modifier.size(24.dp),
+                        tint = MaterialTheme.colorScheme.onSurfaceVariant
+                    )
+                }
             }
 
             Column {
@@ -544,8 +687,9 @@ private fun PausedAppItem(
                 Text(
                     text = packageName,
                     style = MaterialTheme.typography.bodySmall,
-                    color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.6f),
-                    fontSize = 11.sp
+                    color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.5f),
+                    fontSize = 11.sp,
+                    maxLines = 1
                 )
             }
         }

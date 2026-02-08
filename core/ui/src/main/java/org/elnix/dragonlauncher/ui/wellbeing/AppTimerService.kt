@@ -19,7 +19,7 @@ import org.elnix.dragonlauncher.common.utils.formatDuration
  * Foreground service that:
  * 1. Tracks how long the user has been on a paused app.
  * 2. Optionally sends periodic reminder notifications (every X minutes).
- * 3. Optionally triggers an overlay popup via [OverlayReminderService].
+ * 3. Optionally triggers an overlay popup via [OverlayReminderActivity].
  * 4. Optionally returns the user to Dragon Launcher when the time limit is reached.
  */
 class AppTimerService : Service() {

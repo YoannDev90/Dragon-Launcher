@@ -1,64 +1,65 @@
 package org.elnix.dragonlauncher.ui.wellbeing
 
+import android.animation.AnimatorSet
+import android.animation.ObjectAnimator
+import android.animation.ValueAnimator
 import android.app.Service
 import android.content.Context
 import android.content.Intent
+import android.graphics.Color
+import android.graphics.PixelFormat
+import android.graphics.Typeface
+import android.graphics.drawable.GradientDrawable
 import android.os.Build
 import android.os.Handler
 import android.os.IBinder
 import android.os.Looper
 import android.provider.Settings
 import android.util.Log
-import android.view.MotionEvent
-import android.view.ViewGroup
+import android.util.TypedValue
+import android.view.Gravity
+import android.view.View
 import android.view.WindowManager
+import android.view.animation.AccelerateDecelerateInterpolator
+import android.view.animation.OvershootInterpolator
 import android.widget.FrameLayout
-import androidx.compose.animation.*
-import androidx.compose.animation.core.*
-import androidx.compose.foundation.background
-import androidx.compose.foundation.layout.*
-import androidx.compose.foundation.layout.WindowInsets
-import androidx.compose.foundation.layout.safeDrawing
-import androidx.compose.foundation.layout.asPaddingValues
-import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Close
-import androidx.compose.material3.*
-import androidx.compose.runtime.*
-import androidx.compose.ui.Alignment
-import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.scale
-import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.platform.ComposeView
-import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.text.style.TextAlign
-import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
+import android.widget.ImageView
+import android.widget.LinearLayout
+import android.widget.TextView
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.runBlocking
 import org.elnix.dragonlauncher.common.R
 import org.elnix.dragonlauncher.settings.stores.WellbeingSettingsStore
 
 /**
- * Service that displays a non-intrusive overlay popup using ComposeView
- * Allows clicks to pass through to underlying app except on the card itself
+ * Service that displays a non-intrusive overlay popup at the top of the screen
+ * using plain Android Views (no Compose) for maximum reliability.
+ *
+ * Uses WindowManager with FLAG_NOT_FOCUSABLE + FLAG_NOT_TOUCH_MODAL so
+ * touches outside the popup pass through to the app below.
  */
 class OverlayReminderActivity : Service() {
 
     companion object {
         const val EXTRA_APP_NAME = "extra_app_name"
         const val EXTRA_MODE = "extra_mode" // "reminder" or "time_warning"
-        
-        // Time information
         const val EXTRA_SESSION_TIME = "extra_session_time"
         const val EXTRA_TODAY_TIME = "extra_today_time"
         const val EXTRA_REMAINING_TIME = "extra_remaining_time"
         const val EXTRA_HAS_LIMIT = "extra_has_limit"
-        
-        private const val TAG = "OverlayReminderActivity"
-        
-        fun show(ctx: Context, appName: String, sessionTime: String, todayTime: String, remainingTime: String, hasLimit: Boolean, mode: String = "reminder") {
+
+        private const val TAG = "OverlayReminder"
+        private const val DISMISS_DELAY = 7000L
+
+        fun show(
+            ctx: Context,
+            appName: String,
+            sessionTime: String,
+            todayTime: String,
+            remainingTime: String,
+            hasLimit: Boolean,
+            mode: String = "reminder"
+        ) {
             if (!Settings.canDrawOverlays(ctx)) {
                 Log.w(TAG, "Cannot show overlay: permission not granted")
                 return
@@ -79,8 +80,26 @@ class OverlayReminderActivity : Service() {
         }
     }
 
+    // ── Colors ──
+
+    // Reminder mode (dark glass + purple/teal accent)
+    private val colorCardBg = Color.parseColor("#E6192133")        // dark with slight transparency
+    private val colorCardBorder = Color.parseColor("#806C5CE7")    // purple border
+    private val colorTextPrimary = Color.parseColor("#FFFFFFFF")
+    private val colorTextSecondary = Color.parseColor("#B3FFFFFF")  // white 70%
+    private val colorAccentTeal = Color.parseColor("#FF00CEC9")
+    private val colorDivider = Color.parseColor("#33FFFFFF")        // white 20%
+
+    // Time warning mode (dark + orange/red accent)
+    private val colorWarningBg = Color.parseColor("#E62D1B3D")
+    private val colorWarningBorder = Color.parseColor("#80FFA502")
+    private val colorWarningAccent = Color.parseColor("#FFFFA502")
+    private val colorWarningText = Color.parseColor("#CCFFA502")   // orange 80%
+
     private var windowManager: WindowManager? = null
-    private var overlayView: ViewGroup? = null
+    private var overlayView: View? = null
+    private val handler = Handler(Looper.getMainLooper())
+    private var pulseAnimator: ValueAnimator? = null
 
     override fun onBind(intent: Intent?): IBinder? = null
 
@@ -92,6 +111,8 @@ class OverlayReminderActivity : Service() {
                 return START_NOT_STICKY
             }
 
+            removeOverlay()
+
             val appName = intent?.getStringExtra(EXTRA_APP_NAME) ?: "App"
             val mode = intent?.getStringExtra(EXTRA_MODE) ?: "reminder"
             val sessionTime = intent?.getStringExtra(EXTRA_SESSION_TIME) ?: ""
@@ -101,7 +122,6 @@ class OverlayReminderActivity : Service() {
 
             Log.d(TAG, "onStartCommand: mode=$mode, app=$appName")
 
-            removeOverlay()
             showOverlay(appName, sessionTime, todayTime, remainingTime, hasLimit, mode)
         } catch (e: Exception) {
             Log.e(TAG, "Error in onStartCommand", e)
@@ -109,6 +129,8 @@ class OverlayReminderActivity : Service() {
         }
         return START_NOT_STICKY
     }
+
+    // ───────────────────── Overlay display ─────────────────────
 
     private fun showOverlay(
         appName: String,
@@ -119,455 +141,399 @@ class OverlayReminderActivity : Service() {
         mode: String
     ) {
         try {
-            windowManager = getSystemService(WINDOW_SERVICE) as WindowManager
+            windowManager = applicationContext.getSystemService(WINDOW_SERVICE) as WindowManager
 
-            // Create transparent container that won't block clicks
-            val container = TransparentClickPassThroughView(this)
-            
-            // Create ComposeView for the card
-            val composeView = ComposeView(this).apply {
-                setBackgroundColor(android.graphics.Color.TRANSPARENT)
-                setContent {
-                    MaterialTheme {
-                        var visible by remember { mutableStateOf(false) }
-                        
-                        LaunchedEffect(Unit) {
-                            visible = true
-                        }
-                        
-                        AnimatedVisibility(
-                            visible = visible,
-                            enter = slideInVertically(
-                                initialOffsetY = { -it },
-                                animationSpec = spring(
-                                    dampingRatio = Spring.DampingRatioMediumBouncy,
-                                    stiffness = Spring.StiffnessLow
-                                )
-                            ) + fadeIn(),
-                            exit = slideOutVertically(
-                                targetOffsetY = { -it },
-                                animationSpec = tween(300)
-                            ) + fadeOut()
-                        ) {
-                            // Load display preferences
-                            val showSession = runBlocking { 
-                                WellbeingSettingsStore.popupShowSessionTime.flow(this@OverlayReminderActivity).first()
-                            }
-                            val showToday = runBlocking {
-                                WellbeingSettingsStore.popupShowTodayTime.flow(this@OverlayReminderActivity).first()
-                            }
-                            val showRemaining = runBlocking {
-                                WellbeingSettingsStore.popupShowRemainingTime.flow(this@OverlayReminderActivity).first()
-                            }
-
-                            Box(
-                                modifier = Modifier
-                                    .fillMaxWidth()
-                                    .padding(WindowInsets.safeDrawing.asPaddingValues())
-                                    .padding(horizontal = 16.dp)
-                                    .padding(top = 8.dp),
-                                contentAlignment = Alignment.TopCenter
-                            ) {
-                                if (mode == "time_warning") {
-                                    TimeWarningCard(
-                                        appName = appName,
-                                        sessionTime = sessionTime,
-                                        todayTime = todayTime,
-                                        remainingTime = remainingTime,
-                                        showSession = showSession,
-                                        showToday = showToday,
-                                        showRemaining = showRemaining,
-                                        onDismiss = { 
-                                            removeOverlay()
-                                            stopSelf()
-                                        }
-                                    )
-                                } else {
-                                    ReminderCard(
-                                        appName = appName,
-                                        sessionTime = sessionTime,
-                                        todayTime = todayTime,
-                                        remainingTime = remainingTime,
-                                        hasLimit = hasLimit,
-                                        showSession = showSession,
-                                        showToday = showToday,
-                                        showRemaining = showRemaining,
-                                        onDismiss = { 
-                                            removeOverlay()
-                                            stopSelf()
-                                        }
-                                    )
-                                }
-                            }
-                        }
-                    }
-                }
+            // Read user preferences (which stats to show)
+            val showSession = runBlocking {
+                WellbeingSettingsStore.popupShowSessionTime.flow(this@OverlayReminderActivity).first()
             }
-            container.addView(composeView)
+            val showToday = runBlocking {
+                WellbeingSettingsStore.popupShowTodayTime.flow(this@OverlayReminderActivity).first()
+            }
+            val showRemaining = runBlocking {
+                WellbeingSettingsStore.popupShowRemainingTime.flow(this@OverlayReminderActivity).first()
+            }
 
+            val isWarning = mode == "time_warning"
+
+            // Build the view hierarchy
+            val container = buildOverlayView(
+                appName, sessionTime, todayTime, remainingTime,
+                hasLimit, showSession, showToday, showRemaining, isWarning
+            )
+
+            // WindowManager layout params — the key to non-blocking overlay
             val layoutParams = WindowManager.LayoutParams(
                 WindowManager.LayoutParams.MATCH_PARENT,
-                WindowManager.LayoutParams.MATCH_PARENT,
+                WindowManager.LayoutParams.WRAP_CONTENT,
                 if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O)
                     WindowManager.LayoutParams.TYPE_APPLICATION_OVERLAY
                 else
                     @Suppress("DEPRECATION")
                     WindowManager.LayoutParams.TYPE_PHONE,
+                // FLAG_NOT_FOCUSABLE: overlay never gets input focus
+                // FLAG_NOT_TOUCH_MODAL: touches outside overlay go to app below
+                // FLAG_LAYOUT_IN_SCREEN: allow overlay in status bar area
                 WindowManager.LayoutParams.FLAG_NOT_FOCUSABLE or
                         WindowManager.LayoutParams.FLAG_NOT_TOUCH_MODAL or
                         WindowManager.LayoutParams.FLAG_LAYOUT_IN_SCREEN,
-                android.graphics.PixelFormat.TRANSLUCENT
-            )
+                PixelFormat.TRANSLUCENT
+            ).apply {
+                gravity = Gravity.TOP or Gravity.CENTER_HORIZONTAL
+            }
 
             overlayView = container
             windowManager?.addView(container, layoutParams)
             Log.d(TAG, "Overlay view added successfully")
 
-            // Auto-dismiss after 7 seconds using Handler (Service doesn't have window)
-            Handler(Looper.getMainLooper()).postDelayed({
+            // Entry animation
+            animateIn(container)
+
+            // If time warning mode, add pulsing animation
+            if (isWarning) {
+                startPulseAnimation(container)
+            }
+
+            // Auto-dismiss
+            handler.postDelayed({
                 try {
-                    if (overlayView != null) {
-                        removeOverlay()
-                        stopSelf()
+                    if (overlayView === container) {
+                        animateOut(container) {
+                            removeOverlay()
+                            stopSelf()
+                        }
                     }
                 } catch (e: Exception) {
                     Log.e(TAG, "Error in auto-dismiss", e)
                 }
-            }, 7000)
+            }, DISMISS_DELAY)
+
         } catch (e: Exception) {
             Log.e(TAG, "Error in showOverlay", e)
             stopSelf()
         }
     }
 
+    // ───────────────────── View construction ─────────────────────
+
+    private fun buildOverlayView(
+        appName: String,
+        sessionTime: String,
+        todayTime: String,
+        remainingTime: String,
+        hasLimit: Boolean,
+        showSession: Boolean,
+        showToday: Boolean,
+        showRemaining: Boolean,
+        isWarning: Boolean
+    ): FrameLayout {
+        val ctx = applicationContext
+        val density = ctx.resources.displayMetrics.density
+
+        fun dp(value: Int): Int = (value * density + 0.5f).toInt()
+
+        // Outer wrapper with padding (acts as the "padding from screen edge")
+        val wrapper = FrameLayout(ctx).apply {
+            val statusBarHeight = getStatusBarHeight()
+            setPadding(dp(12), statusBarHeight + dp(8), dp(12), dp(8))
+        }
+
+        // Card background
+        val cardBg = GradientDrawable().apply {
+            shape = GradientDrawable.RECTANGLE
+            cornerRadius = dp(24).toFloat()
+            setColor(if (isWarning) colorWarningBg else colorCardBg)
+            setStroke(dp(1), if (isWarning) colorWarningBorder else colorCardBorder)
+        }
+
+        // Main card layout
+        val card = LinearLayout(ctx).apply {
+            orientation = LinearLayout.VERTICAL
+            background = cardBg
+            setPadding(dp(20), dp(16), dp(20), dp(16))
+            elevation = dp(12).toFloat()
+        }
+
+        // ── Header row ──
+        val headerRow = LinearLayout(ctx).apply {
+            orientation = LinearLayout.HORIZONTAL
+            gravity = Gravity.CENTER_VERTICAL
+        }
+
+        // Emoji icon
+        val emojiView = TextView(ctx).apply {
+            text = if (isWarning) "\u231B" else "\uD83D\uDC09"
+            setTextSize(TypedValue.COMPLEX_UNIT_SP, 24f)
+            setPadding(0, 0, dp(12), 0)
+        }
+
+        // Title column
+        val titleColumn = LinearLayout(ctx).apply {
+            orientation = LinearLayout.VERTICAL
+            layoutParams = LinearLayout.LayoutParams(0, LinearLayout.LayoutParams.WRAP_CONTENT, 1f)
+        }
+
+        val titleText = TextView(ctx).apply {
+            text = appName
+            setTextSize(TypedValue.COMPLEX_UNIT_SP, 16f)
+            setTextColor(colorTextPrimary)
+            typeface = Typeface.create(Typeface.SANS_SERIF, Typeface.BOLD)
+            maxLines = 1
+        }
+
+        val subtitleText = TextView(ctx).apply {
+            text = if (isWarning)
+                getString(R.string.time_warning_subtitle)
+            else
+                getString(R.string.reminder_overlay_subtext)
+            setTextSize(TypedValue.COMPLEX_UNIT_SP, 11f)
+            setTextColor(if (isWarning) colorWarningText else colorTextSecondary)
+            maxLines = 1
+        }
+
+        titleColumn.addView(titleText)
+        titleColumn.addView(subtitleText)
+
+        // Close button
+        val closeBtn = ImageView(ctx).apply {
+            setImageResource(android.R.drawable.ic_menu_close_clear_cancel)
+            setColorFilter(Color.parseColor("#99FFFFFF"))
+            val size = dp(32)
+            layoutParams = LinearLayout.LayoutParams(size, size).apply {
+                gravity = Gravity.CENTER_VERTICAL
+            }
+            setPadding(dp(4), dp(4), dp(4), dp(4))
+            isClickable = true
+            isFocusable = true
+            setOnClickListener {
+                animateOut(wrapper) {
+                    removeOverlay()
+                    stopSelf()
+                }
+            }
+        }
+
+        headerRow.addView(emojiView)
+        headerRow.addView(titleColumn)
+        headerRow.addView(closeBtn)
+        card.addView(headerRow)
+
+        // ── Time statistics row ──
+        data class TimeItem(val label: String, val value: String)
+
+        val items = mutableListOf<TimeItem>()
+
+        if (showSession && sessionTime.isNotEmpty()) {
+            items.add(TimeItem(getString(R.string.popup_session_label), sessionTime))
+        }
+        if (showToday && todayTime.isNotEmpty()) {
+            items.add(TimeItem(getString(R.string.popup_today_label), todayTime))
+        }
+        if (showRemaining && hasLimit) {
+            items.add(
+                TimeItem(
+                    getString(R.string.popup_remaining_label),
+                    remainingTime.ifEmpty { getString(R.string.popup_no_limit) }
+                )
+            )
+        }
+
+        if (items.isNotEmpty()) {
+            // Spacer
+            card.addView(View(ctx).apply {
+                layoutParams = LinearLayout.LayoutParams(
+                    LinearLayout.LayoutParams.MATCH_PARENT, dp(12)
+                )
+            })
+
+            val statsRow = LinearLayout(ctx).apply {
+                orientation = LinearLayout.HORIZONTAL
+                gravity = Gravity.CENTER
+            }
+
+            items.forEachIndexed { index, item ->
+                // Time info column
+                val infoCol = LinearLayout(ctx).apply {
+                    orientation = LinearLayout.VERTICAL
+                    gravity = Gravity.CENTER_HORIZONTAL
+                    layoutParams = LinearLayout.LayoutParams(
+                        0, LinearLayout.LayoutParams.WRAP_CONTENT, 1f
+                    )
+                }
+
+                val valueText = TextView(ctx).apply {
+                    text = item.value
+                    setTextSize(TypedValue.COMPLEX_UNIT_SP, 18f)
+                    setTextColor(if (isWarning) colorWarningAccent else colorTextPrimary)
+                    typeface = Typeface.create(Typeface.SANS_SERIF, Typeface.BOLD)
+                    gravity = Gravity.CENTER
+                    maxLines = 1
+                }
+
+                val labelText = TextView(ctx).apply {
+                    text = item.label
+                    setTextSize(TypedValue.COMPLEX_UNIT_SP, 11f)
+                    setTextColor(if (isWarning) colorWarningText else colorTextSecondary)
+                    gravity = Gravity.CENTER
+                    maxLines = 1
+                    setPadding(0, dp(2), 0, 0)
+                }
+
+                infoCol.addView(valueText)
+                infoCol.addView(labelText)
+                statsRow.addView(infoCol)
+
+                // Divider between items
+                if (index < items.size - 1) {
+                    val divider = View(ctx).apply {
+                        setBackgroundColor(colorDivider)
+                        layoutParams = LinearLayout.LayoutParams(dp(1), dp(36)).apply {
+                            setMargins(dp(4), dp(2), dp(4), dp(2))
+                            gravity = Gravity.CENTER_VERTICAL
+                        }
+                    }
+                    statsRow.addView(divider)
+                }
+            }
+
+            card.addView(statsRow)
+        }
+
+        // ── Progress bar (auto-dismiss indicator) ──
+        card.addView(View(ctx).apply {
+            layoutParams = LinearLayout.LayoutParams(
+                LinearLayout.LayoutParams.MATCH_PARENT, dp(6)
+            )
+        })
+
+        val progressTrack = FrameLayout(ctx).apply {
+            val trackBg = GradientDrawable().apply {
+                shape = GradientDrawable.RECTANGLE
+                cornerRadius = dp(2).toFloat()
+                setColor(Color.parseColor("#1AFFFFFF"))
+            }
+            background = trackBg
+            layoutParams = LinearLayout.LayoutParams(
+                LinearLayout.LayoutParams.MATCH_PARENT, dp(3)
+            ).apply {
+                setMargins(dp(12), 0, dp(12), 0)
+            }
+        }
+
+        val progressFill = View(ctx).apply {
+            val fillBg = GradientDrawable().apply {
+                shape = GradientDrawable.RECTANGLE
+                cornerRadius = dp(2).toFloat()
+                setColor(if (isWarning) colorWarningAccent else colorAccentTeal)
+            }
+            background = fillBg
+            layoutParams = FrameLayout.LayoutParams(
+                FrameLayout.LayoutParams.MATCH_PARENT,
+                FrameLayout.LayoutParams.MATCH_PARENT
+            )
+            pivotX = 0f
+        }
+
+        progressTrack.addView(progressFill)
+        card.addView(progressTrack)
+
+        // Animate progress bar from 100% to 0%
+        handler.post {
+            ObjectAnimator.ofFloat(progressFill, "scaleX", 1f, 0f).apply {
+                duration = DISMISS_DELAY
+                interpolator = android.view.animation.LinearInterpolator()
+                start()
+            }
+        }
+
+        wrapper.addView(card)
+        return wrapper
+    }
+
+    // ───────────────────── Animations ─────────────────────
+
+    private fun animateIn(view: View) {
+        view.translationY = -200f
+        view.alpha = 0f
+
+        AnimatorSet().apply {
+            playTogether(
+                ObjectAnimator.ofFloat(view, "translationY", -200f, 0f).apply {
+                    duration = 500
+                    interpolator = OvershootInterpolator(0.8f)
+                },
+                ObjectAnimator.ofFloat(view, "alpha", 0f, 1f).apply {
+                    duration = 350
+                }
+            )
+            start()
+        }
+    }
+
+    private fun animateOut(view: View, onEnd: () -> Unit) {
+        AnimatorSet().apply {
+            playTogether(
+                ObjectAnimator.ofFloat(view, "translationY", 0f, -200f).apply {
+                    duration = 400
+                    interpolator = AccelerateDecelerateInterpolator()
+                },
+                ObjectAnimator.ofFloat(view, "alpha", 1f, 0f).apply {
+                    duration = 300
+                }
+            )
+            addListener(object : android.animation.AnimatorListenerAdapter() {
+                override fun onAnimationEnd(animation: android.animation.Animator) {
+                    onEnd()
+                }
+            })
+            start()
+        }
+    }
+
+    private fun startPulseAnimation(view: View) {
+        pulseAnimator = ValueAnimator.ofFloat(1f, 1.02f).apply {
+            duration = 800
+            repeatCount = ValueAnimator.INFINITE
+            repeatMode = ValueAnimator.REVERSE
+            interpolator = AccelerateDecelerateInterpolator()
+            addUpdateListener { anim ->
+                val scale = anim.animatedValue as Float
+                view.scaleX = scale
+                view.scaleY = scale
+            }
+            start()
+        }
+    }
+
+    // ───────────────────── Lifecycle ─────────────────────
+
     private fun removeOverlay() {
+        pulseAnimator?.cancel()
+        pulseAnimator = null
         try {
-            overlayView?.let { 
-                windowManager?.removeView(it)
-                Log.d(TAG, "Overlay removed")
+            overlayView?.let { view ->
+                if (view.isAttachedToWindow) {
+                    windowManager?.removeView(view)
+                    Log.d(TAG, "Overlay removed")
+                }
             }
         } catch (e: Exception) {
             Log.e(TAG, "Error removing overlay", e)
+        } finally {
+            overlayView = null
         }
-        overlayView = null
     }
 
     override fun onDestroy() {
-        super.onDestroy()
+        handler.removeCallbacksAndMessages(null)
         removeOverlay()
+        super.onDestroy()
+    }
+
+    // ───────────────────── Helpers ─────────────────────
+
+    private fun getStatusBarHeight(): Int {
+        val resourceId = resources.getIdentifier("status_bar_height", "dimen", "android")
+        return if (resourceId > 0) resources.getDimensionPixelSize(resourceId) else 0
     }
 }
-
-/**
- * Custom ViewGroup that passes through touch events except on clickable children
- */
-private class TransparentClickPassThroughView(context: Context) : FrameLayout(context) {
-    override fun onInterceptTouchEvent(ev: MotionEvent?): Boolean {
-        // Never intercept - let children handle, and pass through to underlying app if needed
-        return false
-    }
-}
-
-@Composable
-private fun ReminderCard(
-    appName: String,
-    sessionTime: String,
-    todayTime: String,
-    remainingTime: String,
-    hasLimit: Boolean,
-    showSession: Boolean,
-    showToday: Boolean,
-    showRemaining: Boolean,
-    onDismiss: () -> Unit
-) {
-    val scale = remember { Animatable(0.8f) }
-    
-    LaunchedEffect(Unit) {
-        scale.animateTo(1f, animationSpec = spring(
-            dampingRatio = Spring.DampingRatioMediumBouncy,
-            stiffness = Spring.StiffnessMedium
-        ))
-    }
-    
-    Card(
-        modifier = Modifier
-            .fillMaxWidth(0.92f)
-            .scale(scale.value),
-        shape = RoundedCornerShape(20.dp),
-        colors = CardDefaults.cardColors(
-            containerColor = MaterialTheme.colorScheme.primaryContainer
-        ),
-        elevation = CardDefaults.cardElevation(defaultElevation = 8.dp)
-    ) {
-        Column(
-            modifier = Modifier.padding(20.dp)
-        ) {
-            // Header with close button
-            Row(
-                modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.SpaceBetween,
-                verticalAlignment = Alignment.CenterVertically
-            ) {
-                Row(
-                    verticalAlignment = Alignment.CenterVertically,
-                    horizontalArrangement = Arrangement.spacedBy(8.dp)
-                ) {
-                    Text(
-                        text = "⏰",
-                        fontSize = 24.sp
-                    )
-                    Column {
-                        Text(
-                            text = appName,
-                            style = MaterialTheme.typography.titleMedium,
-                            fontWeight = FontWeight.Bold,
-                            color = MaterialTheme.colorScheme.onPrimaryContainer
-                        )
-                        Text(
-                            text = stringResource(R.string.reminder_overlay_subtext),
-                            style = MaterialTheme.typography.bodySmall,
-                            color = MaterialTheme.colorScheme.onPrimaryContainer.copy(alpha = 0.7f),
-                            fontSize = 11.sp
-                        )
-                    }
-                }
-                
-                IconButton(
-                    onClick = onDismiss,
-                    modifier = Modifier.size(32.dp)
-                ) {
-                    Icon(
-                        imageVector = Icons.Default.Close,
-                        contentDescription = "Close",
-                        tint = MaterialTheme.colorScheme.onPrimaryContainer.copy(alpha = 0.6f),
-                        modifier = Modifier.size(20.dp)
-                    )
-                }
-            }
-            
-            Spacer(modifier = Modifier.height(16.dp))
-            
-            // Time statistics with separators
-            val timeInfos = buildList {
-                if (showSession && sessionTime.isNotEmpty()) {
-                    add(TimeInfo(
-                        label = stringResource(R.string.popup_session_label),
-                        value = sessionTime
-                    ))
-                }
-                if (showToday && todayTime.isNotEmpty()) {
-                    add(TimeInfo(
-                        label = stringResource(R.string.popup_today_label),
-                        value = todayTime
-                    ))
-                }
-                if (showRemaining && hasLimit) {
-                    add(TimeInfo(
-                        label = stringResource(R.string.popup_remaining_label),
-                        value = if (remainingTime.isNotEmpty()) remainingTime 
-                                else stringResource(R.string.popup_no_limit)
-                    ))
-                }
-            }
-            
-            if (timeInfos.isNotEmpty()) {
-                Row(
-                    modifier = Modifier.fillMaxWidth(),
-                    horizontalArrangement = Arrangement.SpaceEvenly
-                ) {
-                    timeInfos.forEachIndexed { index, info ->
-                        TimeInfoItem(
-                            label = info.label,
-                            value = info.value,
-                            modifier = Modifier.weight(1f)
-                        )
-                        
-                        if (index < timeInfos.size - 1) {
-                            VerticalDivider(
-                                modifier = Modifier
-                                    .height(40.dp)
-                                    .padding(horizontal = 8.dp),
-                                color = MaterialTheme.colorScheme.onPrimaryContainer.copy(alpha = 0.2f)
-                            )
-                        }
-                    }
-                }
-            }
-        }
-    }
-}
-
-@Composable
-private fun TimeWarningCard(
-    appName: String,
-    sessionTime: String,
-    todayTime: String,
-    remainingTime: String,
-    showSession: Boolean,
-    showToday: Boolean,
-    showRemaining: Boolean,
-    onDismiss: () -> Unit
-) {
-    val scale = remember { Animatable(0.8f) }
-    val pulse = rememberInfiniteTransition(label = "pulse")
-    val pulseScale = pulse.animateFloat(
-        initialValue = 1f,
-        targetValue = 1.05f,
-        animationSpec = infiniteRepeatable(
-            animation = tween(800, easing = FastOutSlowInEasing),
-            repeatMode = RepeatMode.Reverse
-        ),
-        label = "pulseScale"
-    )
-    
-    LaunchedEffect(Unit) {
-        scale.animateTo(1f, animationSpec = spring(
-            dampingRatio = Spring.DampingRatioMediumBouncy,
-            stiffness = Spring.StiffnessMedium
-        ))
-    }
-    
-    Card(
-        modifier = Modifier
-            .fillMaxWidth(0.92f)
-            .scale(scale.value * pulseScale.value),
-        shape = RoundedCornerShape(20.dp),
-        colors = CardDefaults.cardColors(
-            containerColor = MaterialTheme.colorScheme.errorContainer
-        ),
-        elevation = CardDefaults.cardElevation(defaultElevation = 12.dp)
-    ) {
-        Column(
-            modifier = Modifier.padding(20.dp)
-        ) {
-            // Header
-            Row(
-                modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.SpaceBetween,
-                verticalAlignment = Alignment.CenterVertically
-            ) {
-                Row(
-                    verticalAlignment = Alignment.CenterVertically,
-                    horizontalArrangement = Arrangement.spacedBy(8.dp)
-                ) {
-                    Text(
-                        text = "⏱️",
-                        fontSize = 24.sp
-                    )
-                    Column {
-                        Text(
-                            text = appName,
-                            style = MaterialTheme.typography.titleMedium,
-                            fontWeight = FontWeight.Bold,
-                            color = MaterialTheme.colorScheme.onErrorContainer
-                        )
-                        Text(
-                            text = stringResource(R.string.time_warning_subtitle),
-                            style = MaterialTheme.typography.bodySmall,
-                            color = MaterialTheme.colorScheme.onErrorContainer.copy(alpha = 0.7f),
-                            fontSize = 11.sp
-                        )
-                    }
-                }
-                
-                IconButton(
-                    onClick = onDismiss,
-                    modifier = Modifier.size(32.dp)
-                ) {
-                    Icon(
-                        imageVector = Icons.Default.Close,
-                        contentDescription = "Close",
-                        tint = MaterialTheme.colorScheme.onErrorContainer.copy(alpha = 0.6f),
-                        modifier = Modifier.size(20.dp)
-                    )
-                }
-            }
-            
-            Spacer(modifier = Modifier.height(16.dp))
-            
-            // Time statistics
-            val timeInfos = buildList {
-                if (showSession && sessionTime.isNotEmpty()) {
-                    add(TimeInfo(
-                        label = stringResource(R.string.popup_session_label),
-                        value = sessionTime
-                    ))
-                }
-                if (showToday && todayTime.isNotEmpty()) {
-                    add(TimeInfo(
-                        label = stringResource(R.string.popup_today_label),
-                        value = todayTime
-                    ))
-                }
-                if (showRemaining && remainingTime.isNotEmpty()) {
-                    add(TimeInfo(
-                        label = stringResource(R.string.popup_remaining_label),
-                        value = remainingTime
-                    ))
-                }
-            }
-            
-            if (timeInfos.isNotEmpty()) {
-                Row(
-                    modifier = Modifier.fillMaxWidth(),
-                    horizontalArrangement = Arrangement.SpaceEvenly
-                ) {
-                    timeInfos.forEachIndexed { index, info ->
-                        TimeInfoItem(
-                            label = info.label,
-                            value = info.value,
-                            isWarning = true,
-                            modifier = Modifier.weight(1f)
-                        )
-                        
-                        if (index < timeInfos.size - 1) {
-                            VerticalDivider(
-                                modifier = Modifier
-                                    .height(40.dp)
-                                    .padding(horizontal = 8.dp),
-                                color = MaterialTheme.colorScheme.onErrorContainer.copy(alpha = 0.2f)
-                            )
-                        }
-                    }
-                }
-            }
-        }
-    }
-}
-
-@Composable
-private fun TimeInfoItem(
-    label: String,
-    value: String,
-    isWarning: Boolean = false,
-    modifier: Modifier = Modifier
-) {
-    Column(
-        modifier = modifier,
-        horizontalAlignment = Alignment.CenterHorizontally
-    ) {
-        Text(
-            text = value,
-            style = MaterialTheme.typography.titleLarge,
-            fontWeight = FontWeight.Bold,
-            color = if (isWarning) 
-                MaterialTheme.colorScheme.onErrorContainer 
-            else 
-                MaterialTheme.colorScheme.onPrimaryContainer,
-            textAlign = TextAlign.Center
-        )
-        Spacer(modifier = Modifier.height(4.dp))
-        Text(
-            text = label,
-            style = MaterialTheme.typography.bodySmall,
-            color = if (isWarning)
-                MaterialTheme.colorScheme.onErrorContainer.copy(alpha = 0.7f)
-            else
-                MaterialTheme.colorScheme.onPrimaryContainer.copy(alpha = 0.7f),
-            textAlign = TextAlign.Center,
-            fontSize = 11.sp
-        )
-    }
-}
-
-private data class TimeInfo(val label: String, val value: String)
