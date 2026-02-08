@@ -162,8 +162,16 @@ object DrawerSettingsStore : MapSettingsStore() {
     val categoryGridWidth = Settings.int(
         key = "categoryGridWidth",
         dataStoreName = dataStoreName,
-        default = 2,
+        default = 3,
         allowedRange = 1..4
+    )
+
+
+    val categoryGridCells = Settings.int(
+        key = "categoryGridCells",
+        dataStoreName = dataStoreName,
+        default = 3,
+        allowedRange = 2..5
     )
 
 

@@ -15,6 +15,9 @@ import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.lazy.grid.items
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.rememberLazyListState
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.MoreHoriz
+import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -32,11 +35,9 @@ import androidx.compose.ui.input.nestedscroll.NestedScrollConnection
 import androidx.compose.ui.input.nestedscroll.NestedScrollSource
 import androidx.compose.ui.input.nestedscroll.nestedScroll
 import androidx.compose.ui.unit.dp
-import org.elnix.dragonlauncher.common.logging.logD
 import org.elnix.dragonlauncher.common.serializables.AppCategory
 import org.elnix.dragonlauncher.common.serializables.AppModel
 import org.elnix.dragonlauncher.common.serializables.IconShape
-import org.elnix.dragonlauncher.common.utils.DRAWER_TAG
 import org.elnix.dragonlauncher.settings.stores.DrawerSettingsStore
 import org.elnix.dragonlauncher.ui.components.resolveShape
 import org.elnix.dragonlauncher.ui.components.settings.asState
@@ -63,7 +64,9 @@ fun AppGrid(
     val iconsSpacingVertical by DrawerSettingsStore.iconsSpacingVertical.asState()
     val iconsSpacingHorizontal by DrawerSettingsStore.iconsSpacingHorizontal.asState()
     val useCategory by DrawerSettingsStore.useCategory.asState()
+
     val categoryGridSize by DrawerSettingsStore.categoryGridWidth.asState()
+    val categoryGridCells by DrawerSettingsStore.categoryGridCells.asState()
 
 
     var openedCategory by remember { mutableStateOf<AppCategory?>(null) }
@@ -140,8 +143,7 @@ fun AppGrid(
                                     showLabels = showLabels,
                                     onLongClick = onLongClick,
                                     onClick = onClick,
-                                    maxRows = 3,
-                                    maxColumns = 3
+                                    gridCells = categoryGridCells,
                                 ) {
                                     openedCategory = category
                                 }
@@ -223,8 +225,7 @@ private fun CategoryGrid(
     showIcons: Boolean,
     showLabels: Boolean,
 
-    maxRows: Int,
-    maxColumns: Int,
+    gridCells: Int,
     modifier: Modifier = Modifier,
     onLongClick: ((AppModel) -> Unit)? = null,
     onClick: (AppModel) -> Unit,
@@ -249,8 +250,7 @@ private fun CategoryGrid(
                 showLabels = showLabels,
                 onLongClick = onLongClick,
                 onClick = onClick,
-                maxRows = maxRows,
-                maxColumns = maxColumns,
+                gridCells = gridCells,
                 onOpenCategory = onOpenCategory
             )
         }
@@ -274,8 +274,7 @@ private fun AppDefinedGrid(
     showIcons: Boolean,
     showLabels: Boolean,
 
-    maxRows: Int,
-    maxColumns: Int,
+    gridCells: Int,
     modifier: Modifier = Modifier,
     depth: Int = 0,
     onLongClick: ((AppModel) -> Unit)? = null,
@@ -285,7 +284,7 @@ private fun AppDefinedGrid(
     var appIndex = 0
 
     val appNumber = apps.size
-    val maxAppNumber = maxColumns * maxRows - 1
+    val maxAppNumber = gridCells * gridCells - 1
     val sanitizedAppNumber = min(appNumber, maxAppNumber)
 
     Column(
@@ -293,13 +292,14 @@ private fun AppDefinedGrid(
             .fillMaxSize()
             .background(MaterialTheme.colorScheme.surfaceVariant),
     ) {
-        repeat(maxRows) {
+        repeat(gridCells) {
             Row(
                 modifier = Modifier.weight(1f)
             ) {
-                repeat(maxRows) {
+                repeat(gridCells) {
                     Box(
-                        modifier = Modifier.weight(1f)
+                        modifier = Modifier.weight(1f),
+                        contentAlignment = Alignment.Center
                     ) {
                         if (appIndex < sanitizedAppNumber) {
                             AppItemGrid(
@@ -313,25 +313,30 @@ private fun AppDefinedGrid(
                                 onLongClick = onLongClick,
                                 onClick = onClick
                             )
-                        } else if (appIndex == 8 && depth < 2 && appNumber > 8) {
-
-                            val miniApps = apps.takeLast(appNumber - appIndex)
-                            logD(DRAWER_TAG, "miniApps = ${miniApps.map { it.name }}")
-
-                            AppDefinedGrid(
-                                apps = miniApps,
-                                icons = icons,
-                                iconShape = iconShape,
-                                maxIconSize = maxIconSize,
-                                txtColor = txtColor,
-                                showIcons = showIcons,
-                                showLabels = showLabels,
-                                onClick = { onOpenCategory() },
-                                maxRows = 3,
-                                maxColumns = 3,
-                                depth = depth + 1,
-                                onOpenCategory = onOpenCategory
+                        } else if (/*appIndex == 8 && depth < 2 &&*/ appNumber > maxAppNumber) {
+//
+//                            val miniApps = apps.takeLast(appNumber - appIndex)
+//                            logD(DRAWER_TAG, "miniApps = ${miniApps.map { it.name }}")
+//
+                            Icon(
+                                imageVector = Icons.Default.MoreHoriz,
+                                contentDescription = "More",
+                                tint = MaterialTheme.colorScheme.onBackground,
+//                                modifier = Modifier.fillMaxSize()
                             )
+//                            AppDefinedGrid(
+//                                apps = miniApps,
+//                                icons = icons,
+//                                iconShape = iconShape,
+//                                maxIconSize = maxIconSize,
+//                                txtColor = txtColor,
+//                                showIcons = showIcons,
+//                                showLabels = showLabels,
+//                                onClick = { onOpenCategory() },
+//                                gridCells = 3,
+//                                depth = depth + 1,
+//                                onOpenCategory = onOpenCategory
+//                            )
                         }
                     }
                     appIndex ++

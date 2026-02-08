@@ -489,5 +489,7 @@
     <string name="expanded_chevron_indicator">Expanded chevron indicator</string>
     <string name="category_grid_width">Category grid width</string>
     <string name="grid_settings">Grid Settings</string>
+    <string name="category_cells">Category cells</string>
+    <string name="category_cells_desc">The number of rows and column in the category box</string>
 
 </resources>
