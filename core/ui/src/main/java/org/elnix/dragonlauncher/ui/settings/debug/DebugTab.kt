@@ -48,7 +48,7 @@ import org.elnix.dragonlauncher.services.SystemControl.activateDeviceAdmin
 import org.elnix.dragonlauncher.services.SystemControl.isDeviceAdminActive
 import org.elnix.dragonlauncher.settings.allStores
 import org.elnix.dragonlauncher.settings.stores.DebugSettingsStore
-import org.elnix.dragonlauncher.ui.wellbeing.OverlayReminderActivity
+import org.elnix.dragonlauncher.ui.wellbeing.OverlayReminderService
 import org.elnix.dragonlauncher.settings.stores.PrivateSettingsStore
 import org.elnix.dragonlauncher.ui.colors.AppObjectsColors
 import org.elnix.dragonlauncher.ui.dialogs.IconEditorDialog
@@ -238,7 +238,7 @@ fun DebugTab(
                         ctx.showToast("Overlay permission not granted")
                         return@Button
                     }
-                    OverlayReminderActivity.show(ctx, "TikTok", "15 min", "42 min", "10 min", true, "reminder")
+                    OverlayReminderService.show(ctx, "TikTok", "15 min", "42 min", "10 min", true, "reminder")
                 },
                 colors = AppObjectsColors.buttonColors(),
                 modifier = Modifier.fillMaxWidth()
@@ -254,7 +254,7 @@ fun DebugTab(
                         ctx.showToast("Overlay permission not granted")
                         return@Button
                     }
-                    OverlayReminderActivity.show(ctx, "TikTok", "25 min", "58 min", "5 min", true, "time_warning")
+                    OverlayReminderService.show(ctx, "TikTok", "25 min", "58 min", "5 min", true, "time_warning")
                 },
                 colors = AppObjectsColors.buttonColors(),
                 modifier = Modifier.fillMaxWidth()

@@ -42,7 +42,7 @@ import org.elnix.dragonlauncher.settings.stores.WellbeingSettingsStore
  * Uses WindowManager with FLAG_NOT_FOCUSABLE + FLAG_NOT_TOUCH_MODAL so
  * touches outside the popup pass through to the app below.
  */
-class OverlayReminderActivity : Service() {
+class OverlayReminderService : Service() {
 
     companion object {
         const val EXTRA_APP_NAME = "extra_app_name"
@@ -69,7 +69,7 @@ class OverlayReminderActivity : Service() {
                 return
             }
             try {
-                val intent = Intent(ctx, OverlayReminderActivity::class.java).apply {
+                val intent = Intent(ctx, OverlayReminderService::class.java).apply {
                     putExtra(EXTRA_APP_NAME, appName)
                     putExtra(EXTRA_SESSION_TIME, sessionTime)
                     putExtra(EXTRA_TODAY_TIME, todayTime)
@@ -149,9 +149,9 @@ class OverlayReminderActivity : Service() {
         serviceScope.launch {
             try {
                 // Read user preferences (which stats to show)
-                val showSession = WellbeingSettingsStore.popupShowSessionTime.flow(this@OverlayReminderActivity).first()
-                val showToday = WellbeingSettingsStore.popupShowTodayTime.flow(this@OverlayReminderActivity).first()
-                val showRemaining = WellbeingSettingsStore.popupShowRemainingTime.flow(this@OverlayReminderActivity).first()
+                val showSession = WellbeingSettingsStore.popupShowSessionTime.flow(this@OverlayReminderService).first()
+                val showToday = WellbeingSettingsStore.popupShowTodayTime.flow(this@OverlayReminderService).first()
+                val showRemaining = WellbeingSettingsStore.popupShowRemainingTime.flow(this@OverlayReminderService).first()
 
                 val isWarning = mode == "time_warning"
 

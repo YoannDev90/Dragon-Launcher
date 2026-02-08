@@ -86,7 +86,7 @@
             android:launchMode="singleTop" />
 
         <service
-            android:name="org.elnix.dragonlauncher.ui.wellbeing.OverlayReminderActivity"
+            android:name="org.elnix.dragonlauncher.ui.wellbeing.OverlayReminderService"
             android:exported="false" />
 
         <service

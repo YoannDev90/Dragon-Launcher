@@ -22,7 +22,7 @@ import java.util.Calendar
  * Foreground service that:
  * 1. Tracks how long the user has been on a paused app.
  * 2. Optionally sends periodic reminder notifications (every X minutes).
- * 3. Optionally triggers an overlay popup via [OverlayReminderActivity].
+ * 3. Optionally triggers an overlay popup via [OverlayReminderService].
  * 4. Optionally returns the user to Dragon Launcher when the time limit is reached.
  */
 class AppTimerService : Service() {
@@ -244,7 +244,7 @@ class AppTimerService : Service() {
                             val sessionText = sessionMinutes.formatDuration()
                             val todayText = buildTodayText()
                             
-                            OverlayReminderActivity.show(
+                            OverlayReminderService.show(
                                 this@AppTimerService, appName, sessionText, todayText, remainingText, true, "time_warning"
                             )
                         }
@@ -428,7 +428,7 @@ class AppTimerService : Service() {
                     remainingMinutes.formatDuration()
                 } else ""
                 
-                OverlayReminderActivity.show(
+                OverlayReminderService.show(
                     this, appName, timeText, todayText, remainingText, timeLimitEnabled, "reminder"
                 )
             }
