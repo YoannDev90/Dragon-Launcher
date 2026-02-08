@@ -442,4 +442,9 @@
     <string name="time_exceeded_subtitle">C\'est le moment de faire une pause et de profiter d\'autre chose 🌱</string>
     <string name="time_exceeded_ok">Compris, merci Dragon</string>
     <string name="time_exceeded_header">Session terminée</string>
+    <string name="encouragement_walk">Allez vous promener 🚶</string>
+    <string name="encouragement_water">Buvez un verre d\'eau 💧</string>
+    <string name="encouragement_stretch">Étirez-vous un peu 🧘</string>
+    <string name="encouragement_window">Regardez par la fenêtre 🪟</string>
+    <string name="encouragement_text_someone">Envoyez un message à quelqu\'un que vous aimez 💬</string>
 </resources>

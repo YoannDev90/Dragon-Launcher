@@ -5,6 +5,7 @@ import android.app.NotificationChannel
 import android.app.NotificationManager
 import android.app.PendingIntent
 import android.app.Service
+import android.app.usage.UsageStatsManager
 import android.content.Context
 import android.content.Intent
 import android.content.pm.ServiceInfo
@@ -14,6 +15,8 @@ import androidx.core.app.NotificationCompat
 import androidx.core.app.ServiceCompat
 import org.elnix.dragonlauncher.common.R
 import org.elnix.dragonlauncher.common.utils.formatDuration
+import org.elnix.dragonlauncher.common.utils.hasUsageStatsPermission
+import java.util.Calendar
 
 /**
  * Foreground service that:
@@ -109,15 +112,85 @@ class AppTimerService : Service() {
     private var timerThread: Thread? = null
     private var fiveMinWarningShown = false
 
+    // ─────────── Usage stats helpers ───────────
+
+    /**
+     * Returns today's total foreground time in minutes for [packageName],
+     * or -1 if usage stats permission is not granted.
+     */
+    private fun getTodayUsageMinutes(packageName: String): Long {
+        if (!hasUsageStatsPermission(this)) return -1
+        return try {
+            val usm = getSystemService(Context.USAGE_STATS_SERVICE) as UsageStatsManager
+            val cal = Calendar.getInstance().apply {
+                set(Calendar.HOUR_OF_DAY, 0)
+                set(Calendar.MINUTE, 0)
+                set(Calendar.SECOND, 0)
+                set(Calendar.MILLISECOND, 0)
+            }
+            val todayStart = cal.timeInMillis
+            val now = System.currentTimeMillis()
+            val stats = usm.queryUsageStats(UsageStatsManager.INTERVAL_DAILY, todayStart, now)
+            stats.filter { it.packageName == packageName }
+                .sumOf { it.totalTimeInForeground } / 60_000
+        } catch (_: Exception) {
+            -1
+        }
+    }
+
+    /**
+     * Returns the package name of the app currently in the foreground,
+     * or null if it cannot be determined.
+     */
+    private fun getCurrentForegroundPackage(): String? {
+        if (!hasUsageStatsPermission(this)) return null
+        return try {
+            val usm = getSystemService(Context.USAGE_STATS_SERVICE) as UsageStatsManager
+            val now = System.currentTimeMillis()
+            // Query last 5 seconds of usage events
+            val events = usm.queryEvents(now - 5000, now)
+            var lastPackage: String? = null
+            val event = android.app.usage.UsageEvents.Event()
+            while (events.hasNextEvent()) {
+                events.getNextEvent(event)
+                if (event.eventType == android.app.usage.UsageEvents.Event.MOVE_TO_FOREGROUND) {
+                    lastPackage = event.packageName
+                }
+            }
+            lastPackage
+        } catch (_: Exception) {
+            null
+        }
+    }
+
     private fun createTimerThread() = object : Thread("AppTimerThread") {
         override fun run() {
             try {
                 var elapsed = 0L
                 var nextReminderAt = if (reminderEnabled) reminderIntervalMs else Long.MAX_VALUE
+                // Check foreground app every 3 seconds, with a grace period of 5 checks (15s)
+                // This handles brief interruptions (notifications, quick settings, etc.)
+                var notForegroundCount = 0
+                val maxNotForeground = 5
 
                 while (!isInterrupted) {
                     sleep(1000)
                     elapsed = System.currentTimeMillis() - startTimeMs
+
+                    // ── Check if user is still on the tracked app ──
+                    if (elapsed % 3000 < 1000) {
+                        val fg = getCurrentForegroundPackage()
+                        if (fg != null && fg != trackedPackage) {
+                            notForegroundCount++
+                            if (notForegroundCount >= maxNotForeground) {
+                                // User has left the app for 15+ seconds → stop service
+                                stopSelf()
+                                return
+                            }
+                        } else if (fg == trackedPackage) {
+                            notForegroundCount = 0
+                        }
+                    }
 
                     // Update foreground notification every 30s
                     if (timeLimitEnabled && elapsed % 30_000 < 1000) {
@@ -134,9 +207,10 @@ class AppTimerService : Service() {
                             val remainingText = remainingMinutes.formatDuration()
                             val sessionMinutes = (elapsed / 60_000).coerceAtLeast(1)
                             val sessionText = sessionMinutes.formatDuration()
+                            val todayText = buildTodayText()
                             
                             OverlayReminderActivity.show(
-                                this@AppTimerService, appName, sessionText, "", remainingText, true, "time_warning"
+                                this@AppTimerService, appName, sessionText, todayText, remainingText, true, "time_warning"
                             )
                         }
                     }
@@ -278,9 +352,19 @@ class AppTimerService : Service() {
 
     // ─────────── Reminders ───────────
 
+    /**
+     * Build the "today total" text from UsageStatsManager.
+     * Returns empty string if permission is missing.
+     */
+    private fun buildTodayText(): String {
+        val todayMinutes = getTodayUsageMinutes(trackedPackage)
+        return if (todayMinutes >= 0) todayMinutes.formatDuration() else ""
+    }
+
     private fun sendReminder(elapsedMs: Long) {
         val elapsedMinutes = (elapsedMs / 60_000).coerceAtLeast(1)
         val timeText = elapsedMinutes.formatDuration()
+        val todayText = buildTodayText()
 
         when (reminderMode) {
             "notification" -> {
@@ -303,7 +387,7 @@ class AppTimerService : Service() {
                 } else ""
                 
                 OverlayReminderActivity.show(
-                    this, appName, timeText, "", remainingText, timeLimitEnabled, "reminder"
+                    this, appName, timeText, todayText, remainingText, timeLimitEnabled, "reminder"
                 )
             }
         }

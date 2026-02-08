@@ -443,6 +443,11 @@
     <string name="time_exceeded_subtitle">It\'s time to take a break and do something you enjoy offline 🌱</string>
     <string name="time_exceeded_ok">Got it, thanks Dragon</string>
     <string name="time_exceeded_header">Session ended</string>
+    <string name="encouragement_walk">Go for a walk 🚶</string>
+    <string name="encouragement_water">Drink some water 💧</string>
+    <string name="encouragement_stretch">Stretch your body 🧘</string>
+    <string name="encouragement_window">Look out the window 🪟</string>
+    <string name="encouragement_text_someone">Text someone you love 💬</string>
     <string name="edit_icons_shape">Edit Icons Shape</string>
     <string name="edit_icons_shape_desc">Customize the shape on the icons in the drawer and the rest of the app</string>
     <string name="random_shape">Random Shape</string>

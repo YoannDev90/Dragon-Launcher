@@ -331,11 +331,11 @@ private fun PulsingHourglass(modifier: Modifier = Modifier) {
 @Composable
 private fun GlassEncouragementCard() {
     val messages = listOf(
-        "Go for a walk 🚶",
-        "Drink some water 💧",
-        "Stretch your body 🧘",
-        "Look out the window 🪟",
-        "Text someone you love 💬"
+        stringResource(R.string.encouragement_walk),
+        stringResource(R.string.encouragement_water),
+        stringResource(R.string.encouragement_stretch),
+        stringResource(R.string.encouragement_window),
+        stringResource(R.string.encouragement_text_someone)
     )
     val message = remember { messages.random() }
 
