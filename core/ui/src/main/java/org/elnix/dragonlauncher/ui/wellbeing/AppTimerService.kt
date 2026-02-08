@@ -141,13 +141,15 @@ class AppTimerService : Service() {
     /**
      * Returns the package name of the app currently in the foreground,
      * or null if it cannot be determined.
+     * Uses multiple methods for better reliability.
      */
     private fun getCurrentForegroundPackage(): String? {
         if (!hasUsageStatsPermission(this)) return null
         return try {
             val usm = getSystemService(Context.USAGE_STATS_SERVICE) as UsageStatsManager
             val now = System.currentTimeMillis()
-            // Query last 5 seconds of usage events
+            
+            // Method 1: Query recent events (most reliable for foreground detection)
             val events = usm.queryEvents(now - 5000, now)
             var lastPackage: String? = null
             val event = android.app.usage.UsageEvents.Event()
@@ -157,7 +159,25 @@ class AppTimerService : Service() {
                     lastPackage = event.packageName
                 }
             }
-            lastPackage
+            
+            // If we found a recent foreground event, trust it
+            if (lastPackage != null) {
+                return lastPackage
+            }
+            
+            // Method 2: Fallback - check which app was used most recently
+            // If another app has been used in the last 10 seconds, the tracked app is NOT foreground
+            val stats = usm.queryUsageStats(UsageStatsManager.INTERVAL_BEST, now - 10000, now)
+            if (stats.isNotEmpty()) {
+                val mostRecentApp = stats.maxByOrNull { it.lastTimeUsed }
+                if (mostRecentApp != null && mostRecentApp.packageName != trackedPackage && mostRecentApp.lastTimeUsed > (now - 10000)) {
+                    // Another app is more recently used → tracked app is not foreground
+                    return mostRecentApp.packageName
+                }
+            }
+            
+            // If no other app was recently used, assume tracked app is still foreground
+            trackedPackage
         } catch (_: Exception) {
             null
         }
@@ -168,26 +188,40 @@ class AppTimerService : Service() {
             try {
                 var elapsed = 0L
                 var nextReminderAt = if (reminderEnabled) reminderIntervalMs else Long.MAX_VALUE
-                // Check foreground app every 3 seconds, with a grace period of 5 checks (15s)
-                // This handles brief interruptions (notifications, quick settings, etc.)
+                var lastForegroundCheckMs = System.currentTimeMillis()
                 var notForegroundCount = 0
                 val maxNotForeground = 5
+                var isAppActive = true  // Track if we're still on the tracked app
 
-                while (!isInterrupted) {
+                while (!isInterrupted && isAppActive) {
                     sleep(1000)
                     elapsed = System.currentTimeMillis() - startTimeMs
 
-                    // ── Check if user is still on the tracked app ──
-                    if (elapsed % 3000 < 1000) {
+                    // ── Check if user is still on the tracked app (every 3 seconds) ──
+                    val nowMs = System.currentTimeMillis()
+                    if (nowMs - lastForegroundCheckMs >= 3000) {
+                        lastForegroundCheckMs = nowMs
                         val fg = getCurrentForegroundPackage()
-                        if (fg != null && fg != trackedPackage) {
+                        
+                        // If fg is null (no permission), give benefit of the doubt one more time
+                        // But if we haven't gotten permission by now, something is wrong
+                        if (fg == null) {
+                            notForegroundCount++
+                            if (notForegroundCount >= maxNotForeground) {
+                                // Can't detect foreground app - stop after grace period
+                                isAppActive = false
+                                break
+                            }
+                        } else if (fg != trackedPackage) {
+                            // User has switched to a different app
                             notForegroundCount++
                             if (notForegroundCount >= maxNotForeground) {
                                 // User has left the app for 15+ seconds → stop service
-                                stopSelf()
-                                return
+                                isAppActive = false
+                                break
                             }
-                        } else if (fg == trackedPackage) {
+                        } else {
+                            // Still on tracked app, reset counter
                             notForegroundCount = 0
                         }
                     }
@@ -216,7 +250,7 @@ class AppTimerService : Service() {
                     }
 
                     // Periodic reminder
-                    if (reminderEnabled && elapsed >= nextReminderAt) {
+                    if (isAppActive && reminderEnabled && elapsed >= nextReminderAt) {
                         sendReminder(elapsed)
                         nextReminderAt += reminderIntervalMs
                     }
@@ -229,6 +263,9 @@ class AppTimerService : Service() {
                 }
             } catch (_: InterruptedException) {
                 // Service stopped
+            } finally {
+                // When loop exits (app switched or time limit), stop the service
+                stopSelf()
             }
         }
     }

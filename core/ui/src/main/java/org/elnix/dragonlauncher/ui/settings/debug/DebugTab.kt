@@ -230,17 +230,7 @@ fun DebugTab(
 
         item { TextDivider("Wellbeing tests") }
 
-        item {
-            Button(
-                onClick = {
-                    AppTimerService.sendTestReminderNotification(ctx, "TikTok", 42)
-                },
-                colors = AppObjectsColors.buttonColors(),
-                modifier = Modifier.fillMaxWidth()
-            ) {
-                Text(text = "Test: Reminder notification (42 min)")
-            }
-        }
+        
 
         item {
             Button(
