@@ -111,7 +111,6 @@ class AppTimerService : Service() {
     private var startTimeMs = 0L
     private var timerThread: Thread? = null
     private var fiveMinWarningShown = false
-    private var currentStartId = 0
 
     // ─────────── Usage stats helpers ───────────
 
@@ -287,9 +286,6 @@ class AppTimerService : Service() {
         timerThread?.interrupt()
         timerThread = null
         fiveMinWarningShown = false
-        
-        // Save the current startId for this service invocation
-        currentStartId = startId
 
         trackedPackage = intent?.getStringExtra(EXTRA_PACKAGE_NAME) ?: ""
         appName = intent?.getStringExtra(EXTRA_APP_NAME) ?: trackedPackage
@@ -448,7 +444,7 @@ class AppTimerService : Service() {
         // Launch home intent to return to launcher
         val homeIntent = Intent(Intent.ACTION_MAIN).apply {
             addCategory(Intent.CATEGORY_HOME)
-            flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TOP
+            flags = Intent.FLAG_ACTIVITY_NEW_TASK
         }
         startActivity(homeIntent)
         
