@@ -126,4 +126,13 @@ object SwipeSettingsStore : JsonSettingsStore() {
             return
         }
     }
+
+    // Overrides the default resetAll cause ALL has no elements
+    override suspend fun resetAll(ctx: Context) {
+        ctx.resolveDataStore(dataStoreName).edit { prefs->
+            prefs.remove(POINTS)
+            prefs.remove(CIRCLE_NESTS)
+            prefs.remove(DEFAULT_CIRCLE)
+        }
+    }
 }

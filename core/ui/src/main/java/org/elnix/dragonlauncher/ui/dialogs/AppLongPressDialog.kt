@@ -41,7 +41,7 @@ import androidx.compose.ui.unit.dp
 import org.elnix.dragonlauncher.common.R
 import org.elnix.dragonlauncher.common.serializables.AppModel
 import org.elnix.dragonlauncher.ui.UiConstants.DragonShape
-import org.elnix.dragonlauncher.ui.components.DragonIconButton
+import org.elnix.dragonlauncher.ui.components.dragon.DragonIconButton
 
 private data class DialogEntry(
     val label: String,

@@ -73,7 +73,7 @@ abstract class BaseSettingsStore<T> {
      *
      * @param ctx The Android [Context] required to access the underlying DataStore.
      */
-    suspend fun resetAll(ctx: Context) {
+    open suspend fun resetAll(ctx: Context) {
         ALL.forEach { it.reset(ctx) }
     }
 

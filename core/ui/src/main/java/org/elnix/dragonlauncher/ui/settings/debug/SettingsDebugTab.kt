@@ -32,7 +32,7 @@ import kotlinx.coroutines.launch
 import org.elnix.dragonlauncher.common.utils.copyToClipboard
 import org.elnix.dragonlauncher.settings.allStores
 import org.elnix.dragonlauncher.settings.defaultDebugStores
-import org.elnix.dragonlauncher.ui.components.DragonIconButton
+import org.elnix.dragonlauncher.ui.components.dragon.DragonIconButton
 import org.elnix.dragonlauncher.ui.dialogs.ExportSettingsDialog
 import org.elnix.dragonlauncher.ui.helpers.settings.SettingsLazyHeader
 import org.json.JSONObject
