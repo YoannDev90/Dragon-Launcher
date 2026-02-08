@@ -1,15 +1,21 @@
 package org.elnix.dragonlauncher.ui.wellbeing
 
+import android.app.Service
 import android.content.Context
 import android.content.Intent
 import android.os.Build
-import android.os.Bundle
+import android.os.Handler
+import android.os.IBinder
+import android.os.Looper
 import android.provider.Settings
+import android.util.Log
+import android.view.MotionEvent
+import android.view.ViewGroup
 import android.view.WindowManager
-import androidx.activity.ComponentActivity
-import androidx.activity.compose.setContent
+import android.widget.FrameLayout
 import androidx.compose.animation.*
 import androidx.compose.animation.core.*
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.safeDrawing
@@ -23,23 +29,22 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.scale
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.ComposeView
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import androidx.compose.ui.window.Dialog
-import androidx.compose.ui.window.DialogProperties
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.runBlocking
 import org.elnix.dragonlauncher.common.R
 import org.elnix.dragonlauncher.settings.stores.WellbeingSettingsStore
 
 /**
- * Activity-based overlay for wellbeing reminders
- * Non-intrusive with transparent background and pass-through touch handling
+ * Service that displays a non-intrusive overlay popup using ComposeView
+ * Allows clicks to pass through to underlying app except on the card itself
  */
-class OverlayReminderActivity : ComponentActivity() {
+class OverlayReminderActivity : Service() {
 
     companion object {
         const val EXTRA_APP_NAME = "extra_app_name"
@@ -51,110 +56,215 @@ class OverlayReminderActivity : ComponentActivity() {
         const val EXTRA_REMAINING_TIME = "extra_remaining_time"
         const val EXTRA_HAS_LIMIT = "extra_has_limit"
         
+        private const val TAG = "OverlayReminderActivity"
+        
         fun show(ctx: Context, appName: String, sessionTime: String, todayTime: String, remainingTime: String, hasLimit: Boolean, mode: String = "reminder") {
-            if (!Settings.canDrawOverlays(ctx)) return
-            val intent = Intent(ctx, OverlayReminderActivity::class.java).apply {
-                putExtra(EXTRA_APP_NAME, appName)
-                putExtra(EXTRA_SESSION_TIME, sessionTime)
-                putExtra(EXTRA_TODAY_TIME, todayTime)
-                putExtra(EXTRA_REMAINING_TIME, remainingTime)
-                putExtra(EXTRA_HAS_LIMIT, hasLimit)
-                putExtra(EXTRA_MODE, mode)
-                flags = Intent.FLAG_ACTIVITY_NEW_TASK
+            if (!Settings.canDrawOverlays(ctx)) {
+                Log.w(TAG, "Cannot show overlay: permission not granted")
+                return
             }
-            ctx.startActivity(intent)
+            try {
+                val intent = Intent(ctx, OverlayReminderActivity::class.java).apply {
+                    putExtra(EXTRA_APP_NAME, appName)
+                    putExtra(EXTRA_SESSION_TIME, sessionTime)
+                    putExtra(EXTRA_TODAY_TIME, todayTime)
+                    putExtra(EXTRA_REMAINING_TIME, remainingTime)
+                    putExtra(EXTRA_HAS_LIMIT, hasLimit)
+                    putExtra(EXTRA_MODE, mode)
+                }
+                ctx.startService(intent)
+            } catch (e: Exception) {
+                Log.e(TAG, "Failed to start overlay service", e)
+            }
         }
     }
 
-    override fun onCreate(savedInstanceState: Bundle?) {
-        super.onCreate(savedInstanceState)
+    private var windowManager: WindowManager? = null
+    private var overlayView: ViewGroup? = null
 
-        // Make activity completely transparent with proper flags for overlay
-        window.setBackgroundDrawableResource(android.R.color.transparent)
+    override fun onBind(intent: Intent?): IBinder? = null
 
-        // Critical: Make window non-focusable and non-touch-modal to let clicks pass through
-        window.addFlags(
-            WindowManager.LayoutParams.FLAG_NOT_FOCUSABLE or
-                    WindowManager.LayoutParams.FLAG_NOT_TOUCH_MODAL
-        )
+    override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
+        try {
+            if (!Settings.canDrawOverlays(this)) {
+                Log.w(TAG, "Overlay permission not granted")
+                stopSelf()
+                return START_NOT_STICKY
+            }
 
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O_MR1) {
-            setShowWhenLocked(true)
-            setTurnScreenOn(true)
-        } else {
-            @Suppress("DEPRECATION")
-            window.addFlags(
-                WindowManager.LayoutParams.FLAG_SHOW_WHEN_LOCKED or
-                        WindowManager.LayoutParams.FLAG_TURN_SCREEN_ON
-            )
+            val appName = intent?.getStringExtra(EXTRA_APP_NAME) ?: "App"
+            val mode = intent?.getStringExtra(EXTRA_MODE) ?: "reminder"
+            val sessionTime = intent?.getStringExtra(EXTRA_SESSION_TIME) ?: ""
+            val todayTime = intent?.getStringExtra(EXTRA_TODAY_TIME) ?: ""
+            val remainingTime = intent?.getStringExtra(EXTRA_REMAINING_TIME) ?: ""
+            val hasLimit = intent?.getBooleanExtra(EXTRA_HAS_LIMIT, false) ?: false
+
+            Log.d(TAG, "onStartCommand: mode=$mode, app=$appName")
+
+            removeOverlay()
+            showOverlay(appName, sessionTime, todayTime, remainingTime, hasLimit, mode)
+        } catch (e: Exception) {
+            Log.e(TAG, "Error in onStartCommand", e)
+            stopSelf()
         }
+        return START_NOT_STICKY
+    }
 
-        val appName = intent.getStringExtra(EXTRA_APP_NAME) ?: "App"
-        val mode = intent.getStringExtra(EXTRA_MODE) ?: "reminder"
-        val sessionTime = intent.getStringExtra(EXTRA_SESSION_TIME) ?: ""
-        val todayTime = intent.getStringExtra(EXTRA_TODAY_TIME) ?: ""
-        val remainingTime = intent.getStringExtra(EXTRA_REMAINING_TIME) ?: ""
-        val hasLimit = intent.getBooleanExtra(EXTRA_HAS_LIMIT, false)
+    private fun showOverlay(
+        appName: String,
+        sessionTime: String,
+        todayTime: String,
+        remainingTime: String,
+        hasLimit: Boolean,
+        mode: String
+    ) {
+        try {
+            windowManager = getSystemService(WINDOW_SERVICE) as WindowManager
 
-        setContent {
-            MaterialTheme {
-                var visible by remember { mutableStateOf(false) }
-                
-                // Load display preferences in Compose scope
-                val showSession by WellbeingSettingsStore.popupShowSessionTime.flow(this@OverlayReminderActivity).collectAsState(initial = true)
-                val showToday by WellbeingSettingsStore.popupShowTodayTime.flow(this@OverlayReminderActivity).collectAsState(initial = true)
-                val showRemaining by WellbeingSettingsStore.popupShowRemainingTime.flow(this@OverlayReminderActivity).collectAsState(initial = true)
-                
-                LaunchedEffect(Unit) {
-                    visible = true
-                }
-                
-                if (visible) {
-                    // Use Dialog composable for proper touch pass-through
-                    // Clicks outside the card will pass to underlying app
-                    Dialog(
-                        onDismissRequest = { finish() },
-                        properties = DialogProperties(
-                            dismissOnBackPress = true,
-                            dismissOnClickOutside = true,
-                            usePlatformDefaultWidth = false // Important: allows custom sizing
-                        )
-                    ) {
-                        if (mode == "time_warning") {
-                            TimeWarningCard(
-                                appName = appName,
-                                sessionTime = sessionTime,
-                                todayTime = todayTime,
-                                remainingTime = remainingTime,
-                                showSession = showSession,
-                                showToday = showToday,
-                                showRemaining = showRemaining,
-                                onDismiss = { finish() }
-                            )
-                        } else {
-                            ReminderCard(
-                                appName = appName,
-                                sessionTime = sessionTime,
-                                todayTime = todayTime,
-                                remainingTime = remainingTime,
-                                hasLimit = hasLimit,
-                                showSession = showSession,
-                                showToday = showToday,
-                                showRemaining = showRemaining,
-                                onDismiss = { finish() }
-                            )
+            // Create transparent container that won't block clicks
+            val container = TransparentClickPassThroughView(this)
+            
+            // Create ComposeView for the card
+            val composeView = ComposeView(this).apply {
+                setBackgroundColor(android.graphics.Color.TRANSPARENT)
+                setContent {
+                    MaterialTheme {
+                        var visible by remember { mutableStateOf(false) }
+                        
+                        LaunchedEffect(Unit) {
+                            visible = true
+                        }
+                        
+                        AnimatedVisibility(
+                            visible = visible,
+                            enter = slideInVertically(
+                                initialOffsetY = { -it },
+                                animationSpec = spring(
+                                    dampingRatio = Spring.DampingRatioMediumBouncy,
+                                    stiffness = Spring.StiffnessLow
+                                )
+                            ) + fadeIn(),
+                            exit = slideOutVertically(
+                                targetOffsetY = { -it },
+                                animationSpec = tween(300)
+                            ) + fadeOut()
+                        ) {
+                            // Load display preferences
+                            val showSession = runBlocking { 
+                                WellbeingSettingsStore.popupShowSessionTime.flow(this@OverlayReminderActivity).first()
+                            }
+                            val showToday = runBlocking {
+                                WellbeingSettingsStore.popupShowTodayTime.flow(this@OverlayReminderActivity).first()
+                            }
+                            val showRemaining = runBlocking {
+                                WellbeingSettingsStore.popupShowRemainingTime.flow(this@OverlayReminderActivity).first()
+                            }
+
+                            Box(
+                                modifier = Modifier
+                                    .fillMaxWidth()
+                                    .padding(WindowInsets.safeDrawing.asPaddingValues())
+                                    .padding(horizontal = 16.dp)
+                                    .padding(top = 8.dp),
+                                contentAlignment = Alignment.TopCenter
+                            ) {
+                                if (mode == "time_warning") {
+                                    TimeWarningCard(
+                                        appName = appName,
+                                        sessionTime = sessionTime,
+                                        todayTime = todayTime,
+                                        remainingTime = remainingTime,
+                                        showSession = showSession,
+                                        showToday = showToday,
+                                        showRemaining = showRemaining,
+                                        onDismiss = { 
+                                            removeOverlay()
+                                            stopSelf()
+                                        }
+                                    )
+                                } else {
+                                    ReminderCard(
+                                        appName = appName,
+                                        sessionTime = sessionTime,
+                                        todayTime = todayTime,
+                                        remainingTime = remainingTime,
+                                        hasLimit = hasLimit,
+                                        showSession = showSession,
+                                        showToday = showToday,
+                                        showRemaining = showRemaining,
+                                        onDismiss = { 
+                                            removeOverlay()
+                                            stopSelf()
+                                        }
+                                    )
+                                }
+                            }
                         }
                     }
                 }
             }
-        }
+            container.addView(composeView)
 
-        // Auto-dismiss after 7 seconds
-        window.decorView.postDelayed({
-            if (!isFinishing) {
-                finish()
+            val layoutParams = WindowManager.LayoutParams(
+                WindowManager.LayoutParams.MATCH_PARENT,
+                WindowManager.LayoutParams.MATCH_PARENT,
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O)
+                    WindowManager.LayoutParams.TYPE_APPLICATION_OVERLAY
+                else
+                    @Suppress("DEPRECATION")
+                    WindowManager.LayoutParams.TYPE_PHONE,
+                WindowManager.LayoutParams.FLAG_NOT_FOCUSABLE or
+                        WindowManager.LayoutParams.FLAG_NOT_TOUCH_MODAL or
+                        WindowManager.LayoutParams.FLAG_LAYOUT_IN_SCREEN,
+                android.graphics.PixelFormat.TRANSLUCENT
+            )
+
+            overlayView = container
+            windowManager?.addView(container, layoutParams)
+            Log.d(TAG, "Overlay view added successfully")
+
+            // Auto-dismiss after 7 seconds using Handler (Service doesn't have window)
+            Handler(Looper.getMainLooper()).postDelayed({
+                try {
+                    if (overlayView != null) {
+                        removeOverlay()
+                        stopSelf()
+                    }
+                } catch (e: Exception) {
+                    Log.e(TAG, "Error in auto-dismiss", e)
+                }
+            }, 7000)
+        } catch (e: Exception) {
+            Log.e(TAG, "Error in showOverlay", e)
+            stopSelf()
+        }
+    }
+
+    private fun removeOverlay() {
+        try {
+            overlayView?.let { 
+                windowManager?.removeView(it)
+                Log.d(TAG, "Overlay removed")
             }
-        }, 7000)
+        } catch (e: Exception) {
+            Log.e(TAG, "Error removing overlay", e)
+        }
+        overlayView = null
+    }
+
+    override fun onDestroy() {
+        super.onDestroy()
+        removeOverlay()
+    }
+}
+
+/**
+ * Custom ViewGroup that passes through touch events except on clickable children
+ */
+private class TransparentClickPassThroughView(context: Context) : FrameLayout(context) {
+    override fun onInterceptTouchEvent(ev: MotionEvent?): Boolean {
+        // Never intercept - let children handle, and pass through to underlying app if needed
+        return false
     }
 }
 

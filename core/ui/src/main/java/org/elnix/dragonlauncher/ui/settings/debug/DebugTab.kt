@@ -250,16 +250,7 @@ fun DebugTab(
                         ctx.showToast("Overlay permission not granted")
                         return@Button
                     }
-                    val intent = Intent(ctx, OverlayReminderActivity::class.java).apply {
-                        putExtra(OverlayReminderActivity.EXTRA_APP_NAME, "TikTok")
-                        putExtra(OverlayReminderActivity.EXTRA_MODE, "reminder")
-                        putExtra(OverlayReminderActivity.EXTRA_SESSION_TIME, "15 min")
-                        putExtra(OverlayReminderActivity.EXTRA_TODAY_TIME, "42 min")
-                        putExtra(OverlayReminderActivity.EXTRA_REMAINING_TIME, "10 min")
-                        putExtra(OverlayReminderActivity.EXTRA_HAS_LIMIT, true)
-                        flags = Intent.FLAG_ACTIVITY_NEW_TASK
-                    }
-                    ctx.startActivity(intent)
+                    OverlayReminderActivity.show(ctx, "TikTok", "15 min", "42 min", "10 min", true, "reminder")
                 },
                 colors = AppObjectsColors.buttonColors(),
                 modifier = Modifier.fillMaxWidth()
@@ -275,16 +266,7 @@ fun DebugTab(
                         ctx.showToast("Overlay permission not granted")
                         return@Button
                     }
-                    val intent = Intent(ctx, OverlayReminderActivity::class.java).apply {
-                        putExtra(OverlayReminderActivity.EXTRA_APP_NAME, "TikTok")
-                        putExtra(OverlayReminderActivity.EXTRA_MODE, "time_warning")
-                        putExtra(OverlayReminderActivity.EXTRA_SESSION_TIME, "25 min")
-                        putExtra(OverlayReminderActivity.EXTRA_TODAY_TIME, "58 min")
-                        putExtra(OverlayReminderActivity.EXTRA_REMAINING_TIME, "5 min")
-                        putExtra(OverlayReminderActivity.EXTRA_HAS_LIMIT, true)
-                        flags = Intent.FLAG_ACTIVITY_NEW_TASK
-                    }
-                    ctx.startActivity(intent)
+                    OverlayReminderActivity.show(ctx, "TikTok", "25 min", "58 min", "5 min", true, "time_warning")
                 },
                 colors = AppObjectsColors.buttonColors(),
                 modifier = Modifier.fillMaxWidth()

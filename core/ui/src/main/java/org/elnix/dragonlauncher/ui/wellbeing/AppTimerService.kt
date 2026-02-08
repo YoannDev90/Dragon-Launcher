@@ -135,16 +135,9 @@ class AppTimerService : Service() {
                             val sessionMinutes = (elapsed / 60_000).coerceAtLeast(1)
                             val sessionText = sessionMinutes.formatDuration()
                             
-                            val intent = Intent(this@AppTimerService, OverlayReminderActivity::class.java).apply {
-                                putExtra(OverlayReminderActivity.EXTRA_APP_NAME, appName)
-                                putExtra(OverlayReminderActivity.EXTRA_MODE, "time_warning")
-                                putExtra(OverlayReminderActivity.EXTRA_SESSION_TIME, sessionText)
-                                putExtra(OverlayReminderActivity.EXTRA_TODAY_TIME, "")
-                                putExtra(OverlayReminderActivity.EXTRA_REMAINING_TIME, remainingText)
-                                putExtra(OverlayReminderActivity.EXTRA_HAS_LIMIT, true)
-                                flags = Intent.FLAG_ACTIVITY_NEW_TASK
-                            }
-                            startActivity(intent)
+                            OverlayReminderActivity.show(
+                                this@AppTimerService, appName, sessionText, "", remainingText, true, "time_warning"
+                            )
                         }
                     }
 
@@ -309,16 +302,9 @@ class AppTimerService : Service() {
                     remainingMinutes.formatDuration()
                 } else ""
                 
-                val intent = Intent(this, OverlayReminderActivity::class.java).apply {
-                    putExtra(OverlayReminderActivity.EXTRA_APP_NAME, appName)
-                    putExtra(OverlayReminderActivity.EXTRA_MODE, "reminder")
-                    putExtra(OverlayReminderActivity.EXTRA_SESSION_TIME, timeText)
-                    putExtra(OverlayReminderActivity.EXTRA_TODAY_TIME, "")
-                    putExtra(OverlayReminderActivity.EXTRA_REMAINING_TIME, remainingText)
-                    putExtra(OverlayReminderActivity.EXTRA_HAS_LIMIT, timeLimitEnabled)
-                    flags = Intent.FLAG_ACTIVITY_NEW_TASK
-                }
-                startActivity(intent)
+                OverlayReminderActivity.show(
+                    this, appName, timeText, "", remainingText, timeLimitEnabled, "reminder"
+                )
             }
         }
     }

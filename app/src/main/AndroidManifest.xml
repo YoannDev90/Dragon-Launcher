@@ -85,12 +85,9 @@
             android:excludeFromRecents="true"
             android:launchMode="singleTop" />
 
-        <activity
+        <service
             android:name="org.elnix.dragonlauncher.ui.wellbeing.OverlayReminderActivity"
-            android:exported="false"
-            android:theme="@android:style/Theme.Translucent.NoTitleBar"
-            android:excludeFromRecents="true"
-            android:launchMode="singleTop" />
+            android:exported="false" />
 
         <service
             android:name="org.elnix.dragonlauncher.ui.wellbeing.AppTimerService"
