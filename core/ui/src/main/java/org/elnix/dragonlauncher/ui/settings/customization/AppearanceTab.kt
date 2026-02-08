@@ -200,7 +200,7 @@ fun AppearanceTab(
                 SettingsSlider(
                     setting = UiSettingsStore.appLabelIconOverlayTopPadding,
                     title = stringResource(R.string.app_label_icon_overlay_top_padding),
-                    valueRange = 0..360,
+                    valueRange = 0..1000,
                     color = MaterialTheme.colorScheme.primary,
                     onDragStateChange = { isDraggingAppPreviewOverlays = it }
                 )
@@ -208,7 +208,7 @@ fun AppearanceTab(
                 SettingsSlider(
                     setting = UiSettingsStore.appLabelOverlaySize,
                     title = stringResource(R.string.app_label_overlay_size),
-                    valueRange = 0..70,
+                    valueRange = 0..100,
                     color = MaterialTheme.colorScheme.primary,
                     onDragStateChange = { isDraggingAppPreviewOverlays = it }
                 )
@@ -216,7 +216,7 @@ fun AppearanceTab(
                 SettingsSlider(
                     setting = UiSettingsStore.appIconOverlaySize,
                     title = stringResource(R.string.app_icon_overlay_size),
-                    valueRange = 0..360,
+                    valueRange = 0..400,
                     color = MaterialTheme.colorScheme.primary,
                     onDragStateChange = { isDraggingAppPreviewOverlays = it }
                 )

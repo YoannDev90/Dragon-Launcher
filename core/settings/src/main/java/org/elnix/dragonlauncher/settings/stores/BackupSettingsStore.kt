@@ -49,6 +49,7 @@ object BackupSettingsStore : MapSettingsStore() {
     val lastBackupTime = Settings.long(
         key = "lastBackupTime",
         dataStoreName = dataStoreName,
-        default = System.currentTimeMillis()
+        default = System.currentTimeMillis(),
+        allowedRange = Long.MIN_VALUE..Long.MAX_VALUE
     )
 }

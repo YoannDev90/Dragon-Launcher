@@ -50,13 +50,15 @@ object DrawerSettingsStore : MapSettingsStore() {
     val gridSize = Settings.int(
         key = "gridSize",
         dataStoreName = dataStoreName,
-        default = 6
+        default = 6,
+        allowedRange = 1..15
     )
 
     val initialPage = Settings.int(
         key = "initialPage",
         dataStoreName = dataStoreName,
-        default = 0
+        default = 0,
+        allowedRange = 0..Int.MAX_VALUE
     )
 
     val leftDrawerAction = Settings.enum(
@@ -76,13 +78,15 @@ object DrawerSettingsStore : MapSettingsStore() {
     val leftDrawerWidth = Settings.float(
         key = "leftDrawerWidth",
         dataStoreName = dataStoreName,
-        default = 0f
+        default = 0f,
+        allowedRange = 0f..1f
     )
 
     val rightDrawerWidth = Settings.float(
         key = "rightDrawerWidth",
         dataStoreName = dataStoreName,
-        default = 0f
+        default = 0f,
+        allowedRange = 0f..1f
     )
 
     val drawerEnterAction = Settings.enum(
@@ -131,19 +135,22 @@ object DrawerSettingsStore : MapSettingsStore() {
     val iconsSpacingHorizontal = Settings.int(
         key = "iconsSpacingHorizontal",
         dataStoreName = dataStoreName,
-        default = 8
+        default = 8,
+        allowedRange = 0..50
     )
 
 
     val iconsSpacingVertical = Settings.int(
         key = "iconsSpacingVertical",
         dataStoreName = dataStoreName,
-        default = 8
+        default = 8,
+        allowedRange = 0..50
     )
     val maxIconSize = Settings.int(
         key = "maxIconSize",
         dataStoreName = dataStoreName,
-        default = 96
+        default = 96,
+        allowedRange = 0..200
     )
 
     val useCategory = Settings.boolean(
@@ -155,7 +162,8 @@ object DrawerSettingsStore : MapSettingsStore() {
     val categoryGridWidth = Settings.int(
         key = "categoryGridWidth",
         dataStoreName = dataStoreName,
-        default = 2
+        default = 2,
+        allowedRange = 1..4
     )
 
 

@@ -162,7 +162,7 @@ fun DrawerTab(
                 SettingsSlider(
                     setting = DrawerSettingsStore.categoryGridWidth,
                     title = stringResource(R.string.category_grid_width),
-                    valueRange = 1..3
+                    valueRange = 1..4
                 )
             }
         }

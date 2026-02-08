@@ -114,10 +114,7 @@ private fun SliderWithLabelInternal(
                     onValueChange = {
                         try {
                             val newValue = if (it.isEmpty()) 0f
-                            else it.toFloat()
-
-                            // No coerceIn, my users aren't dumb :) (user's always dumb)
-                            // Means that using the keyboard you can enter any values you want
+                            else it.toFloat().coerceIn(valueRange)
 
                             onDragStateChange?.invoke(true)
                             onChange(newValue)

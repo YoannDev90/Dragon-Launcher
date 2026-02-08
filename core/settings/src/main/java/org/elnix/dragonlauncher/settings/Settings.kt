@@ -68,7 +68,8 @@ object Settings {
     fun int(
         key: String,
         dataStoreName: DataStoreName,
-        default: Int
+        default: Int,
+        allowedRange: ClosedRange<Int>
     ): BaseSettingObject<Int, Int> =
         BaseSettingObject(
             key = key,
@@ -77,7 +78,7 @@ object Settings {
             preferenceKey = intPreferencesKey(key),
             encode = { it },
             decode = { raw ->
-                getIntStrict(raw, default)
+                getIntStrict(raw, default).coerceIn(allowedRange)
             }
         )
 
@@ -85,7 +86,8 @@ object Settings {
     fun float(
         key: String,
         dataStoreName: DataStoreName,
-        default: Float
+        default: Float,
+        allowedRange: ClosedRange<Float>
     ): BaseSettingObject<Float, Float> =
         BaseSettingObject(
             key = key,
@@ -94,14 +96,15 @@ object Settings {
             preferenceKey = floatPreferencesKey(key),
             encode = { it },
             decode = { raw ->
-                getFloatStrict(raw, default)
+                getFloatStrict(raw, default).coerceIn(allowedRange)
             }
         )
 
     fun long(
         key: String,
         dataStoreName: DataStoreName,
-        default: Long
+        default: Long,
+        allowedRange: ClosedRange<Long>
     ): BaseSettingObject<Long, Long> =
         BaseSettingObject(
             key = key,
@@ -110,14 +113,15 @@ object Settings {
             preferenceKey = longPreferencesKey(key),
             encode = { it },
             decode = { raw ->
-                getLongStrict(raw, default)
+                getLongStrict(raw, default).coerceIn(allowedRange)
             }
         )
 
     fun double(
         key: String,
         dataStoreName: DataStoreName,
-        default: Double
+        default: Double,
+        allowedRange: ClosedRange<Double>
     ): BaseSettingObject<Double, Double> =
         BaseSettingObject(
             key = key,
@@ -126,7 +130,7 @@ object Settings {
             preferenceKey = doublePreferencesKey(key),
             encode = { it },
             decode = { raw ->
-                getDoubleStrict(raw, default)
+                getDoubleStrict(raw, default).coerceIn(allowedRange)
             }
         )
 

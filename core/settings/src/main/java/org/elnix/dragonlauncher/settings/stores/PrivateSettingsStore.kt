@@ -37,7 +37,8 @@ object PrivateSettingsStore : MapSettingsStore() {
     val lastSeenVersionCode = Settings.int(
         key = "lastSeenVersionCode",
         dataStoreName = dataStoreName,
-        default = 0
+        default = 0,
+        allowedRange = 0..Int.MAX_VALUE
     )
 
     override val ALL: List<BaseSettingObject<*,*>> = listOf(
