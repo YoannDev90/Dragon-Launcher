@@ -118,7 +118,6 @@ class DigitalPauseActivity : ComponentActivity() {
             finish()
             return
         }
-        val appName = intent.getStringExtra(EXTRA_APP_NAME) ?: packageName
         val pauseDuration = intent.getIntExtra(EXTRA_PAUSE_DURATION, 10)
         val guiltMode = intent.getBooleanExtra(EXTRA_GUILT_MODE, false)
         val returnToLauncher = intent.getBooleanExtra(EXTRA_RETURN_TO_LAUNCHER, false)

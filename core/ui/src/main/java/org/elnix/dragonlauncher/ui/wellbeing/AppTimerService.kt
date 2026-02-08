@@ -111,6 +111,7 @@ class AppTimerService : Service() {
     private var startTimeMs = 0L
     private var timerThread: Thread? = null
     private var fiveMinWarningShown = false
+    private var currentStartId = 0
 
     // ─────────── Usage stats helpers ───────────
 
@@ -183,7 +184,7 @@ class AppTimerService : Service() {
         }
     }
 
-    private fun createTimerThread() = object : Thread("AppTimerThread") {
+    private fun createTimerThread(startId: Int) = object : Thread("AppTimerThread") {
         override fun run() {
             try {
                 var elapsed = 0L
@@ -265,7 +266,8 @@ class AppTimerService : Service() {
                 // Service stopped
             } finally {
                 // When loop exits (app switched or time limit), stop the service
-                stopSelf()
+                // Use stopSelfResult so only the latest start can stop the service
+                stopSelfResult(startId)
             }
         }
     }
@@ -285,6 +287,9 @@ class AppTimerService : Service() {
         timerThread?.interrupt()
         timerThread = null
         fiveMinWarningShown = false
+        
+        // Save the current startId for this service invocation
+        currentStartId = startId
 
         trackedPackage = intent?.getStringExtra(EXTRA_PACKAGE_NAME) ?: ""
         appName = intent?.getStringExtra(EXTRA_APP_NAME) ?: trackedPackage
@@ -310,7 +315,7 @@ class AppTimerService : Service() {
             else 0
         )
 
-        timerThread = createTimerThread().also { it.start() }
+        timerThread = createTimerThread(startId).also { it.start() }
         return START_NOT_STICKY
     }
 
@@ -433,11 +438,20 @@ class AppTimerService : Service() {
     // ─────────── Return to launcher ───────────
 
     private fun returnToLauncher() {
+        // Show the time limit exceeded screen
         val intent = Intent(this, TimeLimitExceededActivity::class.java).apply {
             putExtra(TimeLimitExceededActivity.EXTRA_APP_NAME, appName)
             flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TOP
         }
         startActivity(intent)
+        
+        // Launch home intent to return to launcher
+        val homeIntent = Intent(Intent.ACTION_MAIN).apply {
+            addCategory(Intent.CATEGORY_HOME)
+            flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TOP
+        }
+        startActivity(homeIntent)
+        
         stopSelf()
     }
 }

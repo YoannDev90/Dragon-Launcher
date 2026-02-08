@@ -26,8 +26,12 @@ import android.widget.FrameLayout
 import android.widget.ImageView
 import android.widget.LinearLayout
 import android.widget.TextView
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.SupervisorJob
+import kotlinx.coroutines.cancel
 import kotlinx.coroutines.flow.first
-import kotlinx.coroutines.runBlocking
+import kotlinx.coroutines.launch
 import org.elnix.dragonlauncher.common.R
 import org.elnix.dragonlauncher.settings.stores.WellbeingSettingsStore
 
@@ -100,6 +104,7 @@ class OverlayReminderActivity : Service() {
     private var overlayView: View? = null
     private val handler = Handler(Looper.getMainLooper())
     private var pulseAnimator: ValueAnimator? = null
+    private val serviceScope = CoroutineScope(SupervisorJob() + Dispatchers.Main.immediate)
 
     override fun onBind(intent: Intent?): IBinder? = null
 
@@ -140,77 +145,74 @@ class OverlayReminderActivity : Service() {
         hasLimit: Boolean,
         mode: String
     ) {
-        try {
-            windowManager = applicationContext.getSystemService(WINDOW_SERVICE) as WindowManager
+        // Launch coroutine to read preferences asynchronously
+        serviceScope.launch {
+            try {
+                // Read user preferences (which stats to show)
+                val showSession = WellbeingSettingsStore.popupShowSessionTime.flow(this@OverlayReminderActivity).first()
+                val showToday = WellbeingSettingsStore.popupShowTodayTime.flow(this@OverlayReminderActivity).first()
+                val showRemaining = WellbeingSettingsStore.popupShowRemainingTime.flow(this@OverlayReminderActivity).first()
 
-            // Read user preferences (which stats to show)
-            val showSession = runBlocking {
-                WellbeingSettingsStore.popupShowSessionTime.flow(this@OverlayReminderActivity).first()
-            }
-            val showToday = runBlocking {
-                WellbeingSettingsStore.popupShowTodayTime.flow(this@OverlayReminderActivity).first()
-            }
-            val showRemaining = runBlocking {
-                WellbeingSettingsStore.popupShowRemainingTime.flow(this@OverlayReminderActivity).first()
-            }
+                val isWarning = mode == "time_warning"
 
-            val isWarning = mode == "time_warning"
+                windowManager = applicationContext.getSystemService(WINDOW_SERVICE) as WindowManager
 
-            // Build the view hierarchy
-            val container = buildOverlayView(
-                appName, sessionTime, todayTime, remainingTime,
-                hasLimit, showSession, showToday, showRemaining, isWarning
-            )
+                // Build the view hierarchy
+                val container = buildOverlayView(
+                    appName, sessionTime, todayTime, remainingTime,
+                    hasLimit, showSession, showToday, showRemaining, isWarning
+                )
 
-            // WindowManager layout params — the key to non-blocking overlay
-            val layoutParams = WindowManager.LayoutParams(
-                WindowManager.LayoutParams.MATCH_PARENT,
-                WindowManager.LayoutParams.WRAP_CONTENT,
-                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O)
-                    WindowManager.LayoutParams.TYPE_APPLICATION_OVERLAY
-                else
-                    @Suppress("DEPRECATION")
-                    WindowManager.LayoutParams.TYPE_PHONE,
-                // FLAG_NOT_FOCUSABLE: overlay never gets input focus
-                // FLAG_NOT_TOUCH_MODAL: touches outside overlay go to app below
-                // FLAG_LAYOUT_IN_SCREEN: allow overlay in status bar area
-                WindowManager.LayoutParams.FLAG_NOT_FOCUSABLE or
-                        WindowManager.LayoutParams.FLAG_NOT_TOUCH_MODAL or
-                        WindowManager.LayoutParams.FLAG_LAYOUT_IN_SCREEN,
-                PixelFormat.TRANSLUCENT
-            ).apply {
-                gravity = Gravity.TOP or Gravity.CENTER_HORIZONTAL
-            }
-
-            overlayView = container
-            windowManager?.addView(container, layoutParams)
-            Log.d(TAG, "Overlay view added successfully")
-
-            // Entry animation
-            animateIn(container)
-
-            // If time warning mode, add pulsing animation
-            if (isWarning) {
-                startPulseAnimation(container)
-            }
-
-            // Auto-dismiss
-            handler.postDelayed({
-                try {
-                    if (overlayView === container) {
-                        animateOut(container) {
-                            removeOverlay()
-                            stopSelf()
-                        }
-                    }
-                } catch (e: Exception) {
-                    Log.e(TAG, "Error in auto-dismiss", e)
+                // WindowManager layout params — the key to non-blocking overlay
+                val layoutParams = WindowManager.LayoutParams(
+                    WindowManager.LayoutParams.MATCH_PARENT,
+                    WindowManager.LayoutParams.WRAP_CONTENT,
+                    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O)
+                        WindowManager.LayoutParams.TYPE_APPLICATION_OVERLAY
+                    else
+                        @Suppress("DEPRECATION")
+                        WindowManager.LayoutParams.TYPE_PHONE,
+                    // FLAG_NOT_FOCUSABLE: overlay never gets input focus
+                    // FLAG_NOT_TOUCH_MODAL: touches outside overlay go to app below
+                    // FLAG_LAYOUT_IN_SCREEN: allow overlay in status bar area
+                    WindowManager.LayoutParams.FLAG_NOT_FOCUSABLE or
+                            WindowManager.LayoutParams.FLAG_NOT_TOUCH_MODAL or
+                            WindowManager.LayoutParams.FLAG_LAYOUT_IN_SCREEN,
+                    PixelFormat.TRANSLUCENT
+                ).apply {
+                    gravity = Gravity.TOP or Gravity.CENTER_HORIZONTAL
                 }
-            }, DISMISS_DELAY)
 
-        } catch (e: Exception) {
-            Log.e(TAG, "Error in showOverlay", e)
-            stopSelf()
+                overlayView = container
+                windowManager?.addView(container, layoutParams)
+                Log.d(TAG, "Overlay view added successfully")
+
+                // Entry animation
+                animateIn(container)
+
+                // If time warning mode, add pulsing animation
+                if (isWarning) {
+                    startPulseAnimation(container)
+                }
+
+                // Auto-dismiss
+                handler.postDelayed({
+                    try {
+                        if (overlayView === container) {
+                            animateOut(container) {
+                                removeOverlay()
+                                stopSelf()
+                            }
+                        }
+                    } catch (e: Exception) {
+                        Log.e(TAG, "Error in auto-dismiss", e)
+                    }
+                }, DISMISS_DELAY)
+
+            } catch (e: Exception) {
+                Log.e(TAG, "Error in showOverlay", e)
+                stopSelf()
+            }
         }
     }
 
@@ -527,6 +529,7 @@ class OverlayReminderActivity : Service() {
     override fun onDestroy() {
         handler.removeCallbacksAndMessages(null)
         removeOverlay()
+        serviceScope.cancel()
         super.onDestroy()
     }
 

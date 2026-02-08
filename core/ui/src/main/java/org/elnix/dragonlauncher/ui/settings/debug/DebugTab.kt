@@ -2,7 +2,6 @@
 
 package org.elnix.dragonlauncher.ui.settings.debug
 
-import android.content.Intent
 import android.os.Build
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.layout.Arrangement
