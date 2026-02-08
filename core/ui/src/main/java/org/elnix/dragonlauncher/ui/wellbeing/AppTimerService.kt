@@ -22,7 +22,7 @@ import java.util.Calendar
  * Foreground service that:
  * 1. Tracks how long the user has been on a paused app.
  * 2. Optionally sends periodic reminder notifications (every X minutes).
- * 3. Optionally triggers an overlay popup via [OverlayReminderActivity].
+ * 3. Optionally triggers an overlay popup via [OverlayReminderService].
  * 4. Optionally returns the user to Dragon Launcher when the time limit is reached.
  */
 class AppTimerService : Service() {
@@ -183,7 +183,7 @@ class AppTimerService : Service() {
         }
     }
 
-    private fun createTimerThread() = object : Thread("AppTimerThread") {
+    private fun createTimerThread(startId: Int) = object : Thread("AppTimerThread") {
         override fun run() {
             try {
                 var elapsed = 0L
@@ -243,7 +243,7 @@ class AppTimerService : Service() {
                             val sessionText = sessionMinutes.formatDuration()
                             val todayText = buildTodayText()
                             
-                            OverlayReminderActivity.show(
+                            OverlayReminderService.show(
                                 this@AppTimerService, appName, sessionText, todayText, remainingText, true, "time_warning"
                             )
                         }
@@ -265,7 +265,8 @@ class AppTimerService : Service() {
                 // Service stopped
             } finally {
                 // When loop exits (app switched or time limit), stop the service
-                stopSelf()
+                // Use stopSelfResult so only the latest start can stop the service
+                stopSelfResult(startId)
             }
         }
     }
@@ -310,7 +311,7 @@ class AppTimerService : Service() {
             else 0
         )
 
-        timerThread = createTimerThread().also { it.start() }
+        timerThread = createTimerThread(startId).also { it.start() }
         return START_NOT_STICKY
     }
 
@@ -423,7 +424,7 @@ class AppTimerService : Service() {
                     remainingMinutes.formatDuration()
                 } else ""
                 
-                OverlayReminderActivity.show(
+                OverlayReminderService.show(
                     this, appName, timeText, todayText, remainingText, timeLimitEnabled, "reminder"
                 )
             }
@@ -433,11 +434,20 @@ class AppTimerService : Service() {
     // ─────────── Return to launcher ───────────
 
     private fun returnToLauncher() {
+        // Show the time limit exceeded screen
         val intent = Intent(this, TimeLimitExceededActivity::class.java).apply {
             putExtra(TimeLimitExceededActivity.EXTRA_APP_NAME, appName)
             flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TOP
         }
         startActivity(intent)
+        
+        // Launch home intent to return to launcher
+        val homeIntent = Intent(Intent.ACTION_MAIN).apply {
+            addCategory(Intent.CATEGORY_HOME)
+            flags = Intent.FLAG_ACTIVITY_NEW_TASK
+        }
+        startActivity(homeIntent)
+        
         stopSelf()
     }
 }

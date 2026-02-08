@@ -76,7 +76,8 @@ class TimeLimitExceededActivity : ComponentActivity() {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
 
-        val appName = intent.getStringExtra(EXTRA_APP_NAME) ?: "this app"
+        val appName = intent.getStringExtra(EXTRA_APP_NAME)
+            ?: applicationInfo.loadLabel(packageManager).toString()
 
         val controller = WindowInsetsControllerCompat(window, window.decorView)
         controller.hide(WindowInsetsCompat.Type.systemBars())
@@ -101,8 +102,6 @@ class TimeLimitExceededActivity : ComponentActivity() {
     @Deprecated("Deprecated in Java")
     override fun onBackPressed() {
         finish()
-        @Suppress("DEPRECATION")
-        super.onBackPressed()
     }
 }
 
@@ -257,7 +256,7 @@ private fun GradientBackground() {
                 Brush.verticalGradient(
                     colors = listOf(
                         BgTop,
-                        Color.lerp(BgBottom, AccentPurple.copy(alpha = 0.15f), shift) ?: BgBottom
+                        Color.lerp(BgBottom, AccentPurple.copy(alpha = 0.15f), shift)
                     )
                 )
             )

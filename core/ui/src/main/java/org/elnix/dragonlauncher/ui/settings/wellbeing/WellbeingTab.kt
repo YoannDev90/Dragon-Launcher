@@ -59,7 +59,6 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Brush
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.ImageBitmap
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.layout.ContentScale
@@ -152,7 +151,6 @@ fun WellbeingTab(
             WellbeingHeroCard(
                 pauseEnabled = socialMediaPauseEnabled,
                 reminderEnabled = reminderEnabled,
-                returnEnabled = returnToLauncherEnabled,
                 appCount = pausedApps.size
             )
         }
@@ -558,7 +556,6 @@ fun WellbeingTab(
 private fun WellbeingHeroCard(
     pauseEnabled: Boolean,
     reminderEnabled: Boolean,
-    returnEnabled: Boolean,
     appCount: Int
 ) {
     Box(
