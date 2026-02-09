@@ -2,6 +2,7 @@
 
 package org.elnix.dragonlauncher.ui.settings.customization
 
+import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.gestures.detectDragGestures
@@ -141,8 +142,8 @@ fun DrawerTab(
             )
         }
 
-        if (showRecentlyUsed) {
-            item {
+        item {
+            AnimatedVisibility(showRecentlyUsed) {
                 SettingsSlider(
                     setting = DrawerSettingsStore.recentlyUsedAppsCount,
                     title = stringResource(R.string.recently_used_apps_count),
@@ -152,7 +153,6 @@ fun DrawerTab(
         }
 
         item { TextDivider(stringResource(R.string.appearance)) }
-
 
         item {
             SettingsSwitchRow(
