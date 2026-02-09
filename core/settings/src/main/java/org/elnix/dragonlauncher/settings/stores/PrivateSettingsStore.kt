@@ -40,11 +40,19 @@ object PrivateSettingsStore : MapSettingsStore() {
         default = 0
     )
 
+    /** Hashed PIN for settings lock (SHA-256). Empty string means no PIN set. */
+    val lockPinHash = Settings.string(
+        key = "lockPinHash",
+        dataStoreName = dataStoreName,
+        default = ""
+    )
+
     override val ALL: List<BaseSettingObject<*,*>> = listOf(
         hasSeenWelcome,
         hasInitialized,
         showSetDefaultLauncherBanner,
         showMethodAsking,
-        lastSeenVersionCode
+        lastSeenVersionCode,
+        lockPinHash
     )
 }
