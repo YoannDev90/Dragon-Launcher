@@ -40,7 +40,7 @@ fun launchSwipeAction(
     onReloadApps: (() -> Unit)? = null,
     onReselectFile: (() -> Unit)? = null,
     onAppSettings: (() -> Unit)? = null,
-    onAppDrawer: (() -> Unit)? = null,
+    onAppDrawer: ((workspaceId: String?) -> Unit)? = null,
     onParentNest: (() -> Unit)? = null,
     onOpenNestCircle: ((nestId: Int) -> Unit)? = null,
 ) {
@@ -97,8 +97,8 @@ fun launchSwipeAction(
             else expandQuickActionsDrawer(ctx)
         }
 
-        SwipeActionSerializable.OpenAppDrawer -> {
-            onAppDrawer?.invoke()
+        is SwipeActionSerializable.OpenAppDrawer -> {
+            onAppDrawer?.invoke(action.workspaceId)
         }
 
         SwipeActionSerializable.OpenDragonLauncherSettings -> onAppSettings?.invoke()

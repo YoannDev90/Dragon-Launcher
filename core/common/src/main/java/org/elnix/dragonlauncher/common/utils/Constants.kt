@@ -92,7 +92,7 @@ val defaultChoosableActions = listOf(
     SwipeActionSerializable.OpenFile(""),
     SwipeActionSerializable.NotificationShade,
     SwipeActionSerializable.ControlPanel,
-    SwipeActionSerializable.OpenAppDrawer,
+    SwipeActionSerializable.OpenAppDrawer(),
     SwipeActionSerializable.Lock,
     SwipeActionSerializable.ReloadApps,
     SwipeActionSerializable.OpenRecentApps,

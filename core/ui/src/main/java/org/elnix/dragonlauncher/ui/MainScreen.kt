@@ -84,7 +84,7 @@ fun MainScreen(
     floatingAppsViewModel: FloatingAppsViewModel,
     appLifecycleViewModel: AppLifecycleViewModel,
     widgetHostProvider: WidgetHostProvider,
-    onAppDrawer: () -> Unit,
+    onAppDrawer: (workspaceId: String?) -> Unit,
     onGoWelcome: () -> Unit,
     onLongPress3Sec: () -> Unit
 ) {

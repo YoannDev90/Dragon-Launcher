@@ -281,7 +281,7 @@ object ImageUtils {
             SwipeActionSerializable.ControlPanel ->
                 loadDrawableResAsBitmap(ctx, R.drawable.ic_action_grid, width, height)
 
-            SwipeActionSerializable.OpenAppDrawer ->
+            is SwipeActionSerializable.OpenAppDrawer ->
                 loadDrawableResAsBitmap(ctx, R.drawable.ic_action_drawer, width, height)
 
             SwipeActionSerializable.OpenDragonLauncherSettings ->

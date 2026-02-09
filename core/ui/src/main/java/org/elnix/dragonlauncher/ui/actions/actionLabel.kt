@@ -66,7 +66,7 @@ fun actionLabel(
 
             SwipeActionSerializable.ControlPanel -> stringResource(R.string.control_panel)
 
-            SwipeActionSerializable.OpenAppDrawer -> stringResource(R.string.app_drawer)
+            is SwipeActionSerializable.OpenAppDrawer -> stringResource(R.string.app_drawer)
 
             SwipeActionSerializable.OpenDragonLauncherSettings -> stringResource(R.string.dragon_launcher_settings)
 
