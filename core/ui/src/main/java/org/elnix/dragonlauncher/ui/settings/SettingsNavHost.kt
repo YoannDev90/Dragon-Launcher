@@ -17,7 +17,6 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
-import androidx.fragment.app.FragmentActivity
 import androidx.navigation.NavType
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
@@ -46,6 +45,7 @@ import org.elnix.dragonlauncher.ui.AdvancedSettingsScreen
 import org.elnix.dragonlauncher.ui.SettingsScreen
 import org.elnix.dragonlauncher.ui.dialogs.PinUnlockDialog
 import org.elnix.dragonlauncher.ui.helpers.SecurityHelper
+import org.elnix.dragonlauncher.ui.helpers.findFragmentActivity
 import org.elnix.dragonlauncher.ui.helpers.noAnimComposable
 import org.elnix.dragonlauncher.ui.settings.backup.BackupTab
 import org.elnix.dragonlauncher.ui.settings.customization.AppearanceTab
@@ -143,7 +143,7 @@ fun SettingsNavHost(
                 showPinDialog = true
             }
             LockMethod.DEVICE_UNLOCK -> {
-                val activity = ctx as? FragmentActivity
+                val activity = ctx.findFragmentActivity()
                 if (activity != null && SecurityHelper.isDeviceUnlockAvailable(ctx)) {
                     SecurityHelper.showDeviceUnlockPrompt(
                         activity = activity,
