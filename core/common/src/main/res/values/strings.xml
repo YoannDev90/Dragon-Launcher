@@ -538,4 +538,52 @@
     <string name="reset_all_points">Reset All points</string>
     <string name="reset_all_points_desc">All your actions will be reset, this can\'t be undone!</string>
 
+    <!--  ─────────────  Multi Select  ─────────────  -->
+    <string name="multi_select_hint">Long press an app to start multi-selection</string>
+    <string name="multi_select_count">%d selected</string>
+    <string name="add_selected_apps">Add selected apps</string>
+    <string name="add_all_auto">Auto place on circle</string>
+    <string name="add_all_manual">Place one by one</string>
+    <string name="place_app_where">Where do you want to place %s?</string>
+    <string name="tap_circle_to_place">Tap on the circle to place the app</string>
+    <string name="apps_added_successfully">%d apps added successfully</string>
+    <string name="multi_select_drawer_hint">💡 Long press an app to select multiple at once</string>
+    <string name="deselect_all">Deselect all</string>
+
+    <!--  ─────────────  Lock Settings  ─────────────  -->
+    <string name="lock_settings">Lock Settings</string>
+    <string name="lock_settings_description">Protect your launcher settings with a security method</string>
+    <string name="lock_method">Lock Method</string>
+    <string name="lock_none">None</string>
+    <string name="lock_pin">PIN Code</string>
+    <string name="lock_biometric">Fingerprint</string>
+    <string name="lock_device_credentials">Device Credentials</string>
+    <string name="enter_pin">Enter PIN</string>
+    <string name="confirm_pin">Confirm PIN</string>
+    <string name="set_pin">Set PIN</string>
+    <string name="change_pin">Change PIN</string>
+    <string name="remove_pin">Remove PIN</string>
+    <string name="pin_mismatch">PINs do not match</string>
+    <string name="pin_too_short">PIN must be at least 4 digits</string>
+    <string name="pin_set_success">PIN set successfully</string>
+    <string name="pin_removed">PIN removed</string>
+    <string name="wrong_pin">Wrong PIN</string>
+    <string name="unlock_settings">Unlock Settings</string>
+    <string name="biometric_prompt_title">Unlock Dragon Settings</string>
+    <string name="biometric_prompt_subtitle">Authenticate to access settings</string>
+    <string name="biometric_not_available">Biometric authentication not available</string>
+    <string name="device_credentials_not_available">No device lock screen set up</string>
+    <string name="authentication_failed">Authentication failed</string>
+    <string name="authentication_error">Authentication error: %s</string>
+
+    <!--  ─────────────  Drawer Workspace Selection  ─────────────  -->
+    <string name="select_default_workspace">Select default workspace</string>
+    <string name="select_workspace_hint">Choose which workspace opens by default. You can always switch by swiping left or right in the drawer.</string>
+
+    <!--  ─────────────  Recently Used Apps  ─────────────  -->
+    <string name="recently_used_apps">Recently used apps</string>
+    <string name="show_recently_used_apps">Show recently used apps</string>
+    <string name="show_recently_used_apps_desc">Display recently used apps at the top of the app drawer</string>
+    <string name="recently_used_apps_count">Number of recent apps</string>
+
 </resources>

@@ -308,4 +308,52 @@
     <string name="tint">色合い</string>
     <string name="icon_pack_tint">アイコンパックの色合い</string>
     <string name="show_app_icon_start_drag_position">ドラッグ開始位置にアプリアイコンを表示</string>
+
+    <!--  ─────────────  Multi Select  ─────────────  -->
+    <string name="multi_select_hint">アプリを長押しして複数選択を開始</string>
+    <string name="multi_select_count">%d 件選択中</string>
+    <string name="add_selected_apps">選択したアプリを追加</string>
+    <string name="add_all_auto">サークルに自動配置</string>
+    <string name="add_all_manual">1つずつ配置</string>
+    <string name="place_app_where">%s をどこに配置しますか？</string>
+    <string name="tap_circle_to_place">サークルをタップしてアプリを配置</string>
+    <string name="apps_added_successfully">%d 個のアプリが正常に追加されました</string>
+    <string name="multi_select_drawer_hint">💡 アプリを長押しして複数を一度に選択</string>
+    <string name="deselect_all">すべて選択解除</string>
+
+    <!--  ─────────────  Lock Settings  ─────────────  -->
+    <string name="lock_settings">設定をロック</string>
+    <string name="lock_settings_description">セキュリティ方式でランチャー設定を保護</string>
+    <string name="lock_method">ロック方式</string>
+    <string name="lock_none">なし</string>
+    <string name="lock_pin">PINコード</string>
+    <string name="lock_biometric">指紋認証</string>
+    <string name="lock_device_credentials">デバイス認証</string>
+    <string name="enter_pin">PINを入力</string>
+    <string name="confirm_pin">PINを確認</string>
+    <string name="set_pin">PINを設定</string>
+    <string name="change_pin">PINを変更</string>
+    <string name="remove_pin">PINを削除</string>
+    <string name="pin_mismatch">PINが一致しません</string>
+    <string name="pin_too_short">PINは4桁以上必要です</string>
+    <string name="pin_set_success">PINが正常に設定されました</string>
+    <string name="pin_removed">PINが削除されました</string>
+    <string name="wrong_pin">PINが間違っています</string>
+    <string name="unlock_settings">設定をロック解除</string>
+    <string name="biometric_prompt_title">Dragon設定をロック解除</string>
+    <string name="biometric_prompt_subtitle">設定にアクセスするには認証してください</string>
+    <string name="biometric_not_available">生体認証が利用できません</string>
+    <string name="device_credentials_not_available">画面ロックが設定されていません</string>
+    <string name="authentication_failed">認証に失敗しました</string>
+    <string name="authentication_error">認証エラー：%s</string>
+
+    <!--  ─────────────  Drawer Workspace Selection  ─────────────  -->
+    <string name="select_default_workspace">デフォルトのワークスペースを選択</string>
+    <string name="select_workspace_hint">デフォルトで開くワークスペースを選択。ドロワーで左右にスワイプすればいつでも変更できます。</string>
+
+    <!--  ─────────────  Recently Used Apps  ─────────────  -->
+    <string name="recently_used_apps">最近使用したアプリ</string>
+    <string name="show_recently_used_apps">最近使ったアプリを表示</string>
+    <string name="show_recently_used_apps_desc">アプリドロワーの上部に最近使用したアプリを表示</string>
+    <string name="recently_used_apps_count">最近のアプリ数</string>
 </resources>

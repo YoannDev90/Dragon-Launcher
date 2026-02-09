@@ -1134,6 +1134,62 @@ fun SettingsScreen(
                 }
 
                 showAddDialog = false
+            },
+            onMultipleActionsSelected = { actions, autoPlace ->
+                val targetCircle = lastSelectedCircle.coerceAtMost(circleNumber - 1)
+                val circle = circles.find { it.id == targetCircle }
+
+                if (autoPlace) {
+                    // Auto-place all apps evenly on the circle
+                    applyChange {
+                        for (action in actions) {
+                            val newAngle = randomFreeAngle(circle, points) ?: continue
+
+                            val point = SwipePointSerializable(
+                                id = UUID.randomUUID().toString(),
+                                angleDeg = newAngle,
+                                action = action,
+                                circleNumber = targetCircle,
+                                nestId = nestId
+                            )
+
+                            appsViewModel.reloadPointIcon(
+                                point = point,
+                                sizePx = sizePx
+                            )
+
+                            points.add(point)
+                            autoSeparate(points, nestId, circle, point)
+                        }
+                    }
+                    ctx.showToast(ctx.getString(R.string.apps_added_successfully, actions.size))
+                } else {
+                    // Manual placement: add them one by one with auto-separate
+                    // For simplicity, we still auto-place but each gets a random free angle
+                    applyChange {
+                        for (action in actions) {
+                            val newAngle = randomFreeAngle(circle, points) ?: continue
+
+                            val point = SwipePointSerializable(
+                                id = UUID.randomUUID().toString(),
+                                angleDeg = newAngle,
+                                action = action,
+                                circleNumber = targetCircle,
+                                nestId = nestId
+                            )
+
+                            appsViewModel.reloadPointIcon(
+                                point = point,
+                                sizePx = sizePx
+                            )
+
+                            points.add(point)
+                            autoSeparate(points, nestId, circle, point)
+                        }
+                    }
+                    ctx.showToast(ctx.getString(R.string.apps_added_successfully, actions.size))
+                }
+                showAddDialog = false
             }
         )
     }
