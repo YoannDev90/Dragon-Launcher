@@ -6,7 +6,10 @@ import android.provider.Settings
 import androidx.activity.compose.BackHandler
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.combinedClickable
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -15,10 +18,15 @@ import androidx.compose.foundation.layout.exclude
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.ime
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.safeDrawing
+import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.windowInsetsPadding
+import androidx.compose.foundation.lazy.LazyRow
+import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.pager.HorizontalPager
 import androidx.compose.foundation.pager.rememberPagerState
 import androidx.compose.foundation.text.KeyboardActions
@@ -36,18 +44,26 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.focus.onFocusChanged
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.ImageBitmap
+import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.platform.LocalSoftwareKeyboardController
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.input.ImeAction
+import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import androidx.core.net.toUri
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import kotlinx.coroutines.Dispatchers
@@ -56,6 +72,7 @@ import kotlinx.coroutines.withContext
 import kotlinx.coroutines.yield
 import org.elnix.dragonlauncher.common.R
 import org.elnix.dragonlauncher.common.serializables.AppModel
+import org.elnix.dragonlauncher.common.serializables.IconShape
 import org.elnix.dragonlauncher.common.serializables.SwipeActionSerializable
 import org.elnix.dragonlauncher.common.serializables.dummySwipePoint
 import org.elnix.dragonlauncher.common.utils.openSearch
@@ -78,6 +95,8 @@ import org.elnix.dragonlauncher.settings.stores.UiSettingsStore
 import org.elnix.dragonlauncher.settings.stores.WellbeingSettingsStore
 import org.elnix.dragonlauncher.ui.actions.launchAppDirectly
 import org.elnix.dragonlauncher.ui.actions.launchSwipeAction
+import org.elnix.dragonlauncher.ui.components.TextDivider
+import org.elnix.dragonlauncher.ui.components.resolveShape
 import org.elnix.dragonlauncher.ui.components.settings.asState
 import org.elnix.dragonlauncher.ui.dialogs.AppAliasesDialog
 import org.elnix.dragonlauncher.ui.dialogs.AppLongPressDialog
@@ -138,6 +157,12 @@ fun AppDrawerScreen(
     val drawerScrollUpAction by DrawerSettingsStore.scrollUpDrawerAction.asState()
 
     val iconsShape by DrawerSettingsStore.iconsShape.asState()
+
+    /* ───────────── Recently Used Apps ───────────── */
+    val showRecentlyUsedApps by DrawerSettingsStore.showRecentlyUsedApps.asState()
+    val recentlyUsedAppsCount by DrawerSettingsStore.recentlyUsedAppsCount.asState()
+    val recentApps by appsViewModel.getRecentApps(recentlyUsedAppsCount)
+        .collectAsStateWithLifecycle(emptyList())
 
 
     /*  ─────────────  Wellbeing Settings  ─────────────  */
@@ -298,6 +323,8 @@ fun AppDrawerScreen(
         if (action is SwipeActionSerializable.LaunchApp) {
             pendingPackageToLaunch = action.packageName
             pendingAppName = name.ifBlank { action.packageName }
+            // Track recently used app
+            appsViewModel.addRecentlyUsedApp(action.packageName)
         }
 
         try {
@@ -411,20 +438,47 @@ fun AppDrawerScreen(
                         }
                     }
 
+                    Column(modifier = Modifier.fillMaxSize()) {
 
-                    AppGrid(
-                        apps = filteredApps,
-                        icons = icons,
-                        gridSize = gridSize,
-                        iconShape = iconsShape,
-                        txtColor = MaterialTheme.colorScheme.onSurface,
-                        showIcons = showIcons,
-                        showLabels = showLabels,
-                        onLongClick = { dialogApp = it },
-                        onScrollDown = { launchDrawerAction(drawerScrollDownAction) },
-                        onScrollUp = { launchDrawerAction(drawerScrollUpAction) }
-                    ) {
-                        launchApp(it.action, it.name)
+                        /* ───────────── Recently Used Apps section ───────────── */
+                        if (showRecentlyUsedApps && searchQuery.isBlank() && recentApps.isNotEmpty()) {
+                            TextDivider(
+                                text = stringResource(R.string.recently_used_apps),
+                                modifier = Modifier.padding(horizontal = 8.dp)
+                            )
+                            LazyRow(
+                                modifier = Modifier
+                                    .fillMaxWidth()
+                                    .padding(horizontal = 8.dp, vertical = 4.dp),
+                                horizontalArrangement = Arrangement.spacedBy(12.dp)
+                            ) {
+                                items(recentApps, key = { it.packageName }) { app ->
+                                    RecentAppItem(
+                                        app = app,
+                                        icons = icons,
+                                        iconShape = iconsShape,
+                                        showLabels = showLabels,
+                                        onClick = { launchApp(app.action, app.name) },
+                                        onLongClick = { dialogApp = app }
+                                    )
+                                }
+                            }
+                        }
+
+                        AppGrid(
+                            apps = filteredApps,
+                            icons = icons,
+                            gridSize = gridSize,
+                            iconShape = iconsShape,
+                            txtColor = MaterialTheme.colorScheme.onSurface,
+                            showIcons = showIcons,
+                            showLabels = showLabels,
+                            onLongClick = { dialogApp = it },
+                            onScrollDown = { launchDrawerAction(drawerScrollDownAction) },
+                            onScrollUp = { launchDrawerAction(drawerScrollUpAction) }
+                        ) {
+                            launchApp(it.action, it.name)
+                        }
                     }
                 }
             }
@@ -618,4 +672,56 @@ private fun AppDrawerSearch(
             unfocusedIndicatorColor = Color.Transparent,
         )
     )
+}
+
+
+@Composable
+private fun RecentAppItem(
+    app: AppModel,
+    icons: Map<String, ImageBitmap>,
+    iconShape: IconShape,
+    showLabels: Boolean,
+    onClick: () -> Unit,
+    onLongClick: () -> Unit
+) {
+    val shape = resolveShape(iconShape)
+    val icon = icons[app.packageName]
+
+    Column(
+        modifier = Modifier
+            .width(64.dp)
+            .combinedClickable(onClick = onClick, onLongClick = onLongClick),
+        horizontalAlignment = Alignment.CenterHorizontally
+    ) {
+        if (icon != null) {
+            Image(
+                bitmap = icon,
+                contentDescription = app.name,
+                modifier = Modifier
+                    .size(48.dp)
+                    .clip(shape),
+                contentScale = ContentScale.Fit
+            )
+        } else {
+            Image(
+                painter = painterResource(R.drawable.ic_app_default),
+                contentDescription = app.name,
+                modifier = Modifier
+                    .size(48.dp)
+                    .clip(shape),
+                contentScale = ContentScale.Fit
+            )
+        }
+        if (showLabels) {
+            Text(
+                text = app.name,
+                color = MaterialTheme.colorScheme.onSurface,
+                fontSize = 11.sp,
+                maxLines = 1,
+                overflow = TextOverflow.Ellipsis,
+                textAlign = TextAlign.Center,
+                modifier = Modifier.padding(top = 2.dp)
+            )
+        }
+    }
 }
