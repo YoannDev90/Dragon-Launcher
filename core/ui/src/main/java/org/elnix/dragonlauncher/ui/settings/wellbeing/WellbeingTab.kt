@@ -76,7 +76,7 @@ import org.elnix.dragonlauncher.models.AppsViewModel
 import org.elnix.dragonlauncher.settings.stores.DrawerSettingsStore
 import org.elnix.dragonlauncher.settings.stores.WellbeingSettingsStore
 import org.elnix.dragonlauncher.ui.UiConstants.DragonShape
-import org.elnix.dragonlauncher.ui.components.DragonIconButton
+import org.elnix.dragonlauncher.ui.components.dragon.DragonIconButton
 import org.elnix.dragonlauncher.ui.components.settings.SettingsSlider
 import org.elnix.dragonlauncher.ui.components.settings.SettingsSwitchRow
 import org.elnix.dragonlauncher.ui.components.resolveShape
@@ -483,13 +483,14 @@ fun WellbeingTab(
             iconShape = iconsShape,
             showIcons = showIcons,
             showLabels = showLabels,
-            onDismiss = { showAppPicker = false }
-        ) {
-            scope.launch {
-                WellbeingSettingsStore.addPausedApp(ctx, it.packageName, pausedApps)
+            onDismiss = { showAppPicker = false },
+            onAppSelected = { app ->
+                scope.launch {
+                    WellbeingSettingsStore.addPausedApp(ctx, app.packageName, pausedApps)
+                }
+                showAppPicker = false
             }
-            showAppPicker = false
-        }
+        )
     }
 
     if (showPermissionDialog) {

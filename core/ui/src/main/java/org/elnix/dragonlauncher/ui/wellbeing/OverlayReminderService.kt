@@ -149,7 +149,7 @@ class OverlayReminderService : Service() {
         serviceScope.launch {
             try {
                 // Read user preferences (which stats to show)
-                val showSession = WellbeingSettingsStore.popupShowSessionTime.get(this@OverlayReminderService)
+                val showSession = WellbeingSettingsStore.popupShowSessionTime.get(this@OverlayReminderService) ?: true
                 val showToday = WellbeingSettingsStore.popupShowTodayTime.flow(this@OverlayReminderService).first()
                 val showRemaining = WellbeingSettingsStore.popupShowRemainingTime.flow(this@OverlayReminderService).first()
 

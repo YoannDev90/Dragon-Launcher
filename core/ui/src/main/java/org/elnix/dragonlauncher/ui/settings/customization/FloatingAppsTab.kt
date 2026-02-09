@@ -376,7 +376,7 @@ fun FloatingAppsTab(
         AddPointDialog(
             appsViewModel = appsViewModel,
             onDismiss = { showAddDialog = false },
-            actions =listOf(
+            actions = listOf(
                 SwipeActionSerializable.OpenWidget(0, ComponentName("", "")),
                 SwipeActionSerializable.OpenCircleNest(0),
                 SwipeActionSerializable.GoParentNest,
@@ -391,13 +391,14 @@ fun FloatingAppsTab(
                 SwipeActionSerializable.OpenRecentApps,
                 SwipeActionSerializable.OpenDragonLauncherSettings
             ),
-        ) { action ->
-            when (action) {
-                is SwipeActionSerializable.OpenWidget -> onLaunchSystemWidgetPicker(nestId)
-                else -> floatingAppsViewModel.addFloatingApp(action, nestId = nestId)
+            onActionSelected = { action ->
+                when (action) {
+                    is SwipeActionSerializable.OpenWidget -> onLaunchSystemWidgetPicker(nestId)
+                    else -> floatingAppsViewModel.addFloatingApp(action, nestId = nestId)
+                }
+                showAddDialog = false
             }
-            showAddDialog = false
-        }
+        )
     }
 
     if (showNestPickerDialog) {
