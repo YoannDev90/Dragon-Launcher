@@ -395,6 +395,15 @@
     <string name="select_workspace_hint">Elige qué espacio de trabajo se abre por defecto. Siempre puedes cambiar deslizando a izquierda o derecha en el cajón.</string>
     <string name="workspace_default">Predeterminado</string>
 
+    <!--  ─────────────  Pinned Shortcuts  ─────────────  -->
+    <string name="pinned_shortcut_added">Acceso directo "%s" añadido a tus círculos</string>
+    <string name="pinned_shortcut_failed">Error al añadir el acceso directo fijado</string>
+    <string name="pinned_shortcut_already_exists">El acceso directo "%s" ya está en tus círculos</string>
+    <string name="pinned_shortcuts">Accesos directos fijados</string>
+    <string name="pinned_shortcuts_desc">Explorar y añadir accesos directos fijados de tus apps</string>
+    <string name="no_pinned_shortcuts">No hay accesos directos fijados disponibles</string>
+    <string name="pinned_shortcuts_from">Accesos directos de %s</string>
+
     <!--  ─────────────  Recently Used Apps  ─────────────  -->
     <string name="recently_used_apps">Apps usadas recientemente</string>
     <string name="show_recently_used_apps">Mostrar apps recientes</string>

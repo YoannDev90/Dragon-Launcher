@@ -66,6 +66,7 @@ import androidx.navigation.NavController
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import org.elnix.dragonlauncher.common.R
+import org.elnix.dragonlauncher.common.logging.logD
 import org.elnix.dragonlauncher.common.serializables.SwipeActionSerializable
 import org.elnix.dragonlauncher.common.utils.SETTINGS
 import org.elnix.dragonlauncher.common.utils.copyToClipboard
@@ -87,6 +88,7 @@ import org.elnix.dragonlauncher.ui.dialogs.CustomAlertDialog
 import org.elnix.dragonlauncher.ui.dialogs.PinSetupDialog
 import org.elnix.dragonlauncher.ui.dialogs.UserValidation
 import org.elnix.dragonlauncher.ui.helpers.SecurityHelper
+import org.elnix.dragonlauncher.ui.helpers.findFragmentActivity
 import org.elnix.dragonlauncher.ui.helpers.settings.ContributorItem
 import org.elnix.dragonlauncher.ui.helpers.settings.SettingItemWithExternalOpen
 import org.elnix.dragonlauncher.ui.helpers.settings.SettingsItem
@@ -192,10 +194,28 @@ fun AdvancedSettingsScreen(
                                     showLockMethodPicker = false
                                 }
                                 LockMethod.DEVICE_UNLOCK -> {
-                                    scope.launch {
-                                        BehaviorSettingsStore.lockMethod.set(ctx, method)
+                                    // Test biometric authentication immediately
+                                    val activity = ctx.findFragmentActivity()
+                                    ctx.logD("AdvSettings", "DEVICE_UNLOCK selected: activity=$activity, isAvailable=${SecurityHelper.isDeviceUnlockAvailable(ctx)}")
+                                    if (activity != null && SecurityHelper.isDeviceUnlockAvailable(ctx)) {
+                                        SecurityHelper.showDeviceUnlockPrompt(
+                                            activity = activity,
+                                            onSuccess = {
+                                                scope.launch {
+                                                    BehaviorSettingsStore.lockMethod.set(ctx, method)
+                                                }
+                                                showLockMethodPicker = false
+                                            },
+                                            onError = { msg ->
+                                                ctx.showToast(ctx.getString(R.string.authentication_error, msg))
+                                            },
+                                            onFailed = {
+                                                ctx.showToast(ctx.getString(R.string.authentication_failed))
+                                            }
+                                        )
+                                    } else {
+                                        ctx.showToast(ctx.getString(R.string.device_credentials_not_available))
                                     }
-                                    showLockMethodPicker = false
                                 }
                             }
                         }

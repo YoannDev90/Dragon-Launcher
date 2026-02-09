@@ -137,6 +137,12 @@ object UiSettingsStore : MapSettingsStore() {
         default = 0f
     )
 
+    val promptForShortcutsWhenAddingApp = Settings.boolean(
+        key = "promptForShortcutsWhenAddingApp",
+        dataStoreName = dataStoreName,
+        default = false
+    )
+
 
     override val ALL: List<BaseSettingObject<*,*>> = listOf(
         rgbLoading,
@@ -159,6 +165,7 @@ object UiSettingsStore : MapSettingsStore() {
         appLabelOverlaySize,
         appIconOverlaySize,
         wallpaperDimMainScreen,
-        wallpaperDimDrawerScreen
+        wallpaperDimDrawerScreen,
+        promptForShortcutsWhenAddingApp
     )
 }

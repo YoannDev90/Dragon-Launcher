@@ -88,6 +88,7 @@ val defaultChoosableActions = listOf(
     SwipeActionSerializable.OpenCircleNest(0),
     SwipeActionSerializable.GoParentNest,
     SwipeActionSerializable.LaunchApp(""),
+    SwipeActionSerializable.LaunchShortcut("", ""),
     SwipeActionSerializable.OpenUrl(""),
     SwipeActionSerializable.OpenFile(""),
     SwipeActionSerializable.NotificationShade,

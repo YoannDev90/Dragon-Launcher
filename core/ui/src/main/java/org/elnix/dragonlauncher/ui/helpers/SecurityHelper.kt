@@ -2,12 +2,41 @@ package org.elnix.dragonlauncher.ui.helpers
 
 import android.app.KeyguardManager
 import android.content.Context
+import android.content.ContextWrapper
+import android.os.Build
 import androidx.biometric.BiometricManager
 import androidx.biometric.BiometricPrompt
 import androidx.core.content.ContextCompat
 import androidx.fragment.app.FragmentActivity
 import org.elnix.dragonlauncher.common.R
+import org.elnix.dragonlauncher.common.logging.logD
 import java.security.MessageDigest
+
+/**
+ * Walks up the Context wrapper chain to find the hosting FragmentActivity.
+ * Compose's LocalContext.current may be wrapped by ContextThemeWrapper or similar.
+ */
+fun Context.findFragmentActivity(): FragmentActivity? {
+    var ctx: Context? = this
+    var depth = 0
+    while (ctx != null && depth < 20) { // Prevent infinite loops
+        logD("SecurityHelper", "findFragmentActivity: depth=$depth, ctx=${ctx::class.simpleName}")
+        when (ctx) {
+            is FragmentActivity -> {
+                logD("SecurityHelper", "Found FragmentActivity at depth $depth")
+                return ctx
+            }
+            is ContextWrapper -> ctx = ctx.baseContext
+            else -> {
+                logD("SecurityHelper", "Context is not ContextWrapper, cannot unwrap further")
+                return null
+            }
+        }
+        depth++
+    }
+    logD("SecurityHelper", "findFragmentActivity failed after $depth iterations")
+    return null
+}
 
 /**
  * Utility object for settings lock security operations.
@@ -35,16 +64,33 @@ object SecurityHelper {
      */
     fun isDeviceUnlockAvailable(context: Context): Boolean {
         val biometricManager = BiometricManager.from(context)
-        // Check if biometric + device credential is supported
-        val canAuth = biometricManager.canAuthenticate(
+        
+        context.logD("SecurityHelper", "Checking device unlock availability, SDK=${Build.VERSION.SDK_INT}")
+
+        // On API 30+ we can safely use BIOMETRIC_STRONG | DEVICE_CREDENTIAL
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
+            val canAuth = biometricManager.canAuthenticate(
+                BiometricManager.Authenticators.BIOMETRIC_STRONG or
+                        BiometricManager.Authenticators.DEVICE_CREDENTIAL
+            )
+            context.logD("SecurityHelper", "API 30+: canAuthenticate(STRONG|DEVICE_CREDENTIAL) = $canAuth")
+            if (canAuth == BiometricManager.BIOMETRIC_SUCCESS) return true
+        }
+
+        // On API 28-29, BIOMETRIC_STRONG | DEVICE_CREDENTIAL is not supported.
+        // Use BIOMETRIC_WEAK | DEVICE_CREDENTIAL instead.
+        val canAuthWeak = biometricManager.canAuthenticate(
             BiometricManager.Authenticators.BIOMETRIC_WEAK or
                     BiometricManager.Authenticators.DEVICE_CREDENTIAL
         )
-        if (canAuth == BiometricManager.BIOMETRIC_SUCCESS) return true
+        context.logD("SecurityHelper", "canAuthenticate(WEAK|DEVICE_CREDENTIAL) = $canAuthWeak")
+        if (canAuthWeak == BiometricManager.BIOMETRIC_SUCCESS) return true
 
-        // Fallback: check if at least a screen lock is set
+        // Final fallback: check if a screen lock (PIN/pattern/password) is set
         val keyguardManager = context.getSystemService(Context.KEYGUARD_SERVICE) as KeyguardManager
-        return keyguardManager.isDeviceSecure
+        val isDeviceSecure = keyguardManager.isDeviceSecure
+        context.logD("SecurityHelper", "KeyguardManager.isDeviceSecure = $isDeviceSecure")
+        return isDeviceSecure
     }
 
     /**
@@ -89,8 +135,13 @@ object SecurityHelper {
             .setTitle(activity.getString(R.string.biometric_prompt_title))
             .setSubtitle(activity.getString(R.string.biometric_prompt_subtitle))
             .setAllowedAuthenticators(
-                BiometricManager.Authenticators.BIOMETRIC_WEAK or
-                        BiometricManager.Authenticators.DEVICE_CREDENTIAL
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
+                    BiometricManager.Authenticators.BIOMETRIC_STRONG or
+                            BiometricManager.Authenticators.DEVICE_CREDENTIAL
+                } else {
+                    BiometricManager.Authenticators.BIOMETRIC_WEAK or
+                            BiometricManager.Authenticators.DEVICE_CREDENTIAL
+                }
             )
             .build()
 

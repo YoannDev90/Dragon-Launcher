@@ -39,6 +39,7 @@ import org.elnix.dragonlauncher.common.utils.PackageManagerCompat
 import org.elnix.dragonlauncher.common.utils.defaultChoosableActions
 import org.elnix.dragonlauncher.models.AppsViewModel
 import org.elnix.dragonlauncher.settings.stores.DrawerSettingsStore
+import org.elnix.dragonlauncher.settings.stores.UiSettingsStore
 import org.elnix.dragonlauncher.ui.UiConstants.DragonShape
 import org.elnix.dragonlauncher.ui.actions.ActionIcon
 import org.elnix.dragonlauncher.ui.actions.actionColor
@@ -66,6 +67,7 @@ fun AddPointDialog(
     var showFilePicker by remember { mutableStateOf(false) }
     var showNestPicker by remember { mutableStateOf(false) }
     var showWorkspacePicker by remember { mutableStateOf(false) }
+    var showPinnedShortcutsPicker by remember { mutableStateOf(false) }
 
     val workspaces by appsViewModel.enabledState.collectAsState()
 
@@ -80,6 +82,8 @@ fun AddPointDialog(
         .collectAsState(initial = true)
     val iconsShape by DrawerSettingsStore.iconsShape.flow(ctx)
         .collectAsState(DrawerSettingsStore.iconsShape.default)
+    val promptForShortcuts by UiSettingsStore.promptForShortcutsWhenAddingApp.flow(ctx)
+        .collectAsState(initial = false)
 
 
     var selectedApp by remember { mutableStateOf<AppModel?>(null) }
@@ -154,6 +158,19 @@ fun AddPointDialog(
                             Spacer(Modifier.height(8.dp))
                         }
 
+                        // Pinned Shortcuts → browse all pinned shortcuts
+                        is SwipeActionSerializable.LaunchShortcut -> {
+                            if (action.packageName.isEmpty()) {
+                                // Sentinel entry: open pinned shortcuts picker
+                                AddPointColumn(
+                                    action = action,
+                                    icons = icons,
+                                    onSelected = { showPinnedShortcutsPicker = true }
+                                )
+                                Spacer(Modifier.height(8.dp))
+                            }
+                        }
+
                         // Direct actions
                         else -> {
                             AddPointColumn(
@@ -181,12 +198,20 @@ fun AddPointDialog(
             multiSelectEnabled = onMultipleActionsSelected != null,
             onDismiss = { showAppPicker = false },
             onAppSelected = { app ->
-
-
-                val list = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
-                    packageManagerCompat.queryAppShortcuts(app.packageName)
+                // Try to query shortcuts, but handle crashes gracefully
+                val list = if (promptForShortcuts) {
+                    try {
+                        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
+                            packageManagerCompat.queryAppShortcuts(app.packageName) ?: emptyList()
+                        } else {
+                            emptyList()
+                        }
+                    } catch (e: Exception) {
+                        // Some apps (Contacts, Gmail) may throw SecurityException or other errors
+                        emptyList()
+                    }
                 } else {
-                    emptyList()
+                    emptyList() // Skip shortcut query if disabled
                 }
 
                 if (list.isNotEmpty()) {
@@ -324,6 +349,16 @@ fun AddPointDialog(
             shape = DragonShape
         )
     }
+
+    if (showPinnedShortcutsPicker) {
+        PinnedShortcutsPickerDialog(
+            onDismiss = { showPinnedShortcutsPicker = false },
+            onShortcutSelected = { shortcutAction ->
+                onActionSelected(shortcutAction)
+                showPinnedShortcutsPicker = false
+            }
+        )
+    }
 }
 
 
@@ -337,6 +372,10 @@ fun AddPointColumn(
 
     val name = when(action) {
         is SwipeActionSerializable.LaunchApp -> stringResource(R.string.open_app)
+        is SwipeActionSerializable.LaunchShortcut -> {
+            if (action.packageName.isEmpty()) stringResource(R.string.pinned_shortcuts)
+            else actionLabel(action)
+        }
         is SwipeActionSerializable.OpenUrl -> stringResource(R.string.open_url)
         is SwipeActionSerializable.OpenFile -> stringResource(R.string.open_file)
         else -> actionLabel(action)

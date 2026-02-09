@@ -67,6 +67,19 @@
         </activity>
 
 
+        <!-- Pinned Shortcuts: Receives pin shortcut requests from other apps -->
+        <activity
+            android:name=".PinnedShortcutActivity"
+            android:exported="true"
+            android:excludeFromRecents="true"
+            android:theme="@android:style/Theme.Translucent.NoTitleBar"
+            android:launchMode="singleTask">
+            <intent-filter>
+                <action android:name="android.content.pm.action.CONFIRM_PIN_SHORTCUT" />
+            </intent-filter>
+        </activity>
+
+
         <activity
             android:name="com.canhub.cropper.CropImageActivity"
             android:theme="@style/Theme.AppCompat.DayNight.DarkActionBar" />

@@ -70,7 +70,9 @@ fun launchSwipeAction(
 
 
         is SwipeActionSerializable.LaunchShortcut -> {
-            launchShortcut(ctx, action.packageName, action.shortcutId)
+            if (action.packageName.isNotEmpty()) {
+                launchShortcut(ctx, action.packageName, action.shortcutId)
+            }
         }
 
 
