@@ -28,10 +28,12 @@ import androidx.compose.animation.togetherWith
 import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.ColumnScope
+import androidx.compose.foundation.layout.FlowRow
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -89,10 +91,23 @@ class DigitalPauseActivity : ComponentActivity() {
 
     companion object {
         const val EXTRA_PACKAGE_NAME = "extra_package_name"
+        const val EXTRA_APP_NAME = "extra_app_name"
         const val EXTRA_PAUSE_DURATION = "extra_pause_duration"
         const val EXTRA_GUILT_MODE = "extra_guilt_mode"
+
+        // New: Reminder mode
+        const val EXTRA_REMINDER_ENABLED = "extra_reminder_enabled"
+        const val EXTRA_REMINDER_INTERVAL = "extra_reminder_interval"
+        const val EXTRA_REMINDER_MODE = "extra_reminder_mode"
+
+        // New: Return-to-launcher mode
+        const val EXTRA_RETURN_TO_LAUNCHER = "extra_return_to_launcher"
+
         const val RESULT_PROCEED = 1
+        const val RESULT_PROCEED_WITH_TIMER = 2
         const val RESULT_CANCEL = 0
+
+        const val RESULT_EXTRA_TIME_LIMIT = "result_time_limit_minutes"
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -105,6 +120,10 @@ class DigitalPauseActivity : ComponentActivity() {
         }
         val pauseDuration = intent.getIntExtra(EXTRA_PAUSE_DURATION, 10)
         val guiltMode = intent.getBooleanExtra(EXTRA_GUILT_MODE, false)
+        val returnToLauncher = intent.getBooleanExtra(EXTRA_RETURN_TO_LAUNCHER, false)
+        val reminderEnabled = intent.getBooleanExtra(EXTRA_REMINDER_ENABLED, false)
+        val reminderInterval = intent.getIntExtra(EXTRA_REMINDER_INTERVAL, 5)
+        val reminderMode = intent.getStringExtra(EXTRA_REMINDER_MODE) ?: "overlay"
 
         val controller = WindowInsetsControllerCompat(window, window.decorView)
         controller.hide(WindowInsetsCompat.Type.systemBars())
@@ -114,14 +133,25 @@ class DigitalPauseActivity : ComponentActivity() {
             DragonLauncherTheme {
                 Surface(
                     modifier = Modifier.fillMaxSize(),
-                    color = Color(0xFF0F111A) // Deep Midnight
+                    color = Color(0xFF0F111A)
                 ) {
                     DigitalPauseScreen(
                         packageName = packageName,
                         pauseDuration = pauseDuration,
                         guiltMode = guiltMode,
+                        returnToLauncherEnabled = returnToLauncher,
                         onProceed = {
                             setResult(RESULT_PROCEED)
+                            finish()
+                        },
+                        onProceedWithTimer = { timeLimitMinutes ->
+                            val data = Intent().apply {
+                                putExtra(RESULT_EXTRA_TIME_LIMIT, timeLimitMinutes)
+                                putExtra(EXTRA_REMINDER_ENABLED, reminderEnabled)
+                                putExtra(EXTRA_REMINDER_INTERVAL, reminderInterval)
+                                putExtra(EXTRA_REMINDER_MODE, reminderMode)
+                            }
+                            setResult(RESULT_PROCEED_WITH_TIMER, data)
                             finish()
                         },
                         onCancel = {
@@ -155,12 +185,16 @@ fun DigitalPauseScreen(
     packageName: String,
     pauseDuration: Int,
     guiltMode: Boolean,
+    returnToLauncherEnabled: Boolean = false,
     onProceed: () -> Unit,
+    onProceedWithTimer: (Int) -> Unit = {},
     onCancel: () -> Unit
 ) {
     val ctx = LocalContext.current
     var countdown by remember { mutableIntStateOf(pauseDuration) }
     var showChoice by remember { mutableStateOf(false) }
+    var showTimePicker by remember { mutableStateOf(false) }
+    var countdownFinished by remember { mutableStateOf(false) }
     var currentPhraseIndex by remember { mutableIntStateOf(0) }
 
 
@@ -187,6 +221,7 @@ fun DigitalPauseScreen(
                 currentPhraseIndex = (currentPhraseIndex + 1) % breathingPhrases.size
             }
         }
+        countdownFinished = true
         showChoice = true
     }
 
@@ -206,14 +241,14 @@ fun DigitalPauseScreen(
             // --- LOTUS ---
             AnimatedLotus(
                 modifier = Modifier.size(220.dp),
-                isPulsing = !showChoice
+                isPulsing = !countdownFinished
             )
 
             // --- TIMER ---
             Spacer(modifier = Modifier.height(32.dp))
 
             AnimatedVisibility(
-                visible = !showChoice,
+                visible = !countdownFinished,
                 enter = fadeIn() + expandVertically(),
                 exit = fadeOut() + shrinkVertically()
             ) {
@@ -287,7 +322,14 @@ fun DigitalPauseScreen(
 
                     // Button Continue
                     TextButton(
-                        onClick = onProceed,
+                        onClick = {
+                            if (returnToLauncherEnabled) {
+                                showChoice = false
+                                showTimePicker = true
+                            } else {
+                                onProceed()
+                            }
+                        },
                         colors = ButtonDefaults.textButtonColors(contentColor = TextSecondary)
                     ) {
                         Text(
@@ -297,6 +339,152 @@ fun DigitalPauseScreen(
                     }
                 }
             }
+
+            // ── TIME LIMIT PICKER ──
+            AnimatedVisibility(
+                visible = showTimePicker,
+                enter = fadeIn(tween(600)) + slideInVertically { it / 4 },
+                exit = fadeOut()
+            ) {
+                TimeLimitPickerUI(
+                    onConfirm = { minutes -> onProceedWithTimer(minutes) },
+                    onCancel = onCancel
+                )
+            }
+        }
+    }
+}
+
+
+// ─────────── Time Limit Picker UI ───────────
+
+@Composable
+private fun TimeLimitPickerUI(
+    onConfirm: (Int) -> Unit,
+    onCancel: () -> Unit
+) {
+    val timeOptions = listOf(5, 10, 15, 20, 30, 45, 60)
+    var selectedMinutes by remember { mutableIntStateOf(10) }
+
+    val encouragementText = when {
+        selectedMinutes <= 10 -> stringResource(R.string.time_limit_encourage_short)
+        selectedMinutes <= 20 -> stringResource(R.string.time_limit_encourage_medium)
+        selectedMinutes <= 30 -> stringResource(R.string.time_limit_encourage_long)
+        else -> stringResource(R.string.time_limit_encourage_very_long)
+    }
+
+    val encourageColor = when {
+        selectedMinutes <= 10 -> ZenTeal
+        selectedMinutes <= 20 -> Color(0xFFFDCB6E)
+        selectedMinutes <= 30 -> Color(0xFFFAB1A0)
+        else -> Color(0xFFFF7675)
+    }
+
+    Column(
+        horizontalAlignment = Alignment.CenterHorizontally,
+        modifier = Modifier.fillMaxWidth()
+    ) {
+        Text(
+            text = stringResource(R.string.time_limit_picker_title),
+            fontSize = 24.sp,
+            fontFamily = FontFamily.Serif,
+            fontWeight = FontWeight.Medium,
+            color = TextWhite,
+            textAlign = TextAlign.Center,
+            modifier = Modifier.padding(bottom = 8.dp)
+        )
+
+        Text(
+            text = stringResource(R.string.time_limit_picker_subtitle),
+            fontSize = 14.sp,
+            color = TextSecondary,
+            textAlign = TextAlign.Center,
+            modifier = Modifier.padding(bottom = 28.dp)
+        )
+
+        // ── Time chips ──
+        FlowRow(
+            horizontalArrangement = Arrangement.spacedBy(8.dp, Alignment.CenterHorizontally),
+            verticalArrangement = Arrangement.spacedBy(10.dp),
+            modifier = Modifier.fillMaxWidth()
+        ) {
+            timeOptions.forEach { minutes ->
+                val isSelected = minutes == selectedMinutes
+                val chipColor = if (isSelected) ZenTeal else Color.White.copy(alpha = 0.1f)
+                val textColor = if (isSelected) Color.Black else TextWhite
+                val borderColor = if (isSelected) ZenTeal else Color.White.copy(alpha = 0.2f)
+
+                Box(
+                    contentAlignment = Alignment.Center,
+                    modifier = Modifier
+                        .clip(RoundedCornerShape(20.dp))
+                        .clickable { selectedMinutes = minutes }
+                        .background(chipColor)
+                        .border(1.dp, borderColor, RoundedCornerShape(20.dp))
+                        .padding(horizontal = 20.dp, vertical = 12.dp)
+                ) {
+                    Text(
+                        text = stringResource(R.string.time_limit_minutes, minutes),
+                        fontSize = 15.sp,
+                        fontWeight = if (isSelected) FontWeight.Bold else FontWeight.Normal,
+                        color = textColor
+                    )
+                }
+            }
+        }
+
+        Spacer(modifier = Modifier.height(24.dp))
+
+        // ── Encouragement message ──
+        AnimatedContent(
+            targetState = encouragementText,
+            transitionSpec = {
+                fadeIn(tween(400)) togetherWith fadeOut(tween(200))
+            },
+            label = "encourage"
+        ) { text ->
+            Text(
+                text = text,
+                fontSize = 14.sp,
+                fontStyle = FontStyle.Italic,
+                color = encourageColor,
+                textAlign = TextAlign.Center,
+                modifier = Modifier.padding(horizontal = 16.dp)
+            )
+        }
+
+        Spacer(modifier = Modifier.height(32.dp))
+
+        // ── Start button ──
+        Button(
+            onClick = { onConfirm(selectedMinutes) },
+            modifier = Modifier
+                .fillMaxWidth()
+                .height(56.dp),
+            shape = RoundedCornerShape(28.dp),
+            colors = ButtonDefaults.buttonColors(containerColor = ZenTeal),
+            elevation = ButtonDefaults.buttonElevation(defaultElevation = 8.dp)
+        ) {
+            Text(
+                text = stringResource(R.string.time_limit_start) + " · " +
+                        stringResource(R.string.time_limit_minutes, selectedMinutes),
+                fontSize = 16.sp,
+                fontWeight = FontWeight.Bold,
+                color = Color.Black,
+                letterSpacing = 0.5.sp
+            )
+        }
+
+        Spacer(modifier = Modifier.height(12.dp))
+
+        TextButton(
+            onClick = onCancel,
+            colors = ButtonDefaults.textButtonColors(contentColor = TextSecondary)
+        ) {
+            Text(
+                text = stringResource(R.string.time_limit_cancel),
+                fontSize = 14.sp
+            )
         }
     }
 }

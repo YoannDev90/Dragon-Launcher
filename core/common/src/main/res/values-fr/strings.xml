@@ -388,4 +388,63 @@
     <string name="not_used_yet">Vous n\'avez pas encore utilisé cette application aujourd\'hui, peut-être devriez vous y renoncer?</string>
     <string name="usage_permission_needed">Permission d\'accès aux données d\'utilisation nécessaire</string>
     <string name="grant_usage_permission">Accorder la permission</string>
+
+    <!--  ─────────────  Wellbeing: Mode Rappel  ─────────────  -->
+    <string name="reminder_mode_title">Rappel d\'utilisation</string>
+    <string name="reminder_mode_description">Recevez des rappels périodiques lorsque vous restez trop longtemps sur une app en pause</string>
+    <string name="reminder_interval">Intervalle de rappel</string>
+    <string name="reminder_interval_description">Me rappeler toutes les %d minutes</string>
+    <string name="reminder_delivery_mode">Style de rappel</string>
+    <string name="reminder_mode_notification">Notification</string>
+    <string name="reminder_mode_overlay">Popup à l\'écran</string>
+    <string name="overlay_permission_required">Permission de superposition</string>
+    <string name="overlay_permission_description">Pour afficher des rappels par-dessus d\'autres applications, Dragon Launcher a besoin de la permission « Afficher par-dessus d\'autres apps ».</string>
+    
+    <!--  Options d'affichage popup  -->
+    <string name="popup_display_title">Contenu de la popup</string>
+    <string name="popup_display_description">Choisissez les informations à afficher dans la popup de rappel</string>
+    <string name="popup_show_session_time">Afficher le temps de session</string>
+    <string name="popup_show_session_time_desc">Temps depuis l\'ouverture de l\'app</string>
+    <string name="popup_show_today_time">Afficher le total du jour</string>
+    <string name="popup_show_today_time_desc">Temps total passé sur cette app aujourd\'hui</string>
+    <string name="popup_show_remaining_time">Afficher le temps restant</string>
+    <string name="popup_show_remaining_time_desc">Temps avant retour auto (si activé)</string>
+    
+    <!--  Labels popup  -->
+    <string name="popup_session_label">Session</string>
+    <string name="popup_today_label">Aujourd\'hui</string>
+    <string name="popup_remaining_label">Restant</string>
+    <string name="popup_no_limit">Pas de limite</string>
+    
+    <string name="reminder_notification_title">Toujours sur %s</string>
+    <string name="reminder_notification_text">Vous utilisez %1$s depuis %2$s. Et si vous faisiez une pause ?</string>
+    <string name="reminder_overlay_text">Vous êtes sur %1$s depuis %2$s</string>
+    <string name="reminder_overlay_subtext">Faites une pause, vos yeux vous remercieront 🌿</string>
+
+    <!--  ─────────────  Wellbeing: Retour au Launcher  ─────────────  -->
+    <string name="return_to_launcher_title">Retour automatique au Launcher</string>
+    <string name="return_to_launcher_description">Définissez un temps max avant d\'ouvrir une app en pause. Dragon vous ramène quand le temps est écoulé.</string>
+    <string name="time_limit_picker_title">Combien de temps souhaitez-vous utiliser cette app ?</string>
+    <string name="time_limit_picker_subtitle">Fixez-vous une limite pour rester conscient</string>
+    <string name="time_limit_minutes">%d min</string>
+    <string name="time_limit_encourage_short">Excellent choix ! Les sessions courtes aident à rester concentré 🎯</string>
+    <string name="time_limit_encourage_medium">C\'est raisonnable. Restez attentif ! 🧘</string>
+    <string name="time_limit_encourage_long">C\'est assez long… Êtes-vous sûr d\'avoir besoin de tout ce temps ? 🤔</string>
+    <string name="time_limit_encourage_very_long">Ça fait beaucoup de temps d\'écran. Essayez d\'abord une session plus courte ? 😅</string>
+    <string name="time_limit_start">Commencer</string>
+    <string name="time_limit_cancel">Annuler</string>
+    <string name="timer_notification_title">Dragon surveille 🐉</string>
+    <string name="timer_notification_text">%1$s restantes sur %2$s</string>
+    <string name="time_warning_title">%1$s restantes sur %2$s</string>
+    <string name="time_warning_subtitle">Votre session est bientôt terminée ⚡</string>
+    <string name="time_exceeded_title">Temps écoulé !</string>
+    <string name="time_exceeded_message">Vous êtes resté trop longtemps sur %s.</string>
+    <string name="time_exceeded_subtitle">C\'est le moment de faire une pause et de profiter d\'autre chose 🌱</string>
+    <string name="time_exceeded_ok">Compris, merci Dragon</string>
+    <string name="time_exceeded_header">Session terminée</string>
+    <string name="encouragement_walk">Allez vous promener 🚶</string>
+    <string name="encouragement_water">Buvez un verre d\'eau 💧</string>
+    <string name="encouragement_stretch">Étirez-vous un peu 🧘</string>
+    <string name="encouragement_window">Regardez par la fenêtre 🪟</string>
+    <string name="encouragement_text_someone">Envoyez un message à quelqu\'un que vous aimez 💬</string>
 </resources>

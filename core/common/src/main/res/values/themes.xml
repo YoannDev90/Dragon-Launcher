@@ -18,4 +18,6 @@
         <item name="android:windowLayoutInDisplayCutoutMode">shortEdges</item>
         <item name="android:windowIsTranslucent">true</item>
     </style>
+
+    
 </resources>
