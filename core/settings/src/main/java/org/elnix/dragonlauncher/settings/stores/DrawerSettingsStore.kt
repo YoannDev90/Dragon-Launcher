@@ -174,6 +174,27 @@ object DrawerSettingsStore : MapSettingsStore() {
         allowedRange = 2..5
     )
 
+    /* ───────────── Recently Used Apps ───────────── */
+
+    val showRecentlyUsedApps = Settings.boolean(
+        key = "showRecentlyUsedApps",
+        dataStoreName = dataStoreName,
+        default = false
+    )
+
+    val recentlyUsedAppsCount = Settings.int(
+        key = "recentlyUsedAppsCount",
+        dataStoreName = dataStoreName,
+        default = 5
+    )
+
+    /** JSON-encoded ordered list of recently-used package names (most recent first). */
+    val recentlyUsedPackages = Settings.string(
+        key = "recentlyUsedPackages",
+        dataStoreName = dataStoreName,
+        default = ""
+    )
+
 
     override val ALL: List<BaseSettingObject<*,*>>
         get() = listOf(
@@ -197,6 +218,9 @@ object DrawerSettingsStore : MapSettingsStore() {
             iconsSpacingVertical,
             iconsSpacingHorizontal,
             maxIconSize,
-            useCategory
+            useCategory,
+            showRecentlyUsedApps,
+            recentlyUsedAppsCount,
+            recentlyUsedPackages
         )
 }

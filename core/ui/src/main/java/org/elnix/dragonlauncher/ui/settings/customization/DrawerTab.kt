@@ -80,6 +80,8 @@ fun DrawerTab(
     var drawerCategorySettingsExpanded by remember { mutableStateOf(false) }
     var drawerNormalSettingsExpanded by remember { mutableStateOf(false) }
 
+    val showRecentlyUsed by DrawerSettingsStore.showRecentlyUsedApps.asState()
+
     var totalWidthPx by remember { mutableFloatStateOf(0f) }
 
     var leftWeight by remember { mutableFloatStateOf(leftDrawerWidth) }
@@ -127,6 +129,28 @@ fun DrawerTab(
             )
         }
 
+        /* ───────────── Recently Used Apps ───────────── */
+
+        item { TextDivider(stringResource(R.string.recently_used_apps)) }
+
+        item {
+            SettingsSwitchRow(
+                setting = DrawerSettingsStore.showRecentlyUsedApps,
+                title = stringResource(R.string.show_recently_used_apps),
+                description = stringResource(R.string.show_recently_used_apps_desc),
+            )
+        }
+
+        if (showRecentlyUsed) {
+            item {
+                SettingsSlider(
+                    setting = DrawerSettingsStore.recentlyUsedAppsCount,
+                    title = stringResource(R.string.recently_used_apps_count),
+                    valueRange = 1..20
+                )
+            }
+        }
+
         item { TextDivider(stringResource(R.string.appearance)) }
 
 
@@ -145,7 +169,6 @@ fun DrawerTab(
                 description = stringResource(R.string.show_app_labels_in_drawer_desc)
             )
         }
-
 
         item {
             ExpandableSection(

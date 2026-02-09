@@ -41,12 +41,14 @@ import org.elnix.dragonlauncher.common.logging.logD
 import org.elnix.dragonlauncher.common.serializables.dummySwipePoint
 import org.elnix.dragonlauncher.common.utils.SETTINGS
 import org.elnix.dragonlauncher.common.utils.detectSystemLauncher
+import org.elnix.dragonlauncher.common.utils.showToast
 import org.elnix.dragonlauncher.models.AppsViewModel
 import org.elnix.dragonlauncher.services.SystemControl
 import org.elnix.dragonlauncher.services.SystemControl.activateDeviceAdmin
 import org.elnix.dragonlauncher.services.SystemControl.isDeviceAdminActive
 import org.elnix.dragonlauncher.settings.allStores
 import org.elnix.dragonlauncher.settings.stores.DebugSettingsStore
+import org.elnix.dragonlauncher.ui.wellbeing.OverlayReminderService
 import org.elnix.dragonlauncher.settings.stores.PrivateSettingsStore
 import org.elnix.dragonlauncher.ui.colors.AppObjectsColors
 import org.elnix.dragonlauncher.ui.dialogs.IconEditorDialog
@@ -54,6 +56,7 @@ import org.elnix.dragonlauncher.ui.helpers.SwitchRow
 import org.elnix.dragonlauncher.ui.components.TextDivider
 import org.elnix.dragonlauncher.ui.helpers.settings.SettingsItem
 import org.elnix.dragonlauncher.ui.helpers.settings.SettingsLazyHeader
+import org.elnix.dragonlauncher.ui.wellbeing.AppTimerService
 
 @Composable
 fun DebugTab(
@@ -221,6 +224,42 @@ fun DebugTab(
                 Text(
                     text = "Show what's new sheet",
                 )
+            }
+        }
+
+        item { TextDivider("Wellbeing tests") }
+
+        
+
+        item {
+            Button(
+                onClick = {
+                    if (!android.provider.Settings.canDrawOverlays(ctx)) {
+                        ctx.showToast("Overlay permission not granted")
+                        return@Button
+                    }
+                    OverlayReminderService.show(ctx, "TikTok", "15 min", "42 min", "10 min", true, "reminder")
+                },
+                colors = AppObjectsColors.buttonColors(),
+                modifier = Modifier.fillMaxWidth()
+            ) {
+                Text(text = "Test: Reminder overlay popup")
+            }
+        }
+
+        item {
+            Button(
+                onClick = {
+                    if (!android.provider.Settings.canDrawOverlays(ctx)) {
+                        ctx.showToast("Overlay permission not granted")
+                        return@Button
+                    }
+                    OverlayReminderService.show(ctx, "TikTok", "25 min", "58 min", "5 min", true, "time_warning")
+                },
+                colors = AppObjectsColors.buttonColors(),
+                modifier = Modifier.fillMaxWidth()
+            ) {
+                Text(text = "Test: Time almost up overlay")
             }
         }
 

@@ -150,10 +150,11 @@ fun CustomActionSelector(
     if (showDialog) {
         AddPointDialog(
             appsViewModel = appsViewModel,
-            onDismiss = { showDialog = false }
-        ) {
-            onSelected(it)
-            showDialog = false
-        }
+            onDismiss = { showDialog = false },
+            onActionSelected = {
+                onSelected(it)
+                showDialog = false
+            }
+        )
     }
 }

@@ -78,17 +78,25 @@ fun AppShortcutPickerDialog(
                                 .padding(8.dp)
                         ) {
                             if (drawable != null) {
-                                Image(
-                                    painter = remember(drawable) {
+                                val bitmapPainter = remember(drawable) {
+                                    try {
                                         val bmp = loadDrawableAsBitmap(drawable, 48, 48)
                                         BitmapPainter(bmp)
-                                    },
-                                    contentDescription = shortcut.shortLabel?.toString(),
-                                    modifier = Modifier
-                                        .size(32.dp)
-                                        .clip(DragonShape)
-                                )
-                                Spacer(Modifier.width(8.dp))
+                                    } catch (e: Exception) {
+                                        null
+                                    }
+                                }
+                                
+                                if (bitmapPainter != null) {
+                                    Image(
+                                        painter = bitmapPainter,
+                                        contentDescription = shortcut.shortLabel?.toString(),
+                                        modifier = Modifier
+                                            .size(32.dp)
+                                            .clip(DragonShape)
+                                    )
+                                    Spacer(Modifier.width(8.dp))
+                                }
                             }
                             Text(
                                 text = shortcut.shortLabel?.toString() ?: "Unnamed",

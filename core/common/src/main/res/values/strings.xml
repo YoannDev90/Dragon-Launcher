@@ -389,6 +389,67 @@
     <string name="not_used_yet">You have not used this app yet, maybe it is good to keep going?</string>
     <string name="usage_permission_needed">Usage access permission needed</string>
     <string name="grant_usage_permission">Grant Permission</string>
+
+    <!--  ─────────────  Wellbeing: Reminder Mode  ─────────────  -->
+    <string name="reminder_mode_title">Usage Reminder</string>
+    <string name="reminder_mode_description">Receive periodic reminders when you stay too long on a paused app</string>
+    <string name="reminder_interval">Reminder interval</string>
+    <string name="reminder_interval_description">Remind me every %d minutes</string>
+    <string name="reminder_delivery_mode">Reminder style</string>
+    <string name="reminder_mode_notification">Notification</string>
+    <string name="reminder_mode_overlay">On-screen popup</string>
+    <string name="overlay_permission_required">Overlay Permission</string>
+    <string name="overlay_permission_description">To display reminders over other apps, Dragon Launcher needs the "Display over other apps" permission.</string>
+    
+    <!--  Popup Display Options  -->
+    <string name="popup_display_title">Popup Content</string>
+    <string name="popup_display_description">Choose what information to show in the reminder popup</string>
+    <string name="popup_show_session_time">Show session time</string>
+    <string name="popup_show_session_time_desc">Time since you opened the app</string>
+    <string name="popup_show_today_time">Show today\'s total</string>
+    <string name="popup_show_today_time_desc">Total time spent on this app today</string>
+    <string name="popup_show_remaining_time">Show remaining time</string>
+    <string name="popup_show_remaining_time_desc">Time left before auto-return (if enabled)</string>
+    
+    <!--  Popup Display Labels  -->
+    <string name="popup_session_label">Session</string>
+    <string name="popup_today_label">Today</string>
+    <string name="popup_remaining_label">Remaining</string>
+    <string name="popup_no_limit">No limit</string>
+    
+    <string name="reminder_notification_title">Still on %s</string>
+    <string name="reminder_notification_text">You\'ve been using %1$s for %2$s. Maybe it\'s time for a break?</string>
+    <string name="reminder_overlay_text">You\'ve been on %1$s for %2$s</string>
+    <string name="reminder_overlay_subtext">Take a break, your eyes will thank you 🌿</string>
+
+    <!--  ─────────────  Wellbeing: Return to Launcher  ─────────────  -->
+    <string name="return_to_launcher_title">Auto Return to Launcher</string>
+    <string name="return_to_launcher_description">Set a time limit before opening a paused app. Dragon brings you back when time\'s up.</string>
+    <string name="time_limit_picker_title">How long do you want to use this app?</string>
+    <string name="time_limit_picker_subtitle">Set a limit to stay mindful</string>
+    <string name="time_limit_minutes">%d min</string>
+    <string name="time_limit_encourage_short">Great choice! Shorter sessions help you stay focused 🎯</string>
+    <string name="time_limit_encourage_medium">That\'s reasonable. Stay mindful! 🧘</string>
+    <string name="time_limit_encourage_long">That\'s quite long… Are you sure you need that much time? 🤔</string>
+    <string name="time_limit_encourage_very_long">That\'s a lot of screen time. Maybe try a shorter session first? 😅</string>
+    <string name="time_limit_start">Start</string>
+    <string name="time_limit_cancel">Cancel</string>
+    <string name="timer_notification_title">Dragon is watching 🐉</string>
+    <string name="timer_notification_text">%1$s remaining on %2$s</string>
+    <string name="time_warning_title">%1$s left on %2$s</string>
+    <string name="time_warning_subtitle">Your session is almost over ⚡</string>
+    <string name="time_exceeded_title">Time\'s up!</string>
+    <string name="time_exceeded_message">You\'ve been on %s for too long.</string>
+    <string name="time_exceeded_subtitle">It\'s time to take a break and do something you enjoy offline 🌱</string>
+    <string name="time_exceeded_ok">Got it, thanks Dragon</string>
+    <string name="time_exceeded_header">Session ended</string>
+    <string name="encouragement_walk">Go for a walk 🚶</string>
+    <string name="encouragement_water">Drink some water 💧</string>
+    <string name="encouragement_stretch">Stretch your body 🧘</string>
+    <string name="encouragement_window">Look out the window 🪟</string>
+    <string name="encouragement_text_someone">Text someone you love 💬</string>
+
+    <!--  ─────────────  Appearance ?  ─────────────  -->
     <string name="edit_icons_shape">Edit Icons Shape</string>
     <string name="edit_icons_shape_desc">Customize the shape on the icons in the drawer and the rest of the app</string>
     <string name="random_shape">Random Shape</string>
@@ -491,5 +552,69 @@
     <string name="grid_settings">Grid Settings</string>
     <string name="category_cells">Category cells</string>
     <string name="category_cells_desc">The number of rows and column in the category box</string>
+
+    <!--  ─────────────  Multi Select  ─────────────  -->
+    <string name="multi_select_hint">Long press an app to start multi-selection</string>
+    <string name="multi_select_count">%d selected</string>
+    <string name="add_selected_apps">Add selected apps</string>
+    <string name="add_all_auto">Auto place on circle</string>
+    <string name="add_all_manual">Place one by one</string>
+    <string name="place_app_where">Where do you want to place %s?</string>
+    <string name="tap_circle_to_place">Tap on the circle to place the app</string>
+    <string name="apps_added_successfully">%d apps added successfully</string>
+    <string name="multi_select_drawer_hint">💡 Long press an app to select multiple at once</string>
+    <string name="deselect_all">Deselect all</string>
+    
+    <!--  ─────────────  Shortcuts Settings  ─────────────  -->
+    <string name="shortcuts_settings">Shortcuts</string>
+    <string name="prompt_shortcuts_when_adding_app">Prompt for shortcuts when adding an app</string>
+    <string name="prompt_shortcuts_when_adding_app_desc">When enabled, you\'ll be asked to choose between the app or its shortcuts. When disabled, the app is added directly.</string>
+
+    <!--  ─────────────  Lock Settings  ─────────────  -->
+    <string name="lock_settings">Lock Settings</string>
+    <string name="lock_settings_description">Protect your launcher settings with a security method</string>
+    <string name="lock_method">Lock Method</string>
+    <string name="lock_none">None</string>
+    <string name="lock_pin">PIN Code</string>
+    <string name="lock_biometric">Fingerprint</string>
+    <string name="lock_device_credentials">Device Credentials</string>
+    <string name="lock_device_unlock">Device unlock</string>
+    <string name="enter_pin">Enter PIN</string>
+    <string name="confirm_pin">Confirm PIN</string>
+    <string name="set_pin">Set PIN</string>
+    <string name="change_pin">Change PIN</string>
+    <string name="remove_pin">Remove PIN</string>
+    <string name="pin_mismatch">PINs do not match</string>
+    <string name="pin_too_short">PIN must be at least 4 digits</string>
+    <string name="pin_set_success">PIN set successfully</string>
+    <string name="pin_removed">PIN removed</string>
+    <string name="wrong_pin">Wrong PIN</string>
+    <string name="unlock_settings">Unlock Settings</string>
+    <string name="biometric_prompt_title">Unlock Dragon Settings</string>
+    <string name="biometric_prompt_subtitle">Authenticate to access settings</string>
+    <string name="biometric_not_available">Biometric authentication not available</string>
+    <string name="device_credentials_not_available">No device lock screen set up</string>
+    <string name="authentication_failed">Authentication failed</string>
+    <string name="authentication_error">Authentication error: %s</string>
+
+    <!--  ─────────────  Drawer Workspace Selection  ─────────────  -->
+    <string name="select_default_workspace">Select default workspace</string>
+    <string name="select_workspace_hint">Choose which workspace opens by default. You can always switch by swiping left or right in the drawer.</string>
+    <string name="workspace_default">Default</string>
+
+    <!--  ─────────────  Pinned Shortcuts  ─────────────  -->
+    <string name="pinned_shortcut_added">Shortcut "%s" added to your circles</string>
+    <string name="pinned_shortcut_failed">Failed to add shortcut</string>
+    <string name="pinned_shortcut_already_exists">"%s" shortcut is already on your circles</string>
+    <string name="pinned_shortcuts">Shortcuts</string>
+    <string name="pinned_shortcuts_desc">Browse and add shortcuts from your apps</string>
+    <string name="no_pinned_shortcuts">No shortcuts available</string>
+    <string name="pinned_shortcuts_from">Shortcuts from %s</string>
+
+    <!--  ─────────────  Recently Used Apps  ─────────────  -->
+    <string name="recently_used_apps">Recently used apps</string>
+    <string name="show_recently_used_apps">Show recently used apps</string>
+    <string name="show_recently_used_apps_desc">Display recently used apps at the top of the app drawer</string>
+    <string name="recently_used_apps_count">Number of recent apps</string>
 
 </resources>

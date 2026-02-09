@@ -3,10 +3,22 @@
 package org.elnix.dragonlauncher.ui.settings.wellbeing
 
 import android.content.Intent
+import android.net.Uri
 import android.provider.Settings
+import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.animation.animateColorAsState
+import androidx.compose.animation.core.Spring
+import androidx.compose.animation.core.spring
+import androidx.compose.animation.expandVertically
+import androidx.compose.animation.fadeIn
+import androidx.compose.animation.fadeOut
+import androidx.compose.animation.shrinkVertically
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
+import androidx.compose.foundation.border
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
@@ -14,18 +26,29 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.Apps
 import androidx.compose.material.icons.filled.Clear
 import androidx.compose.material.icons.filled.Close
+import androidx.compose.material.icons.outlined.AccessTime
+import androidx.compose.material.icons.outlined.ExitToApp
+import androidx.compose.material.icons.outlined.Layers
+import androidx.compose.material.icons.outlined.Notifications
+import androidx.compose.material.icons.outlined.SelfImprovement
+import androidx.compose.material.icons.outlined.Timer
+import androidx.compose.material.icons.outlined.Visibility
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -35,11 +58,14 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.ImageBitmap
+import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import kotlinx.coroutines.launch
@@ -51,10 +77,9 @@ import org.elnix.dragonlauncher.settings.stores.DrawerSettingsStore
 import org.elnix.dragonlauncher.settings.stores.WellbeingSettingsStore
 import org.elnix.dragonlauncher.ui.UiConstants.DragonShape
 import org.elnix.dragonlauncher.ui.components.dragon.DragonIconButton
-import org.elnix.dragonlauncher.ui.components.TextDivider
-import org.elnix.dragonlauncher.ui.components.resolveShape
 import org.elnix.dragonlauncher.ui.components.settings.SettingsSlider
 import org.elnix.dragonlauncher.ui.components.settings.SettingsSwitchRow
+import org.elnix.dragonlauncher.ui.components.resolveShape
 import org.elnix.dragonlauncher.ui.dialogs.AppPickerDialog
 import org.elnix.dragonlauncher.ui.helpers.SwitchRow
 import org.elnix.dragonlauncher.ui.helpers.settings.SettingsItem
@@ -72,31 +97,38 @@ fun WellbeingTab(
 
     val socialMediaPauseEnabled by WellbeingSettingsStore.socialMediaPauseEnabled.flow(ctx)
         .collectAsState(initial = false)
-
     val guiltModeEnabled by WellbeingSettingsStore.guiltModeEnabled.flow(ctx)
         .collectAsState(initial = false)
-
     val pauseDuration by WellbeingSettingsStore.pauseDurationSeconds.flow(ctx)
         .collectAsState(initial = 10)
-
     val pausedApps by WellbeingSettingsStore.getPausedAppsFlow(ctx)
         .collectAsState(initial = emptySet())
 
-    val gridSize by DrawerSettingsStore.gridSize.flow(ctx)
-        .collectAsState(initial = 1)
-    val showIcons by DrawerSettingsStore.showAppIconsInDrawer.flow(ctx)
-        .collectAsState(initial = true)
-    val showLabels by DrawerSettingsStore.showAppLabelInDrawer.flow(ctx)
-        .collectAsState(initial = true)
-    val iconsShape by DrawerSettingsStore.iconsShape.flow(ctx)
-        .collectAsState(DrawerSettingsStore.iconsShape.default)
-
-
-
+    val gridSize by DrawerSettingsStore.gridSize.flow(ctx).collectAsState(initial = 1)
+    val showIcons by DrawerSettingsStore.showAppIconsInDrawer.flow(ctx).collectAsState(initial = true)
+    val showLabels by DrawerSettingsStore.showAppLabelInDrawer.flow(ctx).collectAsState(initial = true)
+    val iconsShape by DrawerSettingsStore.iconsShape.flow(ctx).collectAsState(DrawerSettingsStore.iconsShape.default)
     val allApps by appsViewModel.allApps.collectAsState()
 
     var showAppPicker by remember { mutableStateOf(false) }
     var showPermissionDialog by remember { mutableStateOf(false) }
+    var showOverlayPermissionDialog by remember { mutableStateOf(false) }
+
+    val reminderEnabled by WellbeingSettingsStore.reminderEnabled.flow(ctx)
+        .collectAsState(initial = false)
+    val reminderInterval by WellbeingSettingsStore.reminderIntervalMinutes.flow(ctx)
+        .collectAsState(initial = 5)
+    val reminderMode by WellbeingSettingsStore.reminderMode.flow(ctx)
+        .collectAsState(initial = "overlay")
+    val returnToLauncherEnabled by WellbeingSettingsStore.returnToLauncherEnabled.flow(ctx)
+        .collectAsState(initial = false)
+
+    LaunchedEffect(reminderEnabled, reminderMode) {
+        if (reminderEnabled && reminderMode == "overlay" && !Settings.canDrawOverlays(ctx)) {
+            WellbeingSettingsStore.reminderEnabled.set(ctx, false)
+            showOverlayPermissionDialog = true
+        }
+    }
 
     SettingsLazyHeader(
         title = stringResource(R.string.wellbeing),
@@ -111,34 +143,26 @@ fun WellbeingTab(
             }
         }
     ) {
+
+        // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+        // Hero Card
+        // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
         item {
-            SettingsSwitchRow(
-                setting = WellbeingSettingsStore.socialMediaPauseEnabled,
-                title = stringResource(R.string.social_media_pause),
-                description = stringResource(R.string.social_media_pause_description)
+            WellbeingHeroCard(
+                pauseEnabled = socialMediaPauseEnabled,
+                reminderEnabled = reminderEnabled,
+                appCount = pausedApps.size
             )
         }
 
-        // Guilt mode with usage permission check
+        // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+        // Section 1 — Pause & Mindfulness
+        // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
         item {
-            SwitchRow(
-                state = guiltModeEnabled,
-                text = stringResource(R.string.guilt_mode),
-                subText = stringResource(R.string.guilt_mode_description),
-                enabled = socialMediaPauseEnabled,
-            ) { newValue ->
-                if (newValue && !hasUsageStatsPermission(ctx)) {
-                    showPermissionDialog = true
-                } else {
-                    scope.launch {
-                        WellbeingSettingsStore.guiltModeEnabled.set(ctx, newValue)
-                    }
-                }
-            }
-        }
-
-        item {
-            Spacer(modifier = Modifier.height(8.dp))
+            SectionHeader(
+                icon = Icons.Outlined.SelfImprovement,
+                title = stringResource(R.string.social_media_pause)
+            )
         }
 
         item {
@@ -147,30 +171,215 @@ fun WellbeingTab(
                     .fillMaxWidth()
                     .clip(DragonShape)
                     .background(MaterialTheme.colorScheme.surface)
-                    .padding(16.dp)
+                    .border(1.dp, MaterialTheme.colorScheme.outlineVariant, DragonShape)
             ) {
-
-                SettingsSlider(
-                    setting = WellbeingSettingsStore.pauseDurationSeconds,
-                    title = stringResource(R.string.pause_duration),
-                    description = stringResource(R.string.pause_duration_description, pauseDuration),
-                    valueRange = 3..60,
-                    allowTextEditValue = false,
-                    showValue = false,
-                    enabled = socialMediaPauseEnabled
+                SettingsSwitchRow(
+                    setting = WellbeingSettingsStore.socialMediaPauseEnabled,
+                    title = stringResource(R.string.social_media_pause),
+                    description = stringResource(R.string.social_media_pause_description)
                 )
+
+                AnimatedVisibility(visible = socialMediaPauseEnabled) {
+                    Column {
+                        SwitchRow(
+                            state = guiltModeEnabled,
+                            text = stringResource(R.string.guilt_mode),
+                            subText = stringResource(R.string.guilt_mode_description),
+                            enabled = true,
+                        ) { newValue ->
+                            if (newValue && !hasUsageStatsPermission(ctx)) {
+                                showPermissionDialog = true
+                            } else {
+                                scope.launch {
+                                    WellbeingSettingsStore.guiltModeEnabled.set(ctx, newValue)
+                                }
+                            }
+                        }
+
+                        SettingsSlider(
+                            setting = WellbeingSettingsStore.pauseDurationSeconds,
+                            title = stringResource(R.string.pause_duration),
+                            description = stringResource(R.string.pause_duration_description, pauseDuration),
+                            valueRange = 3..60,
+                            allowTextEditValue = false,
+                            showValue = false,
+                            enabled = true
+                        )
+                    }
+                }
             }
         }
 
+        // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+        // Section 2 — Usage Reminders
+        // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
         item {
-            TextDivider(stringResource(R.string.paused_apps))
+            SectionHeader(
+                icon = Icons.Outlined.Timer,
+                title = stringResource(R.string.reminder_mode_title)
+            )
+        }
+
+        item {
+            Column(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .clip(DragonShape)
+                    .background(MaterialTheme.colorScheme.surface)
+                    .border(1.dp, MaterialTheme.colorScheme.outlineVariant, DragonShape)
+            ) {
+                SwitchRow(
+                    state = reminderEnabled,
+                    text = stringResource(R.string.reminder_mode_title),
+                    subText = stringResource(R.string.reminder_mode_description),
+                    enabled = socialMediaPauseEnabled,
+                ) { newValue ->
+                    if (newValue && reminderMode == "overlay" && !Settings.canDrawOverlays(ctx)) {
+                        showOverlayPermissionDialog = true
+                    } else {
+                        scope.launch {
+                            WellbeingSettingsStore.reminderEnabled.set(ctx, newValue)
+                        }
+                    }
+                }
+
+                AnimatedVisibility(visible = socialMediaPauseEnabled && reminderEnabled) {
+                    Column {
+                        SettingsSlider(
+                            setting = WellbeingSettingsStore.reminderIntervalMinutes,
+                            title = stringResource(R.string.reminder_interval),
+                            description = stringResource(R.string.reminder_interval_description, reminderInterval),
+                            valueRange = 1..30,
+                            allowTextEditValue = false,
+                            showValue = false,
+                            enabled = true
+                        )
+
+                        // Delivery mode picker
+                        Row(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .padding(horizontal = 16.dp, vertical = 8.dp),
+                            horizontalArrangement = Arrangement.spacedBy(8.dp)
+                        ) {
+                            ModeChip(
+                                label = stringResource(R.string.reminder_mode_notification),
+                                icon = Icons.Outlined.Notifications,
+                                selected = reminderMode == "notification",
+                                modifier = Modifier.weight(1f)
+                            ) {
+                                scope.launch {
+                                    WellbeingSettingsStore.reminderMode.set(ctx, "notification")
+                                }
+                            }
+
+                            ModeChip(
+                                label = stringResource(R.string.reminder_mode_overlay),
+                                icon = Icons.Outlined.Layers,
+                                selected = reminderMode == "overlay",
+                                modifier = Modifier.weight(1f)
+                            ) {
+                                if (!Settings.canDrawOverlays(ctx)) {
+                                    showOverlayPermissionDialog = true
+                                } else {
+                                    scope.launch {
+                                        WellbeingSettingsStore.reminderMode.set(ctx, "overlay")
+                                    }
+                                }
+                            }
+                        }
+
+                        Spacer(modifier = Modifier.height(8.dp))
+                    }
+                }
+            }
+        }
+
+        // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+        // Section 2b — Popup content options (only if overlay mode)
+        // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+        if (reminderMode == "overlay" && socialMediaPauseEnabled && reminderEnabled) {
+            item {
+                SectionHeader(
+                    icon = Icons.Outlined.Visibility,
+                    title = stringResource(R.string.popup_display_title)
+                )
+            }
+
+            item {
+                Column(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .clip(DragonShape)
+                        .background(MaterialTheme.colorScheme.surface)
+                        .border(1.dp, MaterialTheme.colorScheme.outlineVariant, DragonShape)
+                ) {
+                    SettingsSwitchRow(
+                        setting = WellbeingSettingsStore.popupShowSessionTime,
+                        title = stringResource(R.string.popup_show_session_time),
+                        description = stringResource(R.string.popup_show_session_time_desc)
+                    )
+                    SettingsSwitchRow(
+                        setting = WellbeingSettingsStore.popupShowTodayTime,
+                        title = stringResource(R.string.popup_show_today_time),
+                        description = stringResource(R.string.popup_show_today_time_desc)
+                    )
+                    SettingsSwitchRow(
+                        setting = WellbeingSettingsStore.popupShowRemainingTime,
+                        title = stringResource(R.string.popup_show_remaining_time),
+                        description = stringResource(R.string.popup_show_remaining_time_desc)
+                    )
+                }
+            }
+        }
+
+        // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+        // Section 3 — Auto Return to Launcher
+        // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+        item {
+            SectionHeader(
+                icon = Icons.Outlined.ExitToApp,
+                title = stringResource(R.string.return_to_launcher_title)
+            )
+        }
+
+        item {
+            Column(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .clip(DragonShape)
+                    .background(MaterialTheme.colorScheme.surface)
+                    .border(1.dp, MaterialTheme.colorScheme.outlineVariant, DragonShape)
+            ) {
+                SwitchRow(
+                    state = returnToLauncherEnabled,
+                    text = stringResource(R.string.return_to_launcher_title),
+                    subText = stringResource(R.string.return_to_launcher_description),
+                    enabled = socialMediaPauseEnabled,
+                ) { newValue ->
+                    scope.launch {
+                        WellbeingSettingsStore.returnToLauncherEnabled.set(ctx, newValue)
+                    }
+                }
+            }
+        }
+
+        // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+        // Section 4 — Paused Apps
+        // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+        item {
+            SectionHeader(
+                icon = Icons.Outlined.AccessTime,
+                title = if (pausedApps.isNotEmpty())
+                    "${stringResource(R.string.paused_apps)} (${pausedApps.size})"
+                else
+                    stringResource(R.string.paused_apps)
+            )
         }
 
         item {
             Row(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(horizontal = 8.dp),
+                modifier = Modifier.fillMaxWidth(),
                 horizontalArrangement = Arrangement.spacedBy(8.dp)
             ) {
                 SettingsItem(
@@ -199,10 +408,8 @@ fun WellbeingTab(
             }
         }
 
-        // Clear all button when there are apps
         if (pausedApps.isNotEmpty()) {
             item {
-                Spacer(modifier = Modifier.height(8.dp))
                 SettingsItem(
                     title = stringResource(R.string.clear_all),
                     icon = Icons.Default.Clear,
@@ -213,12 +420,7 @@ fun WellbeingTab(
                     }
                 }
             }
-        }
 
-        if (pausedApps.isNotEmpty()) {
-            item {
-                Spacer(modifier = Modifier.height(8.dp))
-            }
             items(pausedApps.toList()) { packageName ->
                 val app = allApps.find { it.packageName == packageName }
                 val appName = app?.name ?: packageName
@@ -237,15 +439,42 @@ fun WellbeingTab(
             }
         } else {
             item {
-                Text(
-                    text = stringResource(R.string.no_paused_apps),
-                    style = MaterialTheme.typography.bodyMedium,
-                    color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.6f),
-                    modifier = Modifier.padding(16.dp)
-                )
+                Box(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .clip(DragonShape)
+                        .background(MaterialTheme.colorScheme.surface)
+                        .border(1.dp, MaterialTheme.colorScheme.outlineVariant, DragonShape)
+                        .padding(vertical = 32.dp),
+                    contentAlignment = Alignment.Center
+                ) {
+                    Column(
+                        horizontalAlignment = Alignment.CenterHorizontally,
+                        verticalArrangement = Arrangement.spacedBy(8.dp)
+                    ) {
+                        Text(
+                            text = "🐉",
+                            fontSize = 28.sp
+                        )
+                        Text(
+                            text = stringResource(R.string.no_paused_apps),
+                            style = MaterialTheme.typography.bodyMedium,
+                            color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.5f),
+                            textAlign = TextAlign.Center,
+                            modifier = Modifier.padding(horizontal = 32.dp)
+                        )
+                    }
+                }
             }
         }
+
+        // Bottom spacer
+        item {
+            Spacer(modifier = Modifier.height(24.dp))
+        }
     }
+
+    // ── Dialogs ──
 
     if (showAppPicker) {
         AppPickerDialog(
@@ -254,16 +483,16 @@ fun WellbeingTab(
             iconShape = iconsShape,
             showIcons = showIcons,
             showLabels = showLabels,
-            onDismiss = { showAppPicker = false }
-        ) {
-            scope.launch {
-                WellbeingSettingsStore.addPausedApp(ctx, it.packageName, pausedApps)
+            onDismiss = { showAppPicker = false },
+            onAppSelected = { app ->
+                scope.launch {
+                    WellbeingSettingsStore.addPausedApp(ctx, app.packageName, pausedApps)
+                }
+                showAppPicker = false
             }
-            showAppPicker = false
-        }
+        )
     }
 
-    // Usage permission dialog
     if (showPermissionDialog) {
         AlertDialog(
             onDismissRequest = { showPermissionDialog = false },
@@ -288,8 +517,223 @@ fun WellbeingTab(
             }
         )
     }
+
+    if (showOverlayPermissionDialog) {
+        AlertDialog(
+            onDismissRequest = { showOverlayPermissionDialog = false },
+            title = { Text(stringResource(R.string.overlay_permission_required)) },
+            text = { Text(stringResource(R.string.overlay_permission_description)) },
+            confirmButton = {
+                TextButton(
+                    onClick = {
+                        showOverlayPermissionDialog = false
+                        ctx.startActivity(
+                            Intent(
+                                Settings.ACTION_MANAGE_OVERLAY_PERMISSION,
+                                Uri.parse("package:${ctx.packageName}")
+                            ).apply {
+                                flags = Intent.FLAG_ACTIVITY_NEW_TASK
+                            }
+                        )
+                    }
+                ) {
+                    Text(stringResource(R.string.open_settings))
+                }
+            },
+            dismissButton = {
+                TextButton(onClick = { showOverlayPermissionDialog = false }) {
+                    Text(stringResource(R.string.cancel))
+                }
+            }
+        )
+    }
 }
 
+// ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+// Components
+// ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+@Composable
+private fun WellbeingHeroCard(
+    pauseEnabled: Boolean,
+    reminderEnabled: Boolean,
+    appCount: Int
+) {
+    Box(
+        modifier = Modifier
+            .fillMaxWidth()
+            .clip(DragonShape)
+            .background(
+                Brush.linearGradient(
+                    colors = listOf(
+                        MaterialTheme.colorScheme.primaryContainer,
+                        MaterialTheme.colorScheme.tertiaryContainer
+                    )
+                )
+            )
+            .border(1.dp, MaterialTheme.colorScheme.outlineVariant, DragonShape)
+            .padding(20.dp)
+    ) {
+        Column(
+            verticalArrangement = Arrangement.spacedBy(12.dp)
+        ) {
+            // Title row
+            Row(
+                verticalAlignment = Alignment.CenterVertically,
+                horizontalArrangement = Arrangement.spacedBy(10.dp)
+            ) {
+                Text(text = "🐉", fontSize = 28.sp)
+                Column {
+                    Text(
+                        text = stringResource(R.string.wellbeing),
+                        style = MaterialTheme.typography.titleLarge,
+                        fontWeight = FontWeight.Bold,
+                        color = MaterialTheme.colorScheme.onPrimaryContainer
+                    )
+                    Text(
+                        text = stringResource(R.string.wellbeing_help),
+                        style = MaterialTheme.typography.bodySmall,
+                        color = MaterialTheme.colorScheme.onPrimaryContainer.copy(alpha = 0.7f),
+                        lineHeight = 16.sp
+                    )
+                }
+            }
+
+            // Status pills
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.spacedBy(6.dp)
+            ) {
+                StatusPill(
+                    label = stringResource(R.string.social_media_pause),
+                    active = pauseEnabled,
+                    modifier = Modifier.weight(1f)
+                )
+                StatusPill(
+                    label = stringResource(R.string.reminder_mode_title),
+                    active = reminderEnabled,
+                    modifier = Modifier.weight(1f)
+                )
+                StatusPill(
+                    label = if (appCount > 0) "$appCount apps" else "0",
+                    active = appCount > 0,
+                    modifier = Modifier.weight(0.6f)
+                )
+            }
+        }
+    }
+}
+
+@Composable
+private fun StatusPill(
+    label: String,
+    active: Boolean,
+    modifier: Modifier = Modifier
+) {
+    val bg by animateColorAsState(
+        targetValue = if (active) MaterialTheme.colorScheme.primary
+        else MaterialTheme.colorScheme.surfaceVariant,
+        animationSpec = spring(stiffness = Spring.StiffnessMediumLow),
+        label = "pillBg"
+    )
+    val textColor by animateColorAsState(
+        targetValue = if (active) MaterialTheme.colorScheme.onPrimary
+        else MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.6f),
+        animationSpec = spring(stiffness = Spring.StiffnessMediumLow),
+        label = "pillText"
+    )
+
+    Box(
+        modifier = modifier
+            .clip(CircleShape)
+            .background(bg)
+            .padding(horizontal = 8.dp, vertical = 5.dp),
+        contentAlignment = Alignment.Center
+    ) {
+        Text(
+            text = label,
+            style = MaterialTheme.typography.labelSmall,
+            color = textColor,
+            maxLines = 1,
+            fontSize = 10.sp
+        )
+    }
+}
+
+@Composable
+private fun SectionHeader(
+    icon: ImageVector,
+    title: String
+) {
+    Row(
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(top = 16.dp, bottom = 4.dp),
+        verticalAlignment = Alignment.CenterVertically,
+        horizontalArrangement = Arrangement.spacedBy(8.dp)
+    ) {
+        Icon(
+            imageVector = icon,
+            contentDescription = null,
+            modifier = Modifier.size(18.dp),
+            tint = MaterialTheme.colorScheme.primary
+        )
+        Text(
+            text = title,
+            style = MaterialTheme.typography.titleSmall,
+            fontWeight = FontWeight.SemiBold,
+            color = MaterialTheme.colorScheme.primary
+        )
+    }
+}
+
+@Composable
+private fun ModeChip(
+    label: String,
+    icon: ImageVector,
+    selected: Boolean,
+    modifier: Modifier = Modifier,
+    onClick: () -> Unit
+) {
+    val bg by animateColorAsState(
+        targetValue = if (selected) MaterialTheme.colorScheme.primaryContainer
+        else MaterialTheme.colorScheme.surfaceVariant,
+        label = "chipBg"
+    )
+    val borderColor by animateColorAsState(
+        targetValue = if (selected) MaterialTheme.colorScheme.primary
+        else MaterialTheme.colorScheme.outlineVariant,
+        label = "chipBorder"
+    )
+
+    Row(
+        modifier = modifier
+            .clip(RoundedCornerShape(12.dp))
+            .background(bg)
+            .border(1.dp, borderColor, RoundedCornerShape(12.dp))
+            .clickable(onClick = onClick)
+            .padding(horizontal = 12.dp, vertical = 10.dp),
+        verticalAlignment = Alignment.CenterVertically,
+        horizontalArrangement = Arrangement.Center
+    ) {
+        Icon(
+            imageVector = icon,
+            contentDescription = null,
+            modifier = Modifier.size(16.dp),
+            tint = if (selected) MaterialTheme.colorScheme.primary
+            else MaterialTheme.colorScheme.onSurfaceVariant
+        )
+        Spacer(modifier = Modifier.width(6.dp))
+        Text(
+            text = label,
+            style = MaterialTheme.typography.labelMedium,
+            fontWeight = if (selected) FontWeight.Bold else FontWeight.Normal,
+            color = if (selected) MaterialTheme.colorScheme.onPrimaryContainer
+            else MaterialTheme.colorScheme.onSurfaceVariant,
+            maxLines = 1
+        )
+    }
+}
 
 @Composable
 private fun PausedAppItem(
@@ -304,7 +748,7 @@ private fun PausedAppItem(
             .fillMaxWidth()
             .clip(DragonShape)
             .background(MaterialTheme.colorScheme.surface)
-            .padding(horizontal = 16.dp, vertical = 12.dp),
+            .padding(horizontal = 16.dp, vertical = 10.dp),
         verticalAlignment = Alignment.CenterVertically,
         horizontalArrangement = Arrangement.SpaceBetween
     ) {
@@ -318,30 +762,39 @@ private fun PausedAppItem(
                     bitmap = appIcon,
                     contentDescription = appName,
                     modifier = Modifier
-                        .size(40.dp)
+                        .size(36.dp)
                         .clip(resolveShape(iconsShape)),
                     contentScale = ContentScale.Fit
                 )
             } else {
-                Icon(
-                    imageVector = Icons.Default.Apps,
-                    contentDescription = null,
-                    modifier = Modifier.size(40.dp),
-                    tint = MaterialTheme.colorScheme.primary
-                )
+                Box(
+                    modifier = Modifier
+                        .size(36.dp)
+                        .clip(resolveShape(iconsShape))
+                        .background(MaterialTheme.colorScheme.surfaceVariant),
+                    contentAlignment = Alignment.Center
+                ) {
+                    Icon(
+                        imageVector = Icons.Default.Apps,
+                        contentDescription = null,
+                        modifier = Modifier.size(20.dp),
+                        tint = MaterialTheme.colorScheme.onSurfaceVariant
+                    )
+                }
             }
 
             Column {
                 Text(
                     text = appName,
-                    style = MaterialTheme.typography.bodyLarge,
+                    style = MaterialTheme.typography.bodyMedium,
                     fontWeight = FontWeight.Medium
                 )
                 Text(
                     text = packageName,
                     style = MaterialTheme.typography.bodySmall,
-                    color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.6f),
-                    fontSize = 11.sp
+                    color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.4f),
+                    fontSize = 10.sp,
+                    maxLines = 1
                 )
             }
         }
@@ -350,7 +803,8 @@ private fun PausedAppItem(
             Icon(
                 imageVector = Icons.Default.Close,
                 contentDescription = "Remove",
-                tint = MaterialTheme.colorScheme.error
+                tint = MaterialTheme.colorScheme.error,
+                modifier = Modifier.size(18.dp)
             )
         }
     }

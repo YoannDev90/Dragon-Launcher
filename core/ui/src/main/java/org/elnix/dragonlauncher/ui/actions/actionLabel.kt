@@ -34,6 +34,11 @@ fun actionLabel(
             }
 
             is SwipeActionSerializable.LaunchShortcut -> {
+                // Empty package = sentinel for "Pinned Shortcuts" chooser entry
+                if (action.packageName.isEmpty()) {
+                    return stringResource(R.string.pinned_shortcuts)
+                }
+
                 val appLabel = try {
                     pm.getApplicationLabel(
                         pm.getApplicationInfo(action.packageName, 0)
@@ -66,7 +71,7 @@ fun actionLabel(
 
             SwipeActionSerializable.ControlPanel -> stringResource(R.string.control_panel)
 
-            SwipeActionSerializable.OpenAppDrawer -> stringResource(R.string.app_drawer)
+            is SwipeActionSerializable.OpenAppDrawer -> stringResource(R.string.app_drawer)
 
             SwipeActionSerializable.OpenDragonLauncherSettings -> stringResource(R.string.dragon_launcher_settings)
 

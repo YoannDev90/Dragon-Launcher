@@ -223,6 +223,16 @@ fun AppearanceTab(
             }
         }
 
+        item { TextDivider(stringResource(R.string.shortcuts_settings)) }
+
+        item {
+            SettingsSwitchRow(
+                setting = UiSettingsStore.promptForShortcutsWhenAddingApp,
+                title = stringResource(R.string.prompt_shortcuts_when_adding_app),
+                description = stringResource(R.string.prompt_shortcuts_when_adding_app_desc)
+            )
+        }
+
         item {
             SettingsSwitchRow(
                 setting = UiSettingsStore.showAppLaunchingPreview,

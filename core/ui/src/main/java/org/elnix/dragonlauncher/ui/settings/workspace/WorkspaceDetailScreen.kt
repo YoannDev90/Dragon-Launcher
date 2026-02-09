@@ -167,12 +167,13 @@ fun WorkspaceDetailScreen(
             iconShape = iconsShape,
             showIcons = showIcons,
             showLabels = showLabels,
-            onDismiss = { showAppPicker = false }
-        ) { app ->
-            scope.launch {
-                appsViewModel.addAppToWorkspace(workspaceId, app.packageName)
+            onDismiss = { showAppPicker = false },
+            onAppSelected = { app ->
+                scope.launch {
+                    appsViewModel.addAppToWorkspace(workspaceId, app.packageName)
+                }
             }
-        }
+        )
     }
 
     if (showDetailScreen != null) {

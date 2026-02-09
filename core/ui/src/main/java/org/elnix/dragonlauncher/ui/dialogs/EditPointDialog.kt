@@ -577,10 +577,11 @@ fun EditPointDialog(
         AddPointDialog(
             appsViewModel = appsViewModel,
             onDismiss = { showEditActionDialog = false },
-        ) { selectedAction ->
-            editPoint = editPoint.copy(action = selectedAction)
-            showEditActionDialog = false
-        }
+            onActionSelected = { selectedAction ->
+                editPoint = editPoint.copy(action = selectedAction)
+                showEditActionDialog = false
+            }
+        )
     }
 
     if (showShapePickerDialog) {

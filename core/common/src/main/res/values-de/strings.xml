@@ -350,4 +350,63 @@
     <string name="fast_minimal_powerful_gestures">Schnell. Minimal. Kraftvolle Gesten.</string>
     <string name="customize_apps">Passen Sie Anwendungen an</string>
     <string name="dont_customize">Passen Sie Dragon Launcher nicht an und verwenden Sie es direkt</string>
+
+    <!--  ─────────────  Multi Select  ─────────────  -->
+    <string name="multi_select_hint">Lange auf eine App drücken um Mehrfachauswahl zu starten</string>
+    <string name="multi_select_count">%d ausgewählt</string>
+    <string name="add_selected_apps">Ausgewählte Apps hinzufügen</string>
+    <string name="add_all_auto">Automatisch auf dem Kreis platzieren</string>
+    <string name="add_all_manual">Einzeln platzieren</string>
+    <string name="place_app_where">Wo möchten Sie %s platzieren?</string>
+    <string name="tap_circle_to_place">Tippen Sie auf den Kreis, um die App zu platzieren</string>
+    <string name="apps_added_successfully">%d Apps erfolgreich hinzugefügt</string>
+    <string name="multi_select_drawer_hint">💡 Lange auf eine App drücken, um mehrere gleichzeitig auszuwählen</string>
+    <string name="deselect_all">Alle abwählen</string>
+
+    <!--  ─────────────  Lock Settings  ─────────────  -->
+    <string name="lock_settings">Einstellungen sperren</string>
+    <string name="lock_settings_description">Schützen Sie Ihre Launcher-Einstellungen mit einer Sicherheitsmethode</string>
+    <string name="lock_method">Sperrmethode</string>
+    <string name="lock_none">Keine</string>
+    <string name="lock_pin">PIN-Code</string>
+    <string name="lock_biometric">Fingerabdruck</string>
+    <string name="lock_device_credentials">Geräte-Anmeldedaten</string>
+    <string name="lock_device_unlock">Geräte-Entsperrung</string>
+    <string name="enter_pin">PIN eingeben</string>
+    <string name="confirm_pin">PIN bestätigen</string>
+    <string name="set_pin">PIN festlegen</string>
+    <string name="change_pin">PIN ändern</string>
+    <string name="remove_pin">PIN entfernen</string>
+    <string name="pin_mismatch">PINs stimmen nicht überein</string>
+    <string name="pin_too_short">PIN muss mindestens 4 Ziffern haben</string>
+    <string name="pin_set_success">PIN erfolgreich gesetzt</string>
+    <string name="pin_removed">PIN entfernt</string>
+    <string name="wrong_pin">Falscher PIN</string>
+    <string name="unlock_settings">Einstellungen entsperren</string>
+    <string name="biometric_prompt_title">Dragon-Einstellungen entsperren</string>
+    <string name="biometric_prompt_subtitle">Authentifizieren Sie sich, um auf die Einstellungen zuzugreifen</string>
+    <string name="biometric_not_available">Biometrische Authentifizierung nicht verfügbar</string>
+    <string name="device_credentials_not_available">Kein Sperrbildschirm eingerichtet</string>
+    <string name="authentication_failed">Authentifizierung fehlgeschlagen</string>
+    <string name="authentication_error">Authentifizierungsfehler: %s</string>
+
+    <!--  ─────────────  Drawer Workspace Selection  ─────────────  -->
+    <string name="select_default_workspace">Standard-Arbeitsbereich auswählen</string>
+    <string name="select_workspace_hint">Wählen Sie, welcher Arbeitsbereich standardmäßig geöffnet wird. Sie können jederzeit im Drawer nach links oder rechts wischen.</string>
+    <string name="workspace_default">Standard</string>
+
+    <!--  ─────────────  Pinned Shortcuts  ─────────────  -->
+    <string name="pinned_shortcut_added">Verknüpfung "%s" zu Ihren Kreisen hinzugefügt</string>
+    <string name="pinned_shortcut_failed">Angepinnte Verknüpfung konnte nicht hinzugefügt werden</string>
+    <string name="pinned_shortcut_already_exists">Die Verknüpfung "%s" ist bereits in Ihren Kreisen</string>
+    <string name="pinned_shortcuts">Angepinnte Verknüpfungen</string>
+    <string name="pinned_shortcuts_desc">Angepinnte Verknüpfungen Ihrer Apps durchsuchen und hinzufügen</string>
+    <string name="no_pinned_shortcuts">Keine angepinnten Verknüpfungen verfügbar</string>
+    <string name="pinned_shortcuts_from">Verknüpfungen von %s</string>
+
+    <!--  ─────────────  Recently Used Apps  ─────────────  -->
+    <string name="recently_used_apps">Kürzlich verwendete Apps</string>
+    <string name="show_recently_used_apps">Kürzlich verwendete Apps anzeigen</string>
+    <string name="show_recently_used_apps_desc">Kürzlich verwendete Apps oben im App-Drawer anzeigen</string>
+    <string name="recently_used_apps_count">Anzahl der letzten Apps</string>
 </resources>

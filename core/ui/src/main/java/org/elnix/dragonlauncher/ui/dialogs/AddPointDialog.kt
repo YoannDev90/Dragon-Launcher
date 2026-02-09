@@ -39,6 +39,7 @@ import org.elnix.dragonlauncher.common.utils.PackageManagerCompat
 import org.elnix.dragonlauncher.common.utils.defaultChoosableActions
 import org.elnix.dragonlauncher.models.AppsViewModel
 import org.elnix.dragonlauncher.settings.stores.DrawerSettingsStore
+import org.elnix.dragonlauncher.settings.stores.UiSettingsStore
 import org.elnix.dragonlauncher.ui.UiConstants.DragonShape
 import org.elnix.dragonlauncher.ui.actions.ActionIcon
 import org.elnix.dragonlauncher.ui.actions.actionColor
@@ -53,7 +54,8 @@ fun AddPointDialog(
     actions: List<SwipeActionSerializable> = defaultChoosableActions,
     onNewNest: (() -> Unit)? = null,
     onDismiss: () -> Unit,
-    onActionSelected: (SwipeActionSerializable) -> Unit
+    onActionSelected: (SwipeActionSerializable) -> Unit,
+    onMultipleActionsSelected: ((List<SwipeActionSerializable>, Boolean) -> Unit)? = null
 ) {
     val ctx = LocalContext.current
 
@@ -64,6 +66,10 @@ fun AddPointDialog(
     var showUrlInput by remember { mutableStateOf(false) }
     var showFilePicker by remember { mutableStateOf(false) }
     var showNestPicker by remember { mutableStateOf(false) }
+    var showWorkspacePicker by remember { mutableStateOf(false) }
+    var showPinnedShortcutsPicker by remember { mutableStateOf(false) }
+
+    val workspaces by appsViewModel.enabledState.collectAsState()
 
 
     val icons by appsViewModel.icons.collectAsState()
@@ -76,6 +82,8 @@ fun AddPointDialog(
         .collectAsState(initial = true)
     val iconsShape by DrawerSettingsStore.iconsShape.flow(ctx)
         .collectAsState(DrawerSettingsStore.iconsShape.default)
+    val promptForShortcuts by UiSettingsStore.promptForShortcutsWhenAddingApp.flow(ctx)
+        .collectAsState(initial = false)
 
 
     var selectedApp by remember { mutableStateOf<AppModel?>(null) }
@@ -130,7 +138,7 @@ fun AddPointDialog(
                             Spacer(Modifier.height(8.dp))
                         }
 
-                        // Open File picker to choose a file
+                        // Open Circle Nest → requires nest picker
                         is SwipeActionSerializable.OpenCircleNest -> {
                             AddPointColumn(
                                 action = action,
@@ -138,6 +146,29 @@ fun AddPointDialog(
                                 onSelected = { showNestPicker = true }
                             )
                             Spacer(Modifier.height(8.dp))
+                        }
+
+                        // Open App Drawer → workspace picker
+                        is SwipeActionSerializable.OpenAppDrawer -> {
+                            AddPointColumn(
+                                action = action,
+                                icons = icons,
+                                onSelected = { showWorkspacePicker = true }
+                            )
+                            Spacer(Modifier.height(8.dp))
+                        }
+
+                        // Pinned Shortcuts → browse all pinned shortcuts
+                        is SwipeActionSerializable.LaunchShortcut -> {
+                            if (action.packageName.isEmpty()) {
+                                // Sentinel entry: open pinned shortcuts picker
+                                AddPointColumn(
+                                    action = action,
+                                    icons = icons,
+                                    onSelected = { showPinnedShortcutsPicker = true }
+                                )
+                                Spacer(Modifier.height(8.dp))
+                            }
                         }
 
                         // Direct actions
@@ -164,14 +195,23 @@ fun AddPointDialog(
             iconShape = iconsShape,
             showIcons = showIcons,
             showLabels = showLabels,
+            multiSelectEnabled = onMultipleActionsSelected != null,
             onDismiss = { showAppPicker = false },
             onAppSelected = { app ->
-
-
-                val list = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
-                    packageManagerCompat.queryAppShortcuts(app.packageName)
+                // Try to query shortcuts, but handle crashes gracefully
+                val list = if (promptForShortcuts) {
+                    try {
+                        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
+                            packageManagerCompat.queryAppShortcuts(app.packageName) ?: emptyList()
+                        } else {
+                            emptyList()
+                        }
+                    } catch (e: Exception) {
+                        // Some apps (Contacts, Gmail) may throw SecurityException or other errors
+                        emptyList()
+                    }
                 } else {
-                    emptyList()
+                    emptyList() // Skip shortcut query if disabled
                 }
 
                 if (list.isNotEmpty()) {
@@ -181,7 +221,12 @@ fun AddPointDialog(
                 } else {
                     onActionSelected(SwipeActionSerializable.LaunchApp(app.packageName))
                 }
-            }
+            },
+            onMultipleAppsSelected = if (onMultipleActionsSelected != null) { { apps, autoPlace ->
+                val actions = apps.map { SwipeActionSerializable.LaunchApp(it.packageName) }
+                onMultipleActionsSelected(actions, autoPlace)
+                showAppPicker = false
+            } } else null
         )
     }
 
@@ -237,6 +282,83 @@ fun AddPointDialog(
             }
         )
     }
+
+    if (showWorkspacePicker) {
+        val availableWorkspaces = workspaces.workspaces
+        AlertDialog(
+            onDismissRequest = { showWorkspacePicker = false },
+            confirmButton = {},
+            title = { Text(stringResource(R.string.select_default_workspace)) },
+            text = {
+                Column(
+                    verticalArrangement = Arrangement.spacedBy(5.dp)
+                ) {
+                    Text(
+                        text = stringResource(R.string.select_workspace_hint),
+                        style = MaterialTheme.typography.bodySmall,
+                        color = MaterialTheme.colorScheme.onSurface.copy(0.7f)
+                    )
+                    Spacer(Modifier.height(8.dp))
+
+                    // "Default" option (no specific workspace)
+                    Column(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .clip(DragonShape)
+                            .background(MaterialTheme.colorScheme.surfaceVariant)
+                            .clickable {
+                                onActionSelected(SwipeActionSerializable.OpenAppDrawer())
+                                showWorkspacePicker = false
+                            }
+                            .padding(12.dp),
+                        horizontalAlignment = Alignment.CenterHorizontally
+                    ) {
+                        Text(
+                            text = stringResource(R.string.workspace_default),
+                            style = MaterialTheme.typography.bodyLarge,
+                            color = MaterialTheme.colorScheme.onSurface
+                        )
+                    }
+
+                    // Specific workspaces
+                    availableWorkspaces.forEach { workspace ->
+                        Column(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .clip(DragonShape)
+                                .background(MaterialTheme.colorScheme.surface)
+                                .clickable {
+                                    onActionSelected(
+                                        SwipeActionSerializable.OpenAppDrawer(workspace.id)
+                                    )
+                                    showWorkspacePicker = false
+                                }
+                                .padding(12.dp),
+                            horizontalAlignment = Alignment.CenterHorizontally
+                        ) {
+                            Text(
+                                text = workspace.name,
+                                style = MaterialTheme.typography.bodyLarge,
+                                color = MaterialTheme.colorScheme.onSurface
+                            )
+                        }
+                    }
+                }
+            },
+            containerColor = MaterialTheme.colorScheme.surface,
+            shape = DragonShape
+        )
+    }
+
+    if (showPinnedShortcutsPicker) {
+        PinnedShortcutsPickerDialog(
+            onDismiss = { showPinnedShortcutsPicker = false },
+            onShortcutSelected = { shortcutAction ->
+                onActionSelected(shortcutAction)
+                showPinnedShortcutsPicker = false
+            }
+        )
+    }
 }
 
 
@@ -250,6 +372,10 @@ fun AddPointColumn(
 
     val name = when(action) {
         is SwipeActionSerializable.LaunchApp -> stringResource(R.string.open_app)
+        is SwipeActionSerializable.LaunchShortcut -> {
+            if (action.packageName.isEmpty()) stringResource(R.string.pinned_shortcuts)
+            else actionLabel(action)
+        }
         is SwipeActionSerializable.OpenUrl -> stringResource(R.string.open_url)
         is SwipeActionSerializable.OpenFile -> stringResource(R.string.open_file)
         else -> actionLabel(action)

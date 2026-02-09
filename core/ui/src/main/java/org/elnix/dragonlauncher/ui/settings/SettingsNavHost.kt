@@ -12,6 +12,7 @@ import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -22,20 +23,29 @@ import androidx.navigation.compose.composable
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navArgument
+import kotlinx.coroutines.launch
 import org.elnix.dragonlauncher.common.FloatingAppObject
+import org.elnix.dragonlauncher.common.R
 import org.elnix.dragonlauncher.common.logging.logE
 import org.elnix.dragonlauncher.common.serializables.defaultSwipePointsValues
 import org.elnix.dragonlauncher.common.utils.SETTINGS
 import org.elnix.dragonlauncher.common.utils.WidgetHostProvider
+import org.elnix.dragonlauncher.common.utils.showToast
 import org.elnix.dragonlauncher.common.utils.transparentScreens
+import org.elnix.dragonlauncher.enumsui.LockMethod
 import org.elnix.dragonlauncher.models.AppLifecycleViewModel
 import org.elnix.dragonlauncher.models.AppsViewModel
 import org.elnix.dragonlauncher.models.BackupViewModel
 import org.elnix.dragonlauncher.models.FloatingAppsViewModel
+import org.elnix.dragonlauncher.settings.stores.BehaviorSettingsStore
 import org.elnix.dragonlauncher.settings.stores.DrawerSettingsStore
+import org.elnix.dragonlauncher.settings.stores.PrivateSettingsStore
 import org.elnix.dragonlauncher.settings.stores.SwipeSettingsStore
 import org.elnix.dragonlauncher.ui.AdvancedSettingsScreen
 import org.elnix.dragonlauncher.ui.SettingsScreen
+import org.elnix.dragonlauncher.ui.dialogs.PinUnlockDialog
+import org.elnix.dragonlauncher.ui.helpers.SecurityHelper
+import org.elnix.dragonlauncher.ui.helpers.findFragmentActivity
 import org.elnix.dragonlauncher.ui.helpers.noAnimComposable
 import org.elnix.dragonlauncher.ui.settings.backup.BackupTab
 import org.elnix.dragonlauncher.ui.settings.customization.AppearanceTab
@@ -76,14 +86,27 @@ fun SettingsNavHost(
     onRemoveFloatingApp: (FloatingAppObject) -> Unit
 ) {
     val ctx = LocalContext.current
+    val scope = rememberCoroutineScope()
+
+
+    // ── Lock gate state ──
+    val lockMethod by BehaviorSettingsStore.lockMethod.flow(ctx)
+        .collectAsState(initial = LockMethod.NONE)
+    val pinHash by PrivateSettingsStore.lockPinHash.flow(ctx)
+        .collectAsState(initial = "")
+
+    /** Once unlocked during this session, stay unlocked */
+    var isUnlocked by remember { mutableStateOf(false) }
+    var showPinDialog by remember { mutableStateOf(false) }
+    var pinError by remember { mutableStateOf<String?>(null) }
 
 
     LaunchedEffect(Unit) {
         appLifecycleViewModel.homeEvents.collect {
+            isUnlocked = false
             goMainScreen()
         }
     }
-
 
 
 
@@ -108,7 +131,40 @@ fun SettingsNavHost(
 
     var pendingNestToEdit by remember { mutableStateOf<Int?>(null) }
 
-    fun goAdvSettingsRoot() =  navController.navigate(SETTINGS.ADVANCED_ROOT)
+    fun navigateToAdvSettings() = navController.navigate(SETTINGS.ADVANCED_ROOT)
+
+    fun goAdvSettingsRoot() {
+        if (isUnlocked || lockMethod == LockMethod.NONE) {
+            navigateToAdvSettings()
+            return
+        }
+        when (lockMethod) {
+            LockMethod.PIN -> {
+                showPinDialog = true
+            }
+            LockMethod.DEVICE_UNLOCK -> {
+                val activity = ctx.findFragmentActivity()
+                if (activity != null && SecurityHelper.isDeviceUnlockAvailable(ctx)) {
+                    SecurityHelper.showDeviceUnlockPrompt(
+                        activity = activity,
+                        onSuccess = {
+                            isUnlocked = true
+                            navigateToAdvSettings()
+                        },
+                        onError = { msg ->
+                            ctx.showToast(ctx.getString(R.string.authentication_error, msg))
+                        },
+                        onFailed = {
+                            ctx.showToast(ctx.getString(R.string.authentication_failed))
+                        }
+                    )
+                } else {
+                    ctx.showToast(ctx.getString(R.string.device_credentials_not_available))
+                }
+            }
+            LockMethod.NONE -> navigateToAdvSettings()
+        }
+    }
     fun goAppearance() = navController.navigate(SETTINGS.APPEARANCE)
     fun goDebug() = navController.navigate(SETTINGS.DEBUG)
     fun goWellbeing() = navController.navigate(SETTINGS.WELLBEING)
@@ -134,6 +190,23 @@ fun SettingsNavHost(
             MaterialTheme.colorScheme.background
         }
 
+    // ── PIN unlock dialog ──
+    if (showPinDialog) {
+        PinUnlockDialog(
+            onDismiss = { showPinDialog = false; pinError = null },
+            onPinEntered = { enteredPin ->
+                if (SecurityHelper.verifyPin(enteredPin, pinHash)) {
+                    isUnlocked = true
+                    showPinDialog = false
+                    pinError = null
+                    navigateToAdvSettings()
+                } else {
+                    pinError = ctx.getString(R.string.wrong_pin)
+                }
+            },
+            errorMessage = pinError
+        )
+    }
 
     Scaffold(
         contentWindowInsets = WindowInsets(),

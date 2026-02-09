@@ -308,4 +308,63 @@
     <string name="tint">Matiz</string>
     <string name="icon_pack_tint">Matiz do pacote de ícones</string>
     <string name="show_app_icon_start_drag_position">Mostrar ícone do aplicativo na posição inicial de arrastar</string>
+
+    <!--  ─────────────  Multi Select  ─────────────  -->
+    <string name="multi_select_hint">Pressione longamente um app para iniciar a seleção múltipla</string>
+    <string name="multi_select_count">%d selecionado(s)</string>
+    <string name="add_selected_apps">Adicionar apps selecionados</string>
+    <string name="add_all_auto">Colocar automaticamente no círculo</string>
+    <string name="add_all_manual">Colocar um por um</string>
+    <string name="place_app_where">Onde você quer colocar %s?</string>
+    <string name="tap_circle_to_place">Toque no círculo para colocar o app</string>
+    <string name="apps_added_successfully">%d apps adicionados com sucesso</string>
+    <string name="multi_select_drawer_hint">💡 Pressione longamente um app para selecionar vários de uma vez</string>
+    <string name="deselect_all">Desmarcar todos</string>
+
+    <!--  ─────────────  Lock Settings  ─────────────  -->
+    <string name="lock_settings">Bloquear configurações</string>
+    <string name="lock_settings_description">Proteja as configurações do launcher com um método de segurança</string>
+    <string name="lock_method">Método de bloqueio</string>
+    <string name="lock_none">Nenhum</string>
+    <string name="lock_pin">Código PIN</string>
+    <string name="lock_biometric">Impressão digital</string>
+    <string name="lock_device_credentials">Credenciais do dispositivo</string>
+    <string name="lock_device_unlock">Desbloqueio do dispositivo</string>
+    <string name="enter_pin">Digite o PIN</string>
+    <string name="confirm_pin">Confirme o PIN</string>
+    <string name="set_pin">Definir PIN</string>
+    <string name="change_pin">Alterar PIN</string>
+    <string name="remove_pin">Remover PIN</string>
+    <string name="pin_mismatch">Os PINs não coincidem</string>
+    <string name="pin_too_short">O PIN deve ter pelo menos 4 dígitos</string>
+    <string name="pin_set_success">PIN definido com sucesso</string>
+    <string name="pin_removed">PIN removido</string>
+    <string name="wrong_pin">PIN incorreto</string>
+    <string name="unlock_settings">Desbloquear configurações</string>
+    <string name="biometric_prompt_title">Desbloquear configurações do Dragon</string>
+    <string name="biometric_prompt_subtitle">Autentique-se para acessar as configurações</string>
+    <string name="biometric_not_available">Autenticação biométrica não disponível</string>
+    <string name="device_credentials_not_available">Nenhuma tela de bloqueio configurada</string>
+    <string name="authentication_failed">Falha na autenticação</string>
+    <string name="authentication_error">Erro de autenticação: %s</string>
+
+    <!--  ─────────────  Drawer Workspace Selection  ─────────────  -->
+    <string name="select_default_workspace">Selecionar workspace padrão</string>
+    <string name="select_workspace_hint">Escolha qual workspace abre por padrão. Você pode sempre mudar deslizando para a esquerda ou direita na gaveta.</string>
+    <string name="workspace_default">Padrão</string>
+
+    <!--  ─────────────  Pinned Shortcuts  ─────────────  -->
+    <string name="pinned_shortcut_added">Atalho "%s" adicionado aos seus círculos</string>
+    <string name="pinned_shortcut_failed">Falha ao adicionar atalho fixado</string>
+    <string name="pinned_shortcut_already_exists">O atalho "%s" já está nos seus círculos</string>
+    <string name="pinned_shortcuts">Atalhos fixados</string>
+    <string name="pinned_shortcuts_desc">Navegar e adicionar atalhos fixados dos seus apps</string>
+    <string name="no_pinned_shortcuts">Nenhum atalho fixado disponível</string>
+    <string name="pinned_shortcuts_from">Atalhos de %s</string>
+
+    <!--  ─────────────  Recently Used Apps  ─────────────  -->
+    <string name="recently_used_apps">Apps usados recentemente</string>
+    <string name="show_recently_used_apps">Mostrar apps recentes</string>
+    <string name="show_recently_used_apps_desc">Mostrar os apps usados recentemente no topo da gaveta de apps</string>
+    <string name="recently_used_apps_count">Número de apps recentes</string>
 </resources>

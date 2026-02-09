@@ -6,7 +6,10 @@ import android.provider.Settings
 import androidx.activity.compose.BackHandler
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.combinedClickable
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -15,10 +18,15 @@ import androidx.compose.foundation.layout.exclude
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.ime
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.safeDrawing
+import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.windowInsetsPadding
+import androidx.compose.foundation.lazy.LazyRow
+import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.pager.HorizontalPager
 import androidx.compose.foundation.pager.rememberPagerState
 import androidx.compose.foundation.text.KeyboardActions
@@ -36,18 +44,26 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.focus.onFocusChanged
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.ImageBitmap
+import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.platform.LocalSoftwareKeyboardController
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.input.ImeAction
+import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import androidx.core.net.toUri
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import kotlinx.coroutines.Dispatchers
@@ -56,6 +72,7 @@ import kotlinx.coroutines.withContext
 import kotlinx.coroutines.yield
 import org.elnix.dragonlauncher.common.R
 import org.elnix.dragonlauncher.common.serializables.AppModel
+import org.elnix.dragonlauncher.common.serializables.IconShape
 import org.elnix.dragonlauncher.common.serializables.SwipeActionSerializable
 import org.elnix.dragonlauncher.common.serializables.dummySwipePoint
 import org.elnix.dragonlauncher.common.utils.openSearch
@@ -78,6 +95,8 @@ import org.elnix.dragonlauncher.settings.stores.UiSettingsStore
 import org.elnix.dragonlauncher.settings.stores.WellbeingSettingsStore
 import org.elnix.dragonlauncher.ui.actions.launchAppDirectly
 import org.elnix.dragonlauncher.ui.actions.launchSwipeAction
+import org.elnix.dragonlauncher.ui.components.TextDivider
+import org.elnix.dragonlauncher.ui.components.resolveShape
 import org.elnix.dragonlauncher.ui.components.settings.asState
 import org.elnix.dragonlauncher.ui.dialogs.AppAliasesDialog
 import org.elnix.dragonlauncher.ui.dialogs.AppLongPressDialog
@@ -85,6 +104,7 @@ import org.elnix.dragonlauncher.ui.dialogs.IconEditorDialog
 import org.elnix.dragonlauncher.ui.dialogs.RenameAppDialog
 import org.elnix.dragonlauncher.ui.helpers.AppGrid
 import org.elnix.dragonlauncher.ui.helpers.WallpaperDim
+import org.elnix.dragonlauncher.ui.wellbeing.AppTimerService
 import org.elnix.dragonlauncher.ui.wellbeing.DigitalPauseActivity
 
 @Suppress("AssignedValueIsNeverRead")
@@ -138,6 +158,12 @@ fun AppDrawerScreen(
 
     val iconsShape by DrawerSettingsStore.iconsShape.asState()
 
+    /* ───────────── Recently Used Apps ───────────── */
+    val showRecentlyUsedApps by DrawerSettingsStore.showRecentlyUsedApps.asState()
+    val recentlyUsedAppsCount by DrawerSettingsStore.recentlyUsedAppsCount.asState()
+    val recentApps by appsViewModel.getRecentApps(recentlyUsedAppsCount)
+        .collectAsStateWithLifecycle(emptyList())
+
 
     /*  ─────────────  Wellbeing Settings  ─────────────  */
     val socialMediaPauseEnabled by WellbeingSettingsStore.socialMediaPauseEnabled.asState()
@@ -146,13 +172,52 @@ fun AppDrawerScreen(
     val pausedApps by WellbeingSettingsStore.getPausedAppsFlow(ctx)
         .collectAsState(initial = emptySet())
 
+    val reminderEnabled by WellbeingSettingsStore.reminderEnabled.asState()
+    val reminderInterval by WellbeingSettingsStore.reminderIntervalMinutes.asState()
+    val reminderMode by WellbeingSettingsStore.reminderMode.asState()
+    val returnToLauncherEnabled by WellbeingSettingsStore.returnToLauncherEnabled.asState()
+
     var pendingPackageToLaunch by remember { mutableStateOf<String?>(null) }
+    var pendingAppName by remember { mutableStateOf<String?>(null) }
 
     val digitalPauseLauncher = rememberLauncherForActivityResult(
         ActivityResultContracts.StartActivityForResult()
     ) { result ->
         if (result.resultCode == DigitalPauseActivity.RESULT_PROCEED && pendingPackageToLaunch != null) {
             try {
+                if (reminderEnabled) {
+                    AppTimerService.start(
+                        ctx = ctx,
+                        packageName = pendingPackageToLaunch!!,
+                        appName = pendingAppName ?: pendingPackageToLaunch!!,
+                        reminderEnabled = true,
+                        reminderIntervalMinutes = reminderInterval,
+                        reminderMode = reminderMode
+                    )
+                }
+                launchAppDirectly(ctx, pendingPackageToLaunch!!)
+                onClose()
+            } catch (e: Exception) {
+                ctx.showToast("Error: ${e.message}")
+            }
+        } else if (result.resultCode == DigitalPauseActivity.RESULT_PROCEED_WITH_TIMER && pendingPackageToLaunch != null) {
+            try {
+                val data = result.data
+                val timeLimitMin = data?.getIntExtra(DigitalPauseActivity.RESULT_EXTRA_TIME_LIMIT, 10) ?: 10
+                val hasReminder = data?.getBooleanExtra(DigitalPauseActivity.EXTRA_REMINDER_ENABLED, false) ?: false
+                val remInterval = data?.getIntExtra(DigitalPauseActivity.EXTRA_REMINDER_INTERVAL, 5) ?: 5
+                val remMode = data?.getStringExtra(DigitalPauseActivity.EXTRA_REMINDER_MODE) ?: "overlay"
+
+                AppTimerService.start(
+                    ctx = ctx,
+                    packageName = pendingPackageToLaunch!!,
+                    appName = pendingAppName ?: pendingPackageToLaunch!!,
+                    reminderEnabled = hasReminder,
+                    reminderIntervalMinutes = remInterval,
+                    reminderMode = remMode,
+                    timeLimitEnabled = true,
+                    timeLimitMinutes = timeLimitMin
+                )
                 launchAppDirectly(ctx, pendingPackageToLaunch!!)
                 onClose()
             } catch (e: Exception) {
@@ -160,6 +225,7 @@ fun AppDrawerScreen(
             }
         }
         pendingPackageToLaunch = null
+        pendingAppName = null
     }
 
 
@@ -252,10 +318,13 @@ fun AppDrawerScreen(
         )
     }
 
-    fun launchApp(action: SwipeActionSerializable) {
+    fun launchApp(action: SwipeActionSerializable, name: String = "") {
         // Store package for potential pause callback
         if (action is SwipeActionSerializable.LaunchApp) {
             pendingPackageToLaunch = action.packageName
+            pendingAppName = name.ifBlank { action.packageName }
+            // Track recently used app
+            appsViewModel.addRecentlyUsedApp(action.packageName)
         }
 
         try {
@@ -266,6 +335,11 @@ fun AppDrawerScreen(
                 socialMediaPauseEnabled = socialMediaPauseEnabled,
                 guiltModeEnabled = guiltModeEnabled,
                 pauseDuration = pauseDuration,
+                reminderEnabled = reminderEnabled,
+                reminderIntervalMinutes = reminderInterval,
+                reminderMode = reminderMode,
+                returnToLauncherEnabled = returnToLauncherEnabled,
+                appName = name,
                 digitalPauseLauncher = digitalPauseLauncher
             )
             // Only close if not paused (pause closes after user decision)
@@ -360,24 +434,53 @@ fun AppDrawerScreen(
 
                     LaunchedEffect(haveToLaunchFirstApp, filteredApps) {
                         if ((autoLaunchSingleMatch && filteredApps.size == 1 && searchQuery.isNotEmpty()) || haveToLaunchFirstApp) {
-                            launchApp(filteredApps.first().action)
+                            launchApp(filteredApps.first().action, filteredApps.first().name)
                         }
                     }
 
+                    Column(modifier = Modifier.fillMaxSize()) {
 
-                    AppGrid(
-                        apps = filteredApps,
-                        icons = icons,
-                        gridSize = gridSize,
-                        iconShape = iconsShape,
-                        txtColor = MaterialTheme.colorScheme.onSurface,
-                        showIcons = showIcons,
-                        showLabels = showLabels,
-                        onLongClick = { dialogApp = it },
-                        onScrollDown = { launchDrawerAction(drawerScrollDownAction) },
-                        onScrollUp = { launchDrawerAction(drawerScrollUpAction) }
-                    ) {
-                        launchApp(it.action)
+                        /* ───────────── Recently Used Apps section ───────────── */
+                        if (showRecentlyUsedApps && searchQuery.isBlank() && recentApps.isNotEmpty()) {
+                            TextDivider(
+                                text = stringResource(R.string.recently_used_apps),
+                                modifier = Modifier.padding(horizontal = 8.dp)
+                            )
+                            LazyRow(
+                                modifier = Modifier
+                                    .fillMaxWidth()
+                                    .padding(horizontal = 8.dp, vertical = 4.dp),
+                                horizontalArrangement = Arrangement.spacedBy(12.dp)
+                            ) {
+                                items(recentApps, key = { it.packageName }) { app ->
+                                    RecentAppItem(
+                                        app = app,
+                                        icons = icons,
+                                        iconShape = iconsShape,
+                                        showLabels = showLabels,
+                                        onClick = { launchApp(app.action, app.name) },
+                                        onLongClick = { dialogApp = app }
+                                    )
+                                }
+                            }
+                        }
+
+                        Box(modifier = Modifier.weight(1f).fillMaxWidth()) {
+                            AppGrid(
+                                apps = filteredApps,
+                                icons = icons,
+                                gridSize = gridSize,
+                                iconShape = iconsShape,
+                                txtColor = MaterialTheme.colorScheme.onSurface,
+                                showIcons = showIcons,
+                                showLabels = showLabels,
+                                onLongClick = { dialogApp = it },
+                                onScrollDown = { launchDrawerAction(drawerScrollDownAction) },
+                                onScrollUp = { launchDrawerAction(drawerScrollUpAction) }
+                            ) {
+                                launchApp(it.action, it.name)
+                            }
+                        }
                     }
                 }
             }
@@ -402,7 +505,7 @@ fun AppDrawerScreen(
         AppLongPressDialog(
             app = app,
             onDismiss = { dialogApp = null },
-            onOpen = { launchApp(app.action) },
+            onOpen = { launchApp(app.action, app.name) },
             onSettings = {
                 ctx.startActivity(
                     Intent(Settings.ACTION_APPLICATION_DETAILS_SETTINGS).apply {
@@ -571,4 +674,56 @@ private fun AppDrawerSearch(
             unfocusedIndicatorColor = Color.Transparent,
         )
     )
+}
+
+
+@Composable
+private fun RecentAppItem(
+    app: AppModel,
+    icons: Map<String, ImageBitmap>,
+    iconShape: IconShape,
+    showLabels: Boolean,
+    onClick: () -> Unit,
+    onLongClick: () -> Unit
+) {
+    val shape = resolveShape(iconShape)
+    val icon = icons[app.packageName]
+
+    Column(
+        modifier = Modifier
+            .width(64.dp)
+            .combinedClickable(onClick = onClick, onLongClick = onLongClick),
+        horizontalAlignment = Alignment.CenterHorizontally
+    ) {
+        if (icon != null) {
+            Image(
+                bitmap = icon,
+                contentDescription = app.name,
+                modifier = Modifier
+                    .size(48.dp)
+                    .clip(shape),
+                contentScale = ContentScale.Fit
+            )
+        } else {
+            Image(
+                painter = painterResource(R.drawable.ic_app_default),
+                contentDescription = app.name,
+                modifier = Modifier
+                    .size(48.dp)
+                    .clip(shape),
+                contentScale = ContentScale.Fit
+            )
+        }
+        if (showLabels) {
+            Text(
+                text = app.name,
+                color = MaterialTheme.colorScheme.onSurface,
+                fontSize = 11.sp,
+                maxLines = 1,
+                overflow = TextOverflow.Ellipsis,
+                textAlign = TextAlign.Center,
+                modifier = Modifier.padding(top = 2.dp)
+            )
+        }
+    }
 }

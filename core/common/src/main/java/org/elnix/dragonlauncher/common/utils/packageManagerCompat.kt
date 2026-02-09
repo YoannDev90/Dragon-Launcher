@@ -189,7 +189,8 @@ class PackageManagerCompat(private val pm: PackageManager, private val ctx: Cont
                 .setQueryFlags(
                     LauncherApps.ShortcutQuery.FLAG_MATCH_DYNAMIC or
                             LauncherApps.ShortcutQuery.FLAG_MATCH_MANIFEST or
-                            LauncherApps.ShortcutQuery.FLAG_MATCH_PINNED
+                            LauncherApps.ShortcutQuery.FLAG_MATCH_PINNED or
+                            LauncherApps.ShortcutQuery.FLAG_MATCH_CACHED
                 )
             logE(TAG, "ShortcutQuery created with package: $packageName and flags: $query")
 

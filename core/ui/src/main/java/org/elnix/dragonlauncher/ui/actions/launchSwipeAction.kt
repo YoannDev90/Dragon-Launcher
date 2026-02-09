@@ -31,11 +31,16 @@ fun launchSwipeAction(
     socialMediaPauseEnabled: Boolean = false,
     guiltModeEnabled: Boolean = false,
     pauseDuration: Int = 10,
+    reminderEnabled: Boolean = false,
+    reminderIntervalMinutes: Int = 5,
+    reminderMode: String = "overlay",
+    returnToLauncherEnabled: Boolean = false,
+    appName: String = "",
     digitalPauseLauncher: ActivityResultLauncher<Intent>? = null,
     onReloadApps: (() -> Unit)? = null,
     onReselectFile: (() -> Unit)? = null,
     onAppSettings: (() -> Unit)? = null,
-    onAppDrawer: (() -> Unit)? = null,
+    onAppDrawer: ((workspaceId: String?) -> Unit)? = null,
     onParentNest: (() -> Unit)? = null,
     onOpenNestCircle: ((nestId: Int) -> Unit)? = null,
 ) {
@@ -48,8 +53,13 @@ fun launchSwipeAction(
             if (socialMediaPauseEnabled && action.packageName in pausedApps && digitalPauseLauncher != null) {
                 val intent = Intent(ctx, DigitalPauseActivity::class.java).apply {
                     putExtra(DigitalPauseActivity.EXTRA_PACKAGE_NAME, action.packageName)
+                    putExtra(DigitalPauseActivity.EXTRA_APP_NAME, appName)
                     putExtra(DigitalPauseActivity.EXTRA_PAUSE_DURATION, pauseDuration)
                     putExtra(DigitalPauseActivity.EXTRA_GUILT_MODE, guiltModeEnabled)
+                    putExtra(DigitalPauseActivity.EXTRA_REMINDER_ENABLED, reminderEnabled)
+                    putExtra(DigitalPauseActivity.EXTRA_REMINDER_INTERVAL, reminderIntervalMinutes)
+                    putExtra(DigitalPauseActivity.EXTRA_REMINDER_MODE, reminderMode)
+                    putExtra(DigitalPauseActivity.EXTRA_RETURN_TO_LAUNCHER, returnToLauncherEnabled)
                 }
                 digitalPauseLauncher.launch(intent)
                 return
@@ -60,7 +70,9 @@ fun launchSwipeAction(
 
 
         is SwipeActionSerializable.LaunchShortcut -> {
-            launchShortcut(ctx, action.packageName, action.shortcutId)
+            if (action.packageName.isNotEmpty()) {
+                launchShortcut(ctx, action.packageName, action.shortcutId)
+            }
         }
 
 
@@ -87,8 +99,8 @@ fun launchSwipeAction(
             else expandQuickActionsDrawer(ctx)
         }
 
-        SwipeActionSerializable.OpenAppDrawer -> {
-            onAppDrawer?.invoke()
+        is SwipeActionSerializable.OpenAppDrawer -> {
+            onAppDrawer?.invoke(action.workspaceId)
         }
 
         SwipeActionSerializable.OpenDragonLauncherSettings -> onAppSettings?.invoke()

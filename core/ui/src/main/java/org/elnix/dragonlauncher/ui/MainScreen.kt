@@ -71,6 +71,7 @@ import org.elnix.dragonlauncher.ui.helpers.HoldToActivateArc
 import org.elnix.dragonlauncher.ui.helpers.WallpaperDim
 import org.elnix.dragonlauncher.ui.remembers.rememberHoldToOpenSettings
 import org.elnix.dragonlauncher.ui.statusbar.StatusBar
+import org.elnix.dragonlauncher.ui.wellbeing.AppTimerService
 import org.elnix.dragonlauncher.ui.wellbeing.DigitalPauseActivity
 import kotlin.math.max
 
@@ -83,7 +84,7 @@ fun MainScreen(
     floatingAppsViewModel: FloatingAppsViewModel,
     appLifecycleViewModel: AppLifecycleViewModel,
     widgetHostProvider: WidgetHostProvider,
-    onAppDrawer: () -> Unit,
+    onAppDrawer: (workspaceId: String?) -> Unit,
     onGoWelcome: () -> Unit,
     onLongPress3Sec: () -> Unit
 ) {
@@ -132,21 +133,64 @@ fun MainScreen(
         .collectAsState(initial = 10)
     val pausedApps by WellbeingSettingsStore.getPausedAppsFlow(ctx)
         .collectAsState(initial = emptySet())
+    val reminderEnabled by WellbeingSettingsStore.reminderEnabled.flow(ctx)
+        .collectAsState(initial = false)
+    val reminderInterval by WellbeingSettingsStore.reminderIntervalMinutes.flow(ctx)
+        .collectAsState(initial = 5)
+    val reminderMode by WellbeingSettingsStore.reminderMode.flow(ctx)
+        .collectAsState(initial = "overlay")
+    val returnToLauncherEnabled by WellbeingSettingsStore.returnToLauncherEnabled.flow(ctx)
+        .collectAsState(initial = false)
 
     // Store pending package to launch after pause
     var pendingPackageToLaunch by remember { mutableStateOf<String?>(null) }
+    var pendingAppName by remember { mutableStateOf<String?>(null) }
 
     val digitalPauseLauncher = rememberLauncherForActivityResult(
         ActivityResultContracts.StartActivityForResult()
     ) { result ->
         if (result.resultCode == DigitalPauseActivity.RESULT_PROCEED && pendingPackageToLaunch != null) {
             try {
+                // Start reminder-only timer if enabled (no time limit)
+                if (reminderEnabled) {
+                    AppTimerService.start(
+                        ctx = ctx,
+                        packageName = pendingPackageToLaunch!!,
+                        appName = pendingAppName ?: pendingPackageToLaunch!!,
+                        reminderEnabled = true,
+                        reminderIntervalMinutes = reminderInterval,
+                        reminderMode = reminderMode
+                    )
+                }
                 launchAppDirectly(ctx, pendingPackageToLaunch!!)
             } catch (e: Exception) {
                 ctx.logE(TAG, "Failed to launch after pause: ${e.message}")
             }
+        } else if (result.resultCode == DigitalPauseActivity.RESULT_PROCEED_WITH_TIMER && pendingPackageToLaunch != null) {
+            try {
+                val data = result.data
+                val timeLimitMin = data?.getIntExtra(DigitalPauseActivity.RESULT_EXTRA_TIME_LIMIT, 10) ?: 10
+                val hasReminder = data?.getBooleanExtra(DigitalPauseActivity.EXTRA_REMINDER_ENABLED, false) ?: false
+                val remInterval = data?.getIntExtra(DigitalPauseActivity.EXTRA_REMINDER_INTERVAL, 5) ?: 5
+                val remMode = data?.getStringExtra(DigitalPauseActivity.EXTRA_REMINDER_MODE) ?: "overlay"
+
+                AppTimerService.start(
+                    ctx = ctx,
+                    packageName = pendingPackageToLaunch!!,
+                    appName = pendingAppName ?: pendingPackageToLaunch!!,
+                    reminderEnabled = hasReminder,
+                    reminderIntervalMinutes = remInterval,
+                    reminderMode = remMode,
+                    timeLimitEnabled = true,
+                    timeLimitMinutes = timeLimitMin
+                )
+                launchAppDirectly(ctx, pendingPackageToLaunch!!)
+            } catch (e: Exception) {
+                ctx.logE(TAG, "Failed to launch after pause with timer: ${e.message}")
+            }
         }
         pendingPackageToLaunch = null
+        pendingAppName = null
     }
 
 
@@ -259,6 +303,11 @@ fun MainScreen(
         val action = point?.action
         if (action is SwipeActionSerializable.LaunchApp) {
             pendingPackageToLaunch = action.packageName
+            pendingAppName = point.customName ?: try {
+                ctx.packageManager.getApplicationLabel(
+                    ctx.packageManager.getApplicationInfo(action.packageName, 0)
+                ).toString()
+            } catch (_: Exception) { action.packageName }
         }
 
         try {
@@ -270,6 +319,11 @@ fun MainScreen(
                 socialMediaPauseEnabled = socialMediaPauseEnabled,
                 guiltModeEnabled = guiltModeEnabled,
                 pauseDuration = pauseDuration,
+                reminderEnabled = reminderEnabled,
+                reminderIntervalMinutes = reminderInterval,
+                reminderMode = reminderMode,
+                returnToLauncherEnabled = returnToLauncherEnabled,
+                appName = pendingAppName ?: "",
                 digitalPauseLauncher = digitalPauseLauncher,
                 onReloadApps = { scope.launch { appsViewModel.reloadApps() } },
                 onReselectFile = { showFilePicker = point },

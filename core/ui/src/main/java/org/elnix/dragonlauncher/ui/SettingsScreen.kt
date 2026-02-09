@@ -180,6 +180,10 @@ fun SettingsScreen(
     var showEditDialog by remember { mutableStateOf<SwipePointSerializable?>(null) }
     var recomposeTrigger by remember { mutableIntStateOf(0) }
 
+    // Manual placement mode state (multi-select "Place one by one")
+    var manualPlacementQueue by remember { mutableStateOf<List<SwipeActionSerializable>>(emptyList()) }
+    val isInManualPlacementMode = manualPlacementQueue.isNotEmpty()
+
 //    var showDeleteNestDialog by remember { mutableStateOf<Int?>(null) }
     var showNestManagementDialog by remember { mutableStateOf(false) }
     var showResetPointsAndNestsDialog by remember { mutableStateOf(false) }
@@ -430,7 +434,8 @@ fun SettingsScreen(
 
 
     BackHandler {
-        if (selectedPoint != null) selectedPoint = null
+        if (isInManualPlacementMode) manualPlacementQueue = emptyList()
+        else if (selectedPoint != null) selectedPoint = null
         else if (nestId != 0) nestNavigation.goBack()
         else onBack()
     }
@@ -691,9 +696,57 @@ fun SettingsScreen(
                             }
                         )
                     }
-                    .pointerInput(Unit) {
+                    .pointerInput(isInManualPlacementMode) {
                         detectTapGestures(
                             onTap = { offset ->
+                                // Manual placement mode: place the current queued app where user tapped
+                                if (isInManualPlacementMode) {
+                                    val action = manualPlacementQueue.first()
+                                    val targetCircle = lastSelectedCircle.coerceAtMost(circleNumber - 1)
+
+                                    // Compute angle from center
+                                    val dx = offset.x - center.x
+                                    val dy = center.y - offset.y
+                                    var angle = Math.toDegrees(atan2(dx.toDouble(), dy.toDouble()))
+                                    if (angle < 0) angle += 360.0
+                                    val finalAngle = if (snapPoints) {
+                                        round(angle / SNAP_STEP_DEG) * SNAP_STEP_DEG
+                                    } else angle
+
+                                    // Find nearest circle based on tap distance from center
+                                    val distFromCenter = hypot(dx, dy)
+                                    val closestCircle = circles.minByOrNull { c ->
+                                        abs(c.radius - distFromCenter)
+                                    }
+                                    val circleId = closestCircle?.id ?: targetCircle
+
+                                    val point = SwipePointSerializable(
+                                        id = UUID.randomUUID().toString(),
+                                        angleDeg = finalAngle,
+                                        action = action,
+                                        circleNumber = circleId,
+                                        nestId = nestId
+                                    )
+
+                                    appsViewModel.reloadPointIcon(point = point, sizePx = sizePx)
+
+                                    applyChange {
+                                        points.add(point)
+                                        if (autoSeparatePoints) autoSeparate(
+                                            points, nestId,
+                                            circles.find { it.id == circleId }, point
+                                        )
+                                    }
+
+                                    selectedPoint = point
+                                    bannerVisible = true
+
+                    // Dequeue: move to the next app
+                                    manualPlacementQueue = manualPlacementQueue.drop(1)
+                                    return@detectTapGestures
+                                }
+
+                                // Normal tap mode
                                 var tapped: SwipePointSerializable? = null
                                 var best = Float.MAX_VALUE
 
@@ -1134,6 +1187,41 @@ fun SettingsScreen(
                 }
 
                 showAddDialog = false
+            },
+            onMultipleActionsSelected = { actions, autoPlace ->
+                val targetCircle = lastSelectedCircle.coerceAtMost(circleNumber - 1)
+                val circle = circles.find { it.id == targetCircle }
+
+                if (autoPlace) {
+                    // Auto-place all apps evenly on the circle
+                    applyChange {
+                        for (action in actions) {
+                            val newAngle = randomFreeAngle(circle, points) ?: continue
+
+                            val point = SwipePointSerializable(
+                                id = UUID.randomUUID().toString(),
+                                angleDeg = newAngle,
+                                action = action,
+                                circleNumber = targetCircle,
+                                nestId = nestId
+                            )
+
+                            appsViewModel.reloadPointIcon(
+                                point = point,
+                                sizePx = sizePx
+                            )
+
+                            points.add(point)
+                            autoSeparate(points, nestId, circle, point)
+                        }
+                    }
+                    ctx.showToast(ctx.getString(R.string.apps_added_successfully, actions.size))
+                } else {
+                    // Manual placement: queue actions and let user tap to place each one
+                    manualPlacementQueue = actions
+                    ctx.showToast(ctx.getString(R.string.tap_circle_to_place))
+                }
+                showAddDialog = false
             }
         )
     }
@@ -1202,6 +1290,57 @@ fun SettingsScreen(
             showLabel = true,
             showIcon = true
         )
+    }
+
+    // Manual placement mode banner
+    if (isInManualPlacementMode) {
+        val currentAction = manualPlacementQueue.first()
+        val appName = when (currentAction) {
+            is SwipeActionSerializable.LaunchApp -> {
+                ctx.packageManager.runCatching {
+                    getApplicationLabel(
+                        getApplicationInfo(currentAction.packageName, 0)
+                    ).toString()
+                }.getOrDefault(currentAction.packageName)
+            }
+            else -> currentAction::class.simpleName ?: ""
+        }
+        val remaining = manualPlacementQueue.size
+
+        Box(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(horizontal = 16.dp, vertical = 8.dp),
+            contentAlignment = Alignment.TopCenter
+        ) {
+            Column(
+                horizontalAlignment = Alignment.CenterHorizontally,
+                modifier = Modifier
+                    .background(
+                        MaterialTheme.colorScheme.primaryContainer,
+                        shape = MaterialTheme.shapes.medium
+                    )
+                    .padding(horizontal = 16.dp, vertical = 12.dp)
+            ) {
+                Text(
+                    text = stringResource(R.string.place_app_where, appName),
+                    color = MaterialTheme.colorScheme.onPrimaryContainer,
+                    fontWeight = FontWeight.Bold,
+                    textAlign = TextAlign.Center,
+                    fontSize = 14.sp
+                )
+                Text(
+                    text = stringResource(R.string.multi_select_count, remaining),
+                    color = MaterialTheme.colorScheme.onPrimaryContainer.copy(alpha = 0.7f),
+                    fontSize = 12.sp
+                )
+                Text(
+                    text = stringResource(R.string.tap_circle_to_place),
+                    color = MaterialTheme.colorScheme.onPrimaryContainer.copy(alpha = 0.5f),
+                    fontSize = 11.sp
+                )
+            }
+        }
     }
 
     if (showEditDefaultPoint) {
