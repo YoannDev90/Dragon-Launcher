@@ -447,4 +447,52 @@
     <string name="encouragement_stretch">Étirez-vous un peu 🧘</string>
     <string name="encouragement_window">Regardez par la fenêtre 🪟</string>
     <string name="encouragement_text_someone">Envoyez un message à quelqu\'un que vous aimez 💬</string>
+
+    <!--  ─────────────  Multi Select  ─────────────  -->
+    <string name="multi_select_hint">Appui long sur une app pour démarrer la multi-sélection</string>
+    <string name="multi_select_count">%d sélectionnée(s)</string>
+    <string name="add_selected_apps">Ajouter les apps sélectionnées</string>
+    <string name="add_all_auto">Placement automatique sur le cercle</string>
+    <string name="add_all_manual">Placer une par une</string>
+    <string name="place_app_where">Où voulez-vous placer %s ?</string>
+    <string name="tap_circle_to_place">Appuyez sur le cercle pour placer l\'app</string>
+    <string name="apps_added_successfully">%d apps ajoutées avec succès</string>
+    <string name="multi_select_drawer_hint">💡 Appui long sur une app pour en sélectionner plusieurs d\'un coup</string>
+    <string name="deselect_all">Tout désélectionner</string>
+
+    <!--  ─────────────  Lock Settings  ─────────────  -->
+    <string name="lock_settings">Verrouiller les paramètres</string>
+    <string name="lock_settings_description">Protégez les paramètres du lanceur avec une méthode de sécurité</string>
+    <string name="lock_method">Méthode de verrouillage</string>
+    <string name="lock_none">Aucun</string>
+    <string name="lock_pin">Code PIN</string>
+    <string name="lock_biometric">Empreinte digitale</string>
+    <string name="lock_device_credentials">Identifiants de l\'appareil</string>
+    <string name="enter_pin">Entrez le PIN</string>
+    <string name="confirm_pin">Confirmez le PIN</string>
+    <string name="set_pin">Définir le PIN</string>
+    <string name="change_pin">Changer le PIN</string>
+    <string name="remove_pin">Supprimer le PIN</string>
+    <string name="pin_mismatch">Les PIN ne correspondent pas</string>
+    <string name="pin_too_short">Le PIN doit contenir au moins 4 chiffres</string>
+    <string name="pin_set_success">PIN défini avec succès</string>
+    <string name="pin_removed">PIN supprimé</string>
+    <string name="wrong_pin">PIN incorrect</string>
+    <string name="unlock_settings">Déverrouiller les paramètres</string>
+    <string name="biometric_prompt_title">Déverrouiller les paramètres Dragon</string>
+    <string name="biometric_prompt_subtitle">Authentifiez-vous pour accéder aux paramètres</string>
+    <string name="biometric_not_available">Authentification biométrique non disponible</string>
+    <string name="device_credentials_not_available">Aucun écran de verrouillage configuré</string>
+    <string name="authentication_failed">Échec de l\'authentification</string>
+    <string name="authentication_error">Erreur d\'authentification : %s</string>
+
+    <!--  ─────────────  Drawer Workspace Selection  ─────────────  -->
+    <string name="select_default_workspace">Sélectionner le profil par défaut</string>
+    <string name="select_workspace_hint">Choisissez quel profil s\'ouvre par défaut. Vous pouvez toujours changer en glissant à gauche ou à droite dans le tiroir.</string>
+
+    <!--  ─────────────  Recently Used Apps  ─────────────  -->
+    <string name="recently_used_apps">Apps récemment utilisées</string>
+    <string name="show_recently_used_apps">Afficher les apps récentes</string>
+    <string name="show_recently_used_apps_desc">Afficher les applications récemment utilisées en haut du tiroir d\'apps</string>
+    <string name="recently_used_apps_count">Nombre d\'apps récentes</string>
 </resources>

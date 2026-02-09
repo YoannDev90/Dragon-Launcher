@@ -350,4 +350,52 @@
     <string name="fast_minimal_powerful_gestures">Rápido. Mínimo. Gestos poderosos.</string>
     <string name="customize_apps">Personalizar aplicaciones</string>
     <string name="dont_customize">No personalices y comienza a usar directamente Dragon Launcher</string>
+
+    <!--  ─────────────  Multi Select  ─────────────  -->
+    <string name="multi_select_hint">Mantén presionada una app para iniciar la selección múltiple</string>
+    <string name="multi_select_count">%d seleccionada(s)</string>
+    <string name="add_selected_apps">Añadir apps seleccionadas</string>
+    <string name="add_all_auto">Colocar automáticamente en el círculo</string>
+    <string name="add_all_manual">Colocar una por una</string>
+    <string name="place_app_where">¿Dónde quieres colocar %s?</string>
+    <string name="tap_circle_to_place">Toca el círculo para colocar la app</string>
+    <string name="apps_added_successfully">%d apps añadidas correctamente</string>
+    <string name="multi_select_drawer_hint">💡 Mantén presionada una app para seleccionar varias a la vez</string>
+    <string name="deselect_all">Deseleccionar todo</string>
+
+    <!--  ─────────────  Lock Settings  ─────────────  -->
+    <string name="lock_settings">Bloquear ajustes</string>
+    <string name="lock_settings_description">Protege los ajustes del lanzador con un método de seguridad</string>
+    <string name="lock_method">Método de bloqueo</string>
+    <string name="lock_none">Ninguno</string>
+    <string name="lock_pin">Código PIN</string>
+    <string name="lock_biometric">Huella digital</string>
+    <string name="lock_device_credentials">Credenciales del dispositivo</string>
+    <string name="enter_pin">Introduce el PIN</string>
+    <string name="confirm_pin">Confirma el PIN</string>
+    <string name="set_pin">Establecer PIN</string>
+    <string name="change_pin">Cambiar PIN</string>
+    <string name="remove_pin">Eliminar PIN</string>
+    <string name="pin_mismatch">Los PINs no coinciden</string>
+    <string name="pin_too_short">El PIN debe tener al menos 4 dígitos</string>
+    <string name="pin_set_success">PIN establecido correctamente</string>
+    <string name="pin_removed">PIN eliminado</string>
+    <string name="wrong_pin">PIN incorrecto</string>
+    <string name="unlock_settings">Desbloquear ajustes</string>
+    <string name="biometric_prompt_title">Desbloquear ajustes de Dragon</string>
+    <string name="biometric_prompt_subtitle">Autentícate para acceder a los ajustes</string>
+    <string name="biometric_not_available">Autenticación biométrica no disponible</string>
+    <string name="device_credentials_not_available">No hay pantalla de bloqueo configurada</string>
+    <string name="authentication_failed">Error de autenticación</string>
+    <string name="authentication_error">Error de autenticación: %s</string>
+
+    <!--  ─────────────  Drawer Workspace Selection  ─────────────  -->
+    <string name="select_default_workspace">Seleccionar espacio de trabajo predeterminado</string>
+    <string name="select_workspace_hint">Elige qué espacio de trabajo se abre por defecto. Siempre puedes cambiar deslizando a izquierda o derecha en el cajón.</string>
+
+    <!--  ─────────────  Recently Used Apps  ─────────────  -->
+    <string name="recently_used_apps">Apps usadas recientemente</string>
+    <string name="show_recently_used_apps">Mostrar apps recientes</string>
+    <string name="show_recently_used_apps_desc">Mostrar las apps usadas recientemente en la parte superior del cajón de apps</string>
+    <string name="recently_used_apps_count">Número de apps recientes</string>
 </resources>

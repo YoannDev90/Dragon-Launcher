@@ -53,7 +53,8 @@ fun AddPointDialog(
     actions: List<SwipeActionSerializable> = defaultChoosableActions,
     onNewNest: (() -> Unit)? = null,
     onDismiss: () -> Unit,
-    onActionSelected: (SwipeActionSerializable) -> Unit
+    onActionSelected: (SwipeActionSerializable) -> Unit,
+    onMultipleActionsSelected: ((List<SwipeActionSerializable>, Boolean) -> Unit)? = null
 ) {
     val ctx = LocalContext.current
 
@@ -164,6 +165,7 @@ fun AddPointDialog(
             iconShape = iconsShape,
             showIcons = showIcons,
             showLabels = showLabels,
+            multiSelectEnabled = onMultipleActionsSelected != null,
             onDismiss = { showAppPicker = false },
             onAppSelected = { app ->
 
@@ -181,7 +183,12 @@ fun AddPointDialog(
                 } else {
                     onActionSelected(SwipeActionSerializable.LaunchApp(app.packageName))
                 }
-            }
+            },
+            onMultipleAppsSelected = if (onMultipleActionsSelected != null) { { apps, autoPlace ->
+                val actions = apps.map { SwipeActionSerializable.LaunchApp(it.packageName) }
+                onMultipleActionsSelected(actions, autoPlace)
+                showAppPicker = false
+            } } else null
         )
     }
 
