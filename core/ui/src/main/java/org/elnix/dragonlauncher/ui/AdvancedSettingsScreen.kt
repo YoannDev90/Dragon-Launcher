@@ -1,6 +1,7 @@
 package org.elnix.dragonlauncher.ui
 
 
+import android.annotation.SuppressLint
 import android.content.Context
 import android.content.Intent
 import android.net.Uri
@@ -8,7 +9,6 @@ import android.os.Build
 import android.provider.Settings
 import android.system.Os.kill
 import android.widget.Toast
-import androidx.activity.compose.BackHandler
 import androidx.annotation.RequiresApi
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
@@ -16,6 +16,7 @@ import androidx.compose.foundation.clickable
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.IntrinsicSize
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -28,6 +29,7 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.Launch
 import androidx.compose.material.icons.automirrored.filled.Notes
 import androidx.compose.material.icons.filled.BugReport
+import androidx.compose.material.icons.filled.Close
 import androidx.compose.material.icons.filled.Code
 import androidx.compose.material.icons.filled.ColorLens
 import androidx.compose.material.icons.filled.Fingerprint
@@ -78,15 +80,15 @@ import org.elnix.dragonlauncher.common.utils.showToast
 import org.elnix.dragonlauncher.enumsui.LockMethod
 import org.elnix.dragonlauncher.models.AppsViewModel
 import org.elnix.dragonlauncher.settings.SettingsStoreRegistry
-import org.elnix.dragonlauncher.settings.stores.BehaviorSettingsStore
 import org.elnix.dragonlauncher.settings.stores.DebugSettingsStore
 import org.elnix.dragonlauncher.settings.stores.PrivateSettingsStore
 import org.elnix.dragonlauncher.ui.UiConstants.DragonShape
 import org.elnix.dragonlauncher.ui.actions.launchSwipeAction
 import org.elnix.dragonlauncher.ui.components.TextDivider
+import org.elnix.dragonlauncher.ui.components.settings.asState
 import org.elnix.dragonlauncher.ui.dialogs.CustomAlertDialog
 import org.elnix.dragonlauncher.ui.dialogs.PinSetupDialog
-import org.elnix.dragonlauncher.ui.dialogs.UserValidation
+import org.elnix.dragonlauncher.ui.dialogs.PinUnlockDialog
 import org.elnix.dragonlauncher.ui.helpers.SecurityHelper
 import org.elnix.dragonlauncher.ui.helpers.findFragmentActivity
 import org.elnix.dragonlauncher.ui.helpers.settings.ContributorItem
@@ -95,7 +97,8 @@ import org.elnix.dragonlauncher.ui.helpers.settings.SettingsItem
 import org.elnix.dragonlauncher.ui.helpers.settings.SettingsLazyHeader
 
 
-@Suppress("AssignedValueIsNeverRead")
+@SuppressLint("LocalContextGetResourceValueCall")
+@Suppress("AssignedValueIsNeverRead", "VariableNeverRead")
 @Composable
 fun AdvancedSettingsScreen(
     appViewModel: AppsViewModel,
@@ -107,10 +110,8 @@ fun AdvancedSettingsScreen(
 
     val versionCode = getVersionCode(ctx)
 
-    val isDebugModeEnabled by DebugSettingsStore.debugEnabled.flow(ctx)
-        .collectAsState(initial = false)
-    val forceAppLanguageSelector by DebugSettingsStore.forceAppLanguageSelector.flow(ctx)
-        .collectAsState(initial = false)
+    val isDebugModeEnabled by DebugSettingsStore.debugEnabled.asState()
+    val forceAppLanguageSelector by DebugSettingsStore.forceAppLanguageSelector.asState()
 
 
     val allApps by appViewModel.allApps.collectAsState()
@@ -121,130 +122,15 @@ fun AdvancedSettingsScreen(
     var timesClickedOnVersion by remember { mutableIntStateOf(0) }
 
     // Lock settings state
-    val currentLockMethod by BehaviorSettingsStore.lockMethod.flow(ctx)
-        .collectAsState(initial = LockMethod.NONE)
+    val currentLockMethod by PrivateSettingsStore.lockMethod.asState()
+    val pinHash by PrivateSettingsStore.lockPinHash.asState()
+
     var showLockMethodPicker by remember { mutableStateOf(false) }
     var showPinSetupDialog by remember { mutableStateOf(false) }
     var showRemovePinConfirm by remember { mutableStateOf(false) }
     var pendingLockMethod by remember { mutableStateOf<LockMethod?>(null) }
 
     val backgroundColor = MaterialTheme.colorScheme.background
-
-    BackHandler { onBack() }
-
-    // ── Lock method picker dialog ──
-    if (showLockMethodPicker) {
-        val methods = LockMethod.entries
-        val methodLabels = methods.map { method ->
-            when (method) {
-                LockMethod.NONE -> stringResource(R.string.lock_none)
-                LockMethod.PIN -> stringResource(R.string.lock_pin)
-                LockMethod.DEVICE_UNLOCK -> stringResource(R.string.lock_device_unlock)
-            }
-        }
-
-        CustomAlertDialog(
-            onDismissRequest = { showLockMethodPicker = false },
-            title = { Text(stringResource(R.string.lock_method), style = MaterialTheme.typography.titleLarge) },
-            text = {
-                Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
-                    Text(
-                        text = stringResource(R.string.lock_settings_description),
-                        style = MaterialTheme.typography.bodyMedium,
-                        color = MaterialTheme.colorScheme.onSurface.copy(0.7f)
-                    )
-                    Spacer(Modifier.height(8.dp))
-                    methods.forEachIndexed { index, method ->
-                        val isAvailable = when (method) {
-                            LockMethod.DEVICE_UNLOCK -> SecurityHelper.isDeviceUnlockAvailable(ctx)
-                            else -> true
-                        }
-                        val unavailableText = when (method) {
-                            LockMethod.DEVICE_UNLOCK -> if (!isAvailable) stringResource(R.string.device_credentials_not_available) else null
-                            else -> null
-                        }
-                        SettingsItem(
-                            title = methodLabels[index],
-                            description = unavailableText,
-                            enabled = isAvailable,
-                            backgroundColor = if (method == currentLockMethod)
-                                MaterialTheme.colorScheme.primaryContainer
-                            else
-                                MaterialTheme.colorScheme.surface
-                        ) {
-                            when (method) {
-                                LockMethod.PIN -> {
-                                    pendingLockMethod = LockMethod.PIN
-                                    showLockMethodPicker = false
-                                    showPinSetupDialog = true
-                                }
-                                LockMethod.NONE -> {
-                                    if (currentLockMethod == LockMethod.PIN) {
-                                        // Remove PIN
-                                        scope.launch {
-                                            PrivateSettingsStore.lockPinHash.set(ctx, "")
-                                            BehaviorSettingsStore.lockMethod.set(ctx, LockMethod.NONE)
-                                            ctx.showToast(ctx.getString(R.string.pin_removed))
-                                        }
-                                    } else {
-                                        scope.launch {
-                                            BehaviorSettingsStore.lockMethod.set(ctx, LockMethod.NONE)
-                                        }
-                                    }
-                                    showLockMethodPicker = false
-                                }
-                                LockMethod.DEVICE_UNLOCK -> {
-                                    // Test biometric authentication immediately
-                                    val activity = ctx.findFragmentActivity()
-                                    ctx.logD("AdvSettings", "DEVICE_UNLOCK selected: activity=$activity, isAvailable=${SecurityHelper.isDeviceUnlockAvailable(ctx)}")
-                                    if (activity != null && SecurityHelper.isDeviceUnlockAvailable(ctx)) {
-                                        SecurityHelper.showDeviceUnlockPrompt(
-                                            activity = activity,
-                                            onSuccess = {
-                                                scope.launch {
-                                                    BehaviorSettingsStore.lockMethod.set(ctx, method)
-                                                }
-                                                showLockMethodPicker = false
-                                            },
-                                            onError = { msg ->
-                                                ctx.showToast(ctx.getString(R.string.authentication_error, msg))
-                                            },
-                                            onFailed = {
-                                                ctx.showToast(ctx.getString(R.string.authentication_failed))
-                                            }
-                                        )
-                                    } else {
-                                        ctx.showToast(ctx.getString(R.string.device_credentials_not_available))
-                                    }
-                                }
-                            }
-                        }
-                    }
-                }
-            },
-            confirmButton = {}
-        )
-    }
-
-    // ── PIN setup dialog ──
-    if (showPinSetupDialog) {
-        PinSetupDialog(
-            onDismiss = {
-                showPinSetupDialog = false
-                pendingLockMethod = null
-            },
-            onPinSet = { pin ->
-                scope.launch {
-                    val hash = SecurityHelper.hashPin(pin)
-                    PrivateSettingsStore.lockPinHash.set(ctx, hash)
-                    BehaviorSettingsStore.lockMethod.set(ctx, LockMethod.PIN)
-                    ctx.showToast(ctx.getString(R.string.pin_set_success))
-                }
-                showPinSetupDialog = false
-                pendingLockMethod = null
-            }
-        )
-    }
 
     SettingsLazyHeader(
         title = stringResource(R.string.settings),
@@ -266,7 +152,7 @@ fun AdvancedSettingsScreen(
                 PrivateSettingsStore.resetAll(ctx)
 
                 /* Kill App to also reset viewModels and caches */
-                kill(9,9)
+                kill(9, 9)
             }
         },
     ) {
@@ -303,9 +189,9 @@ fun AdvancedSettingsScreen(
         }
 
         item {
-           SettingsItem(
-               title = stringResource(R.string.backup_restore),
-               icon = Icons.Default.Restore
+            SettingsItem(
+                title = stringResource(R.string.backup_restore),
+                icon = Icons.Default.Restore
             ) {
                 navController.navigate(SETTINGS.BACKUP)
             }
@@ -352,10 +238,6 @@ fun AdvancedSettingsScreen(
             }
         }
 
-
-        // ── Lock Settings ──
-        item { TextDivider(stringResource(R.string.lock_settings)) }
-
         item {
             val lockDescription = when (currentLockMethod) {
                 LockMethod.NONE -> stringResource(R.string.lock_none)
@@ -373,21 +255,38 @@ fun AdvancedSettingsScreen(
 
         if (currentLockMethod == LockMethod.PIN) {
             item {
-                SettingsItem(
-                    title = stringResource(R.string.change_pin),
-                    icon = Icons.Default.Fingerprint
+                Row(
+                    modifier = Modifier
+                        .height(IntrinsicSize.Max)
+                        .animateItem(),
+                    verticalAlignment = Alignment.CenterVertically,
+                    horizontalArrangement = Arrangement.spacedBy(5.dp)
                 ) {
-                    showPinSetupDialog = true
+                    SettingsItem(
+                        title = stringResource(R.string.change_pin),
+                        icon = Icons.Default.Fingerprint,
+                        modifier = Modifier.weight(1f)
+                    ) {
+                        showPinSetupDialog = true
+                    }
+
+                    SettingsItem(
+                        title = stringResource(R.string.remove_pin),
+                        icon = Icons.Default.Close,
+                        modifier = Modifier.weight(1f)
+                    ) {
+                        showRemovePinConfirm = true
+                    }
                 }
             }
         }
 
-
-        item {
-            if (isDebugModeEnabled) {
+        if (isDebugModeEnabled) {
+            item {
                 SettingsItem(
                     title = stringResource(R.string.debug),
-                    icon = Icons.Default.BugReport
+                    icon = Icons.Default.BugReport,
+                    modifier = Modifier.animateItem()
                 ) {
                     navController.navigate(SETTINGS.DEBUG)
                 }
@@ -409,7 +308,7 @@ fun AdvancedSettingsScreen(
                     modifier = Modifier
                         .weight(1f)
                         .clip(DragonShape)
-                        .clickable {ctx.openUrl("https://github.com/Elnix90/Dragon-Launcher") },
+                        .clickable { ctx.openUrl("https://github.com/Elnix90/Dragon-Launcher") },
                     horizontalArrangement = Arrangement.Center
                 ) {
 
@@ -443,7 +342,7 @@ fun AdvancedSettingsScreen(
                     modifier = Modifier
                         .weight(1f)
                         .clip(DragonShape)
-                        .clickable {ctx.openUrl(discordInviteLink) },
+                        .clickable { ctx.openUrl(discordInviteLink) },
                     horizontalArrangement = Arrangement.Center
                 ) {
                     Image(
@@ -469,13 +368,12 @@ fun AdvancedSettingsScreen(
                 title = stringResource(R.string.source_code),
                 icon = Icons.Default.Code,
                 leadIcon = Icons.AutoMirrored.Filled.Launch,
-                onLongClick = { ctx.copyToClipboard("https://github.com/Elnix90/Dragon-Launcher")}
+                onLongClick = { ctx.copyToClipboard("https://github.com/Elnix90/Dragon-Launcher") }
             ) { ctx.openUrl("https://github.com/Elnix90/Dragon-Launcher") }
         }
 
         item {
-
-            if (isObtainiumInstalled){
+            if (isObtainiumInstalled) {
                 SettingItemWithExternalOpen(
                     title = stringResource(R.string.check_for_update),
                     description = stringResource(R.string.check_for_updates_obtainium),
@@ -497,7 +395,7 @@ fun AdvancedSettingsScreen(
                     leadIcon = Icons.AutoMirrored.Filled.Launch,
                     onLongClick = { ctx.copyToClipboard("https://github.com/Elnix90/Dragon-Launcher/releases/latest") }
                 ) {
-                     ctx.openUrl("https://github.com/Elnix90/Dragon-Launcher/releases/latest")
+                    ctx.openUrl("https://github.com/Elnix90/Dragon-Launcher/releases/latest")
                 }
             }
         }
@@ -505,10 +403,10 @@ fun AdvancedSettingsScreen(
         item {
             SettingsItem(
                 title = stringResource(R.string.report_a_bug),
-                description =stringResource(R.string.open_an_issue_on_github),
+                description = stringResource(R.string.open_an_issue_on_github),
                 icon = Icons.Default.ReportProblem,
                 leadIcon = Icons.AutoMirrored.Filled.Launch,
-                onLongClick = { ctx.copyToClipboard("https://github.com/Elnix90/Dragon-Launcher/issues/new")}
+                onLongClick = { ctx.copyToClipboard("https://github.com/Elnix90/Dragon-Launcher/issues/new") }
             ) { ctx.openUrl("https://github.com/Elnix90/Dragon-Launcher/issues/new") }
         }
 
@@ -641,8 +539,167 @@ fun AdvancedSettingsScreen(
             )
         }
     }
-}
 
+    // ── PIN setup dialog ──
+    if (showPinSetupDialog) {
+        PinSetupDialog(
+            onDismiss = {
+                showPinSetupDialog = false
+                pendingLockMethod = null
+            },
+            onPinSet = { pin ->
+                scope.launch {
+                    val hash = SecurityHelper.hashPin(pin)
+                    PrivateSettingsStore.lockPinHash.set(ctx, hash)
+                    PrivateSettingsStore.lockMethod.set(ctx, LockMethod.PIN)
+                    ctx.showToast(ctx.getString(R.string.pin_set_success))
+                }
+                showPinSetupDialog = false
+                pendingLockMethod = null
+            }
+        )
+    }
+
+    if (showRemovePinConfirm) {
+        PinUnlockDialog(
+            onDismiss = { showRemovePinConfirm = false },
+            onPinEntered = { enteredPin ->
+                if (SecurityHelper.verifyPin(enteredPin, pinHash)) {
+                    scope.launch {
+                        PrivateSettingsStore.lockMethod.reset(ctx)
+                    }
+                } else {
+                    ctx.showToast(ctx.getString(R.string.wrong_pin))
+                }
+                showRemovePinConfirm = false
+            }
+        )
+    }
+
+
+    // ── Lock method picker dialog ──
+    if (showLockMethodPicker) {
+        val methods = LockMethod.entries
+        val methodLabels = methods.map { method ->
+            when (method) {
+                LockMethod.NONE -> stringResource(R.string.lock_none)
+                LockMethod.PIN -> stringResource(R.string.lock_pin)
+                LockMethod.DEVICE_UNLOCK -> stringResource(R.string.lock_device_unlock)
+            }
+        }
+
+        CustomAlertDialog(
+            onDismissRequest = { showLockMethodPicker = false },
+            title = {
+                Text(
+                    stringResource(R.string.lock_method),
+                    style = MaterialTheme.typography.titleLarge
+                )
+            },
+            text = {
+                Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
+                    Text(
+                        text = stringResource(R.string.lock_settings_description),
+                        style = MaterialTheme.typography.bodyMedium,
+                        color = MaterialTheme.colorScheme.onSurface.copy(0.7f)
+                    )
+                    Spacer(Modifier.height(8.dp))
+                    methods.forEachIndexed { index, method ->
+                        val isAvailable = when (method) {
+                            LockMethod.DEVICE_UNLOCK -> SecurityHelper.isDeviceUnlockAvailable(ctx)
+                            else -> true
+                        }
+                        val unavailableText = when (method) {
+                            LockMethod.DEVICE_UNLOCK -> if (!isAvailable) stringResource(R.string.device_credentials_not_available) else null
+                            else -> null
+                        }
+                        SettingsItem(
+                            title = methodLabels[index],
+                            description = unavailableText,
+                            enabled = isAvailable,
+                            backgroundColor = if (method == currentLockMethod)
+                                MaterialTheme.colorScheme.primaryContainer
+                            else
+                                MaterialTheme.colorScheme.surface
+                        ) {
+                            when (method) {
+                                LockMethod.PIN -> {
+                                    pendingLockMethod = LockMethod.PIN
+                                    showLockMethodPicker = false
+                                    showPinSetupDialog = true
+                                }
+
+                                LockMethod.NONE -> {
+                                    if (currentLockMethod == LockMethod.PIN) {
+                                        // Remove PIN
+                                        scope.launch {
+                                            PrivateSettingsStore.lockPinHash.set(ctx, "")
+                                            PrivateSettingsStore.lockMethod.set(
+                                                ctx,
+                                                LockMethod.NONE
+                                            )
+                                            ctx.showToast(ctx.getString(R.string.pin_removed))
+                                        }
+                                    } else {
+                                        scope.launch {
+                                            PrivateSettingsStore.lockMethod.set(
+                                                ctx,
+                                                LockMethod.NONE
+                                            )
+                                        }
+                                    }
+                                    showLockMethodPicker = false
+                                }
+
+                                LockMethod.DEVICE_UNLOCK -> {
+                                    // Test biometric authentication immediately
+                                    val activity = ctx.findFragmentActivity()
+                                    ctx.logD(
+                                        "AdvSettings",
+                                        "DEVICE_UNLOCK selected: activity=$activity, isAvailable=${
+                                            SecurityHelper.isDeviceUnlockAvailable(ctx)
+                                        }"
+                                    )
+                                    if (activity != null && SecurityHelper.isDeviceUnlockAvailable(
+                                            ctx
+                                        )
+                                    ) {
+                                        SecurityHelper.showDeviceUnlockPrompt(
+                                            activity = activity,
+                                            onSuccess = {
+                                                scope.launch {
+                                                    PrivateSettingsStore.lockMethod.set(
+                                                        ctx,
+                                                        method
+                                                    )
+                                                }
+                                                showLockMethodPicker = false
+                                            },
+                                            onError = { msg ->
+                                                ctx.showToast(
+                                                    ctx.getString(
+                                                        R.string.authentication_error,
+                                                        msg
+                                                    )
+                                                )
+                                            },
+                                            onFailed = {
+                                                ctx.showToast(ctx.getString(R.string.authentication_failed))
+                                            }
+                                        )
+                                    } else {
+                                        ctx.showToast(ctx.getString(R.string.device_credentials_not_available))
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            },
+            confirmButton = {}
+        )
+    }
+}
 
 
 @RequiresApi(Build.VERSION_CODES.TIRAMISU)

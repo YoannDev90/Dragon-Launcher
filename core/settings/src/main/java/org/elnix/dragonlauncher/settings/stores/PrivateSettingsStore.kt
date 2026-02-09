@@ -1,5 +1,6 @@
 package org.elnix.dragonlauncher.settings.stores
 
+import org.elnix.dragonlauncher.enumsui.LockMethod
 import org.elnix.dragonlauncher.settings.DataStoreName
 import org.elnix.dragonlauncher.settings.Settings
 import org.elnix.dragonlauncher.settings.bases.BaseSettingObject
@@ -48,12 +49,20 @@ object PrivateSettingsStore : MapSettingsStore() {
         default = ""
     )
 
+    val lockMethod = Settings.enum(
+        key = "lockMethod",
+        dataStoreName = BehaviorSettingsStore.dataStoreName,
+        default = LockMethod.NONE,
+        enumClass = LockMethod::class.java
+    )
+
     override val ALL: List<BaseSettingObject<*,*>> = listOf(
         hasSeenWelcome,
         hasInitialized,
         showSetDefaultLauncherBanner,
         showMethodAsking,
         lastSeenVersionCode,
-        lockPinHash
+        lockPinHash,
+        lockMethod
     )
 }

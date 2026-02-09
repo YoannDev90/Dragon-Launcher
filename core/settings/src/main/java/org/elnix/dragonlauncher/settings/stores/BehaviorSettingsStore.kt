@@ -1,7 +1,6 @@
 package org.elnix.dragonlauncher.settings.stores
 
 import org.elnix.dragonlauncher.common.serializables.SwipeActionSerializable
-import org.elnix.dragonlauncher.enumsui.LockMethod
 import org.elnix.dragonlauncher.settings.DataStoreName
 import org.elnix.dragonlauncher.settings.Settings
 import org.elnix.dragonlauncher.settings.bases.BaseSettingObject
@@ -22,8 +21,7 @@ object BehaviorSettingsStore : MapSettingsStore() {
             leftPadding,
             rightPadding,
             topPadding,
-            bottomPadding,
-            lockMethod
+            bottomPadding
         )
 
     val backAction = Settings.swipeAction(
@@ -76,12 +74,5 @@ object BehaviorSettingsStore : MapSettingsStore() {
         dataStoreName = BackupSettingsStore.dataStoreName,
         default = 100,
         allowedRange = 0..300
-    )
-
-    val lockMethod = Settings.enum(
-        key = "lockMethod",
-        dataStoreName = dataStoreName,
-        default = LockMethod.NONE,
-        enumClass = LockMethod::class.java
     )
 }

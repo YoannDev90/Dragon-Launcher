@@ -1,5 +1,8 @@
+@file:Suppress("AssignedValueIsNeverRead")
+
 package org.elnix.dragonlauncher.ui.settings
 
+import android.annotation.SuppressLint
 import androidx.compose.animation.EnterTransition
 import androidx.compose.animation.ExitTransition
 import androidx.compose.foundation.layout.WindowInsets
@@ -12,7 +15,6 @@ import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -23,7 +25,6 @@ import androidx.navigation.compose.composable
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navArgument
-import kotlinx.coroutines.launch
 import org.elnix.dragonlauncher.common.FloatingAppObject
 import org.elnix.dragonlauncher.common.R
 import org.elnix.dragonlauncher.common.logging.logE
@@ -43,6 +44,7 @@ import org.elnix.dragonlauncher.settings.stores.PrivateSettingsStore
 import org.elnix.dragonlauncher.settings.stores.SwipeSettingsStore
 import org.elnix.dragonlauncher.ui.AdvancedSettingsScreen
 import org.elnix.dragonlauncher.ui.SettingsScreen
+import org.elnix.dragonlauncher.ui.components.settings.asState
 import org.elnix.dragonlauncher.ui.dialogs.PinUnlockDialog
 import org.elnix.dragonlauncher.ui.helpers.SecurityHelper
 import org.elnix.dragonlauncher.ui.helpers.findFragmentActivity
@@ -50,7 +52,6 @@ import org.elnix.dragonlauncher.ui.helpers.noAnimComposable
 import org.elnix.dragonlauncher.ui.settings.backup.BackupTab
 import org.elnix.dragonlauncher.ui.settings.customization.AppearanceTab
 import org.elnix.dragonlauncher.ui.settings.customization.BehaviorTab
-import org.elnix.dragonlauncher.ui.settings.customization.colors.ColorSelectorTab
 import org.elnix.dragonlauncher.ui.settings.customization.DrawerTab
 import org.elnix.dragonlauncher.ui.settings.customization.FloatingAppsTab
 import org.elnix.dragonlauncher.ui.settings.customization.IconPackTab
@@ -58,6 +59,7 @@ import org.elnix.dragonlauncher.ui.settings.customization.NestEditingScreen
 import org.elnix.dragonlauncher.ui.settings.customization.StatusBarTab
 import org.elnix.dragonlauncher.ui.settings.customization.ThemesTab
 import org.elnix.dragonlauncher.ui.settings.customization.WallpaperTab
+import org.elnix.dragonlauncher.ui.settings.customization.colors.ColorSelectorTab
 import org.elnix.dragonlauncher.ui.settings.debug.DebugTab
 import org.elnix.dragonlauncher.ui.settings.debug.LogsTab
 import org.elnix.dragonlauncher.ui.settings.debug.SettingsDebugTab
@@ -67,6 +69,7 @@ import org.elnix.dragonlauncher.ui.settings.workspace.WorkspaceDetailScreen
 import org.elnix.dragonlauncher.ui.settings.workspace.WorkspaceListScreen
 import org.elnix.dragonlauncher.ui.whatsnew.ChangelogsScreen
 
+@SuppressLint("LocalContextGetResourceValueCall")
 @Composable
 fun SettingsNavHost(
     appsViewModel: AppsViewModel,
@@ -86,14 +89,11 @@ fun SettingsNavHost(
     onRemoveFloatingApp: (FloatingAppObject) -> Unit
 ) {
     val ctx = LocalContext.current
-    val scope = rememberCoroutineScope()
 
 
     // ── Lock gate state ──
-    val lockMethod by BehaviorSettingsStore.lockMethod.flow(ctx)
-        .collectAsState(initial = LockMethod.NONE)
-    val pinHash by PrivateSettingsStore.lockPinHash.flow(ctx)
-        .collectAsState(initial = "")
+    val lockMethod by PrivateSettingsStore.lockMethod.asState()
+    val pinHash by PrivateSettingsStore.lockPinHash.asState()
 
     /** Once unlocked during this session, stay unlocked */
     var isUnlocked by remember { mutableStateOf(false) }
@@ -110,14 +110,9 @@ fun SettingsNavHost(
 
 
 
-    val showAppIconsInDrawer by DrawerSettingsStore.showAppIconsInDrawer.flow(ctx)
-        .collectAsState(initial = true)
-
-    val showAppLabelsInDrawer by DrawerSettingsStore.showAppLabelInDrawer.flow(ctx)
-        .collectAsState(initial = true)
-
-    val gridSize by DrawerSettingsStore.gridSize.flow(ctx)
-        .collectAsState(initial = 1)
+    val showAppIconsInDrawer by DrawerSettingsStore.showAppIconsInDrawer.asState()
+    val showAppLabelsInDrawer by DrawerSettingsStore.showAppLabelInDrawer.asState()
+    val gridSize by DrawerSettingsStore.gridSize.asState()
 
     val nests by SwipeSettingsStore.getNestsFlow(ctx).collectAsState(initial = emptyList())
     val points by SwipeSettingsStore.getPointsFlow(ctx).collectAsState(emptyList())
@@ -133,6 +128,7 @@ fun SettingsNavHost(
 
     fun navigateToAdvSettings() = navController.navigate(SETTINGS.ADVANCED_ROOT)
 
+    @SuppressLint("LocalContextGetResourceValueCall")
     fun goAdvSettingsRoot() {
         if (isUnlocked || lockMethod == LockMethod.NONE) {
             navigateToAdvSettings()
@@ -167,7 +163,7 @@ fun SettingsNavHost(
     }
     fun goAppearance() = navController.navigate(SETTINGS.APPEARANCE)
     fun goDebug() = navController.navigate(SETTINGS.DEBUG)
-    fun goWellbeing() = navController.navigate(SETTINGS.WELLBEING)
+//    fun goWellbeing() = navController.navigate(SETTINGS.WELLBEING)
     fun goNestEdit(nest: Int) {
         pendingNestToEdit = nest
         navController.navigate(SETTINGS.NESTS_EDIT)
