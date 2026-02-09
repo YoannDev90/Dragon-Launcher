@@ -63,8 +63,14 @@ object MySettingsStore : MapSettingsStore() {
 
 **Usage in Compose**:
 ```kotlin
-val myValue by MySettingsStore.myBoolSetting.flow(ctx).collectAsState(initial = false)
+val myValue by MySettingsStore.myBoolSetting.asState()
+val myValue by MySettingsStore.myBoolSetting.asStateNull() // Starts with null value
+
+// Old model, mays still use for specific cases:
+val myValue by MySettingsStore.myBoolSetting.flow(ctx).collectAsState(defaultValue)
+val myValue by MySettingsStore.myBoolSetting.get(ctx)
 scope.launch { MySettingsStore.myBoolSetting.set(ctx, newValue) }
+
 ```
 
 **Backup Integration**: Settings stores are automatically backed up via `SettingsBackupManager`. Add new stores to `DataStoreName` enum and `SettingsStoreRegistry`.
@@ -107,7 +113,7 @@ scope.launch { MySettingsStore.myBoolSetting.set(ctx, newValue) }
 ### Building
 ```bash
 ./gradlew assembleStableRelease      # Production APK
-./gradlew assembleStableDebug        # Debug build
+./gradlew assembleBetaRelease        # Debug build
 ```
 
 ### Dependencies
@@ -129,15 +135,16 @@ KEY_PASSWORD=***
 ## Code Style (from [CONTRIBUTING.MD](CONTRIBUTING.MD))
 
 **Naming**:
-- `camelCase` for variables/functions
+- `camelCase` for variables/functions/settings keys
 - `snake_case` for resources (strings, drawables)
-- `SCREAMING_SNAKE_CASE` for settings keys
+- `SCREAMING_SNAKE_CASE` for constants
 
 **Formatting**:
 - Always spaces in brackets: `if (cond) { ... }`
 - Else on same line as closing brace: `} else {`
 - Use `─` character in comment separators: `/* ─────────── Section ─────────── */`
-- Add docstrings and comments liberally
+- Always add docstrings 
+- Comment when needed to help readability
 
 **Example**:
 ```kotlin
@@ -161,14 +168,14 @@ ctx.logI(TAG, "Info message")
 ctx.logE(TAG, "Error message", exception)
 ```
 
+Tags are stored in [Constants.kt](core/common/src/main/java/org/elnix/dragonlauncher/common/utils/Constants.kt)
+
 ### Launch Actions
 All gesture/swipe actions go through `launchSwipeAction()` ([core/ui/src/main/java/org/elnix/dragonlauncher/ui/actions/launchSwipeAction.kt](core/ui/src/main/java/org/elnix/dragonlauncher/ui/actions/launchSwipeAction.kt)):
 - Launches apps, shortcuts, URLs
 - Opens system dialogs (notifications, recents)
 - Triggers internal navigation (drawer, settings)
 
-### Compose Navigation
-Uses `noAnimComposable()` helper for instant transitions (no animation on launcher screens for speed).
 
 ## Privacy & Permissions
 
@@ -187,6 +194,8 @@ Uses `noAnimComposable()` helper for instant transitions (no animation on launch
 2. Use `Settings.boolean()`, `Settings.int()`, `Settings.color()`, etc.
 3. Add to store's `ALL` list
 4. Use `.flow(ctx)` in Compose, `.set(ctx, value)` to update
+5. Prefer now the dedicated Settings objects to mutate value dynamically in settings: [SettingsSliderInt.kt](core/ui/src/main/java/org/elnix/dragonlauncher/ui/components/settings/SettingsSliderInt.kt)
+
 
 ### Adding a New Swipe Action
 1. Add enum case to `SwipeActionSerializable` in `core/common/`
