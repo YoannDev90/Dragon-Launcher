@@ -162,7 +162,7 @@ fun MainScreen(
                         reminderMode = reminderMode
                     )
                 }
-                launchAppDirectly(ctx, pendingPackageToLaunch!!)
+                launchAppDirectly(appsViewModel, ctx, pendingPackageToLaunch!!)
             } catch (e: Exception) {
                 ctx.logE(TAG, "Failed to launch after pause: ${e.message}")
             }
@@ -184,7 +184,7 @@ fun MainScreen(
                     timeLimitEnabled = true,
                     timeLimitMinutes = timeLimitMin
                 )
-                launchAppDirectly(ctx, pendingPackageToLaunch!!)
+                launchAppDirectly(appsViewModel, ctx, pendingPackageToLaunch!!)
             } catch (e: Exception) {
                 ctx.logE(TAG, "Failed to launch after pause with timer: ${e.message}")
             }
@@ -313,6 +313,7 @@ fun MainScreen(
         try {
             launchSwipeAction(
                 ctx = ctx,
+                appsViewModel = appsViewModel,
                 action = action,
                 useAccessibilityInsteadOfContextToExpandActionPanel = useAccessibilityInsteadOfContextToExpandActionPanel,
                 pausedApps = pausedApps,
@@ -329,8 +330,8 @@ fun MainScreen(
                 onReselectFile = { showFilePicker = point },
                 onAppSettings = onLongPress3Sec,
                 onAppDrawer = onAppDrawer,
-                onOpenNestCircle = { nestNavigation.goToNest(it) },
-                onParentNest = { nestNavigation.goBack() }
+                onParentNest = { nestNavigation.goBack() },
+                onOpenNestCircle = { nestNavigation.goToNest(it) }
             )
         } catch (e: AppLaunchException) {
             ctx.logE(TAG, e.message!!) // Lol if it crashes when logging for an exception

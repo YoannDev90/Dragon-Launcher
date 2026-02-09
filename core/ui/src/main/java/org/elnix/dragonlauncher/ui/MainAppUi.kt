@@ -46,7 +46,6 @@ import org.elnix.dragonlauncher.common.utils.hasUriReadWritePermission
 import org.elnix.dragonlauncher.common.utils.isDefaultLauncher
 import org.elnix.dragonlauncher.common.utils.loadChangelogs
 import org.elnix.dragonlauncher.common.utils.transparentScreens
-import org.elnix.dragonlauncher.enumsui.DrawerActions
 import org.elnix.dragonlauncher.models.AppLifecycleViewModel
 import org.elnix.dragonlauncher.models.AppsViewModel
 import org.elnix.dragonlauncher.models.BackupViewModel
@@ -55,6 +54,8 @@ import org.elnix.dragonlauncher.settings.stores.BackupSettingsStore
 import org.elnix.dragonlauncher.settings.stores.DebugSettingsStore
 import org.elnix.dragonlauncher.settings.stores.DrawerSettingsStore
 import org.elnix.dragonlauncher.settings.stores.PrivateSettingsStore
+import org.elnix.dragonlauncher.ui.components.settings.asState
+import org.elnix.dragonlauncher.ui.components.settings.asStateNull
 import org.elnix.dragonlauncher.ui.dialogs.UserValidation
 import org.elnix.dragonlauncher.ui.dialogs.WidgetPickerDialog
 import org.elnix.dragonlauncher.ui.drawer.AppDrawerScreen
@@ -86,8 +87,7 @@ fun MainAppUi(
     val result by backupViewModel.result.collectAsState()
 
     // Changelogs system
-    val lastSeenVersionCode by PrivateSettingsStore.lastSeenVersionCode.flow(ctx)
-        .collectAsState(initial = Int.MAX_VALUE)
+    val lastSeenVersionCode by PrivateSettingsStore.lastSeenVersionCode.asState()
 
     val currentVersionCode = getVersionCode(ctx)
     var showWhatsNewBottomSheet by remember { mutableStateOf(false) }
@@ -98,17 +98,10 @@ fun MainAppUi(
         value = loadChangelogs(ctx, versionCode)
     }
 
-    val showAppIconsInDrawer by DrawerSettingsStore.showAppIconsInDrawer.flow(ctx)
-        .collectAsState(initial = true)
-
-    val showAppLabelsInDrawer by DrawerSettingsStore.showAppLabelInDrawer.flow(ctx)
-        .collectAsState(initial = true)
-
-    val autoShowKeyboardOnDrawer by DrawerSettingsStore.autoShowKeyboardOnDrawer.flow(ctx)
-        .collectAsState(initial = false)
-
-    val gridSize by DrawerSettingsStore.gridSize.flow(ctx)
-        .collectAsState(initial = 1)
+    val showAppIconsInDrawer by DrawerSettingsStore.showAppIconsInDrawer.asState()
+    val showAppLabelsInDrawer by DrawerSettingsStore.showAppLabelInDrawer.asState()
+    val autoShowKeyboardOnDrawer by DrawerSettingsStore.autoShowKeyboardOnDrawer.asState()
+    val gridSize by DrawerSettingsStore.gridSize.asState()
 
 //    val searchBarBottom by DrawerSettingsStore.getSearchBarBottom(ctx)
 //        .collectAsState(initial = true)
@@ -116,23 +109,15 @@ fun MainAppUi(
 
 
 
-    val leftDrawerAction by DrawerSettingsStore.leftDrawerAction.flow(ctx)
-        .collectAsState(initial = DrawerActions.TOGGLE_KB)
+    val leftDrawerAction by DrawerSettingsStore.leftDrawerAction.asState()
+    val rightDrawerAction by DrawerSettingsStore.rightDrawerAction.asState()
 
-    val rightDrawerAction by DrawerSettingsStore.rightDrawerAction.flow(ctx)
-        .collectAsState(initial = DrawerActions.CLOSE)
+    val leftDrawerWidth by DrawerSettingsStore.leftDrawerWidth.asState()
+    val rightDrawerWidth  by DrawerSettingsStore.rightDrawerWidth.asState()
 
-    val leftDrawerWidth by DrawerSettingsStore.leftDrawerWidth.flow(ctx)
-        .collectAsState(initial = 0.1f)
-    val rightDrawerWidth  by DrawerSettingsStore.rightDrawerWidth.flow(ctx)
-        .collectAsState(initial = 0.1f)
+    val forceAppWidgetsSelector by DebugSettingsStore.forceAppWidgetsSelector.asState()
 
-    val forceAppWidgetsSelector by DebugSettingsStore.forceAppWidgetsSelector.flow(ctx)
-        .collectAsState(initial = false)
-
-
-    val showSetDefaultLauncherBanner by PrivateSettingsStore.showSetDefaultLauncherBanner.flow(ctx)
-        .collectAsState(initial = false)
+    val showSetDefaultLauncherBanner by PrivateSettingsStore.showSetDefaultLauncherBanner.asState()
 
 
     val lifecycleOwner = LocalLifecycleOwner.current
@@ -142,8 +127,8 @@ fun MainAppUi(
     val currentRoute = navBackStackEntry?.destination?.route
 
 
-    val autoBackupEnabled by BackupSettingsStore.autoBackupEnabled.flow(ctx).collectAsState(initial = false)
-    val autoBackupUriString by BackupSettingsStore.autoBackupUri.flow(ctx).collectAsState(initial = null)
+    val autoBackupEnabled by BackupSettingsStore.autoBackupEnabled.asState()
+    val autoBackupUriString by BackupSettingsStore.autoBackupUri.asStateNull()
     val autoBackupUri = autoBackupUriString?.toUri()
 
 

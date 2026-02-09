@@ -383,8 +383,9 @@ fun AdvancedSettingsScreen(
                     onExtClick = { ctx.openUrl("https://github.com/Elnix90/Dragon-Launcher/releases/latest") }
                 ) {
                     launchSwipeAction(
-                        ctx,
-                        SwipeActionSerializable.LaunchApp(obtainiumPackageName)
+                        ctx = ctx,
+                        appsViewModel = appViewModel,
+                        action = SwipeActionSerializable.LaunchApp(obtainiumPackageName)
                     )
                 }
             } else {

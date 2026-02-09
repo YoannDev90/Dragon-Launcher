@@ -174,6 +174,12 @@ object DrawerSettingsStore : MapSettingsStore() {
         allowedRange = 2..5
     )
 
+    val showCategoryName = Settings.boolean(
+        key = "showCategoryName",
+        dataStoreName = dataStoreName,
+        default = true
+    )
+
     /* ───────────── Recently Used Apps ───────────── */
 
     val showRecentlyUsedApps = Settings.boolean(
@@ -222,6 +228,9 @@ object DrawerSettingsStore : MapSettingsStore() {
             useCategory,
             showRecentlyUsedApps,
             recentlyUsedAppsCount,
-            recentlyUsedPackages
+            recentlyUsedPackages,
+            categoryGridWidth,
+            categoryGridCells,
+            showCategoryName
         )
 }

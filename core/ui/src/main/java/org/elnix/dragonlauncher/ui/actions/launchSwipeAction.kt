@@ -13,6 +13,7 @@ import org.elnix.dragonlauncher.common.utils.expandQuickActionsDrawer
 import org.elnix.dragonlauncher.common.utils.hasUriReadPermission
 import org.elnix.dragonlauncher.common.utils.launchShortcut
 import org.elnix.dragonlauncher.common.utils.showToast
+import org.elnix.dragonlauncher.models.AppsViewModel
 import org.elnix.dragonlauncher.services.SystemControl
 import org.elnix.dragonlauncher.ui.wellbeing.DigitalPauseActivity
 
@@ -25,6 +26,7 @@ class AppLaunchException(message: String, cause: Throwable? = null) : Exception(
 
 fun launchSwipeAction(
     ctx: Context,
+    appsViewModel: AppsViewModel,
     action: SwipeActionSerializable?,
     useAccessibilityInsteadOfContextToExpandActionPanel: Boolean = true,
     pausedApps: Set<String> = emptySet(),
@@ -65,7 +67,7 @@ fun launchSwipeAction(
                 return
             }
 
-            launchAppDirectly(ctx, action.packageName)
+            launchAppDirectly(appsViewModel, ctx, action.packageName)
         }
 
 
@@ -161,12 +163,16 @@ fun launchSwipeAction(
 
 
 
-// TODO Hee it may be a big bug related to launching package: if an app is in both normal  and work, it may launch the first that it finds
+// TODO Here it may be a big bug related to launching package: if an app is in both normal  and work, it may launch the first that it finds
 /**
  * Launch an app directly without any pause check.
  * Used both by launchSwipeAction and after the digital pause screen.
  */
-fun launchAppDirectly(ctx: Context, packageName: String) {
+fun launchAppDirectly(
+    appsViewModel: AppsViewModel,
+    ctx: Context,
+    packageName: String
+) {
     val userManager = ctx.getSystemService(Context.USER_SERVICE) as UserManager
     val launcherApps = ctx.getSystemService(LauncherApps::class.java)
         ?: throw AppLaunchException("LauncherApps unavailable")
@@ -194,6 +200,9 @@ fun launchAppDirectly(ctx: Context, packageName: String) {
             null,
             null
         )
+
+        // Track recently used app
+        appsViewModel.addRecentlyUsedApp(packageName)
     } catch (e: SecurityException) {
         throw AppLaunchException("Security error launching $packageName", e)
     } catch (e: NullPointerException) {

@@ -88,6 +88,7 @@ data class AppOverride(
     val packageName: String,
     val customLabel: String? = null,
     val customIcon: CustomIconSerializable? = null,
+    val customCategory: String? = null
 )
 
 

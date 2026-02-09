@@ -400,7 +400,7 @@
     <string name="reminder_mode_overlay">On-screen popup</string>
     <string name="overlay_permission_required">Overlay Permission</string>
     <string name="overlay_permission_description">To display reminders over other apps, Dragon Launcher needs the "Display over other apps" permission.</string>
-    
+
     <!--  Popup Display Options  -->
     <string name="popup_display_title">Popup Content</string>
     <string name="popup_display_description">Choose what information to show in the reminder popup</string>
@@ -410,13 +410,13 @@
     <string name="popup_show_today_time_desc">Total time spent on this app today</string>
     <string name="popup_show_remaining_time">Show remaining time</string>
     <string name="popup_show_remaining_time_desc">Time left before auto-return (if enabled)</string>
-    
+
     <!--  Popup Display Labels  -->
     <string name="popup_session_label">Session</string>
     <string name="popup_today_label">Today</string>
     <string name="popup_remaining_label">Remaining</string>
     <string name="popup_no_limit">No limit</string>
-    
+
     <string name="reminder_notification_title">Still on %s</string>
     <string name="reminder_notification_text">You\'ve been using %1$s for %2$s. Maybe it\'s time for a break?</string>
     <string name="reminder_overlay_text">You\'ve been on %1$s for %2$s</string>
@@ -564,7 +564,7 @@
     <string name="apps_added_successfully">%d apps added successfully</string>
     <string name="multi_select_drawer_hint">💡 Long press an app to select multiple at once</string>
     <string name="deselect_all">Deselect all</string>
-    
+
     <!--  ─────────────  Shortcuts Settings  ─────────────  -->
     <string name="shortcuts_settings">Shortcuts</string>
     <string name="prompt_shortcuts_when_adding_app">Prompt for shortcuts when adding an app</string>
@@ -616,5 +616,7 @@
     <string name="show_recently_used_apps">Show recently used apps</string>
     <string name="show_recently_used_apps_desc">Display recently used apps at the top of the app drawer</string>
     <string name="recently_used_apps_count">Number of recent apps</string>
+    <string name="show_category_name">Show Category name</string>
+    <string name="show_category_name_desc">Display the name of the category below it</string>
 
 </resources>

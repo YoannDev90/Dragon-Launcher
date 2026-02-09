@@ -82,6 +82,7 @@ fun DrawerTab(
     var drawerNormalSettingsExpanded by remember { mutableStateOf(false) }
 
     val showRecentlyUsed by DrawerSettingsStore.showRecentlyUsedApps.asState()
+    val useCategory by DrawerSettingsStore.useCategory.asState()
 
     var totalWidthPx by remember { mutableFloatStateOf(0f) }
 
@@ -180,6 +181,13 @@ fun DrawerTab(
                     setting = DrawerSettingsStore.useCategory,
                     title = stringResource(R.string.use_categories),
                     description = stringResource(R.string.use_categories_desc)
+                )
+
+                SettingsSwitchRow(
+                    setting = DrawerSettingsStore.showCategoryName,
+                    title = stringResource(R.string.show_category_name),
+                    description = stringResource(R.string.show_category_name_desc),
+                    enabled = useCategory,
                 )
 
                 SettingsSlider(

@@ -31,7 +31,7 @@ import org.elnix.dragonlauncher.ui.components.settings.asState
 @Composable
 fun GridSizeSlider(
     apps: List<AppModel>,
-    icons: Map<String, ImageBitmap>
+    icons: Map<String, ImageBitmap>,
 ) {
     val ctx = LocalContext.current
     val scope = rememberCoroutineScope()
@@ -39,6 +39,7 @@ fun GridSizeSlider(
     val gridSize by DrawerSettingsStore.gridSize.flow(ctx).collectAsState(initial = 1)
     val showIcons by DrawerSettingsStore.showAppIconsInDrawer.asState()
     val showLabels by DrawerSettingsStore.showAppLabelInDrawer.asState()
+    val useCategory by DrawerSettingsStore.useCategory.asState()
 
     val iconsShape by DrawerSettingsStore.iconsShape.asState()
 
@@ -76,10 +77,11 @@ fun GridSizeSlider(
                 apps = apps.shuffled().take(if (tempGridSize == 1) 3 else tempGridSize * 2),
                 icons = icons,
                 iconShape = iconsShape,
-                txtColor = MaterialTheme.colorScheme.onBackground,
                 gridSize = tempGridSize,
+                txtColor = MaterialTheme.colorScheme.onBackground,
                 showIcons = showIcons,
-                showLabels = showLabels
+                showLabels = showLabels,
+                useCategory = useCategory
             ) { }
         }
     }

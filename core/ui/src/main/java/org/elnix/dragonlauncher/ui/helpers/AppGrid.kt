@@ -55,6 +55,8 @@ fun AppGrid(
     txtColor: Color,
     showIcons: Boolean,
     showLabels: Boolean,
+    useCategory: Boolean = false,
+    fillMaxSize: Boolean = true,
     onLongClick: ((AppModel) -> Unit)? = null,
     onScrollDown: (() -> Unit)? = null,
     onScrollUp: (() -> Unit)? = null,
@@ -63,11 +65,10 @@ fun AppGrid(
     val maxIconSize by DrawerSettingsStore.maxIconSize.asState()
     val iconsSpacingVertical by DrawerSettingsStore.iconsSpacingVertical.asState()
     val iconsSpacingHorizontal by DrawerSettingsStore.iconsSpacingHorizontal.asState()
-    val useCategory by DrawerSettingsStore.useCategory.asState()
 
     val categoryGridSize by DrawerSettingsStore.categoryGridWidth.asState()
     val categoryGridCells by DrawerSettingsStore.categoryGridCells.asState()
-
+    val showCategoryName by DrawerSettingsStore.showCategoryName.asState()
 
     var openedCategory by remember { mutableStateOf<AppCategory?>(null) }
 
@@ -111,12 +112,14 @@ fun AppGrid(
         openedCategory = null
     }
 
+
+    val modifier = if (fillMaxSize) Modifier.fillMaxSize() else Modifier
+
     when {
         useCategory && openedCategory == null -> {
             LazyVerticalGrid(
                 columns = GridCells.Fixed(categoryGridSize),
-                modifier = Modifier
-                    .fillMaxSize()
+                modifier = modifier
                     .then(
                         if (onScrollDown != null) Modifier.nestedScroll(nestedConnection)
                         else Modifier
@@ -140,9 +143,9 @@ fun AppGrid(
                                     maxIconSize = maxIconSize,
                                     txtColor = txtColor,
                                     showIcons = showIcons,
-                                    showLabels = showLabels,
                                     onLongClick = onLongClick,
                                     onClick = onClick,
+                                    showCategoryName = showCategoryName,
                                     gridCells = categoryGridCells,
                                 ) {
                                     openedCategory = category
@@ -157,8 +160,7 @@ fun AppGrid(
         gridSize == 1 -> {
             LazyColumn(
                 state = listState,
-                modifier = Modifier
-                    .fillMaxSize()
+                modifier = modifier
                     .then(
                         if (onScrollDown != null) Modifier.nestedScroll(nestedConnection)
                         else Modifier
@@ -185,8 +187,7 @@ fun AppGrid(
         else -> {
             LazyVerticalGrid(
                 columns = GridCells.Fixed(gridSize),
-                modifier = Modifier
-                    .fillMaxSize()
+                modifier = modifier
                     .then(
                         if (onScrollDown != null) Modifier.nestedScroll(nestedConnection)
                         else Modifier
@@ -223,9 +224,9 @@ private fun CategoryGrid(
     maxIconSize: Int,
     txtColor: Color,
     showIcons: Boolean,
-    showLabels: Boolean,
 
     gridCells: Int,
+    showCategoryName: Boolean,
     modifier: Modifier = Modifier,
     onLongClick: ((AppModel) -> Unit)? = null,
     onClick: (AppModel) -> Unit,
@@ -247,19 +248,19 @@ private fun CategoryGrid(
                 maxIconSize = maxIconSize,
                 txtColor = txtColor,
                 showIcons = showIcons,
-                showLabels = showLabels,
                 onLongClick = onLongClick,
                 onClick = onClick,
                 gridCells = gridCells,
-                onOpenCategory = onOpenCategory
             )
         }
 
-        Text(
-            text = category.name,
-            color = MaterialTheme.colorScheme.onBackground,
-            style = MaterialTheme.typography.labelSmall
-        )
+        if (showCategoryName) {
+            Text(
+                text = category.name,
+                color = MaterialTheme.colorScheme.onBackground,
+                style = MaterialTheme.typography.labelSmall
+            )
+        }
     }
 }
 
@@ -272,14 +273,11 @@ private fun AppDefinedGrid(
     maxIconSize: Int,
     txtColor: Color,
     showIcons: Boolean,
-    showLabels: Boolean,
 
     gridCells: Int,
     modifier: Modifier = Modifier,
-    depth: Int = 0,
     onLongClick: ((AppModel) -> Unit)? = null,
     onClick: (AppModel) -> Unit,
-    onOpenCategory: () -> Unit
 ) {
     var appIndex = 0
 
@@ -313,11 +311,7 @@ private fun AppDefinedGrid(
                                 onLongClick = onLongClick,
                                 onClick = onClick
                             )
-                        } else if (/*appIndex == 8 && depth < 2 &&*/ appNumber > maxAppNumber) {
-//
-//                            val miniApps = apps.takeLast(appNumber - appIndex)
-//                            logD(DRAWER_TAG, "miniApps = ${miniApps.map { it.name }}")
-//
+                        } else if (appNumber > maxAppNumber) {
                             Box(
                                 modifier = Modifier.fillMaxSize(),
                                 contentAlignment = Alignment.Center
@@ -328,19 +322,6 @@ private fun AppDefinedGrid(
                                     tint = MaterialTheme.colorScheme.onBackground,
                                 )
                             }
-//                            AppDefinedGrid(
-//                                apps = miniApps,
-//                                icons = icons,
-//                                iconShape = iconShape,
-//                                maxIconSize = maxIconSize,
-//                                txtColor = txtColor,
-//                                showIcons = showIcons,
-//                                showLabels = showLabels,
-//                                onClick = { onOpenCategory() },
-//                                gridCells = 3,
-//                                depth = depth + 1,
-//                                onOpenCategory = onOpenCategory
-//                            )
                         }
                     }
                     appIndex ++

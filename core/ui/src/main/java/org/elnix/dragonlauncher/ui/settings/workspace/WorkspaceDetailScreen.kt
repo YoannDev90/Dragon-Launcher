@@ -182,7 +182,11 @@ fun WorkspaceDetailScreen(
         AppLongPressDialog(
             app = app,
             onOpen = {
-                launchSwipeAction(ctx, app.action)
+                launchSwipeAction(
+                    ctx = ctx,
+                    appsViewModel = appsViewModel,
+                    action = app.action
+                )
             },
             onSettings = {
                 ctx.startActivity(
