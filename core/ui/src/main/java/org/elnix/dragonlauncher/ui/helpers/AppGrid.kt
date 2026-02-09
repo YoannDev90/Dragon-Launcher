@@ -318,12 +318,16 @@ private fun AppDefinedGrid(
 //                            val miniApps = apps.takeLast(appNumber - appIndex)
 //                            logD(DRAWER_TAG, "miniApps = ${miniApps.map { it.name }}")
 //
-                            Icon(
-                                imageVector = Icons.Default.MoreHoriz,
-                                contentDescription = "More",
-                                tint = MaterialTheme.colorScheme.onBackground,
-//                                modifier = Modifier.fillMaxSize()
-                            )
+                            Box(
+                                modifier = Modifier.fillMaxSize(),
+                                contentAlignment = Alignment.Center
+                            ){
+                                Icon(
+                                    imageVector = Icons.Default.MoreHoriz,
+                                    contentDescription = "More",
+                                    tint = MaterialTheme.colorScheme.onBackground,
+                                )
+                            }
 //                            AppDefinedGrid(
 //                                apps = miniApps,
 //                                icons = icons,
