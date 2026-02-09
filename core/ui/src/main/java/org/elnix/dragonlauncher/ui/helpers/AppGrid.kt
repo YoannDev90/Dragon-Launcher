@@ -13,6 +13,7 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.lazy.grid.items
+import androidx.compose.foundation.lazy.grid.rememberLazyGridState
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.material.icons.Icons
@@ -108,6 +109,35 @@ fun AppGrid(
             }
         }
     }
+
+    val gridState = rememberLazyGridState()
+    val nestedConnectionGrid = remember {
+        object : NestedScrollConnection {
+            override fun onPreScroll(
+                available: Offset,
+                source: NestedScrollSource
+            ): Offset {
+                if (
+                    gridState.firstVisibleItemIndex == 0 &&
+                    gridState.firstVisibleItemScrollOffset == 0
+                ) {
+
+                    /* Launches onScrollDown on any down drag */
+                    if (available.y > 15) {
+                        onScrollDown?.invoke()
+                    }
+
+                    /* Launches onScrollUp on any up drag */
+                    if (available.y < 15) {
+                        onScrollUp?.invoke()
+                    }
+                }
+                return Offset.Zero
+            }
+        }
+    }
+
+
     BackHandler(openedCategory != null) {
         openedCategory = null
     }
@@ -118,10 +148,11 @@ fun AppGrid(
     when {
         useCategory && openedCategory == null -> {
             LazyVerticalGrid(
+                state = gridState,
                 columns = GridCells.Fixed(categoryGridSize),
                 modifier = modifier
                     .then(
-                        if (onScrollDown != null) Modifier.nestedScroll(nestedConnection)
+                        if (onScrollDown != null) Modifier.nestedScroll(nestedConnectionGrid)
                         else Modifier
                     ),
                 verticalArrangement = Arrangement.spacedBy(iconsSpacingVertical.dp),
@@ -186,10 +217,11 @@ fun AppGrid(
 
         else -> {
             LazyVerticalGrid(
+                state = gridState,
                 columns = GridCells.Fixed(gridSize),
                 modifier = modifier
                     .then(
-                        if (onScrollDown != null) Modifier.nestedScroll(nestedConnection)
+                        if (onScrollDown != null) Modifier.nestedScroll(nestedConnectionGrid)
                         else Modifier
                     ),
                 verticalArrangement = Arrangement.spacedBy(iconsSpacingVertical.dp),
