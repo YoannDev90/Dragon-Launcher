@@ -34,6 +34,11 @@ fun actionLabel(
             }
 
             is SwipeActionSerializable.LaunchShortcut -> {
+                // Empty package = sentinel for "Pinned Shortcuts" chooser entry
+                if (action.packageName.isEmpty()) {
+                    return stringResource(R.string.pinned_shortcuts)
+                }
+
                 val appLabel = try {
                     pm.getApplicationLabel(
                         pm.getApplicationInfo(action.packageName, 0)

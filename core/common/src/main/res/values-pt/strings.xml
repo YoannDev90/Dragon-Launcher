@@ -353,6 +353,15 @@
     <string name="select_workspace_hint">Escolha qual workspace abre por padrão. Você pode sempre mudar deslizando para a esquerda ou direita na gaveta.</string>
     <string name="workspace_default">Padrão</string>
 
+    <!--  ─────────────  Pinned Shortcuts  ─────────────  -->
+    <string name="pinned_shortcut_added">Atalho "%s" adicionado aos seus círculos</string>
+    <string name="pinned_shortcut_failed">Falha ao adicionar atalho fixado</string>
+    <string name="pinned_shortcut_already_exists">O atalho "%s" já está nos seus círculos</string>
+    <string name="pinned_shortcuts">Atalhos fixados</string>
+    <string name="pinned_shortcuts_desc">Navegar e adicionar atalhos fixados dos seus apps</string>
+    <string name="no_pinned_shortcuts">Nenhum atalho fixado disponível</string>
+    <string name="pinned_shortcuts_from">Atalhos de %s</string>
+
     <!--  ─────────────  Recently Used Apps  ─────────────  -->
     <string name="recently_used_apps">Apps usados recentemente</string>
     <string name="show_recently_used_apps">Mostrar apps recentes</string>

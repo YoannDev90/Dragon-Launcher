@@ -395,6 +395,15 @@
     <string name="select_workspace_hint">चुनें कि कौन सा वर्कस्पेस डिफ़ॉल्ट रूप से खुलेगा। आप ड्रॉअर में बाएं या दाएं स्वाइप करके हमेशा बदल सकते हैं।</string>
     <string name="workspace_default">डिफ़ॉल्ट</string>
 
+    <!--  ─────────────  Pinned Shortcuts  ─────────────  -->
+    <string name="pinned_shortcut_added">शॉर्टकट "%s" आपके सर्कल में जोड़ा गया</string>
+    <string name="pinned_shortcut_failed">पिन किए गए शॉर्टकट को जोड़ने में विफल</string>
+    <string name="pinned_shortcut_already_exists">"%s" शॉर्टकट पहले से आपके सर्कल में है</string>
+    <string name="pinned_shortcuts">पिन किए गए शॉर्टकट</string>
+    <string name="pinned_shortcuts_desc">अपने ऐप्स से पिन किए गए शॉर्टकट ब्राउज़ करें और जोड़ें</string>
+    <string name="no_pinned_shortcuts">कोई पिन किया गया शॉर्टकट उपलब्ध नहीं</string>
+    <string name="pinned_shortcuts_from">%s के शॉर्टकट</string>
+
     <!--  ─────────────  Recently Used Apps  ─────────────  -->
     <string name="recently_used_apps">हाल ही में उपयोग किए गए ऐप्स</string>
     <string name="show_recently_used_apps">हाल के ऐप्स दिखाएं</string>

@@ -353,6 +353,15 @@
     <string name="select_workspace_hint">기본으로 열리는 워크스페이스를 선택하세요. 서랍에서 좌우로 스와이프하여 언제든 변경할 수 있습니다.</string>
     <string name="workspace_default">기본값</string>
 
+    <!--  ─────────────  Pinned Shortcuts  ─────────────  -->
+    <string name="pinned_shortcut_added">바로가기 "%s"가 서클에 추가되었습니다</string>
+    <string name="pinned_shortcut_failed">고정된 바로가기 추가 실패</string>
+    <string name="pinned_shortcut_already_exists">"%s" 바로가기가 이미 서클에 있습니다</string>
+    <string name="pinned_shortcuts">고정된 바로가기</string>
+    <string name="pinned_shortcuts_desc">앱의 고정된 바로가기 탐색 및 추가</string>
+    <string name="no_pinned_shortcuts">사용 가능한 고정된 바로가기 없음</string>
+    <string name="pinned_shortcuts_from">%s의 바로가기</string>
+
     <!--  ─────────────  Recently Used Apps  ─────────────  -->
     <string name="recently_used_apps">최근 사용한 앱</string>
     <string name="show_recently_used_apps">최근 앱 표시</string>

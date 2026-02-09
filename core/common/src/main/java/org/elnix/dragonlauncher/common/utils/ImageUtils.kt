@@ -260,7 +260,11 @@ object ImageUtils {
         return when (action) {
             is SwipeActionSerializable.LaunchApp,
             is SwipeActionSerializable.LaunchShortcut -> {
-                val pkg = action.targetPackage()!!
+                val pkg = action.targetPackage()
+                // Empty package = sentinel for "Pinned Shortcuts" chooser entry
+                if (pkg.isNullOrEmpty()) {
+                    return loadDrawableResAsBitmap(ctx, R.drawable.ic_action_pinned_shortcut, width, height)
+                }
 
                 if (action is SwipeActionSerializable.LaunchShortcut) {
                     val shortcutIcon = loadShortcutIcon(ctx, pkg, action.shortcutId)

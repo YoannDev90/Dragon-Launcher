@@ -353,6 +353,15 @@
     <string name="select_workspace_hint">デフォルトで開くワークスペースを選択。ドロワーで左右にスワイプすればいつでも変更できます。</string>
     <string name="workspace_default">デフォルト</string>
 
+    <!--  ─────────────  Pinned Shortcuts  ─────────────  -->
+    <string name="pinned_shortcut_added">ショートカット「%s」がサークルに追加されました</string>
+    <string name="pinned_shortcut_failed">ピン留めショートカットの追加に失敗しました</string>
+    <string name="pinned_shortcut_already_exists">ショートカット「%s」は既にサークルにあります</string>
+    <string name="pinned_shortcuts">ピン留めショートカット</string>
+    <string name="pinned_shortcuts_desc">アプリのピン留めショートカットを参照して追加</string>
+    <string name="no_pinned_shortcuts">ピン留めショートカットはありません</string>
+    <string name="pinned_shortcuts_from">%s のショートカット</string>
+
     <!--  ─────────────  Recently Used Apps  ─────────────  -->
     <string name="recently_used_apps">最近使用したアプリ</string>
     <string name="show_recently_used_apps">最近使ったアプリを表示</string>

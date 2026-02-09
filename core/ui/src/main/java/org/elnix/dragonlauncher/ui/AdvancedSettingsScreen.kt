@@ -87,6 +87,7 @@ import org.elnix.dragonlauncher.ui.dialogs.CustomAlertDialog
 import org.elnix.dragonlauncher.ui.dialogs.PinSetupDialog
 import org.elnix.dragonlauncher.ui.dialogs.UserValidation
 import org.elnix.dragonlauncher.ui.helpers.SecurityHelper
+import org.elnix.dragonlauncher.ui.helpers.findFragmentActivity
 import org.elnix.dragonlauncher.ui.helpers.settings.ContributorItem
 import org.elnix.dragonlauncher.ui.helpers.settings.SettingItemWithExternalOpen
 import org.elnix.dragonlauncher.ui.helpers.settings.SettingsItem
@@ -192,10 +193,27 @@ fun AdvancedSettingsScreen(
                                     showLockMethodPicker = false
                                 }
                                 LockMethod.DEVICE_UNLOCK -> {
-                                    scope.launch {
-                                        BehaviorSettingsStore.lockMethod.set(ctx, method)
+                                    // Test biometric authentication immediately
+                                    val activity = ctx.findFragmentActivity()
+                                    if (activity != null && SecurityHelper.isDeviceUnlockAvailable(ctx)) {
+                                        SecurityHelper.showDeviceUnlockPrompt(
+                                            activity = activity,
+                                            onSuccess = {
+                                                scope.launch {
+                                                    BehaviorSettingsStore.lockMethod.set(ctx, method)
+                                                }
+                                                showLockMethodPicker = false
+                                            },
+                                            onError = { msg ->
+                                                ctx.showToast(ctx.getString(R.string.authentication_error, msg))
+                                            },
+                                            onFailed = {
+                                                ctx.showToast(ctx.getString(R.string.authentication_failed))
+                                            }
+                                        )
+                                    } else {
+                                        ctx.showToast(ctx.getString(R.string.device_credentials_not_available))
                                     }
-                                    showLockMethodPicker = false
                                 }
                             }
                         }

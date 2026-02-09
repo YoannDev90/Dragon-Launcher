@@ -492,6 +492,15 @@
     <string name="select_workspace_hint">Choisissez quel profil s\'ouvre par défaut. Vous pouvez toujours changer en glissant à gauche ou à droite dans le tiroir.</string>
     <string name="workspace_default">Par défaut</string>
 
+    <!--  ─────────────  Pinned Shortcuts  ─────────────  -->
+    <string name="pinned_shortcut_added">Raccourci "%s" ajouté à vos cercles</string>
+    <string name="pinned_shortcut_failed">Échec de l\'ajout du raccourci épinglé</string>
+    <string name="pinned_shortcut_already_exists">Le raccourci "%s" est déjà sur vos cercles</string>
+    <string name="pinned_shortcuts">Raccourcis épinglés</string>
+    <string name="pinned_shortcuts_desc">Parcourir et ajouter les raccourcis épinglés de vos apps</string>
+    <string name="no_pinned_shortcuts">Aucun raccourci épinglé disponible</string>
+    <string name="pinned_shortcuts_from">Raccourcis de %s</string>
+
     <!--  ─────────────  Recently Used Apps  ─────────────  -->
     <string name="recently_used_apps">Apps récemment utilisées</string>
     <string name="show_recently_used_apps">Afficher les apps récentes</string>

@@ -582,6 +582,15 @@
     <string name="select_workspace_hint">Choose which workspace opens by default. You can always switch by swiping left or right in the drawer.</string>
     <string name="workspace_default">Default</string>
 
+    <!--  ─────────────  Pinned Shortcuts  ─────────────  -->
+    <string name="pinned_shortcut_added">Shortcut "%s" added to your circles</string>
+    <string name="pinned_shortcut_failed">Failed to add pinned shortcut</string>
+    <string name="pinned_shortcut_already_exists">"%s" shortcut is already on your circles</string>
+    <string name="pinned_shortcuts">Pinned Shortcuts</string>
+    <string name="pinned_shortcuts_desc">Browse and add pinned shortcuts from your apps</string>
+    <string name="no_pinned_shortcuts">No pinned shortcuts available</string>
+    <string name="pinned_shortcuts_from">Shortcuts from %s</string>
+
     <!--  ─────────────  Recently Used Apps  ─────────────  -->
     <string name="recently_used_apps">Recently used apps</string>
     <string name="show_recently_used_apps">Show recently used apps</string>
