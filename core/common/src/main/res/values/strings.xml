@@ -448,6 +448,8 @@
     <string name="encouragement_stretch">Stretch your body 🧘</string>
     <string name="encouragement_window">Look out the window 🪟</string>
     <string name="encouragement_text_someone">Text someone you love 💬</string>
+
+    <!--  ─────────────  Appearance ?  ─────────────  -->
     <string name="edit_icons_shape">Edit Icons Shape</string>
     <string name="edit_icons_shape_desc">Customize the shape on the icons in the drawer and the rest of the app</string>
     <string name="random_shape">Random Shape</string>
