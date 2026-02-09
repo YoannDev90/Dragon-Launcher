@@ -96,6 +96,9 @@ fun DrawerTab(
     val iconsShape by DrawerSettingsStore.iconsShape.flow(ctx)
         .collectAsState(DrawerSettingsStore.iconsShape.default)
 
+    val showRecentlyUsed by DrawerSettingsStore.showRecentlyUsedApps.flow(ctx)
+        .collectAsState(initial = false)
+
     var totalWidthPx by remember { mutableFloatStateOf(0f) }
 
     var leftWeight by remember { mutableFloatStateOf(leftDrawerWidth) }
@@ -155,12 +158,14 @@ fun DrawerTab(
             )
         }
 
-        item {
-            SettingsSlider(
-                setting = DrawerSettingsStore.recentlyUsedAppsCount,
-                title = stringResource(R.string.recently_used_apps_count),
-                valueRange = 1..20
-            )
+        if (showRecentlyUsed) {
+            item {
+                SettingsSlider(
+                    setting = DrawerSettingsStore.recentlyUsedAppsCount,
+                    title = stringResource(R.string.recently_used_apps_count),
+                    valueRange = 1..20
+                )
+            }
         }
 
 

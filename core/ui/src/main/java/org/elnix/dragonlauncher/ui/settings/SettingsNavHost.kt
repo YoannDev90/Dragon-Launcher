@@ -142,30 +142,10 @@ fun SettingsNavHost(
             LockMethod.PIN -> {
                 showPinDialog = true
             }
-            LockMethod.BIOMETRIC -> {
+            LockMethod.DEVICE_UNLOCK -> {
                 val activity = ctx as? FragmentActivity
-                if (activity != null && SecurityHelper.isBiometricAvailable(ctx)) {
-                    SecurityHelper.showBiometricPrompt(
-                        activity = activity,
-                        onSuccess = {
-                            isUnlocked = true
-                            navigateToAdvSettings()
-                        },
-                        onError = { msg ->
-                            ctx.showToast(ctx.getString(R.string.authentication_error, msg))
-                        },
-                        onFailed = {
-                            ctx.showToast(ctx.getString(R.string.authentication_failed))
-                        }
-                    )
-                } else {
-                    ctx.showToast(ctx.getString(R.string.biometric_not_available))
-                }
-            }
-            LockMethod.DEVICE_CREDENTIALS -> {
-                val activity = ctx as? FragmentActivity
-                if (activity != null && SecurityHelper.isDeviceCredentialAvailable(ctx)) {
-                    SecurityHelper.showDeviceCredentialPrompt(
+                if (activity != null && SecurityHelper.isDeviceUnlockAvailable(ctx)) {
+                    SecurityHelper.showDeviceUnlockPrompt(
                         activity = activity,
                         onSuccess = {
                             isUnlocked = true

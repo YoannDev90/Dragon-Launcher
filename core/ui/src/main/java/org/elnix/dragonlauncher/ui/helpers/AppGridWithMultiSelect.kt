@@ -62,7 +62,7 @@ fun AppGridWithMultiSelect(
     showIcons: Boolean,
     showLabels: Boolean,
     isMultiSelectMode: Boolean,
-    selectedPackages: Set<String>,
+    selectedPackages: List<String>,
     onEnterMultiSelect: (AppModel) -> Unit,
     onToggleSelect: (AppModel) -> Unit,
     onAppClick: (AppModel) -> Unit

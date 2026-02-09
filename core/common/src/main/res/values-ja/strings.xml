@@ -329,6 +329,7 @@
     <string name="lock_pin">PINコード</string>
     <string name="lock_biometric">指紋認証</string>
     <string name="lock_device_credentials">デバイス認証</string>
+    <string name="lock_device_unlock">デバイスロック解除</string>
     <string name="enter_pin">PINを入力</string>
     <string name="confirm_pin">PINを確認</string>
     <string name="set_pin">PINを設定</string>
@@ -350,6 +351,7 @@
     <!--  ─────────────  Drawer Workspace Selection  ─────────────  -->
     <string name="select_default_workspace">デフォルトのワークスペースを選択</string>
     <string name="select_workspace_hint">デフォルトで開くワークスペースを選択。ドロワーで左右にスワイプすればいつでも変更できます。</string>
+    <string name="workspace_default">デフォルト</string>
 
     <!--  ─────────────  Recently Used Apps  ─────────────  -->
     <string name="recently_used_apps">最近使用したアプリ</string>

@@ -20,6 +20,7 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.flow.update
@@ -745,11 +746,12 @@ class AppsViewModel(
 
     /**
      * Returns the recently used [AppModel]s, resolved from the current app list.
+     * Uses combine to reactively update when either apps or recent packages change.
      * @param count max number of recent apps to return
      */
     fun getRecentApps(count: Int): StateFlow<List<AppModel>> {
-        return _recentlyUsedPackages.map { packages ->
-            val allApps = _apps.value.associateBy { it.packageName }
+        return _recentlyUsedPackages.combine(_apps) { packages, apps ->
+            val allApps = apps.associateBy { it.packageName }
             packages
                 .take(count)
                 .mapNotNull { pkg -> allApps[pkg] }

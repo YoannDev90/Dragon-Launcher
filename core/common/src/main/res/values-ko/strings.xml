@@ -329,6 +329,7 @@
     <string name="lock_pin">PIN 코드</string>
     <string name="lock_biometric">지문 인식</string>
     <string name="lock_device_credentials">기기 자격 증명</string>
+    <string name="lock_device_unlock">기기 잠금 해제</string>
     <string name="enter_pin">PIN 입력</string>
     <string name="confirm_pin">PIN 확인</string>
     <string name="set_pin">PIN 설정</string>
@@ -350,6 +351,7 @@
     <!--  ─────────────  Drawer Workspace Selection  ─────────────  -->
     <string name="select_default_workspace">기본 워크스페이스 선택</string>
     <string name="select_workspace_hint">기본으로 열리는 워크스페이스를 선택하세요. 서랍에서 좌우로 스와이프하여 언제든 변경할 수 있습니다.</string>
+    <string name="workspace_default">기본값</string>
 
     <!--  ─────────────  Recently Used Apps  ─────────────  -->
     <string name="recently_used_apps">최근 사용한 앱</string>

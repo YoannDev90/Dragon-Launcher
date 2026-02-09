@@ -371,6 +371,7 @@
     <string name="lock_pin">PIN-Code</string>
     <string name="lock_biometric">Fingerabdruck</string>
     <string name="lock_device_credentials">Geräte-Anmeldedaten</string>
+    <string name="lock_device_unlock">Geräte-Entsperrung</string>
     <string name="enter_pin">PIN eingeben</string>
     <string name="confirm_pin">PIN bestätigen</string>
     <string name="set_pin">PIN festlegen</string>
@@ -392,6 +393,7 @@
     <!--  ─────────────  Drawer Workspace Selection  ─────────────  -->
     <string name="select_default_workspace">Standard-Arbeitsbereich auswählen</string>
     <string name="select_workspace_hint">Wählen Sie, welcher Arbeitsbereich standardmäßig geöffnet wird. Sie können jederzeit im Drawer nach links oder rechts wischen.</string>
+    <string name="workspace_default">Standard</string>
 
     <!--  ─────────────  Recently Used Apps  ─────────────  -->
     <string name="recently_used_apps">Kürzlich verwendete Apps</string>

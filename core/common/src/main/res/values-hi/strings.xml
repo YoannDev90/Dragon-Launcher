@@ -371,6 +371,7 @@
     <string name="lock_pin">पिन कोड</string>
     <string name="lock_biometric">फिंगरप्रिंट</string>
     <string name="lock_device_credentials">डिवाइस क्रेडेंशियल</string>
+    <string name="lock_device_unlock">डिवाइस अनलॉक</string>
     <string name="enter_pin">पिन दर्ज करें</string>
     <string name="confirm_pin">पिन की पुष्टि करें</string>
     <string name="set_pin">पिन सेट करें</string>
@@ -392,6 +393,7 @@
     <!--  ─────────────  Drawer Workspace Selection  ─────────────  -->
     <string name="select_default_workspace">डिफ़ॉल्ट वर्कस्पेस चुनें</string>
     <string name="select_workspace_hint">चुनें कि कौन सा वर्कस्पेस डिफ़ॉल्ट रूप से खुलेगा। आप ड्रॉअर में बाएं या दाएं स्वाइप करके हमेशा बदल सकते हैं।</string>
+    <string name="workspace_default">डिफ़ॉल्ट</string>
 
     <!--  ─────────────  Recently Used Apps  ─────────────  -->
     <string name="recently_used_apps">हाल ही में उपयोग किए गए ऐप्स</string>

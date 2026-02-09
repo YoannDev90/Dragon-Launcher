@@ -465,19 +465,21 @@ fun AppDrawerScreen(
                             }
                         }
 
-                        AppGrid(
-                            apps = filteredApps,
-                            icons = icons,
-                            gridSize = gridSize,
-                            iconShape = iconsShape,
-                            txtColor = MaterialTheme.colorScheme.onSurface,
-                            showIcons = showIcons,
-                            showLabels = showLabels,
-                            onLongClick = { dialogApp = it },
-                            onScrollDown = { launchDrawerAction(drawerScrollDownAction) },
-                            onScrollUp = { launchDrawerAction(drawerScrollUpAction) }
-                        ) {
-                            launchApp(it.action, it.name)
+                        Box(modifier = Modifier.weight(1f).fillMaxWidth()) {
+                            AppGrid(
+                                apps = filteredApps,
+                                icons = icons,
+                                gridSize = gridSize,
+                                iconShape = iconsShape,
+                                txtColor = MaterialTheme.colorScheme.onSurface,
+                                showIcons = showIcons,
+                                showLabels = showLabels,
+                                onLongClick = { dialogApp = it },
+                                onScrollDown = { launchDrawerAction(drawerScrollDownAction) },
+                                onScrollUp = { launchDrawerAction(drawerScrollUpAction) }
+                            ) {
+                                launchApp(it.action, it.name)
+                            }
                         }
                     }
                 }

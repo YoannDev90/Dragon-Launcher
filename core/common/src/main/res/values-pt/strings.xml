@@ -329,6 +329,7 @@
     <string name="lock_pin">Código PIN</string>
     <string name="lock_biometric">Impressão digital</string>
     <string name="lock_device_credentials">Credenciais do dispositivo</string>
+    <string name="lock_device_unlock">Desbloqueio do dispositivo</string>
     <string name="enter_pin">Digite o PIN</string>
     <string name="confirm_pin">Confirme o PIN</string>
     <string name="set_pin">Definir PIN</string>
@@ -350,6 +351,7 @@
     <!--  ─────────────  Drawer Workspace Selection  ─────────────  -->
     <string name="select_default_workspace">Selecionar workspace padrão</string>
     <string name="select_workspace_hint">Escolha qual workspace abre por padrão. Você pode sempre mudar deslizando para a esquerda ou direita na gaveta.</string>
+    <string name="workspace_default">Padrão</string>
 
     <!--  ─────────────  Recently Used Apps  ─────────────  -->
     <string name="recently_used_apps">Apps usados recentemente</string>

@@ -289,7 +289,7 @@ fun AddPointDialog(
                         horizontalAlignment = Alignment.CenterHorizontally
                     ) {
                         Text(
-                            text = stringResource(R.string.lock_none),
+                            text = stringResource(R.string.workspace_default),
                             style = MaterialTheme.typography.bodyLarge,
                             color = MaterialTheme.colorScheme.onSurface
                         )

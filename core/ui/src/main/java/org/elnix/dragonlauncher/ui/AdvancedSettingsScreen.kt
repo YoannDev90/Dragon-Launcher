@@ -137,8 +137,7 @@ fun AdvancedSettingsScreen(
             when (method) {
                 LockMethod.NONE -> stringResource(R.string.lock_none)
                 LockMethod.PIN -> stringResource(R.string.lock_pin)
-                LockMethod.BIOMETRIC -> stringResource(R.string.lock_biometric)
-                LockMethod.DEVICE_CREDENTIALS -> stringResource(R.string.lock_device_credentials)
+                LockMethod.DEVICE_UNLOCK -> stringResource(R.string.lock_device_unlock)
             }
         }
 
@@ -155,13 +154,11 @@ fun AdvancedSettingsScreen(
                     Spacer(Modifier.height(8.dp))
                     methods.forEachIndexed { index, method ->
                         val isAvailable = when (method) {
-                            LockMethod.BIOMETRIC -> SecurityHelper.isBiometricAvailable(ctx)
-                            LockMethod.DEVICE_CREDENTIALS -> SecurityHelper.isDeviceCredentialAvailable(ctx)
+                            LockMethod.DEVICE_UNLOCK -> SecurityHelper.isDeviceUnlockAvailable(ctx)
                             else -> true
                         }
                         val unavailableText = when (method) {
-                            LockMethod.BIOMETRIC -> if (!isAvailable) stringResource(R.string.biometric_not_available) else null
-                            LockMethod.DEVICE_CREDENTIALS -> if (!isAvailable) stringResource(R.string.device_credentials_not_available) else null
+                            LockMethod.DEVICE_UNLOCK -> if (!isAvailable) stringResource(R.string.device_credentials_not_available) else null
                             else -> null
                         }
                         SettingsItem(
@@ -194,7 +191,7 @@ fun AdvancedSettingsScreen(
                                     }
                                     showLockMethodPicker = false
                                 }
-                                else -> {
+                                LockMethod.DEVICE_UNLOCK -> {
                                     scope.launch {
                                         BehaviorSettingsStore.lockMethod.set(ctx, method)
                                     }
@@ -343,8 +340,7 @@ fun AdvancedSettingsScreen(
             val lockDescription = when (currentLockMethod) {
                 LockMethod.NONE -> stringResource(R.string.lock_none)
                 LockMethod.PIN -> stringResource(R.string.lock_pin)
-                LockMethod.BIOMETRIC -> stringResource(R.string.lock_biometric)
-                LockMethod.DEVICE_CREDENTIALS -> stringResource(R.string.lock_device_credentials)
+                LockMethod.DEVICE_UNLOCK -> stringResource(R.string.lock_device_unlock)
             }
             SettingsItem(
                 title = stringResource(R.string.lock_method),

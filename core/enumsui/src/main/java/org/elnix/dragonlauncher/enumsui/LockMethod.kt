@@ -10,9 +10,6 @@ enum class LockMethod {
     /** Require a user-defined PIN code */
     PIN,
 
-    /** Require biometric authentication (fingerprint) */
-    BIOMETRIC,
-
-    /** Use Android device credentials (pattern / PIN / password) */
-    DEVICE_CREDENTIALS
+    /** Use native Android device unlock (biometric + device credentials fallback) */
+    DEVICE_UNLOCK
 }

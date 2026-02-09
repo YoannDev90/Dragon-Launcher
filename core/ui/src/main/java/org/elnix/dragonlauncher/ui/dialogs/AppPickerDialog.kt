@@ -38,11 +38,11 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
-import androidx.compose.runtime.toMutableStateList
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -94,8 +94,7 @@ fun AppPickerDialog(
 
     // Multi-select state
     var isMultiSelectMode by remember { mutableStateOf(false) }
-    val selectedApps = remember { mutableSetOf<String>() }
-    var selectedAppsCount by remember { mutableStateOf(0) }
+    val selectedApps = remember { mutableStateListOf<String>() }
 
     LaunchedEffect(pagerState.currentPage) {
         val workspaceId = workspaces.getOrNull(pagerState.currentPage)?.id ?: return@LaunchedEffect
@@ -109,7 +108,6 @@ fun AppPickerDialog(
             if (isMultiSelectMode) {
                 isMultiSelectMode = false
                 selectedApps.clear()
-                selectedAppsCount = 0
             } else {
                 onDismiss()
             }
@@ -127,7 +125,7 @@ fun AppPickerDialog(
                     if (!isSearchBarEnabled) {
                         Text(
                             text = if (isMultiSelectMode)
-                                stringResource(R.string.multi_select_count, selectedAppsCount)
+                                stringResource(R.string.multi_select_count, selectedApps.size)
                             else
                                 stringResource(R.string.select_app),
                             color = MaterialTheme.colorScheme.onSurface,
@@ -139,7 +137,6 @@ fun AppPickerDialog(
                                 onClick = {
                                     isMultiSelectMode = false
                                     selectedApps.clear()
-                                    selectedAppsCount = 0
                                 },
                                 colors = AppObjectsColors.iconButtonColors()
                             ) {
@@ -272,8 +269,9 @@ fun AppPickerDialog(
                             selectedPackages = selectedApps,
                             onEnterMultiSelect = { app ->
                                 isMultiSelectMode = true
-                                selectedApps.add(app.packageName)
-                                selectedAppsCount = selectedApps.size
+                                if (!selectedApps.contains(app.packageName)) {
+                                    selectedApps.add(app.packageName)
+                                }
                             },
                             onToggleSelect = { app ->
                                 if (selectedApps.contains(app.packageName)) {
@@ -281,7 +279,6 @@ fun AppPickerDialog(
                                 } else {
                                     selectedApps.add(app.packageName)
                                 }
-                                selectedAppsCount = selectedApps.size
                                 if (selectedApps.isEmpty()) {
                                     isMultiSelectMode = false
                                 }
@@ -308,7 +305,7 @@ fun AppPickerDialog(
                 }
 
                 // Multi-select action bar
-                if (isMultiSelectMode && selectedAppsCount > 0 && onMultipleAppsSelected != null) {
+                if (isMultiSelectMode && selectedApps.isNotEmpty() && onMultipleAppsSelected != null) {
                     Column(
                         modifier = Modifier
                             .fillMaxWidth()
