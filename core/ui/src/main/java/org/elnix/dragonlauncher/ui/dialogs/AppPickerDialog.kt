@@ -1,7 +1,8 @@
+@file:Suppress("AssignedValueIsNeverRead")
+
 package org.elnix.dragonlauncher.ui.dialogs
 
 import androidx.compose.foundation.ExperimentalFoundationApi
-import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.horizontalScroll
 import androidx.compose.foundation.layout.Arrangement
@@ -56,6 +57,7 @@ import org.elnix.dragonlauncher.ui.colors.AppObjectsColors
 import org.elnix.dragonlauncher.ui.components.dragon.DragonIconButton
 import org.elnix.dragonlauncher.ui.helpers.AppGrid
 import org.elnix.dragonlauncher.ui.helpers.AppGridWithMultiSelect
+import org.elnix.dragonlauncher.ui.modifiers.settingsGroup
 
 @OptIn(ExperimentalFoundationApi::class)
 @Composable
@@ -305,20 +307,18 @@ fun AppPickerDialog(
                     Column(
                         modifier = Modifier
                             .fillMaxWidth()
-                            .background(MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.8f))
-                            .clip(DragonShape)
-                            .padding(8.dp),
+                            .settingsGroup(border = true),
                         horizontalAlignment = Alignment.CenterHorizontally,
                         verticalArrangement = Arrangement.spacedBy(6.dp)
                     ) {
                         // Resolve picked apps to AppModel list
                         Button(
                             onClick = {
-                                val workspaceApps = workspaces.flatMap { ws ->
-                                    val flow = appsViewModel.appsForWorkspace(ws, overrides)
-                                    // we'll resolve via getAllApps from ViewModel
-                                    emptyList<AppModel>()
-                                }
+//                                val workspaceApps = workspaces.flatMap { ws ->
+//                                    val flow = appsViewModel.appsForWorkspace(ws, overrides)
+//                                    // we'll resolve via getAllApps from ViewModel
+//                                    emptyList<AppModel>()
+//                                }
                                 // We'll use the allApps state reference
                                 val allApps = appsViewModel.allApps.value
                                 val pickedApps = allApps.filter { it.packageName in selectedApps }

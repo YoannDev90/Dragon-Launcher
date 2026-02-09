@@ -46,7 +46,7 @@ object FloatingAppsSettingsStore : JsonSettingsStore() {
                         id = obj.getInt("id"),
                         nestId = obj.getInt("nestId"),
                         action = SwipeJson.decodeAction(obj.getString("action"))
-                            ?: SwipeActionSerializable.LaunchApp(ctx.packageName),
+                            ?: SwipeActionSerializable.LaunchApp(ctx.packageName, 0),
                         spanX = obj.optDouble("spanX", 1.0).toFloat(),
                         spanY = obj.optDouble("spanY", 1.0).toFloat(),
                         x = obj.optDouble("x", 0.0).toFloat(),

@@ -692,7 +692,7 @@ class AppsViewModel(
         _workspacesState.value.appOverrides.forEach { (packageName, override) ->
             override.customIcon?.let { customIcon ->
                 reloadPointIcon(
-                    point = dummySwipePoint(SwipeActionSerializable.LaunchApp(packageName)).copy(
+                    point = dummySwipePoint(SwipeActionSerializable.LaunchApp(packageName, 0)).copy(
                         customIcon = customIcon,
                         id = packageName
                     ),

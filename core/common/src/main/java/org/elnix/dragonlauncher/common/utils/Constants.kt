@@ -87,7 +87,7 @@ val imageExts = listOf("png", "jpg", "jpeg", "webp")
 val defaultChoosableActions = listOf(
     SwipeActionSerializable.OpenCircleNest(0),
     SwipeActionSerializable.GoParentNest,
-    SwipeActionSerializable.LaunchApp(""),
+    SwipeActionSerializable.LaunchApp("", 0),
     SwipeActionSerializable.LaunchShortcut("", ""),
     SwipeActionSerializable.OpenUrl(""),
     SwipeActionSerializable.OpenFile(""),
@@ -116,6 +116,8 @@ const val ICON_PACK_TAG = "IconsPacks"
 const val SHAPES_TAG = "ShapesDebug"
 const val COLORS_TAG = "ColorsDebug"
 const val DRAWER_TAG = "DrawerDebug"
+
+const val APP_LAUNCH_TAG = "AppLaunchDebug"
 
 
 

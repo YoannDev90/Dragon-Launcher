@@ -385,7 +385,7 @@ fun AdvancedSettingsScreen(
                     launchSwipeAction(
                         ctx = ctx,
                         appsViewModel = appViewModel,
-                        action = SwipeActionSerializable.LaunchApp(obtainiumPackageName)
+                        action = SwipeActionSerializable.LaunchApp(obtainiumPackageName,0)
                     )
                 }
             } else {

@@ -15,7 +15,7 @@ data class AppModel(
     @SerializedName("h") val userId: Int? = 0,
     @SerializedName("category") val category: AppCategory
 ) {
-    val action = SwipeActionSerializable.LaunchApp(packageName)
+    val action = SwipeActionSerializable.LaunchApp(packageName, userId ?: 0)
 }
 
 

@@ -7,8 +7,10 @@ import android.os.Process
 import android.os.UserManager
 import androidx.activity.result.ActivityResultLauncher
 import androidx.core.net.toUri
+import org.elnix.dragonlauncher.common.logging.logD
 import org.elnix.dragonlauncher.common.logging.logE
 import org.elnix.dragonlauncher.common.serializables.SwipeActionSerializable
+import org.elnix.dragonlauncher.common.utils.APP_LAUNCH_TAG
 import org.elnix.dragonlauncher.common.utils.expandQuickActionsDrawer
 import org.elnix.dragonlauncher.common.utils.hasUriReadPermission
 import org.elnix.dragonlauncher.common.utils.launchShortcut
@@ -67,7 +69,7 @@ fun launchSwipeAction(
                 return
             }
 
-            launchAppDirectly(appsViewModel, ctx, action.packageName)
+            launchAppDirectly(appsViewModel, ctx, action.packageName, action.userId ?: 0)
         }
 
 
@@ -171,7 +173,8 @@ fun launchSwipeAction(
 fun launchAppDirectly(
     appsViewModel: AppsViewModel,
     ctx: Context,
-    packageName: String
+    packageName: String,
+    userId: Int
 ) {
     val userManager = ctx.getSystemService(Context.USER_SERVICE) as UserManager
     val launcherApps = ctx.getSystemService(LauncherApps::class.java)
@@ -181,10 +184,17 @@ fun launchAppDirectly(
 
     // 1. Find the user profile that owns the package
     val targetUserHandle = allUsers.firstOrNull { userHandle ->
-        launcherApps
-            .getActivityList(null, userHandle)
-            .any { it.applicationInfo.packageName == packageName }
+
+        // Selects the requested user handle, that corresponds to userId
+        userHandle.hashCode() == userId
+
+
+//        launcherApps
+//            .getActivityList(null, userHandle)
+//            .any { it.applicationInfo.packageName == packageName }
     } ?: Process.myUserHandle()
+
+    ctx.logD(APP_LAUNCH_TAG, "pkg: $packageName; userId: $userId: handle: $targetUserHandle")
 
     // 2. Find the launcher activity in that profile
     val activity = launcherApps

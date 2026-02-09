@@ -144,6 +144,7 @@ fun MainScreen(
 
     // Store pending package to launch after pause
     var pendingPackageToLaunch by remember { mutableStateOf<String?>(null) }
+    var pendingUserIdToLaunch by remember { mutableStateOf<Int?>(null) }
     var pendingAppName by remember { mutableStateOf<String?>(null) }
 
     val digitalPauseLauncher = rememberLauncherForActivityResult(
@@ -162,7 +163,8 @@ fun MainScreen(
                         reminderMode = reminderMode
                     )
                 }
-                launchAppDirectly(appsViewModel, ctx, pendingPackageToLaunch!!)
+
+                launchAppDirectly(appsViewModel, ctx, pendingPackageToLaunch!!, pendingUserIdToLaunch!!)
             } catch (e: Exception) {
                 ctx.logE(TAG, "Failed to launch after pause: ${e.message}")
             }
@@ -184,7 +186,8 @@ fun MainScreen(
                     timeLimitEnabled = true,
                     timeLimitMinutes = timeLimitMin
                 )
-                launchAppDirectly(appsViewModel, ctx, pendingPackageToLaunch!!)
+
+                launchAppDirectly(appsViewModel, ctx, pendingPackageToLaunch!!, pendingUserIdToLaunch!!)
             } catch (e: Exception) {
                 ctx.logE(TAG, "Failed to launch after pause with timer: ${e.message}")
             }
@@ -303,6 +306,7 @@ fun MainScreen(
         val action = point?.action
         if (action is SwipeActionSerializable.LaunchApp) {
             pendingPackageToLaunch = action.packageName
+            pendingUserIdToLaunch = action.userId ?: 0
             pendingAppName = point.customName ?: try {
                 ctx.packageManager.getApplicationLabel(
                     ctx.packageManager.getApplicationInfo(action.packageName, 0)

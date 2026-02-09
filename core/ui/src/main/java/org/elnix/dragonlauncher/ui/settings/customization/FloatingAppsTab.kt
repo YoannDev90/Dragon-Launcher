@@ -380,7 +380,7 @@ fun FloatingAppsTab(
                 SwipeActionSerializable.OpenWidget(0, ComponentName("", "")),
                 SwipeActionSerializable.OpenCircleNest(0),
                 SwipeActionSerializable.GoParentNest,
-                SwipeActionSerializable.LaunchApp(""),
+                SwipeActionSerializable.LaunchApp("", 0),
                 SwipeActionSerializable.OpenUrl(""),
                 SwipeActionSerializable.OpenFile(""),
                 SwipeActionSerializable.NotificationShade,

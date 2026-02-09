@@ -97,7 +97,7 @@ fun WorkspaceDetailScreen(
 
     var showAliasDialog by remember { mutableStateOf<AppModel?>(null) }
 
-    var iconTargetPackage by remember { mutableStateOf<String?>(null) }
+    var iconTargetApp by remember { mutableStateOf<AppModel?>(null) }
 
     val appIconOverlaySize by UiSettingsStore.appIconOverlaySize.flow(ctx)
         .collectAsState(initial = 22)
@@ -232,8 +232,7 @@ fun WorkspaceDetailScreen(
                 showRenameAppDialog = true
             },
             onChangeAppIcon = {
-                val pkg = app.packageName
-                iconTargetPackage = pkg
+                iconTargetApp = app
             },
             onDismiss = { showDetailScreen = null },
             onAliases = { showAliasDialog = app }
@@ -271,16 +270,18 @@ fun WorkspaceDetailScreen(
         onDismiss = { showRenameAppDialog = false }
     )
 
-    if (iconTargetPackage != null) {
+    if (iconTargetApp != null) {
 
-        val pkg = iconTargetPackage!!
+        val app = iconTargetApp!!
+        val pkg = app.packageName
+        val userId = app.userId
 
         val iconOverride =
-            overrides[iconTargetPackage]?.customIcon
+            overrides[pkg]?.customIcon
 
 
         val tempPoint =
-            dummySwipePoint(SwipeActionSerializable.LaunchApp(pkg), pkg).copy(
+            dummySwipePoint(SwipeActionSerializable.LaunchApp(pkg, userId), pkg).copy(
                 customIcon = iconOverride
             )
 
@@ -298,9 +299,10 @@ fun WorkspaceDetailScreen(
         IconEditorDialog(
             point = tempPoint,
             appsViewModel = appsViewModel,
-            onDismiss = { iconTargetPackage = null }
+            onDismiss = { iconTargetApp = null }
         ) {
-            val pkg = iconTargetPackage ?: return@IconEditorDialog
+            val app = iconTargetApp ?: return@IconEditorDialog
+            val pkg = app.packageName
 
             scope.launch {
                 if (it != null) {
@@ -312,7 +314,7 @@ fun WorkspaceDetailScreen(
                     appsViewModel.resetAppIcon(pkg)
                 }
             }
-            iconTargetPackage = null
+            iconTargetApp = null
         }
     }
 

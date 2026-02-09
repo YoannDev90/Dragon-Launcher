@@ -47,7 +47,10 @@ val defaultSwipePointsValues = dummySwipePoint(null).copy(
  * Holds all the different actions the user can do
  */
 sealed class SwipeActionSerializable {
-    data class LaunchApp(val packageName: String) : SwipeActionSerializable()
+    data class LaunchApp(
+        val packageName: String,
+        val userId: Int?
+    ) : SwipeActionSerializable()
         data class LaunchShortcut(
         val packageName: String,
         val shortcutId: String
@@ -91,16 +94,20 @@ class SwipeActionAdapter : JsonSerializer<SwipeActionSerializable>, JsonDeserial
             is SwipeActionSerializable.LaunchApp -> {
                 obj.addProperty("type", "LaunchApp")
                 obj.addProperty("packageName", src.packageName)
+                obj.addProperty("userId", src.userId)
             }
+
             is SwipeActionSerializable.OpenUrl -> {
                 obj.addProperty("type", "OpenUrl")
                 obj.addProperty("url", src.url)
             }
+
             is SwipeActionSerializable.OpenFile -> {
                 obj.addProperty("type", "OpenFile")
                 obj.addProperty("uri", src.uri)
                 obj.addProperty("mimeType", src.mimeType)
             }
+
             is SwipeActionSerializable.LaunchShortcut -> {
                 obj.addProperty("type", "LaunchShortcut")
                 obj.addProperty("packageName", src.packageName)
@@ -147,11 +154,14 @@ class SwipeActionAdapter : JsonSerializer<SwipeActionSerializable>, JsonDeserial
         if (json == null || !json.isJsonObject) return null
         val obj = json.asJsonObject
         return when (obj.get("type").asString) {
-            "LaunchApp" -> SwipeActionSerializable.LaunchApp(obj.get("packageName").asString)
+            "LaunchApp" -> SwipeActionSerializable.LaunchApp(
+                packageName = obj.get("packageName").asString,
+                userId = obj.get("userId")?.asInt ?: 0
+            )
             "OpenUrl" -> SwipeActionSerializable.OpenUrl(obj.get("url").asString)
             "OpenFile" -> SwipeActionSerializable.OpenFile(
-                obj.get("uri").asString,
-                obj.get("mimeType")?.asString
+                uri = obj.get("uri").asString,
+                mimeType = obj.get("mimeType")?.asString
             )
             "NotificationShade" -> SwipeActionSerializable.NotificationShade
             "ControlPanel" -> SwipeActionSerializable.ControlPanel
@@ -163,8 +173,8 @@ class SwipeActionAdapter : JsonSerializer<SwipeActionSerializable>, JsonDeserial
             "ReloadApps" -> SwipeActionSerializable.ReloadApps
             "OpenRecentApps" -> SwipeActionSerializable.OpenRecentApps
             "LaunchShortcut" -> SwipeActionSerializable.LaunchShortcut(
-                obj.get("packageName").asString,
-                obj.get("shortcutId").asString
+                packageName = obj.get("packageName").asString,
+                shortcutId = obj.get("shortcutId").asString
             )
             "OpenCircleNest" -> SwipeActionSerializable.OpenCircleNest(
                 obj.get("nestId").asInt

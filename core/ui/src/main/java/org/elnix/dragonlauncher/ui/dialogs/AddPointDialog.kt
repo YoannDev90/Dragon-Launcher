@@ -207,6 +207,7 @@ fun AddPointDialog(
                             emptyList()
                         }
                     } catch (e: Exception) {
+                        e.printStackTrace()
                         // Some apps (Contacts, Gmail) may throw SecurityException or other errors
                         emptyList()
                     }
@@ -219,11 +220,11 @@ fun AddPointDialog(
                     shortcuts = list
                     shortcutDialogVisible = true
                 } else {
-                    onActionSelected(SwipeActionSerializable.LaunchApp(app.packageName))
+                    onActionSelected(SwipeActionSerializable.LaunchApp(app.packageName, app.userId ?: 0))
                 }
             },
             onMultipleAppsSelected = if (onMultipleActionsSelected != null) { { apps, autoPlace ->
-                val actions = apps.map { SwipeActionSerializable.LaunchApp(it.packageName) }
+                val actions = apps.map { SwipeActionSerializable.LaunchApp(it.packageName, it.userId ?: 0) }
                 onMultipleActionsSelected(actions, autoPlace)
                 showAppPicker = false
             } } else null
@@ -262,7 +263,7 @@ fun AddPointDialog(
                 shortcutDialogVisible = false
             },
             onOpenApp = {
-                onActionSelected(SwipeActionSerializable.LaunchApp(selectedApp!!.packageName))
+                onActionSelected(SwipeActionSerializable.LaunchApp(selectedApp!!.packageName, selectedApp!!.userId ?: 0))
                 onDismiss()
             }
         )

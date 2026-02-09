@@ -159,6 +159,7 @@ fun AppDrawerScreen(
     val returnToLauncherEnabled by WellbeingSettingsStore.returnToLauncherEnabled.asState()
 
     var pendingPackageToLaunch by remember { mutableStateOf<String?>(null) }
+    var pendingUserIdToLaunch by remember { mutableStateOf<Int?>(null) }
     var pendingAppName by remember { mutableStateOf<String?>(null) }
 
     val digitalPauseLauncher = rememberLauncherForActivityResult(
@@ -176,7 +177,7 @@ fun AppDrawerScreen(
                         reminderMode = reminderMode
                     )
                 }
-                launchAppDirectly(appsViewModel, ctx, pendingPackageToLaunch!!)
+                launchAppDirectly(appsViewModel, ctx, pendingPackageToLaunch!!, pendingUserIdToLaunch!!)
                 onClose()
             } catch (e: Exception) {
                 ctx.showToast("Error: ${e.message}")
@@ -199,7 +200,7 @@ fun AppDrawerScreen(
                     timeLimitEnabled = true,
                     timeLimitMinutes = timeLimitMin
                 )
-                launchAppDirectly(appsViewModel, ctx, pendingPackageToLaunch!!)
+                launchAppDirectly(appsViewModel, ctx, pendingPackageToLaunch!!, pendingUserIdToLaunch!!)
                 onClose()
             } catch (e: Exception) {
                 ctx.showToast("Error: ${e.message}")
@@ -303,6 +304,7 @@ fun AppDrawerScreen(
         // Store package for potential pause callback
         if (action is SwipeActionSerializable.LaunchApp) {
             pendingPackageToLaunch = action.packageName
+            pendingUserIdToLaunch = action.userId ?: 0
             pendingAppName = name.ifBlank { action.packageName }
         }
 
@@ -556,13 +558,14 @@ fun AppDrawerScreen(
 
         val app = appTarget!!
         val pkg = app.packageName
+        val userId = app.userId
 
         val iconOverride =
             overrides[pkg]?.customIcon
 
 
         val tempPoint =
-            dummySwipePoint(SwipeActionSerializable.LaunchApp(pkg), pkg).copy(
+            dummySwipePoint(SwipeActionSerializable.LaunchApp(pkg, userId), pkg).copy(
                 customIcon = iconOverride
             )
 
