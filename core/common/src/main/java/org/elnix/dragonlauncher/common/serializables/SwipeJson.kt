@@ -60,7 +60,7 @@ sealed class SwipeActionSerializable {
     ) : SwipeActionSerializable()
     object NotificationShade : SwipeActionSerializable()
     object ControlPanel : SwipeActionSerializable()
-    object OpenAppDrawer : SwipeActionSerializable()
+    data class OpenAppDrawer(val workspaceId: String? = null) : SwipeActionSerializable()
     object  OpenDragonLauncherSettings: SwipeActionSerializable()
     object Lock: SwipeActionSerializable()
     object ReloadApps: SwipeActionSerializable()
@@ -123,7 +123,12 @@ class SwipeActionAdapter : JsonSerializer<SwipeActionSerializable>, JsonDeserial
             // Those with only the name as param
             is SwipeActionSerializable.NotificationShade -> { obj.addProperty("type", "NotificationShade") }
             is SwipeActionSerializable.ControlPanel -> { obj.addProperty("type", "ControlPanel") }
-            is SwipeActionSerializable.OpenAppDrawer -> { obj.addProperty("type", "OpenAppDrawer") }
+            is SwipeActionSerializable.OpenAppDrawer -> {
+                obj.addProperty("type", "OpenAppDrawer")
+                if (src.workspaceId != null) {
+                    obj.addProperty("workspaceId", src.workspaceId)
+                }
+            }
             is SwipeActionSerializable.OpenDragonLauncherSettings -> { obj.addProperty("type", "OpenDragonLauncherSettings") }
             is SwipeActionSerializable.Lock -> { obj.addProperty("type", "Lock") }
             is SwipeActionSerializable.ReloadApps -> { obj.addProperty("type", "ReloadApps") }
@@ -150,7 +155,9 @@ class SwipeActionAdapter : JsonSerializer<SwipeActionSerializable>, JsonDeserial
             )
             "NotificationShade" -> SwipeActionSerializable.NotificationShade
             "ControlPanel" -> SwipeActionSerializable.ControlPanel
-            "OpenAppDrawer" -> SwipeActionSerializable.OpenAppDrawer
+            "OpenAppDrawer" -> SwipeActionSerializable.OpenAppDrawer(
+                obj.get("workspaceId")?.asString
+            )
             "OpenDragonLauncherSettings" -> SwipeActionSerializable.OpenDragonLauncherSettings
             "Lock" -> SwipeActionSerializable.Lock
             "ReloadApps" -> SwipeActionSerializable.ReloadApps

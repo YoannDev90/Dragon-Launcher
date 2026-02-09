@@ -269,7 +269,12 @@ fun MainAppUi(
                     floatingAppsViewModel = floatingAppsViewModel,
                     appLifecycleViewModel = appLifecycleViewModel,
                     widgetHostProvider = widgetHostProvider,
-                    onAppDrawer = { goDrawer() },
+                    onAppDrawer = { workspaceId ->
+                        if (workspaceId != null) {
+                            appsViewModel.selectWorkspace(workspaceId)
+                        }
+                        goDrawer()
+                    },
                     onGoWelcome = { goWelcome() },
                     onLongPress3Sec = { goSettingsRoot() }
                 )

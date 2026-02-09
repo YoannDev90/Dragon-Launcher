@@ -65,6 +65,9 @@ fun AddPointDialog(
     var showUrlInput by remember { mutableStateOf(false) }
     var showFilePicker by remember { mutableStateOf(false) }
     var showNestPicker by remember { mutableStateOf(false) }
+    var showWorkspacePicker by remember { mutableStateOf(false) }
+
+    val workspaces by appsViewModel.enabledState.collectAsState()
 
 
     val icons by appsViewModel.icons.collectAsState()
@@ -131,12 +134,22 @@ fun AddPointDialog(
                             Spacer(Modifier.height(8.dp))
                         }
 
-                        // Open File picker to choose a file
+                        // Open Circle Nest → requires nest picker
                         is SwipeActionSerializable.OpenCircleNest -> {
                             AddPointColumn(
                                 action = action,
                                 icons = icons,
                                 onSelected = { showNestPicker = true }
+                            )
+                            Spacer(Modifier.height(8.dp))
+                        }
+
+                        // Open App Drawer → workspace picker
+                        is SwipeActionSerializable.OpenAppDrawer -> {
+                            AddPointColumn(
+                                action = action,
+                                icons = icons,
+                                onSelected = { showWorkspacePicker = true }
                             )
                             Spacer(Modifier.height(8.dp))
                         }
@@ -242,6 +255,73 @@ fun AddPointDialog(
                 onActionSelected(SwipeActionSerializable.OpenCircleNest(it.id))
                 showNestPicker = false
             }
+        )
+    }
+
+    if (showWorkspacePicker) {
+        val availableWorkspaces = workspaces.workspaces
+        AlertDialog(
+            onDismissRequest = { showWorkspacePicker = false },
+            confirmButton = {},
+            title = { Text(stringResource(R.string.select_default_workspace)) },
+            text = {
+                Column(
+                    verticalArrangement = Arrangement.spacedBy(5.dp)
+                ) {
+                    Text(
+                        text = stringResource(R.string.select_workspace_hint),
+                        style = MaterialTheme.typography.bodySmall,
+                        color = MaterialTheme.colorScheme.onSurface.copy(0.7f)
+                    )
+                    Spacer(Modifier.height(8.dp))
+
+                    // "Default" option (no specific workspace)
+                    Column(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .clip(DragonShape)
+                            .background(MaterialTheme.colorScheme.surfaceVariant)
+                            .clickable {
+                                onActionSelected(SwipeActionSerializable.OpenAppDrawer())
+                                showWorkspacePicker = false
+                            }
+                            .padding(12.dp),
+                        horizontalAlignment = Alignment.CenterHorizontally
+                    ) {
+                        Text(
+                            text = stringResource(R.string.lock_none),
+                            style = MaterialTheme.typography.bodyLarge,
+                            color = MaterialTheme.colorScheme.onSurface
+                        )
+                    }
+
+                    // Specific workspaces
+                    availableWorkspaces.forEach { workspace ->
+                        Column(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .clip(DragonShape)
+                                .background(MaterialTheme.colorScheme.surface)
+                                .clickable {
+                                    onActionSelected(
+                                        SwipeActionSerializable.OpenAppDrawer(workspace.id)
+                                    )
+                                    showWorkspacePicker = false
+                                }
+                                .padding(12.dp),
+                            horizontalAlignment = Alignment.CenterHorizontally
+                        ) {
+                            Text(
+                                text = workspace.name,
+                                style = MaterialTheme.typography.bodyLarge,
+                                color = MaterialTheme.colorScheme.onSurface
+                            )
+                        }
+                    }
+                }
+            },
+            containerColor = MaterialTheme.colorScheme.surface,
+            shape = DragonShape
         )
     }
 }

@@ -340,7 +340,7 @@ class MainActivity : ComponentActivity(), WidgetHostProvider {
                             SwipePointSerializable(
                                 circleNumber = 0,
                                 angleDeg = 0.toDouble(),
-                                action = SwipeActionSerializable.OpenAppDrawer,
+                                action = SwipeActionSerializable.OpenAppDrawer(),
                                 id = UUID.randomUUID().toString()
                             ),
                             SwipePointSerializable(
