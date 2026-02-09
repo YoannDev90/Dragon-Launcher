@@ -66,6 +66,7 @@ import androidx.navigation.NavController
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import org.elnix.dragonlauncher.common.R
+import org.elnix.dragonlauncher.common.logging.logD
 import org.elnix.dragonlauncher.common.serializables.SwipeActionSerializable
 import org.elnix.dragonlauncher.common.utils.SETTINGS
 import org.elnix.dragonlauncher.common.utils.copyToClipboard
@@ -195,6 +196,7 @@ fun AdvancedSettingsScreen(
                                 LockMethod.DEVICE_UNLOCK -> {
                                     // Test biometric authentication immediately
                                     val activity = ctx.findFragmentActivity()
+                                    ctx.logD("AdvSettings", "DEVICE_UNLOCK selected: activity=$activity, isAvailable=${SecurityHelper.isDeviceUnlockAvailable(ctx)}")
                                     if (activity != null && SecurityHelper.isDeviceUnlockAvailable(ctx)) {
                                         SecurityHelper.showDeviceUnlockPrompt(
                                             activity = activity,

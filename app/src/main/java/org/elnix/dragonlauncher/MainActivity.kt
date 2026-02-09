@@ -26,6 +26,7 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.core.view.WindowCompat
 import androidx.core.view.WindowInsetsCompat
 import androidx.core.view.WindowInsetsControllerCompat
+import androidx.fragment.app.FragmentActivity
 import androidx.lifecycle.lifecycleScope
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.rememberNavController
@@ -55,7 +56,7 @@ import org.elnix.dragonlauncher.ui.MainAppUi
 import org.elnix.dragonlauncher.ui.theme.DragonLauncherTheme
 import java.util.UUID
 
-class MainActivity : ComponentActivity(), WidgetHostProvider {
+class MainActivity : FragmentActivity(), WidgetHostProvider {
 
     private val appLifecycleViewModel : AppLifecycleViewModel by viewModels()
     private val backupViewModel : BackupViewModel by viewModels()
