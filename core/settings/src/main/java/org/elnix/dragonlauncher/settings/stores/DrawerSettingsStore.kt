@@ -185,7 +185,8 @@ object DrawerSettingsStore : MapSettingsStore() {
     val recentlyUsedAppsCount = Settings.int(
         key = "recentlyUsedAppsCount",
         dataStoreName = dataStoreName,
-        default = 5
+        default = 5,
+        allowedRange = 1..20
     )
 
     /** JSON-encoded ordered list of recently-used package names (most recent first). */

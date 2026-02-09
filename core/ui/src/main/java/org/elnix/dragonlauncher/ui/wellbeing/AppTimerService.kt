@@ -78,18 +78,16 @@ class AppTimerService : Service() {
          */
         fun sendTestReminderNotification(ctx: Context, appName: String = "Dragon Launcher", minutes: Int = 5) {
             val nm = ctx.getSystemService(NotificationManager::class.java) ?: return
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-                nm.createNotificationChannel(
-                    NotificationChannel(
-                        CHANNEL_REMINDER,
-                        "Usage Reminders",
-                        NotificationManager.IMPORTANCE_HIGH
-                    ).apply {
-                        description = "Periodic reminders when you stay on an app too long"
-                    }
-                )
-            }
-            val timeText = "${minutes} min"
+            nm.createNotificationChannel(
+                NotificationChannel(
+                    CHANNEL_REMINDER,
+                    "Usage Reminders",
+                    NotificationManager.IMPORTANCE_HIGH
+                ).apply {
+                    description = "Periodic reminders when you stay on an app too long"
+                }
+            )
+            val timeText = "$minutes min"
             val notif = NotificationCompat.Builder(ctx, CHANNEL_REMINDER)
                 .setSmallIcon(R.drawable.ic_action_notification)
                 .setContentTitle(ctx.getString(R.string.reminder_notification_title, appName))
@@ -121,7 +119,7 @@ class AppTimerService : Service() {
     private fun getTodayUsageMinutes(packageName: String): Long {
         if (!hasUsageStatsPermission(this)) return -1
         return try {
-            val usm = getSystemService(Context.USAGE_STATS_SERVICE) as UsageStatsManager
+            val usm = getSystemService(USAGE_STATS_SERVICE) as UsageStatsManager
             val cal = Calendar.getInstance().apply {
                 set(Calendar.HOUR_OF_DAY, 0)
                 set(Calendar.MINUTE, 0)
@@ -146,9 +144,9 @@ class AppTimerService : Service() {
     private fun getCurrentForegroundPackage(): String? {
         if (!hasUsageStatsPermission(this)) return null
         return try {
-            val usm = getSystemService(Context.USAGE_STATS_SERVICE) as UsageStatsManager
+            val usm = getSystemService(USAGE_STATS_SERVICE) as UsageStatsManager
             val now = System.currentTimeMillis()
-            
+
             // Method 1: Query recent events (most reliable for foreground detection)
             val events = usm.queryEvents(now - 5000, now)
             var lastPackage: String? = null
@@ -159,12 +157,12 @@ class AppTimerService : Service() {
                     lastPackage = event.packageName
                 }
             }
-            
+
             // If we found a recent foreground event, trust it
             if (lastPackage != null) {
                 return lastPackage
             }
-            
+
             // Method 2: Fallback - check which app was used most recently
             // If another app has been used in the last 10 seconds, the tracked app is NOT foreground
             val stats = usm.queryUsageStats(UsageStatsManager.INTERVAL_BEST, now - 10000, now)
@@ -175,7 +173,7 @@ class AppTimerService : Service() {
                     return mostRecentApp.packageName
                 }
             }
-            
+
             // If no other app was recently used, assume tracked app is still foreground
             trackedPackage
         } catch (_: Exception) {
@@ -202,7 +200,7 @@ class AppTimerService : Service() {
                     if (nowMs - lastForegroundCheckMs >= 3000) {
                         lastForegroundCheckMs = nowMs
                         val fg = getCurrentForegroundPackage()
-                        
+
                         // If fg is null (no permission), give benefit of the doubt one more time
                         // But if we haven't gotten permission by now, something is wrong
                         if (fg == null) {
@@ -242,7 +240,7 @@ class AppTimerService : Service() {
                             val sessionMinutes = (elapsed / 60_000).coerceAtLeast(1)
                             val sessionText = sessionMinutes.formatDuration()
                             val todayText = buildTodayText()
-                            
+
                             OverlayReminderService.show(
                                 this@AppTimerService, appName, sessionText, todayText, remainingText, true, "time_warning"
                             )
@@ -423,7 +421,7 @@ class AppTimerService : Service() {
                     val remainingMinutes = (remaining / 60_000).coerceAtLeast(1)
                     remainingMinutes.formatDuration()
                 } else ""
-                
+
                 OverlayReminderService.show(
                     this, appName, timeText, todayText, remainingText, timeLimitEnabled, "reminder"
                 )
@@ -440,14 +438,14 @@ class AppTimerService : Service() {
             flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TOP
         }
         startActivity(intent)
-        
+
         // Launch home intent to return to launcher
         val homeIntent = Intent(Intent.ACTION_MAIN).apply {
             addCategory(Intent.CATEGORY_HOME)
             flags = Intent.FLAG_ACTIVITY_NEW_TASK
         }
         startActivity(homeIntent)
-        
+
         stopSelf()
     }
 }

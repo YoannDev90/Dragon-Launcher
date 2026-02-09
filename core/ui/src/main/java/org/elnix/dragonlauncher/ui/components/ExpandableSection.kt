@@ -73,7 +73,8 @@ fun ExpandableSection(
                             onExpand(!expanded())
                         }
                     ),
-                    backgroundColor = backgroundColor.value
+                    backgroundColor = backgroundColor.value,
+                    border = false
                 )
                 .fillMaxWidth(),
             verticalAlignment = Alignment.CenterVertically,

@@ -95,7 +95,8 @@ object WellbeingSettingsStore : MapSettingsStore() {
     val reminderIntervalMinutes = Settings.int(
         key = "REMINDER_INTERVAL_MINUTES",
         dataStoreName = dataStoreName,
-        default = 5
+        default = 5,
+        allowedRange = 1..30
     )
 
     /**
@@ -161,6 +162,7 @@ object WellbeingSettingsStore : MapSettingsStore() {
                 val jsonArray = JSONArray(json)
                 (0 until jsonArray.length()).map { jsonArray.getString(it) }.toSet()
             } catch (e: Exception) {
+                e.printStackTrace()
                 emptySet()
             }
         }

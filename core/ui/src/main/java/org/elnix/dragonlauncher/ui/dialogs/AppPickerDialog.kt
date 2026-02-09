@@ -2,12 +2,9 @@ package org.elnix.dragonlauncher.ui.dialogs
 
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.background
-import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
-import androidx.compose.foundation.combinedClickable
 import androidx.compose.foundation.horizontalScroll
 import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
@@ -21,11 +18,10 @@ import androidx.compose.foundation.pager.rememberPagerState
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.CheckCircle
+import androidx.compose.material.icons.automirrored.filled.PlaylistAdd
+import androidx.compose.material.icons.automirrored.filled.PlaylistAddCheck
 import androidx.compose.material.icons.filled.Close
 import androidx.compose.material.icons.filled.Deselect
-import androidx.compose.material.icons.filled.PlaylistAdd
-import androidx.compose.material.icons.filled.PlaylistAddCheck
 import androidx.compose.material.icons.filled.RestartAlt
 import androidx.compose.material.icons.filled.Search
 import androidx.compose.material3.Button
@@ -332,7 +328,7 @@ fun AppPickerDialog(
                             shape = DragonShape,
                             modifier = Modifier.fillMaxWidth()
                         ) {
-                            Icon(Icons.Default.PlaylistAddCheck, null, modifier = Modifier.size(20.dp))
+                            Icon(Icons.AutoMirrored.Filled.PlaylistAddCheck, null, modifier = Modifier.size(20.dp))
                             Spacer(Modifier.width(8.dp))
                             Text(stringResource(R.string.add_all_auto))
                         }
@@ -347,7 +343,7 @@ fun AppPickerDialog(
                             shape = DragonShape,
                             modifier = Modifier.fillMaxWidth()
                         ) {
-                            Icon(Icons.Default.PlaylistAdd, null, modifier = Modifier.size(20.dp))
+                            Icon(Icons.AutoMirrored.Filled.PlaylistAdd, null, modifier = Modifier.size(20.dp))
                             Spacer(Modifier.width(8.dp))
                             Text(stringResource(R.string.add_all_manual))
                         }
