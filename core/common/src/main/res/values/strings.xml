@@ -537,6 +537,21 @@
     <string name="source">Source</string>
     <string name="reset_all_points">Reset All points</string>
     <string name="reset_all_points_desc">All your actions will be reset, this can\'t be undone!</string>
+    <string name="use_categories">Use Categories</string>
+    <string name="use_categories_desc">Group apps in drawer by their defined categories</string>
+    <string name="show_app_icons_in_drawer">Show App Icons in Drawer</string>
+    <string name="show_app_icons_in_drawer_desc">Display the app icons or not it the grid</string>
+    <string name="show_app_labels_in_drawer">Show app labels in drawer</string>
+    <string name="show_app_labels_in_drawer_desc">Display or not the app names along their icons</string>
+    <string name="max_icon_size_desc">The maximum size that the icons can reach, play with other settigns to achieve something you like</string>
+    <string name="icons_spacing_vertical_desc">Vertical icons padding</string>
+    <string name="icons_spacing_horizontal_desc">Horizontal icons padding</string>
+    <string name="category_settings">Catagory settings</string>
+    <string name="expanded_chevron_indicator">Expanded chevron indicator</string>
+    <string name="category_grid_width">Category grid width</string>
+    <string name="grid_settings">Grid Settings</string>
+    <string name="category_cells">Category cells</string>
+    <string name="category_cells_desc">The number of rows and column in the category box</string>
 
     <!--  ─────────────  Multi Select  ─────────────  -->
     <string name="multi_select_hint">Long press an app to start multi-selection</string>

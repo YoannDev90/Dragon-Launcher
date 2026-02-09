@@ -54,10 +54,10 @@ import org.elnix.dragonlauncher.ui.actions.actionColor
 import org.elnix.dragonlauncher.ui.actions.actionLabel
 import org.elnix.dragonlauncher.ui.colors.AppObjectsColors
 import org.elnix.dragonlauncher.ui.colors.ColorPickerRow
-import org.elnix.dragonlauncher.ui.components.dragon.DragonIconButton
 import org.elnix.dragonlauncher.ui.components.PointPreviewCanvas
 import org.elnix.dragonlauncher.ui.components.TextDivider
 import org.elnix.dragonlauncher.ui.components.ValidateCancelButtons
+import org.elnix.dragonlauncher.ui.components.dragon.DragonIconButton
 import org.elnix.dragonlauncher.ui.components.generic.ActionRow
 import org.elnix.dragonlauncher.ui.components.settings.asState
 import org.elnix.dragonlauncher.ui.helpers.ShapeRow
@@ -397,7 +397,7 @@ fun EditPointDialog(
                         SliderWithLabel(
                             label = stringResource(R.string.size),
                             value = editPoint.size ?: defaultSize,
-                            valueRange = 0..200,
+                            valueRange = 1..200,
                             color = MaterialTheme.colorScheme.primary,
                             onReset = { editPoint = editPoint.copy(size = null) }
                         ) { editPoint = editPoint.copy(size = it) }

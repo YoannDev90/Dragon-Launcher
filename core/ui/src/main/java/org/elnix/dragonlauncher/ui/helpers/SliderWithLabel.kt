@@ -92,7 +92,7 @@ private fun SliderWithLabelInternal(
                 if (label != null) {
                     Text(
                         text = label,
-                        color = displayColor,
+                        color = MaterialTheme.colorScheme.onSurface,
                         textAlign = TextAlign.Center,
                         style = MaterialTheme.typography.bodyLarge,
                     )
@@ -100,7 +100,7 @@ private fun SliderWithLabelInternal(
                 if (description != null) {
                     Text(
                         text = description,
-                        color = displayColor.copy(0.8f),
+                        color = MaterialTheme.colorScheme.onSurface.copy(0.8f),
                         style = MaterialTheme.typography.bodySmall,
                     )
                 }
@@ -114,10 +114,7 @@ private fun SliderWithLabelInternal(
                     onValueChange = {
                         try {
                             val newValue = if (it.isEmpty()) 0f
-                            else it.toFloat()
-
-                            // No coerceIn, my users aren't dumb :) (user's always dumb)
-                            // Means that using the keyboard you can enter any values you want
+                            else it.toFloat().coerceIn(valueRange)
 
                             onDragStateChange?.invoke(true)
                             onChange(newValue)
@@ -219,7 +216,7 @@ fun SliderWithLabel(
 
     val steps = remember(valueRange) {
         // Number of discrete selectable values minus endpoints
-        (valueRange.last - valueRange.first).coerceAtLeast(0)
+        (valueRange.last - valueRange.first - 1).coerceAtLeast(0)
     }
 
     SliderWithLabelInternal(

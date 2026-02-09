@@ -114,7 +114,8 @@ const val IMAGE_TAG = "ImageDebug"
 const val SETTINGS_TAG = "SettingsDebug"
 const val ICON_PACK_TAG = "IconsPacks"
 const val SHAPES_TAG = "ShapesDebug"
-const val COLORS_TAG =  "ColorsDebug"
+const val COLORS_TAG = "ColorsDebug"
+const val DRAWER_TAG = "DrawerDebug"
 
 
 

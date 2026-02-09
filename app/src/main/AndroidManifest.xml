@@ -46,7 +46,8 @@
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
         android:theme="@style/DragonLauncherTheme"
-        tools:targetApi="33">
+        tools:targetApi="33"
+        android:appCategory="productivity">
 
         <activity
             android:name=".MainActivity"

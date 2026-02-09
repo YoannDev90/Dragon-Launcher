@@ -1,46 +1,50 @@
 package org.elnix.dragonlauncher.ui.helpers
 
-import androidx.compose.foundation.Image
-import androidx.compose.foundation.combinedClickable
+import androidx.activity.compose.BackHandler
+import androidx.compose.foundation.background
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.aspectRatio
 import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.sizeIn
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
+import androidx.compose.foundation.lazy.grid.items
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.rememberLazyListState
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.MoreHoriz
+import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.clip
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.ImageBitmap
 import androidx.compose.ui.input.nestedscroll.NestedScrollConnection
 import androidx.compose.ui.input.nestedscroll.NestedScrollSource
 import androidx.compose.ui.input.nestedscroll.nestedScroll
-import androidx.compose.ui.layout.ContentScale
-import androidx.compose.ui.platform.LocalContext
-import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
+import org.elnix.dragonlauncher.common.serializables.AppCategory
 import org.elnix.dragonlauncher.common.serializables.AppModel
 import org.elnix.dragonlauncher.common.serializables.IconShape
 import org.elnix.dragonlauncher.settings.stores.DrawerSettingsStore
-import org.elnix.dragonlauncher.ui.UiConstants.DragonShape
-import org.elnix.dragonlauncher.ui.actions.appIcon
 import org.elnix.dragonlauncher.ui.components.resolveShape
-import org.elnix.dragonlauncher.ui.drawer.AppItem
+import org.elnix.dragonlauncher.ui.components.settings.asState
+import org.elnix.dragonlauncher.ui.drawer.AppItemGrid
+import org.elnix.dragonlauncher.ui.drawer.AppItemHorizontal
+import org.elnix.dragonlauncher.ui.modifiers.shapedClickable
+import kotlin.math.min
 
 @Composable
 fun AppGrid(
@@ -56,17 +60,26 @@ fun AppGrid(
     onScrollUp: (() -> Unit)? = null,
     onClick: (AppModel) -> Unit
 ) {
-    val ctx = LocalContext.current
+    val maxIconSize by DrawerSettingsStore.maxIconSize.asState()
+    val iconsSpacingVertical by DrawerSettingsStore.iconsSpacingVertical.asState()
+    val iconsSpacingHorizontal by DrawerSettingsStore.iconsSpacingHorizontal.asState()
+    val useCategory by DrawerSettingsStore.useCategory.asState()
 
-    val maxIconSize by DrawerSettingsStore.maxIconSize.flow(ctx)
-        .collectAsState(DrawerSettingsStore.maxIconSize.default)
+    val categoryGridSize by DrawerSettingsStore.categoryGridWidth.asState()
+    val categoryGridCells by DrawerSettingsStore.categoryGridCells.asState()
 
-    val iconsSpacingVertical by DrawerSettingsStore.iconsSpacingVertical.flow(ctx)
-        .collectAsState(DrawerSettingsStore.iconsSpacingVertical.default)
 
-    val iconsSpacingHorizontal by DrawerSettingsStore.iconsSpacingHorizontal.flow(ctx)
-        .collectAsState(DrawerSettingsStore.iconsSpacingHorizontal.default)
+    var openedCategory by remember { mutableStateOf<AppCategory?>(null) }
 
+    val visibleApps by remember(apps) {
+        derivedStateOf {
+            // Only display the apps that belongs to the selected category, if enabled
+            apps.filter {
+                if (useCategory) openedCategory?.let { cat -> cat == it.category } ?: true
+                else true
+            }
+        }
+    }
 
     val listState = rememberLazyListState()
     val nestedConnection = remember {
@@ -94,81 +107,239 @@ fun AppGrid(
             }
         }
     }
+    BackHandler(openedCategory != null) {
+        openedCategory = null
+    }
 
-    if (gridSize == 1) {
-        LazyColumn(
-            state = listState,
-            modifier = Modifier
-                .fillMaxSize()
-                .then(
-                    if (onScrollDown != null) Modifier.nestedScroll(nestedConnection)
-                    else Modifier
-                )
-        ) {
-            items(apps, key = { it.packageName }) { app ->
-                AppItem(
-                    app = app,
-                    showIcons = showIcons,
-                    showLabels = showLabels,
-                    txtColor = txtColor,
-                    icons = icons,
-                    iconsSpacing = iconsSpacingVertical,
-                    shape = resolveShape(iconShape),
-                    onClick = { onClick(app) },
-                    onLongClick = if (onLongClick != null) { { onLongClick(app) } } else null
-                )
+    when {
+        useCategory && openedCategory == null -> {
+            LazyVerticalGrid(
+                columns = GridCells.Fixed(categoryGridSize),
+                modifier = Modifier
+                    .fillMaxSize()
+                    .then(
+                        if (onScrollDown != null) Modifier.nestedScroll(nestedConnection)
+                        else Modifier
+                    ),
+                verticalArrangement = Arrangement.spacedBy(iconsSpacingVertical.dp),
+                horizontalArrangement = Arrangement.spacedBy(iconsSpacingHorizontal.dp)
+            ) {
+
+                AppCategory.entries.forEach { category ->
+                    val categoryApps = visibleApps.filter { it.category == category }
+
+                    categoryApps
+                        .takeIf { it.isNotEmpty() }
+                        ?.let {
+                            item {
+                                CategoryGrid(
+                                    category = category,
+                                    apps = categoryApps,
+                                    icons = icons,
+                                    iconShape = iconShape,
+                                    maxIconSize = maxIconSize,
+                                    txtColor = txtColor,
+                                    showIcons = showIcons,
+                                    showLabels = showLabels,
+                                    onLongClick = onLongClick,
+                                    onClick = onClick,
+                                    gridCells = categoryGridCells,
+                                ) {
+                                    openedCategory = category
+                                }
+                            }
+                        }
+                }
+
             }
         }
-    } else {
-        LazyVerticalGrid(
-            columns = GridCells.Fixed(gridSize),
-            modifier = Modifier
-                .fillMaxSize()
-                .then(
-                    if (onScrollDown != null) Modifier.nestedScroll(nestedConnection)
-                    else Modifier
-                ),
-//            verticalArrangement = Arrangement.spacedBy(iconsSpacing.dp),
-//            horizontalArrangement = Arrangement.spacedBy(iconsSpacing.dp)
+
+        gridSize == 1 -> {
+            LazyColumn(
+                state = listState,
+                modifier = Modifier
+                    .fillMaxSize()
+                    .then(
+                        if (onScrollDown != null) Modifier.nestedScroll(nestedConnection)
+                        else Modifier
+                    ),
+                verticalArrangement = Arrangement.spacedBy(iconsSpacingVertical.dp),
+            ) {
+                items(visibleApps, key = { it.packageName }) { app ->
+                    AppItemHorizontal(
+                        app = app,
+                        showIcons = showIcons,
+                        showLabels = showLabels,
+                        txtColor = txtColor,
+                        icons = icons,
+                        shape = resolveShape(iconShape),
+                        onClick = { onClick(app) },
+                        onLongClick = if (onLongClick != null) {
+                            { onLongClick(app) }
+                        } else null
+                    )
+                }
+            }
+        }
+
+        else -> {
+            LazyVerticalGrid(
+                columns = GridCells.Fixed(gridSize),
+                modifier = Modifier
+                    .fillMaxSize()
+                    .then(
+                        if (onScrollDown != null) Modifier.nestedScroll(nestedConnection)
+                        else Modifier
+                    ),
+                verticalArrangement = Arrangement.spacedBy(iconsSpacingVertical.dp),
+                horizontalArrangement = Arrangement.spacedBy(iconsSpacingHorizontal.dp)
+            ) {
+                items(visibleApps, key = { it.packageName }) { app ->
+                    AppItemGrid(
+                        app = app,
+                        icons = icons,
+                        showIcons = showIcons,
+                        maxIconSize = maxIconSize,
+                        iconShape = iconShape,
+                        showLabels = showLabels,
+                        txtColor = txtColor,
+                        onLongClick = onLongClick,
+                        onClick = onClick
+                    )
+                }
+            }
+        }
+    }
+}
+
+
+@Composable
+private fun CategoryGrid(
+    category: AppCategory,
+    apps: List<AppModel>,
+
+    icons: Map<String, ImageBitmap>,
+    iconShape: IconShape,
+    maxIconSize: Int,
+    txtColor: Color,
+    showIcons: Boolean,
+    showLabels: Boolean,
+
+    gridCells: Int,
+    modifier: Modifier = Modifier,
+    onLongClick: ((AppModel) -> Unit)? = null,
+    onClick: (AppModel) -> Unit,
+    onOpenCategory: () -> Unit
+) {
+    Column(
+        horizontalAlignment = Alignment.CenterHorizontally
+    ) {
+        Box(
+            modifier = modifier
+                .aspectRatio(1f)
+                .shapedClickable { onOpenCategory() }
+                .padding(10.dp)
         ) {
-            items(apps.size) { index ->
-                val app = apps[index]
+            AppDefinedGrid(
+                apps = apps,
+                icons = icons,
+                iconShape = iconShape,
+                maxIconSize = maxIconSize,
+                txtColor = txtColor,
+                showIcons = showIcons,
+                showLabels = showLabels,
+                onLongClick = onLongClick,
+                onClick = onClick,
+                gridCells = gridCells,
+                onOpenCategory = onOpenCategory
+            )
+        }
 
-                Column(
-                    horizontalAlignment = Alignment.CenterHorizontally,
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .clip(DragonShape)
-                        .combinedClickable(
-                            onLongClick = if (onLongClick != null) {
-                                { onLongClick(app) }
-                            } else null
-                        ) { onClick(app) }
-                        .padding(iconsSpacingHorizontal.dp, iconsSpacingVertical.dp)
-                ) {
-                    if (showIcons) {
-                        Image(
-                            painter = appIcon(app.packageName, icons),
-                            contentDescription = app.name,
-                            modifier = Modifier
-                                .sizeIn(maxWidth = maxIconSize.dp)
-                                .aspectRatio(1f)
-                                .clip(resolveShape(iconShape)),
-                            contentScale = ContentScale.Fit
-                        )
+        Text(
+            text = category.name,
+            color = MaterialTheme.colorScheme.onBackground,
+            style = MaterialTheme.typography.labelSmall
+        )
+    }
+}
+
+@Composable
+private fun AppDefinedGrid(
+    apps: List<AppModel>,
+
+    icons: Map<String, ImageBitmap>,
+    iconShape: IconShape,
+    maxIconSize: Int,
+    txtColor: Color,
+    showIcons: Boolean,
+    showLabels: Boolean,
+
+    gridCells: Int,
+    modifier: Modifier = Modifier,
+    depth: Int = 0,
+    onLongClick: ((AppModel) -> Unit)? = null,
+    onClick: (AppModel) -> Unit,
+    onOpenCategory: () -> Unit
+) {
+    var appIndex = 0
+
+    val appNumber = apps.size
+    val maxAppNumber = gridCells * gridCells - 1
+    val sanitizedAppNumber = min(appNumber, maxAppNumber)
+
+    Column(
+        modifier = modifier
+            .fillMaxSize()
+            .background(MaterialTheme.colorScheme.surfaceVariant),
+    ) {
+        repeat(gridCells) {
+            Row(
+                modifier = Modifier.weight(1f)
+            ) {
+                repeat(gridCells) {
+                    Box(
+                        modifier = Modifier.weight(1f),
+                        contentAlignment = Alignment.Center
+                    ) {
+                        if (appIndex < sanitizedAppNumber) {
+                            AppItemGrid(
+                                app = apps[appIndex],
+                                icons = icons,
+                                showIcons = showIcons,
+                                maxIconSize = maxIconSize,
+                                iconShape = iconShape,
+                                showLabels = false,
+                                txtColor = txtColor,
+                                onLongClick = onLongClick,
+                                onClick = onClick
+                            )
+                        } else if (/*appIndex == 8 && depth < 2 &&*/ appNumber > maxAppNumber) {
+//
+//                            val miniApps = apps.takeLast(appNumber - appIndex)
+//                            logD(DRAWER_TAG, "miniApps = ${miniApps.map { it.name }}")
+//
+                            Icon(
+                                imageVector = Icons.Default.MoreHoriz,
+                                contentDescription = "More",
+                                tint = MaterialTheme.colorScheme.onBackground,
+//                                modifier = Modifier.fillMaxSize()
+                            )
+//                            AppDefinedGrid(
+//                                apps = miniApps,
+//                                icons = icons,
+//                                iconShape = iconShape,
+//                                maxIconSize = maxIconSize,
+//                                txtColor = txtColor,
+//                                showIcons = showIcons,
+//                                showLabels = showLabels,
+//                                onClick = { onOpenCategory() },
+//                                gridCells = 3,
+//                                depth = depth + 1,
+//                                onOpenCategory = onOpenCategory
+//                            )
+                        }
                     }
-
-                    if (showLabels) {
-                        Spacer(Modifier.height(6.dp))
-
-                        Text(
-                            text = app.name,
-                            color = txtColor,
-                            style = MaterialTheme.typography.labelSmall,
-                            maxLines = 1,
-                            overflow = TextOverflow.Ellipsis
-                        )
-                    }
+                    appIndex ++
                 }
             }
         }

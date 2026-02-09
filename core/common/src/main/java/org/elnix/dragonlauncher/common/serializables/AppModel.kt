@@ -1,5 +1,7 @@
 package org.elnix.dragonlauncher.common.serializables
 
+import android.content.pm.ApplicationInfo
+import android.os.Build
 import com.google.gson.annotations.SerializedName
 
 data class AppModel(
@@ -10,10 +12,58 @@ data class AppModel(
     @SerializedName("e") val isWorkProfile: Boolean,
     @SerializedName("f") val isLaunchable: Boolean?,
     @SerializedName("g") val settings: Map<String, Any> = emptyMap(),
-    @SerializedName("h") val userId: Int? = 0
+    @SerializedName("h") val userId: Int? = 0,
+    @SerializedName("category") val category: AppCategory
 ) {
     val action = SwipeActionSerializable.LaunchApp(packageName)
 }
+
+
+enum class AppCategory {
+    Games,
+    Audio,
+    Video,
+    Images,
+    Social,
+    News,
+    Maps,
+    Productivity,
+    Accessibility,
+    Other
+}
+
+
+
+fun mapSystemCategoryToSection(category: Int): AppCategory {
+    return when (category) {
+        ApplicationInfo.CATEGORY_GAME -> AppCategory.Games
+
+        ApplicationInfo.CATEGORY_AUDIO -> AppCategory.Audio
+        ApplicationInfo.CATEGORY_VIDEO -> AppCategory.Video
+        ApplicationInfo.CATEGORY_IMAGE -> AppCategory.Images
+
+        ApplicationInfo.CATEGORY_SOCIAL -> AppCategory.Social
+        ApplicationInfo.CATEGORY_NEWS -> AppCategory.News
+        ApplicationInfo.CATEGORY_MAPS -> AppCategory.Maps
+
+        ApplicationInfo.CATEGORY_PRODUCTIVITY -> AppCategory.Productivity
+        ApplicationInfo.CATEGORY_ACCESSIBILITY -> AppCategory.Accessibility
+
+        ApplicationInfo.CATEGORY_UNDEFINED -> AppCategory.Other
+
+        else -> AppCategory.Other
+    }
+}
+
+fun mapAppToSection(app: ApplicationInfo): AppCategory {
+    if (Build.VERSION.SDK_INT < Build.VERSION_CODES.O) {
+        return AppCategory.Other
+    }
+
+    return mapSystemCategoryToSection(app.category)
+}
+
+
 
 
 enum class WorkspaceType {

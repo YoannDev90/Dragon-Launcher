@@ -11,7 +11,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
@@ -26,24 +26,24 @@ import org.elnix.dragonlauncher.common.R
 import org.elnix.dragonlauncher.common.serializables.AppModel
 import org.elnix.dragonlauncher.settings.stores.DrawerSettingsStore
 import org.elnix.dragonlauncher.ui.UiConstants.DragonShape
+import org.elnix.dragonlauncher.ui.components.settings.asState
 
 @Composable
 fun GridSizeSlider(
     apps: List<AppModel>,
-    icons: Map<String, ImageBitmap>,
-    showIcons: Boolean,
-    showLabels: Boolean
+    icons: Map<String, ImageBitmap>
 ) {
     val ctx = LocalContext.current
     val scope = rememberCoroutineScope()
 
     val gridSize by DrawerSettingsStore.gridSize.flow(ctx).collectAsState(initial = 1)
+    val showIcons by DrawerSettingsStore.showAppIconsInDrawer.asState()
+    val showLabels by DrawerSettingsStore.showAppLabelInDrawer.asState()
 
-    val iconsShape by DrawerSettingsStore.iconsShape.flow(ctx)
-        .collectAsState(DrawerSettingsStore.iconsShape.default)
+    val iconsShape by DrawerSettingsStore.iconsShape.asState()
 
 
-    var tempGridSize by remember { mutableStateOf(gridSize) }
+    var tempGridSize by remember { mutableIntStateOf(gridSize) }
 
     LaunchedEffect(gridSize) { tempGridSize = gridSize }
 

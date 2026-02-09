@@ -81,25 +81,29 @@ object StatusBarSettingsStore : MapSettingsStore() {
     val leftPadding = Settings.int(
         key = "leftPadding",
         dataStoreName = dataStoreName,
-        default = 5
+        default = 5,
+        allowedRange = 0..300
     )
 
     val rightPadding = Settings.int(
         key = "rightPadding",
         dataStoreName = dataStoreName,
-        default = 5
+        default = 5,
+        allowedRange = 0..300
     )
 
     val topPadding = Settings.int(
         key = "topPadding",
         dataStoreName = dataStoreName,
-        default = 2
+        default = 2,
+        allowedRange = 0..300
     )
 
     val bottomPadding = Settings.int(
         key = "bottomPadding",
         dataStoreName = dataStoreName,
-        default = 2
+        default = 2,
+        allowedRange = 0..300
     )
 
     val clockAction = Settings.swipeAction(

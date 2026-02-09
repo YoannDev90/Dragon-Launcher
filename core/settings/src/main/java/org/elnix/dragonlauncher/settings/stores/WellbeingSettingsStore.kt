@@ -73,7 +73,8 @@ object WellbeingSettingsStore : MapSettingsStore() {
     val pauseDurationSeconds = Settings.int(
         key = "PAUSE_DURATION_SECONDS",
         dataStoreName = dataStoreName,
-        default = 10
+        default = 10,
+        allowedRange = 3..60
     )
 
     /*  ─────────────  Periodic Reminder  ─────────────  */
@@ -94,7 +95,8 @@ object WellbeingSettingsStore : MapSettingsStore() {
     val reminderIntervalMinutes = Settings.int(
         key = "REMINDER_INTERVAL_MINUTES",
         dataStoreName = dataStoreName,
-        default = 5
+        default = 5,
+        allowedRange = 1..30
     )
 
     /**
@@ -160,6 +162,7 @@ object WellbeingSettingsStore : MapSettingsStore() {
                 val jsonArray = JSONArray(json)
                 (0 until jsonArray.length()).map { jsonArray.getString(it) }.toSet()
             } catch (e: Exception) {
+                e.printStackTrace()
                 emptySet()
             }
         }
@@ -210,49 +213,49 @@ object WellbeingSettingsStore : MapSettingsStore() {
         "com.facebook.orca", // Messenger
         "com.whatsapp",
         "com.facebook.lite",
-        
+
         // ByteDance
         "com.zhiliaoapp.musically", // TikTok
         "com.ss.android.ugc.trill", // TikTok (alternate)
-        
+
         // Snap
         "com.snapchat.android",
-        
+
         // Twitter/X
         "com.twitter.android",
         "com.twitter.android.lite",
-        
+
         // Reddit
         "com.reddit.frontpage",
-        
+
         // Pinterest
         "com.pinterest",
-        
+
         // LinkedIn
         "com.linkedin.android",
-        
+
         // Telegram
         "org.telegram.messenger",
         "org.telegram.messenger.web",
-        
+
         // Discord
         "com.discord",
-        
+
         // BeReal
         "com.bereal.ft",
-        
+
         // Threads
         "com.instagram.barcelona",
-        
+
         // YouTube (can be considered social)
         "com.google.android.youtube",
-        
+
         // Twitch
         "tv.twitch.android.app",
-        
+
         // Tumblr
         "com.tumblr",
-        
+
         // WeChat
         "com.tencent.mm"
     )

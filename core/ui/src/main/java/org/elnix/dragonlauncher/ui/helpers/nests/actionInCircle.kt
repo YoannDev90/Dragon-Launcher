@@ -56,7 +56,7 @@ fun DrawScope.actionsInCircle(
     val px = center.x
     val py = center.y
 
-    val size = point.size ?: defaultPoint.size ?: defaultSwipePointsValues.size!!
+    val size =( point.size ?: defaultPoint.size ?: defaultSwipePointsValues.size!!).coerceAtLeast(1)
     val innerPadding =
         point.innerPadding ?: defaultPoint.innerPadding ?: defaultSwipePointsValues.innerPadding!!
 
@@ -127,12 +127,6 @@ fun DrawScope.actionsInCircle(
         // if no background color provided, erases the background
         val eraseBg = backgroundColor == Color.Transparent && !preventBgErasing
 
-
-//        drawCircle(
-//            color = Color.Red,
-//            center = center,
-//            radius = 8f
-//        )
         // Move drawing to icon position
         translate(
             left = center.x - borderRadii,
@@ -140,29 +134,30 @@ fun DrawScope.actionsInCircle(
         ) {
 
 
-            if (eraseBg) {
-                // Erases the color, instead of putting it, that lets the wallpaper pass trough
-                drawPath(
-                    path = path,
-                    color = borderColor,
-                    style = Stroke(width = borderStroke),
-                    blendMode = BlendMode.Clear
-                )
-            } else {
-                drawPath(
-                    path = path,
-                    color = backgroundColor,
-                    style = Stroke(width = borderStroke)
-                )
-            }
-            if (borderColor.alpha != 0f && borderStroke > 0f) {
+            if (borderStroke > 0f) {
+                if (eraseBg) {
+                    // Erases the color, instead of putting it, that lets the wallpaper pass trough
+                    drawPath(
+                        path = path,
+                        color = borderColor,
+                        style = Stroke(width = borderStroke),
+                        blendMode = BlendMode.Clear
+                    )
+                } else {
+                    drawPath(
+                        path = path,
+                        color = backgroundColor,
+                        style = Stroke(width = borderStroke)
+                    )
+                }
+                if (borderColor.alpha != 0f) {
 
-                drawPath(
-                    path = path,
-                    color = borderColor,
-                    style = Stroke(width = borderStroke)
-
-                )
+                    drawPath(
+                        path = path,
+                        color = borderColor,
+                        style = Stroke(width = borderStroke)
+                    )
+                }
             }
         }
 

@@ -37,7 +37,8 @@ object PrivateSettingsStore : MapSettingsStore() {
     val lastSeenVersionCode = Settings.int(
         key = "lastSeenVersionCode",
         dataStoreName = dataStoreName,
-        default = 0
+        default = 0,
+        allowedRange = 0..Int.MAX_VALUE
     )
 
     /** Hashed PIN for settings lock (SHA-256). Empty string means no PIN set. */

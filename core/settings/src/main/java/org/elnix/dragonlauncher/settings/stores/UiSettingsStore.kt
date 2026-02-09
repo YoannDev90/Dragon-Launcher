@@ -110,31 +110,36 @@ object UiSettingsStore : MapSettingsStore() {
     val appLabelIconOverlayTopPadding = Settings.int(
         key = "appLabelIconOverlayTopPadding",
         dataStoreName = dataStoreName,
-        default = 30
+        default = 30,
+        allowedRange = 0..1000
     )
 
     val appLabelOverlaySize = Settings.int(
         key = "appLabelOverlaySize",
         dataStoreName = dataStoreName,
-        default = 18
+        default = 18,
+        allowedRange = 0..100
     )
 
     val appIconOverlaySize = Settings.int(
         key = "appIconOverlaySize",
         dataStoreName = dataStoreName,
-        default = 22
+        default = 22,
+        allowedRange = 0..400
     )
 
     val wallpaperDimMainScreen = Settings.float(
         key = "wallpaperDimMainScreen",
         dataStoreName = dataStoreName,
-        default = 0f
+        default = 0f,
+        allowedRange = 0f..1f
     )
 
     val wallpaperDimDrawerScreen = Settings.float(
         key = "wallpaperDimDrawerScreen",
         dataStoreName = dataStoreName,
-        default = 0f
+        default = 0f,
+        allowedRange = 0f..1f
     )
 
     val promptForShortcutsWhenAddingApp = Settings.boolean(

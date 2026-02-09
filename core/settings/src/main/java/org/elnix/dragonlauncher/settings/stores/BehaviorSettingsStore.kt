@@ -53,25 +53,29 @@ object BehaviorSettingsStore : MapSettingsStore() {
     val leftPadding = Settings.int(
         key = "leftPadding",
         dataStoreName = BackupSettingsStore.dataStoreName,
-        default = 60
+        default = 60,
+        allowedRange = 0..300
     )
 
     val rightPadding = Settings.int(
         key = "rightPadding",
         dataStoreName = BackupSettingsStore.dataStoreName,
-        default = 60
+        default = 60,
+        allowedRange = 0..300
     )
 
     val topPadding = Settings.int(
         key = "upPadding",
         dataStoreName = BackupSettingsStore.dataStoreName,
-        default = 80
+        default = 80,
+        allowedRange = 0..300
     )
 
     val bottomPadding = Settings.int(
         key = "downPadding",
         dataStoreName = BackupSettingsStore.dataStoreName,
-        default = 100
+        default = 100,
+        allowedRange = 0..300
     )
 
     val lockMethod = Settings.enum(

@@ -68,15 +68,27 @@ object ImageUtils {
             val bg = drawable.background
             val fg = drawable.foreground
 
-            // Draw background first, scaled to full bounds
-            bg.setBounds(0, 0, width, height)
-            bg.draw(canvas)
 
-            // Draw foreground with inset scaling
-            val scale = 1.15f
-            val inset = ((width - width / scale) / 2).toInt()
-            fg.setBounds(-inset, -inset, width + inset, height + inset)
-            fg.draw(canvas)
+            if (bg != null) {
+                // Draw background first, scaled to full bounds
+                bg.setBounds(0, 0, width, height)
+                bg.draw(canvas)
+            }
+
+            if (fg != null) {
+                // Draw foreground with inset scaling
+                val scale = 1.15f
+                val inset = ((width - width / scale) / 2).toInt()
+                fg.setBounds(-inset, -inset, width + inset, height + inset)
+                fg.draw(canvas)
+            }
+
+            // Fallback if BOTH are null (yes, it happens)
+            if (bg == null && fg == null) {
+                drawable.setBounds(0, 0, width, height)
+                drawable.draw(canvas)
+            }
+
         } else {
             // Non-adaptive drawable
             drawable.setBounds(0, 0, width, height)
@@ -427,13 +439,15 @@ object ImageUtils {
         sizePx: Int,
         density: Density
     ): ImageBitmap {
-        val bitmap = Bitmap.createBitmap(sizePx, sizePx, Bitmap.Config.ARGB_8888)
+
+        val safeSize = sizePx.coerceAtLeast(0)
+        val bitmap = createBitmap(safeSize, safeSize)
         val canvas = Canvas(bitmap)
 
         canvas.drawColor(Color.Transparent.toArgb(), PorterDuff.Mode.CLEAR)
 
         val outline = shape.createOutline(
-            size = Size(sizePx.toFloat(), sizePx.toFloat()),
+            size = Size(safeSize.toFloat(), safeSize.toFloat()),
             layoutDirection = LayoutDirection.Ltr,
             density = density
         )
@@ -445,8 +459,8 @@ object ImageUtils {
                 path.addRect(
                     0f,
                     0f,
-                    sizePx.toFloat(),
-                    sizePx.toFloat(),
+                    safeSize.toFloat(),
+                    safeSize.toFloat(),
                     Path.Direction.CW
                 )
             }
@@ -482,8 +496,8 @@ object ImageUtils {
         val dst = Rect(
             0,
             0,
-            sizePx,
-            sizePx
+            safeSize,
+            safeSize
         )
 
         canvas.drawBitmap(image.asAndroidBitmap(), src, dst, null)
