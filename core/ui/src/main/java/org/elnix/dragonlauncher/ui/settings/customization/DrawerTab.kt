@@ -143,6 +143,26 @@ fun DrawerTab(
             )
         }
 
+        /* ───────────── Recently Used Apps ───────────── */
+
+        item { TextDivider(stringResource(R.string.recently_used_apps)) }
+
+        item {
+            SettingsSwitchRow(
+                setting = DrawerSettingsStore.showRecentlyUsedApps,
+                title = stringResource(R.string.show_recently_used_apps),
+                description = stringResource(R.string.show_recently_used_apps_desc),
+            )
+        }
+
+        item {
+            SettingsSlider(
+                setting = DrawerSettingsStore.recentlyUsedAppsCount,
+                title = stringResource(R.string.recently_used_apps_count),
+                valueRange = 1..20
+            )
+        }
+
 
 //        item {
 //            SwitchRow(

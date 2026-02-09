@@ -53,6 +53,7 @@ import org.elnix.dragonlauncher.common.utils.ImageUtils.resolveCustomIconBitmap
 import org.elnix.dragonlauncher.common.utils.PackageManagerCompat
 import org.elnix.dragonlauncher.common.utils.TAG
 import org.elnix.dragonlauncher.settings.stores.AppsSettingsStore
+import org.elnix.dragonlauncher.settings.stores.DrawerSettingsStore
 import org.elnix.dragonlauncher.settings.stores.SwipeSettingsStore
 import org.elnix.dragonlauncher.settings.stores.UiSettingsStore
 import org.elnix.dragonlauncher.settings.stores.WorkspaceSettingsStore
@@ -141,6 +142,10 @@ class AppsViewModel(
     private val _selectedWorkspaceId = MutableStateFlow("user")
     val selectedWorkspaceId: StateFlow<String> = _selectedWorkspaceId.asStateFlow()
 
+    /* ───────────── Recently Used Apps ───────────── */
+    private val _recentlyUsedPackages = MutableStateFlow<List<String>>(emptyList())
+    val recentlyUsedPackages: StateFlow<List<String>> = _recentlyUsedPackages.asStateFlow()
+
 
     init {
         scope.launch {
@@ -154,6 +159,7 @@ class AppsViewModel(
     suspend fun loadAll() {
         loadWorkspaces()
         loadDefaultPoint()
+        loadRecentlyUsedApps()
         val savedPackTint = UiSettingsStore.iconPackTint.get(ctx)
         savedPackTint?.let { tint ->
             _packTint.value = tint.toArgb()
@@ -705,6 +711,49 @@ class AppsViewModel(
 
     fun selectWorkspace(id: String) {
         _selectedWorkspaceId.value = id
+    }
+
+    /* ───────────── Recently Used Apps ───────────── */
+
+    private suspend fun loadRecentlyUsedApps() {
+        val json = DrawerSettingsStore.recentlyUsedPackages.get(ctx)
+        if (!json.isNullOrEmpty()) {
+            try {
+                val type = object : TypeToken<List<String>>() {}.type
+                _recentlyUsedPackages.value = gson.fromJson(json, type) ?: emptyList()
+            } catch (_: Exception) {
+                _recentlyUsedPackages.value = emptyList()
+            }
+        }
+    }
+
+    /**
+     * Record a package as recently used.
+     * Moves it to the front if already present, trims the list to a reasonable max.
+     */
+    fun addRecentlyUsedApp(packageName: String) {
+        val maxStored = 30 // store more than display, user can raise the count later
+        val current = _recentlyUsedPackages.value.toMutableList()
+        current.remove(packageName)
+        current.add(0, packageName)
+        val trimmed = current.take(maxStored)
+        _recentlyUsedPackages.value = trimmed
+        scope.launch {
+            DrawerSettingsStore.recentlyUsedPackages.set(ctx, gson.toJson(trimmed))
+        }
+    }
+
+    /**
+     * Returns the recently used [AppModel]s, resolved from the current app list.
+     * @param count max number of recent apps to return
+     */
+    fun getRecentApps(count: Int): StateFlow<List<AppModel>> {
+        return _recentlyUsedPackages.map { packages ->
+            val allApps = _apps.value.associateBy { it.packageName }
+            packages
+                .take(count)
+                .mapNotNull { pkg -> allApps[pkg] }
+        }.stateIn(scope, SharingStarted.Eagerly, emptyList())
     }
 
 
