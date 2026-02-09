@@ -549,6 +549,11 @@
     <string name="apps_added_successfully">%d apps added successfully</string>
     <string name="multi_select_drawer_hint">💡 Long press an app to select multiple at once</string>
     <string name="deselect_all">Deselect all</string>
+    
+    <!--  ─────────────  Shortcuts Settings  ─────────────  -->
+    <string name="shortcuts_settings">Shortcuts</string>
+    <string name="prompt_shortcuts_when_adding_app">Prompt for shortcuts when adding an app</string>
+    <string name="prompt_shortcuts_when_adding_app_desc">When enabled, you\'ll be asked to choose between the app or its shortcuts. When disabled, the app is added directly.</string>
 
     <!--  ─────────────  Lock Settings  ─────────────  -->
     <string name="lock_settings">Lock Settings</string>
@@ -584,11 +589,11 @@
 
     <!--  ─────────────  Pinned Shortcuts  ─────────────  -->
     <string name="pinned_shortcut_added">Shortcut "%s" added to your circles</string>
-    <string name="pinned_shortcut_failed">Failed to add pinned shortcut</string>
+    <string name="pinned_shortcut_failed">Failed to add shortcut</string>
     <string name="pinned_shortcut_already_exists">"%s" shortcut is already on your circles</string>
-    <string name="pinned_shortcuts">Pinned Shortcuts</string>
-    <string name="pinned_shortcuts_desc">Browse and add pinned shortcuts from your apps</string>
-    <string name="no_pinned_shortcuts">No pinned shortcuts available</string>
+    <string name="pinned_shortcuts">Shortcuts</string>
+    <string name="pinned_shortcuts_desc">Browse and add shortcuts from your apps</string>
+    <string name="no_pinned_shortcuts">No shortcuts available</string>
     <string name="pinned_shortcuts_from">Shortcuts from %s</string>
 
     <!--  ─────────────  Recently Used Apps  ─────────────  -->

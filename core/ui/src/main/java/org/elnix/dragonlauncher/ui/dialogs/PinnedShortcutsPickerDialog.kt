@@ -247,7 +247,8 @@ private fun queryAllPinnedShortcuts(
                 .setQueryFlags(
                     LauncherApps.ShortcutQuery.FLAG_MATCH_PINNED or
                             LauncherApps.ShortcutQuery.FLAG_MATCH_DYNAMIC or
-                            LauncherApps.ShortcutQuery.FLAG_MATCH_MANIFEST
+                            LauncherApps.ShortcutQuery.FLAG_MATCH_MANIFEST or
+                            LauncherApps.ShortcutQuery.FLAG_MATCH_CACHED
                 )
 
             val shortcuts = launcherApps.getShortcuts(query, userHandle)

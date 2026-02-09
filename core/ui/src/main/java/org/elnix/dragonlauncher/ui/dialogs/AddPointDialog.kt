@@ -39,6 +39,7 @@ import org.elnix.dragonlauncher.common.utils.PackageManagerCompat
 import org.elnix.dragonlauncher.common.utils.defaultChoosableActions
 import org.elnix.dragonlauncher.models.AppsViewModel
 import org.elnix.dragonlauncher.settings.stores.DrawerSettingsStore
+import org.elnix.dragonlauncher.settings.stores.UiSettingsStore
 import org.elnix.dragonlauncher.ui.UiConstants.DragonShape
 import org.elnix.dragonlauncher.ui.actions.ActionIcon
 import org.elnix.dragonlauncher.ui.actions.actionColor
@@ -81,6 +82,8 @@ fun AddPointDialog(
         .collectAsState(initial = true)
     val iconsShape by DrawerSettingsStore.iconsShape.flow(ctx)
         .collectAsState(DrawerSettingsStore.iconsShape.default)
+    val promptForShortcuts by UiSettingsStore.promptForShortcutsWhenAddingApp.flow(ctx)
+        .collectAsState(initial = false)
 
 
     var selectedApp by remember { mutableStateOf<AppModel?>(null) }
@@ -196,15 +199,19 @@ fun AddPointDialog(
             onDismiss = { showAppPicker = false },
             onAppSelected = { app ->
                 // Try to query shortcuts, but handle crashes gracefully
-                val list = try {
-                    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
-                        packageManagerCompat.queryAppShortcuts(app.packageName) ?: emptyList()
-                    } else {
+                val list = if (promptForShortcuts) {
+                    try {
+                        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
+                            packageManagerCompat.queryAppShortcuts(app.packageName) ?: emptyList()
+                        } else {
+                            emptyList()
+                        }
+                    } catch (e: Exception) {
+                        // Some apps (Contacts, Gmail) may throw SecurityException or other errors
                         emptyList()
                     }
-                } catch (e: Exception) {
-                    // Some apps (Contacts, Gmail) may throw SecurityException or other errors
-                    emptyList()
+                } else {
+                    emptyList() // Skip shortcut query if disabled
                 }
 
                 if (list.isNotEmpty()) {
