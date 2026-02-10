@@ -214,7 +214,11 @@ class AppsViewModel(
                         WorkspaceType.USER -> list.filter { !it.isWorkProfile && !it.isPrivateProfile && it.isLaunchable == true }
                         WorkspaceType.SYSTEM -> list.filter { it.isSystem }
                         WorkspaceType.WORK -> list.filter { it.isWorkProfile && it.isLaunchable == true }
-                        WorkspaceType.PRIVATE -> list.filter { it.isPrivateProfile && it.isLaunchable == true }
+                        WorkspaceType.PRIVATE -> {
+                            val privateApps = list.filter { it.isPrivateProfile && it.isLaunchable == true }
+                            logD(APPS_TAG, "Private workspace: ${privateApps.size} apps (from ${list.count { it.isPrivateProfile }} total private apps)")
+                            privateApps
+                        }
                     }
 
                     val added = list.filter { it.packageName in workspace.appIds }
