@@ -46,6 +46,7 @@ class PackageManagerCompat(private val pm: PackageManager, private val ctx: Cont
             // Determine profile type (Android 15+)
             var isWorkProfile = false
             var isPrivateProfile = false
+            var isPrivateSpaceLocked = false
             
             if (!isMainProfile) {
                 if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.VANILLA_ICE_CREAM) {
@@ -57,10 +58,10 @@ class PackageManagerCompat(private val pm: PackageManager, private val ctx: Cont
                         isPrivateProfile = userType == "android.os.usertype.profile.PRIVATE"
                         isWorkProfile = !isPrivateProfile
                         
-                        // Skip Private Space if it's locked (quiet mode enabled)
-                        if (isPrivateProfile && userManager.isQuietModeEnabled(userHandle)) {
-                            logD(TAG, "Skipping locked Private Space - userId: $userId")
-                            return@forEach
+                        // Check if Private Space is locked (but don't skip - we need to detect it exists)
+                        if (isPrivateProfile) {
+                            isPrivateSpaceLocked = userManager.isQuietModeEnabled(userHandle)
+                            logD(TAG, "Private Space detected - userId: $userId, locked: $isPrivateSpaceLocked")
                         }
                         
                         logD(TAG, "Profile detected - userId: $userId, userType: $userType, isPrivate: $isPrivateProfile, isWork: $isWorkProfile")
@@ -76,6 +77,12 @@ class PackageManagerCompat(private val pm: PackageManager, private val ctx: Cont
             }
 
             /* ────────── 1. Launchable apps (LauncherApps) ────────── */
+            // Don't load apps if Private Space is locked
+            if (isPrivateSpaceLocked) {
+                logD(TAG, "Skipping app loading for locked Private Space - userId: $userId")
+                return@forEach
+            }
+            
             val activities = launcherApps
                 ?.getActivityList(null, userHandle)
                 ?: emptyList()
@@ -167,11 +174,16 @@ class PackageManagerCompat(private val pm: PackageManager, private val ctx: Cont
             ?: Process.myUserHandle()
 
         return try {
-            // Get icon without badge for all profiles
+            // ─── NON-MAIN PROFILES (Work, Private) → Use badged icon ───
             if (userHandle != Process.myUserHandle() && launcherApps != null) {
-                // For non-main profiles (work, private), get icon WITHOUT badge
-                // to avoid lock/work icons appearing on normal apps
-                
+                // Try to get launcher activity with badge
+                val activities = launcherApps.getActivityList(packageName, userHandle)
+                if (!activities.isNullOrEmpty()) {
+                    // getBadgedIcon() adds the work/private badge
+                    return activities[0].getBadgedIcon(0)
+                }
+
+                // Fallback: application icon via LauncherApps
                 val appInfo = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
                     launcherApps.getApplicationInfo(
                         packageName,
@@ -185,7 +197,7 @@ class PackageManagerCompat(private val pm: PackageManager, private val ctx: Cont
                 return appInfo.loadIcon(pm)
             }
 
-            // ─── PERSONAL PROFILE ───
+            // ─── MAIN PROFILE → No badge ───
             val appInfo = pm.getApplicationInfo(packageName, 0)
             appInfo.loadIcon(pm)
 
