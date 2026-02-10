@@ -2,6 +2,7 @@ package org.elnix.dragonlauncher.ui.helpers.nests
 
 import android.content.Context
 import androidx.compose.ui.geometry.Offset
+import androidx.compose.ui.graphics.BlendMode
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.ImageBitmap
 import androidx.compose.ui.graphics.drawscope.DrawScope
@@ -35,6 +36,31 @@ fun DrawScope.circlesSettingsOverlay(
     selectedAll: Boolean = false,
     preventBgErasing: Boolean = false
 ) {
+
+    // 0. Erases the inner circle
+    /* ───────────── Erases the circle in the point ───────────── */
+
+    // if no background color provided, erases the background
+    val eraseBg = backgroundColor == Color.Transparent && !preventBgErasing
+    val maxCircleSize = circles.maxBy { it.radius }
+
+    // Erases the color, instead of putting it, that lets the wallpaper pass trough
+    drawCircle(
+        color = Color.Transparent,
+        radius = maxCircleSize.radius,
+        center = center,
+        blendMode = BlendMode.Clear
+    )
+
+    // If requested to not erase the bg, draw it (this avoid the more tinted bg when using a half transparent bg color
+    if (!eraseBg) {
+        drawCircle(
+            color = backgroundColor,
+            radius = maxCircleSize.radius,
+            center = center
+        )
+    }
+
     // 1. Draw all circles
     circles.forEach { circle ->
         if (showCircle) {
