@@ -41,12 +41,13 @@ class PackageManagerCompat(private val pm: PackageManager, private val ctx: Cont
 
         userManager.userProfiles.forEach { userHandle ->
             val userId = userHandle.hashCode()
+            val isMainProfile = userHandle == Process.myUserHandle()
             
             // Determine profile type (Android 15+)
             var isWorkProfile = false
             var isPrivateProfile = false
             
-            if (userHandle != Process.myUserHandle()) {
+            if (!isMainProfile) {
                 if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.VANILLA_ICE_CREAM) {
                     // Android 15+ (API 35): Detect Private Space properly
                     try {
@@ -54,7 +55,13 @@ class PackageManagerCompat(private val pm: PackageManager, private val ctx: Cont
                         val userType = userInfo?.userType
                         
                         isPrivateProfile = userType == "android.os.usertype.profile.PRIVATE"
-                        isWorkProfile = !isPrivateProfile && userHandle != Process.myUserHandle()
+                        isWorkProfile = !isPrivateProfile
+                        
+                        // Skip Private Space if it's locked (quiet mode enabled)
+                        if (isPrivateProfile && userManager.isQuietModeEnabled(userHandle)) {
+                            logD(TAG, "Skipping locked Private Space - userId: $userId")
+                            return@forEach
+                        }
                         
                         logD(TAG, "Profile detected - userId: $userId, userType: $userType, isPrivate: $isPrivateProfile, isWork: $isWorkProfile")
                     } catch (e: Exception) {
@@ -160,16 +167,11 @@ class PackageManagerCompat(private val pm: PackageManager, private val ctx: Cont
             ?: Process.myUserHandle()
 
         return try {
-            // ─── WORK PROFILE OR ANY NON-CURRENT USER ───
+            // Get icon without badge for all profiles
             if (userHandle != Process.myUserHandle() && launcherApps != null) {
-
-                // Try launcher activity icon first (correct & badged)
-                val activities = launcherApps.getActivityList(packageName, userHandle)
-                if (!activities.isNullOrEmpty()) {
-                    return activities[0].getBadgedIcon(0)
-                }
-
-                // Fallback: application icon via LauncherApps
+                // For non-main profiles (work, private), get icon WITHOUT badge
+                // to avoid lock/work icons appearing on normal apps
+                
                 val appInfo = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
                     launcherApps.getApplicationInfo(
                         packageName,
