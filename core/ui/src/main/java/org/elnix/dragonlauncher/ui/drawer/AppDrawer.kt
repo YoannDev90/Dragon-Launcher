@@ -6,28 +6,38 @@ import android.provider.Settings
 import androidx.activity.compose.BackHandler
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
+import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.exclude
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.ime
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.safeDrawing
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.windowInsetsPadding
 import androidx.compose.foundation.pager.HorizontalPager
 import androidx.compose.foundation.pager.rememberPagerState
 import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Lock
+import androidx.compose.material3.CircularProgressIndicator
+import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextField
 import androidx.compose.material3.TextFieldDefaults
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.derivedStateOf
@@ -36,6 +46,7 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.focus.FocusRequester
@@ -46,8 +57,10 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import androidx.core.net.toUri
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import kotlinx.coroutines.Dispatchers
@@ -242,6 +255,43 @@ fun AppDrawerScreen(
         }
     }
 
+    // State for Private Space authentication
+    var isAuthenticatingPrivateSpace by remember { mutableStateOf(false) }
+    var privateSpaceUnlocked by remember { mutableStateOf(false) }
+    
+    // Activity result launcher for Private Space authentication
+    val privateSpaceAuthLauncher = rememberLauncherForActivityResult(
+        contract = ActivityResultContracts.StartActivityForResult()
+    ) { result ->
+        isAuthenticatingPrivateSpace = false
+        // Authentication completed (success or failure)
+        // We'll detect the actual unlock status via polling
+    }
+    
+    // Poll Private Space lock status when authenticating
+    LaunchedEffect(isAuthenticatingPrivateSpace) {
+        if (!isAuthenticatingPrivateSpace) return@LaunchedEffect
+        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.VANILLA_ICE_CREAM) return@LaunchedEffect
+        
+        // Poll every 500ms to detect unlock
+        while (isAuthenticatingPrivateSpace) {
+            kotlinx.coroutines.delay(500)
+            
+            withContext(Dispatchers.IO) {
+                val isLocked = PrivateSpaceUtils.isPrivateSpaceLocked(ctx)
+                if (isLocked == false) {
+                    // Private Space is now unlocked!
+                    withContext(Dispatchers.Main) {
+                        privateSpaceUnlocked = true
+                        isAuthenticatingPrivateSpace = false
+                    }
+                    // Reload apps to show private apps
+                    appsViewModel.reloadApps()
+                }
+            }
+        }
+    }
+    
     LaunchedEffect(pagerState.currentPage) {
         val newWorkspaceId = workspaces.getOrNull(pagerState.currentPage)?.id ?: return@LaunchedEffect
         val newWorkspace = workspaces.getOrNull(pagerState.currentPage) ?: return@LaunchedEffect
@@ -255,27 +305,27 @@ fun AppDrawerScreen(
                 val isLocked = PrivateSpaceUtils.isPrivateSpaceLocked(ctx)
                 
                 if (isLocked == true) {
-                    // Request unlock with biometric authentication
-                    val unlockSuccess = PrivateSpaceUtils.requestUnlockPrivateSpace(ctx)
-                    
-                    if (!unlockSuccess) {
-                        // Authentication failed or cancelled, go back to previous workspace
-                        withContext(Dispatchers.Main) {
-                            // Find previous workspace index
+                    // Start authentication flow
+                    withContext(Dispatchers.Main) {
+                        val unlockIntent = PrivateSpaceUtils.createUnlockPrivateSpaceIntent(ctx)
+                        if (unlockIntent != null) {
+                            isAuthenticatingPrivateSpace = true
+                            privateSpaceUnlocked = false
+                            privateSpaceAuthLauncher.launch(unlockIntent)
+                        } else {
+                            // Failed to create intent, go back
                             val previousIndex = if (pagerState.currentPage > 0) {
                                 pagerState.currentPage - 1
                             } else {
-                                // Go to first non-private workspace
                                 workspaces.indexOfFirst { it.type != WorkspaceType.PRIVATE }
                                     .coerceAtLeast(0)
                             }
                             pagerState.scrollToPage(previousIndex)
                         }
-                        return@withContext
                     }
-                    
-                    // Successfully unlocked, reload apps to show private apps
-                    appsViewModel.reloadApps()
+                } else {
+                    // Already unlocked
+                    privateSpaceUnlocked = true
                 }
             }
         }
@@ -516,6 +566,56 @@ fun AppDrawerScreen(
                             interactionSource = null
                         ) { launchDrawerAction(rightAction) }
                 )
+            }
+        }
+        
+        // Private Space authentication overlay
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.VANILLA_ICE_CREAM &&
+            isAuthenticatingPrivateSpace &&
+            workspaces.getOrNull(pagerState.currentPage)?.type == WorkspaceType.PRIVATE) {
+            
+            Box(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .background(MaterialTheme.colorScheme.surface.copy(alpha = 0.95f)),
+                contentAlignment = Alignment.Center
+            ) {
+                Column(
+                    horizontalAlignment = Alignment.CenterHorizontally,
+                    verticalArrangement = Arrangement.Center,
+                    modifier = Modifier.padding(32.dp)
+                ) {
+                    Icon(
+                        imageVector = Icons.Default.Lock,
+                        contentDescription = "Private Space Locked",
+                        modifier = Modifier.size(64.dp),
+                        tint = MaterialTheme.colorScheme.primary
+                    )
+                    
+                    Spacer(modifier = Modifier.height(24.dp))
+                    
+                    Text(
+                        text = "Private Space",
+                        style = MaterialTheme.typography.headlineMedium,
+                        fontWeight = FontWeight.Bold,
+                        color = MaterialTheme.colorScheme.onSurface
+                    )
+                    
+                    Spacer(modifier = Modifier.height(16.dp))
+                    
+                    Text(
+                        text = "Authenticating...",
+                        style = MaterialTheme.typography.bodyLarge,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant
+                    )
+                    
+                    Spacer(modifier = Modifier.height(24.dp))
+                    
+                    CircularProgressIndicator(
+                        modifier = Modifier.size(48.dp),
+                        color = MaterialTheme.colorScheme.primary
+                    )
+                }
             }
         }
     }
