@@ -23,6 +23,7 @@ fun AppModelInfoDialog(
                 Text(text = "isEnabled = ${app.isEnabled}")
                 Text(text = "isSystem = ${app.isSystem}")
                 Text(text = "isWorkProfile = ${app.isWorkProfile}")
+                Text(text = "isPrivateProfile = ${app.isPrivateProfile}")
                 Text(text = "isLaunchable = ${app.isLaunchable}")
                 Text(text = "settings = ${app.settings}")
                 Text(text = "userId = ${app.userId}")
