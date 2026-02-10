@@ -106,6 +106,11 @@ class PackageManagerCompat(private val pm: PackageManager, private val ctx: Cont
                     isLaunchable = true,
                     category = category
                 )
+                
+                // Debug log for Private Space apps
+                if (isPrivateProfile) {
+                    logD(TAG, "Added Private Space app: $pkg (userId: $userId)")
+                }
             }
 
 
