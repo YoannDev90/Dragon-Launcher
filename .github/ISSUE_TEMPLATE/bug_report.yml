@@ -2,7 +2,6 @@ name: Bug Report
 description: Report a bug not specific to Discord Bot or API
 title: "[BUG] "
 labels: ["bug"]
-assignees: elnix90
 body:
   - type: checkboxes
     id: terms
