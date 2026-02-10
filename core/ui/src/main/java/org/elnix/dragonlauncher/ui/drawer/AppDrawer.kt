@@ -241,8 +241,45 @@ fun AppDrawerScreen(
     }
 
     LaunchedEffect(pagerState.currentPage) {
-        workspaceId = workspaces.getOrNull(pagerState.currentPage)?.id ?: return@LaunchedEffect
-        appsViewModel.selectWorkspace(workspaceId!!)
+        val newWorkspaceId = workspaces.getOrNull(pagerState.currentPage)?.id ?: return@LaunchedEffect
+        val newWorkspace = workspaces.getOrNull(pagerState.currentPage) ?: return@LaunchedEffect
+        
+        // Check if switching to Private Space (Android 15+)
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.VANILLA_ICE_CREAM &&
+            newWorkspace.type == WorkspaceType.PRIVATE) {
+            
+            // Check if Private Space is locked
+            withContext(Dispatchers.IO) {
+                val isLocked = PrivateSpaceUtils.isPrivateSpaceLocked(ctx)
+                
+                if (isLocked == true) {
+                    // Request unlock with biometric authentication
+                    val unlockSuccess = PrivateSpaceUtils.requestUnlockPrivateSpace(ctx)
+                    
+                    if (!unlockSuccess) {
+                        // Authentication failed or cancelled, go back to previous workspace
+                        withContext(Dispatchers.Main) {
+                            // Find previous workspace index
+                            val previousIndex = if (pagerState.currentPage > 0) {
+                                pagerState.currentPage - 1
+                            } else {
+                                // Go to first non-private workspace
+                                workspaces.indexOfFirst { it.type != WorkspaceType.PRIVATE }
+                                    .coerceAtLeast(0)
+                            }
+                            pagerState.scrollToPage(previousIndex)
+                        }
+                        return@withContext
+                    }
+                    
+                    // Successfully unlocked, reload apps to show private apps
+                    appsViewModel.reloadApps()
+                }
+            }
+        }
+        
+        workspaceId = newWorkspaceId
+        appsViewModel.selectWorkspace(newWorkspaceId)
     }
 
 
