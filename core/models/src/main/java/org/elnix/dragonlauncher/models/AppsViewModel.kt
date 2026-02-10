@@ -226,9 +226,26 @@ class AppsViewModel(
 
                     val added = list.filter { it.packageName in workspace.appIds }
 
-                    // Use the base list, and add the new ones (present in added list) and filter them,
-                    // to remove the removed packages from the workspace
-                    (base + added)
+                    // For special workspaces (USER, WORK, PRIVATE), make sure manually-added apps
+                    // don't violate the workspace's profile constraints
+                    val filtered = when (workspace.type) {
+                        WorkspaceType.USER -> {
+                            // Exclude manually-added apps that are Work or Private profile apps
+                            added.filter { !it.isWorkProfile && !it.isPrivateProfile }
+                        }
+                        WorkspaceType.WORK -> {
+                            // Exclude manually-added apps that are not Work profile apps
+                            added.filter { it.isWorkProfile }
+                        }
+                        WorkspaceType.PRIVATE -> {
+                            // Exclude manually-added apps that are not Private profile apps
+                            added.filter { it.isPrivateProfile }
+                        }
+                        else -> added  // For ALL and CUSTOM, allow any manually-added apps
+                    }
+
+                    // Use the base list, and add the filtered manually-added apps, then remove explicitly removed ones
+                    (base + filtered)
                         .distinctBy { it.packageName }
                         .filter { it.packageName !in removed }
                         .sortedBy { it.name.lowercase() }

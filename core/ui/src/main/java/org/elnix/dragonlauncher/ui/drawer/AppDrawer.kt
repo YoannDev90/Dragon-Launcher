@@ -291,15 +291,21 @@ fun AppDrawerScreen(
                 privateSpaceUnlocked = true
                 isAuthenticatingPrivateSpace = false
                 
-                // Reload apps to show private apps (call from coroutine scope)
-                logI("AppDrawer", "Calling reloadApps() after unlock...")
-                appsViewModel.reloadApps()
-                logI("AppDrawer", "reloadApps() completed")
+                // Call reloadApps from the ViewModel's scope, not this LaunchedEffect scope
+                logI("AppDrawer", "Launching reloadApps() from ViewModel scope...")
+                scope.launch {
+                    logI("AppDrawer", "Inside scope.launch, calling reloadApps()...")
+                    try {
+                        appsViewModel.reloadApps()
+                        logI("AppDrawer", "reloadApps() succeeded from ViewModel scope")
+                    } catch (e: Exception) {
+                        logI("AppDrawer", "reloadApps() failed: ${e.message}\n${e.stackTraceToString()}")
+                    }
+                }
+                logI("AppDrawer", "Polling stopped")
                 break
             }
         }
-        
-        logI("AppDrawer", "Polling stopped")
     }
     
     LaunchedEffect(pagerState.currentPage) {

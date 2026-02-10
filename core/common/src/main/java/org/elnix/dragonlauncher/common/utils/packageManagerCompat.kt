@@ -117,33 +117,38 @@ class PackageManagerCompat(private val pm: PackageManager, private val ctx: Cont
 
 
              /* ────────── 2. Non-launchable system apps (PackageManager) ────────── */
-            pm.getInstalledApplications(PackageManager.GET_META_DATA)
-                .forEach { appInfo ->
-                    val pkg = appInfo.packageName
-                    val category = mapAppToSection(appInfo)
+            // IMPORTANT: PackageManager.getInstalledApplications() only returns apps from
+            // the main profile, NOT from work/private profiles. So we skip this section
+            // for non-main profiles to avoid incorrectly assigning apps to wrong profile.
+            if (isMainProfile) {
+                pm.getInstalledApplications(PackageManager.GET_META_DATA)
+                    .forEach { appInfo ->
+                        val pkg = appInfo.packageName
+                        val category = mapAppToSection(appInfo)
 
 
-                    // Skip apps already added via LauncherApps
-                    if (result.any { it.packageName == pkg && it.userId == userId }) return@forEach
+                        // Skip apps already added via LauncherApps
+                        if (result.any { it.packageName == pkg && it.userId == userId }) return@forEach
 
-                    // Only add enabled system apps
-                    if (!isSystemApp(appInfo)) return@forEach
-                    if (!appInfo.enabled) return@forEach
+                        // Only add enabled system apps
+                        if (!isSystemApp(appInfo)) return@forEach
+                        if (!appInfo.enabled) return@forEach
 
-                    val label = pm.getApplicationLabel(appInfo).toString()
+                        val label = pm.getApplicationLabel(appInfo).toString()
 
-                    result += AppModel(
-                        name = label,
-                        packageName = pkg,
-                        userId = userId,
-                        isEnabled = true,
-                        isSystem = true,
-                        isWorkProfile = isWorkProfile,
-                        isPrivateProfile = isPrivateProfile,
-                        isLaunchable = false,
-                        category = category
-                    )
-                }
+                        result += AppModel(
+                            name = label,
+                            packageName = pkg,
+                            userId = userId,
+                            isEnabled = true,
+                            isSystem = true,
+                            isWorkProfile = false,  // Main profile, so not work
+                            isPrivateProfile = false,  // Main profile, so not private
+                            isLaunchable = false,
+                            category = category
+                        )
+                    }
+            }
         }
 
         return result
