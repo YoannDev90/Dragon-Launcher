@@ -37,7 +37,6 @@ import androidx.navigation.compose.currentBackStackEntryAsState
 import kotlinx.coroutines.launch
 import org.elnix.dragonlauncher.common.FloatingAppObject
 import org.elnix.dragonlauncher.common.R
-import org.elnix.dragonlauncher.common.logging.logE
 import org.elnix.dragonlauncher.common.utils.ROUTES
 import org.elnix.dragonlauncher.common.utils.SETTINGS
 import org.elnix.dragonlauncher.common.utils.WidgetHostProvider
@@ -102,11 +101,7 @@ fun MainAppUi(
     val showAppLabelsInDrawer by DrawerSettingsStore.showAppLabelInDrawer.asState()
     val autoShowKeyboardOnDrawer by DrawerSettingsStore.autoShowKeyboardOnDrawer.asState()
     val gridSize by DrawerSettingsStore.gridSize.asState()
-
-//    val searchBarBottom by DrawerSettingsStore.getSearchBarBottom(ctx)
-//        .collectAsState(initial = true)
-    val searchBarBottom = false
-
+    val searchBarBottom by DrawerSettingsStore.searchBarBottom.asState()
 
 
     val leftDrawerAction by DrawerSettingsStore.leftDrawerAction.asState()
@@ -219,7 +214,6 @@ fun MainAppUi(
 
     val containerColor =
         if (currentRoute in transparentScreens) {
-            ctx.logE("Wallpaper", "IS TRANSPARENT: $currentRoute")
             Color.Transparent
         } else {
             MaterialTheme.colorScheme.background

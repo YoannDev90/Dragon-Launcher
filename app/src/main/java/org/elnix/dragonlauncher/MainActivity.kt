@@ -13,12 +13,10 @@ import android.os.Build
 import android.os.Bundle
 import android.os.SystemClock
 import android.view.WindowManager
-import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.activity.viewModels
 import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -53,6 +51,7 @@ import org.elnix.dragonlauncher.settings.stores.PrivateSettingsStore
 import org.elnix.dragonlauncher.settings.stores.SwipeSettingsStore
 import org.elnix.dragonlauncher.settings.stores.UiSettingsStore
 import org.elnix.dragonlauncher.ui.MainAppUi
+import org.elnix.dragonlauncher.ui.components.settings.asState
 import org.elnix.dragonlauncher.ui.theme.DragonLauncherTheme
 import java.util.UUID
 
@@ -306,9 +305,9 @@ class MainActivity : FragmentActivity(), WidgetHostProvider {
 //            DoubleBackToExit()
 
 
-            val keepScreenOn by BehaviorSettingsStore.keepScreenOn.flow(ctx).collectAsState(false)
-            val fullscreen by UiSettingsStore.fullScreen.flow(ctx).collectAsState(false)
-            val hasInitialized by PrivateSettingsStore.hasInitialized.flow(ctx).collectAsState(initial = true)
+            val keepScreenOn by BehaviorSettingsStore.keepScreenOn.asState()
+            val fullscreen by UiSettingsStore.fullScreen.asState()
+            val hasInitialized by PrivateSettingsStore.hasInitialized.asState()
 
 
             val window = this@MainActivity.window

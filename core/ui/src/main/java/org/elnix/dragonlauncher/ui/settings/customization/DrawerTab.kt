@@ -131,6 +131,14 @@ fun DrawerTab(
             )
         }
 
+        item {
+            SettingsSwitchRow(
+                setting = DrawerSettingsStore.searchBarBottom,
+                title = stringResource(R.string.search_bar_bottom),
+                description = stringResource(R.string.search_bar_bottom_desc),
+            )
+        }
+
         /* ───────────── Recently Used Apps ───────────── */
 
         item { TextDivider(stringResource(R.string.recently_used_apps)) }
