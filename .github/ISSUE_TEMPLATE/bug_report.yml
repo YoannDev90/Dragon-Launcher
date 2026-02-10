@@ -4,6 +4,13 @@ title: "[BUG] "
 labels: ["bug"]
 assignees: elnix90
 body:
+  - type: checkboxes
+    id: terms
+    attributes:
+      label: Requirements
+      options:
+        - label: I've checked for duplicate issues in both opened and closed
+          required: true
   - type: textarea
     id: description
     attributes:

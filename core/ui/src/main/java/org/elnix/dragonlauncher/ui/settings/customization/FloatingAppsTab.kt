@@ -74,6 +74,7 @@ import org.elnix.dragonlauncher.models.FloatingAppsViewModel
 import org.elnix.dragonlauncher.settings.stores.DebugSettingsStore
 import org.elnix.dragonlauncher.settings.stores.DrawerSettingsStore
 import org.elnix.dragonlauncher.settings.stores.StatusBarSettingsStore
+import org.elnix.dragonlauncher.ui.UiConstants.DragonShape
 import org.elnix.dragonlauncher.ui.components.FloatingAppsHostView
 import org.elnix.dragonlauncher.ui.components.resolveShape
 import org.elnix.dragonlauncher.ui.dialogs.AddPointDialog
@@ -490,7 +491,7 @@ private fun DraggableFloatingApp(
             .border(
                 width = if (selected) 2.dp else 0.dp,
                 color = borderColor,
-                shape = shape
+                shape = DragonShape
             )
     ) {
 

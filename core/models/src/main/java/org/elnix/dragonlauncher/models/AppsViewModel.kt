@@ -101,7 +101,7 @@ class AppsViewModel(
     private val _selectedIconPack = MutableStateFlow<IconPackInfo?>(null)
     val selectedIconPack: StateFlow<IconPackInfo?> = _selectedIconPack.asStateFlow()
 
-    private val iconPackCache = mutableMapOf<String, Map<String, String>>()
+    private val iconPackCache = mutableMapOf<String, IconPackCache>()
 
 
     @SuppressLint("StaticFieldLeak")
@@ -512,25 +512,67 @@ class AppsViewModel(
     fun loadAllIconsFromPack(pack: IconPackInfo) {
 
         scope.launch(Dispatchers.IO) {
-            val mappings = iconPackCache.getOrPut(pack.packageName) {
+            val cache = iconPackCache.getOrPut(pack.packageName) {
                 loadIconPackMappings(pack.packageName)
             }
 
-            if (mappings.isEmpty()) {
+            if (cache.pkgToDrawables.isEmpty()) {
                 _packIcons.value = emptyList()
                 return@launch
             }
 
-            _packIcons.value = mappings.values.distinct()
+            _packIcons.value = cache.pkgToDrawables.values.flatten().distinct()
         }
     }
 
 
     private fun getCachedIconMapping(pkgName: String): String? {
         return selectedIconPack.value?.let { pack ->
-            iconPackCache.getOrPut(pack.packageName) {
+            val cache = iconPackCache.getOrPut(pack.packageName) {
                 loadIconPackMappings(pack.packageName)
-            }[pkgName]
+            }
+
+            // 1) Exact package match
+            cache.pkgToDrawables[pkgName]?.let { list ->
+                if (list.size == 1) return list[0]
+
+                // Try to prefer drawable matching launch activity or package hint
+                try {
+                    val launchIntent = pm.getLaunchIntentForPackage(pkgName)
+                    val compClass = launchIntent?.component?.className
+                    if (!compClass.isNullOrEmpty()) {
+                        cache.componentToDrawable.entries.forEach { (comp, drawable) ->
+                            // comp is normalized as "package/class" or just "package"
+                            if (comp.startsWith("$pkgName/") && comp.endsWith(compClass)) {
+                                return drawable
+                            }
+                        }
+                    }
+                } catch (_: Exception) {
+                }
+
+                    val lastSeg = pkgName.substringAfterLast('.')
+                list.find { it.equals(lastSeg, ignoreCase = true) }?.let { return it }
+                list.find { it.contains(lastSeg, ignoreCase = true) }?.let { return it }
+
+                // Try matching against app label (helps with packages like Play Store which may be referenced differently in packs)
+                try {
+                    val label = pm.getApplicationLabel(pm.getApplicationInfo(pkgName, 0)).toString().replace("\\s+".toRegex(), "").lowercase()
+                    list.find { it.equals(label, ignoreCase = true) }?.let { return it }
+                    list.find { it.contains(label, ignoreCase = true) }?.let { return it }
+                } catch (_: Exception) { }
+
+                list.find { !it.contains("_x") && !it.endsWith("x", true) }?.let { return it }
+
+                return list.first()
+            }
+
+            // 2) Try component-level fallback (some icon packs specify full component only)
+            cache.componentToDrawable.entries.find { (comp, _) ->
+                val norm = comp
+                val p = if (norm.contains('/')) norm.substringBefore('/') else norm
+                p == pkgName
+            }?.value
         }
     }
 
@@ -643,15 +685,34 @@ class AppsViewModel(
 //        }
 //    }
 
-    fun loadIconPackMappings(packPkg: String): Map<String, String> {
+    fun loadIconPackMappings(packPkg: String): IconPackCache {
         return try {
-            parseAppFilterXml(ctx, packPkg)?.associate {
-                val pkg = it.component.substringAfter('{').substringBefore('/')
-                pkg to it.drawable
-            } ?: emptyMap()
+            val entries = parseAppFilterXml(ctx, packPkg) ?: emptyList()
+
+            val componentToDrawable = mutableMapOf<String, String>()
+            val pkgToDrawables = mutableMapOf<String, MutableList<String>>()
+
+            entries.forEach { mapping ->
+                var comp = mapping.component
+                if (comp.contains('{')) comp = comp.substringAfter('{')
+                if (comp.contains('}')) comp = comp.substringBefore('}')
+                comp = comp.trim()
+
+                val pkg = if (comp.contains('/')) comp.substringBefore('/') else comp
+
+                componentToDrawable[comp] = mapping.drawable
+
+                val list = pkgToDrawables.getOrPut(pkg) { mutableListOf() }
+                if (!list.contains(mapping.drawable)) list.add(mapping.drawable)
+            }
+
+            IconPackCache(
+                pkgToDrawables = pkgToDrawables,
+                componentToDrawable = componentToDrawable
+            )
         } catch (e: Exception) {
             logE(ICONS_TAG, "Failed to load mappings for $packPkg: ${e.message}")
-            emptyMap()
+            IconPackCache(emptyMap(), emptyMap())
         }
     }
 
@@ -1027,3 +1088,12 @@ private fun parseAppFilterXml(ctx: Context, packPkg: String): List<IconMapping>?
         null
     }
 }
+
+/**
+ * Icon pack cache with normalized component mapping and package -> drawables list
+ */
+data class IconPackCache(
+    val pkgToDrawables: Map<String, List<String>>,
+    val componentToDrawable: Map<String, String>
+)
+
