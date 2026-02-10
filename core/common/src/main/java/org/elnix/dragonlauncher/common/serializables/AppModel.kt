@@ -13,7 +13,8 @@ data class AppModel(
     @SerializedName("f") val isLaunchable: Boolean?,
     @SerializedName("g") val settings: Map<String, Any> = emptyMap(),
     @SerializedName("h") val userId: Int? = 0,
-    @SerializedName("category") val category: AppCategory
+    @SerializedName("category") val category: AppCategory,
+    @SerializedName("i") val isPrivateProfile: Boolean = false // Android 15+ Private Space
 ) {
     val action = SwipeActionSerializable.LaunchApp(packageName, userId ?: 0)
 }
@@ -71,6 +72,7 @@ enum class WorkspaceType {
     USER,
     SYSTEM,
     WORK,
+    PRIVATE,  // Android 15+ Private Space
     CUSTOM
 }
 
@@ -113,7 +115,8 @@ val defaultWorkspaces = listOf(
     Workspace("user", "User", WorkspaceType.USER, emptyList(), listOf("org.elnix.dragonlauncher"), true),
     Workspace("system", "System", WorkspaceType.SYSTEM, emptyList(), emptyList(), false),
     Workspace("all", "All", WorkspaceType.ALL, emptyList(), emptyList(),  false),
-    Workspace("work", "Work", WorkspaceType.WORK, emptyList(), emptyList(),  false)
+    Workspace("work", "Work", WorkspaceType.WORK, emptyList(), emptyList(),  false),
+    Workspace("private", "Private Space", WorkspaceType.PRIVATE, emptyList(), emptyList(), false) // Android 15+ only
 )
 
 

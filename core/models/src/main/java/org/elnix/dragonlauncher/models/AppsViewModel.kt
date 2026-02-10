@@ -209,9 +209,10 @@ class AppsViewModel(
                 else -> {
                     val base = when (workspace.type) {
                         WorkspaceType.ALL, WorkspaceType.CUSTOM -> list
-                        WorkspaceType.USER -> list.filter { !it.isWorkProfile && it.isLaunchable == true }
+                        WorkspaceType.USER -> list.filter { !it.isWorkProfile && !it.isPrivateProfile && it.isLaunchable == true }
                         WorkspaceType.SYSTEM -> list.filter { it.isSystem }
                         WorkspaceType.WORK -> list.filter { it.isWorkProfile && it.isLaunchable == true }
+                        WorkspaceType.PRIVATE -> list.filter { it.isPrivateProfile && it.isLaunchable == true }
                     }
 
                     val added = list.filter { it.packageName in workspace.appIds }

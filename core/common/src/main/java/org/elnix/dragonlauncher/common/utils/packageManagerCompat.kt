@@ -15,6 +15,7 @@ import androidx.annotation.RequiresApi
 import androidx.compose.ui.graphics.ImageBitmap
 import androidx.core.content.ContextCompat
 import org.elnix.dragonlauncher.common.R
+import org.elnix.dragonlauncher.common.logging.logD
 import org.elnix.dragonlauncher.common.logging.logE
 import org.elnix.dragonlauncher.common.serializables.AppModel
 import org.elnix.dragonlauncher.common.serializables.mapAppToSection
@@ -39,8 +40,33 @@ class PackageManagerCompat(private val pm: PackageManager, private val ctx: Cont
         val result = mutableListOf<AppModel>()
 
         userManager.userProfiles.forEach { userHandle ->
-            val isWorkProfile = userHandle != Process.myUserHandle()
             val userId = userHandle.hashCode()
+            
+            // Determine profile type (Android 15+)
+            var isWorkProfile = false
+            var isPrivateProfile = false
+            
+            if (userHandle != Process.myUserHandle()) {
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.VANILLA_ICE_CREAM) {
+                    // Android 15+ (API 35): Detect Private Space properly
+                    try {
+                        val userInfo = launcherApps?.getLauncherUserInfo(userHandle)
+                        val userType = userInfo?.userType
+                        
+                        isPrivateProfile = userType == "android.os.usertype.profile.PRIVATE"
+                        isWorkProfile = !isPrivateProfile && userHandle != Process.myUserHandle()
+                        
+                        logD(TAG, "Profile detected - userId: $userId, userType: $userType, isPrivate: $isPrivateProfile, isWork: $isWorkProfile")
+                    } catch (e: Exception) {
+                        logE(TAG, "Error detecting profile type for userId $userId", e)
+                        // Fallback: assume work profile
+                        isWorkProfile = true
+                    }
+                } else {
+                    // Pre-Android 15: Assume work profile
+                    isWorkProfile = true
+                }
+            }
 
             /* ────────── 1. Launchable apps (LauncherApps) ────────── */
             val activities = launcherApps
@@ -62,6 +88,7 @@ class PackageManagerCompat(private val pm: PackageManager, private val ctx: Cont
                     isEnabled = true,
                     isSystem = isSystemApp(appInfo),
                     isWorkProfile = isWorkProfile,
+                    isPrivateProfile = isPrivateProfile,
                     isLaunchable = true,
                     category = category
                 )
@@ -91,6 +118,7 @@ class PackageManagerCompat(private val pm: PackageManager, private val ctx: Cont
                         isEnabled = true,
                         isSystem = true,
                         isWorkProfile = isWorkProfile,
+                        isPrivateProfile = isPrivateProfile,
                         isLaunchable = false,
                         category = category
                     )
