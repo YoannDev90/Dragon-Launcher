@@ -490,7 +490,7 @@ private fun DraggableFloatingApp(
             .border(
                 width = if (selected) 2.dp else 0.dp,
                 color = borderColor,
-                shape = shape
+                shape = DragonShape
             )
     ) {
 
