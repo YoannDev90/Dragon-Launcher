@@ -202,7 +202,7 @@ class PackageManagerCompat(private val pm: PackageManager, private val ctx: Cont
             if (isPrivateProfile && launcherApps != null) {
                 val activities = launcherApps.getActivityList(packageName, userHandle)
                 if (!activities.isNullOrEmpty()) {
-                    return activities[0].getIcon(0)
+                    return activities[0].getBadgedIcon(0)
                 }
                 val appInfo = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
                     launcherApps.getApplicationInfo(packageName, 0, userHandle)
