@@ -53,6 +53,7 @@ import org.elnix.dragonlauncher.common.utils.ImageUtils.createUntintedBitmap
 import org.elnix.dragonlauncher.common.utils.ImageUtils.loadDrawableAsBitmap
 import org.elnix.dragonlauncher.common.utils.ImageUtils.resolveCustomIconBitmap
 import org.elnix.dragonlauncher.common.utils.PackageManagerCompat
+import org.elnix.dragonlauncher.common.utils.PrivateSpaceUtils
 import org.elnix.dragonlauncher.common.utils.TAG
 import org.elnix.dragonlauncher.settings.stores.AppsSettingsStore
 import org.elnix.dragonlauncher.settings.stores.DrawerSettingsStore
@@ -283,16 +284,16 @@ class AppsViewModel(
                 AppsSettingsStore.cachedApps.set(ctx, gson.toJson(apps))
             }
             
-            // Auto-enable Private Space workspace if there are private apps (Android 15+)
+            // Auto-enable Private Space workspace if Private Space exists (Android 15+)
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.VANILLA_ICE_CREAM) {
-                val hasPrivateApps = apps.any { it.isPrivateProfile }
+                val privateSpaceExists = PrivateSpaceUtils.getPrivateSpaceUserHandle(ctx) != null
                 val privateWorkspace = _workspacesState.value.workspaces.find { it.type == WorkspaceType.PRIVATE }
                 
-                if (hasPrivateApps && privateWorkspace != null && !privateWorkspace.enabled) {
-                    logI(APPS_TAG, "Enabling Private Space workspace (found ${apps.count { it.isPrivateProfile }} private apps)")
+                if (privateSpaceExists && privateWorkspace != null && !privateWorkspace.enabled) {
+                    logI(APPS_TAG, "Enabling Private Space workspace (Private Space profile detected)")
                     setWorkspaceEnabled("private", true)
-                } else if (!hasPrivateApps && privateWorkspace != null && privateWorkspace.enabled) {
-                    logI(APPS_TAG, "Disabling Private Space workspace (no private apps found)")
+                } else if (!privateSpaceExists && privateWorkspace != null && privateWorkspace.enabled) {
+                    logI(APPS_TAG, "Disabling Private Space workspace (Private Space profile not found)")
                     setWorkspaceEnabled("private", false)
                 }
             }
