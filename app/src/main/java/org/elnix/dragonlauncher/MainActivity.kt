@@ -52,6 +52,7 @@ import org.elnix.dragonlauncher.settings.stores.SwipeSettingsStore
 import org.elnix.dragonlauncher.settings.stores.UiSettingsStore
 import org.elnix.dragonlauncher.ui.MainAppUi
 import org.elnix.dragonlauncher.ui.components.settings.asState
+import org.elnix.dragonlauncher.ui.components.settings.asStateNull
 import org.elnix.dragonlauncher.ui.theme.DragonLauncherTheme
 import java.util.UUID
 
@@ -307,7 +308,7 @@ class MainActivity : FragmentActivity(), WidgetHostProvider {
 
             val keepScreenOn by BehaviorSettingsStore.keepScreenOn.asState()
             val fullscreen by UiSettingsStore.fullScreen.asState()
-            val hasInitialized by PrivateSettingsStore.hasInitialized.asState()
+            val hasInitialized by PrivateSettingsStore.hasInitialized.asStateNull()
 
 
             val window = this@MainActivity.window
@@ -332,7 +333,7 @@ class MainActivity : FragmentActivity(), WidgetHostProvider {
 
 
             LaunchedEffect(hasInitialized) {
-                if (!hasInitialized) {
+                if (hasInitialized == false) {
 
                     /* ───────────── Create the 3 default points (has to be changed ───────────── */
                     SwipeSettingsStore.savePoints(ctx,
