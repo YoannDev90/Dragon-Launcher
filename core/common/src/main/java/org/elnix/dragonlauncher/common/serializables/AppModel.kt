@@ -14,7 +14,7 @@ data class AppModel(
     @SerializedName("g") val settings: Map<String, Any> = emptyMap(),
     @SerializedName("h") val userId: Int? = 0,
     @SerializedName("category") val category: AppCategory,
-    @SerializedName("i") val isPrivateProfile: Boolean = false // Android 15+ Private Space
+    @SerializedName("isPrivateProfile") val isPrivateProfile: Boolean = false // Android 15+ Private Space
 ) {
     val action = SwipeActionSerializable.LaunchApp(packageName, userId ?: 0)
 }
