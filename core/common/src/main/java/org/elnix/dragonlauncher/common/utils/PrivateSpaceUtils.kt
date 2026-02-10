@@ -83,16 +83,16 @@ object PrivateSpaceUtils {
     
     /**
      * Request to unlock the Private Space. This will trigger biometric authentication.
-     * Returns true if the request was successfully initiated.
+     * Returns an Intent to launch the authentication, or null if failed.
      * 
-     * Note: On Android 15+, calling requestQuietModeEnabled(false, ...) for Private Space
-     * will automatically trigger the system's biometric authentication dialog.
+     * The caller should launch this Intent using startActivityForResult() or 
+     * ActivityResultLauncher to handle the authentication result.
      */
     @RequiresApi(Build.VERSION_CODES.VANILLA_ICE_CREAM)
-    fun requestUnlockPrivateSpace(context: Context): Boolean {
+    fun createUnlockPrivateSpaceIntent(context: Context): android.content.Intent? {
         val privateUserHandle = getPrivateSpaceUserHandle(context) ?: run {
             logE(TAG, "Cannot unlock: Private Space not found")
-            return false
+            return null
         }
         
         try {
@@ -101,26 +101,26 @@ object PrivateSpaceUtils {
             // Check if already unlocked
             if (!userManager.isQuietModeEnabled(privateUserHandle)) {
                 logI(TAG, "Private Space is already unlocked")
-                return true
+                return null
             }
             
-            logI(TAG, "Requesting Private Space unlock (will trigger biometric auth)")
+            logI(TAG, "Creating Private Space unlock intent")
             
-            // Request to disable quiet mode (unlock)
-            // This will trigger the system's biometric authentication dialog
-            val success = userManager.requestQuietModeEnabled(false, privateUserHandle)
-            
-            if (success) {
-                logI(TAG, "Private Space unlock request initiated successfully")
-            } else {
-                logE(TAG, "Private Space unlock request failed")
-            }
-            
-            return success
+            // Create intent with IntentSender for authentication
+            return userManager.createRequestQuietModeIntent(false, privateUserHandle)
         } catch (e: Exception) {
-            logE(TAG, "Error requesting Private Space unlock: ${e.message}", e)
-            return false
+            logE(TAG, "Error creating Private Space unlock intent: ${e.message}", e)
+            return null
         }
+    }
+    
+    /**
+     * Check if Private Space unlock is available/supported.
+     * This is a lighter check that doesn't require permissions.
+     */
+    @RequiresApi(Build.VERSION_CODES.VANILLA_ICE_CREAM)
+    fun canUnlockPrivateSpace(context: Context): Boolean {
+        return getPrivateSpaceUserHandle(context) != null
     }
     
     /**
