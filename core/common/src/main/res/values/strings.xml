@@ -618,5 +618,7 @@
     <string name="recently_used_apps_count">Number of recent apps</string>
     <string name="show_category_name">Show Category name</string>
     <string name="show_category_name_desc">Display the name of the category below it</string>
+    <string name="search_bar_bottom">Search bar bottom</string>
+    <string name="search_bar_bottom_desc">Display the search bar at the bottom of the drawer</string>
 
 </resources>

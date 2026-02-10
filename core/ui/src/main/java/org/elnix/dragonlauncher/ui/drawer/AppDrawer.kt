@@ -6,16 +6,17 @@ import android.provider.Settings
 import androidx.activity.compose.BackHandler
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
+import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.exclude
-import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.ime
+import androidx.compose.foundation.layout.imePadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.safeDrawing
 import androidx.compose.foundation.layout.windowInsetsPadding
@@ -23,6 +24,9 @@ import androidx.compose.foundation.pager.HorizontalPager
 import androidx.compose.foundation.pager.rememberPagerState
 import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Search
+import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextField
@@ -36,8 +40,10 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.focus.onFocusChanged
@@ -76,9 +82,9 @@ import org.elnix.dragonlauncher.models.AppsViewModel
 import org.elnix.dragonlauncher.settings.stores.DrawerSettingsStore
 import org.elnix.dragonlauncher.settings.stores.UiSettingsStore
 import org.elnix.dragonlauncher.settings.stores.WellbeingSettingsStore
+import org.elnix.dragonlauncher.ui.UiConstants.DragonShape
 import org.elnix.dragonlauncher.ui.actions.launchAppDirectly
 import org.elnix.dragonlauncher.ui.actions.launchSwipeAction
-import org.elnix.dragonlauncher.ui.components.TextDivider
 import org.elnix.dragonlauncher.ui.components.settings.asState
 import org.elnix.dragonlauncher.ui.dialogs.AppAliasesDialog
 import org.elnix.dragonlauncher.ui.dialogs.AppLongPressDialog
@@ -86,6 +92,7 @@ import org.elnix.dragonlauncher.ui.dialogs.IconEditorDialog
 import org.elnix.dragonlauncher.ui.dialogs.RenameAppDialog
 import org.elnix.dragonlauncher.ui.helpers.AppGrid
 import org.elnix.dragonlauncher.ui.helpers.WallpaperDim
+import org.elnix.dragonlauncher.ui.modifiers.settingsGroup
 import org.elnix.dragonlauncher.ui.wellbeing.AppTimerService
 import org.elnix.dragonlauncher.ui.wellbeing.DigitalPauseActivity
 
@@ -177,7 +184,12 @@ fun AppDrawerScreen(
                         reminderMode = reminderMode
                     )
                 }
-                launchAppDirectly(appsViewModel, ctx, pendingPackageToLaunch!!, pendingUserIdToLaunch!!)
+                launchAppDirectly(
+                    appsViewModel = appsViewModel,
+                    ctx = ctx,
+                    packageName = pendingPackageToLaunch!!,
+                    userId = pendingUserIdToLaunch!!
+                )
                 onClose()
             } catch (e: Exception) {
                 ctx.showToast("Error: ${e.message}")
@@ -185,10 +197,15 @@ fun AppDrawerScreen(
         } else if (result.resultCode == DigitalPauseActivity.RESULT_PROCEED_WITH_TIMER && pendingPackageToLaunch != null) {
             try {
                 val data = result.data
-                val timeLimitMin = data?.getIntExtra(DigitalPauseActivity.RESULT_EXTRA_TIME_LIMIT, 10) ?: 10
-                val hasReminder = data?.getBooleanExtra(DigitalPauseActivity.EXTRA_REMINDER_ENABLED, false) ?: false
-                val remInterval = data?.getIntExtra(DigitalPauseActivity.EXTRA_REMINDER_INTERVAL, 5) ?: 5
-                val remMode = data?.getStringExtra(DigitalPauseActivity.EXTRA_REMINDER_MODE) ?: "overlay"
+                val timeLimitMin =
+                    data?.getIntExtra(DigitalPauseActivity.RESULT_EXTRA_TIME_LIMIT, 10) ?: 10
+                val hasReminder =
+                    data?.getBooleanExtra(DigitalPauseActivity.EXTRA_REMINDER_ENABLED, false)
+                        ?: false
+                val remInterval =
+                    data?.getIntExtra(DigitalPauseActivity.EXTRA_REMINDER_INTERVAL, 5) ?: 5
+                val remMode =
+                    data?.getStringExtra(DigitalPauseActivity.EXTRA_REMINDER_MODE) ?: "overlay"
 
                 AppTimerService.start(
                     ctx = ctx,
@@ -200,7 +217,12 @@ fun AppDrawerScreen(
                     timeLimitEnabled = true,
                     timeLimitMinutes = timeLimitMin
                 )
-                launchAppDirectly(appsViewModel, ctx, pendingPackageToLaunch!!, pendingUserIdToLaunch!!)
+                launchAppDirectly(
+                    appsViewModel = appsViewModel,
+                    ctx = ctx,
+                    packageName = pendingPackageToLaunch!!,
+                    userId = pendingUserIdToLaunch!!
+                )
                 onClose()
             } catch (e: Exception) {
                 ctx.showToast("Error: ${e.message}")
@@ -327,7 +349,8 @@ fun AppDrawerScreen(
             // Only close if not paused (pause closes after user decision)
             if (!socialMediaPauseEnabled ||
                 action !is SwipeActionSerializable.LaunchApp ||
-                action.packageName !in pausedApps) {
+                action.packageName !in pausedApps
+            ) {
                 onClose()
             }
         } catch (e: Exception) {
@@ -350,85 +373,51 @@ fun AppDrawerScreen(
         launchDrawerAction(drawerBackAction)
     }
 
-    Column(
+    val topPadding = if (!searchBarBottom) 60.dp else 0.dp
+    val bottomPadding = if (searchBarBottom) 60.dp else 0.dp
+
+    Box(
         modifier = Modifier
-            .fillMaxSize()
-            .clickable(
-                enabled = tapEmptySpaceToRaiseKeyboard.isUsed(),
-                indication = null,
-                interactionSource = null
-            ) {
-                toggleKeyboard()
-            }
             .windowInsetsPadding(WindowInsets.safeDrawing.exclude(WindowInsets.ime))
     ) {
+        Column(
+            modifier = Modifier
+                .fillMaxSize()
+                .padding(top = topPadding, bottom = bottomPadding)
+                .clickable(
+                    enabled = tapEmptySpaceToRaiseKeyboard.isUsed(),
+                    indication = null,
+                    interactionSource = null
+                ) {
+                    toggleKeyboard()
+                }
+        ) {
+            Row(modifier = Modifier.weight(1f)) {
 
-        if (!searchBarBottom) {
-            DrawerTextInput()
-        }
+                if (leftAction != DISABLED) {
+                    Box(
+                        modifier = Modifier
+                            .weight(leftWeight.coerceIn(0.001f, 1f))
+                            .clickable(
+                                indication = null,
+                                interactionSource = null
+                            ) { launchDrawerAction(leftAction) }
+                    )
+                }
 
-        Row(modifier = Modifier.fillMaxSize()) {
-
-            if (leftAction != DISABLED) {
-                Box(
+                Column(
                     modifier = Modifier
-                        .fillMaxHeight()
-                        .weight(leftWeight.coerceIn(0.001f, 1f))
-                        .clickable(
-                            indication = null,
-                            interactionSource = null
-                        ) { launchDrawerAction(leftAction) }
-                )
-            }
+                        .weight(1f)
+                ) {
+                    /* ───────────── Recently Used Apps section ───────────── */
+                    if (showRecentlyUsedApps && searchQuery.isBlank() && recentApps.isNotEmpty()) {
 
-            Column(
-                modifier = Modifier
-                    .fillMaxHeight()
-                    .weight(1f)
-            ) {
-                HorizontalPager(
-                    state = pagerState,
-                    key = { it.hashCode() }
-                ) { pageIndex ->
-
-                    val workspace = workspaces[pageIndex]
-
-                    val apps by appsViewModel
-                        .appsForWorkspace(workspace, overrides)
-                        .collectAsStateWithLifecycle(emptyList())
-
-                    val filteredApps by remember(searchQuery, apps) {
-                        derivedStateOf {
-                            if (searchQuery.isBlank()) apps
-                            else apps.filter { app ->
-                                app.name.contains(searchQuery, ignoreCase = true) ||
-
-                                // Also search for aliases
-                                aliases[app.packageName]?.any {
-                                    it.contains(
-                                        searchQuery,
-                                        ignoreCase = true
-                                    )
-                                } ?: false
-                            }
-                        }
-                    }
-
-                    LaunchedEffect(haveToLaunchFirstApp, filteredApps) {
-                        if ((autoLaunchSingleMatch && filteredApps.size == 1 && searchQuery.isNotEmpty()) || haveToLaunchFirstApp) {
-                            launchApp(filteredApps.first().action, filteredApps.first().name)
-                        }
-                    }
-
-                    Column(modifier = Modifier.fillMaxSize()) {
-
-                        /* ───────────── Recently Used Apps section ───────────── */
-                        if (showRecentlyUsedApps && searchQuery.isBlank() && recentApps.isNotEmpty()) {
-                            TextDivider(
-                                text = stringResource(R.string.recently_used_apps),
-                                modifier = Modifier.padding(horizontal = 8.dp)
-                            )
-
+                        Box(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .padding(5.dp)
+                                .settingsGroup(border = false)
+                        ) {
                             AppGrid(
                                 apps = recentApps,
                                 icons = icons,
@@ -445,8 +434,46 @@ fun AppDrawerScreen(
                                 launchApp(it.action, it.name)
                             }
                         }
+                    }
 
-                        Box(modifier = Modifier.weight(1f).fillMaxWidth()) {
+                    HorizontalPager(
+                        state = pagerState,
+                        key = { it.hashCode() }
+                    ) { pageIndex ->
+
+                        val workspace = workspaces[pageIndex]
+
+                        val apps by appsViewModel
+                            .appsForWorkspace(workspace, overrides)
+                            .collectAsStateWithLifecycle(emptyList())
+
+                        val filteredApps by remember(searchQuery, apps) {
+                            derivedStateOf {
+                                if (searchQuery.isBlank()) apps
+                                else apps.filter { app ->
+                                    app.name.contains(searchQuery, ignoreCase = true) ||
+
+                                            // Also search for aliases
+                                            aliases[app.packageName]?.any {
+                                                it.contains(
+                                                    searchQuery,
+                                                    ignoreCase = true
+                                                )
+                                            } ?: false
+                                }
+                            }
+                        }
+
+                        LaunchedEffect(haveToLaunchFirstApp, filteredApps) {
+                            if ((autoLaunchSingleMatch && filteredApps.size == 1 && searchQuery.isNotEmpty()) || haveToLaunchFirstApp) {
+                                launchApp(filteredApps.first().action, filteredApps.first().name)
+                            }
+                        }
+
+                        Box(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                        ) {
                             AppGrid(
                                 apps = filteredApps,
                                 icons = icons,
@@ -465,19 +492,27 @@ fun AppDrawerScreen(
                         }
                     }
                 }
-            }
 
-            if (rightAction != DISABLED) {
-                Box(
-                    modifier = Modifier
-                        .fillMaxHeight()
-                        .weight(rightWeight.coerceIn(0.001f, 1f))
-                        .clickable(
-                            indication = null,
-                            interactionSource = null
-                        ) { launchDrawerAction(rightAction) }
-                )
+                if (rightAction != DISABLED) {
+                    Box(
+                        modifier = Modifier
+                            .weight(rightWeight.coerceIn(0.001f, 1f))
+                            .clickable(
+                                indication = null,
+                                interactionSource = null
+                            ) { launchDrawerAction(rightAction) }
+                    )
+                }
             }
+        }
+
+        Box(
+            modifier = Modifier
+                .fillMaxSize()
+                .imePadding(),
+            contentAlignment = if (searchBarBottom) Alignment.BottomCenter else Alignment.TopCenter
+        ) {
+            DrawerTextInput()
         }
     }
 
@@ -629,6 +664,8 @@ private fun AppDrawerSearch(
         modifier = modifier
             .fillMaxWidth()
             .padding(5.dp)
+            .clip(DragonShape)
+            .background(MaterialTheme.colorScheme.surfaceVariant)
             .onFocusChanged { focusState ->
                 val focused = focusState.isFocused
                 onFocusStateChanged(focused) // Notify parent of focus change
@@ -637,19 +674,22 @@ private fun AppDrawerSearch(
                 }
                 // Keyboard hiding on focus loss is handled by system, IME actions, or explicit calls elsewhere (e.g., scroll logic)
             },
+        leadingIcon = {
+            Icon(
+                imageVector = Icons.Default.Search,
+                contentDescription = stringResource(R.string.search_apps),
+                tint = MaterialTheme.colorScheme.onSurfaceVariant
+            )
+        },
         placeholder = {
             Text(
                 text = stringResource(R.string.search_apps),
-                color = MaterialTheme.colorScheme.onBackground
+                color = MaterialTheme.colorScheme.onSurface
             )
         },
         singleLine = true,
         keyboardOptions = KeyboardOptions(imeAction = ImeAction.Search),
-        keyboardActions = KeyboardActions(onSearch = {
-            // Don't hide the keyboard on enter, just clear the search
-//            keyboardController?.hide() // Hide keyboard on IME "Search" action
-            onEnterPressed()
-        }),
+        keyboardActions = KeyboardActions(onSearch = { onEnterPressed() }),
         colors = TextFieldDefaults.colors(
             focusedContainerColor = Color.Transparent,
             unfocusedContainerColor = Color.Transparent,
