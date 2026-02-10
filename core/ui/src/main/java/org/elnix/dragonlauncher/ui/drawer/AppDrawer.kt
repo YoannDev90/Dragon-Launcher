@@ -11,9 +11,15 @@ import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.WindowInsets
+import androidx.compose.foundation.layout.exclude
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.ime
+import androidx.compose.foundation.layout.imePadding
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.safeDrawing
+import androidx.compose.foundation.layout.windowInsetsPadding
 import androidx.compose.foundation.pager.HorizontalPager
 import androidx.compose.foundation.pager.rememberPagerState
 import androidx.compose.foundation.text.KeyboardActions
@@ -367,14 +373,17 @@ fun AppDrawerScreen(
         launchDrawerAction(drawerBackAction)
     }
 
-    Box(
-//        modifier = Modifier
-//            .windowInsetsPadding(WindowInsets.safeDrawing.exclude(WindowInsets.ime))
+    val topPadding = if (!searchBarBottom) 60.dp else 0.dp
+    val bottomPadding = if (searchBarBottom) 60.dp else 0.dp
 
+    Box(
+        modifier = Modifier
+            .windowInsetsPadding(WindowInsets.safeDrawing.exclude(WindowInsets.ime))
     ) {
         Column(
             modifier = Modifier
                 .fillMaxSize()
+                .padding(top = topPadding, bottom = bottomPadding)
                 .clickable(
                     enabled = tapEmptySpaceToRaiseKeyboard.isUsed(),
                     indication = null,
@@ -499,8 +508,8 @@ fun AppDrawerScreen(
 
         Box(
             modifier = Modifier
-                .fillMaxSize(),
-//                .imePadding(),
+                .fillMaxSize()
+                .imePadding(),
             contentAlignment = if (searchBarBottom) Alignment.BottomCenter else Alignment.TopCenter
         ) {
             DrawerTextInput()

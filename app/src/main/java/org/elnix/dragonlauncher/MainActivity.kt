@@ -273,7 +273,7 @@ class MainActivity : FragmentActivity(), WidgetHostProvider {
 
     @SuppressLint("SourceLockedOrientationActivity")
     override fun onCreate(savedInstanceState: Bundle?) {
-
+        // Initialize logging system
         DragonLogManager.init(this)
 
 
