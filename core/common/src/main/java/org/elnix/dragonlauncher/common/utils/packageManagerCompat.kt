@@ -86,6 +86,8 @@ class PackageManagerCompat(private val pm: PackageManager, private val ctx: Cont
             val activities = launcherApps
                 ?.getActivityList(null, userHandle)
                 ?: emptyList()
+            
+            logD(TAG, "Loading ${activities.size} launchable apps for userId: $userId (isPrivate: $isPrivateProfile, isWork: $isWorkProfile)")
 
             activities.forEach { activity ->
                 val appInfo = activity.applicationInfo
