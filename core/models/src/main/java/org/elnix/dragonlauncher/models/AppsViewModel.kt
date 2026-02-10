@@ -268,12 +268,26 @@ class AppsViewModel(
      */
     suspend fun reloadApps() {
         try {
+            logD(APPS_TAG, "========== Starting reloadApps() ==========")
 
             val apps = withContext(Dispatchers.IO) {
                 pmCompat.getAllApps()
             }
 
-            _apps.value = apps.toList()
+            logD(APPS_TAG, "Total apps loaded: ${apps.size}")
+            logD(APPS_TAG, "Private apps: ${apps.count { it.isPrivateProfile }}")
+            logD(APPS_TAG, "Work apps: ${apps.count { it.isWorkProfile }}")
+            logD(APPS_TAG, "User apps: ${apps.count { !it.isWorkProfile && !it.isPrivateProfile }}")
+            
+            if (apps.count { it.isPrivateProfile } > 0) {
+                logD(APPS_TAG, "Private apps list:")
+                apps.filter { it.isPrivateProfile }.forEach {
+                    logD(APPS_TAG, "  - ${it.name} (${it.packageName}, userId=${it.userId})")
+                }
+            }
+
+            // Sort and create new list to ensure StateFlow emission
+            _apps.value = apps.sortedBy { it.name.lowercase() }.toList()
             _icons.value = loadIcons(apps)
 
             invalidateAllPointIcons()
@@ -296,6 +310,9 @@ class AppsViewModel(
                 val privateSpaceExists = PrivateSpaceUtils.getPrivateSpaceUserHandle(ctx) != null
                 val privateWorkspace = _workspacesState.value.workspaces.find { it.type == WorkspaceType.PRIVATE }
                 
+                logI(APPS_TAG, "Private Space exists: $privateSpaceExists")
+                logI(APPS_TAG, "Private workspace found: ${privateWorkspace != null}, enabled: ${privateWorkspace?.enabled}")
+                
                 if (privateSpaceExists && privateWorkspace != null && !privateWorkspace.enabled) {
                     logI(APPS_TAG, "Enabling Private Space workspace (Private Space profile detected)")
                     setWorkspaceEnabled("private", true)
@@ -305,13 +322,14 @@ class AppsViewModel(
                 }
             }
 
-            logE(
+            logI(
                 APPS_TAG,
-                "Reloaded packages, ${apps.filter { it.isLaunchable == true }.size} total apps, (${apps.size} user apps)"
+                "Reloaded packages, ${apps.filter { it.isLaunchable == true }.size} launchable apps, ${apps.size} total apps"
             )
+            logI(APPS_TAG, "========== Finished reloadApps() ==========")
 
         } catch (e: Exception) {
-            logE(APPS_TAG, e.toString())
+            logE(APPS_TAG, "Error in reloadApps: ${e.message}", e)
         }
     }
 
