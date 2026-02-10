@@ -5,6 +5,7 @@ import android.os.Build
 import android.provider.Settings
 import androidx.activity.compose.BackHandler
 import androidx.activity.compose.rememberLauncherForActivityResult
+import androidx.activity.result.ActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -68,6 +69,7 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import kotlinx.coroutines.yield
 import org.elnix.dragonlauncher.common.R
+import org.elnix.dragonlauncher.common.logging.logI
 import org.elnix.dragonlauncher.common.serializables.AppModel
 import org.elnix.dragonlauncher.common.serializables.SwipeActionSerializable
 import org.elnix.dragonlauncher.common.serializables.WorkspaceType
@@ -259,74 +261,88 @@ fun AppDrawerScreen(
     var isAuthenticatingPrivateSpace by remember { mutableStateOf(false) }
     var privateSpaceUnlocked by remember { mutableStateOf(false) }
     
-    // Activity result launcher for Private Space authentication
-    val privateSpaceAuthLauncher = rememberLauncherForActivityResult(
-        contract = ActivityResultContracts.StartActivityForResult()
-    ) { result ->
-        isAuthenticatingPrivateSpace = false
-        // Authentication completed (success or failure)
-        // We'll detect the actual unlock status via polling
-    }
-    
     // Poll Private Space lock status when authenticating
-    LaunchedEffect(isAuthenticatingPrivateSpace) {
+    // Key on currentPage to cancel polling when user leaves Private Space workspace
+    LaunchedEffect(isAuthenticatingPrivateSpace, pagerState.currentPage) {
         if (!isAuthenticatingPrivateSpace) return@LaunchedEffect
         if (Build.VERSION.SDK_INT < Build.VERSION_CODES.VANILLA_ICE_CREAM) return@LaunchedEffect
         
-        // Poll every 500ms to detect unlock
+        val currentWorkspace = workspaces.getOrNull(pagerState.currentPage)
+        if (currentWorkspace?.type != WorkspaceType.PRIVATE) {
+            // User left Private Space workspace, stop polling
+            logI("AppDrawer", "Left Private Space workspace, stopping authentication polling")
+            isAuthenticatingPrivateSpace = false
+            return@LaunchedEffect
+        }
+        
+        logI("AppDrawer", "Starting Private Space unlock polling...")
+        
+        // Poll every 300ms to detect unlock
         while (isAuthenticatingPrivateSpace) {
-            kotlinx.coroutines.delay(500)
+            kotlinx.coroutines.delay(300)
             
-            withContext(Dispatchers.IO) {
-                val isLocked = PrivateSpaceUtils.isPrivateSpaceLocked(ctx)
-                if (isLocked == false) {
-                    // Private Space is now unlocked!
-                    withContext(Dispatchers.Main) {
-                        privateSpaceUnlocked = true
-                        isAuthenticatingPrivateSpace = false
-                    }
-                    // Reload apps to show private apps
-                    appsViewModel.reloadApps()
-                }
+            val isLocked = withContext(Dispatchers.IO) {
+                PrivateSpaceUtils.isPrivateSpaceLocked(ctx)
+            }
+            
+            if (isLocked == false) {
+                // Private Space is now unlocked!
+                logI("AppDrawer", "Private Space unlocked detected via polling!")
+                privateSpaceUnlocked = true
+                isAuthenticatingPrivateSpace = false
+                
+                // Reload apps to show private apps (call from coroutine scope)
+                logI("AppDrawer", "Calling reloadApps() after unlock...")
+                appsViewModel.reloadApps()
+                logI("AppDrawer", "reloadApps() completed")
+                break
             }
         }
+        
+        logI("AppDrawer", "Polling stopped")
     }
     
     LaunchedEffect(pagerState.currentPage) {
         val newWorkspaceId = workspaces.getOrNull(pagerState.currentPage)?.id ?: return@LaunchedEffect
         val newWorkspace = workspaces.getOrNull(pagerState.currentPage) ?: return@LaunchedEffect
         
+        // Reset Private Space auth state when leaving Private Space workspace
+        if (isAuthenticatingPrivateSpace && newWorkspace.type != WorkspaceType.PRIVATE) {
+            logI("AppDrawer", "Left Private Space workspace, resetting auth state")
+            isAuthenticatingPrivateSpace = false
+            privateSpaceUnlocked = false
+        }
+        
         // Check if switching to Private Space (Android 15+)
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.VANILLA_ICE_CREAM &&
             newWorkspace.type == WorkspaceType.PRIVATE) {
             
             // Check if Private Space is locked
-            withContext(Dispatchers.IO) {
-                val isLocked = PrivateSpaceUtils.isPrivateSpaceLocked(ctx)
+            val isLocked = withContext(Dispatchers.IO) {
+                PrivateSpaceUtils.isPrivateSpaceLocked(ctx)
+            }
+            
+            logI("AppDrawer", "Switching to Private Space workspace. Locked: $isLocked")
+            
+            if (isLocked == true) {
+                // Start authentication flow
+                logI("AppDrawer", "Setting isAuthenticatingPrivateSpace = true")
+                isAuthenticatingPrivateSpace = true
+                privateSpaceUnlocked = false
                 
-                if (isLocked == true) {
-                    // Start authentication flow
-                    withContext(Dispatchers.Main) {
-                        val unlockIntent = PrivateSpaceUtils.createUnlockPrivateSpaceIntent(ctx)
-                        if (unlockIntent != null) {
-                            isAuthenticatingPrivateSpace = true
-                            privateSpaceUnlocked = false
-                            privateSpaceAuthLauncher.launch(unlockIntent)
-                        } else {
-                            // Failed to create intent, go back
-                            val previousIndex = if (pagerState.currentPage > 0) {
-                                pagerState.currentPage - 1
-                            } else {
-                                workspaces.indexOfFirst { it.type != WorkspaceType.PRIVATE }
-                                    .coerceAtLeast(0)
-                            }
-                            pagerState.scrollToPage(previousIndex)
-                        }
-                    }
-                } else {
-                    // Already unlocked
-                    privateSpaceUnlocked = true
+                // Attempt to request unlock programmatically
+                withContext(Dispatchers.IO) {
+                    val requestSuccess = PrivateSpaceUtils.requestUnlockPrivateSpace(ctx)
+                    logI("AppDrawer", "requestUnlockPrivateSpace result: $requestSuccess")
                 }
+                
+                // Polling will detect when it's actually unlocked
+                // If request fails or does nothing, user can manually unlock from Settings
+            } else {
+                // Already unlocked
+                logI("AppDrawer", "Private Space already unlocked")
+                privateSpaceUnlocked = true
+                isAuthenticatingPrivateSpace = false
             }
         }
         
@@ -439,18 +455,19 @@ fun AppDrawerScreen(
         launchDrawerAction(drawerBackAction)
     }
 
-    Column(
-        modifier = Modifier
-            .fillMaxSize()
-            .clickable(
-                enabled = tapEmptySpaceToRaiseKeyboard.isUsed(),
-                indication = null,
-                interactionSource = null
-            ) {
-                toggleKeyboard()
-            }
-            .windowInsetsPadding(WindowInsets.safeDrawing.exclude(WindowInsets.ime))
-    ) {
+    Box(modifier = Modifier.fillMaxSize()) {
+        Column(
+            modifier = Modifier
+                .fillMaxSize()
+                .clickable(
+                    enabled = tapEmptySpaceToRaiseKeyboard.isUsed(),
+                    indication = null,
+                    interactionSource = null
+                ) {
+                    toggleKeyboard()
+                }
+                .windowInsetsPadding(WindowInsets.safeDrawing.exclude(WindowInsets.ime))
+        ) {
 
         if (!searchBarBottom) {
             DrawerTextInput()
@@ -568,11 +585,14 @@ fun AppDrawerScreen(
                 )
             }
         }
+        }  // Close Column
         
-        // Private Space authentication overlay
+        // Private Space authentication overlay (outside Column, on top of everything)
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.VANILLA_ICE_CREAM &&
             isAuthenticatingPrivateSpace &&
             workspaces.getOrNull(pagerState.currentPage)?.type == WorkspaceType.PRIVATE) {
+            
+            logI("AppDrawer", "Rendering Private Space authentication overlay")
             
             Box(
                 modifier = Modifier
