@@ -28,44 +28,63 @@ class PrivateSpaceReceiver : BroadcastReceiver() {
         val action = intent.action ?: return
         val userHandle = intent.getParcelableExtra<UserHandle>(Intent.EXTRA_USER)
         
+        logI("PrivateSpaceReceiver", "========================================")
         logI("PrivateSpaceReceiver", "Received action: $action for user: $userHandle")
+        logI("PrivateSpaceReceiver", "========================================")
         
         when (action) {
             Intent.ACTION_PROFILE_AVAILABLE -> {
                 // Private Space is now unlocked
-                logD("PrivateSpaceReceiver", "Private Space unlocked")
+                logI("PrivateSpaceReceiver", "Private Space unlocked - reloading apps")
                 handlePrivateSpaceUnlocked(context, userHandle)
             }
             Intent.ACTION_PROFILE_UNAVAILABLE -> {
                 // Private Space is now locked
-                logD("PrivateSpaceReceiver", "Private Space locked")
+                logI("PrivateSpaceReceiver", "Private Space locked - reloading apps")
                 handlePrivateSpaceLocked(context, userHandle)
+            }
+            else -> {
+                logI("PrivateSpaceReceiver", "Unknown action: $action")
             }
         }
     }
     
     private fun handlePrivateSpaceUnlocked(context: Context, userHandle: UserHandle?) {
+        logI("PrivateSpaceReceiver", "handlePrivateSpaceUnlocked called")
         // Reload apps to include Private Space apps
         CoroutineScope(Dispatchers.Default).launch {
             try {
                 val app = context.applicationContext as? MyApplication
-                app?.appsViewModel?.reloadApps()
-                logI("PrivateSpaceReceiver", "Apps reloaded after Private Space unlock")
+                if (app == null) {
+                    logI("PrivateSpaceReceiver", "ERROR: Could not get MyApplication instance")
+                    return@launch
+                }
+                
+                logI("PrivateSpaceReceiver", "Calling appsViewModel.reloadApps()...")
+                app.appsViewModel.reloadApps()
+                logI("PrivateSpaceReceiver", "Apps reloaded successfully after Private Space unlock")
             } catch (e: Exception) {
-                logI("PrivateSpaceReceiver", "Error reloading apps: ${e.message}")
+                logI("PrivateSpaceReceiver", "ERROR reloading apps: ${e.message}\n${e.stackTraceToString()}")
             }
         }
     }
     
     private fun handlePrivateSpaceLocked(context: Context, userHandle: UserHandle?) {
+        logI("PrivateSpaceReceiver", "handlePrivateSpaceLocked called")
         // Reload apps to hide Private Space apps
         CoroutineScope(Dispatchers.Default).launch {
             try {
                 val app = context.applicationContext as? MyApplication
-                app?.appsViewModel?.reloadApps()
-                logI("PrivateSpaceReceiver", "Apps reloaded after Private Space lock")
+                if (app == null) {
+                    logI("PrivateSpaceReceiver", "ERROR: Could not get MyApplication instance")
+                    return@launch
+                }
+                
+                logI("PrivateSpaceReceiver", "Calling appsViewModel.reloadApps()...")
+                app.appsViewModel.reloadApps()
+                logI("PrivateSpaceReceiver", "Apps reloaded successfully after Private Space lock")
             } catch (e: Exception) {
-                logI("PrivateSpaceReceiver", "Error reloading apps: ${e.message}")
+                logI("PrivateSpaceReceiver", "ERROR reloading apps: ${e.message}\n${e.stackTraceToString()}")
             }
         }
     }
