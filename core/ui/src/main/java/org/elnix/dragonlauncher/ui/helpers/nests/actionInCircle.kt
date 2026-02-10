@@ -56,7 +56,7 @@ fun DrawScope.actionsInCircle(
     val px = center.x
     val py = center.y
 
-    val size =( point.size ?: defaultPoint.size ?: defaultSwipePointsValues.size!!).coerceAtLeast(1)
+    val size = (point.size ?: defaultPoint.size ?: defaultSwipePointsValues.size!!).coerceAtLeast(1)
     val innerPadding =
         point.innerPadding ?: defaultPoint.innerPadding ?: defaultSwipePointsValues.innerPadding!!
 
@@ -86,8 +86,6 @@ fun DrawScope.actionsInCircle(
     } ?: IconShape.Circle
 
 
-
-
     val borderShape = resolveShape(borderIconShape)
 
     val backgroundColor = if (selected) {
@@ -103,11 +101,36 @@ fun DrawScope.actionsInCircle(
 
     val shape = resolveShape(point.customIcon?.shape ?: iconShape)
 
-    // if in the settings, set the alpha
-//    if (preventBgErasing) backgroundColor = backgroundColor.copy(1f)
 
     if (action !is SwipeActionSerializable.OpenCircleNest) {
 
+
+
+        /* ───────────── Erases the circle in the point ───────────── */
+
+        // if no background color provided, erases the background
+        val eraseBg = backgroundColor == Color.Transparent && !preventBgErasing
+
+        // Erases the color, instead of putting it, that lets the wallpaper pass trough
+        drawCircle(
+            color = Color.Transparent,
+            radius = borderRadii,
+            center = center,
+            blendMode = BlendMode.Clear
+        )
+
+        // If requested to not erase the bg, draw it (this avoid the more tinted bg when using a half transparent bg color
+        if (!eraseBg) {
+            drawCircle(
+                color = backgroundColor,
+                radius = borderRadii,
+                center = center
+            )
+        }
+
+
+
+        /* ───────────── Draws the border (custom shape) ───────────── */
 
         val iconSizeF = borderRadii * 2f
 
@@ -124,32 +147,13 @@ fun DrawScope.actionsInCircle(
             is Outline.Generic -> outline.path
         }
 
-        // if no background color provided, erases the background
-        val eraseBg = backgroundColor == Color.Transparent && !preventBgErasing
-
         // Move drawing to icon position
         translate(
             left = center.x - borderRadii,
             top = center.y - borderRadii
         ) {
 
-
             if (borderStroke > 0f) {
-                if (eraseBg) {
-                    // Erases the color, instead of putting it, that lets the wallpaper pass trough
-                    drawPath(
-                        path = path,
-                        color = borderColor,
-                        style = Stroke(width = borderStroke),
-                        blendMode = BlendMode.Clear
-                    )
-                } else {
-                    drawPath(
-                        path = path,
-                        color = backgroundColor,
-                        style = Stroke(width = borderStroke)
-                    )
-                }
                 if (borderColor.alpha != 0f) {
 
                     drawPath(
