@@ -137,7 +137,6 @@ fun DebugTab(
             }
         }
 
-
         item {
             Button(
                 modifier = Modifier.fillMaxWidth(),
