@@ -281,6 +281,20 @@ class AppsViewModel(
             withContext(Dispatchers.IO) {
                 AppsSettingsStore.cachedApps.set(ctx, gson.toJson(apps))
             }
+            
+            // Auto-enable Private Space workspace if there are private apps (Android 15+)
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.VANILLA_ICE_CREAM) {
+                val hasPrivateApps = apps.any { it.isPrivateProfile }
+                val privateWorkspace = _workspacesState.value.workspaces.find { it.type == WorkspaceType.PRIVATE }
+                
+                if (hasPrivateApps && privateWorkspace != null && !privateWorkspace.enabled) {
+                    logI(APPS_TAG, "Enabling Private Space workspace (found ${apps.count { it.isPrivateProfile }} private apps)")
+                    setWorkspaceEnabled("private", true)
+                } else if (!hasPrivateApps && privateWorkspace != null && privateWorkspace.enabled) {
+                    logI(APPS_TAG, "Disabling Private Space workspace (no private apps found)")
+                    setWorkspaceEnabled("private", false)
+                }
+            }
 
             logE(
                 APPS_TAG,
