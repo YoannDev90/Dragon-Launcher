@@ -179,6 +179,17 @@
                 android:resource="@xml/dragon_widget_info" />
         </receiver>
 
+        <!-- Private Space receiver for Android 15+ -->
+        <receiver
+            android:name=".PrivateSpaceReceiver"
+            android:exported="false"
+            android:enabled="true">
+            <intent-filter>
+                <action android:name="android.intent.action.PROFILE_AVAILABLE" />
+                <action android:name="android.intent.action.PROFILE_UNAVAILABLE" />
+            </intent-filter>
+        </receiver>
+
     </application>
 
 </manifest>
