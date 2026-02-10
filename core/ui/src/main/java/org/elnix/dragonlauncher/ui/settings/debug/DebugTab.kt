@@ -3,6 +3,7 @@
 package org.elnix.dragonlauncher.ui.settings.debug
 
 import android.os.Build
+import android.system.Os.kill
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -19,7 +20,6 @@ import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -48,15 +48,15 @@ import org.elnix.dragonlauncher.services.SystemControl.activateDeviceAdmin
 import org.elnix.dragonlauncher.services.SystemControl.isDeviceAdminActive
 import org.elnix.dragonlauncher.settings.allStores
 import org.elnix.dragonlauncher.settings.stores.DebugSettingsStore
-import org.elnix.dragonlauncher.ui.wellbeing.OverlayReminderService
 import org.elnix.dragonlauncher.settings.stores.PrivateSettingsStore
 import org.elnix.dragonlauncher.ui.colors.AppObjectsColors
+import org.elnix.dragonlauncher.ui.components.TextDivider
+import org.elnix.dragonlauncher.ui.components.settings.asState
 import org.elnix.dragonlauncher.ui.dialogs.IconEditorDialog
 import org.elnix.dragonlauncher.ui.helpers.SwitchRow
-import org.elnix.dragonlauncher.ui.components.TextDivider
 import org.elnix.dragonlauncher.ui.helpers.settings.SettingsItem
 import org.elnix.dragonlauncher.ui.helpers.settings.SettingsLazyHeader
-import org.elnix.dragonlauncher.ui.wellbeing.AppTimerService
+import org.elnix.dragonlauncher.ui.wellbeing.OverlayReminderService
 
 @Composable
 fun DebugTab(
@@ -68,40 +68,27 @@ fun DebugTab(
     val scope = rememberCoroutineScope()
     val ctx = LocalContext.current
 
-    val isDebugModeEnabled by DebugSettingsStore.debugEnabled.flow(ctx)
-        .collectAsState(initial = false)
+    val isDebugModeEnabled by DebugSettingsStore.debugEnabled.asState()
 
-    val debugInfos by DebugSettingsStore.debugInfos.flow(ctx)
-        .collectAsState(initial = false)
-    val settingsDebugInfos by DebugSettingsStore.settingsDebugInfo.flow(ctx)
-        .collectAsState(initial = false)
-    val widgetsDebugInfos by DebugSettingsStore.widgetsDebugInfo.flow(ctx)
-        .collectAsState(initial = false)
-    val workspaceDebugInfos by DebugSettingsStore.workspacesDebugInfo.flow(ctx)
-        .collectAsState(initial = false)
+    val debugInfos by DebugSettingsStore.debugInfos.asState()
+    val settingsDebugInfos by DebugSettingsStore.settingsDebugInfo.asState()
+    val widgetsDebugInfos by DebugSettingsStore.widgetsDebugInfo.asState()
+    val workspaceDebugInfos by DebugSettingsStore.workspacesDebugInfo.asState()
 
     val useAccessibilityInsteadOfContextToExpandActionPanel by DebugSettingsStore
-        .useAccessibilityInsteadOfContextToExpandActionPanel.flow(ctx)
-        .collectAsState(initial = false)
+        .useAccessibilityInsteadOfContextToExpandActionPanel.asState()
 
-    val hasInitialized by PrivateSettingsStore.hasInitialized.flow(ctx)
-        .collectAsState(initial = true)
-    val showSetDefaultLauncherBanner by PrivateSettingsStore.showSetDefaultLauncherBanner.flow(ctx)
-        .collectAsState(initial = true)
+    val hasInitialized by PrivateSettingsStore.hasInitialized.asState()
+    val showSetDefaultLauncherBanner by PrivateSettingsStore.showSetDefaultLauncherBanner.asState()
 
-    val forceAppLanguageSelector by DebugSettingsStore.forceAppLanguageSelector.flow(ctx)
-        .collectAsState(initial = false)
+    val forceAppLanguageSelector by DebugSettingsStore.forceAppLanguageSelector.asState()
 
-    val forceAppWidgetsSelector by DebugSettingsStore.forceAppWidgetsSelector.flow(ctx)
-        .collectAsState(initial = false)
+    val forceAppWidgetsSelector by DebugSettingsStore.forceAppWidgetsSelector.asState()
 
-    val doNotRemindMeAgainNotificationsBehavior by PrivateSettingsStore.showMethodAsking.flow(ctx)
-        .collectAsState(initial = true)
+    val doNotRemindMeAgainNotificationsBehavior by PrivateSettingsStore.showMethodAsking.asState()
 
-    val systemLauncherPackageName by DebugSettingsStore.systemLauncherPackageName.flow(ctx)
-        .collectAsState("")
-    val autoRaiseDragonOnSystemLauncher by DebugSettingsStore.autoRaiseDragonOnSystemLauncher.flow(ctx)
-        .collectAsState(false)
+    val systemLauncherPackageName by DebugSettingsStore.systemLauncherPackageName.asState()
+    val autoRaiseDragonOnSystemLauncher by DebugSettingsStore.autoRaiseDragonOnSystemLauncher.asState()
 
     var pendingSystemLauncher by remember { mutableStateOf<String?>(null) }
 
@@ -150,6 +137,17 @@ fun DebugTab(
             }
         }
 
+
+        item {
+            Button(
+                modifier = Modifier.fillMaxWidth(),
+                onClick = {
+                    kill(9,9)
+                }
+            ) {
+                Text("☠\uFE0F Kill app")
+            }
+        }
 
         item {
             SwitchRow(
@@ -229,7 +227,7 @@ fun DebugTab(
 
         item { TextDivider("Wellbeing tests") }
 
-        
+
 
         item {
             Button(
