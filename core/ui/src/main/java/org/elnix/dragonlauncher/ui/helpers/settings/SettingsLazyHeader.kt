@@ -64,6 +64,10 @@ fun SettingsLazyHeader(
     ) { "Must provide exactly one of content or lazyContent, not both or neither" }
 
 
+    BackHandler {
+        onBack()
+    }
+
     Column(
         modifier = Modifier
             .fillMaxSize()
