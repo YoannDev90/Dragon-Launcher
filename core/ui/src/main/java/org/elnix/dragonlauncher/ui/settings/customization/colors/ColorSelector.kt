@@ -20,7 +20,6 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyListScope
-import androidx.compose.foundation.selection.selectableGroup
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
@@ -73,9 +72,10 @@ import org.elnix.dragonlauncher.settings.stores.ColorSettingsStore
 import org.elnix.dragonlauncher.ui.UiConstants.DragonShape
 import org.elnix.dragonlauncher.ui.colors.AppObjectsColors
 import org.elnix.dragonlauncher.ui.colors.ColorPickerRow
-import org.elnix.dragonlauncher.ui.components.dragon.DragonIconButton
+import org.elnix.dragonlauncher.ui.components.ExpandableSection
 import org.elnix.dragonlauncher.ui.components.burger.BurgerAction
 import org.elnix.dragonlauncher.ui.components.burger.BurgerListAction
+import org.elnix.dragonlauncher.ui.components.dragon.DragonIconButton
 import org.elnix.dragonlauncher.ui.components.generic.ActionRow
 import org.elnix.dragonlauncher.ui.components.settings.SettingsColorPicker
 import org.elnix.dragonlauncher.ui.components.settings.SettingsSwitchRow
@@ -188,6 +188,15 @@ fun ColorSelectorTab(
         ColorEdit(ColorSettingsStore.onTertiaryFixedVariantColor, stringResource(R.string.on_tertiary_fixed_variant_color), defaultColorScheme.onTertiaryFixedVariant)
     )
     val fixedSectionTitle = stringResource(R.string.fixed_colors_section)
+
+    val primaryExpanded = remember { mutableStateOf(false) }
+    val secondaryExpanded = remember { mutableStateOf(false) }
+    val tertiaryExpanded = remember { mutableStateOf(false) }
+    val backgroundExpanded = remember { mutableStateOf(false) }
+    val errorExpanded = remember { mutableStateOf(false) }
+    val outlineExpanded = remember { mutableStateOf(false) }
+    val surfaceContainerExpanded = remember { mutableStateOf(false) }
+    val fixedExpanded = remember { mutableStateOf(false) }
 
 
     val angleLineColor by ColorSettingsStore.angleLineColor.asStateNull()
@@ -436,38 +445,57 @@ fun ColorSelectorTab(
 
             if (selectedCustomView == CustomColorModeEditing.NORMAL) {
                 colorsGroup(
+                    expanded = { primaryExpanded.value },
+                    onExpand = { primaryExpanded.value = it },
                     colors = primaryColors,
                     sectionLabel = primarySectionTitle
                 )
+
                 colorsGroup(
-                    colors = primaryColors,
-                    sectionLabel = primarySectionTitle
-                )
-                colorsGroup(
+                    expanded = { secondaryExpanded.value },
+                    onExpand = { secondaryExpanded.value = it },
                     colors = secondaryColors,
                     sectionLabel = secondarySectionTitle
                 )
+
                 colorsGroup(
+                    expanded = { tertiaryExpanded.value },
+                    onExpand = { tertiaryExpanded.value = it },
                     colors = tertiaryColors,
                     sectionLabel = tertiarySectionTitle
                 )
+
                 colorsGroup(
+                    expanded = { backgroundExpanded.value },
+                    onExpand = { backgroundExpanded.value = it },
                     colors = backgroundColors,
                     sectionLabel = backgroundSectionTitle
                 )
+
                 colorsGroup(
+                    expanded = { errorExpanded.value },
+                    onExpand = { errorExpanded.value = it },
                     colors = errorColors,
                     sectionLabel = errorSectionTitle
                 )
+
                 colorsGroup(
+                    expanded = { outlineExpanded.value },
+                    onExpand = { outlineExpanded.value = it },
                     colors = outlineColors,
                     sectionLabel = outlineSectionTitle
                 )
+
                 colorsGroup(
+                    expanded = { surfaceContainerExpanded.value },
+                    onExpand = { surfaceContainerExpanded.value = it },
                     colors = surfaceContainerColors,
                     sectionLabel = surfaceContainerSectionTitle
                 )
+
                 colorsGroup(
+                    expanded = { fixedExpanded.value },
+                    onExpand = { fixedExpanded.value = it },
                     colors = fixedColors,
                     sectionLabel = fixedSectionTitle
                 )
@@ -700,31 +728,21 @@ private data class ColorEdit(
 
 
 private fun LazyListScope.colorsGroup(
+    expanded: () -> Boolean,
+    onExpand: (Boolean) -> Unit,
     colors: List<ColorEdit>,
     sectionLabel: String,
     examples: @Composable (ColumnScope.() -> Unit)? = null
 ) {
     item {
 
-        Column(
-            modifier = Modifier
-                .fillMaxWidth()
-                .clip(DragonShape)
-                .background(MaterialTheme.colorScheme.surfaceVariant)
-                .border(1.dp, MaterialTheme.colorScheme.primary, DragonShape)
-                .padding(16.dp)
-                .selectableGroup(),
-            verticalArrangement = Arrangement.spacedBy(5.dp)
+        ExpandableSection(
+            expanded = expanded,
+            title = sectionLabel,
+            onExpand = onExpand
         ) {
 
-            Text(
-                text = sectionLabel,
-                style = MaterialTheme.typography.titleMedium,
-                modifier = Modifier.padding(bottom = 5.dp)
-            )
-
             examples?.let { it() }
-
 
             colors.forEach {
                 SettingsColorPicker(
