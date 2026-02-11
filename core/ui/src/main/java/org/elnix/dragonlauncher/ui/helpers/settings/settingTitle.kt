@@ -29,9 +29,7 @@ fun SettingsTitle(
     Row(
         verticalAlignment = Alignment.CenterVertically,
         horizontalArrangement = Arrangement.spacedBy(12.dp),
-        modifier = Modifier
-            .fillMaxWidth()
-//            .background(MaterialTheme.colorScheme.background)
+        modifier = Modifier.fillMaxWidth()
     ) {
 
         DragonIconButton(
