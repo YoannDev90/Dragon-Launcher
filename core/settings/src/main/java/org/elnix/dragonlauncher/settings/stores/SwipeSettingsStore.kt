@@ -23,7 +23,7 @@ object SwipeSettingsStore : JsonSettingsStore() {
     override val dataStoreName = DataStoreName.SWIPE
 
     override val ALL: List<BaseSettingObject<*,*>>
-        get() = listOf()
+        get() = emptyList()
 
     override val jsonSetting: BaseSettingObject<String, String>
         get() = error("SwipeSettingsStore does not use a single JSON backing value")

@@ -18,6 +18,8 @@ object ColorModesSettingsStore : MapSettingsStore() {
         get() = listOf(
             colorPickerMode,
             defaultTheme,
+            colorPickerButtonOne,
+            colorPickerButtonTwo,
             dynamicColor
         )
 

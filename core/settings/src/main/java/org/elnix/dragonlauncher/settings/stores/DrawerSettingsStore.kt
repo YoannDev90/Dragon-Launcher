@@ -231,6 +231,7 @@ object DrawerSettingsStore : MapSettingsStore() {
             recentlyUsedPackages,
             categoryGridWidth,
             categoryGridCells,
-            showCategoryName
+            showCategoryName,
+            backDrawerAction
         )
 }

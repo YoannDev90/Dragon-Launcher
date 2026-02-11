@@ -21,7 +21,9 @@ object BehaviorSettingsStore : MapSettingsStore() {
             leftPadding,
             rightPadding,
             topPadding,
-            bottomPadding
+            bottomPadding,
+            holdDelayBeforeStartingLongClickSettings,
+            longCLickSettingsDuration
         )
 
     val backAction = Settings.swipeAction(
