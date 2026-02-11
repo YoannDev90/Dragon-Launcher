@@ -94,14 +94,6 @@ fun StatusBarClock(
             )
         }
 
-        if (showTime && showDate) {
-            Text(
-                text = " | ",
-                color = textColor,
-                style = MaterialTheme.typography.bodyMedium
-            )
-        }
-
         if (showDate) {
             Text(
                 text = dateText,

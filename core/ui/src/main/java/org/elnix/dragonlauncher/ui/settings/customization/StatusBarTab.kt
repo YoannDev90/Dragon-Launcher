@@ -14,11 +14,9 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextDecoration
@@ -34,6 +32,7 @@ import org.elnix.dragonlauncher.settings.stores.StatusBarSettingsStore
 import org.elnix.dragonlauncher.ui.colors.AppObjectsColors
 import org.elnix.dragonlauncher.ui.colors.ColorPickerRow
 import org.elnix.dragonlauncher.ui.components.TextDivider
+import org.elnix.dragonlauncher.ui.components.settings.asState
 import org.elnix.dragonlauncher.ui.helpers.CustomActionSelector
 import org.elnix.dragonlauncher.ui.helpers.SliderWithLabel
 import org.elnix.dragonlauncher.ui.helpers.SwitchRow
@@ -52,57 +51,23 @@ fun StatusBarTab(
 
     val isRealFullscreen = systemInsets.calculateTopPadding() == 0.dp
 
-    val showStatusBar by StatusBarSettingsStore.showStatusBar.flow(ctx)
-        .collectAsState(initial = false)
-
-    val statusBarBackground by StatusBarSettingsStore.barBackgroundColor.flow(ctx)
-        .collectAsState(initial = Color.Transparent)
-
-    val statusBarText by StatusBarSettingsStore.barTextColor.flow(ctx)
-        .collectAsState(initial = MaterialTheme.colorScheme.onBackground)
-
-    val showTime by StatusBarSettingsStore.showTime.flow(ctx)
-        .collectAsState(initial = false)
-
-    val showDate by StatusBarSettingsStore.showDate.flow(ctx)
-        .collectAsState(initial = false)
-
-    val timeFormatter by StatusBarSettingsStore.timeFormatter.flow(ctx)
-        .collectAsState("HH:mm:ss")
-
-    val dateFormatter by StatusBarSettingsStore.dateFormater.flow(ctx)
-        .collectAsState("MMM dd")
-
-    val showNotifications by StatusBarSettingsStore.showNotifications.flow(ctx)
-        .collectAsState(initial = false)
-
-    val showBattery by StatusBarSettingsStore.showBattery.flow(ctx)
-        .collectAsState(initial = false)
-
-    val showConnectivity by StatusBarSettingsStore.showConnectivity.flow(ctx)
-        .collectAsState(initial = false)
-
-    val showNextAlarm by StatusBarSettingsStore.showNextAlarm.flow(ctx)
-        .collectAsState(false)
-
-    val leftPadding by StatusBarSettingsStore.leftPadding.flow(ctx)
-        .collectAsState(initial = 5)
-
-    val rightPadding by StatusBarSettingsStore.rightPadding.flow(ctx)
-        .collectAsState(initial = 5)
-
-    val topPadding by StatusBarSettingsStore.topPadding.flow(ctx)
-        .collectAsState(initial = 2)
-
-    val bottomPadding by StatusBarSettingsStore.bottomPadding.flow(ctx)
-        .collectAsState(initial = 2)
-
-    val clockAction by StatusBarSettingsStore.clockAction.flow(ctx)
-        .collectAsState(null)
-
-    val dateAction by StatusBarSettingsStore.dateAction.flow(ctx)
-        .collectAsState(null)
-
+    val showStatusBar by StatusBarSettingsStore.showStatusBar.asState()
+    val statusBarBackground by StatusBarSettingsStore.barBackgroundColor.asState()
+    val statusBarText by StatusBarSettingsStore.barTextColor.asState()
+    val showTime by StatusBarSettingsStore.showTime.asState()
+    val showDate by StatusBarSettingsStore.showDate.asState()
+    val timeFormatter by StatusBarSettingsStore.timeFormatter.asState()
+    val dateFormatter by StatusBarSettingsStore.dateFormater.asState()
+    val showNotifications by StatusBarSettingsStore.showNotifications.asState()
+    val showBattery by StatusBarSettingsStore.showBattery.asState()
+    val showConnectivity by StatusBarSettingsStore.showConnectivity.asState()
+    val showNextAlarm by StatusBarSettingsStore.showNextAlarm.asState()
+    val leftPadding by StatusBarSettingsStore.leftPadding.asState()
+    val rightPadding by StatusBarSettingsStore.rightPadding.asState()
+    val topPadding by StatusBarSettingsStore.topPadding.asState()
+    val bottomPadding by StatusBarSettingsStore.bottomPadding.asState()
+    val clockAction by StatusBarSettingsStore.clockAction.asState()
+    val dateAction by StatusBarSettingsStore.dateAction.asState()
 
     Column{
 
