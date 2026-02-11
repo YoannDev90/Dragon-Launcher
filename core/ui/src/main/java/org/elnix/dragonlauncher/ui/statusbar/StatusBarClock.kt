@@ -30,8 +30,8 @@ fun StatusBarClock(
     dateFormatter: String,
     clockAction: SwipeActionSerializable?,
     dateAction: SwipeActionSerializable?,
-    onClockAction: (SwipeActionSerializable) -> Unit,
-    onDateAction: (SwipeActionSerializable) -> Unit
+    onClockAction: ((SwipeActionSerializable) -> Unit)?,
+    onDateAction: ((SwipeActionSerializable) -> Unit)?
 ) {
     val ctx = LocalContext.current
 
@@ -88,8 +88,8 @@ fun StatusBarClock(
                 text = timeText,
                 color = textColor,
                 style = MaterialTheme.typography.bodyMedium,
-                modifier = Modifier.clickable {
-                    clockAction?.let { onClockAction(it) } ?: openAlarmApp(ctx)
+                modifier = Modifier.clickable(onClockAction != null) {
+                    clockAction?.let { onClockAction!!(it) } ?: openAlarmApp(ctx)
                 }
             )
         }
@@ -99,8 +99,8 @@ fun StatusBarClock(
                 text = dateText,
                 color = textColor,
                 style = MaterialTheme.typography.bodyMedium,
-                modifier = Modifier.clickable {
-                    dateAction?.let { onDateAction(it) } ?: openCalendar(ctx)
+                modifier = Modifier.clickable(onDateAction != null) {
+                    dateAction?.let { onDateAction!!(it) } ?: openCalendar(ctx)
                 }
             )
         }

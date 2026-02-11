@@ -631,5 +631,14 @@
     <string name="settings_json">Settings JSON</string>
     <string name="pick_a_settings_screen">Pick a settings screen</string>
     <string name="app_preview_settings">App preview overlay</string>
-
+    <string name="time_display_settings">Time Display Settings</string>
+    <string name="date_display_settings">Date Display Settings</string>
+    <string name="not_implemented">Not implemented</string>
+    <string name="show_next_alarm_desc">Show the time of the next upcoming alarm</string>
+    <string name="show_battery_desc">Display the phone battery %</string>
+    <string name="show_connectivity_desc">Not working well, pleas wait for an hypotetical release about this one day</string>
+    <string name="show_time_desc">Display the time using the custom formatter</string>
+    <string name="show_date_desc">Diaplay the date next to the time using the custom formatter</string>
+    <string name="show_status_bar_desc">Display the status bar, if disabled nothing\'s showed</string>
+    <string name="display_options_settings">Display options settings</string>
 </resources>

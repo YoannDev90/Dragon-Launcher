@@ -116,8 +116,6 @@ const val SHAPES_TAG = "ShapesDebug"
 const val COLORS_TAG = "ColorsDebug"
 const val DRAWER_TAG = "DrawerDebug"
 const val APP_LAUNCH_TAG = "AppLaunchDebug"
-const val HOLD_TAG = "HoldDebug"
-const val NAVIGATION_TAG = "NavigationDebug"
 
 
 

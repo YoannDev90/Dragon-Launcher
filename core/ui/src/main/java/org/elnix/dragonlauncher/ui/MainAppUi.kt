@@ -43,9 +43,7 @@ import androidx.navigation.navArgument
 import kotlinx.coroutines.launch
 import org.elnix.dragonlauncher.common.FloatingAppObject
 import org.elnix.dragonlauncher.common.R
-import org.elnix.dragonlauncher.common.logging.logD
 import org.elnix.dragonlauncher.common.serializables.defaultSwipePointsValues
-import org.elnix.dragonlauncher.common.utils.NAVIGATION_TAG
 import org.elnix.dragonlauncher.common.utils.ROUTES
 import org.elnix.dragonlauncher.common.utils.SETTINGS
 import org.elnix.dragonlauncher.common.utils.WidgetHostProvider
@@ -334,10 +332,6 @@ fun MainAppUi(
             MaterialTheme.colorScheme.background
         }
 
-
-    LaunchedEffect(currentRoute) {
-        logD(NAVIGATION_TAG, currentRoute?: "no route")
-    }
 
     Scaffold(
         topBar = {

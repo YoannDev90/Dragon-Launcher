@@ -118,8 +118,8 @@ fun WallpaperTab(onBack: () -> Unit) {
     Column {
         if (showStatusBar && isRealFullscreen) {
             StatusBar(
-                onDateAction = {},
-                onClockAction = {}
+                onDateAction = null,
+                onClockAction = null
             )
         }
 

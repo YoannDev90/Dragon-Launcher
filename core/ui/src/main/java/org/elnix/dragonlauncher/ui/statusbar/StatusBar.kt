@@ -17,8 +17,8 @@ import org.elnix.dragonlauncher.ui.components.settings.asState
 
 @Composable
 fun StatusBar(
-    onClockAction: (SwipeActionSerializable) -> Unit,
-    onDateAction: (SwipeActionSerializable) -> Unit
+    onClockAction: ((SwipeActionSerializable) -> Unit)?,
+    onDateAction: ((SwipeActionSerializable) -> Unit)?
 ) {
     val statusBarBackground by StatusBarSettingsStore.barBackgroundColor.asState()
     val statusBarText by StatusBarSettingsStore.barTextColor.asState()

@@ -32,6 +32,7 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import org.elnix.dragonlauncher.common.serializables.SwipeActionSerializable
+import org.elnix.dragonlauncher.common.utils.semiTransparentIfDisabled
 import org.elnix.dragonlauncher.models.AppsViewModel
 import org.elnix.dragonlauncher.ui.UiConstants.DragonShape
 import org.elnix.dragonlauncher.ui.actions.ActionIcon
@@ -71,9 +72,7 @@ fun CustomActionSelector(
         horizontalArrangement = if (label != null) Arrangement.SpaceBetween else Arrangement.Center,
         modifier = baseModifier
             .clip(DragonShape)
-            .background(
-                color = backgroundColor.copy(if (enabled) 1f else 0.5f),
-            )
+            .background(backgroundColor.semiTransparentIfDisabled(enabled))
             .clickable(enabled) { showDialog = true }
             .padding(horizontal = 16.dp, vertical = 14.dp)
     ) {
