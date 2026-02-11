@@ -90,6 +90,7 @@ fun MainScreenOverlay(
     val appLabelOverlaySize by UiSettingsStore.appLabelOverlaySize.asState()
     val appIconOverlaySize by UiSettingsStore.appIconOverlaySize.asState()
     val disableHapticFeedback by BehaviorSettingsStore.disableHapticFeedbackGlobally.asState()
+    val pointsActionSnapsToOuterCircle by BehaviorSettingsStore.pointsActionSnapsToOuterCircle.asState()
 
     val iconsShape by DrawerSettingsStore.iconsShape.asState()
     val density = LocalDensity.current
@@ -101,7 +102,8 @@ fun MainScreenOverlay(
 
     val dragRadii = nests.find { it.id == nestId }?.dragDistances ?: CircleNest().dragDistances
     val haptics = nests.find { it.id == nestId }?.haptic ?: CircleNest().haptic
-    val minAngles = nests.find { it.id == nestId }?.minAngleActivation ?: CircleNest().minAngleActivation
+    val minAngles =
+        nests.find { it.id == nestId }?.minAngleActivation ?: CircleNest().minAngleActivation
 
     val dx: Float
     val dy: Float
@@ -128,7 +130,7 @@ fun MainScreenOverlay(
             val diff = angle0to360 - prev
 
             val adjustedDiff = when {
-                diff > 180  -> diff - 360   // jumped CW past 360→0
+                diff > 180 -> diff - 360   // jumped CW past 360→0
                 diff < -180 -> diff + 360   // jumped CCW past 0→360
                 else -> diff                // normal small movement
             }
@@ -139,8 +141,8 @@ fun MainScreenOverlay(
         lastAngle = angle0to360
 
 
-        lineColor = if (rgbLine) Color.hsv(angle0to360.toFloat(),1f,1f)
-                    else extraColors.angleLine
+        lineColor = if (rgbLine) Color.hsv(angle0to360.toFloat(), 1f, 1f)
+        else extraColors.angleLine
 
     } else {
         dx = 0f; dy = 0f
@@ -156,9 +158,8 @@ fun MainScreenOverlay(
     var exposedClosest by remember { mutableStateOf<SwipePointSerializable?>(null) }
     var exposedAsbAngle by remember { mutableStateOf<Double?>(null) }
 
-    // Launch app logic
 
-    // -- For displaying the banner --
+    // ───────────── For displaying the banner ─────────────
     var hoveredPoint by remember { mutableStateOf<SwipePointSerializable?>(null) }
     var bannerVisible by remember { mutableStateOf(false) }
 
@@ -167,12 +168,33 @@ fun MainScreenOverlay(
     var currentAction: SwipePointSerializable? by remember { mutableStateOf(null) }
 
 
-    // The circle that corresponds to the distance of which the user drags
-    val targetCircle = dragRadii.entries
-        .sortedBy { it.value }
-        .firstOrNull { (_, distance) -> dist <= distance }
-        ?.key
-        ?: dragRadii.keys.maxOrNull() ?: -1
+
+    // Computes the target circle based on the mode selected
+    val targetCircle = if (pointsActionSnapsToOuterCircle) {
+        var best: Map.Entry<Int, Int>? = null
+
+        for (entry in dragRadii) {
+            if (dist <= entry.value) {
+                if (best == null || entry.value < best.value) {
+                    best = entry
+                }
+            }
+        }
+
+        best?.key ?: dragRadii.maxByOrNull { it.value }!!.key
+    } else {
+        var best: Map.Entry<Int, Int>? = null
+
+        for (entry in dragRadii) {
+            if (dist >= entry.value) {
+                if (best == null || entry.value > best.value) {
+                    best = entry
+                }
+            }
+        }
+
+        best?.key ?: dragRadii.minByOrNull { it.value }!!.key
+    }
 
 
 
@@ -225,13 +247,14 @@ fun MainScreenOverlay(
     )
 
     LaunchedEffect(hoveredPoint?.id) {
-       hoveredPoint?.let { point ->
-           (point.haptic ?: haptics[targetCircle] ?: defaultHapticFeedback(targetCircle)).let { milliseconds ->
-               if (milliseconds > 0 && !disableHapticFeedback) {
-                   vibrate(ctx, milliseconds.toLong())
-               }
-           }
-       }
+        hoveredPoint?.let { point ->
+            (point.haptic ?: haptics[targetCircle]
+            ?: defaultHapticFeedback(targetCircle)).let { milliseconds ->
+                if (milliseconds > 0 && !disableHapticFeedback) {
+                    vibrate(ctx, milliseconds.toLong())
+                }
+            }
+        }
     }
 
     LaunchedEffect(isDragging) {
@@ -302,7 +325,6 @@ fun MainScreenOverlay(
         }
 
 //        val colorAction = if (hoveredPoint != null) actionColor(hoveredPoint!!.action, extraColors) else Color.Unspecified
-
 
 
         // Main drawing canva (the lines, circles and selected actions
@@ -399,29 +421,30 @@ fun MainScreenOverlay(
                         // the selected one, that is always drawn last to prevent overlapping issues,
                         // even though it shouldn't happened due to my separatePoints functions
                         if (showAllActionsOnCurrentCircle) {
-                            points.filter { it.nestId == nestId && it.circleNumber == targetCircle && it != point }.forEach { p ->
-                                val localCenter = Offset(
-                                    x = start.x + radius * sin(Math.toRadians(p.angleDeg)).toFloat(),
-                                    y = start.y - radius * cos(Math.toRadians(p.angleDeg)).toFloat()
-                                )
-                                actionsInCircle(
-                                    selected = false,
-                                    point = p,
-                                    nests = nests,
-                                    points = points,
-                                    center = localCenter,
-                                    ctx = ctx,
-                                    circleColor = extraColors.circle,
-                                    showCircle = showAppCirclePreview,
-                                    surfaceColorDraw = Color.Unspecified,
-                                    extraColors = extraColors,
-                                    pointIcons = pointIcons,
-                                    defaultPoint = defaultPoint,
-                                    depth = 1,
-                                    iconShape = iconsShape,
-                                    density = density
-                                )
-                            }
+                            points.filter { it.nestId == nestId && it.circleNumber == targetCircle && it != point }
+                                .forEach { p ->
+                                    val localCenter = Offset(
+                                        x = start.x + radius * sin(Math.toRadians(p.angleDeg)).toFloat(),
+                                        y = start.y - radius * cos(Math.toRadians(p.angleDeg)).toFloat()
+                                    )
+                                    actionsInCircle(
+                                        selected = false,
+                                        point = p,
+                                        nests = nests,
+                                        points = points,
+                                        center = localCenter,
+                                        ctx = ctx,
+                                        circleColor = extraColors.circle,
+                                        showCircle = showAppCirclePreview,
+                                        surfaceColorDraw = Color.Unspecified,
+                                        extraColors = extraColors,
+                                        pointIcons = pointIcons,
+                                        defaultPoint = defaultPoint,
+                                        depth = 1,
+                                        iconShape = iconsShape,
+                                        density = density
+                                    )
+                                }
                         }
 
                         // Draw here the actual selected action (if requested)
@@ -473,7 +496,6 @@ fun MainScreenOverlay(
             }
         }
     }
-
 
 
     // Label on top of the screen to indicate the launching app
@@ -534,7 +556,6 @@ fun defaultHapticFeedback(id: Int): Int = when (id) {
     0 -> 20  // First circle 20ms
     else -> 20 + 20 * id // others: add 20ms each
 }
-
 
 
 // TODO I'll need to compute the angle to make it always look stable, regardless of the radius, to have always same length

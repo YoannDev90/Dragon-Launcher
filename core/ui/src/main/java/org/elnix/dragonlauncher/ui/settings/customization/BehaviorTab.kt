@@ -86,6 +86,14 @@ fun BehaviorTab(
         }
 
         item {
+            SettingsSwitchRow(
+                setting = BehaviorSettingsStore.pointsActionSnapsToOuterCircle,
+                title = stringResource(R.string.point_action_snaps_to_outer_circle),
+                description = stringResource(R.string.point_action_snaps_to_outer_circle_desc)
+            )
+        }
+
+        item {
             CustomActionSelector(
                 appsViewModel = appsViewModel,
                 currentAction = backAction,

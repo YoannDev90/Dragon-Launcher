@@ -643,4 +643,6 @@
     <string name="display_options_settings">Display options settings</string>
     <string name="disable_haptic_globally">Disable Haptic feedback globally</string>
     <string name="disable_haptic_globally_desc">Prevent Dragon to produce any haptic feedback in points selection in case you hate it</string>
+    <string name="point_action_snaps_to_outer_circle">Point action snaps to outer circle</string>
+    <string name="point_action_snaps_to_outer_circle_desc">Choose if the action is activated on the inner circle or the outer one</string>
 </resources>

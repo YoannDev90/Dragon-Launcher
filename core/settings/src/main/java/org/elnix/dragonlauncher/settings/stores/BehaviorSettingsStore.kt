@@ -98,4 +98,10 @@ object BehaviorSettingsStore : MapSettingsStore() {
         dataStoreName = dataStoreName,
         default = false
     )
+
+    val pointsActionSnapsToOuterCircle = Settings.boolean(
+        key = "pointsActionSnapsToOuterCircle",
+        dataStoreName = dataStoreName,
+        default = true
+    )
 }
