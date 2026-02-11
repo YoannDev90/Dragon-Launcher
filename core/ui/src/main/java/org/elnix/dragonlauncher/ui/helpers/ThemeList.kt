@@ -1,17 +1,23 @@
 package org.elnix.dragonlauncher.ui.helpers
 
 import android.graphics.BitmapFactory
+import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.lazy.grid.items
 import androidx.compose.material3.Card
+import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -43,15 +49,23 @@ fun ThemesList(
     val scope = rememberCoroutineScope()
 
     if (loading) {
-        Text(stringResource(R.string.loading_themes))
-    } else if (themes != null) {
+        Column(
+            modifier = Modifier.fillMaxSize(),
+            verticalArrangement = Arrangement.Center,
+            horizontalAlignment = Alignment.CenterHorizontally
+        ) {
+            Text(stringResource(R.string.loading_themes))
+            Spacer(Modifier.height(20.dp))
+            CircularProgressIndicator()
+        }
+    } else AnimatedVisibility(themes != null) {
         LazyVerticalGrid(
             columns = GridCells.Fixed(2),
             contentPadding = PaddingValues(8.dp),
             horizontalArrangement = Arrangement.spacedBy(8.dp),
             verticalArrangement = Arrangement.spacedBy(8.dp)
         ) {
-            items(themes) { theme ->
+            items(themes!!) { theme ->
                 Card(
                     colors = AppObjectsColors.cardColors(),
                     modifier = Modifier
@@ -65,7 +79,7 @@ fun ThemesList(
                             }
                         }
                 ) {
-                    Row (
+                    Row(
                         horizontalArrangement = Arrangement.SpaceBetween,
                         verticalAlignment = Alignment.CenterVertically,
                         modifier = Modifier
@@ -96,7 +110,6 @@ fun ThemesList(
         }
     }
 }
-
 
 
 @Composable
