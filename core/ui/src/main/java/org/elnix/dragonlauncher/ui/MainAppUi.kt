@@ -5,6 +5,8 @@ import android.content.ComponentName
 import android.content.Intent
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
+import androidx.compose.animation.EnterTransition
+import androidx.compose.animation.ExitTransition
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.padding
@@ -32,11 +34,18 @@ import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LifecycleEventObserver
 import androidx.lifecycle.compose.LocalLifecycleOwner
 import androidx.navigation.NavHostController
+import androidx.navigation.NavType
 import androidx.navigation.compose.NavHost
+import androidx.navigation.compose.composable
 import androidx.navigation.compose.currentBackStackEntryAsState
+import androidx.navigation.compose.navigation
+import androidx.navigation.navArgument
 import kotlinx.coroutines.launch
 import org.elnix.dragonlauncher.common.FloatingAppObject
 import org.elnix.dragonlauncher.common.R
+import org.elnix.dragonlauncher.common.logging.logD
+import org.elnix.dragonlauncher.common.serializables.defaultSwipePointsValues
+import org.elnix.dragonlauncher.common.utils.NAVIGATION_TAG
 import org.elnix.dragonlauncher.common.utils.ROUTES
 import org.elnix.dragonlauncher.common.utils.SETTINGS
 import org.elnix.dragonlauncher.common.utils.WidgetHostProvider
@@ -44,7 +53,9 @@ import org.elnix.dragonlauncher.common.utils.getVersionCode
 import org.elnix.dragonlauncher.common.utils.hasUriReadWritePermission
 import org.elnix.dragonlauncher.common.utils.isDefaultLauncher
 import org.elnix.dragonlauncher.common.utils.loadChangelogs
+import org.elnix.dragonlauncher.common.utils.showToast
 import org.elnix.dragonlauncher.common.utils.transparentScreens
+import org.elnix.dragonlauncher.enumsui.LockMethod
 import org.elnix.dragonlauncher.models.AppLifecycleViewModel
 import org.elnix.dragonlauncher.models.AppsViewModel
 import org.elnix.dragonlauncher.models.BackupViewModel
@@ -53,16 +64,38 @@ import org.elnix.dragonlauncher.settings.stores.BackupSettingsStore
 import org.elnix.dragonlauncher.settings.stores.DebugSettingsStore
 import org.elnix.dragonlauncher.settings.stores.DrawerSettingsStore
 import org.elnix.dragonlauncher.settings.stores.PrivateSettingsStore
+import org.elnix.dragonlauncher.settings.stores.SwipeSettingsStore
 import org.elnix.dragonlauncher.ui.components.settings.asState
 import org.elnix.dragonlauncher.ui.components.settings.asStateNull
+import org.elnix.dragonlauncher.ui.dialogs.PinUnlockDialog
 import org.elnix.dragonlauncher.ui.dialogs.UserValidation
 import org.elnix.dragonlauncher.ui.dialogs.WidgetPickerDialog
 import org.elnix.dragonlauncher.ui.drawer.AppDrawerScreen
 import org.elnix.dragonlauncher.ui.helpers.ReselectAutoBackupBanner
+import org.elnix.dragonlauncher.ui.helpers.SecurityHelper
 import org.elnix.dragonlauncher.ui.helpers.SetDefaultLauncherBanner
+import org.elnix.dragonlauncher.ui.helpers.findFragmentActivity
 import org.elnix.dragonlauncher.ui.helpers.noAnimComposable
-import org.elnix.dragonlauncher.ui.settings.SettingsNavHost
+import org.elnix.dragonlauncher.ui.settings.backup.BackupTab
+import org.elnix.dragonlauncher.ui.settings.customization.AppearanceTab
+import org.elnix.dragonlauncher.ui.settings.customization.BehaviorTab
+import org.elnix.dragonlauncher.ui.settings.customization.DrawerTab
+import org.elnix.dragonlauncher.ui.settings.customization.FloatingAppsTab
+import org.elnix.dragonlauncher.ui.settings.customization.IconPackTab
+import org.elnix.dragonlauncher.ui.settings.customization.NestEditingScreen
+import org.elnix.dragonlauncher.ui.settings.customization.StatusBarTab
+import org.elnix.dragonlauncher.ui.settings.customization.ThemesTab
+import org.elnix.dragonlauncher.ui.settings.customization.WallpaperTab
+import org.elnix.dragonlauncher.ui.settings.customization.colors.ColorSelectorTab
+import org.elnix.dragonlauncher.ui.settings.debug.DebugTab
+import org.elnix.dragonlauncher.ui.settings.debug.LogsTab
+import org.elnix.dragonlauncher.ui.settings.debug.SettingsDebugTab
+import org.elnix.dragonlauncher.ui.settings.language.LanguageTab
+import org.elnix.dragonlauncher.ui.settings.wellbeing.WellbeingTab
+import org.elnix.dragonlauncher.ui.settings.workspace.WorkspaceDetailScreen
+import org.elnix.dragonlauncher.ui.settings.workspace.WorkspaceListScreen
 import org.elnix.dragonlauncher.ui.welcome.WelcomeScreen
+import org.elnix.dragonlauncher.ui.whatsnew.ChangelogsScreen
 import org.elnix.dragonlauncher.ui.whatsnew.WhatsNewBottomSheet
 
 
@@ -108,7 +141,7 @@ fun MainAppUi(
     val rightDrawerAction by DrawerSettingsStore.rightDrawerAction.asState()
 
     val leftDrawerWidth by DrawerSettingsStore.leftDrawerWidth.asState()
-    val rightDrawerWidth  by DrawerSettingsStore.rightDrawerWidth.asState()
+    val rightDrawerWidth by DrawerSettingsStore.rightDrawerWidth.asState()
 
     val forceAppWidgetsSelector by DebugSettingsStore.forceAppWidgetsSelector.asState()
 
@@ -126,11 +159,19 @@ fun MainAppUi(
     val autoBackupUriString by BackupSettingsStore.autoBackupUri.asStateNull()
     val autoBackupUri = autoBackupUriString?.toUri()
 
+    val nests by SwipeSettingsStore.getNestsFlow(ctx).collectAsState(initial = emptyList())
+    val points by SwipeSettingsStore.getPointsFlow(ctx).collectAsState(emptyList())
+
+    val pointIcons by appsViewModel.pointIcons.collectAsState()
+    val defaultPoint by appsViewModel.defaultPoint.collectAsState(defaultSwipePointsValues)
+
+
     var startDestination by remember { mutableStateOf(SETTINGS.ROOT) }
 
 
     LaunchedEffect(Unit, lastSeenVersionCode, currentRoute) {
-        showWhatsNewBottomSheet = lastSeenVersionCode < currentVersionCode && currentRoute != ROUTES.WELCOME
+        showWhatsNewBottomSheet =
+            lastSeenVersionCode < currentVersionCode && currentRoute != ROUTES.WELCOME
     }
 
     DisposableEffect(lifecycleOwner) {
@@ -152,19 +193,88 @@ fun MainAppUi(
     }
 
 
+
+    /* navigation functions, all settings are nested under the lock state */
+
     fun goMainScreen() {
         navController.navigate(ROUTES.MAIN) {
             popUpTo(0) { inclusive = true }
         }
     }
 
-    fun goSettingsRoot() = navController.navigate(SETTINGS.ROOT)
-    fun goSettings(route: String) {
-        startDestination = route
-        goSettingsRoot()
-    }
     fun goDrawer() = navController.navigate(ROUTES.DRAWER)
     fun goWelcome() = navController.navigate(ROUTES.WELCOME)
+
+
+
+    // ── Lock gate state ──
+    val lockMethod by PrivateSettingsStore.lockMethod.asState()
+    val pinHash by PrivateSettingsStore.lockPinHash.asState()
+
+    /** Once unlocked during this session, stay unlocked */
+    var isUnlocked by remember { mutableStateOf(false) }
+    var showPinDialog by remember { mutableStateOf(false) }
+    var pinError by remember { mutableStateOf<String?>(null) }
+
+
+    LaunchedEffect(Unit) {
+        appLifecycleViewModel.homeEvents.collect {
+            isUnlocked = false
+            goMainScreen()
+        }
+    }
+
+    fun goSettings(route: String) {
+        if (isUnlocked || lockMethod == LockMethod.NONE) {
+            navController.navigate(route)
+            return
+        }
+        @Suppress("KotlinConstantConditions")
+        when (lockMethod) {
+            LockMethod.PIN -> {
+                showPinDialog = true
+            }
+
+            LockMethod.DEVICE_UNLOCK -> {
+                val activity = ctx.findFragmentActivity()
+                if (activity != null && SecurityHelper.isDeviceUnlockAvailable(ctx)) {
+                    SecurityHelper.showDeviceUnlockPrompt(
+                        activity = activity,
+                        onSuccess = {
+                            isUnlocked = true
+                            navController.navigate(route)
+                        },
+                        onError = { msg ->
+                            ctx.showToast(ctx.getString(R.string.authentication_error, msg))
+                        },
+                        onFailed = {
+                            ctx.showToast(ctx.getString(R.string.authentication_failed))
+                        }
+                    )
+                } else {
+                    ctx.showToast(ctx.getString(R.string.device_credentials_not_available))
+                }
+            }
+
+            LockMethod.NONE -> navController.navigate(route)
+        }
+    }
+
+    fun goSettingsRoot() = goSettings(SETTINGS.ROOT)
+    fun goAdvSettingsRoot() = goSettings(SETTINGS.ADVANCED_ROOT)
+
+
+    var pendingNestToEdit by remember { mutableStateOf<Int?>(null) }
+
+    fun navigateToAdvSettings() = goSettings(SETTINGS.ADVANCED_ROOT)
+    fun goAppearance() = goSettings(SETTINGS.APPEARANCE)
+    fun goDebug() = goSettings(SETTINGS.DEBUG)
+    fun goNestEdit(nest: Int) {
+        pendingNestToEdit = nest
+        goSettings(SETTINGS.NESTS_EDIT)
+    }
+
+
 
 
 
@@ -194,10 +304,9 @@ fun MainAppUi(
 
     val showReselectAutoBackupFile =
         autoBackupEnabled &&
-        hasAutoBackupPermission == false &&
-        autoBackupUri != null &&
-        currentRoute != ROUTES.WELCOME
-
+                hasAutoBackupPermission == false &&
+                autoBackupUri != null &&
+                currentRoute != ROUTES.WELCOME
 
 
     val autoBackupLauncher = rememberLauncherForActivityResult(
@@ -225,6 +334,10 @@ fun MainAppUi(
             MaterialTheme.colorScheme.background
         }
 
+
+    LaunchedEffect(currentRoute) {
+        logD(NAVIGATION_TAG, currentRoute?: "no route")
+    }
 
     Scaffold(
         topBar = {
@@ -284,28 +397,139 @@ fun MainAppUi(
             // Welcome screen
             noAnimComposable(ROUTES.WELCOME) {
                 WelcomeScreen(
-                    backupVm =  backupViewModel,
+                    backupVm = backupViewModel,
                     onEnterSettings = ::goSettingsRoot,
                     onEnterApp = ::goMainScreen
                 )
             }
 
 
-            // Settings Nav Host, holds all the settings
-            noAnimComposable(SETTINGS.ROOT) {
-                SettingsNavHost(
-                    startDestination = startDestination,
-                    appsViewModel = appsViewModel,
-                    backupViewModel = backupViewModel,
-                    appLifecycleViewModel = appLifecycleViewModel,
-                    floatingAppsViewModel = floatingAppsViewModel,
-                    goMainScreen = ::goMainScreen,
-                    goWelcome = ::goWelcome,
-                    widgetHostProvider = widgetHostProvider,
-                    launchWidgetsPicker = ::launchWidgetsPicker,
-                    onResetWidgetSize = onResetWidgetSize,
-                    onRemoveFloatingApp = onRemoveFloatingApp
-                )
+            /* ───────────── Settings navigation ───────────── */
+            navigation(
+                startDestination = startDestination,
+                route = "settings_graph"
+            ) {
+                noAnimComposable(SETTINGS.ROOT) {
+                    SettingsScreen(
+                        appsViewModel = appsViewModel,
+                        pointIcons = pointIcons,
+                        defaultPoint = defaultPoint,
+                        nests = nests,
+                        onAdvSettings = ::goAdvSettingsRoot,
+                        onNestEdit = ::goNestEdit,
+                        onBack = ::goMainScreen
+                    )
+                }
+                noAnimComposable(SETTINGS.ADVANCED_ROOT) {
+                    AdvancedSettingsScreen(
+                        appsViewModel,
+                        navController
+                    ) { goSettingsRoot() }
+                }
+
+                noAnimComposable(SETTINGS.APPEARANCE) {
+                    AppearanceTab(
+                        appsViewModel,
+                        navController,
+                        ::goAdvSettingsRoot
+                    )
+                }
+                noAnimComposable(SETTINGS.WALLPAPER) { WallpaperTab(::goAppearance) }
+                noAnimComposable(SETTINGS.ICON_PACK) { IconPackTab(appsViewModel, ::goAppearance) }
+                noAnimComposable(SETTINGS.STATUS_BAR) {
+                    StatusBarTab(
+                        appsViewModel,
+                        ::goAppearance
+                    )
+                }
+                noAnimComposable(SETTINGS.THEME) { ThemesTab(::goAppearance) }
+
+                noAnimComposable(SETTINGS.BEHAVIOR) {
+                    BehaviorTab(
+                        appsViewModel,
+                        ::goAdvSettingsRoot
+                    )
+                }
+                noAnimComposable(SETTINGS.DRAWER) { DrawerTab(appsViewModel, ::goAdvSettingsRoot) }
+                noAnimComposable(SETTINGS.COLORS) { ColorSelectorTab(::goAppearance) }
+                noAnimComposable(SETTINGS.DEBUG) {
+                    DebugTab(
+                        navController,
+                        appsViewModel,
+                        onShowWelcome = ::goWelcome,
+                        ::goAdvSettingsRoot
+                    )
+                }
+                noAnimComposable(SETTINGS.LOGS) { LogsTab(::goDebug) }
+                noAnimComposable(SETTINGS.SETTINGS_JSON) { SettingsDebugTab(::goDebug) }
+                noAnimComposable(SETTINGS.LANGUAGE) { LanguageTab(::goAdvSettingsRoot) }
+                noAnimComposable(SETTINGS.BACKUP) {
+                    BackupTab(
+                        backupViewModel,
+                        ::goAdvSettingsRoot
+                    )
+                }
+                noAnimComposable(SETTINGS.CHANGELOGS) { ChangelogsScreen(::goAdvSettingsRoot) }
+
+                noAnimComposable(SETTINGS.WELLBEING) {
+                    WellbeingTab(
+                        appsViewModel = appsViewModel,
+                        onBack = ::goAdvSettingsRoot
+                    )
+                }
+
+                noAnimComposable(SETTINGS.NESTS_EDIT) {
+                    NestEditingScreen(
+                        nestId = pendingNestToEdit,
+                        nests = nests,
+                        points = points,
+                        pointIcons = pointIcons,
+                        defaultPoint = defaultPoint,
+                        onBack = ::goSettingsRoot
+                    )
+                }
+
+                noAnimComposable(SETTINGS.FLOATING_APPS) {
+                    FloatingAppsTab(
+                        appsViewModel = appsViewModel,
+                        floatingAppsViewModel = floatingAppsViewModel,
+                        widgetHostProvider = widgetHostProvider,
+                        onBack = ::goAppearance,
+                        onLaunchSystemWidgetPicker = ::launchWidgetsPicker,
+                        onResetWidgetSize = onResetWidgetSize,
+                        onRemoveWidget = onRemoveFloatingApp
+                    )
+                }
+
+                noAnimComposable(SETTINGS.WORKSPACE) {
+                    WorkspaceListScreen(
+                        appsViewModel = appsViewModel,
+                        onOpenWorkspace = { id ->
+                            navController.navigate(
+                                SETTINGS.WORKSPACE_DETAIL.replace("{id}", id)
+                            )
+                        },
+                        onBack = ::goAdvSettingsRoot
+                    )
+                }
+
+                composable(
+                    route = SETTINGS.WORKSPACE_DETAIL,
+                    arguments = listOf(navArgument("id") { type = NavType.StringType }),
+                    enterTransition = { EnterTransition.None },
+                    exitTransition = { ExitTransition.None },
+                    popEnterTransition = { EnterTransition.None },
+                    popExitTransition = { ExitTransition.None }
+                ) { backStack ->
+                    WorkspaceDetailScreen(
+                        workspaceId = backStack.arguments!!.getString("id")!!,
+                        appsViewModel = appsViewModel,
+                        showIcons = showAppIconsInDrawer,
+                        showLabels = showAppLabelsInDrawer,
+                        gridSize = gridSize,
+                        onBack = { navController.popBackStack() }
+                    )
+                }
             }
         }
     }
@@ -328,9 +552,7 @@ fun MainAppUi(
         ) { showWidgetPicker = null }
     }
 
-    // ────────────────────────────────────────────────────
-    // RESULT DIALOG ( IMPORT / EXPORT )
-    // ────────────────────────────────────────────────────
+    /* ───────────── RESULT DIALOG ( IMPORT / EXPORT ) ───────────── */
     result?.let { res ->
         val isError = res.error
         val isExport = res.export
@@ -357,6 +579,24 @@ fun MainAppUi(
             titleColor = if (isError) MaterialTheme.colorScheme.error else Color.Green,
             copy = isError,
             onValidate = { backupViewModel.setResult(null) }
+        )
+    }
+
+    /* ────────── PIN unlock dialog ────────── */
+    if (showPinDialog) {
+        PinUnlockDialog(
+            onDismiss = { showPinDialog = false; pinError = null },
+            onPinEntered = { enteredPin ->
+                if (SecurityHelper.verifyPin(enteredPin, pinHash)) {
+                    isUnlocked = true
+                    showPinDialog = false
+                    pinError = null
+                    navigateToAdvSettings()
+                } else {
+                    pinError = ctx.getString(R.string.wrong_pin)
+                }
+            },
+            errorMessage = pinError
         )
     }
 }

@@ -1,12 +1,8 @@
 package org.elnix.dragonlauncher.ui.helpers.settings
 
-import androidx.compose.foundation.background
-import androidx.compose.foundation.combinedClickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.sizeIn
 import androidx.compose.material.icons.Icons
@@ -16,15 +12,14 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import org.elnix.dragonlauncher.common.R
 import org.elnix.dragonlauncher.common.utils.colors.adjustBrightness
-import org.elnix.dragonlauncher.ui.UiConstants.DragonShape
 import org.elnix.dragonlauncher.ui.colors.AppObjectsColors
 import org.elnix.dragonlauncher.ui.components.dragon.DragonIconButton
+import org.elnix.dragonlauncher.ui.components.dragon.DragonSurfaceRow
 import org.elnix.dragonlauncher.ui.helpers.IconC
 
 @Composable
@@ -40,19 +35,12 @@ fun SettingsItem(
     onLongClick: (() -> Unit)? = null,
     onClick: () -> Unit
 ) {
-    Row(
-        modifier = modifier
-            .fillMaxWidth()
-            .clip(DragonShape)
-            .combinedClickable(
-                enabled,
-                onLongClick = onLongClick,
-                onClick = onClick
-            )
-            .background(backgroundColor.copy(if (enabled) 1f else 0.5f))
-            .padding(horizontal = 16.dp, vertical = 14.dp),
-        verticalAlignment = Alignment.CenterVertically,
-        horizontalArrangement = Arrangement.SpaceBetween
+
+    DragonSurfaceRow (
+        enabled = enabled,
+        backgroundColor = backgroundColor,
+        onLongClick = onLongClick,
+        onClick = onClick
     ) {
 
         Row(

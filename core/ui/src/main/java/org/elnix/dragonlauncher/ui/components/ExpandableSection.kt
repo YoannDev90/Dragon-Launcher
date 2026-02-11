@@ -19,6 +19,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.rotate
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import org.elnix.dragonlauncher.common.R
@@ -73,7 +74,7 @@ fun ExpandableSection(
                             onExpand(!expanded())
                         }
                     ),
-                    backgroundColor = backgroundColor.value,
+                    backgroundColor = Color.Transparent,
                     border = false
                 )
                 .fillMaxWidth(),

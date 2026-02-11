@@ -347,3 +347,6 @@ fun Long.formatDuration(): String {
 
 fun Color?.definedOrNull(): Color? = this.takeIf { it != Color.Unspecified }
 fun Color?.orDefault(default: Color = Color.Unspecified): Color = this ?: default
+
+fun Color.semiTransparentIfDisabled(enabled: Boolean): Color =
+    if (enabled) this else this.copy(alpha = this.alpha * 0.5f)

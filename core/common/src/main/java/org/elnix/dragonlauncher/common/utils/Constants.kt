@@ -71,7 +71,6 @@ val ignoredReturnRoutes = listOf(
 val transparentScreens = listOf(
     ROUTES.MAIN,
     ROUTES.DRAWER,
-    SETTINGS.ROOT, // To tell the main NavHost that settings are transparent, then the settings scaffold will take the relay and apply the color where it needs
     SETTINGS.WALLPAPER,
     SETTINGS.FLOATING_APPS
 )
@@ -118,6 +117,7 @@ const val COLORS_TAG = "ColorsDebug"
 const val DRAWER_TAG = "DrawerDebug"
 const val APP_LAUNCH_TAG = "AppLaunchDebug"
 const val HOLD_TAG = "HoldDebug"
+const val NAVIGATION_TAG = "NavigationDebug"
 
 
 

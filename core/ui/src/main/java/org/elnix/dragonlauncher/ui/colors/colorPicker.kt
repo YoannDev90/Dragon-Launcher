@@ -30,7 +30,6 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TextField
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -57,8 +56,10 @@ import org.elnix.dragonlauncher.enumsui.ColorPickerMode
 import org.elnix.dragonlauncher.enumsui.colorPickerText
 import org.elnix.dragonlauncher.settings.stores.ColorModesSettingsStore
 import org.elnix.dragonlauncher.ui.UiConstants.DragonShape
-import org.elnix.dragonlauncher.ui.components.dragon.DragonIconButton
 import org.elnix.dragonlauncher.ui.components.ValidateCancelButtons
+import org.elnix.dragonlauncher.ui.components.dragon.DragonIconButton
+import org.elnix.dragonlauncher.ui.components.dragon.DragonSurfaceRow
+import org.elnix.dragonlauncher.ui.components.settings.asState
 import org.elnix.dragonlauncher.ui.dialogs.CustomAlertDialog
 import org.elnix.dragonlauncher.ui.helpers.SliderWithLabel
 
@@ -67,34 +68,23 @@ fun ColorPickerRow(
     label: String,
     showLabel: Boolean = true,
     enabled: Boolean = true,
-//    defaultColor: Color,
     currentColor: Color,
     backgroundColor: Color = MaterialTheme.colorScheme.surface,
     onColorPicked: (Color?) -> Unit
 ) {
-    val ctx = LocalContext.current
-
     var showPicker by remember { mutableStateOf(false) }
     var actualColor by remember { mutableStateOf(currentColor) }
 
     val modifier = if (showLabel) Modifier.fillMaxWidth() else Modifier.wrapContentWidth()
 
-    val savedMode by ColorModesSettingsStore.colorPickerMode.flow(ctx).collectAsState(initial = ColorPickerMode.SLIDERS)
+    val savedMode by ColorModesSettingsStore.colorPickerMode.asState()
     val initialPage = remember(savedMode) { ColorPickerMode.entries.indexOf(savedMode) }
 
-    Row(
-       modifier = modifier
-           .clickable(enabled) { showPicker = true }
-           .background(
-               color = backgroundColor.copy(if (enabled) 1f else 0.5f),
-               shape = DragonShape
-           )
-           .padding(horizontal = 16.dp, vertical = 14.dp),
-
-        horizontalArrangement = Arrangement.SpaceBetween,
-        verticalAlignment = Alignment.CenterVertically
+    DragonSurfaceRow(
+        enabled = enabled,
+        onClick = { showPicker = true }
     ) {
-        if(showLabel){
+        if (showLabel) {
             Text(
                 text = label,
                 color = MaterialTheme.colorScheme.onSurface.copy(if (enabled) 1f else 0.5f),
@@ -111,7 +101,6 @@ fun ColorPickerRow(
 
             ColorPickerButtonOne(
                 currentColor = currentColor,
-//                defaultColor = defaultColor,
                 onReset = { onColorPicked(null) },
                 backgroundColor = backgroundColor,
                 onColorPicked = onColorPicked
@@ -119,7 +108,6 @@ fun ColorPickerRow(
 
             ColorPickerButtonTwo(
                 currentColor = currentColor,
-//                defaultColor = defaultColor,
                 onReset = { onColorPicked(null) },
                 backgroundColor = backgroundColor,
                 onColorPicked = onColorPicked
@@ -171,7 +159,7 @@ fun ColorPickerRow(
             },
             confirmButton = {
                 ValidateCancelButtons(
-                    onCancel = { showPicker = false}
+                    onCancel = { showPicker = false }
                 ) {
                     onColorPicked(actualColor)
                     showPicker = false
@@ -182,7 +170,6 @@ fun ColorPickerRow(
         )
     }
 }
-
 
 
 @Composable
@@ -238,7 +225,7 @@ private fun ColorPicker(
 
         Spacer(Modifier.height(5.dp))
 
-        // --- Preview box ---
+        // ───────────── Preview box ─────────────
         Box(
             modifier = Modifier
                 .fillMaxWidth()
@@ -249,7 +236,7 @@ private fun ColorPicker(
         ) {
             Row(
                 verticalAlignment = Alignment.CenterVertically
-            ){
+            ) {
                 val textBoxColor = if (color.luminance() > 0.4) Color.Black else Color.White
 
                 TextField(
@@ -262,12 +249,14 @@ private fun ColorPicker(
                             }
                         }
                     },
-                    label = { Text(
-                        text = "HEX - AARRGGBB",
-                        color = textBoxColor
-                    ) },
+                    label = {
+                        Text(
+                            text = "HEX - AARRGGBB",
+                            color = textBoxColor
+                        )
+                    },
                     colors = AppObjectsColors.outlinedTextFieldColors(
-                        backgroundColor = color,
+                        backgroundColor = Color.Transparent,
                         onBackgroundColor = textBoxColor,
                         removeBorder = true
                     ),
@@ -281,7 +270,7 @@ private fun ColorPicker(
                     onClick = {
                         ctx.copyToClipboard(hexText)
                     },
-                    colors = AppObjectsColors.iconButtonColors(color,textBoxColor)
+                    colors = AppObjectsColors.iconButtonColors(color, textBoxColor)
                 ) {
                     Icon(
                         imageVector = Icons.Default.ContentCopy,
@@ -315,10 +304,12 @@ private fun ColorPicker(
                     actualColor = color,
                     onColorSelected = onColorSelected
                 )
+
                 ColorPickerMode.GRADIENT -> GradientColorPicker(
                     initialColor = color,
                     onColorSelected = onColorSelected
                 )
+
                 ColorPickerMode.DEFAULTS -> DefaultColorPicker(
                     initialColor = color,
                     onColorSelected = onColorSelected
@@ -334,7 +325,10 @@ private fun ColorPicker(
             label = stringResource(R.string.transparency),
             value = color.alpha,
             color = MaterialTheme.colorScheme.primary,
-            backgroundColor = MaterialTheme.colorScheme.surface.blendWith(MaterialTheme.colorScheme.primary, 0.2f),
+            backgroundColor = MaterialTheme.colorScheme.surface.blendWith(
+                MaterialTheme.colorScheme.primary,
+                0.2f
+            ),
             valueRange = 0f..1f
         ) { alpha -> onColorSelected(color.copy(alpha = alpha)) }
     }

@@ -29,6 +29,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
+import org.elnix.dragonlauncher.common.utils.semiTransparentIfDisabled
 import org.elnix.dragonlauncher.ui.UiConstants
 
 @Composable
@@ -61,7 +62,7 @@ fun <T> ActionRow(
             val backgroundColor = (
                     if (isSelected) MaterialTheme.colorScheme.primary
                     else backgroundColorUnselected ?: MaterialTheme.colorScheme.surface
-                    ).copy(if (enabled) 1f else 0.5f)
+                    ).semiTransparentIfDisabled(enabled)
 
             val textColor = (
                     if (isSelected) MaterialTheme.colorScheme.onPrimary

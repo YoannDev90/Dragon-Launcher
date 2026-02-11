@@ -630,5 +630,6 @@
     <string name="logs">Logs</string>
     <string name="settings_json">Settings JSON</string>
     <string name="pick_a_settings_screen">Pick a settings screen</string>
+    <string name="app_preview_settings">App preview overlay</string>
 
 </resources>

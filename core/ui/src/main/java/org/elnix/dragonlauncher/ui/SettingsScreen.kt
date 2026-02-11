@@ -445,7 +445,6 @@ fun SettingsScreen(
     Column(
         Modifier
             .fillMaxSize()
-            .background(MaterialTheme.colorScheme.background)
             .windowInsetsPadding(WindowInsets.safeDrawing.exclude(WindowInsets.ime))
     ) {
         Row(

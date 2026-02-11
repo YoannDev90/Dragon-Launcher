@@ -2,7 +2,7 @@ package org.elnix.dragonlauncher.ui.modifiers
 
 import androidx.compose.animation.core.animateDp
 import androidx.compose.animation.core.updateTransition
-import androidx.compose.foundation.clickable
+import androidx.compose.foundation.combinedClickable
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.interaction.collectIsPressedAsState
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -20,6 +20,7 @@ fun Modifier.shapedClickable(
     enabled: Boolean = true,
     onClickLabel: String? = null,
     role: Role? = null,
+    onLongClick: (() -> Unit)? = null,
     onClick: () -> Unit,
 ): Modifier {
 
@@ -43,11 +44,12 @@ fun Modifier.shapedClickable(
 
     return this
         .clip(shape)
-        .clickable(
-        interactionSource = interactionSource,
-        enabled = enabled,
-        onClickLabel = onClickLabel,
-        role = role,
-        onClick = onClick
-    )
+        .combinedClickable(
+            interactionSource = interactionSource,
+            enabled = enabled,
+            onClickLabel = onClickLabel,
+            role = role,
+            onClick = onClick,
+            onLongClick = onLongClick
+        )
 }
