@@ -14,7 +14,6 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableDoubleStateOf
 import androidx.compose.runtime.mutableStateOf
@@ -43,10 +42,12 @@ import androidx.compose.ui.unit.sp
 import org.elnix.dragonlauncher.common.serializables.CircleNest
 import org.elnix.dragonlauncher.common.serializables.SwipePointSerializable
 import org.elnix.dragonlauncher.common.utils.vibrate
+import org.elnix.dragonlauncher.settings.stores.BehaviorSettingsStore
 import org.elnix.dragonlauncher.settings.stores.DebugSettingsStore
 import org.elnix.dragonlauncher.settings.stores.DrawerSettingsStore
 import org.elnix.dragonlauncher.settings.stores.UiSettingsStore
 import org.elnix.dragonlauncher.ui.components.AppPreviewTitle
+import org.elnix.dragonlauncher.ui.components.settings.asState
 import org.elnix.dragonlauncher.ui.helpers.nests.actionsInCircle
 import org.elnix.dragonlauncher.ui.theme.LocalExtraColors
 import kotlin.math.abs
@@ -72,50 +73,30 @@ fun MainScreenOverlay(
     val ctx = LocalContext.current
     val extraColors = LocalExtraColors.current
 
-    val rgbLine by UiSettingsStore.rgbLine.flow(ctx)
-        .collectAsState(initial = true)
-    val debugInfos by DebugSettingsStore.debugInfos.flow(ctx)
-        .collectAsState(initial = false)
+    val rgbLine by UiSettingsStore.rgbLine.asState()
+    val debugInfos by DebugSettingsStore.debugInfos.asState()
 
-    val showLaunchingAppLabel by UiSettingsStore.showLaunchingAppLabel.flow(ctx)
-        .collectAsState(initial = true)
-    val showLaunchingAppIcon by UiSettingsStore.showLaunchingAppIcon.flow(ctx)
-        .collectAsState(initial = true)
+    val showLaunchingAppLabel by UiSettingsStore.showLaunchingAppLabel.asState()
+    val showLaunchingAppIcon by UiSettingsStore.showLaunchingAppIcon.asState()
 
-    val showAppLaunchPreview by UiSettingsStore.showAppLaunchingPreview.flow(ctx)
-        .collectAsState(initial = true)
-    val showAppCirclePreview by UiSettingsStore.showCirclePreview.flow(ctx)
-        .collectAsState(initial = true)
-    val showAppLinePreview by UiSettingsStore.showLinePreview.flow(ctx)
-        .collectAsState(initial = true)
-    val showAppAnglePreview by UiSettingsStore.showAnglePreview.flow(ctx)
-        .collectAsState(initial = true)
-    val showAppPreviewIconCenterStartPosition by UiSettingsStore.showAppPreviewIconCenterStartPosition.flow(ctx)
-        .collectAsState(initial = false)
-    val linePreviewSnapToAction by UiSettingsStore.linePreviewSnapToAction.flow(ctx)
-        .collectAsState(initial = false)
-    val showAllActionsOnCurrentCircle by UiSettingsStore.showAllActionsOnCurrentCircle.flow(ctx)
-        .collectAsState(initial = false)
-    val appLabelIconOverlayTopPadding by UiSettingsStore.appLabelIconOverlayTopPadding.flow(ctx)
-        .collectAsState(initial = 30)
-    val appLabelOverlaySize by UiSettingsStore.appLabelOverlaySize.flow(ctx)
-        .collectAsState(initial = 18)
-    val appIconOverlaySize by UiSettingsStore.appIconOverlaySize.flow(ctx)
-        .collectAsState(initial = 22)
+    val showAppLaunchPreview by UiSettingsStore.showAppLaunchingPreview.asState()
+    val showAppCirclePreview by UiSettingsStore.showCirclePreview.asState()
+    val showAppLinePreview by UiSettingsStore.showLinePreview.asState()
+    val showAppAnglePreview by UiSettingsStore.showAnglePreview.asState()
+    val showAppPreviewIconCenterStartPosition by UiSettingsStore.showAppPreviewIconCenterStartPosition.asState()
+    val linePreviewSnapToAction by UiSettingsStore.linePreviewSnapToAction.asState()
+    val showAllActionsOnCurrentCircle by UiSettingsStore.showAllActionsOnCurrentCircle.asState()
+    val appLabelIconOverlayTopPadding by UiSettingsStore.appLabelIconOverlayTopPadding.asState()
+    val appLabelOverlaySize by UiSettingsStore.appLabelOverlaySize.asState()
+    val appIconOverlaySize by UiSettingsStore.appIconOverlaySize.asState()
+    val disableHapticFeedback by BehaviorSettingsStore.disableHapticFeedbackGlobally.asState()
 
-    val iconsShape by DrawerSettingsStore.iconsShape.flow(ctx)
-        .collectAsState(DrawerSettingsStore.iconsShape.default)
+    val iconsShape by DrawerSettingsStore.iconsShape.asState()
     val density = LocalDensity.current
 
 
     var lastAngle by remember { mutableStateOf<Double?>(null) }
     var cumulativeAngle by remember { mutableDoubleStateOf(0.0) }   // continuous rotation without jumps
-
-
-//    val minAngleFromAPointToActivateIt by UiSettingsStore.minAngleFromAPointToActivateIt.flow(ctx)
-//        .collectAsState(initial = 0)
-
-
 
 
     val dragRadii = nests.find { it.id == nestId }?.dragDistances ?: CircleNest().dragDistances
@@ -246,7 +227,7 @@ fun MainScreenOverlay(
     LaunchedEffect(hoveredPoint?.id) {
        hoveredPoint?.let { point ->
            (point.haptic ?: haptics[targetCircle] ?: defaultHapticFeedback(targetCircle)).let { milliseconds ->
-               if (milliseconds > 0) {
+               if (milliseconds > 0 && !disableHapticFeedback) {
                    vibrate(ctx, milliseconds.toLong())
                }
            }

@@ -23,7 +23,8 @@ object BehaviorSettingsStore : MapSettingsStore() {
             topPadding,
             bottomPadding,
             holdDelayBeforeStartingLongClickSettings,
-            longCLickSettingsDuration
+            longCLickSettingsDuration,
+            disableHapticFeedbackGlobally
         )
 
     val backAction = Settings.swipeAction(
@@ -90,5 +91,11 @@ object BehaviorSettingsStore : MapSettingsStore() {
         dataStoreName = dataStoreName,
         default = 1000,
         allowedRange = 200..5000
+    )
+
+    val disableHapticFeedbackGlobally = Settings.boolean(
+        key = "disableHapticFeedbackGlobally",
+        dataStoreName = dataStoreName,
+        default = false
     )
 }

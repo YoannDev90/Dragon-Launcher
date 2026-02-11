@@ -641,4 +641,6 @@
     <string name="show_date_desc">Diaplay the date next to the time using the custom formatter</string>
     <string name="show_status_bar_desc">Display the status bar, if disabled nothing\'s showed</string>
     <string name="display_options_settings">Display options settings</string>
+    <string name="disable_haptic_globally">Disable Haptic feedback globally</string>
+    <string name="disable_haptic_globally_desc">Prevent Dragon to produce any haptic feedback in points selection in case you hate it</string>
 </resources>

@@ -78,6 +78,14 @@ fun BehaviorTab(
         }
 
         item {
+            SettingsSwitchRow(
+                setting = BehaviorSettingsStore.disableHapticFeedbackGlobally,
+                title = stringResource(R.string.disable_haptic_globally),
+                description = stringResource(R.string.disable_haptic_globally_desc)
+            )
+        }
+
+        item {
             CustomActionSelector(
                 appsViewModel = appsViewModel,
                 currentAction = backAction,
