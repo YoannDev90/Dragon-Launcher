@@ -66,8 +66,7 @@ fun StatusBarTab(
     var paddingsSectionExpanded by remember { mutableStateOf(false) }
 
     Column {
-
-        AnimatedVisibility (showStatusBar && isRealFullscreen) {
+        AnimatedVisibility(showStatusBar && isRealFullscreen) {
             StatusBar(
                 onDateAction = null,
                 onClockAction = null

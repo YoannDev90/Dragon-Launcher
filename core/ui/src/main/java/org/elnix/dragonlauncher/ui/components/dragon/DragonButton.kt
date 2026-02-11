@@ -3,9 +3,10 @@ package org.elnix.dragonlauncher.ui.components.dragon
 import androidx.compose.animation.core.animateDpAsState
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.interaction.collectIsPressedAsState
+import androidx.compose.foundation.layout.RowScope
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material3.IconButton
-import androidx.compose.material3.IconButtonColors
+import androidx.compose.material3.Button
+import androidx.compose.material3.ButtonColors
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
@@ -15,14 +16,13 @@ import org.elnix.dragonlauncher.ui.colors.AppObjectsColors
 
 
 @Composable
-fun DragonIconButton(
+fun DragonButton(
     onClick: () -> Unit,
     modifier: Modifier = Modifier,
     enabled: Boolean = true,
-    colors: IconButtonColors = AppObjectsColors.iconButtonColors(),
-    content: @Composable () -> Unit,
+    colors: ButtonColors = AppObjectsColors.buttonColors(),
+    content: @Composable RowScope.() -> Unit,
 ) {
-
     val interactionSource = remember { MutableInteractionSource() }
     val isPressed by interactionSource.collectIsPressedAsState()
 
@@ -36,14 +36,13 @@ fun DragonIconButton(
 
     val shape = RoundedCornerShape(shapeRound)
 
-
-    IconButton(
-        onClick = onClick,
+    Button(
         modifier = modifier,
+        onClick = onClick,
+        shape = shape,
         enabled = enabled,
         colors = colors,
         interactionSource = interactionSource,
-        shape = shape,
         content = content
     )
 }

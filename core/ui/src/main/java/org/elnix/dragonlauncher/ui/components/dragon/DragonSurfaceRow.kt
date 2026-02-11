@@ -15,12 +15,14 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 import org.elnix.dragonlauncher.common.utils.semiTransparentIfDisabled
 import org.elnix.dragonlauncher.ui.UiConstants.DragonShape
+import org.elnix.dragonlauncher.ui.modifiers.shapedClickable
 
 
 @Composable
 fun DragonSurfaceRow(
     modifier: Modifier = Modifier,
     enabled: Boolean = true,
+    shapedCLickable: Boolean = false,
     onClick: () -> Unit,
     onLongClick: (() -> Unit)? = null,
     backgroundColor: Color = MaterialTheme.colorScheme.surface,
@@ -29,10 +31,20 @@ fun DragonSurfaceRow(
     Row(
         modifier = modifier
             .clip(DragonShape)
-            .combinedClickable(
-                enabled = enabled,
-                onLongClick = onLongClick,
-                onClick = onClick
+            .then(
+                if (shapedCLickable) {
+                    Modifier.shapedClickable(
+                        enabled = enabled,
+                        onLongClick = onLongClick,
+                        onClick = onClick
+                    )
+                } else {
+                    Modifier.combinedClickable(
+                        enabled = enabled,
+                        onLongClick = onLongClick,
+                        onClick = onClick
+                    )
+                }
             )
             .background(backgroundColor.semiTransparentIfDisabled(enabled))
             .padding(horizontal = 16.dp, vertical = 14.dp),
