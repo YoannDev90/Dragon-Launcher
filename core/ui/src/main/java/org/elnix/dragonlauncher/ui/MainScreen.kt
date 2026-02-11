@@ -14,6 +14,14 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.systemBars
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Settings
+import androidx.compose.material.icons.filled.Wallpaper
+import androidx.compose.material.icons.filled.Widgets
+import androidx.compose.material3.DropdownMenu
+import androidx.compose.material3.Icon
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
@@ -34,7 +42,9 @@ import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.layout.onSizeChanged
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalDensity
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.Density
+import androidx.compose.ui.unit.DpOffset
 import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.IntSize
 import androidx.compose.ui.unit.dp
@@ -42,11 +52,13 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import org.elnix.dragonlauncher.base.ktx.toPixels
 import org.elnix.dragonlauncher.common.FloatingAppObject
+import org.elnix.dragonlauncher.common.R
 import org.elnix.dragonlauncher.common.logging.logE
 import org.elnix.dragonlauncher.common.serializables.SwipeActionSerializable
 import org.elnix.dragonlauncher.common.serializables.SwipePointSerializable
 import org.elnix.dragonlauncher.common.serializables.defaultSwipePointsValues
 import org.elnix.dragonlauncher.common.serializables.dummySwipePoint
+import org.elnix.dragonlauncher.common.utils.SETTINGS
 import org.elnix.dragonlauncher.common.utils.TAG
 import org.elnix.dragonlauncher.common.utils.WidgetHostProvider
 import org.elnix.dragonlauncher.common.utils.circles.rememberNestNavigation
@@ -65,7 +77,11 @@ import org.elnix.dragonlauncher.ui.actions.AppLaunchException
 import org.elnix.dragonlauncher.ui.actions.launchAppDirectly
 import org.elnix.dragonlauncher.ui.actions.launchSwipeAction
 import org.elnix.dragonlauncher.ui.components.FloatingAppsHostView
+import org.elnix.dragonlauncher.ui.components.burger.BurgerAction
+import org.elnix.dragonlauncher.ui.components.burger.BurgerListAction
 import org.elnix.dragonlauncher.ui.components.resolveShape
+import org.elnix.dragonlauncher.ui.components.settings.asState
+import org.elnix.dragonlauncher.ui.components.settings.asStateNull
 import org.elnix.dragonlauncher.ui.dialogs.FilePickerDialog
 import org.elnix.dragonlauncher.ui.helpers.HoldToActivateArc
 import org.elnix.dragonlauncher.ui.helpers.WallpaperDim
@@ -86,7 +102,7 @@ fun MainScreen(
     widgetHostProvider: WidgetHostProvider,
     onAppDrawer: (workspaceId: String?) -> Unit,
     onGoWelcome: () -> Unit,
-    onLongPress3Sec: () -> Unit
+    onSettings: (route: String) -> Unit
 ) {
     val ctx = LocalContext.current
     val scope = rememberCoroutineScope()
@@ -98,49 +114,33 @@ fun MainScreen(
     val defaultPoint by appsViewModel.defaultPoint.collectAsState(defaultSwipePointsValues)
 
 
-    val doubleClickAction by BehaviorSettingsStore.doubleClickAction.flow(ctx)
-        .collectAsState(initial = null)
+    /* ───────────── Custom Actions ─────────────*/
+    val doubleClickAction by BehaviorSettingsStore.doubleClickAction.asStateNull()
+    val backAction by BehaviorSettingsStore.backAction.asStateNull()
+    val homeAction by BehaviorSettingsStore.homeAction.asStateNull()
 
-    val backAction by BehaviorSettingsStore.backAction.flow(ctx)
-        .collectAsState(initial = null)
+    val leftPadding by BehaviorSettingsStore.leftPadding.asState()
+    val rightPadding by BehaviorSettingsStore.rightPadding.asState()
+    val topPadding by BehaviorSettingsStore.topPadding.asState()
+    val bottomPadding by BehaviorSettingsStore.bottomPadding.asState()
 
-    val homeAction by BehaviorSettingsStore.homeAction.flow(ctx)
-        .collectAsState(initial = null)
+    val iconsShape by DrawerSettingsStore.iconsShape.asState()
 
-    val leftPadding by BehaviorSettingsStore.leftPadding.flow(ctx)
-        .collectAsState(initial = 0)
-
-    val rightPadding by BehaviorSettingsStore.rightPadding.flow(ctx)
-        .collectAsState(initial = 0)
-
-    val topPadding by BehaviorSettingsStore.topPadding.flow(ctx)
-        .collectAsState(initial = 0)
-
-    val bottomPadding by BehaviorSettingsStore.bottomPadding.flow(ctx)
-        .collectAsState(initial = 0)
-
-    val iconsShape by DrawerSettingsStore.iconsShape.flow(ctx)
-        .collectAsState(DrawerSettingsStore.iconsShape.default)
-
+    val holdDelayBeforeStartingLongClickSettings by BehaviorSettingsStore
+        .holdDelayBeforeStartingLongClickSettings.asState()
+    val longCLickSettingsDuration by BehaviorSettingsStore.longCLickSettingsDuration.asState()
 
 
     /*  ─────────────  Wellbeing Settings  ─────────────  */
-    val socialMediaPauseEnabled by WellbeingSettingsStore.socialMediaPauseEnabled.flow(ctx)
-        .collectAsState(initial = false)
-    val guiltModeEnabled by WellbeingSettingsStore.guiltModeEnabled.flow(ctx)
-        .collectAsState(initial = false)
-    val pauseDuration by WellbeingSettingsStore.pauseDurationSeconds.flow(ctx)
-        .collectAsState(initial = 10)
+    val socialMediaPauseEnabled by WellbeingSettingsStore.socialMediaPauseEnabled.asState()
+    val guiltModeEnabled by WellbeingSettingsStore.guiltModeEnabled.asState()
+    val pauseDuration by WellbeingSettingsStore.pauseDurationSeconds.asState()
     val pausedApps by WellbeingSettingsStore.getPausedAppsFlow(ctx)
         .collectAsState(initial = emptySet())
-    val reminderEnabled by WellbeingSettingsStore.reminderEnabled.flow(ctx)
-        .collectAsState(initial = false)
-    val reminderInterval by WellbeingSettingsStore.reminderIntervalMinutes.flow(ctx)
-        .collectAsState(initial = 5)
-    val reminderMode by WellbeingSettingsStore.reminderMode.flow(ctx)
-        .collectAsState(initial = "overlay")
-    val returnToLauncherEnabled by WellbeingSettingsStore.returnToLauncherEnabled.flow(ctx)
-        .collectAsState(initial = false)
+    val reminderEnabled by WellbeingSettingsStore.reminderEnabled.asState()
+    val reminderInterval by WellbeingSettingsStore.reminderIntervalMinutes.asState()
+    val reminderMode by WellbeingSettingsStore.reminderMode.asState()
+    val returnToLauncherEnabled by WellbeingSettingsStore.returnToLauncherEnabled.asState()
 
     // Store pending package to launch after pause
     var pendingPackageToLaunch by remember { mutableStateOf<String?>(null) }
@@ -164,17 +164,27 @@ fun MainScreen(
                     )
                 }
 
-                launchAppDirectly(appsViewModel, ctx, pendingPackageToLaunch!!, pendingUserIdToLaunch!!)
+                launchAppDirectly(
+                    appsViewModel,
+                    ctx,
+                    pendingPackageToLaunch!!,
+                    pendingUserIdToLaunch!!
+                )
             } catch (e: Exception) {
                 ctx.logE(TAG, "Failed to launch after pause: ${e.message}")
             }
         } else if (result.resultCode == DigitalPauseActivity.RESULT_PROCEED_WITH_TIMER && pendingPackageToLaunch != null) {
             try {
                 val data = result.data
-                val timeLimitMin = data?.getIntExtra(DigitalPauseActivity.RESULT_EXTRA_TIME_LIMIT, 10) ?: 10
-                val hasReminder = data?.getBooleanExtra(DigitalPauseActivity.EXTRA_REMINDER_ENABLED, false) ?: false
-                val remInterval = data?.getIntExtra(DigitalPauseActivity.EXTRA_REMINDER_INTERVAL, 5) ?: 5
-                val remMode = data?.getStringExtra(DigitalPauseActivity.EXTRA_REMINDER_MODE) ?: "overlay"
+                val timeLimitMin =
+                    data?.getIntExtra(DigitalPauseActivity.RESULT_EXTRA_TIME_LIMIT, 10) ?: 10
+                val hasReminder =
+                    data?.getBooleanExtra(DigitalPauseActivity.EXTRA_REMINDER_ENABLED, false)
+                        ?: false
+                val remInterval =
+                    data?.getIntExtra(DigitalPauseActivity.EXTRA_REMINDER_INTERVAL, 5) ?: 5
+                val remMode =
+                    data?.getStringExtra(DigitalPauseActivity.EXTRA_REMINDER_MODE) ?: "overlay"
 
                 AppTimerService.start(
                     ctx = ctx,
@@ -187,7 +197,12 @@ fun MainScreen(
                     timeLimitMinutes = timeLimitMin
                 )
 
-                launchAppDirectly(appsViewModel, ctx, pendingPackageToLaunch!!, pendingUserIdToLaunch!!)
+                launchAppDirectly(
+                    appsViewModel,
+                    ctx,
+                    pendingPackageToLaunch!!,
+                    pendingUserIdToLaunch!!
+                )
             } catch (e: Exception) {
                 ctx.logE(TAG, "Failed to launch after pause with timer: ${e.message}")
             }
@@ -205,26 +220,31 @@ fun MainScreen(
     var isDragging by remember { mutableStateOf(false) }
     var size by remember { mutableStateOf(IntSize.Zero) }
 
+
+    var tempStartPos by remember { mutableStateOf(start) }
+    var showDropDownMenuSettings by remember { mutableStateOf(false) }
+
     val hold = rememberHoldToOpenSettings(
-        onSettings = onLongPress3Sec
+        onSettings = {
+            showDropDownMenuSettings = true
+            tempStartPos = start
+        },
+        holdDelay = holdDelayBeforeStartingLongClickSettings.toLong(),
+        loadDuration = longCLickSettingsDuration.toLong(),
     )
 
     val defaultColor = Color.Red
-    val rgbLoading by UiSettingsStore.rgbLoading.flow(ctx)
-        .collectAsState(initial = true)
+    val rgbLoading by UiSettingsStore.rgbLoading.asState()
 
-    val hasSeenWelcome by PrivateSettingsStore.hasSeenWelcome.flow(ctx)
-        .collectAsState(initial = true)
+    val hasSeenWelcome by PrivateSettingsStore.hasSeenWelcome.asStateNull()
 
     val useAccessibilityInsteadOfContextToExpandActionPanel by DebugSettingsStore
-        .useAccessibilityInsteadOfContextToExpandActionPanel.flow(ctx)
-        .collectAsState(initial = true)
+        .useAccessibilityInsteadOfContextToExpandActionPanel.asState()
 
 
     /* ───────────── status bar things ───────────── */
 
-    val showStatusBar by StatusBarSettingsStore.showStatusBar.flow(ctx)
-        .collectAsState(initial = false)
+    val showStatusBar by StatusBarSettingsStore.showStatusBar.asState()
 
     val systemInsets = WindowInsets.systemBars.asPaddingValues()
 
@@ -233,11 +253,8 @@ fun MainScreen(
     /* ────────────────────────────────────────────── */
 
 
-
-
     /* Dim wallpaper system */
-    val mainBlurRadius by UiSettingsStore.wallpaperDimMainScreen.flow(ctx)
-        .collectAsState(UiSettingsStore.wallpaperDimMainScreen.default)
+    val mainBlurRadius by UiSettingsStore.wallpaperDimMainScreen.asState()
 
     if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
         WallpaperDim(mainBlurRadius)
@@ -246,7 +263,7 @@ fun MainScreen(
 
 
     LaunchedEffect(hasSeenWelcome) {
-        if (!hasSeenWelcome) onGoWelcome()
+        if (hasSeenWelcome == false) onGoWelcome()
     }
 
     LaunchedEffect(Unit) { lastClickTime = 0 }
@@ -268,8 +285,7 @@ fun MainScreen(
     val density = LocalDensity.current
     val cellSizePx = floatingAppsViewModel.cellSizePx
 
-    val appIconOverlaySize by UiSettingsStore.appIconOverlaySize.flow(ctx)
-        .collectAsState(initial = 22)
+    val appIconOverlaySize by UiSettingsStore.appIconOverlaySize.asState()
 
     val densityPixelsIconOverlaySize = appIconOverlaySize.dp.toPixels().toInt()
     /**
@@ -311,7 +327,9 @@ fun MainScreen(
                 ctx.packageManager.getApplicationLabel(
                     ctx.packageManager.getApplicationInfo(action.packageName, 0)
                 ).toString()
-            } catch (_: Exception) { action.packageName }
+            } catch (_: Exception) {
+                action.packageName
+            }
         }
 
         try {
@@ -332,7 +350,7 @@ fun MainScreen(
                 digitalPauseLauncher = digitalPauseLauncher,
                 onReloadApps = { scope.launch { appsViewModel.reloadApps() } },
                 onReselectFile = { showFilePicker = point },
-                onAppSettings = onLongPress3Sec,
+                onAppSettings = onSettings,
                 onAppDrawer = onAppDrawer,
                 onParentNest = { nestNavigation.goBack() },
                 onOpenNestCircle = { nestNavigation.goToNest(it) }
@@ -490,7 +508,7 @@ fun MainScreen(
         if (showStatusBar && isRealFullscreen) {
             StatusBar(
                 onClockAction = { launchAction(dummySwipePoint(it)) },
-                onDateAction = { launchAction( dummySwipePoint(it)) }
+                onDateAction = { launchAction(dummySwipePoint(it)) }
             )
         }
 
@@ -513,6 +531,78 @@ fun MainScreen(
             defaultColor = defaultColor,
             rgbLoading = rgbLoading
         )
+
+        if (tempStartPos != null) {
+            DropdownMenu(
+                expanded = showDropDownMenuSettings,
+                onDismissRequest = {
+                    showDropDownMenuSettings = false
+                    tempStartPos = null
+                },
+                containerColor = Color.Transparent,
+                shadowElevation = 0.dp,
+                tonalElevation = 0.dp,
+                offset = with(density) {
+                    DpOffset(
+                        x = tempStartPos!!.x.toDp(),
+                        y = tempStartPos!!.y.toDp()
+                    )
+                }
+            ) {
+                BurgerListAction(
+                    actions = listOf(
+                        BurgerAction(
+                            onClick = {
+                                showDropDownMenuSettings = false
+                                onSettings(SETTINGS.ROOT)
+                            }
+                        ) {
+                            Icon(
+                                imageVector = Icons.Default.Settings,
+                                tint = MaterialTheme.colorScheme.onSurface,
+                                contentDescription = null
+                            )
+                            Text(
+                                text = stringResource(R.string.settings),
+                                color = MaterialTheme.colorScheme.onSurface
+                            )
+                        },
+                        BurgerAction(
+                            onClick = {
+                                showDropDownMenuSettings = false
+                                onSettings(SETTINGS.FLOATING_APPS)
+                            }
+                        ) {
+                            Icon(
+                                imageVector = Icons.Default.Widgets,
+                                tint = MaterialTheme.colorScheme.onSurface,
+                                contentDescription = null
+                            )
+                            Text(
+                                text = stringResource(R.string.widgets),
+                                color = MaterialTheme.colorScheme.onSurface
+                            )
+                        },
+                        BurgerAction(
+                            onClick = {
+                                showDropDownMenuSettings = false
+                                onSettings(SETTINGS.WALLPAPER)
+                            }
+                        ) {
+                            Icon(
+                                imageVector = Icons.Default.Wallpaper,
+                                tint = MaterialTheme.colorScheme.onSurface,
+                                contentDescription = null
+                            )
+                            Text(
+                                text = stringResource(R.string.wallpaper),
+                                color = MaterialTheme.colorScheme.onSurface
+                            )
+                        }
+                    )
+                )
+            }
+        }
     }
 
     if (showFilePicker != null) {
@@ -573,7 +663,6 @@ private fun isInsideActiveZone(
 }
 
 
-
 /**
  * Checks if pointer position is inside any foreground widget bounds.
  */
@@ -590,8 +679,12 @@ private fun isInsideForegroundWidget(
 
         val left = (widget.x * dm.widthPixels).toInt()
         val top = (widget.y * dm.heightPixels).toInt()
-        val right = left + with(density) { (widget.spanX * cellSizePx).toDp() }.value.times(density.density).toInt()
-        val bottom = top + with(density) { (widget.spanY * cellSizePx).toDp() }.value.times(density.density).toInt()
+        val right =
+            left + with(density) { (widget.spanX * cellSizePx).toDp() }.value.times(density.density)
+                .toInt()
+        val bottom =
+            top + with(density) { (widget.spanY * cellSizePx).toDp() }.value.times(density.density)
+                .toInt()
 
         pos.x >= left && pos.x <= right &&
                 pos.y >= top && pos.y <= bottom

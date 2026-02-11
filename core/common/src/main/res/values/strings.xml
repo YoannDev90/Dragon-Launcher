@@ -620,5 +620,15 @@
     <string name="show_category_name_desc">Display the name of the category below it</string>
     <string name="search_bar_bottom">Search bar bottom</string>
     <string name="search_bar_bottom_desc">Display the search bar at the bottom of the drawer</string>
+    <string name="long_click_settings_duration">Long Click Settings Duration (ms)</string>
+    <string name="long_click_settings_duration_desc">Configure how long you have to long click to access settings</string>
+    <string name="hold_delay_before_starting_long_click_settings">Hold delay before starting long click settings (ms)</string>
+    <string name="hold_delay_before_starting_long_click_settings_desc">How long to hold before the loading settings starts to load</string>
+    <string name="keep_screen_on_desc">Do not turn the screen off and lock, keep it always on when Dragon is focused</string>
+    <string name="drag_zone_padding">Drag zone padding</string>
+    <string name="points_settings">Point settings (default)</string>
+    <string name="logs">Logs</string>
+    <string name="settings_json">Settings JSON</string>
+    <string name="pick_a_settings_screen">Pick a settings screen</string>
 
 </resources>

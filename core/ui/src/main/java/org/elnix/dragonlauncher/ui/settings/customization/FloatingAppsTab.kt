@@ -381,6 +381,7 @@ fun FloatingAppsTab(
                 SwipeActionSerializable.OpenWidget(0, ComponentName("", "")),
                 SwipeActionSerializable.OpenCircleNest(0),
                 SwipeActionSerializable.GoParentNest,
+                SwipeActionSerializable.LaunchShortcut("", ""),
                 SwipeActionSerializable.LaunchApp("", 0),
                 SwipeActionSerializable.OpenUrl(""),
                 SwipeActionSerializable.OpenFile(""),
@@ -390,7 +391,7 @@ fun FloatingAppsTab(
                 SwipeActionSerializable.Lock,
                 SwipeActionSerializable.ReloadApps,
                 SwipeActionSerializable.OpenRecentApps,
-                SwipeActionSerializable.OpenDragonLauncherSettings
+                SwipeActionSerializable.OpenDragonLauncherSettings()
             ),
             onActionSelected = { action ->
                 when (action) {

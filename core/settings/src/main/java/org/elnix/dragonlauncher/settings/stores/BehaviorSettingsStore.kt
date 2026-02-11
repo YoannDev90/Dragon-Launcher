@@ -26,53 +26,67 @@ object BehaviorSettingsStore : MapSettingsStore() {
 
     val backAction = Settings.swipeAction(
         key = "backAction",
-        dataStoreName = BackupSettingsStore.dataStoreName,
+        dataStoreName = dataStoreName,
         default = SwipeActionSerializable.None
     )
 
     val doubleClickAction = Settings.swipeAction(
         key = "doubleClickAction",
-        dataStoreName = BackupSettingsStore.dataStoreName,
+        dataStoreName = dataStoreName,
         default = SwipeActionSerializable.None
     )
 
     val homeAction = Settings.swipeAction(
         key = "homeAction",
-        dataStoreName = BackupSettingsStore.dataStoreName,
+        dataStoreName = dataStoreName,
         default = SwipeActionSerializable.None
     )
 
     val keepScreenOn = Settings.boolean(
         key = "keepScreenOn",
-        dataStoreName = BackupSettingsStore.dataStoreName,
+        dataStoreName = dataStoreName,
         default = false
     )
 
     val leftPadding = Settings.int(
         key = "leftPadding",
-        dataStoreName = BackupSettingsStore.dataStoreName,
+        dataStoreName = dataStoreName,
         default = 60,
         allowedRange = 0..300
     )
 
     val rightPadding = Settings.int(
         key = "rightPadding",
-        dataStoreName = BackupSettingsStore.dataStoreName,
+        dataStoreName = dataStoreName,
         default = 60,
         allowedRange = 0..300
     )
 
     val topPadding = Settings.int(
         key = "upPadding",
-        dataStoreName = BackupSettingsStore.dataStoreName,
+        dataStoreName = dataStoreName,
         default = 80,
         allowedRange = 0..300
     )
 
     val bottomPadding = Settings.int(
         key = "downPadding",
-        dataStoreName = BackupSettingsStore.dataStoreName,
+        dataStoreName = dataStoreName,
         default = 100,
         allowedRange = 0..300
+    )
+
+    val holdDelayBeforeStartingLongClickSettings = Settings.int(
+        key = "holdDelayBeforeStartingLongClickSettings",
+        dataStoreName = dataStoreName,
+        default = 500,
+        allowedRange = 200..2000
+    )
+
+    val longCLickSettingsDuration = Settings.int(
+        key = "longCLickSettingsDuration",
+        dataStoreName = dataStoreName,
+        default = 1000,
+        allowedRange = 200..5000
     )
 }

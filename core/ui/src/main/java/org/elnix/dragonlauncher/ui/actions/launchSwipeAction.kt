@@ -43,7 +43,7 @@ fun launchSwipeAction(
     digitalPauseLauncher: ActivityResultLauncher<Intent>? = null,
     onReloadApps: (() -> Unit)? = null,
     onReselectFile: (() -> Unit)? = null,
-    onAppSettings: (() -> Unit)? = null,
+    onAppSettings: ((String) -> Unit)? = null,
     onAppDrawer: ((workspaceId: String?) -> Unit)? = null,
     onParentNest: (() -> Unit)? = null,
     onOpenNestCircle: ((nestId: Int) -> Unit)? = null,
@@ -107,7 +107,9 @@ fun launchSwipeAction(
             onAppDrawer?.invoke(action.workspaceId)
         }
 
-        SwipeActionSerializable.OpenDragonLauncherSettings -> onAppSettings?.invoke()
+        is SwipeActionSerializable.OpenDragonLauncherSettings -> {
+            onAppSettings?.invoke(action.route)
+        }
 
         SwipeActionSerializable.Lock -> {
             if (!SystemControl.isServiceEnabled(ctx)) {

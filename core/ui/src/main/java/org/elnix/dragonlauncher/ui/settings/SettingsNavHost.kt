@@ -70,6 +70,7 @@ import org.elnix.dragonlauncher.ui.whatsnew.ChangelogsScreen
 @SuppressLint("LocalContextGetResourceValueCall")
 @Composable
 fun SettingsNavHost(
+    startDestination: String,
     appsViewModel: AppsViewModel,
     backupViewModel: BackupViewModel,
     floatingAppsViewModel: FloatingAppsViewModel,
@@ -208,7 +209,7 @@ fun SettingsNavHost(
     ) { paddingValues ->
         NavHost(
             navController = navController,
-            startDestination = SETTINGS.ROOT,
+            startDestination = startDestination,
             modifier = Modifier.padding(paddingValues)
         ) {
             noAnimComposable(SETTINGS.ROOT) {
