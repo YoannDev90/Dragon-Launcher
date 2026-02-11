@@ -51,7 +51,7 @@ object PrivateSettingsStore : MapSettingsStore() {
 
     val lockMethod = Settings.enum(
         key = "lockMethod",
-        dataStoreName = BehaviorSettingsStore.dataStoreName,
+        dataStoreName = dataStoreName,
         default = LockMethod.NONE,
         enumClass = LockMethod::class.java
     )

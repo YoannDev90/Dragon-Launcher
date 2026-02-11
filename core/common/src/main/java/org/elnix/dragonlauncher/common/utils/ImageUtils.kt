@@ -300,7 +300,7 @@ object ImageUtils {
             is SwipeActionSerializable.OpenAppDrawer ->
                 loadDrawableResAsBitmap(ctx, R.drawable.ic_action_drawer, width, height)
 
-            SwipeActionSerializable.OpenDragonLauncherSettings ->
+            is SwipeActionSerializable.OpenDragonLauncherSettings ->
                 loadDrawableResAsBitmap(ctx, R.drawable.dragon_launcher_foreground, width, height)
 
             SwipeActionSerializable.Lock -> loadDrawableResAsBitmap(ctx, R.drawable.ic_action_lock, width, height)

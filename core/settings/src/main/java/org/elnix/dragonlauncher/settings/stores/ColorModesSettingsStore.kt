@@ -51,7 +51,7 @@ object ColorModesSettingsStore : MapSettingsStore() {
 
     val dynamicColor = Settings.boolean(
         key = "dynamicColor",
-        dataStoreName = ColorSettingsStore.dataStoreName,
+        dataStoreName = dataStoreName,
         default = false
     )
 }

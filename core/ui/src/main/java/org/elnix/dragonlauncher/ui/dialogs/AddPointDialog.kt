@@ -45,6 +45,7 @@ import org.elnix.dragonlauncher.ui.actions.ActionIcon
 import org.elnix.dragonlauncher.ui.actions.actionColor
 import org.elnix.dragonlauncher.ui.actions.actionLabel
 import org.elnix.dragonlauncher.ui.components.resolveShape
+import org.elnix.dragonlauncher.ui.components.settings.asState
 import org.elnix.dragonlauncher.ui.theme.LocalExtraColors
 
 @Suppress("AssignedValueIsNeverRead")
@@ -68,22 +69,18 @@ fun AddPointDialog(
     var showNestPicker by remember { mutableStateOf(false) }
     var showWorkspacePicker by remember { mutableStateOf(false) }
     var showPinnedShortcutsPicker by remember { mutableStateOf(false) }
+    var showSettingsPagePicker by remember { mutableStateOf(false) }
 
     val workspaces by appsViewModel.enabledState.collectAsState()
 
 
     val icons by appsViewModel.icons.collectAsState()
 
-    val gridSize by DrawerSettingsStore.gridSize.flow(ctx)
-        .collectAsState(initial = 1)
-    val showIcons by DrawerSettingsStore.showAppIconsInDrawer.flow(ctx)
-        .collectAsState(initial = true)
-    val showLabels by DrawerSettingsStore.showAppLabelInDrawer.flow(ctx)
-        .collectAsState(initial = true)
-    val iconsShape by DrawerSettingsStore.iconsShape.flow(ctx)
-        .collectAsState(DrawerSettingsStore.iconsShape.default)
-    val promptForShortcuts by UiSettingsStore.promptForShortcutsWhenAddingApp.flow(ctx)
-        .collectAsState(initial = false)
+    val gridSize by DrawerSettingsStore.gridSize.asState()
+    val showIcons by DrawerSettingsStore.showAppIconsInDrawer.asState()
+    val showLabels by DrawerSettingsStore.showAppLabelInDrawer.asState()
+    val iconsShape by DrawerSettingsStore.iconsShape.asState()
+    val promptForShortcuts by UiSettingsStore.promptForShortcutsWhenAddingApp.asState()
 
 
     var selectedApp by remember { mutableStateOf<AppModel?>(null) }
@@ -154,6 +151,16 @@ fun AddPointDialog(
                                 action = action,
                                 icons = icons,
                                 onSelected = { showWorkspacePicker = true }
+                            )
+                            Spacer(Modifier.height(8.dp))
+                        }
+
+                        // Open App Drawer → workspace picker
+                        is SwipeActionSerializable.OpenDragonLauncherSettings -> {
+                            AddPointColumn(
+                                action = action,
+                                icons = icons,
+                                onSelected = { showSettingsPagePicker = true }
                             )
                             Spacer(Modifier.height(8.dp))
                         }
@@ -282,6 +289,15 @@ fun AddPointDialog(
                 showNestPicker = false
             }
         )
+    }
+
+    if (showSettingsPagePicker) {
+        SettingsPagePicker(
+            onDismissRequest = { showSettingsPagePicker = false }
+        ) {
+            onActionSelected(SwipeActionSerializable.OpenDragonLauncherSettings(it))
+            showSettingsPagePicker = false
+        }
     }
 
     if (showWorkspacePicker) {

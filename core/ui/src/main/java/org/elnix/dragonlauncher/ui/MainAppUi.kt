@@ -126,6 +126,8 @@ fun MainAppUi(
     val autoBackupUriString by BackupSettingsStore.autoBackupUri.asStateNull()
     val autoBackupUri = autoBackupUriString?.toUri()
 
+    var startDestination by remember { mutableStateOf(SETTINGS.ROOT) }
+
 
     LaunchedEffect(Unit, lastSeenVersionCode, currentRoute) {
         showWhatsNewBottomSheet = lastSeenVersionCode < currentVersionCode && currentRoute != ROUTES.WELCOME
@@ -156,7 +158,11 @@ fun MainAppUi(
         }
     }
 
-    fun goSettingsRoot() =  navController.navigate(SETTINGS.ROOT)
+    fun goSettingsRoot() = navController.navigate(SETTINGS.ROOT)
+    fun goSettings(route: String) {
+        startDestination = route
+        goSettingsRoot()
+    }
     fun goDrawer() = navController.navigate(ROUTES.DRAWER)
     fun goWelcome() = navController.navigate(ROUTES.WELCOME)
 
@@ -254,8 +260,8 @@ fun MainAppUi(
                         }
                         goDrawer()
                     },
-                    onGoWelcome = { goWelcome() },
-                    onLongPress3Sec = { goSettingsRoot() }
+                    onGoWelcome = ::goWelcome,
+                    onSettings = ::goSettings
                 )
             }
 
@@ -288,6 +294,7 @@ fun MainAppUi(
             // Settings Nav Host, holds all the settings
             noAnimComposable(SETTINGS.ROOT) {
                 SettingsNavHost(
+                    startDestination = startDestination,
                     appsViewModel = appsViewModel,
                     backupViewModel = backupViewModel,
                     appLifecycleViewModel = appLifecycleViewModel,

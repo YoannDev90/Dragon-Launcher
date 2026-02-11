@@ -97,7 +97,7 @@ val defaultChoosableActions = listOf(
     SwipeActionSerializable.Lock,
     SwipeActionSerializable.ReloadApps,
     SwipeActionSerializable.OpenRecentApps,
-    SwipeActionSerializable.OpenDragonLauncherSettings
+    SwipeActionSerializable.OpenDragonLauncherSettings()
 )
 
 
@@ -116,8 +116,8 @@ const val ICON_PACK_TAG = "IconsPacks"
 const val SHAPES_TAG = "ShapesDebug"
 const val COLORS_TAG = "ColorsDebug"
 const val DRAWER_TAG = "DrawerDebug"
-
 const val APP_LAUNCH_TAG = "AppLaunchDebug"
+const val HOLD_TAG = "HoldDebug"
 
 
 

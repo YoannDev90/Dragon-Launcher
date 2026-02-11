@@ -412,7 +412,7 @@ fun SettingsScreen(
                     @Suppress("USELESS_ELVIS")
                     points.add(
                         it.copy(
-                            action = it.action ?: SwipeActionSerializable.OpenDragonLauncherSettings
+                            action = it.action ?: SwipeActionSerializable.OpenDragonLauncherSettings()
                         )
                     )
                 }
