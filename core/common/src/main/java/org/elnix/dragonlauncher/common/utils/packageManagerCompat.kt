@@ -51,7 +51,8 @@ class PackageManagerCompat(private val pm: PackageManager, private val ctx: Cont
                         isPrivateProfile = userType == "android.os.usertype.profile.PRIVATE"
                         isWorkProfile = !isPrivateProfile
                     } catch (e: Exception) {
-                        isWorkProfile = true
+                        isWorkProfile = false
+                        isPrivateProfile = false
                     }
                 } else {
                     isWorkProfile = true

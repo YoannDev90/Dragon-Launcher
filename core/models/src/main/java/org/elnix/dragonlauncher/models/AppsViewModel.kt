@@ -264,7 +264,7 @@ class AppsViewModel(
 
                     // Use the base list, and add the filtered manually-added apps, then remove explicitly removed ones
                     (base + filtered)
-                        .distinctBy { it.packageName }
+                        .distinctBy { "${it.packageName}_${it.userId}" }
                         .filter { it.packageName !in removed }
                         .sortedBy { it.name.lowercase() }
                         .map { resolveApp(it, overrides) }
@@ -303,8 +303,7 @@ class AppsViewModel(
      */
     // Snapshot / differential fields for Private Space detection
     private var privateSnapshotBefore: Set<String>? = null
-    private var pendingPrivatePackages: Set<String>? = null
-    private var pendingPrivateUserId: Int? = null
+    private var pendingPrivateAssignments: Map<String, Int?>? = null
 
     // Loading state for Private Space -> used by UI to show "Please wait" overlay
     private val _isLoadingPrivateSpace = kotlinx.coroutines.flow.MutableStateFlow(false)
@@ -334,46 +333,39 @@ class AppsViewModel(
 
             // Apply differential private-package marking if present
             var finalApps = apps
-            if (!pendingPrivatePackages.isNullOrEmpty()) {
-                val diff = pendingPrivatePackages ?: emptySet()
-                val privateUserId = pendingPrivateUserId
-                logI(APPS_TAG, "Applying differential Private Space detection: ${diff.size} packages (privateUserId=$privateUserId)")
+            if (!pendingPrivateAssignments.isNullOrEmpty()) {
+                val assignments = pendingPrivateAssignments ?: emptyMap()
+                logI(APPS_TAG, "Applying differential Private Space detection: ${assignments.size} app identities")
 
                 // Persist assignments
                 try {
                     val existingJson = AppsSettingsStore.privateAssignedPackages.get(ctx)
                     val existingMap: MutableMap<String, Int?> = if (existingJson.isNullOrEmpty() || existingJson == "{}") mutableMapOf() else gson.fromJson(existingJson, object : com.google.gson.reflect.TypeToken<MutableMap<String, Int?>>() {}.type)
 
-                    diff.forEach { pkg ->
-                        existingMap[pkg] = privateUserId
+                    assignments.forEach { (identity, userId) ->
+                        existingMap[identity] = userId
                     }
 
                     AppsSettingsStore.privateAssignedPackages.set(ctx, gson.toJson(existingMap))
-                    logI(APPS_TAG, "Persisted ${diff.size} private package assignments")
+                    logI(APPS_TAG, "Persisted ${assignments.size} private app assignments")
                 } catch (e: Exception) {
                     logE(APPS_TAG, "Error persisting private package assignments: ${e.message}", e)
                 }
 
                 finalApps = apps.map { app ->
-                    if (app.packageName in diff) {
-                        logI(APPS_TAG, "Marking ${app.packageName} as Private Space (diff), assigning userId=${privateUserId ?: app.userId}")
-                        // Assign userId to the Private profile only if the package is actually visible in that profile.
-                        val assignedUserId = if (privateUserId != null && pmCompat.isPackageVisibleForUser(app.packageName, privateUserId)) {
-                            privateUserId
-                        } else {
-                            app.userId
-                        }
-
+                    val identity = privateAssignmentKey(app.packageName, app.userId)
+                    val assignedUserId = assignments[identity]
+                    if (assignedUserId != null || assignments.containsKey(identity)) {
+                        logI(APPS_TAG, "Marking ${app.packageName} as Private Space (diff), assigning userId=${assignedUserId ?: app.userId}")
                         app.copy(
                             isPrivateProfile = true,
                             isWorkProfile = false,
-                            userId = assignedUserId
+                            userId = assignedUserId ?: app.userId
                         )
                     } else app
                 }
                 // Clear pending after consumption
-                pendingPrivatePackages = null
-                pendingPrivateUserId = null
+                pendingPrivateAssignments = null
             }
 
             // Apply persisted private assignments (survives reloads)
@@ -384,11 +376,20 @@ class AppsViewModel(
                     if (persistedMap.isNotEmpty()) {
                         logI(APPS_TAG, "Applying persisted private assignments: ${persistedMap.size} entries")
                         finalApps = finalApps.map { app ->
-                            if (persistedMap.containsKey(app.packageName)) {
-                                val assigned = persistedMap[app.packageName]
-                                val newUserId = if (assigned != null && pmCompat.isPackageVisibleForUser(app.packageName, assigned)) assigned else app.userId
-                                app.copy(isPrivateProfile = true, isWorkProfile = false, userId = newUserId)
-                            } else app
+                            val identityKey = privateAssignmentKey(app.packageName, app.userId)
+                            val identityAssigned = persistedMap[identityKey]
+
+                            if (identityAssigned != null || persistedMap.containsKey(identityKey)) {
+                                app.copy(isPrivateProfile = true, isWorkProfile = false, userId = identityAssigned ?: app.userId)
+                            } else {
+                                // Backward-compat for legacy persisted format (packageName -> userId)
+                                val legacyAssigned = persistedMap[app.packageName]
+                                if (legacyAssigned != null && app.userId == legacyAssigned) {
+                                    app.copy(isPrivateProfile = true, isWorkProfile = false, userId = legacyAssigned)
+                                } else {
+                                    app
+                                }
+                            }
                         }
                     }
                 }
@@ -423,7 +424,7 @@ class AppsViewModel(
 
 
             withContext(Dispatchers.IO) {
-                AppsSettingsStore.cachedApps.set(ctx, gson.toJson(apps))
+                AppsSettingsStore.cachedApps.set(ctx, gson.toJson(finalApps))
             }
             
             // Auto-enable Private Space workspace if Private Space exists (Android 15+)
@@ -467,9 +468,12 @@ class AppsViewModel(
      */
     suspend fun captureMainProfileSnapshotBeforeUnlock() {
         try {
-            logD(APPS_TAG, "Capturing main profile snapshot before Private Space unlock...")
+            logD(APPS_TAG, "Capturing visible app snapshot before Private Space unlock...")
             privateSnapshotBefore = withContext(Dispatchers.IO) {
-                pmCompat.snapshotMainProfilePackageNames()
+                pmCompat.getAllApps()
+                    .filter { it.isLaunchable == true }
+                    .map { privateAssignmentKey(it.packageName, it.userId) }
+                    .toSet()
             }
             logD(APPS_TAG, "Snapshot captured: ${privateSnapshotBefore?.size ?: 0} packages")
         } catch (e: Exception) {
@@ -482,29 +486,22 @@ class AppsViewModel(
         try {
             logD(APPS_TAG, "Detecting Private Space apps via differential snapshot...")
             val before = privateSnapshotBefore ?: emptySet()
-            val after = withContext(Dispatchers.IO) {
-                pmCompat.snapshotMainProfilePackageNames()
+            val afterApps = withContext(Dispatchers.IO) {
+                pmCompat.getAllApps().filter { it.isLaunchable == true }
             }
 
-            val diff = after.subtract(before)
-            logI(APPS_TAG, "Differential detection: found ${diff.size} candidate private packages: ${diff.joinToString(", ")}")
+            val after = afterApps.map { privateAssignmentKey(it.packageName, it.userId) }.toSet()
+            val diffKeys = after.subtract(before)
+            val diffApps = afterApps.filter { privateAssignmentKey(it.packageName, it.userId) in diffKeys }
 
-            // Determine Private Space user handle (if exists as a separate profile)
-            val privateUserHandle = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.VANILLA_ICE_CREAM) {
-                try {
-                    PrivateSpaceUtils.getPrivateSpaceUserHandle(ctx)
-                } catch (e: Exception) {
-                    null
-                }
-            } else null
+            logI(APPS_TAG, "Differential detection: found ${diffApps.size} candidate private apps: ${diffApps.joinToString(", ") { "${it.packageName}@${it.userId}" }}")
 
-            pendingPrivatePackages = diff
-            pendingPrivateUserId = privateUserHandle?.hashCode()
+            pendingPrivateAssignments = diffApps.associate { privateAssignmentKey(it.packageName, it.userId) to it.userId }
 
             // Remove any of these packages from USER workspaces (they belong to Private)
             try {
                 val userWorkspaces = _workspacesState.value.workspaces.filter { it.type == WorkspaceType.USER }
-                diff.forEach { pkg ->
+                diffApps.map { it.packageName }.distinct().forEach { pkg ->
                     userWorkspaces.forEach { ws ->
                         if (pkg in ws.appIds) {
                             logI(APPS_TAG, "Removing $pkg from USER workspace (${ws.id}) because it's Private")
@@ -537,7 +534,7 @@ class AppsViewModel(
             }
         } catch (e: Exception) {
             logE(APPS_TAG, "Error during differential private detection: ${e.message}", e)
-            pendingPrivatePackages = null
+            pendingPrivateAssignments = null
             privateSnapshotBefore = null
             _isLoadingPrivateSpace.value = false
             // best-effort fallback: full reload
@@ -545,6 +542,10 @@ class AppsViewModel(
                 reloadApps()
             } catch (_: Exception) { /* ignore */ }
         }
+    }
+
+    private fun privateAssignmentKey(packageName: String, userId: Int?): String {
+        return "$packageName#${userId ?: -1}"
     }
 
 

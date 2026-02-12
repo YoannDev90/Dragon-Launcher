@@ -41,6 +41,7 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import org.elnix.dragonlauncher.common.serializables.AppModel
 import org.elnix.dragonlauncher.common.serializables.IconShape
+import org.elnix.dragonlauncher.common.serializables.iconCacheKey
 import org.elnix.dragonlauncher.settings.stores.DrawerSettingsStore
 import org.elnix.dragonlauncher.ui.UiConstants.DragonShape
 import org.elnix.dragonlauncher.ui.actions.appIcon
@@ -81,7 +82,7 @@ fun AppGridWithMultiSelect(
     if (gridSize == 1) {
         // List mode
         LazyColumn(modifier = Modifier.fillMaxSize()) {
-            items(apps, key = { it.packageName }) { app ->
+            items(apps, key = { iconCacheKey(it.packageName, it.userId) }) { app ->
                 val isSelected = app.packageName in selectedPackages
 
                 Row(

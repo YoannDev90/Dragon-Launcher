@@ -39,6 +39,7 @@ import androidx.compose.ui.unit.dp
 import org.elnix.dragonlauncher.common.serializables.AppCategory
 import org.elnix.dragonlauncher.common.serializables.AppModel
 import org.elnix.dragonlauncher.common.serializables.IconShape
+import org.elnix.dragonlauncher.common.serializables.iconCacheKey
 import org.elnix.dragonlauncher.settings.stores.DrawerSettingsStore
 import org.elnix.dragonlauncher.ui.components.resolveShape
 import org.elnix.dragonlauncher.ui.components.settings.asState
@@ -198,7 +199,7 @@ fun AppGrid(
                     ),
                 verticalArrangement = Arrangement.spacedBy(iconsSpacingVertical.dp),
             ) {
-                items(visibleApps, key = { it.packageName }) { app ->
+                items(visibleApps, key = { iconCacheKey(it.packageName, it.userId) }) { app ->
                     AppItemHorizontal(
                         app = app,
                         showIcons = showIcons,
@@ -227,7 +228,7 @@ fun AppGrid(
                 verticalArrangement = Arrangement.spacedBy(iconsSpacingVertical.dp),
                 horizontalArrangement = Arrangement.spacedBy(iconsSpacingHorizontal.dp)
             ) {
-                items(visibleApps, key = { it.packageName }) { app ->
+                items(visibleApps, key = { iconCacheKey(it.packageName, it.userId) }) { app ->
                     AppItemGrid(
                         app = app,
                         icons = icons,

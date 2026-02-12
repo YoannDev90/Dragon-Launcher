@@ -318,8 +318,12 @@ fun AppDrawerScreen(
         
         logI("AppDrawer", "Starting Private Space unlock polling...")
         
-        // Poll every 300ms to detect unlock
-        while (isAuthenticatingPrivateSpace) {
+        // Poll every 300ms to detect unlock, with timeout safety
+        var attempts = 0
+        val maxAttempts = 200 // ~60s
+
+        while (isAuthenticatingPrivateSpace && attempts < maxAttempts) {
+            attempts++
             kotlinx.coroutines.delay(300)
             
             val isLocked = withContext(Dispatchers.IO) {
@@ -350,6 +354,12 @@ fun AppDrawerScreen(
                 logI("AppDrawer", "Polling stopped")
                 break
             }
+        }
+
+        if (isAuthenticatingPrivateSpace && attempts >= maxAttempts) {
+            logI("AppDrawer", "Private Space unlock polling timed out")
+            isAuthenticatingPrivateSpace = false
+            privateSpaceUnlocked = false
         }
     }
 
