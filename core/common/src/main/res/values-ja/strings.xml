@@ -367,4 +367,23 @@
     <string name="show_recently_used_apps">最近使ったアプリを表示</string>
     <string name="show_recently_used_apps_desc">アプリドロワーの上部に最近使用したアプリを表示</string>
     <string name="recently_used_apps_count">最近のアプリ数</string>
+    <string name="error_with_message">エラー: %1$s</string>
+    <string name="drag_handle">ドラッグハンドル</string>
+    <string name="private_space_title">プライベートスペース</string>
+    <string name="private_space_locked">プライベートスペースはロックされています</string>
+    <string name="private_space_authenticating">認証中…</string>
+    <string name="private_space_loading">プライベートスペースを読み込み中</string>
+    <string name="private_space_please_wait">お待ちください</string>
+    <string name="private_space_loading_description">プライベートスペースを読み込んでいます…</string>
+    <string name="private_space_managed_by_android">このプロファイルはAndroidシステムによって管理されています。</string>
+    <string name="private_space_manage_instructions">アプリの追加・削除、またはこのプロファイルの削除はAndroid設定を使用してください。</string>
+    <string name="app_info_name">name = %1$s</string>
+    <string name="app_info_package_name">packageName = %1$s</string>
+    <string name="app_info_is_enabled">isEnabled = %1$s</string>
+    <string name="app_info_is_system">isSystem = %1$s</string>
+    <string name="app_info_is_work_profile">isWorkProfile = %1$s</string>
+    <string name="app_info_is_private_profile">isPrivateProfile = %1$s</string>
+    <string name="app_info_is_launchable">isLaunchable = %1$s</string>
+    <string name="app_info_settings">settings = %1$s</string>
+    <string name="app_info_user_id">userId = %1$s</string>
 </resources>
