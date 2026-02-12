@@ -43,6 +43,7 @@ import org.elnix.dragonlauncher.common.serializables.CustomIconSerializable
 import org.elnix.dragonlauncher.common.serializables.IconType
 import org.elnix.dragonlauncher.common.serializables.SwipeActionSerializable
 import org.elnix.dragonlauncher.common.serializables.targetPackage
+import org.elnix.dragonlauncher.common.utils.Constants.Logging.IMAGE_TAG
 import java.io.ByteArrayOutputStream
 import kotlin.math.ceil
 

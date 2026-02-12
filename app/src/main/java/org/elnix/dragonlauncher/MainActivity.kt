@@ -36,11 +36,11 @@ import org.elnix.dragonlauncher.common.logging.logD
 import org.elnix.dragonlauncher.common.logging.logW
 import org.elnix.dragonlauncher.common.serializables.SwipeActionSerializable
 import org.elnix.dragonlauncher.common.serializables.SwipePointSerializable
-import org.elnix.dragonlauncher.common.utils.HOME_REENTER_WINDOW_MS
+import org.elnix.dragonlauncher.common.utils.Constants.Logging.WIDGET_TAG
+import org.elnix.dragonlauncher.common.utils.Constants.Navigation.ignoredReturnRoutes
+import org.elnix.dragonlauncher.common.utils.Constants.Settings.HOME_REENTER_WINDOW_MS
 import org.elnix.dragonlauncher.common.utils.ROUTES
-import org.elnix.dragonlauncher.common.utils.WIDGET_TAG
 import org.elnix.dragonlauncher.common.utils.WidgetHostProvider
-import org.elnix.dragonlauncher.common.utils.ignoredReturnRoutes
 import org.elnix.dragonlauncher.common.utils.showToast
 import org.elnix.dragonlauncher.models.AppLifecycleViewModel
 import org.elnix.dragonlauncher.models.BackupViewModel

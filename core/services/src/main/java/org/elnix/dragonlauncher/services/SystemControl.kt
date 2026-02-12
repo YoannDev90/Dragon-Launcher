@@ -11,7 +11,7 @@ import android.provider.Settings
 import android.view.accessibility.AccessibilityManager
 import org.elnix.dragonlauncher.common.logging.logD
 import org.elnix.dragonlauncher.common.logging.logE
-import org.elnix.dragonlauncher.common.utils.ACCESSIBILITY_TAG
+import org.elnix.dragonlauncher.common.utils.Constants.Logging.ACCESSIBILITY_TAG
 import org.elnix.dragonlauncher.common.utils.showToast
 
 object SystemControl {

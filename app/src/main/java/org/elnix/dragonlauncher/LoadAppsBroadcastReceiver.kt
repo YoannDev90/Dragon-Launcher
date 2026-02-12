@@ -6,13 +6,20 @@ import android.content.Intent
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
-import org.elnix.dragonlauncher.common.utils.TAG
+
 import org.elnix.dragonlauncher.common.logging.logE
+import org.elnix.dragonlauncher.common.utils.Constants.Logging.TAG
 
 class PackageReceiver : BroadcastReceiver() {
     override fun onReceive(context: Context, intent: Intent) {
         val action = intent.action ?: return
-        if (action == Intent.ACTION_PACKAGE_ADDED || action == Intent.ACTION_PACKAGE_REMOVED) {
+        if (
+            action == Intent.ACTION_PACKAGE_ADDED ||
+            action == Intent.ACTION_PACKAGE_REMOVED ||
+            action == Intent.ACTION_PACKAGES_SUSPENDED ||
+            action == Intent.ACTION_PACKAGES_UNSUSPENDED ||
+            action == Intent.ACTION_PACKAGE_CHANGED
+        ) {
             val packageName = intent.data?.schemeSpecificPart
             val scope = CoroutineScope(Dispatchers.Default)
             if (packageName != context.packageName) {

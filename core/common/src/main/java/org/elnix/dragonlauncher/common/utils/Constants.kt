@@ -5,131 +5,195 @@ import org.elnix.dragonlauncher.common.serializables.SwipeActionSerializable
 const val obtainiumPackageName = "dev.imranr.obtainium.fdroid"
 
 
+object Constants {
+    object PackageNameLists {
+        val systemLaunchers = listOf(
+            // Xiaomi/RedMagic/HyperOS/MIUI
+            "com.miui.home",
+            "com.miui.home.launcher",
+            "com.zui.launcher",
+            "com.redmagic.launcher",
 
-val systemLaunchers = listOf(
-    // Xiaomi/RedMagic/HyperOS/MIUI
-    "com.miui.home",
-    "com.miui.home.launcher",
-    "com.zui.launcher",
-    "com.redmagic.launcher",
+            // Samsung OneUI
+            "com.sec.android.app.launcher",
+            "com.samsung.android.app.launcher",
 
-    // Samsung OneUI
-    "com.sec.android.app.launcher",
-    "com.samsung.android.app.launcher",
+            // ZTE/Nubia
+            "com.zte.mifavor.launcher",
+            "com.android.nubialauncher",
 
-    // ZTE/Nubia
-    "com.zte.mifavor.launcher",
-    "com.android.nubialauncher",
+            // OnePlus OxygenOS/ColorOS
+            "com.oneplus.launcher",
+            "com.oplus.launcher",
 
-    // OnePlus OxygenOS/ColorOS
-    "com.oneplus.launcher",
-    "com.oplus.launcher",
+            // OPPO/Realme
+            "com.oppo.launcher",
+            "com.coloros.safecenter.launcher",
 
-    // OPPO/Realme
-    "com.oppo.launcher",
-    "com.coloros.safecenter.launcher",
+            // Huawei EMUI/HarmonyOS
+            "com.huawei.android.launcher",
+            "com.huawei.android.home",
 
-    // Huawei EMUI/HarmonyOS
-    "com.huawei.android.launcher",
-    "com.huawei.android.home",
+            // Google Pixel/Stock Android
+            "com.google.android.apps.nexuslauncher",
+            "com.android.launcher3",
 
-    // Google Pixel/Stock Android
-    "com.google.android.apps.nexuslauncher",
-    "com.android.launcher3",
+            // Sony
+            "com.sonymobile.home",
 
-    // Sony
-    "com.sonymobile.home",
+            // LG
+            "com.lge.launcher2",
+            "com.lge.launcher3",
 
-    // LG
-    "com.lge.launcher2",
-    "com.lge.launcher3",
+            // HTC
+            "com.htc.launcher",
 
-    // HTC
-    "com.htc.launcher",
+            // Motorola
+            "com.motorola.blur.launcher",
 
-    // Motorola
-    "com.motorola.blur.launcher",
+            // Vivo FuntouchOS
+            "com.iuni.launcher",
 
-    // Vivo FuntouchOS
-    "com.iuni.launcher",
+            // Nothing OS
+            "com.nothing.launcher",
 
-    // Nothing OS
-    "com.nothing.launcher",
-
-    // Fairphone
-    "ch.fairphone.launcher"
-)
-
-/** List of routes that the routes killer ignores when the user leave the app for too long, usually files pickers */
-val ignoredReturnRoutes = listOf(
-    ROUTES.WELCOME,
-    SETTINGS.BACKUP,
-    SETTINGS.WALLPAPER,
-    SETTINGS.FLOATING_APPS
-)
-
-val transparentScreens = listOf(
-    ROUTES.MAIN,
-    ROUTES.DRAWER,
-    SETTINGS.WALLPAPER,
-    SETTINGS.FLOATING_APPS
-)
+            // Fairphone
+            "ch.fairphone.launcher"
+        )
 
 
-/* Themes loader utils */
-const val themesDir = "themes"
-val imageExts = listOf("png", "jpg", "jpeg", "webp")
+        /**
+         * Known social media package names for auto-detection
+         */
+        val knownSocialMediaApps = setOf(
+            // Meta
+            "com.instagram.android",
+            "com.facebook.katana",
+            "com.facebook.orca", // Messenger
+            "com.whatsapp",
+            "com.facebook.lite",
 
+            // ByteDance
+            "com.zhiliaoapp.musically", // TikTok
+            "com.ss.android.ugc.trill", // TikTok (alternate)
 
+            // Snap
+            "com.snapchat.android",
 
+            // Twitter/X
+            "com.twitter.android",
+            "com.twitter.android.lite",
 
-val defaultChoosableActions = listOf(
-    SwipeActionSerializable.OpenCircleNest(0),
-    SwipeActionSerializable.GoParentNest,
-    SwipeActionSerializable.LaunchApp("", 0),
-    SwipeActionSerializable.LaunchShortcut("", ""),
-    SwipeActionSerializable.OpenUrl(""),
-    SwipeActionSerializable.OpenFile(""),
-    SwipeActionSerializable.NotificationShade,
-    SwipeActionSerializable.ControlPanel,
-    SwipeActionSerializable.OpenAppDrawer(),
-    SwipeActionSerializable.Lock,
-    SwipeActionSerializable.ReloadApps,
-    SwipeActionSerializable.OpenRecentApps,
-    SwipeActionSerializable.OpenDragonLauncherSettings()
-)
+            // Reddit
+            "com.reddit.frontpage",
 
+            // Pinterest
+            "com.pinterest",
 
-/*  ─────────────  Tags constants  ─────────────  */
-const val TAG = "DragonLauncherDebug"
-const val APPS_TAG = "AppsVm"
-const val ICONS_TAG = "IconsDebug"
-const val BACKUP_TAG = "SettingsBackupManager"
-const val SWIPE_TAG = "SwipeDebug"
-const val WIDGET_TAG = "WidgetsDebug"
-const val FLOATING_APPS_TAG = "FloatingAppsDebug"
-const val ACCESSIBILITY_TAG = "SystemControl"
-const val IMAGE_TAG = "ImageDebug"
-const val SETTINGS_TAG = "SettingsDebug"
-const val ICON_PACK_TAG = "IconsPacks"
-const val SHAPES_TAG = "ShapesDebug"
-const val COLORS_TAG = "ColorsDebug"
-const val DRAWER_TAG = "DrawerDebug"
-const val APP_LAUNCH_TAG = "AppLaunchDebug"
+            // LinkedIn
+            "com.linkedin.android",
 
+            // Telegram
+            "org.telegram.messenger",
+            "org.telegram.messenger.web",
 
+            // Discord
+            "com.discord",
+            "com.aliucord",
 
-/*  ─────────────  Settings Screen Constants  ─────────────  */
+            // BeReal
+            "com.bereal.ft",
 
-const val POINT_RADIUS_PX = 40f
-const val TOUCH_THRESHOLD_PX = 100f
+            // Threads
+            "com.instagram.barcelona",
 
-const val SNAP_STEP_DEG = 15.0
+            // YouTube (can be considered social)
+            "com.google.android.youtube",
 
+            // Twitch
+            "tv.twitch.android.app",
 
-/*  ─────────────  Links  ─────────────  */
+            // Tumblr
+            "com.tumblr",
 
-const val discordInviteLink = "https://discord.gg/6UyuP8EBWS"
+            // WeChat
+            "com.tencent.mm"
+        )
+    }
 
+    object Navigation {
+        /** List of routes that the routes killer ignores when the user leave the app for too long, usually files pickers */
+        val ignoredReturnRoutes = listOf(
+            ROUTES.WELCOME,
+            SETTINGS.BACKUP,
+            SETTINGS.WALLPAPER,
+            SETTINGS.FLOATING_APPS
+        )
 
-const val HOME_REENTER_WINDOW_MS = 80L
+        val transparentScreens = listOf(
+            ROUTES.MAIN,
+            ROUTES.DRAWER,
+            SETTINGS.WALLPAPER,
+            SETTINGS.FLOATING_APPS
+        )
+    }
+
+    object Paths {
+
+        /* Themes loader utils */
+        const val themesDir = "themes"
+        val imageExts = listOf("png", "jpg", "jpeg", "webp")
+    }
+
+    object Actions {
+        val defaultChoosableActions = listOf(
+            SwipeActionSerializable.OpenCircleNest(0),
+            SwipeActionSerializable.GoParentNest,
+            SwipeActionSerializable.LaunchApp("", 0),
+            SwipeActionSerializable.LaunchShortcut("", ""),
+            SwipeActionSerializable.OpenUrl(""),
+            SwipeActionSerializable.OpenFile(""),
+            SwipeActionSerializable.NotificationShade,
+            SwipeActionSerializable.ControlPanel,
+            SwipeActionSerializable.OpenAppDrawer(),
+            SwipeActionSerializable.Lock,
+            SwipeActionSerializable.ReloadApps,
+            SwipeActionSerializable.OpenRecentApps,
+            SwipeActionSerializable.OpenDragonLauncherSettings()
+        )
+    }
+
+    object Logging {
+        /*  ─────────────  Tags constants  ─────────────  */
+        const val TAG = "DragonLauncherDebug"
+        const val APPS_TAG = "AppsVm"
+        const val ICONS_TAG = "IconsDebug"
+        const val BACKUP_TAG = "SettingsBackupManager"
+        const val SWIPE_TAG = "SwipeDebug"
+        const val WIDGET_TAG = "WidgetsDebug"
+        const val FLOATING_APPS_TAG = "FloatingAppsDebug"
+        const val ACCESSIBILITY_TAG = "SystemControl"
+        const val IMAGE_TAG = "ImageDebug"
+        const val SETTINGS_TAG = "SettingsDebug"
+        const val ICON_PACK_TAG = "IconsPacks"
+        const val SHAPES_TAG = "ShapesDebug"
+        const val COLORS_TAG = "ColorsDebug"
+        const val DRAWER_TAG = "DrawerDebug"
+        const val APP_LAUNCH_TAG = "AppLaunchDebug"
+    }
+
+    /*  ─────────────  Links  ─────────────  */
+    object Links {
+
+        const val discordInviteLink = "https://discord.gg/6UyuP8EBWS"
+    }
+
+    object Settings {
+        /*  ─────────────  Settings Screen Constants  ─────────────  */
+        const val POINT_RADIUS_PX = 40f
+        const val TOUCH_THRESHOLD_PX = 100f
+
+        const val SNAP_STEP_DEG = 15.0
+        const val HOME_REENTER_WINDOW_MS = 80L
+    }
+}

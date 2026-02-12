@@ -5,7 +5,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.platform.LocalContext
 import org.elnix.dragonlauncher.common.logging.logD
-import org.elnix.dragonlauncher.common.utils.COLORS_TAG
+import org.elnix.dragonlauncher.common.utils.Constants.Logging.COLORS_TAG
 import org.elnix.dragonlauncher.common.utils.colors.toHexWithAlpha
 import org.elnix.dragonlauncher.common.utils.definedOrNull
 import org.elnix.dragonlauncher.settings.stores.ColorSettingsStore

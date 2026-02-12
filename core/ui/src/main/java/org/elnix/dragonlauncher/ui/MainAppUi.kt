@@ -1,6 +1,7 @@
 package org.elnix.dragonlauncher.ui
 
 import android.R.attr.versionCode
+import android.annotation.SuppressLint
 import android.content.ComponentName
 import android.content.Intent
 import androidx.activity.compose.rememberLauncherForActivityResult
@@ -44,6 +45,7 @@ import kotlinx.coroutines.launch
 import org.elnix.dragonlauncher.common.FloatingAppObject
 import org.elnix.dragonlauncher.common.R
 import org.elnix.dragonlauncher.common.serializables.defaultSwipePointsValues
+import org.elnix.dragonlauncher.common.utils.Constants.Navigation.transparentScreens
 import org.elnix.dragonlauncher.common.utils.ROUTES
 import org.elnix.dragonlauncher.common.utils.SETTINGS
 import org.elnix.dragonlauncher.common.utils.WidgetHostProvider
@@ -52,7 +54,6 @@ import org.elnix.dragonlauncher.common.utils.hasUriReadWritePermission
 import org.elnix.dragonlauncher.common.utils.isDefaultLauncher
 import org.elnix.dragonlauncher.common.utils.loadChangelogs
 import org.elnix.dragonlauncher.common.utils.showToast
-import org.elnix.dragonlauncher.common.utils.transparentScreens
 import org.elnix.dragonlauncher.enumsui.LockMethod
 import org.elnix.dragonlauncher.models.AppLifecycleViewModel
 import org.elnix.dragonlauncher.models.AppsViewModel
@@ -222,6 +223,7 @@ fun MainAppUi(
         }
     }
 
+    @SuppressLint("LocalContextGetResourceValueCall")
     fun goSettings(route: String) {
         if (isUnlocked || lockMethod == LockMethod.NONE) {
             navController.navigate(route)

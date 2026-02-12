@@ -3,7 +3,7 @@ package org.elnix.dragonlauncher.settings.bases
 import android.content.Context
 import org.elnix.dragonlauncher.common.logging.logI
 import org.elnix.dragonlauncher.common.logging.logW
-import org.elnix.dragonlauncher.common.utils.SETTINGS_TAG
+import org.elnix.dragonlauncher.common.utils.Constants.Logging.SETTINGS_TAG
 import org.elnix.dragonlauncher.settings.putIfNonDefault
 import org.json.JSONObject
 

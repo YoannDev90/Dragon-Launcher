@@ -51,8 +51,9 @@ import org.elnix.dragonlauncher.common.serializables.defaultWorkspaces
 import org.elnix.dragonlauncher.common.serializables.dummySwipePoint
 import org.elnix.dragonlauncher.common.serializables.iconCacheKey
 import org.elnix.dragonlauncher.common.serializables.resolveApp
-import org.elnix.dragonlauncher.common.utils.APPS_TAG
-import org.elnix.dragonlauncher.common.utils.ICONS_TAG
+import org.elnix.dragonlauncher.common.utils.Constants.Logging.APPS_TAG
+import org.elnix.dragonlauncher.common.utils.Constants.Logging.ICONS_TAG
+import org.elnix.dragonlauncher.common.utils.Constants.Logging.TAG
 import org.elnix.dragonlauncher.common.utils.ImageUtils.createUntintedBitmap
 import org.elnix.dragonlauncher.common.utils.ImageUtils.loadDrawableAsBitmap
 import org.elnix.dragonlauncher.common.utils.ImageUtils.resolveCustomIconBitmap
@@ -1382,4 +1383,3 @@ data class IconPackCache(
     val pkgToDrawables: Map<String, List<String>>,
     val componentToDrawable: Map<String, String>
 )
-

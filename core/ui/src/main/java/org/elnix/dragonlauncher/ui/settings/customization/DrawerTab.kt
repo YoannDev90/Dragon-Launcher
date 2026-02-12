@@ -40,7 +40,7 @@ import androidx.compose.ui.unit.dp
 import kotlinx.coroutines.launch
 import org.elnix.dragonlauncher.common.R
 import org.elnix.dragonlauncher.common.logging.logD
-import org.elnix.dragonlauncher.common.utils.SHAPES_TAG
+import org.elnix.dragonlauncher.common.utils.Constants.Logging.SHAPES_TAG
 import org.elnix.dragonlauncher.enumsui.DrawerActions
 import org.elnix.dragonlauncher.enumsui.drawerActionIcon
 import org.elnix.dragonlauncher.models.AppsViewModel
