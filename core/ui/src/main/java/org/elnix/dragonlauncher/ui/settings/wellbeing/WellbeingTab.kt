@@ -67,6 +67,7 @@ import androidx.core.net.toUri
 import kotlinx.coroutines.launch
 import org.elnix.dragonlauncher.common.R
 import org.elnix.dragonlauncher.common.serializables.IconShape
+import org.elnix.dragonlauncher.common.utils.Constants.PackageNameLists.knownSocialMediaApps
 import org.elnix.dragonlauncher.common.utils.hasUsageStatsPermission
 import org.elnix.dragonlauncher.models.AppsViewModel
 import org.elnix.dragonlauncher.settings.stores.DrawerSettingsStore
@@ -384,7 +385,7 @@ fun WellbeingTab(
                 ) {
                     scope.launch {
                         val installedPackages = allApps.map { it.packageName }.toSet()
-                        val socialApps = WellbeingSettingsStore.knownSocialMediaApps.filter {
+                        val socialApps = knownSocialMediaApps.filter {
                             it in installedPackages
                         }
                         WellbeingSettingsStore.setPausedApps(ctx, pausedApps + socialApps)

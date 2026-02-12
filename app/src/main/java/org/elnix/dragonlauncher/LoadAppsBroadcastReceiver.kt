@@ -6,8 +6,9 @@ import android.content.Intent
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
-import org.elnix.dragonlauncher.common.utils.TAG
+
 import org.elnix.dragonlauncher.common.logging.logE
+import org.elnix.dragonlauncher.common.utils.Constants.Logging.TAG
 
 class PackageReceiver : BroadcastReceiver() {
     override fun onReceive(context: Context, intent: Intent) {

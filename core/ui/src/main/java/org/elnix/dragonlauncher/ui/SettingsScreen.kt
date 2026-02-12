@@ -1,5 +1,6 @@
 package org.elnix.dragonlauncher.ui
 
+import android.annotation.SuppressLint
 import androidx.activity.compose.BackHandler
 import androidx.compose.animation.core.animateDpAsState
 import androidx.compose.animation.core.animateFloatAsState
@@ -48,7 +49,6 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.key
@@ -90,11 +90,11 @@ import org.elnix.dragonlauncher.common.logging.logE
 import org.elnix.dragonlauncher.common.serializables.CircleNest
 import org.elnix.dragonlauncher.common.serializables.SwipeActionSerializable
 import org.elnix.dragonlauncher.common.serializables.SwipePointSerializable
-import org.elnix.dragonlauncher.common.utils.POINT_RADIUS_PX
-import org.elnix.dragonlauncher.common.utils.SNAP_STEP_DEG
-import org.elnix.dragonlauncher.common.utils.SWIPE_TAG
-import org.elnix.dragonlauncher.common.utils.TAG
-import org.elnix.dragonlauncher.common.utils.TOUCH_THRESHOLD_PX
+import org.elnix.dragonlauncher.common.utils.Constants.Logging.SWIPE_TAG
+import org.elnix.dragonlauncher.common.utils.Constants.Logging.TAG
+import org.elnix.dragonlauncher.common.utils.Constants.Settings.POINT_RADIUS_PX
+import org.elnix.dragonlauncher.common.utils.Constants.Settings.SNAP_STEP_DEG
+import org.elnix.dragonlauncher.common.utils.Constants.Settings.TOUCH_THRESHOLD_PX
 import org.elnix.dragonlauncher.common.utils.UiCircle
 import org.elnix.dragonlauncher.common.utils.circles.autoSeparate
 import org.elnix.dragonlauncher.common.utils.circles.minAngleGapForCircle
@@ -111,6 +111,7 @@ import org.elnix.dragonlauncher.ui.components.AppPreviewTitle
 import org.elnix.dragonlauncher.ui.components.burger.BurgerAction
 import org.elnix.dragonlauncher.ui.components.burger.BurgerListAction
 import org.elnix.dragonlauncher.ui.components.dragon.DragonIconButton
+import org.elnix.dragonlauncher.ui.components.settings.asState
 import org.elnix.dragonlauncher.ui.dialogs.AddPointDialog
 import org.elnix.dragonlauncher.ui.dialogs.EditPointDialog
 import org.elnix.dragonlauncher.ui.dialogs.NestManagementDialog
@@ -129,6 +130,7 @@ import kotlin.math.max
 import kotlin.math.round
 import kotlin.math.sin
 
+@SuppressLint("LocalContextGetResourceValueCall")
 @Suppress("AssignedValueIsNeverRead")
 @Composable
 fun SettingsScreen(
@@ -147,20 +149,12 @@ fun SettingsScreen(
 
     val backgroundColor = MaterialTheme.colorScheme.background
 
-    val snapPoints by UiSettingsStore.snapPoints.flow(ctx).collectAsState(initial = true)
-    val autoSeparatePoints by UiSettingsStore.autoSeparatePoints.flow(ctx)
-        .collectAsState(initial = true)
-
-    val appLabelOverlaySize by UiSettingsStore.appLabelOverlaySize.flow(ctx)
-        .collectAsState(initial = 18)
-    val appIconOverlaySize by UiSettingsStore.appIconOverlaySize.flow(ctx)
-        .collectAsState(initial = 22)
-
-    val settingsDebugInfos by DebugSettingsStore.settingsDebugInfo.flow(ctx)
-        .collectAsState(initial = false)
-
-    val iconsShape by DrawerSettingsStore.iconsShape.flow(ctx)
-        .collectAsState(DrawerSettingsStore.iconsShape.default)
+    val snapPoints by UiSettingsStore.snapPoints.asState()
+    val autoSeparatePoints by UiSettingsStore.autoSeparatePoints.asState()
+    val appLabelOverlaySize by UiSettingsStore.appLabelOverlaySize.asState()
+    val appIconOverlaySize by UiSettingsStore.appIconOverlaySize.asState()
+    val settingsDebugInfos by DebugSettingsStore.settingsDebugInfo.asState()
+    val iconsShape by DrawerSettingsStore.iconsShape.asState()
 
     var center by remember { mutableStateOf(Offset.Zero) }
 
@@ -1293,8 +1287,7 @@ fun SettingsScreen(
 
     // Manual placement mode banner
     if (isInManualPlacementMode) {
-        val currentAction = manualPlacementQueue.first()
-        val appName = when (currentAction) {
+        val appName = when (val currentAction = manualPlacementQueue.first()) {
             is SwipeActionSerializable.LaunchApp -> {
                 ctx.packageManager.runCatching {
                     getApplicationLabel(
