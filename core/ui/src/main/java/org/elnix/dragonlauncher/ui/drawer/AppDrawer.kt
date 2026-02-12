@@ -13,6 +13,7 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.exclude
+import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.ime
@@ -392,11 +393,16 @@ fun AppDrawerScreen(
                     toggleKeyboard()
                 }
         ) {
-            Row(modifier = Modifier.weight(1f)) {
+            Row(
+                modifier = Modifier
+                    .fillMaxHeight()
+                    .weight(1f)
+            ) {
 
                 if (leftAction != DISABLED) {
                     Box(
                         modifier = Modifier
+                            .fillMaxHeight()
                             .weight(leftWeight.coerceIn(0.001f, 1f))
                             .clickable(
                                 indication = null,
@@ -496,6 +502,7 @@ fun AppDrawerScreen(
                 if (rightAction != DISABLED) {
                     Box(
                         modifier = Modifier
+                            .fillMaxHeight()
                             .weight(rightWeight.coerceIn(0.001f, 1f))
                             .clickable(
                                 indication = null,
