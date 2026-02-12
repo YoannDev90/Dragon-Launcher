@@ -35,8 +35,8 @@ import androidx.compose.ui.unit.dp
 import org.elnix.dragonlauncher.common.R
 import org.elnix.dragonlauncher.common.serializables.AppModel
 import org.elnix.dragonlauncher.common.serializables.SwipeActionSerializable
+import org.elnix.dragonlauncher.common.utils.Constants.Actions.defaultChoosableActions
 import org.elnix.dragonlauncher.common.utils.PackageManagerCompat
-import org.elnix.dragonlauncher.common.utils.defaultChoosableActions
 import org.elnix.dragonlauncher.models.AppsViewModel
 import org.elnix.dragonlauncher.settings.stores.DrawerSettingsStore
 import org.elnix.dragonlauncher.settings.stores.UiSettingsStore

@@ -1,7 +1,7 @@
 package org.elnix.dragonlauncher.common.utils.circles
 
 import org.elnix.dragonlauncher.common.serializables.SwipePointSerializable
-import org.elnix.dragonlauncher.common.utils.POINT_RADIUS_PX
+import org.elnix.dragonlauncher.common.utils.Constants.Settings.POINT_RADIUS_PX
 import org.elnix.dragonlauncher.common.utils.UiCircle
 import kotlin.math.abs
 import kotlin.math.min

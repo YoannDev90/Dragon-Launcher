@@ -17,7 +17,7 @@ import kotlinx.coroutines.launch
 import org.elnix.dragonlauncher.common.logging.logD
 import org.elnix.dragonlauncher.common.logging.logI
 import org.elnix.dragonlauncher.common.logging.logW
-import org.elnix.dragonlauncher.common.utils.ACCESSIBILITY_TAG
+import org.elnix.dragonlauncher.common.utils.Constants.Logging.ACCESSIBILITY_TAG
 import org.elnix.dragonlauncher.settings.stores.DebugSettingsStore
 
 @SuppressLint("AccessibilityPolicy")

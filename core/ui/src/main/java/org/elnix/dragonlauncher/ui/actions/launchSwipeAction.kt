@@ -10,7 +10,7 @@ import androidx.core.net.toUri
 import org.elnix.dragonlauncher.common.logging.logD
 import org.elnix.dragonlauncher.common.logging.logE
 import org.elnix.dragonlauncher.common.serializables.SwipeActionSerializable
-import org.elnix.dragonlauncher.common.utils.APP_LAUNCH_TAG
+import org.elnix.dragonlauncher.common.utils.Constants.Logging.APP_LAUNCH_TAG
 import org.elnix.dragonlauncher.common.utils.expandQuickActionsDrawer
 import org.elnix.dragonlauncher.common.utils.hasUriReadPermission
 import org.elnix.dragonlauncher.common.utils.launchShortcut
