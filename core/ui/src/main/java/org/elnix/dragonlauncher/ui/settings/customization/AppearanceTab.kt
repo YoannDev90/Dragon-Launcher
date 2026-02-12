@@ -1,12 +1,10 @@
+@file:Suppress("AssignedValueIsNeverRead")
+
 package org.elnix.dragonlauncher.ui.settings.customization
 
 import androidx.compose.animation.core.animateDpAsState
 import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.animation.core.tween
-import androidx.compose.foundation.background
-import androidx.compose.foundation.border
-import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.padding
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ColorLens
 import androidx.compose.material.icons.filled.Palette
@@ -22,8 +20,6 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
-import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.clip
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
@@ -33,15 +29,20 @@ import org.elnix.dragonlauncher.common.R
 import org.elnix.dragonlauncher.common.serializables.SwipeActionSerializable
 import org.elnix.dragonlauncher.common.serializables.dummySwipePoint
 import org.elnix.dragonlauncher.common.utils.SETTINGS
-import org.elnix.dragonlauncher.common.utils.colors.adjustBrightness
 import org.elnix.dragonlauncher.models.AppsViewModel
-import org.elnix.dragonlauncher.settings.stores.DrawerSettingsStore
+import org.elnix.dragonlauncher.settings.stores.DrawerSettingsStore.iconsShape
 import org.elnix.dragonlauncher.settings.stores.UiSettingsStore
-import org.elnix.dragonlauncher.ui.UiConstants.DragonShape
+import org.elnix.dragonlauncher.settings.stores.UiSettingsStore.appIconOverlaySize
+import org.elnix.dragonlauncher.settings.stores.UiSettingsStore.appLabelIconOverlayTopPadding
+import org.elnix.dragonlauncher.settings.stores.UiSettingsStore.appLabelOverlaySize
+import org.elnix.dragonlauncher.settings.stores.UiSettingsStore.showLaunchingAppIcon
+import org.elnix.dragonlauncher.settings.stores.UiSettingsStore.showLaunchingAppLabel
 import org.elnix.dragonlauncher.ui.components.AppPreviewTitle
+import org.elnix.dragonlauncher.ui.components.ExpandableSection
 import org.elnix.dragonlauncher.ui.components.TextDivider
 import org.elnix.dragonlauncher.ui.components.settings.SettingsSlider
 import org.elnix.dragonlauncher.ui.components.settings.SettingsSwitchRow
+import org.elnix.dragonlauncher.ui.components.settings.asState
 import org.elnix.dragonlauncher.ui.helpers.settings.SettingsItem
 import org.elnix.dragonlauncher.ui.helpers.settings.SettingsLazyHeader
 
@@ -56,23 +57,15 @@ fun AppearanceTab(
     val ctx = LocalContext.current
     val scope = rememberCoroutineScope()
 
-    val showLaunchingAppLabel by UiSettingsStore.showLaunchingAppLabel.flow(ctx)
-        .collectAsState(initial = true)
+    val showLaunchingAppLabel by showLaunchingAppLabel.asState()
+    val showLaunchingAppIcon by showLaunchingAppIcon.asState()
+    val showAppAnglePreview by UiSettingsStore.showAnglePreview.asState()
+    val appLabelIconOverlayTopPadding by appLabelIconOverlayTopPadding.asState()
+    val appLabelOverlaySize by appLabelOverlaySize.asState()
+    val appIconOverlaySize by appIconOverlaySize.asState()
+    val iconsShape by iconsShape.asState()
 
-    val showLaunchingAppIcon by UiSettingsStore.showLaunchingAppIcon.flow(ctx)
-        .collectAsState(initial = true)
-
-    val showAppAnglePreview by UiSettingsStore.showAnglePreview.flow(ctx)
-        .collectAsState(initial = true)
-
-    val appLabelIconOverlayTopPadding by UiSettingsStore.appLabelIconOverlayTopPadding.flow(ctx)
-        .collectAsState(initial = 30)
-    val appLabelOverlaySize by UiSettingsStore.appLabelOverlaySize.flow(ctx)
-        .collectAsState(initial = 18)
-    val appIconOverlaySize by UiSettingsStore.appIconOverlaySize.flow(ctx)
-        .collectAsState(initial = 22)
-    val iconsShape by DrawerSettingsStore.iconsShape.flow(ctx)
-        .collectAsState(DrawerSettingsStore.iconsShape.default)
+    var topOverlaySettingsExpanded by remember { mutableStateOf(false) }
 
     var isDraggingAppPreviewOverlays by remember { mutableStateOf(false) }
 
@@ -170,33 +163,24 @@ fun AppearanceTab(
         }
 
         item {
-            SettingsSwitchRow(
-                setting = UiSettingsStore.showLaunchingAppLabel,
-                title = stringResource(R.string.show_launching_app_label),
-                description = stringResource(R.string.show_launching_app_label_description)
-            )
-        }
-
-        item {
-            SettingsSwitchRow(
-                setting = UiSettingsStore.showLaunchingAppIcon,
-                title = stringResource(R.string.show_launching_app_icon),
-                description = stringResource(R.string.show_launching_app_icon_description)
-            )
-        }
-
-        item {
-            Column(
-                modifier = Modifier
-                    .clip(DragonShape)
-                    .background(MaterialTheme.colorScheme.surface.adjustBrightness(0.7f))
-                    .border(
-                        1.dp,
-                        MaterialTheme.colorScheme.primary.adjustBrightness(0.2f),
-                        DragonShape
-                    )
-                    .padding(8.dp)
+            ExpandableSection(
+                expanded = { topOverlaySettingsExpanded },
+                title = stringResource(R.string.app_preview_settings),
+                onExpand = { topOverlaySettingsExpanded = !topOverlaySettingsExpanded}
             ) {
+
+                SettingsSwitchRow(
+                    setting = UiSettingsStore.showLaunchingAppLabel,
+                    title = stringResource(R.string.show_launching_app_label),
+                    description = stringResource(R.string.show_launching_app_label_description)
+                )
+
+                SettingsSwitchRow(
+                    setting = UiSettingsStore.showLaunchingAppIcon,
+                    title = stringResource(R.string.show_launching_app_icon),
+                    description = stringResource(R.string.show_launching_app_icon_description)
+                )
+
                 SettingsSlider(
                     setting = UiSettingsStore.appLabelIconOverlayTopPadding,
                     title = stringResource(R.string.app_label_icon_overlay_top_padding),

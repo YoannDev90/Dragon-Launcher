@@ -16,11 +16,11 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.exclude
-import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.ime
+import androidx.compose.foundation.layout.imePadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.safeDrawing
 import androidx.compose.foundation.layout.size
@@ -33,6 +33,7 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Lock
 import androidx.compose.material.icons.filled.Refresh
 import androidx.compose.material3.CircularProgressIndicator
+import androidx.compose.material.icons.filled.Search
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
@@ -51,6 +52,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.focus.onFocusChanged
@@ -95,9 +97,9 @@ import org.elnix.dragonlauncher.models.AppsViewModel
 import org.elnix.dragonlauncher.settings.stores.DrawerSettingsStore
 import org.elnix.dragonlauncher.settings.stores.UiSettingsStore
 import org.elnix.dragonlauncher.settings.stores.WellbeingSettingsStore
+import org.elnix.dragonlauncher.ui.UiConstants.DragonShape
 import org.elnix.dragonlauncher.ui.actions.launchAppDirectly
 import org.elnix.dragonlauncher.ui.actions.launchSwipeAction
-import org.elnix.dragonlauncher.ui.components.TextDivider
 import org.elnix.dragonlauncher.ui.components.settings.asState
 import org.elnix.dragonlauncher.ui.dialogs.AppAliasesDialog
 import org.elnix.dragonlauncher.ui.dialogs.AppLongPressDialog
@@ -105,6 +107,7 @@ import org.elnix.dragonlauncher.ui.dialogs.IconEditorDialog
 import org.elnix.dragonlauncher.ui.dialogs.RenameAppDialog
 import org.elnix.dragonlauncher.ui.helpers.AppGrid
 import org.elnix.dragonlauncher.ui.helpers.WallpaperDim
+import org.elnix.dragonlauncher.ui.modifiers.settingsGroup
 import org.elnix.dragonlauncher.ui.wellbeing.AppTimerService
 import org.elnix.dragonlauncher.ui.wellbeing.DigitalPauseActivity
 
@@ -133,12 +136,23 @@ fun AppDrawerScreen(
     val workspaces = workspaceState.workspaces
     val overrides = workspaceState.appOverrides
     val aliases = workspaceState.appAliases
+    val showPrivateSpaceWorkspace by DrawerSettingsStore.showPrivateSpaceWorkspace.asState()
+
+    val visibleWorkspaces by remember(workspaces, showPrivateSpaceWorkspace) {
+        derivedStateOf {
+            if (showPrivateSpaceWorkspace) {
+                workspaces
+            } else {
+                workspaces.filter { it.type != WorkspaceType.PRIVATE }
+            }
+        }
+    }
 
     val selectedWorkspaceId by appsViewModel.selectedWorkspaceId.collectAsState()
-    val initialIndex = workspaces.indexOfFirst { it.id == selectedWorkspaceId }
+    val initialIndex = visibleWorkspaces.indexOfFirst { it.id == selectedWorkspaceId }
     val pagerState = rememberPagerState(
-        initialPage = initialIndex.coerceIn(0, (workspaces.size - 1).coerceAtLeast(0)),
-        pageCount = { workspaces.size }
+        initialPage = initialIndex.coerceIn(0, (visibleWorkspaces.size - 1).coerceAtLeast(0)),
+        pageCount = { visibleWorkspaces.size }
     )
 
     val icons by appsViewModel.icons.collectAsState()
@@ -151,7 +165,7 @@ fun AppDrawerScreen(
         .tapEmptySpaceAction.asState()
 
     val drawerEnterAction by DrawerSettingsStore.drawerEnterAction.asState()
-    val drawerBackAction by DrawerSettingsStore.drawerEnterAction.asState()
+    val drawerBackAction by DrawerSettingsStore.backDrawerAction.asState()
     val drawerHomeAction by DrawerSettingsStore.drawerHomeAction.asState()
     val drawerScrollDownAction by DrawerSettingsStore.scrollDownDrawerAction.asState()
     val drawerScrollUpAction by DrawerSettingsStore.scrollUpDrawerAction.asState()
@@ -196,18 +210,33 @@ fun AppDrawerScreen(
                         reminderMode = reminderMode
                     )
                 }
-                launchAppDirectly(appsViewModel, ctx, pendingPackageToLaunch!!, pendingUserIdToLaunch!!)
+                launchAppDirectly(
+                    appsViewModel = appsViewModel,
+                    ctx = ctx,
+                    packageName = pendingPackageToLaunch!!,
+                    userId = pendingUserIdToLaunch!!
+                )
                 onClose()
             } catch (e: Exception) {
-                ctx.showToast("Error: ${e.message}")
+                ctx.showToast(
+                    ctx.getString(
+                        R.string.error_with_message,
+                        e.message ?: ctx.getString(R.string.unknown_error)
+                    )
+                )
             }
         } else if (result.resultCode == DigitalPauseActivity.RESULT_PROCEED_WITH_TIMER && pendingPackageToLaunch != null) {
             try {
                 val data = result.data
-                val timeLimitMin = data?.getIntExtra(DigitalPauseActivity.RESULT_EXTRA_TIME_LIMIT, 10) ?: 10
-                val hasReminder = data?.getBooleanExtra(DigitalPauseActivity.EXTRA_REMINDER_ENABLED, false) ?: false
-                val remInterval = data?.getIntExtra(DigitalPauseActivity.EXTRA_REMINDER_INTERVAL, 5) ?: 5
-                val remMode = data?.getStringExtra(DigitalPauseActivity.EXTRA_REMINDER_MODE) ?: "overlay"
+                val timeLimitMin =
+                    data?.getIntExtra(DigitalPauseActivity.RESULT_EXTRA_TIME_LIMIT, 10) ?: 10
+                val hasReminder =
+                    data?.getBooleanExtra(DigitalPauseActivity.EXTRA_REMINDER_ENABLED, false)
+                        ?: false
+                val remInterval =
+                    data?.getIntExtra(DigitalPauseActivity.EXTRA_REMINDER_INTERVAL, 5) ?: 5
+                val remMode =
+                    data?.getStringExtra(DigitalPauseActivity.EXTRA_REMINDER_MODE) ?: "overlay"
 
                 AppTimerService.start(
                     ctx = ctx,
@@ -219,10 +248,20 @@ fun AppDrawerScreen(
                     timeLimitEnabled = true,
                     timeLimitMinutes = timeLimitMin
                 )
-                launchAppDirectly(appsViewModel, ctx, pendingPackageToLaunch!!, pendingUserIdToLaunch!!)
+                launchAppDirectly(
+                    appsViewModel = appsViewModel,
+                    ctx = ctx,
+                    packageName = pendingPackageToLaunch!!,
+                    userId = pendingUserIdToLaunch!!
+                )
                 onClose()
             } catch (e: Exception) {
-                ctx.showToast("Error: ${e.message}")
+                ctx.showToast(
+                    ctx.getString(
+                        R.string.error_with_message,
+                        e.message ?: ctx.getString(R.string.unknown_error)
+                    )
+                )
             }
         }
         pendingPackageToLaunch = null
@@ -269,7 +308,7 @@ fun AppDrawerScreen(
         if (!isAuthenticatingPrivateSpace) return@LaunchedEffect
         if (Build.VERSION.SDK_INT < Build.VERSION_CODES.VANILLA_ICE_CREAM) return@LaunchedEffect
         
-        val currentWorkspace = workspaces.getOrNull(pagerState.currentPage)
+        val currentWorkspace = visibleWorkspaces.getOrNull(pagerState.currentPage)
         if (currentWorkspace?.type != WorkspaceType.PRIVATE) {
             // User left Private Space workspace, stop polling
             logI("AppDrawer", "Left Private Space workspace, stopping authentication polling")
@@ -313,10 +352,26 @@ fun AppDrawerScreen(
             }
         }
     }
+
+    LaunchedEffect(visibleWorkspaces, selectedWorkspaceId) {
+        if (visibleWorkspaces.isEmpty()) return@LaunchedEffect
+
+        val selectedVisible = visibleWorkspaces.any { it.id == selectedWorkspaceId }
+        val targetId = if (selectedVisible) selectedWorkspaceId else visibleWorkspaces.first().id
+        val targetIndex = visibleWorkspaces.indexOfFirst { it.id == targetId }
+
+        if (!selectedVisible) {
+            appsViewModel.selectWorkspace(targetId)
+        }
+
+        if (targetIndex >= 0 && pagerState.currentPage != targetIndex) {
+            pagerState.scrollToPage(targetIndex)
+        }
+    }
     
     LaunchedEffect(pagerState.currentPage) {
-        val newWorkspaceId = workspaces.getOrNull(pagerState.currentPage)?.id ?: return@LaunchedEffect
-        val newWorkspace = workspaces.getOrNull(pagerState.currentPage) ?: return@LaunchedEffect
+        val newWorkspaceId = visibleWorkspaces.getOrNull(pagerState.currentPage)?.id ?: return@LaunchedEffect
+        val newWorkspace = visibleWorkspaces.getOrNull(pagerState.currentPage) ?: return@LaunchedEffect
         
         // Reset Private Space auth state when leaving Private Space workspace
         if (isAuthenticatingPrivateSpace && newWorkspace.type != WorkspaceType.PRIVATE) {
@@ -453,12 +508,18 @@ fun AppDrawerScreen(
             // Only close if not paused (pause closes after user decision)
             if (!socialMediaPauseEnabled ||
                 action !is SwipeActionSerializable.LaunchApp ||
-                action.packageName !in pausedApps) {
+                action.packageName !in pausedApps
+            ) {
                 onClose()
             }
         } catch (e: Exception) {
             onClose()
-            ctx.showToast("Error: ${e.message}")
+            ctx.showToast(
+                ctx.getString(
+                    R.string.error_with_message,
+                    e.message ?: ctx.getString(R.string.unknown_error)
+                )
+            )
         }
     }
 
@@ -476,10 +537,17 @@ fun AppDrawerScreen(
         launchDrawerAction(drawerBackAction)
     }
 
-    Box(modifier = Modifier.fillMaxSize()) {
+    val topPadding = if (!searchBarBottom) 60.dp else 0.dp
+    val bottomPadding = if (searchBarBottom) 60.dp else 0.dp
+
+    Box(
+        modifier = Modifier
+            .windowInsetsPadding(WindowInsets.safeDrawing.exclude(WindowInsets.ime))
+    ) {
         Column(
             modifier = Modifier
                 .fillMaxSize()
+                .padding(top = topPadding, bottom = bottomPadding)
                 .clickable(
                     enabled = tapEmptySpaceToRaiseKeyboard.isUsed(),
                     indication = null,
@@ -487,75 +555,33 @@ fun AppDrawerScreen(
                 ) {
                     toggleKeyboard()
                 }
-                .windowInsetsPadding(WindowInsets.safeDrawing.exclude(WindowInsets.ime))
         ) {
+            Row(modifier = Modifier.weight(1f)) {
 
-        if (!searchBarBottom) {
-            DrawerTextInput()
-        }
+                if (leftAction != DISABLED) {
+                    Box(
+                        modifier = Modifier
+                            .weight(leftWeight.coerceIn(0.001f, 1f))
+                            .clickable(
+                                indication = null,
+                                interactionSource = null
+                            ) { launchDrawerAction(leftAction) }
+                    )
+                }
 
-        Row(modifier = Modifier.fillMaxSize()) {
-
-            if (leftAction != DISABLED) {
-                Box(
+                Column(
                     modifier = Modifier
-                        .fillMaxHeight()
-                        .weight(leftWeight.coerceIn(0.001f, 1f))
-                        .clickable(
-                            indication = null,
-                            interactionSource = null
-                        ) { launchDrawerAction(leftAction) }
-                )
-            }
+                        .weight(1f)
+                ) {
+                    /* ───────────── Recently Used Apps section ───────────── */
+                    if (showRecentlyUsedApps && searchQuery.isBlank() && recentApps.isNotEmpty()) {
 
-            Column(
-                modifier = Modifier
-                    .fillMaxHeight()
-                    .weight(1f)
-            ) {
-                HorizontalPager(
-                    state = pagerState,
-                    key = { it.hashCode() }
-                ) { pageIndex ->
-
-                    val workspace = workspaces[pageIndex]
-
-                    val apps by appsViewModel
-                        .appsForWorkspace(workspace, overrides)
-                        .collectAsStateWithLifecycle(emptyList())
-
-                    val filteredApps by remember(searchQuery, apps) {
-                        derivedStateOf {
-                            if (searchQuery.isBlank()) apps
-                            else apps.filter { app ->
-                                app.name.contains(searchQuery, ignoreCase = true) ||
-
-                                // Also search for aliases
-                                aliases[app.packageName]?.any {
-                                    it.contains(
-                                        searchQuery,
-                                        ignoreCase = true
-                                    )
-                                } ?: false
-                            }
-                        }
-                    }
-
-                    LaunchedEffect(haveToLaunchFirstApp, filteredApps) {
-                        if ((autoLaunchSingleMatch && filteredApps.size == 1 && searchQuery.isNotEmpty()) || haveToLaunchFirstApp) {
-                            launchApp(filteredApps.first().action, filteredApps.first().name)
-                        }
-                    }
-
-                    Column(modifier = Modifier.fillMaxSize()) {
-
-                        /* ───────────── Recently Used Apps section ───────────── */
-                        if (showRecentlyUsedApps && searchQuery.isBlank() && recentApps.isNotEmpty()) {
-                            TextDivider(
-                                text = stringResource(R.string.recently_used_apps),
-                                modifier = Modifier.padding(horizontal = 8.dp)
-                            )
-
+                        Box(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .padding(5.dp)
+                                .settingsGroup(border = false)
+                        ) {
                             AppGrid(
                                 apps = recentApps,
                                 icons = icons,
@@ -572,8 +598,46 @@ fun AppDrawerScreen(
                                 launchApp(it.action, it.name)
                             }
                         }
+                    }
 
-                        Box(modifier = Modifier.weight(1f).fillMaxWidth()) {
+                    HorizontalPager(
+                        state = pagerState,
+                        key = { it.hashCode() }
+                    ) { pageIndex ->
+
+                        val workspace = visibleWorkspaces[pageIndex]
+
+                        val apps by appsViewModel
+                            .appsForWorkspace(workspace, overrides)
+                            .collectAsStateWithLifecycle(emptyList())
+
+                        val filteredApps by remember(searchQuery, apps) {
+                            derivedStateOf {
+                                if (searchQuery.isBlank()) apps
+                                else apps.filter { app ->
+                                    app.name.contains(searchQuery, ignoreCase = true) ||
+
+                                            // Also search for aliases
+                                            aliases[app.packageName]?.any {
+                                                it.contains(
+                                                    searchQuery,
+                                                    ignoreCase = true
+                                                )
+                                            } ?: false
+                                }
+                            }
+                        }
+
+                        LaunchedEffect(haveToLaunchFirstApp, filteredApps) {
+                            if ((autoLaunchSingleMatch && filteredApps.size == 1 && searchQuery.isNotEmpty()) || haveToLaunchFirstApp) {
+                                launchApp(filteredApps.first().action, filteredApps.first().name)
+                            }
+                        }
+
+                        Box(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                        ) {
                             AppGrid(
                                 apps = filteredApps,
                                 icons = icons,
@@ -592,31 +656,35 @@ fun AppDrawerScreen(
                         }
                     }
                 }
-            }
 
-            if (rightAction != DISABLED) {
-                Box(
-                    modifier = Modifier
-                        .fillMaxHeight()
-                        .weight(rightWeight.coerceIn(0.001f, 1f))
-                        .clickable(
-                            indication = null,
-                            interactionSource = null
-                        ) { launchDrawerAction(rightAction) }
-                )
+                if (rightAction != DISABLED) {
+                    Box(
+                        modifier = Modifier
+                            .weight(rightWeight.coerceIn(0.001f, 1f))
+                            .clickable(
+                                indication = null,
+                                interactionSource = null
+                            ) { launchDrawerAction(rightAction) }
+                    )
+                }
             }
         }
-        }  // Close Column
-        
-        // Private Space authentication overlay (outside Column, on top of everything)
+
+        Box(
+            modifier = Modifier
+                .fillMaxSize()
+                .imePadding(),
+            contentAlignment = if (searchBarBottom) Alignment.BottomCenter else Alignment.TopCenter
+        ) {
+            DrawerTextInput()
+        }
+
         val isLoadingPrivate by appsViewModel.isLoadingPrivateSpace.collectAsState()
 
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.VANILLA_ICE_CREAM &&
             isAuthenticatingPrivateSpace &&
-            workspaces.getOrNull(pagerState.currentPage)?.type == WorkspaceType.PRIVATE) {
-            
-            logI("AppDrawer", "Rendering Private Space authentication overlay")
-            
+            visibleWorkspaces.getOrNull(pagerState.currentPage)?.type == WorkspaceType.PRIVATE) {
+
             Box(
                 modifier = Modifier
                     .fillMaxSize()
@@ -630,30 +698,30 @@ fun AppDrawerScreen(
                 ) {
                     Icon(
                         imageVector = Icons.Default.Lock,
-                        contentDescription = "Private Space Locked",
+                        contentDescription = stringResource(R.string.private_space_locked),
                         modifier = Modifier.size(64.dp),
                         tint = MaterialTheme.colorScheme.primary
                     )
-                    
+
                     Spacer(modifier = Modifier.height(24.dp))
-                    
+
                     Text(
-                        text = "Private Space",
+                        text = stringResource(R.string.private_space_title),
                         style = MaterialTheme.typography.headlineMedium,
                         fontWeight = FontWeight.Bold,
                         color = MaterialTheme.colorScheme.onSurface
                     )
-                    
+
                     Spacer(modifier = Modifier.height(16.dp))
-                    
+
                     Text(
-                        text = "Authenticating...",
+                        text = stringResource(R.string.private_space_authenticating),
                         style = MaterialTheme.typography.bodyLarge,
                         color = MaterialTheme.colorScheme.onSurfaceVariant
                     )
-                    
+
                     Spacer(modifier = Modifier.height(24.dp))
-                    
+
                     CircularProgressIndicator(
                         modifier = Modifier.size(48.dp),
                         color = MaterialTheme.colorScheme.primary
@@ -662,11 +730,8 @@ fun AppDrawerScreen(
             }
         }
 
-        // Private Space loading overlay after unlock
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.VANILLA_ICE_CREAM &&
-            privateSpaceUnlocked && isLoadingPrivate && workspaces.getOrNull(pagerState.currentPage)?.type == WorkspaceType.PRIVATE) {
-
-            logI("AppDrawer", "Rendering Private Space loading overlay")
+            privateSpaceUnlocked && isLoadingPrivate && visibleWorkspaces.getOrNull(pagerState.currentPage)?.type == WorkspaceType.PRIVATE) {
 
             Box(
                 modifier = Modifier
@@ -681,7 +746,7 @@ fun AppDrawerScreen(
                 ) {
                     Icon(
                         imageVector = Icons.Default.Refresh,
-                        contentDescription = "Private Space Loading",
+                        contentDescription = stringResource(R.string.private_space_loading),
                         modifier = Modifier.size(64.dp),
                         tint = MaterialTheme.colorScheme.primary
                     )
@@ -689,7 +754,7 @@ fun AppDrawerScreen(
                     Spacer(modifier = Modifier.height(24.dp))
 
                     Text(
-                        text = "Please wait",
+                        text = stringResource(R.string.private_space_please_wait),
                         style = MaterialTheme.typography.headlineMedium,
                         fontWeight = FontWeight.Bold,
                         color = MaterialTheme.colorScheme.onSurface
@@ -698,7 +763,7 @@ fun AppDrawerScreen(
                     Spacer(modifier = Modifier.height(8.dp))
 
                     Text(
-                        text = "Your Private Space is being loaded...",
+                        text = stringResource(R.string.private_space_loading_description),
                         style = MaterialTheme.typography.bodyLarge,
                         color = MaterialTheme.colorScheme.onSurfaceVariant,
                         textAlign = TextAlign.Center
@@ -863,6 +928,8 @@ private fun AppDrawerSearch(
         modifier = modifier
             .fillMaxWidth()
             .padding(5.dp)
+            .clip(DragonShape)
+            .background(MaterialTheme.colorScheme.surfaceVariant)
             .onFocusChanged { focusState ->
                 val focused = focusState.isFocused
                 onFocusStateChanged(focused) // Notify parent of focus change
@@ -871,19 +938,22 @@ private fun AppDrawerSearch(
                 }
                 // Keyboard hiding on focus loss is handled by system, IME actions, or explicit calls elsewhere (e.g., scroll logic)
             },
+        leadingIcon = {
+            Icon(
+                imageVector = Icons.Default.Search,
+                contentDescription = stringResource(R.string.search_apps),
+                tint = MaterialTheme.colorScheme.onSurfaceVariant
+            )
+        },
         placeholder = {
             Text(
                 text = stringResource(R.string.search_apps),
-                color = MaterialTheme.colorScheme.onBackground
+                color = MaterialTheme.colorScheme.onSurface
             )
         },
         singleLine = true,
         keyboardOptions = KeyboardOptions(imeAction = ImeAction.Search),
-        keyboardActions = KeyboardActions(onSearch = {
-            // Don't hide the keyboard on enter, just clear the search
-//            keyboardController?.hide() // Hide keyboard on IME "Search" action
-            onEnterPressed()
-        }),
+        keyboardActions = KeyboardActions(onSearch = { onEnterPressed() }),
         colors = TextFieldDefaults.colors(
             focusedContainerColor = Color.Transparent,
             unfocusedContainerColor = Color.Transparent,

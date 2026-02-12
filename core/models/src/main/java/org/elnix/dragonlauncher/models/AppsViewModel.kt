@@ -99,7 +99,7 @@ class AppsViewModel(
 
     // Only used for preview, the real user apps getter are using the appsForWorkspace function
     val userApps: StateFlow<List<AppModel>> = _apps.map { list ->
-        list.filter { it.isLaunchable == true }
+        list.filter { it.isLaunchable == true && !it.isWorkProfile && !it.isSystem }
     }.stateIn(scope, SharingStarted.Eagerly, emptyList())
 
 

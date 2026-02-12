@@ -71,7 +71,6 @@ val ignoredReturnRoutes = listOf(
 val transparentScreens = listOf(
     ROUTES.MAIN,
     ROUTES.DRAWER,
-    SETTINGS.ROOT, // To tell the main NavHost that settings are transparent, then the settings scaffold will take the relay and apply the color where it needs
     SETTINGS.WALLPAPER,
     SETTINGS.FLOATING_APPS
 )
@@ -97,7 +96,7 @@ val defaultChoosableActions = listOf(
     SwipeActionSerializable.Lock,
     SwipeActionSerializable.ReloadApps,
     SwipeActionSerializable.OpenRecentApps,
-    SwipeActionSerializable.OpenDragonLauncherSettings
+    SwipeActionSerializable.OpenDragonLauncherSettings()
 )
 
 
@@ -116,7 +115,6 @@ const val ICON_PACK_TAG = "IconsPacks"
 const val SHAPES_TAG = "ShapesDebug"
 const val COLORS_TAG = "ColorsDebug"
 const val DRAWER_TAG = "DrawerDebug"
-
 const val APP_LAUNCH_TAG = "AppLaunchDebug"
 
 

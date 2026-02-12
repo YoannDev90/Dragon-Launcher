@@ -9,6 +9,7 @@ import org.elnix.dragonlauncher.common.R
 import org.elnix.dragonlauncher.common.serializables.SwipeActionSerializable
 import org.elnix.dragonlauncher.common.utils.PackageManagerCompat
 import org.elnix.dragonlauncher.common.utils.getFilePathFromUri
+import org.elnix.dragonlauncher.enumsui.routeName
 
 @Composable
 fun actionLabel(
@@ -73,7 +74,7 @@ fun actionLabel(
 
             is SwipeActionSerializable.OpenAppDrawer -> stringResource(R.string.app_drawer)
 
-            SwipeActionSerializable.OpenDragonLauncherSettings -> stringResource(R.string.dragon_launcher_settings)
+            is SwipeActionSerializable.OpenDragonLauncherSettings -> "${stringResource(R.string.dragon_launcher_settings)} (${routeName(action.route)})"
 
             SwipeActionSerializable.Lock -> stringResource(R.string.lock)
 

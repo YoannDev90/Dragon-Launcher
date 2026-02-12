@@ -8,9 +8,9 @@ import kotlinx.coroutines.flow.map
 import org.elnix.dragonlauncher.settings.bases.BaseSettingObject
 
 @Composable
-fun <T, R> BaseSettingObject<T, R>.asState(): State<T> {
+fun <T, R> BaseSettingObject<T, R>.asState(default: T? = null): State<T> {
     val ctx = LocalContext.current
-    return flow(ctx).collectAsState(initial = default)
+    return flow(ctx).collectAsState(initial = default ?: this.default)
 }
 
 

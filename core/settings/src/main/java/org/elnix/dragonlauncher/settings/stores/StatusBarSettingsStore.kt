@@ -45,7 +45,7 @@ object StatusBarSettingsStore : MapSettingsStore() {
     val timeFormatter = Settings.string(
         key = "timeFormatter",
         dataStoreName = dataStoreName,
-        default = "HH:mm:ss"
+        default = "HH:mm:ss | "
     )
 
     val dateFormater = Settings.string(

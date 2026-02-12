@@ -9,13 +9,10 @@ import androidx.datastore.preferences.core.intPreferencesKey
 import androidx.datastore.preferences.core.longPreferencesKey
 import androidx.datastore.preferences.core.stringPreferencesKey
 import androidx.datastore.preferences.core.stringSetPreferencesKey
-import org.elnix.dragonlauncher.common.logging.logD
 import org.elnix.dragonlauncher.common.serializables.IconShape
 import org.elnix.dragonlauncher.common.serializables.IconShapeGson
 import org.elnix.dragonlauncher.common.serializables.SwipeActionSerializable
 import org.elnix.dragonlauncher.common.serializables.SwipeJson
-import org.elnix.dragonlauncher.common.utils.SETTINGS_TAG
-import org.elnix.dragonlauncher.common.utils.colors.toHexWithAlpha
 import org.elnix.dragonlauncher.settings.bases.BaseSettingObject
 
 /**
@@ -197,12 +194,12 @@ object Settings {
             preferenceKey = intPreferencesKey(key),
             encode = {
                 val a = it.toArgb()
-                logD(SETTINGS_TAG, "Encoded $it -> $a")
+//                logD(SETTINGS_TAG, "Encoded $it -> $a")
                 a
             },
             decode = { raw ->
                 val a = getColorStrict(raw, default)
-                logD(SETTINGS_TAG, "key: $key; Decoded $raw -> $a (${a.toHexWithAlpha()})")
+//                logD(SETTINGS_TAG, "key: $key; Decoded $raw -> $a (${a.toHexWithAlpha()})")
                 a
             }
         )
@@ -220,12 +217,12 @@ object Settings {
             encode = { raw ->
 
                 val a = SwipeJson.encodeAction(raw)
-                logD(SETTINGS_TAG, "Encoded $raw -> $a")
+//                logD(SETTINGS_TAG, "Encoded $raw -> $a")
                 a
              },
             decode = { raw ->
                 val a = getSwipeActionSerializableStrict(raw, default)
-                logD(SETTINGS_TAG, "Decoded $raw -> $a")
+//                logD(SETTINGS_TAG, "Decoded $raw -> $a")
                 a
             }
         )
@@ -243,12 +240,12 @@ object Settings {
             preferenceKey = stringPreferencesKey(key),
             encode = { value ->
                 val encoded = IconShapeGson.encode(value)
-                logD(SETTINGS_TAG, "Encoded IconShape $value -> $encoded")
+//                logD(SETTINGS_TAG, "Encoded IconShape $value -> $encoded")
                 encoded
             },
             decode = { raw ->
                 val decoded = IconShapeGson.decode(raw, default)
-                logD(SETTINGS_TAG, "Decoded IconShape $raw -> $decoded")
+//                logD(SETTINGS_TAG, "Decoded IconShape $raw -> $decoded")
                 decoded
             }
         )

@@ -412,7 +412,7 @@ fun SettingsScreen(
                     @Suppress("USELESS_ELVIS")
                     points.add(
                         it.copy(
-                            action = it.action ?: SwipeActionSerializable.OpenDragonLauncherSettings
+                            action = it.action ?: SwipeActionSerializable.OpenDragonLauncherSettings()
                         )
                     )
                 }
@@ -445,7 +445,6 @@ fun SettingsScreen(
     Column(
         Modifier
             .fillMaxSize()
-            .background(MaterialTheme.colorScheme.background)
             .windowInsetsPadding(WindowInsets.safeDrawing.exclude(WindowInsets.ime))
     ) {
         Row(

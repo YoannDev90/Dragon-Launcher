@@ -16,7 +16,7 @@ fun actionColor(
             SwipeActionSerializable.NotificationShade -> extra.notificationShade
             SwipeActionSerializable.ControlPanel -> extra.controlPanel
             is SwipeActionSerializable.OpenAppDrawer -> extra.openAppDrawer
-            SwipeActionSerializable.OpenDragonLauncherSettings -> extra.launcherSettings
+            is SwipeActionSerializable.OpenDragonLauncherSettings -> extra.launcherSettings
             SwipeActionSerializable.Lock -> extra.lock
             is SwipeActionSerializable.OpenFile -> extra.openFile
             is SwipeActionSerializable.ReloadApps -> extra.reload

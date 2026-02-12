@@ -1,8 +1,10 @@
+@file:Suppress("AssignedValueIsNeverRead")
+
 package org.elnix.dragonlauncher.ui.components.settings
 
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.remember
@@ -19,29 +21,32 @@ import org.elnix.dragonlauncher.ui.helpers.SliderWithLabel
 fun SettingsSlider(
     setting: BaseSettingObject<Int, Int>,
     title: String,
-    description: String? = null,
     valueRange: IntRange,
     modifier: Modifier = Modifier,
+    description: String? = null,
     color: Color = MaterialTheme.colorScheme.primary,
     backgroundColor: Color = MaterialTheme.colorScheme.surface,
     showValue: Boolean = true,
     enabled: Boolean = true,
     allowTextEditValue: Boolean = true,
+    onReset: (() -> Unit)? = null,
     onDragStateChange: ((Boolean) -> Unit)? = null,
     onChange: ((Int) -> Unit)? = null,
 ) {
     val ctx = LocalContext.current
     val scope = rememberCoroutineScope()
 
-    val state by setting.flow(ctx).collectAsState(setting.default)
+    val state by setting.asState()
 
     var tempState by remember { mutableIntStateOf(state) }
+
+    LaunchedEffect(state) { tempState = state }
 
     SliderWithLabel(
         modifier = modifier,
         label = title,
         description = description,
-        value = state,
+        value = tempState,
         valueRange = valueRange,
         color = color,
         enabled = enabled,
@@ -49,9 +54,8 @@ fun SettingsSlider(
         backgroundColor = backgroundColor,
         showValue = showValue,
         onReset = {
-            scope.launch {
-                setting.reset(ctx)
-            }
+            scope.launch { setting.reset(ctx) }
+            onReset?.invoke()
         },
         onDragStateChange = {
             scope.launch { setting.set(ctx, tempState) }
@@ -67,22 +71,23 @@ fun SettingsSlider(
 fun SettingsSlider(
     setting: BaseSettingObject<Int, Int>,
     title: String,
-    description: String? = null,
     valueRange: IntRange,
     modifier: Modifier = Modifier,
+    description: String? = null,
     color: Color = MaterialTheme.colorScheme.primary,
     backgroundColor: Color = MaterialTheme.colorScheme.surface,
     showValue: Boolean = true,
     enabled: Boolean = true,
     allowTextEditValue: Boolean = true,
     instantUiUpdate: Boolean,
+    onReset: (() -> Unit)? = null,
     onDragStateChange: ((Boolean) -> Unit)? = null,
     onChange: ((Int) -> Unit)? = null
     ) {
     val ctx = LocalContext.current
     val scope = rememberCoroutineScope()
 
-    val state by setting.flow(ctx).collectAsState(setting.default)
+    val state by setting.asState()
 
     SliderWithLabel(
         modifier = modifier,
@@ -96,9 +101,8 @@ fun SettingsSlider(
         backgroundColor = backgroundColor,
         showValue = showValue,
         onReset = {
-            scope.launch {
-                setting.reset(ctx)
-            }
+            scope.launch { setting.reset(ctx) }
+            onReset?.invoke()
         },
         onDragStateChange = onDragStateChange
     ) {

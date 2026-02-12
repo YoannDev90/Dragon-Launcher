@@ -1,8 +1,7 @@
 package org.elnix.dragonlauncher.ui.modifiers
 
-import androidx.compose.animation.core.animateDp
-import androidx.compose.animation.core.updateTransition
-import androidx.compose.foundation.clickable
+import androidx.compose.animation.core.animateDpAsState
+import androidx.compose.foundation.combinedClickable
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.interaction.collectIsPressedAsState
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -18,36 +17,36 @@ import org.elnix.dragonlauncher.ui.UiConstants
 @Composable
 fun Modifier.shapedClickable(
     enabled: Boolean = true,
+    isSelected: Boolean = false,
     onClickLabel: String? = null,
     role: Role? = null,
+    onLongClick: (() -> Unit)? = null,
     onClick: () -> Unit,
 ): Modifier {
 
     val interactionSource = remember { MutableInteractionSource() }
     val isPressed by interactionSource.collectIsPressedAsState()
 
-    val transition = updateTransition(
-        targetState = isPressed,
-        label = "press_transition"
+    val shapeRound by animateDpAsState(
+        targetValue = if (isPressed || isSelected)
+            UiConstants.DRAGON_SHAPE_CORNER_DP
+        else
+            UiConstants.CIRCLE_SHAPE_CORNER_DP,
+        label = "shape_anim"
     )
 
-    val shapeRound by transition.animateDp(
-        label = "shape_round"
-    ) { pressed ->
-        if (pressed) UiConstants.DRAGON_SHAPE_CORNER_DP
-        else UiConstants.CIRCLE_SHAPE_CORNER_DP
-    }
 
     val shape = RoundedCornerShape(shapeRound)
 
 
     return this
         .clip(shape)
-        .clickable(
-        interactionSource = interactionSource,
-        enabled = enabled,
-        onClickLabel = onClickLabel,
-        role = role,
-        onClick = onClick
-    )
+        .combinedClickable(
+            interactionSource = interactionSource,
+            enabled = enabled,
+            onClickLabel = onClickLabel,
+            role = role,
+            onClick = onClick,
+            onLongClick = onLongClick
+        )
 }

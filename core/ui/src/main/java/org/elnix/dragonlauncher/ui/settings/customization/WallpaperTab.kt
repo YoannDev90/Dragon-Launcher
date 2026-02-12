@@ -6,20 +6,20 @@ import android.annotation.SuppressLint
 import android.content.Intent
 import android.graphics.Bitmap
 import android.os.Build
-import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.IntrinsicSize
-import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.asPaddingValues
-import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.systemBars
-import androidx.compose.material3.Button
+import androidx.compose.foundation.layout.width
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Circle
+import androidx.compose.material.icons.filled.Image
+import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
@@ -28,7 +28,6 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
-import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
@@ -46,11 +45,13 @@ import org.elnix.dragonlauncher.enumsui.wallpaperEditModeIcon
 import org.elnix.dragonlauncher.enumsui.wallpaperEditModeLabel
 import org.elnix.dragonlauncher.settings.stores.StatusBarSettingsStore
 import org.elnix.dragonlauncher.settings.stores.UiSettingsStore
-import org.elnix.dragonlauncher.ui.UiConstants.DragonShape
 import org.elnix.dragonlauncher.ui.colors.AppObjectsColors
 import org.elnix.dragonlauncher.ui.colors.ColorPickerRow
+import org.elnix.dragonlauncher.ui.components.dragon.DragonButton
+import org.elnix.dragonlauncher.ui.components.dragon.DragonColumnGroup
 import org.elnix.dragonlauncher.ui.components.generic.ActionRow
 import org.elnix.dragonlauncher.ui.components.generic.ActionSelector
+import org.elnix.dragonlauncher.ui.components.settings.asState
 import org.elnix.dragonlauncher.ui.helpers.SliderWithLabel
 import org.elnix.dragonlauncher.ui.helpers.WallpaperDim
 import org.elnix.dragonlauncher.ui.helpers.settings.SettingsLazyHeader
@@ -71,12 +72,8 @@ fun WallpaperTab(onBack: () -> Unit) {
 
     var selectedView by remember { mutableStateOf(WallpaperEditMode.MAIN) }
 
-    val wallpaperDimMainScreen by UiSettingsStore.wallpaperDimMainScreen.flow(ctx)
-        .collectAsState(initial = UiSettingsStore.wallpaperDimMainScreen.default)
-
-    val wallpaperDimDrawerScreen by UiSettingsStore.wallpaperDimDrawerScreen.flow(ctx)
-        .collectAsState(initial = UiSettingsStore.wallpaperDimDrawerScreen.default)
-
+    val wallpaperDimMainScreen by UiSettingsStore.wallpaperDimMainScreen.asState()
+    val wallpaperDimDrawerScreen by UiSettingsStore.wallpaperDimDrawerScreen.asState()
 
     val dimAmount = when (selectedView) {
         WallpaperEditMode.MAIN -> wallpaperDimMainScreen
@@ -116,10 +113,10 @@ fun WallpaperTab(onBack: () -> Unit) {
 
 
     Column {
-        if (showStatusBar && isRealFullscreen) {
+        AnimatedVisibility(showStatusBar && isRealFullscreen) {
             StatusBar(
-                onDateAction = {},
-                onClockAction = {}
+                onDateAction = null,
+                onClockAction = null
             )
         }
 
@@ -129,50 +126,46 @@ fun WallpaperTab(onBack: () -> Unit) {
             helpText = stringResource(R.string.wallpaper_help),
             onReset = null
         ) {
+
             item {
-                ColorPickerRow(
-                    label = stringResource(R.string.plain_wallpaper_color),
-                    currentColor = plainColor
+                DragonButton(
+                    modifier = Modifier.fillMaxWidth(),
+                    onClick = {
+                        val intent = Intent(Intent.ACTION_SET_WALLPAPER)
+                        ctx.startActivity(
+                            Intent.createChooser(
+                                intent,
+                                ctx.getString(R.string.select_image)
+                            )
+                        )
+                    },
+                    colors = AppObjectsColors.buttonColors()
                 ) {
-                    plainColor = it ?: Color.Black
+
+                    Icon(
+                        imageVector = Icons.Default.Image,
+                        contentDescription = stringResource(R.string.set_wallpaper)
+                    )
+                    Spacer(Modifier.width(10.dp))
+                    Text(
+                        text = stringResource(R.string.set_wallpaper),
+                        textAlign = TextAlign.Center
+                    )
                 }
             }
 
             item {
-                Row(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(16.dp)
-                        .height(IntrinsicSize.Min),
-                    horizontalArrangement = Arrangement.spacedBy(12.dp),
-                    verticalAlignment = Alignment.CenterVertically
-                ) {
-
-                    Button(
-                        modifier = Modifier
-                            .weight(1f)
-                            .fillMaxHeight(),
-                        onClick = {
-                            val intent = Intent(Intent.ACTION_SET_WALLPAPER)
-                            ctx.startActivity(
-                                Intent.createChooser(
-                                    intent,
-                                    ctx.getString(R.string.select_image)
-                                )
-                            )
-                        },
-                        colors = AppObjectsColors.buttonColors()
+                DragonColumnGroup {
+                    ColorPickerRow(
+                        label = stringResource(R.string.plain_wallpaper_color),
+                        currentColor = plainColor
                     ) {
-                        Text(
-                            text = stringResource(R.string.set_wallpaper),
-                            textAlign = TextAlign.Center
-                        )
+                        plainColor = it ?: Color.Black
                     }
 
-                    Button(
-                        modifier = Modifier
-                            .weight(1f)
-                            .fillMaxHeight(),
+
+                    DragonButton(
+                        modifier = Modifier.fillMaxWidth(),
                         onClick = {
                             originalBitmap =
                                 wallpaperHelper.createPlainWallpaperBitmap(ctx, plainColor)
@@ -180,6 +173,11 @@ fun WallpaperTab(onBack: () -> Unit) {
                         },
                         colors = AppObjectsColors.buttonColors()
                     ) {
+                        Icon(
+                            imageVector = Icons.Default.Circle,
+                            contentDescription = stringResource(R.string.set_plain_wallpaper)
+                        )
+                        Spacer(Modifier.width(10.dp))
                         Text(
                             stringResource(R.string.set_plain_wallpaper),
                             textAlign = TextAlign.Center
@@ -189,26 +187,26 @@ fun WallpaperTab(onBack: () -> Unit) {
             }
 
             item {
-                ActionRow(
-                    actions = WallpaperEditMode.entries,
-                    selectedView = selectedView,
-                    actionName = { wallpaperEditModeLabel(ctx, it) },
-                    actionIcon = { wallpaperEditModeIcon(it) },
-                ) { selectedView = it }
-            }
+                DragonColumnGroup {
+                    ActionRow(
+                        actions = WallpaperEditMode.entries,
+                        selectedView = selectedView,
+                        actionName = { wallpaperEditModeLabel(ctx, it) },
+                        actionIcon = { wallpaperEditModeIcon(it) },
+                    ) { selectedView = it }
 
-            item {
-                Surface(
-                    shape = DragonShape
-                ) {
+
+
                     SliderWithLabel(
                         modifier = Modifier.padding(10.dp),
                         label = stringResource(R.string.wallpaper_dim_amount),
                         value = if (selectedView == WallpaperEditMode.MAIN) wallpaperDimMainScreen
-                            else wallpaperDimDrawerScreen,
+                        else wallpaperDimDrawerScreen,
                         valueRange = 0f..1f,
                         color = MaterialTheme.colorScheme.primary,
-                        backgroundColor = MaterialTheme.colorScheme.surface.adjustBrightness(0.5f),
+                        backgroundColor = MaterialTheme.colorScheme.surface.adjustBrightness(
+                            0.5f
+                        ),
                         onReset = {
                             scope.launch {
                                 if (selectedView == WallpaperEditMode.MAIN) {

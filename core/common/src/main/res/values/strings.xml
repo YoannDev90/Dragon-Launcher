@@ -618,5 +618,31 @@
     <string name="recently_used_apps_count">Number of recent apps</string>
     <string name="show_category_name">Show Category name</string>
     <string name="show_category_name_desc">Display the name of the category below it</string>
-
+    <string name="search_bar_bottom">Search bar bottom</string>
+    <string name="search_bar_bottom_desc">Display the search bar at the bottom of the drawer</string>
+    <string name="long_click_settings_duration">Long Click Settings Duration (ms)</string>
+    <string name="long_click_settings_duration_desc">Configure how long you have to long click to access settings</string>
+    <string name="hold_delay_before_starting_long_click_settings">Hold delay before starting long click settings (ms)</string>
+    <string name="hold_delay_before_starting_long_click_settings_desc">How long to hold before the loading settings starts to load</string>
+    <string name="keep_screen_on_desc">Do not turn the screen off and lock, keep it always on when Dragon is focused</string>
+    <string name="drag_zone_padding">Drag zone padding</string>
+    <string name="points_settings">Point settings (default)</string>
+    <string name="logs">Logs</string>
+    <string name="settings_json">Settings JSON</string>
+    <string name="pick_a_settings_screen">Pick a settings screen</string>
+    <string name="app_preview_settings">App preview overlay</string>
+    <string name="time_display_settings">Time Display Settings</string>
+    <string name="date_display_settings">Date Display Settings</string>
+    <string name="not_implemented">Not implemented</string>
+    <string name="show_next_alarm_desc">Show the time of the next upcoming alarm</string>
+    <string name="show_battery_desc">Display the phone battery %</string>
+    <string name="show_connectivity_desc">Not working well, pleas wait for an hypotetical release about this one day</string>
+    <string name="show_time_desc">Display the time using the custom formatter</string>
+    <string name="show_date_desc">Diaplay the date next to the time using the custom formatter</string>
+    <string name="show_status_bar_desc">Display the status bar, if disabled nothing\'s showed</string>
+    <string name="display_options_settings">Display options settings</string>
+    <string name="disable_haptic_globally">Disable Haptic feedback globally</string>
+    <string name="disable_haptic_globally_desc">Prevent Dragon to produce any haptic feedback in points selection in case you hate it</string>
+    <string name="point_action_snaps_to_outer_circle">Point action snaps to outer circle</string>
+    <string name="point_action_snaps_to_outer_circle_desc">Choose if the action is activated on the inner circle or the outer one</string>
 </resources>

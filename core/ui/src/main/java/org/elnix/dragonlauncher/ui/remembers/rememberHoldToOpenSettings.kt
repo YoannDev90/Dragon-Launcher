@@ -30,8 +30,8 @@ import kotlinx.coroutines.launch
 @Composable
 fun rememberHoldToOpenSettings(
     onSettings: () -> Unit,
-    holdDelay: Long = 500,     // ms before arc appears
-    loadDuration: Long = 1000, // ms to fill arc
+    holdDelay: Long,     // ms before arc appears
+    loadDuration: Long, // ms to fill arc
     tolerance: Float = 24f      // max movement allowed
 ): HoldGestureState {
 
@@ -47,8 +47,7 @@ fun rememberHoldToOpenSettings(
         progress = 0f
     }
 
-    return remember {
-
+    return remember(holdDelay, loadDuration, tolerance, onSettings) {
         HoldGestureState(
             pointerModifier = Modifier.pointerInput(Unit) {
 

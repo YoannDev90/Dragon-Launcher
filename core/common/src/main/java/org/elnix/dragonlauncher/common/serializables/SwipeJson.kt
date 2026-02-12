@@ -12,6 +12,7 @@ import com.google.gson.JsonSerializationContext
 import com.google.gson.JsonSerializer
 import com.google.gson.reflect.TypeToken
 import org.elnix.dragonlauncher.common.logging.logE
+import org.elnix.dragonlauncher.common.utils.SETTINGS
 import java.lang.reflect.Type
 import java.util.UUID
 
@@ -23,7 +24,7 @@ fun dummySwipePoint(
     SwipePointSerializable(
         circleNumber = 0,
         angleDeg = 0.0,
-        action = action ?: SwipeActionSerializable.OpenDragonLauncherSettings,
+        action = action ?: SwipeActionSerializable.OpenDragonLauncherSettings(),
         id = id ?: UUID.randomUUID().toString(),
         nestId = 0
     )
@@ -64,7 +65,7 @@ sealed class SwipeActionSerializable {
     object NotificationShade : SwipeActionSerializable()
     object ControlPanel : SwipeActionSerializable()
     data class OpenAppDrawer(val workspaceId: String? = null) : SwipeActionSerializable()
-    object  OpenDragonLauncherSettings: SwipeActionSerializable()
+    data class  OpenDragonLauncherSettings(val route: String = SETTINGS.ROOT): SwipeActionSerializable()
     object Lock: SwipeActionSerializable()
     object ReloadApps: SwipeActionSerializable()
 
@@ -136,7 +137,11 @@ class SwipeActionAdapter : JsonSerializer<SwipeActionSerializable>, JsonDeserial
                     obj.addProperty("workspaceId", src.workspaceId)
                 }
             }
-            is SwipeActionSerializable.OpenDragonLauncherSettings -> { obj.addProperty("type", "OpenDragonLauncherSettings") }
+            is SwipeActionSerializable.OpenDragonLauncherSettings -> {
+                obj.addProperty("type", "OpenDragonLauncherSettings")
+                obj.addProperty("route", src.route)
+            }
+
             is SwipeActionSerializable.Lock -> { obj.addProperty("type", "Lock") }
             is SwipeActionSerializable.ReloadApps -> { obj.addProperty("type", "ReloadApps") }
             is SwipeActionSerializable.OpenRecentApps -> { obj.addProperty("type", "OpenRecentApps") }
@@ -153,43 +158,48 @@ class SwipeActionAdapter : JsonSerializer<SwipeActionSerializable>, JsonDeserial
     ): SwipeActionSerializable? {
         if (json == null || !json.isJsonObject) return null
         val obj = json.asJsonObject
-        return when (obj.get("type").asString) {
-            "LaunchApp" -> SwipeActionSerializable.LaunchApp(
-                packageName = obj.get("packageName").asString,
-                userId = obj.get("userId")?.asInt ?: 0
-            )
-            "OpenUrl" -> SwipeActionSerializable.OpenUrl(obj.get("url").asString)
-            "OpenFile" -> SwipeActionSerializable.OpenFile(
-                uri = obj.get("uri").asString,
-                mimeType = obj.get("mimeType")?.asString
-            )
-            "NotificationShade" -> SwipeActionSerializable.NotificationShade
-            "ControlPanel" -> SwipeActionSerializable.ControlPanel
-            "OpenAppDrawer" -> SwipeActionSerializable.OpenAppDrawer(
-                obj.get("workspaceId")?.asString
-            )
-            "OpenDragonLauncherSettings" -> SwipeActionSerializable.OpenDragonLauncherSettings
-            "Lock" -> SwipeActionSerializable.Lock
-            "ReloadApps" -> SwipeActionSerializable.ReloadApps
-            "OpenRecentApps" -> SwipeActionSerializable.OpenRecentApps
-            "LaunchShortcut" -> SwipeActionSerializable.LaunchShortcut(
-                packageName = obj.get("packageName").asString,
-                shortcutId = obj.get("shortcutId").asString
-            )
-            "OpenCircleNest" -> SwipeActionSerializable.OpenCircleNest(
-                obj.get("nestId").asInt
-            )
-            "GoParentNest" -> SwipeActionSerializable.GoParentNest
-            "OpenWidget" -> {
-                val providerStr = obj.get("provider")?.asString ?: ""
+        return try {
+            when (obj.get("type").asString) {
+                "LaunchApp" -> SwipeActionSerializable.LaunchApp(
+                    packageName = obj.get("packageName").asString,
+                    userId = obj.get("userId")?.asInt ?: 0
+                )
+                "OpenUrl" -> SwipeActionSerializable.OpenUrl(obj.get("url").asString)
+                "OpenFile" -> SwipeActionSerializable.OpenFile(
+                    uri = obj.get("uri").asString,
+                    mimeType = obj.get("mimeType")?.asString
+                )
+                "NotificationShade" -> SwipeActionSerializable.NotificationShade
+                "ControlPanel" -> SwipeActionSerializable.ControlPanel
+                "OpenAppDrawer" -> SwipeActionSerializable.OpenAppDrawer(
+                    obj.get("workspaceId")?.asString
+                )
+                "OpenDragonLauncherSettings" -> SwipeActionSerializable.OpenDragonLauncherSettings(obj.get("route")?.asString ?: SETTINGS.ROOT)
+                "Lock" -> SwipeActionSerializable.Lock
+                "ReloadApps" -> SwipeActionSerializable.ReloadApps
+                "OpenRecentApps" -> SwipeActionSerializable.OpenRecentApps
+                "LaunchShortcut" -> SwipeActionSerializable.LaunchShortcut(
+                    packageName = obj.get("packageName").asString,
+                    shortcutId = obj.get("shortcutId").asString
+                )
+                "OpenCircleNest" -> SwipeActionSerializable.OpenCircleNest(
+                    obj.get("nestId").asInt
+                )
+                "GoParentNest" -> SwipeActionSerializable.GoParentNest
+                "OpenWidget" -> {
+                    val providerStr = obj.get("provider")?.asString ?: ""
 
-                val provider = ComponentName.unflattenFromString(providerStr)
-                    ?: ComponentName("", "")
+                    val provider = ComponentName.unflattenFromString(providerStr)
+                        ?: ComponentName("", "")
 
-                val widgetId = obj.get("widgetId")?.asInt ?: 0
-                SwipeActionSerializable.OpenWidget(widgetId, provider)
+                    val widgetId = obj.get("widgetId")?.asInt ?: 0
+                    SwipeActionSerializable.OpenWidget(widgetId, provider)
+                }
+                else -> null
             }
-            else -> null
+        } catch (e: Exception) {
+            e.printStackTrace()
+            null
         }
     }
 }
