@@ -37,10 +37,8 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.ImageBitmap
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
-import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
-import org.elnix.dragonlauncher.common.R
 import org.elnix.dragonlauncher.common.serializables.AppModel
 import org.elnix.dragonlauncher.common.serializables.IconShape
 import org.elnix.dragonlauncher.settings.stores.DrawerSettingsStore
@@ -114,26 +112,14 @@ fun AppGridWithMultiSelect(
                 ) {
                     if (showIcons) {
                         Box {
-                            val icon = icons[app.packageName]
-                            if (icon != null) {
-                                Image(
-                                    bitmap = icon,
-                                    contentDescription = app.name,
-                                    modifier = Modifier
-                                        .size(32.dp)
-                                        .clip(shape),
-                                    contentScale = ContentScale.Fit
-                                )
-                            } else {
-                                Image(
-                                    painter = painterResource(R.drawable.ic_app_default),
-                                    contentDescription = app.name,
-                                    modifier = Modifier
-                                        .size(32.dp)
-                                        .clip(shape),
-                                    contentScale = ContentScale.Fit
-                                )
-                            }
+                            Image(
+                                painter = appIcon(app, icons),
+                                contentDescription = app.name,
+                                modifier = Modifier
+                                    .size(32.dp)
+                                    .clip(shape),
+                                contentScale = ContentScale.Fit
+                            )
                             if (isSelected) {
                                 Icon(
                                     imageVector = Icons.Default.CheckCircle,
@@ -204,7 +190,7 @@ fun AppGridWithMultiSelect(
                     if (showIcons) {
                         Box {
                             Image(
-                                painter = appIcon(app.packageName, icons),
+                                painter = appIcon(app, icons),
                                 contentDescription = app.name,
                                 modifier = Modifier
                                     .sizeIn(maxWidth = maxIconSize.dp)

@@ -1,23 +1,29 @@
 package org.elnix.dragonlauncher.ui.settings.workspace
 
+import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.DragIndicator
+import androidx.compose.material.icons.filled.Lock
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.Checkbox
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Switch
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.scale
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
+import org.elnix.dragonlauncher.common.R
 import org.burnoutcrew.reorderable.ReorderableLazyListState
 import org.burnoutcrew.reorderable.detectReorder
 import org.elnix.dragonlauncher.common.serializables.Workspace
@@ -34,6 +40,8 @@ fun WorkspaceRow(
     isDragging: Boolean = false,
     onClick: () -> Unit,
     onCheck: (Boolean) -> Unit,
+    onPrivateVisibilityToggle: ((Boolean) -> Unit)? = null,
+    isPrivateVisibleInDrawer: Boolean = true,
     onAction: (WorkspaceAction) -> Unit
 ) {
     val enabled = workspace.enabled
@@ -44,59 +52,108 @@ fun WorkspaceRow(
     Card(
         colors = AppObjectsColors.cardColors(),
         shape = DragonShape,
+        border = if (isPrivateWorkspace) BorderStroke(1.dp, MaterialTheme.colorScheme.outline) else null,
         elevation = CardDefaults.cardElevation(elevation),
         modifier = Modifier
             .scale(scale)
-            .clickable { onClick() }
+            .clickable(enabled = !isPrivateWorkspace) { onClick() }
     ){
-        Row(
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(16.dp),
-            horizontalArrangement = Arrangement.spacedBy(12.dp),
-            verticalAlignment = Alignment.CenterVertically
-        ) {
-            Checkbox(
-                checked = enabled,
-                onCheckedChange = { onCheck(it) },
-                colors = AppObjectsColors.checkboxColors(),
-                enabled = !isPrivateWorkspace // Private Space cannot be manually disabled
-            )
+        if (isPrivateWorkspace) {
+            Column(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(16.dp),
+                verticalArrangement = Arrangement.spacedBy(8.dp)
+            ) {
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    verticalAlignment = Alignment.CenterVertically,
+                    horizontalArrangement = Arrangement.spacedBy(12.dp)
+                ) {
+                    Icon(
+                        imageVector = Icons.Default.Lock,
+                        contentDescription = stringResource(R.string.private_space_title),
+                        tint = MaterialTheme.colorScheme.primary
+                    )
 
-            Text(
-                text = workspace.name,
-                style = MaterialTheme.typography.bodyLarge,
-                modifier = Modifier.weight(1f)
-            )
+                    Text(
+                        text = workspace.name,
+                        style = MaterialTheme.typography.bodyLarge,
+                        modifier = Modifier.weight(1f)
+                    )
 
+                    Switch(
+                        checked = isPrivateVisibleInDrawer,
+                        onCheckedChange = { onPrivateVisibilityToggle?.invoke(it) }
+                    )
+
+                    Icon(
+                        imageVector = Icons.Default.DragIndicator,
+                        contentDescription = stringResource(R.string.drag_handle),
+                        tint = if (isDragging) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.onSurface,
+                        modifier = Modifier.detectReorder(reorderState)
+                    )
+                }
+
+                Text(
+                    text = stringResource(R.string.private_space_managed_by_android),
+                    style = MaterialTheme.typography.bodyMedium,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant
+                )
+
+                Text(
+                    text = stringResource(R.string.private_space_manage_instructions),
+                    style = MaterialTheme.typography.bodySmall,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant
+                )
+            }
+        } else {
             Row(
-                modifier = Modifier.padding(8.dp),
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(16.dp),
+                horizontalArrangement = Arrangement.spacedBy(12.dp),
                 verticalAlignment = Alignment.CenterVertically
             ) {
-                // Don't allow renaming or deleting system workspaces
-                if (workspace.type == WorkspaceType.CUSTOM) {
-                    listOf(
-                        WorkspaceAction.Rename,
-                        WorkspaceAction.Delete
-                    ).forEach { action ->
-                        DragonIconButton(onClick = { onAction(action) }) {
-                            Icon(action.icon, action.label)
+                Checkbox(
+                    checked = enabled,
+                    onCheckedChange = { onCheck(it) },
+                    colors = AppObjectsColors.checkboxColors()
+                )
+
+                Text(
+                    text = workspace.name,
+                    style = MaterialTheme.typography.bodyLarge,
+                    modifier = Modifier.weight(1f)
+                )
+
+                Row(
+                    modifier = Modifier.padding(8.dp),
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    if (workspace.type == WorkspaceType.CUSTOM) {
+                        listOf(
+                            WorkspaceAction.Rename,
+                            WorkspaceAction.Delete
+                        ).forEach { action ->
+                            DragonIconButton(onClick = { onAction(action) }) {
+                                Icon(action.icon, action.label)
+                            }
+                        }
+                    } else {
+                        DragonIconButton(onClick = { onAction(WorkspaceAction.Rename) }) {
+                            Icon(WorkspaceAction.Rename.icon, WorkspaceAction.Rename.label)
                         }
                     }
-                } else if (!isPrivateWorkspace) {
-                    // Allow renaming built-in workspaces (except Private)
-                    DragonIconButton(onClick = { onAction(WorkspaceAction.Rename) }) {
-                        Icon(WorkspaceAction.Rename.icon, WorkspaceAction.Rename.label)
-                    }
                 }
-            }
 
-            Icon(
-                imageVector = Icons.Default.DragIndicator,
-                contentDescription = "Drag",
-                tint = if (isDragging) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.onSurface,
-                modifier = Modifier.detectReorder(reorderState)
-            )
+                Icon(
+                    imageVector = Icons.Default.DragIndicator,
+                    contentDescription = stringResource(R.string.drag_handle),
+                    tint = if (isDragging) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.onSurface,
+                    modifier = Modifier.detectReorder(reorderState)
+                )
+            }
         }
     }
 }

@@ -19,6 +19,10 @@ data class AppModel(
     val action = SwipeActionSerializable.LaunchApp(packageName, userId ?: 0)
 }
 
+fun iconCacheKey(packageName: String, userId: Int?): String = "$packageName#${userId ?: 0}"
+
+fun AppModel.iconCacheKey(): String = iconCacheKey(packageName, userId)
+
 
 enum class AppCategory {
     Games,

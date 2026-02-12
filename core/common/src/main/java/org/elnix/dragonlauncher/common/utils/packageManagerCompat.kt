@@ -146,12 +146,7 @@ class PackageManagerCompat(private val pm: PackageManager, private val ctx: Cont
             val activities = launcherApps?.getActivityList(null, userHandle) ?: emptyList()
             activities.forEach { act -> packages.add(act.applicationInfo.packageName) }
 
-            // Include installed applications list to be robust (main profile only)
-            pm.getInstalledApplications(PackageManager.GET_META_DATA).forEach { appInfo ->
-                packages.add(appInfo.packageName)
-            }
-
-            logD(TAG, "snapshotMainProfilePackageNames: found ${packages.size} packages")
+            logD(TAG, "snapshotMainProfilePackageNames: found ${packages.size} launcher-visible packages")
         } catch (e: Exception) {
             logE(TAG, "Error snapshotting main profile packages: ${e.message}")
         }

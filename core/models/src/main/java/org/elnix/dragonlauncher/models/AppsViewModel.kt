@@ -49,6 +49,7 @@ import org.elnix.dragonlauncher.common.serializables.WorkspaceType
 import org.elnix.dragonlauncher.common.serializables.defaultSwipePointsValues
 import org.elnix.dragonlauncher.common.serializables.defaultWorkspaces
 import org.elnix.dragonlauncher.common.serializables.dummySwipePoint
+import org.elnix.dragonlauncher.common.serializables.iconCacheKey
 import org.elnix.dragonlauncher.common.serializables.resolveApp
 import org.elnix.dragonlauncher.common.utils.APPS_TAG
 import org.elnix.dragonlauncher.common.utils.ICONS_TAG
@@ -644,7 +645,7 @@ class AppsViewModel(
         userId: Int?,
         useOverrides: Boolean,
         isPrivateProfile: Boolean = false
-    ): Pair<String, ImageBitmap> {
+    ): ImageBitmap {
 
         var isIconPack = false
         val packIconName = getCachedIconMapping(packageName)
@@ -664,8 +665,7 @@ class AppsViewModel(
 
         if (useOverrides) {
             _workspacesState.value.appOverrides[packageName]?.customIcon?.let { customIcon ->
-
-                return packageName to renderCustomIcon(
+                return renderCustomIcon(
                     orig = orig,
                     customIcon = customIcon,
                     sizePx = 128
@@ -673,7 +673,7 @@ class AppsViewModel(
             }
         }
 
-        return packageName to orig
+        return orig
     }
 
 
@@ -728,13 +728,23 @@ class AppsViewModel(
         apps: List<AppModel>
     ): Map<String, ImageBitmap> =
         withContext(Dispatchers.IO) {
-            apps.mapNotNull { app ->
-                runCatching {
+            val result = mutableMapOf<String, ImageBitmap>()
+
+            apps.forEach { app ->
+                val bitmap = runCatching {
                     iconSemaphore.withPermit {
                         loadSingleIcon(app.packageName, app.userId, true, app.isPrivateProfile)
                     }
-                }.getOrNull()
-            }.toMap()
+                }.getOrNull() ?: return@forEach
+
+                result[iconCacheKey(app.packageName, app.userId)] = bitmap
+
+                if (!result.containsKey(app.packageName) || (!app.isWorkProfile && !app.isPrivateProfile)) {
+                    result[app.packageName] = bitmap
+                }
+            }
+
+            result
         }
 
 
@@ -742,7 +752,17 @@ class AppsViewModel(
         app: AppModel,
         useOverride: Boolean
     ) {
-        _icons.update { it + loadSingleIcon(app.packageName, app.userId, useOverride, app.isPrivateProfile) }
+        val icon = loadSingleIcon(app.packageName, app.userId, useOverride, app.isPrivateProfile)
+        _icons.update { current ->
+            val updated = current.toMutableMap()
+            updated[iconCacheKey(app.packageName, app.userId)] = icon
+
+            if (!updated.containsKey(app.packageName) || (!app.isWorkProfile && !app.isPrivateProfile)) {
+                updated[app.packageName] = icon
+            }
+
+            updated
+        }
     }
 
 
@@ -1115,6 +1135,9 @@ class AppsViewModel(
     }
 
     fun deleteWorkspace(id: String) {
+        val target = _workspacesState.value.workspaces.find { it.id == id } ?: return
+        if (target.type != WorkspaceType.CUSTOM) return
+
         _workspacesState.value = _workspacesState.value.copy(
             workspaces = _workspacesState.value.workspaces.filterNot { it.id == id }
         )
@@ -1139,6 +1162,9 @@ class AppsViewModel(
 
     // Apps operations
     fun addAppToWorkspace(workspaceId: String, packageName: String) {
+        val target = _workspacesState.value.workspaces.find { it.id == workspaceId } ?: return
+        if (target.type == WorkspaceType.PRIVATE) return
+
         _workspacesState.value = _workspacesState.value.copy(
             workspaces = _workspacesState.value.workspaces.map { ws ->
                 if (ws.id != workspaceId) return@map ws
@@ -1159,6 +1185,9 @@ class AppsViewModel(
 
 
     fun removeAppFromWorkspace(workspaceId: String, packageName: String) {
+        val target = _workspacesState.value.workspaces.find { it.id == workspaceId } ?: return
+        if (target.type == WorkspaceType.PRIVATE) return
+
         _workspacesState.value = _workspacesState.value.copy(
             workspaces = _workspacesState.value.workspaces.map { ws ->
                 if (ws.id != workspaceId) return@map ws
