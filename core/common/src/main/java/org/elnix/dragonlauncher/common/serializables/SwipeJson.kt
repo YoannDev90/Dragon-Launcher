@@ -50,6 +50,7 @@ val defaultSwipePointsValues = dummySwipePoint(null).copy(
 sealed class SwipeActionSerializable {
     data class LaunchApp(
         val packageName: String,
+        val isPrivateSpace: Boolean,
         val userId: Int?
     ) : SwipeActionSerializable()
         data class LaunchShortcut(
@@ -95,6 +96,7 @@ class SwipeActionAdapter : JsonSerializer<SwipeActionSerializable>, JsonDeserial
             is SwipeActionSerializable.LaunchApp -> {
                 obj.addProperty("type", "LaunchApp")
                 obj.addProperty("packageName", src.packageName)
+                obj.addProperty("isPrivateSpace", src.isPrivateSpace)
                 obj.addProperty("userId", src.userId)
             }
 
@@ -162,6 +164,7 @@ class SwipeActionAdapter : JsonSerializer<SwipeActionSerializable>, JsonDeserial
             when (obj.get("type").asString) {
                 "LaunchApp" -> SwipeActionSerializable.LaunchApp(
                     packageName = obj.get("packageName").asString,
+                    isPrivateSpace = obj.get("isPrivateSpace")?.asBoolean ?: false,
                     userId = obj.get("userId")?.asInt ?: 0
                 )
                 "OpenUrl" -> SwipeActionSerializable.OpenUrl(obj.get("url").asString)

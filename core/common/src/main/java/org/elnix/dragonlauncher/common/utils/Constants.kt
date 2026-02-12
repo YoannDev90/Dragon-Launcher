@@ -149,7 +149,7 @@ object Constants {
         val defaultChoosableActions = listOf(
             SwipeActionSerializable.OpenCircleNest(0),
             SwipeActionSerializable.GoParentNest,
-            SwipeActionSerializable.LaunchApp("", 0),
+            SwipeActionSerializable.LaunchApp("", false,0),
             SwipeActionSerializable.LaunchShortcut("", ""),
             SwipeActionSerializable.OpenUrl(""),
             SwipeActionSerializable.OpenFile(""),
@@ -180,6 +180,7 @@ object Constants {
         const val COLORS_TAG = "ColorsDebug"
         const val DRAWER_TAG = "DrawerDebug"
         const val APP_LAUNCH_TAG = "AppLaunchDebug"
+        const val PRIVATE_SPACE_TAG = "PrivateSpaceDebug"
     }
 
     /*  ─────────────  Links  ─────────────  */

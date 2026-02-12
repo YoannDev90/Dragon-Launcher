@@ -10,11 +10,12 @@ import kotlinx.coroutines.launch
 import org.elnix.dragonlauncher.common.logging.logD
 import org.elnix.dragonlauncher.common.logging.logE
 import org.elnix.dragonlauncher.common.logging.logI
+import org.elnix.dragonlauncher.common.utils.Constants.Logging.PRIVATE_SPACE_TAG
 import org.elnix.dragonlauncher.common.utils.PrivateSpaceUtils
 
 /**
  * BroadcastReceiver to listen for Private Space lock/unlock events (Android 15+).
- * 
+ *
  * Listens to:
  * - ACTION_PROFILE_AVAILABLE: Private Space is unlocked and accessible
  * - ACTION_PROFILE_UNAVAILABLE: Private Space is locked
@@ -45,28 +46,22 @@ class PrivateSpaceReceiver : BroadcastReceiver() {
 
                 if (privateUser == null || eventUser == null || eventUser != privateUser) {
                     logD(
-                        "PrivateSpaceReceiver",
+                        PRIVATE_SPACE_TAG,
                         "Ignoring profile action=$action for non-private user=$eventUser"
                     )
                     return@launch
                 }
 
-                logI("PrivateSpaceReceiver", "Private Space action=$action, reloading apps")
+                logI(PRIVATE_SPACE_TAG, "Private Space action=$action, reloading apps")
                 app.appsViewModel.reloadApps()
             } catch (e: Exception) {
-                logE("PrivateSpaceReceiver", "Failed to process Private Space broadcast: ${e.message}", e)
+                logE(PRIVATE_SPACE_TAG, "Failed to process Private Space broadcast: ${e.message}", e)
             } finally {
                 pendingResult.finish()
             }
         }
     }
 
-    private fun Intent.extractEventUserHandle(): UserHandle? {
-        return if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
-            getParcelableExtra(Intent.EXTRA_USER, UserHandle::class.java)
-        } else {
-            @Suppress("DEPRECATION")
-            getParcelableExtra(Intent.EXTRA_USER)
-        }
-    }
+    private fun Intent.extractEventUserHandle(): UserHandle? =
+        getParcelableExtra(Intent.EXTRA_USER, UserHandle::class.java)
 }

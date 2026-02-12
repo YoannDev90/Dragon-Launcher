@@ -102,6 +102,15 @@
             android:excludeFromRecents="true"
             android:launchMode="singleTop" />
 
+
+        <activity
+            android:name="org.elnix.dragonlauncher.PrivateSpaceUnlockActivity"
+            android:exported="false"
+            android:theme="@style/DragonLauncherTheme" />
+
+
+
+
         <service
             android:name="org.elnix.dragonlauncher.ui.wellbeing.OverlayReminderService"
             android:exported="false" />

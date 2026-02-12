@@ -68,7 +68,7 @@ fun MainScreenOverlay(
     defaultPoint: SwipePointSerializable,
     pointIcons: Map<String, ImageBitmap>,
     nests: List<CircleNest>,
-    onLaunch: (SwipePointSerializable?) -> Unit
+    onLaunch: (SwipePointSerializable) -> Unit
 ) {
     val ctx = LocalContext.current
     val extraColors = LocalExtraColors.current
@@ -260,7 +260,7 @@ fun MainScreenOverlay(
     LaunchedEffect(isDragging) {
         if (!isDragging) {
             if (currentAction != null) {
-                onLaunch(currentAction)
+                onLaunch(currentAction!!)
             }
             hoveredPoint = null
             currentAction = null

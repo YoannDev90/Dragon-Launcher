@@ -16,7 +16,7 @@ data class AppModel(
     @SerializedName("category") val category: AppCategory,
     @SerializedName("isPrivateProfile") val isPrivateProfile: Boolean = false // Android 15+ Private Space
 ) {
-    val action = SwipeActionSerializable.LaunchApp(packageName, userId ?: 0)
+    val action = SwipeActionSerializable.LaunchApp(packageName,isPrivateProfile ,userId ?: 0)
 }
 
 fun iconCacheKey(packageName: String, userId: Int?): String = "$packageName#${userId ?: 0}"

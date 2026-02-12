@@ -40,6 +40,7 @@ fun launchSwipeAction(
     reminderMode: String = "overlay",
     returnToLauncherEnabled: Boolean = false,
     appName: String = "",
+    onOpenPrivateSpaceApp: (SwipeActionSerializable) -> Unit,
     digitalPauseLauncher: ActivityResultLauncher<Intent>? = null,
     onReloadApps: (() -> Unit)? = null,
     onReselectFile: (() -> Unit)? = null,
@@ -53,7 +54,13 @@ fun launchSwipeAction(
     when (action) {
 
         is SwipeActionSerializable.LaunchApp -> {
-            /*  ─────────────  Wellbeing Pause Check  ─────────────  */
+
+            /*  ─────────────  1. Private Space Check ─────────────  */
+            if (action.isPrivateSpace) {
+                onOpenPrivateSpaceApp(action)
+            }
+
+            /*  ─────────────  2. Wellbeing Pause Check  ─────────────  */
             if (socialMediaPauseEnabled && action.packageName in pausedApps && digitalPauseLauncher != null) {
                 val intent = Intent(ctx, DigitalPauseActivity::class.java).apply {
                     putExtra(DigitalPauseActivity.EXTRA_PACKAGE_NAME, action.packageName)

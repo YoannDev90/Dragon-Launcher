@@ -9,6 +9,7 @@ import android.content.res.Resources
 import android.content.res.XmlResourceParser
 import android.graphics.drawable.Drawable
 import android.os.Build
+import androidx.annotation.RequiresApi
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.ImageBitmap
 import androidx.compose.ui.graphics.toArgb
@@ -17,6 +18,8 @@ import com.google.gson.Gson
 import com.google.gson.reflect.TypeToken
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.Job
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
@@ -27,11 +30,9 @@ import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.sync.Semaphore
+import kotlinx.coroutines.sync.withLock
 import kotlinx.coroutines.sync.withPermit
 import kotlinx.coroutines.withContext
-import kotlinx.coroutines.delay
-import kotlinx.coroutines.Job
-import kotlinx.coroutines.sync.withLock
 import org.elnix.dragonlauncher.common.logging.logD
 import org.elnix.dragonlauncher.common.logging.logE
 import org.elnix.dragonlauncher.common.logging.logI
@@ -59,7 +60,6 @@ import org.elnix.dragonlauncher.common.utils.ImageUtils.loadDrawableAsBitmap
 import org.elnix.dragonlauncher.common.utils.ImageUtils.resolveCustomIconBitmap
 import org.elnix.dragonlauncher.common.utils.PackageManagerCompat
 import org.elnix.dragonlauncher.common.utils.PrivateSpaceUtils
-import org.elnix.dragonlauncher.common.utils.TAG
 import org.elnix.dragonlauncher.settings.stores.AppsSettingsStore
 import org.elnix.dragonlauncher.settings.stores.DrawerSettingsStore
 import org.elnix.dragonlauncher.settings.stores.SwipeSettingsStore
@@ -307,11 +307,30 @@ class AppsViewModel(
     private var pendingPrivateAssignments: Map<String, Int?>? = null
 
     // Loading state for Private Space -> used by UI to show "Please wait" overlay
-    private val _isLoadingPrivateSpace = kotlinx.coroutines.flow.MutableStateFlow(false)
+    private val _isLoadingPrivateSpace = MutableStateFlow(false)
     val isLoadingPrivateSpace = _isLoadingPrivateSpace.asStateFlow()
 
+    private val _privateSpaceUnlocked = MutableStateFlow(false)
+    val privateSpaceUnlocked = _privateSpaceUnlocked.asStateFlow()
+
+
+    @RequiresApi(Build.VERSION_CODES.VANILLA_ICE_CREAM)
+    suspend fun synchronizePrivateSpaceUnlockedWithRealPhoneState() {
+        _privateSpaceUnlocked.value = withContext(Dispatchers.IO) {
+            PrivateSpaceUtils.isPrivateSpaceLocked(ctx) ?: false
+        }
+    }
+
+    fun setPrivateSpaceStateUnlocked() {
+        _privateSpaceUnlocked.value = true
+    }
+
+    fun setPrivateSpaceStateLocked() {
+        _privateSpaceUnlocked.value = false
+    }
+
     // Debounce / coalesce reloads
-    private var scheduledReloadJob: kotlinx.coroutines.Job? = null
+    private var scheduledReloadJob: Job? = null
     private val reloadMutex = kotlinx.coroutines.sync.Mutex()
 
 
@@ -319,7 +338,7 @@ class AppsViewModel(
     private fun scheduleReload(delayMs: Long = 0L) {
         scheduledReloadJob?.cancel()
         scheduledReloadJob = scope.launch {
-            if (delayMs > 0) kotlinx.coroutines.delay(delayMs)
+            if (delayMs > 0) delay(delayMs)
             reloadApps()
         }
     }
@@ -341,7 +360,9 @@ class AppsViewModel(
                 // Persist assignments
                 try {
                     val existingJson = AppsSettingsStore.privateAssignedPackages.get(ctx)
-                    val existingMap: MutableMap<String, Int?> = if (existingJson.isNullOrEmpty() || existingJson == "{}") mutableMapOf() else gson.fromJson(existingJson, object : com.google.gson.reflect.TypeToken<MutableMap<String, Int?>>() {}.type)
+                    val existingMap: MutableMap<String, Int?> =
+                        if (existingJson.isNullOrEmpty() || existingJson == "{}") mutableMapOf()
+                        else gson.fromJson(existingJson, object : TypeToken<MutableMap<String, Int?>>() {}.type)
 
                     assignments.forEach { (identity, userId) ->
                         existingMap[identity] = userId
@@ -373,7 +394,7 @@ class AppsViewModel(
             try {
                 val persistedJson = AppsSettingsStore.privateAssignedPackages.get(ctx)
                 if (!persistedJson.isNullOrEmpty() && persistedJson != "{}") {
-                    val persistedMap: Map<String, Int?> = gson.fromJson(persistedJson, object : com.google.gson.reflect.TypeToken<Map<String, Int?>>() {}.type)
+                    val persistedMap: Map<String, Int?> = gson.fromJson(persistedJson, object : TypeToken<Map<String, Int?>>() {}.type)
                     if (persistedMap.isNotEmpty()) {
                         logI(APPS_TAG, "Applying persisted private assignments: ${persistedMap.size} entries")
                         finalApps = finalApps.map { app ->
@@ -402,7 +423,7 @@ class AppsViewModel(
             logD(APPS_TAG, "Private apps: ${finalApps.count { it.isPrivateProfile }}")
             logD(APPS_TAG, "Work apps: ${finalApps.count { it.isWorkProfile }}")
             logD(APPS_TAG, "User apps: ${finalApps.count { !it.isWorkProfile && !it.isPrivateProfile }}")
-            
+
             if (finalApps.count { it.isPrivateProfile } > 0) {
                 logD(APPS_TAG, "Private apps list:")
                 finalApps.filter { it.isPrivateProfile }.forEach {
@@ -427,15 +448,15 @@ class AppsViewModel(
             withContext(Dispatchers.IO) {
                 AppsSettingsStore.cachedApps.set(ctx, gson.toJson(finalApps))
             }
-            
+
             // Auto-enable Private Space workspace if Private Space exists (Android 15+)
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.VANILLA_ICE_CREAM) {
+            if (PrivateSpaceUtils.isPrivateSpaceSupported()) {
                 val privateSpaceExists = PrivateSpaceUtils.getPrivateSpaceUserHandle(ctx) != null
                 val privateWorkspace = _workspacesState.value.workspaces.find { it.type == WorkspaceType.PRIVATE }
-                
+
                 logI(APPS_TAG, "Private Space exists: $privateSpaceExists")
                 logI(APPS_TAG, "Private workspace found: ${privateWorkspace != null}, enabled: ${privateWorkspace?.enabled}")
-                
+
                 if (privateSpaceExists && privateWorkspace != null && !privateWorkspace.enabled) {
                     logI(APPS_TAG, "Enabling Private Space workspace (Private Space profile detected)")
                     setWorkspaceEnabled("private", true)
@@ -1031,7 +1052,7 @@ class AppsViewModel(
         _workspacesState.value.appOverrides.forEach { (packageName, override) ->
             override.customIcon?.let { customIcon ->
                 reloadPointIcon(
-                    point = dummySwipePoint(SwipeActionSerializable.LaunchApp(packageName, 0)).copy(
+                    point = dummySwipePoint(SwipeActionSerializable.LaunchApp(packageName, false, 0)).copy(
                         customIcon = customIcon,
                         id = packageName
                     ),

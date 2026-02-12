@@ -209,7 +209,7 @@ fun AddPointDialog(
                 val list = if (promptForShortcuts) {
                     try {
                         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
-                            packageManagerCompat.queryAppShortcuts(app.packageName) ?: emptyList()
+                            packageManagerCompat.queryAppShortcuts(app.packageName)
                         } else {
                             emptyList()
                         }
@@ -227,11 +227,11 @@ fun AddPointDialog(
                     shortcuts = list
                     shortcutDialogVisible = true
                 } else {
-                    onActionSelected(SwipeActionSerializable.LaunchApp(app.packageName, app.userId ?: 0))
+                    onActionSelected(SwipeActionSerializable.LaunchApp(app.packageName, app.isPrivateProfile, app.userId ?: 0))
                 }
             },
             onMultipleAppsSelected = if (onMultipleActionsSelected != null) { { apps, autoPlace ->
-                val actions = apps.map { SwipeActionSerializable.LaunchApp(it.packageName, it.userId ?: 0) }
+                val actions = apps.map { SwipeActionSerializable.LaunchApp(it.packageName, it.isPrivateProfile, it.userId ?: 0) }
                 onMultipleActionsSelected(actions, autoPlace)
                 showAppPicker = false
             } } else null
@@ -270,7 +270,7 @@ fun AddPointDialog(
                 shortcutDialogVisible = false
             },
             onOpenApp = {
-                onActionSelected(SwipeActionSerializable.LaunchApp(selectedApp!!.packageName, selectedApp!!.userId ?: 0))
+                onActionSelected(SwipeActionSerializable.LaunchApp(selectedApp!!.packageName, selectedApp!!.isPrivateProfile, selectedApp!!.userId ?: 0))
                 onDismiss()
             }
         )

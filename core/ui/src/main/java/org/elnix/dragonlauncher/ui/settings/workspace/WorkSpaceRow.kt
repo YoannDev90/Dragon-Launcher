@@ -1,5 +1,7 @@
 package org.elnix.dragonlauncher.ui.settings.workspace
 
+import androidx.compose.animation.core.animateDpAsState
+import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
@@ -23,9 +25,9 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.scale
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
-import org.elnix.dragonlauncher.common.R
 import org.burnoutcrew.reorderable.ReorderableLazyListState
 import org.burnoutcrew.reorderable.detectReorder
+import org.elnix.dragonlauncher.common.R
 import org.elnix.dragonlauncher.common.serializables.Workspace
 import org.elnix.dragonlauncher.common.serializables.WorkspaceType
 import org.elnix.dragonlauncher.enumsui.WorkspaceAction
@@ -45,17 +47,22 @@ fun WorkspaceRow(
     onAction: (WorkspaceAction) -> Unit
 ) {
     val enabled = workspace.enabled
-    val elevation = if (isDragging) 8.dp else 0.dp
-    val scale = if (isDragging) 1.05f else 1f
+    val elevation = animateDpAsState(
+        targetValue = if (isDragging) 8.dp else 0.dp
+    )
+
+    val scale = animateFloatAsState(
+        targetValue = if  (isDragging) 1.05f else 1f
+    )
+
     val isPrivateWorkspace = workspace.type == WorkspaceType.PRIVATE
 
     Card(
         colors = AppObjectsColors.cardColors(),
         shape = DragonShape,
-        border = if (isPrivateWorkspace) BorderStroke(1.dp, MaterialTheme.colorScheme.outline) else null,
-        elevation = CardDefaults.cardElevation(elevation),
+        elevation = CardDefaults.cardElevation(elevation.value),
         modifier = Modifier
-            .scale(scale)
+            .scale(scale.value)
             .clickable(enabled = !isPrivateWorkspace) { onClick() }
     ){
         if (isPrivateWorkspace) {
@@ -84,7 +91,8 @@ fun WorkspaceRow(
 
                     Switch(
                         checked = isPrivateVisibleInDrawer,
-                        onCheckedChange = { onPrivateVisibilityToggle?.invoke(it) }
+                        onCheckedChange = { onPrivateVisibilityToggle?.invoke(it) },
+                        colors = AppObjectsColors.switchColors()
                     )
 
                     Icon(

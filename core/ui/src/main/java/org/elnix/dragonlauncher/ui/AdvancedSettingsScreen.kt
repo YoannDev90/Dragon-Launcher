@@ -83,7 +83,6 @@ import org.elnix.dragonlauncher.settings.SettingsStoreRegistry
 import org.elnix.dragonlauncher.settings.stores.DebugSettingsStore
 import org.elnix.dragonlauncher.settings.stores.PrivateSettingsStore
 import org.elnix.dragonlauncher.ui.UiConstants.DragonShape
-import org.elnix.dragonlauncher.ui.actions.launchSwipeAction
 import org.elnix.dragonlauncher.ui.components.TextDivider
 import org.elnix.dragonlauncher.ui.components.settings.asState
 import org.elnix.dragonlauncher.ui.dialogs.CustomAlertDialog
@@ -103,6 +102,7 @@ import org.elnix.dragonlauncher.ui.helpers.settings.SettingsLazyHeader
 fun AdvancedSettingsScreen(
     appViewModel: AppsViewModel,
     navController: NavController,
+    onLaunchAction: (SwipeActionSerializable) -> Unit,
     onBack: () -> Unit
 ) {
     val ctx = LocalContext.current
@@ -382,11 +382,7 @@ fun AdvancedSettingsScreen(
                     onLongClick = { ctx.copyToClipboard("https://github.com/Elnix90/Dragon-Launcher/releases/latest") },
                     onExtClick = { ctx.openUrl("https://github.com/Elnix90/Dragon-Launcher/releases/latest") }
                 ) {
-                    launchSwipeAction(
-                        ctx = ctx,
-                        appsViewModel = appViewModel,
-                        action = SwipeActionSerializable.LaunchApp(obtainiumPackageName,0)
-                    )
+                    onLaunchAction(SwipeActionSerializable.LaunchApp(obtainiumPackageName, false, 0))
                 }
             } else {
                 SettingsItem(

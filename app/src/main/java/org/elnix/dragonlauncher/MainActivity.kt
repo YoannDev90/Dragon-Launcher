@@ -13,9 +13,11 @@ import android.os.Build
 import android.os.Bundle
 import android.os.SystemClock
 import android.view.WindowManager
+import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.compose.setContent
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.activity.viewModels
+import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -25,6 +27,9 @@ import androidx.core.view.WindowCompat
 import androidx.core.view.WindowInsetsCompat
 import androidx.core.view.WindowInsetsControllerCompat
 import androidx.fragment.app.FragmentActivity
+import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.LifecycleEventObserver
+import androidx.lifecycle.compose.LocalLifecycleOwner
 import androidx.lifecycle.lifecycleScope
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.rememberNavController
@@ -36,6 +41,7 @@ import org.elnix.dragonlauncher.common.logging.logD
 import org.elnix.dragonlauncher.common.logging.logW
 import org.elnix.dragonlauncher.common.serializables.SwipeActionSerializable
 import org.elnix.dragonlauncher.common.serializables.SwipePointSerializable
+import org.elnix.dragonlauncher.common.utils.Constants.Logging.PRIVATE_SPACE_TAG
 import org.elnix.dragonlauncher.common.utils.Constants.Logging.WIDGET_TAG
 import org.elnix.dragonlauncher.common.utils.Constants.Navigation.ignoredReturnRoutes
 import org.elnix.dragonlauncher.common.utils.Constants.Settings.HOME_REENTER_WINDOW_MS
@@ -297,6 +303,7 @@ class MainActivity : FragmentActivity(), WidgetHostProvider {
 
         setContent {
             val ctx = LocalContext.current
+            val lifecycleOwner = LocalLifecycleOwner.current
 
             val appsViewModel = remember(ctx) {
                 (ctx.applicationContext as MyApplication).appsViewModel
@@ -304,6 +311,55 @@ class MainActivity : FragmentActivity(), WidgetHostProvider {
 
             // May be used in the future for some quit action / operation
 //            DoubleBackToExit()
+
+            LaunchedEffect(Unit) {
+                appsViewModel.synchronizePrivateSpaceUnlockedWithRealPhoneState()
+            }
+
+            val unlockLauncher =
+                rememberLauncherForActivityResult(
+                    contract = ActivityResultContracts.StartActivityForResult()
+                ) { result ->
+
+                    logD(PRIVATE_SPACE_TAG, result.toString())
+                    if (result.resultCode == RESULT_OK) {
+
+                        logD(PRIVATE_SPACE_TAG,  result.data?.getBooleanExtra(
+                            PrivateSpaceUnlockActivity.EXTRA_UNLOCK_SUCCESS,
+                            false
+                        )?.toString() ?: "No result")
+
+                        val success =
+                            result.data?.getBooleanExtra(
+                                PrivateSpaceUnlockActivity.EXTRA_UNLOCK_SUCCESS,
+                                false
+                            ) == true
+
+                        logD(PRIVATE_SPACE_TAG, success.toString())
+
+
+                        if (success) {
+                            appsViewModel.setPrivateSpaceStateUnlocked()
+                        } else {
+                            appsViewModel.setPrivateSpaceStateLocked()
+                        }
+                    }
+                }
+
+            DisposableEffect(lifecycleOwner) {
+                val observer = LifecycleEventObserver { _, event ->
+                    if (event == Lifecycle.Event.ON_PAUSE) {
+                        appsViewModel.setPrivateSpaceStateLocked()
+                    }
+                }
+                // Add the observer to the lifecycle
+                lifecycleOwner.lifecycle.addObserver(observer)
+
+                onDispose {
+                    lifecycleOwner.lifecycle.removeObserver(observer)
+                }
+            }
+
 
 
             val keepScreenOn by BehaviorSettingsStore.keepScreenOn.asState()
@@ -376,6 +432,12 @@ class MainActivity : FragmentActivity(), WidgetHostProvider {
                     appLifecycleViewModel = appLifecycleViewModel,
                     widgetHostProvider = this,
                     navController = navController,
+                    onUnlockPrivateSpace = {
+                        appsViewModel.isLoadingPrivateSpace
+                        unlockLauncher.launch(
+                            Intent(this, PrivateSpaceUnlockActivity::class.java)
+                        )
+                    },
                     onBindCustomWidget = { widgetId, provider, nestId ->
                         pendingAddNestId = nestId
                         (ctx as MainActivity).bindWidgetFromCustomPicker(widgetId, provider)

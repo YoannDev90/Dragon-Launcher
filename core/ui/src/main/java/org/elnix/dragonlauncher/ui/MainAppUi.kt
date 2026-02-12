@@ -44,11 +44,17 @@ import androidx.navigation.navArgument
 import kotlinx.coroutines.launch
 import org.elnix.dragonlauncher.common.FloatingAppObject
 import org.elnix.dragonlauncher.common.R
+import org.elnix.dragonlauncher.common.logging.logE
+import org.elnix.dragonlauncher.common.serializables.SwipeActionSerializable
+import org.elnix.dragonlauncher.common.serializables.SwipePointSerializable
 import org.elnix.dragonlauncher.common.serializables.defaultSwipePointsValues
+import org.elnix.dragonlauncher.common.serializables.dummySwipePoint
+import org.elnix.dragonlauncher.common.utils.Constants.Logging.TAG
 import org.elnix.dragonlauncher.common.utils.Constants.Navigation.transparentScreens
 import org.elnix.dragonlauncher.common.utils.ROUTES
 import org.elnix.dragonlauncher.common.utils.SETTINGS
 import org.elnix.dragonlauncher.common.utils.WidgetHostProvider
+import org.elnix.dragonlauncher.common.utils.circles.rememberNestNavigation
 import org.elnix.dragonlauncher.common.utils.getVersionCode
 import org.elnix.dragonlauncher.common.utils.hasUriReadWritePermission
 import org.elnix.dragonlauncher.common.utils.isDefaultLauncher
@@ -64,8 +70,13 @@ import org.elnix.dragonlauncher.settings.stores.DebugSettingsStore
 import org.elnix.dragonlauncher.settings.stores.DrawerSettingsStore
 import org.elnix.dragonlauncher.settings.stores.PrivateSettingsStore
 import org.elnix.dragonlauncher.settings.stores.SwipeSettingsStore
+import org.elnix.dragonlauncher.settings.stores.WellbeingSettingsStore
+import org.elnix.dragonlauncher.ui.actions.AppLaunchException
+import org.elnix.dragonlauncher.ui.actions.launchAppDirectly
+import org.elnix.dragonlauncher.ui.actions.launchSwipeAction
 import org.elnix.dragonlauncher.ui.components.settings.asState
 import org.elnix.dragonlauncher.ui.components.settings.asStateNull
+import org.elnix.dragonlauncher.ui.dialogs.FilePickerDialog
 import org.elnix.dragonlauncher.ui.dialogs.PinUnlockDialog
 import org.elnix.dragonlauncher.ui.dialogs.UserValidation
 import org.elnix.dragonlauncher.ui.dialogs.WidgetPickerDialog
@@ -94,10 +105,13 @@ import org.elnix.dragonlauncher.ui.settings.wellbeing.WellbeingTab
 import org.elnix.dragonlauncher.ui.settings.workspace.WorkspaceDetailScreen
 import org.elnix.dragonlauncher.ui.settings.workspace.WorkspaceListScreen
 import org.elnix.dragonlauncher.ui.welcome.WelcomeScreen
+import org.elnix.dragonlauncher.ui.wellbeing.AppTimerService
+import org.elnix.dragonlauncher.ui.wellbeing.DigitalPauseActivity
 import org.elnix.dragonlauncher.ui.whatsnew.ChangelogsScreen
 import org.elnix.dragonlauncher.ui.whatsnew.WhatsNewBottomSheet
 
 
+@SuppressLint("LocalContextGetResourceValueCall")
 @Suppress("AssignedValueIsNeverRead")
 @Composable
 fun MainAppUi(
@@ -107,6 +121,7 @@ fun MainAppUi(
     appLifecycleViewModel: AppLifecycleViewModel,
     navController: NavHostController,
     widgetHostProvider: WidgetHostProvider,
+    onUnlockPrivateSpace: () -> Unit,
     onBindCustomWidget: (Int, ComponentName, nestId: Int) -> Unit,
     onLaunchSystemWidgetPicker: (nestId: Int) -> Unit,
     onResetWidgetSize: (id: Int, widgetId: Int) -> Unit,
@@ -124,6 +139,7 @@ fun MainAppUi(
     var showWhatsNewBottomSheet by remember { mutableStateOf(false) }
 
     var showWidgetPicker by remember { mutableStateOf<Int?>(null) }
+    var showFilePicker: SwipePointSerializable? by remember { mutableStateOf(null) }
 
     val updates by produceState(initialValue = emptyList()) {
         value = loadChangelogs(ctx, versionCode)
@@ -146,6 +162,11 @@ fun MainAppUi(
 
     val showSetDefaultLauncherBanner by PrivateSettingsStore.showSetDefaultLauncherBanner.asState()
 
+    val hasSeenWelcome by PrivateSettingsStore.hasSeenWelcome.asStateNull()
+
+    val useAccessibilityInsteadOfContextToExpandActionPanel by DebugSettingsStore
+        .useAccessibilityInsteadOfContextToExpandActionPanel.asState()
+
 
     val lifecycleOwner = LocalLifecycleOwner.current
     var isDefaultLauncher by remember { mutableStateOf(ctx.isDefaultLauncher) }
@@ -161,12 +182,93 @@ fun MainAppUi(
     val nests by SwipeSettingsStore.getNestsFlow(ctx).collectAsState(initial = emptyList())
     val points by SwipeSettingsStore.getPointsFlow(ctx).collectAsState(emptyList())
 
+    val nestNavigation = rememberNestNavigation(nests)
+
     val pointIcons by appsViewModel.pointIcons.collectAsState()
     val defaultPoint by appsViewModel.defaultPoint.collectAsState(defaultSwipePointsValues)
 
 
     var startDestination by remember { mutableStateOf(SETTINGS.ROOT) }
 
+
+    /*  ─────────────  Wellbeing Settings  ─────────────  */
+    val socialMediaPauseEnabled by WellbeingSettingsStore.socialMediaPauseEnabled.asState()
+    val guiltModeEnabled by WellbeingSettingsStore.guiltModeEnabled.asState()
+    val pauseDuration by WellbeingSettingsStore.pauseDurationSeconds.asState()
+    val pausedApps by WellbeingSettingsStore.getPausedAppsFlow(ctx).collectAsState(initial = emptySet())
+    val reminderEnabled by WellbeingSettingsStore.reminderEnabled.asState()
+    val reminderInterval by WellbeingSettingsStore.reminderIntervalMinutes.asState()
+    val reminderMode by WellbeingSettingsStore.reminderMode.asState()
+    val returnToLauncherEnabled by WellbeingSettingsStore.returnToLauncherEnabled.asState()
+
+    // Store pending package to launch after pause
+    var pendingPackageToLaunch by remember { mutableStateOf<String?>(null) }
+    var pendingUserIdToLaunch by remember { mutableStateOf<Int?>(null) }
+    var pendingAppName by remember { mutableStateOf<String?>(null) }
+
+    val digitalPauseLauncher = rememberLauncherForActivityResult(
+        ActivityResultContracts.StartActivityForResult()
+    ) { result ->
+        if (result.resultCode == DigitalPauseActivity.RESULT_PROCEED && pendingPackageToLaunch != null) {
+            try {
+                // Start reminder-only timer if enabled (no time limit)
+                if (reminderEnabled) {
+                    AppTimerService.start(
+                        ctx = ctx,
+                        packageName = pendingPackageToLaunch!!,
+                        appName = pendingAppName ?: pendingPackageToLaunch!!,
+                        reminderEnabled = true,
+                        reminderIntervalMinutes = reminderInterval,
+                        reminderMode = reminderMode
+                    )
+                }
+
+                launchAppDirectly(
+                    appsViewModel,
+                    ctx,
+                    pendingPackageToLaunch!!,
+                    pendingUserIdToLaunch!!
+                )
+            } catch (e: Exception) {
+                ctx.logE(TAG, "Failed to launch after pause: ${e.message}")
+            }
+        } else if (result.resultCode == DigitalPauseActivity.RESULT_PROCEED_WITH_TIMER && pendingPackageToLaunch != null) {
+            try {
+                val data = result.data
+                val timeLimitMin =
+                    data?.getIntExtra(DigitalPauseActivity.RESULT_EXTRA_TIME_LIMIT, 10) ?: 10
+                val hasReminder =
+                    data?.getBooleanExtra(DigitalPauseActivity.EXTRA_REMINDER_ENABLED, false)
+                        ?: false
+                val remInterval =
+                    data?.getIntExtra(DigitalPauseActivity.EXTRA_REMINDER_INTERVAL, 5) ?: 5
+                val remMode =
+                    data?.getStringExtra(DigitalPauseActivity.EXTRA_REMINDER_MODE) ?: "overlay"
+
+                AppTimerService.start(
+                    ctx = ctx,
+                    packageName = pendingPackageToLaunch!!,
+                    appName = pendingAppName ?: pendingPackageToLaunch!!,
+                    reminderEnabled = hasReminder,
+                    reminderIntervalMinutes = remInterval,
+                    reminderMode = remMode,
+                    timeLimitEnabled = true,
+                    timeLimitMinutes = timeLimitMin
+                )
+
+                launchAppDirectly(
+                    appsViewModel,
+                    ctx,
+                    pendingPackageToLaunch!!,
+                    pendingUserIdToLaunch!!
+                )
+            } catch (e: Exception) {
+                ctx.logE(TAG, "Failed to launch after pause with timer: ${e.message}")
+            }
+        }
+        pendingPackageToLaunch = null
+        pendingAppName = null
+    }
 
     LaunchedEffect(Unit, lastSeenVersionCode, currentRoute) {
         showWhatsNewBottomSheet =
@@ -204,7 +306,9 @@ fun MainAppUi(
     fun goDrawer() = navController.navigate(ROUTES.DRAWER)
     fun goWelcome() = navController.navigate(ROUTES.WELCOME)
 
-
+    LaunchedEffect(hasSeenWelcome) {
+        if (hasSeenWelcome == false) goWelcome()
+    }
 
     // ── Lock gate state ──
     val lockMethod by PrivateSettingsStore.lockMethod.asState()
@@ -283,6 +387,84 @@ fun MainAppUi(
         else showWidgetPicker = nestId
     }
 
+    var pendingPrivateAppPackageToLaunch by remember { mutableStateOf<String?>(null) }
+
+    LaunchedEffect(pendingPrivateAppPackageToLaunch) {
+        if (pendingPrivateAppPackageToLaunch != null){
+            launchAppDirectly(
+                appsViewModel,
+                ctx = ctx,
+                packageName = pendingPackageToLaunch!!,
+                userId = 0
+            )
+        }
+    }
+
+
+    fun launchAction(point: SwipePointSerializable) {
+        // Store package for potential pause callback
+        val action = point.action
+
+        // Store package for potential pause callback
+        if (action is SwipeActionSerializable.LaunchApp) {
+            pendingPackageToLaunch = action.packageName
+            pendingUserIdToLaunch = action.userId ?: 0
+            pendingAppName = point.customName ?: try {
+                ctx.packageManager.getApplicationLabel(
+                    ctx.packageManager.getApplicationInfo(action.packageName, 0)
+                ).toString()
+            } catch (_: Exception) {
+                action.packageName
+            }
+        }
+
+        try {
+            launchSwipeAction(
+                ctx = ctx,
+                appsViewModel = appsViewModel,
+                action = action,
+                useAccessibilityInsteadOfContextToExpandActionPanel = useAccessibilityInsteadOfContextToExpandActionPanel,
+                pausedApps = pausedApps,
+                socialMediaPauseEnabled = socialMediaPauseEnabled,
+                guiltModeEnabled = guiltModeEnabled,
+                pauseDuration = pauseDuration,
+                reminderEnabled = reminderEnabled,
+                reminderIntervalMinutes = reminderInterval,
+                reminderMode = reminderMode,
+                returnToLauncherEnabled = returnToLauncherEnabled,
+                appName = pendingAppName ?: "",
+                digitalPauseLauncher = digitalPauseLauncher,
+                onOpenPrivateSpaceApp = { action ->
+                    if (action !is SwipeActionSerializable.LaunchApp) return@launchSwipeAction
+
+                    onUnlockPrivateSpace()
+                    pendingPrivateAppPackageToLaunch = action.packageName
+
+                },
+                onReloadApps = { scope.launch { appsViewModel.reloadApps() } },
+                onReselectFile = { showFilePicker = point },
+                onAppSettings = ::goSettings,
+                onAppDrawer = { workspaceId ->
+                    if (workspaceId != null) {
+                        appsViewModel.selectWorkspace(workspaceId)
+                    }
+                    goDrawer()
+                },
+                onParentNest = { nestNavigation.goBack() },
+                onOpenNestCircle = { nestNavigation.goToNest(it) }
+            )
+        } catch (e: AppLaunchException) {
+            ctx.logE(TAG, e.message ?: "")
+        } catch (e: Exception) {
+            ctx.logE(TAG, e.message ?: "")
+        }
+    }
+
+    fun launchApp(action: SwipeActionSerializable) {
+        launchAction(
+            dummySwipePoint(action)
+        )
+    }
 
     val showSetAsDefaultBanner = showSetDefaultLauncherBanner &&
             !isDefaultLauncher &&
@@ -363,14 +545,18 @@ fun MainAppUi(
                     floatingAppsViewModel = floatingAppsViewModel,
                     appLifecycleViewModel = appLifecycleViewModel,
                     widgetHostProvider = widgetHostProvider,
-                    onAppDrawer = { workspaceId ->
-                        if (workspaceId != null) {
-                            appsViewModel.selectWorkspace(workspaceId)
-                        }
-                        goDrawer()
-                    },
-                    onGoWelcome = ::goWelcome,
-                    onSettings = ::goSettings
+                    nests = nests,
+                    points = points,
+                    nestNavigation = nestNavigation,
+                    onLaunchAction = ::launchAction
+//                    onAppDrawer = { workspaceId ->
+//                        if (workspaceId != null) {
+//                            appsViewModel.selectWorkspace(workspaceId)
+//                        }
+//                        goDrawer()
+//                    },
+//                    onGoWelcome = ::goWelcome,
+//                    onSettings = ::goSettings
                 )
             }
 
@@ -386,7 +572,9 @@ fun MainAppUi(
                     leftAction = leftDrawerAction,
                     leftWeight = leftDrawerWidth,
                     rightAction = rightDrawerAction,
-                    rightWeight = rightDrawerWidth
+                    rightWeight = rightDrawerWidth,
+                    onLaunchAction = ::launchApp,
+                    onUnlockPrivateSpace = onUnlockPrivateSpace
                 ) { goMainScreen() }
             }
 
@@ -418,8 +606,9 @@ fun MainAppUi(
                 }
                 noAnimComposable(SETTINGS.ADVANCED_ROOT) {
                     AdvancedSettingsScreen(
-                        appsViewModel,
-                        navController
+                        appViewModel = appsViewModel,
+                        navController = navController,
+                        onLaunchAction = ::launchApp,
                     ) { goSettingsRoot() }
                 }
 
@@ -523,11 +712,37 @@ fun MainAppUi(
                         showIcons = showAppIconsInDrawer,
                         showLabels = showAppLabelsInDrawer,
                         gridSize = gridSize,
+                        onLaunchAction = ::launchApp,
                         onBack = { navController.popBackStack() }
                     )
                 }
             }
         }
+    }
+
+    if (showFilePicker != null) {
+        val currentPoint = showFilePicker!!
+
+        FilePickerDialog(
+            onDismiss = { showFilePicker = null },
+            onFileSelected = { newAction ->
+
+                // Build the updated point
+                val updatedPoint = currentPoint.copy(action = newAction)
+
+                // Replace only this point
+                val finalList = points.map { p ->
+                    if (p.id == currentPoint.id) updatedPoint else p
+                }
+
+
+                scope.launch {
+                    SwipeSettingsStore.savePoints(ctx, finalList)
+                }
+
+                showFilePicker = null
+            }
+        )
     }
 
     if (showWhatsNewBottomSheet) {

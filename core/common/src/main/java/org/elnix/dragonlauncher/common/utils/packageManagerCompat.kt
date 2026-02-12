@@ -10,7 +10,6 @@ import android.content.res.Resources
 import android.graphics.drawable.Drawable
 import android.os.Build
 import android.os.Process
-import android.os.UserHandle
 import android.os.UserManager
 import androidx.annotation.RequiresApi
 import androidx.compose.ui.graphics.ImageBitmap
@@ -21,6 +20,7 @@ import org.elnix.dragonlauncher.common.logging.logE
 import org.elnix.dragonlauncher.common.logging.logI
 import org.elnix.dragonlauncher.common.serializables.AppModel
 import org.elnix.dragonlauncher.common.serializables.mapAppToSection
+import org.elnix.dragonlauncher.common.utils.Constants.Logging.APPS_TAG
 import org.elnix.dragonlauncher.common.utils.Constants.Logging.TAG
 import org.elnix.dragonlauncher.common.utils.ImageUtils.loadDrawableAsBitmap
 
@@ -39,19 +39,20 @@ class PackageManagerCompat(private val pm: PackageManager, private val ctx: Cont
         userManager.userProfiles.forEach { userHandle ->
             val userId = userHandle.hashCode()
             val isMainProfile = userHandle == Process.myUserHandle()
-            
+
             var isWorkProfile = false
             var isPrivateProfile = false
-            
+
             if (!isMainProfile) {
                 if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.VANILLA_ICE_CREAM) {
                     try {
                         val userInfo = launcherApps?.getLauncherUserInfo(userHandle)
                         val userType = userInfo?.userType
-                        
+
                         isPrivateProfile = userType == "android.os.usertype.profile.PRIVATE"
                         isWorkProfile = !isPrivateProfile
                     } catch (e: Exception) {
+                        logE(APPS_TAG, e.toString())
                         isWorkProfile = false
                         isPrivateProfile = false
                     }
@@ -63,7 +64,7 @@ class PackageManagerCompat(private val pm: PackageManager, private val ctx: Cont
             val activities = launcherApps
                 ?.getActivityList(null, userHandle)
                 ?: emptyList()
-            
+
             logD(TAG, "Loading ${activities.size} apps for userId: $userId (Private: $isPrivateProfile)")
 
             activities.forEach { activity ->
@@ -72,7 +73,7 @@ class PackageManagerCompat(private val pm: PackageManager, private val ctx: Cont
                 val pkg = appInfo.packageName
 
                 if (!isAppEnabled(pkg)) return@forEach
-                
+
                 result += AppModel(
                     name = activity.label?.toString() ?: pkg,
                     packageName = pkg,
@@ -182,30 +183,24 @@ class PackageManagerCompat(private val pm: PackageManager, private val ctx: Cont
 
         return try {
             val isMainProfile = userHandle == Process.myUserHandle()
-            
+
             if (!isMainProfile && !isPrivateProfile && launcherApps != null) {
                 val activities = launcherApps.getActivityList(packageName, userHandle)
                 if (!activities.isNullOrEmpty()) {
                     return activities[0].getBadgedIcon(0)
                 }
-                val appInfo = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+                val appInfo =
                     launcherApps.getApplicationInfo(packageName, 0, userHandle)
-                } else {
-                    pm.getApplicationInfo(packageName, 0)
-                }
                 return appInfo.loadIcon(pm)
             }
-            
+
             if (isPrivateProfile && launcherApps != null) {
                 val activities = launcherApps.getActivityList(packageName, userHandle)
                 if (!activities.isNullOrEmpty()) {
                     return activities[0].getBadgedIcon(0)
                 }
-                val appInfo = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+                val appInfo =
                     launcherApps.getApplicationInfo(packageName, 0, userHandle)
-                } else {
-                    pm.getApplicationInfo(packageName, 0)
-                }
                 return appInfo.loadIcon(pm)
             }
 
@@ -213,6 +208,7 @@ class PackageManagerCompat(private val pm: PackageManager, private val ctx: Cont
             appInfo.loadIcon(pm)
 
         } catch (e: Exception) {
+            logD(APPS_TAG, e.toString())
             ContextCompat.getDrawable(ctx, R.drawable.ic_app_default)!!
         }
     }
@@ -224,8 +220,7 @@ class PackageManagerCompat(private val pm: PackageManager, private val ctx: Cont
     @RequiresApi(Build.VERSION_CODES.R)
     fun queryAppShortcuts(packageName: String): List<ShortcutInfo> {
         try {
-            val launcherApps = ctx.getSystemService(LauncherApps::class.java)
-            if (launcherApps == null) return emptyList()
+            val launcherApps = ctx.getSystemService(LauncherApps::class.java) ?: return emptyList()
 
             val query = LauncherApps.ShortcutQuery()
                 .setPackage(packageName)
@@ -235,13 +230,14 @@ class PackageManagerCompat(private val pm: PackageManager, private val ctx: Cont
                             LauncherApps.ShortcutQuery.FLAG_MATCH_PINNED or
                             LauncherApps.ShortcutQuery.FLAG_MATCH_CACHED
                 )
-            
+
             val userHandle = Process.myUserHandle()
             val shortcuts = launcherApps.getShortcuts(query, userHandle)
 
             return shortcuts ?: emptyList()
 
         } catch (e: Exception) {
+            logD(APPS_TAG, e.toString())
             return emptyList()
         }
     }
