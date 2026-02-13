@@ -202,11 +202,11 @@ object DrawerSettingsStore : MapSettingsStore() {
         default = ""
     )
 
-    val showPrivateSpaceWorkspace = Settings.boolean(
-        key = "showPrivateSpaceWorkspace",
-        dataStoreName = dataStoreName,
-        default = true
-    )
+//    val showPrivateSpaceWorkspace = Settings.boolean(
+//        key = "showPrivateSpaceWorkspace",
+//        dataStoreName = dataStoreName,
+//        default = true
+//    )
 
 
     override val ALL: List<BaseSettingObject<*,*>>
@@ -239,6 +239,6 @@ object DrawerSettingsStore : MapSettingsStore() {
             categoryGridCells,
             showCategoryName,
             backDrawerAction,
-            showPrivateSpaceWorkspace
+//            showPrivateSpaceWorkspace
         )
 }

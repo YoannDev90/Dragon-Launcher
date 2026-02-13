@@ -107,14 +107,14 @@ object PrivateSpaceUtils {
      * Recommended: After calling this, poll isPrivateSpaceLocked() to detect actual unlock.
      */
     @RequiresApi(Build.VERSION_CODES.VANILLA_ICE_CREAM)
-    fun requestUnlockPrivateSpace(context: Context): Boolean {
-        val privateUserHandle = getPrivateSpaceUserHandle(context) ?: run {
+    fun requestUnlockPrivateSpace(ctx: Context): Boolean {
+        val privateUserHandle = getPrivateSpaceUserHandle(ctx) ?: run {
             logE(TAG, "Cannot unlock: Private Space not found")
             return false
         }
 
         try {
-            val userManager = context.getSystemService(Context.USER_SERVICE) as UserManager
+            val userManager = ctx.getSystemService(Context.USER_SERVICE) as UserManager
 
             // Check if already unlocked
             if (!userManager.isQuietModeEnabled(privateUserHandle)) {

@@ -8,8 +8,6 @@ import android.content.pm.PackageManager
 import android.content.res.Resources
 import android.content.res.XmlResourceParser
 import android.graphics.drawable.Drawable
-import android.os.Build
-import androidx.annotation.RequiresApi
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.ImageBitmap
 import androidx.compose.ui.graphics.toArgb
@@ -310,23 +308,23 @@ class AppsViewModel(
     private val _isLoadingPrivateSpace = MutableStateFlow(false)
     val isLoadingPrivateSpace = _isLoadingPrivateSpace.asStateFlow()
 
-    private val _privateSpaceUnlocked = MutableStateFlow(false)
-    val privateSpaceUnlocked = _privateSpaceUnlocked.asStateFlow()
+    private val _privateSpaceAvailable = MutableStateFlow(false)
+    val privateSpaceAvailable = _privateSpaceAvailable.asStateFlow()
 
 
-    @RequiresApi(Build.VERSION_CODES.VANILLA_ICE_CREAM)
-    suspend fun synchronizePrivateSpaceUnlockedWithRealPhoneState() {
-        _privateSpaceUnlocked.value = withContext(Dispatchers.IO) {
-            PrivateSpaceUtils.isPrivateSpaceLocked(ctx) ?: false
-        }
+//    @RequiresApi(Build.VERSION_CODES.VANILLA_ICE_CREAM)
+//    suspend fun synchronizePrivateSpaceUnlockedWithRealPhoneState() {
+//        _privateSpaceAvailable.value = withContext(Dispatchers.IO) {
+//            PrivateSpaceUtils.isPrivateSpaceLocked(ctx) ?: false
+//        }
+//    }
+
+    fun setPrivateSpaceAvailable() {
+        _privateSpaceAvailable.value = true
     }
 
-    fun setPrivateSpaceStateUnlocked() {
-        _privateSpaceUnlocked.value = true
-    }
-
-    fun setPrivateSpaceStateLocked() {
-        _privateSpaceUnlocked.value = false
+    fun setPrivateSpaceUnavailable() {
+        _privateSpaceAvailable.value = false
     }
 
     // Debounce / coalesce reloads
@@ -375,7 +373,7 @@ class AppsViewModel(
                 }
 
                 finalApps = apps.map { app ->
-                    val identity = privateAssignmentKey(app.packageName, app.userId)
+                    val identity = iconCacheKey(app.packageName, app.userId)
                     val assignedUserId = assignments[identity]
                     if (assignedUserId != null || assignments.containsKey(identity)) {
                         logI(APPS_TAG, "Marking ${app.packageName} as Private Space (diff), assigning userId=${assignedUserId ?: app.userId}")
@@ -398,7 +396,7 @@ class AppsViewModel(
                     if (persistedMap.isNotEmpty()) {
                         logI(APPS_TAG, "Applying persisted private assignments: ${persistedMap.size} entries")
                         finalApps = finalApps.map { app ->
-                            val identityKey = privateAssignmentKey(app.packageName, app.userId)
+                            val identityKey = iconCacheKey(app.packageName, app.userId)
                             val identityAssigned = persistedMap[identityKey]
 
                             if (identityAssigned != null || persistedMap.containsKey(identityKey)) {
@@ -494,7 +492,7 @@ class AppsViewModel(
             privateSnapshotBefore = withContext(Dispatchers.IO) {
                 pmCompat.getAllApps()
                     .filter { it.isLaunchable == true }
-                    .map { privateAssignmentKey(it.packageName, it.userId) }
+                    .map { iconCacheKey(it.packageName, it.userId) }
                     .toSet()
             }
             logD(APPS_TAG, "Snapshot captured: ${privateSnapshotBefore?.size ?: 0} packages")
@@ -512,13 +510,13 @@ class AppsViewModel(
                 pmCompat.getAllApps().filter { it.isLaunchable == true }
             }
 
-            val after = afterApps.map { privateAssignmentKey(it.packageName, it.userId) }.toSet()
+            val after = afterApps.map { iconCacheKey(it.packageName, it.userId) }.toSet()
             val diffKeys = after.subtract(before)
-            val diffApps = afterApps.filter { privateAssignmentKey(it.packageName, it.userId) in diffKeys }
+            val diffApps = afterApps.filter {iconCacheKey(it.packageName, it.userId) in diffKeys }
 
             logI(APPS_TAG, "Differential detection: found ${diffApps.size} candidate private apps: ${diffApps.joinToString(", ") { "${it.packageName}@${it.userId}" }}")
 
-            pendingPrivateAssignments = diffApps.associate { privateAssignmentKey(it.packageName, it.userId) to it.userId }
+            pendingPrivateAssignments = diffApps.associate { iconCacheKey(it.packageName, it.userId) to it.userId }
 
             // Remove any of these packages from USER workspaces (they belong to Private)
             try {
@@ -566,8 +564,46 @@ class AppsViewModel(
         }
     }
 
-    private fun privateAssignmentKey(packageName: String, userId: Int?): String {
-        return "$packageName#${userId ?: -1}"
+
+    suspend fun unlockAndReload(): Boolean {
+
+        if (!PrivateSpaceUtils.isPrivateSpaceSupported()) {
+            return false
+        }
+
+        val locked = withContext(Dispatchers.IO) {
+            PrivateSpaceUtils.isPrivateSpaceLocked(ctx) ?: false
+        }
+
+        if (!locked) {
+            reloadPrivateSpace()
+            return true
+        }
+
+        withContext(Dispatchers.IO) {
+            PrivateSpaceUtils.requestUnlockPrivateSpace(ctx)
+        }
+
+        // Poll for unlock
+        repeat(20) {
+            delay(200)
+
+            val stillLocked = withContext(Dispatchers.IO) {
+                PrivateSpaceUtils.isPrivateSpaceLocked(ctx) ?: true
+            }
+
+            if (!stillLocked) {
+                reloadPrivateSpace()
+                return true
+            }
+        }
+
+        return false
+    }
+
+    suspend fun reloadPrivateSpace() {
+        captureMainProfileSnapshotBeforeUnlock()
+        detectPrivateAppsDiffAndReload()
     }
 
 
@@ -760,7 +796,7 @@ class AppsViewModel(
                     }
                 }.getOrNull() ?: return@forEach
 
-                result[iconCacheKey(app.packageName, app.userId)] = bitmap
+                result[org.elnix.dragonlauncher.common.serializables.iconCacheKey(app.packageName, app.userId)] = bitmap
 
                 if (!result.containsKey(app.packageName) || (!app.isWorkProfile && !app.isPrivateProfile)) {
                     result[app.packageName] = bitmap
@@ -778,7 +814,7 @@ class AppsViewModel(
         val icon = loadSingleIcon(app.packageName, app.userId, useOverride, app.isPrivateProfile)
         _icons.update { current ->
             val updated = current.toMutableMap()
-            updated[iconCacheKey(app.packageName, app.userId)] = icon
+            updated[org.elnix.dragonlauncher.common.serializables.iconCacheKey(app.packageName, app.userId)] = icon
 
             if (!updated.containsKey(app.packageName) || (!app.isWorkProfile && !app.isPrivateProfile)) {
                 updated[app.packageName] = icon

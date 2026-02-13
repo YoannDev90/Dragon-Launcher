@@ -1,7 +1,6 @@
 package org.elnix.dragonlauncher.common.serializables
 
 import android.content.pm.ApplicationInfo
-import android.os.Build
 import com.google.gson.annotations.SerializedName
 
 data class AppModel(
@@ -16,7 +15,7 @@ data class AppModel(
     @SerializedName("category") val category: AppCategory,
     @SerializedName("isPrivateProfile") val isPrivateProfile: Boolean = false // Android 15+ Private Space
 ) {
-    val action = SwipeActionSerializable.LaunchApp(packageName,isPrivateProfile ,userId ?: 0)
+    val action = SwipeActionSerializable.LaunchApp(packageName,isPrivateProfile , userId ?: 0)
 }
 
 fun iconCacheKey(packageName: String, userId: Int?): String = "$packageName#${userId ?: 0}"
@@ -60,13 +59,8 @@ fun mapSystemCategoryToSection(category: Int): AppCategory {
     }
 }
 
-fun mapAppToSection(app: ApplicationInfo): AppCategory {
-    if (Build.VERSION.SDK_INT < Build.VERSION_CODES.O) {
-        return AppCategory.Other
-    }
-
-    return mapSystemCategoryToSection(app.category)
-}
+fun mapAppToSection(app: ApplicationInfo): AppCategory =
+     mapSystemCategoryToSection(app.category)
 
 
 

@@ -2,7 +2,6 @@ package org.elnix.dragonlauncher.ui.settings.workspace
 
 import androidx.compose.animation.core.animateDpAsState
 import androidx.compose.animation.core.animateFloatAsState
-import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -42,8 +41,8 @@ fun WorkspaceRow(
     isDragging: Boolean = false,
     onClick: () -> Unit,
     onCheck: (Boolean) -> Unit,
-    onPrivateVisibilityToggle: ((Boolean) -> Unit)? = null,
-    isPrivateVisibleInDrawer: Boolean = true,
+//    onPrivateVisibilityToggle: ((Boolean) -> Unit)? = null,
+//    isPrivateVisibleInDrawer: Boolean = true,
     onAction: (WorkspaceAction) -> Unit
 ) {
     val enabled = workspace.enabled
@@ -52,7 +51,7 @@ fun WorkspaceRow(
     )
 
     val scale = animateFloatAsState(
-        targetValue = if  (isDragging) 1.05f else 1f
+        targetValue = if (isDragging) 1.05f else 1f
     )
 
     val isPrivateWorkspace = workspace.type == WorkspaceType.PRIVATE
@@ -63,8 +62,12 @@ fun WorkspaceRow(
         elevation = CardDefaults.cardElevation(elevation.value),
         modifier = Modifier
             .scale(scale.value)
-            .clickable(enabled = !isPrivateWorkspace) { onClick() }
-    ){
+            .clickable {
+                if (!isPrivateWorkspace) {
+                    onClick()
+                }
+            }
+    ) {
         if (isPrivateWorkspace) {
             Column(
                 modifier = Modifier
@@ -90,8 +93,8 @@ fun WorkspaceRow(
                     )
 
                     Switch(
-                        checked = isPrivateVisibleInDrawer,
-                        onCheckedChange = { onPrivateVisibilityToggle?.invoke(it) },
+                        checked = enabled,
+                        onCheckedChange = onCheck/*{ onPrivateVisibilityToggle?.invoke(it) }*/,
                         colors = AppObjectsColors.switchColors()
                     )
 

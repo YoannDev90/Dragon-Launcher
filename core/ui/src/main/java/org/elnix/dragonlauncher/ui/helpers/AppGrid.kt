@@ -18,6 +18,7 @@ import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.MoreHoriz
+import androidx.compose.material.icons.filled.Refresh
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
@@ -35,12 +36,15 @@ import androidx.compose.ui.graphics.ImageBitmap
 import androidx.compose.ui.input.nestedscroll.NestedScrollConnection
 import androidx.compose.ui.input.nestedscroll.NestedScrollSource
 import androidx.compose.ui.input.nestedscroll.nestedScroll
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
+import org.elnix.dragonlauncher.common.R
 import org.elnix.dragonlauncher.common.serializables.AppCategory
 import org.elnix.dragonlauncher.common.serializables.AppModel
 import org.elnix.dragonlauncher.common.serializables.IconShape
 import org.elnix.dragonlauncher.common.serializables.iconCacheKey
 import org.elnix.dragonlauncher.settings.stores.DrawerSettingsStore
+import org.elnix.dragonlauncher.ui.components.dragon.DragonIconButton
 import org.elnix.dragonlauncher.ui.components.resolveShape
 import org.elnix.dragonlauncher.ui.components.settings.asState
 import org.elnix.dragonlauncher.ui.drawer.AppItemGrid
@@ -59,6 +63,7 @@ fun AppGrid(
     showLabels: Boolean,
     useCategory: Boolean = false,
     fillMaxSize: Boolean = true,
+    onReload: (() -> Unit)? = null,
     onLongClick: ((AppModel) -> Unit)? = null,
     onScrollDown: (() -> Unit)? = null,
     onScrollUp: (() -> Unit)? = null,
@@ -147,6 +152,35 @@ fun AppGrid(
     val modifier = if (fillMaxSize) Modifier.fillMaxSize() else Modifier
 
     when {
+        visibleApps.isEmpty() -> {
+            Box(
+                modifier = modifier,
+                contentAlignment = Alignment.Center
+            ) {
+                Column(
+                    verticalArrangement = Arrangement.spacedBy(15.dp)
+                ) {
+                    Text(
+                        text = stringResource(R.string.no_apps),
+                        color = MaterialTheme.colorScheme.onBackground
+                    )
+
+                    if (onReload != null) {
+                        DragonIconButton(
+                            onClick = onReload
+                        ) {
+                            Icon(
+                                imageVector = Icons.Default.Refresh,
+                                contentDescription = stringResource(R.string.reload_apps)
+                            )
+                        }
+                    }
+                }
+
+
+            }
+        }
+
         useCategory && openedCategory == null -> {
             LazyVerticalGrid(
                 state = gridState,
