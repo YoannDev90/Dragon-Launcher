@@ -1051,17 +1051,17 @@ class AppsViewModel(
         }
     }
 
-    fun loadIpsIcons(packPkg: String): List<String> {
-        return try {
-            val clazz = Class.forName($$"$$packPkg.R$drawable")
-            clazz.fields
-                .filter { it.type == Int::class.javaPrimitiveType }
-                .map { it.name }
-        } catch (e: Exception) {
-            e.printStackTrace()
-            emptyList()
-        }
-    }
+//    fun loadIpsIcons(packPkg: String): List<String> {
+//        return try {
+//            val clazz = Class.forName($$"$$packPkg.R$drawable")
+//            clazz.fields
+//                .filter { it.type == Int::class.javaPrimitiveType }
+//                .map { it.name }
+//        } catch (e: Exception) {
+//            e.printStackTrace()
+//            emptyList()
+//        }
+//    }
 
 
 
