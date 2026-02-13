@@ -370,7 +370,6 @@ class MainActivity : FragmentActivity(), WidgetHostProvider {
                                 appsViewModel.setPrivateSpaceAvailable()
                             }
                         }
-
                     }
                 }
 

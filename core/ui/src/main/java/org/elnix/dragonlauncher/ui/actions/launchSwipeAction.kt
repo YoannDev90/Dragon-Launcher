@@ -55,28 +55,42 @@ fun launchSwipeAction(
 
         is SwipeActionSerializable.LaunchApp -> {
 
-            /*  ─────────────  1. Private Space Check ─────────────  */
-            if (action.isPrivateSpace) {
-                onOpenPrivateSpaceApp(action)
-            }
+            try {
 
-            /*  ─────────────  2. Wellbeing Pause Check  ─────────────  */
-            if (socialMediaPauseEnabled && action.packageName in pausedApps && digitalPauseLauncher != null) {
-                val intent = Intent(ctx, DigitalPauseActivity::class.java).apply {
-                    putExtra(DigitalPauseActivity.EXTRA_PACKAGE_NAME, action.packageName)
-                    putExtra(DigitalPauseActivity.EXTRA_APP_NAME, appName)
-                    putExtra(DigitalPauseActivity.EXTRA_PAUSE_DURATION, pauseDuration)
-                    putExtra(DigitalPauseActivity.EXTRA_GUILT_MODE, guiltModeEnabled)
-                    putExtra(DigitalPauseActivity.EXTRA_REMINDER_ENABLED, reminderEnabled)
-                    putExtra(DigitalPauseActivity.EXTRA_REMINDER_INTERVAL, reminderIntervalMinutes)
-                    putExtra(DigitalPauseActivity.EXTRA_REMINDER_MODE, reminderMode)
-                    putExtra(DigitalPauseActivity.EXTRA_RETURN_TO_LAUNCHER, returnToLauncherEnabled)
+                /*  ─────────────  1. Private Space Check ─────────────  */
+                if (action.isPrivateSpace) {
+                    onOpenPrivateSpaceApp(action)
                 }
-                digitalPauseLauncher.launch(intent)
-                return
-            }
 
-            launchAppDirectly(appsViewModel, ctx, action.packageName, action.userId ?: 0)
+                /*  ─────────────  2. Wellbeing Pause Check  ─────────────  */
+                if (socialMediaPauseEnabled && action.packageName in pausedApps && digitalPauseLauncher != null) {
+                    val intent = Intent(ctx, DigitalPauseActivity::class.java).apply {
+                        putExtra(DigitalPauseActivity.EXTRA_PACKAGE_NAME, action.packageName)
+                        putExtra(DigitalPauseActivity.EXTRA_APP_NAME, appName)
+                        putExtra(DigitalPauseActivity.EXTRA_PAUSE_DURATION, pauseDuration)
+                        putExtra(DigitalPauseActivity.EXTRA_GUILT_MODE, guiltModeEnabled)
+                        putExtra(DigitalPauseActivity.EXTRA_REMINDER_ENABLED, reminderEnabled)
+                        putExtra(
+                            DigitalPauseActivity.EXTRA_REMINDER_INTERVAL,
+                            reminderIntervalMinutes
+                        )
+                        putExtra(DigitalPauseActivity.EXTRA_REMINDER_MODE, reminderMode)
+                        putExtra(
+                            DigitalPauseActivity.EXTRA_RETURN_TO_LAUNCHER,
+                            returnToLauncherEnabled
+                        )
+                    }
+                    digitalPauseLauncher.launch(intent)
+                    return
+                }
+
+                launchAppDirectly(appsViewModel, ctx, action.packageName, action.userId ?: 0)
+            } catch (e: AppLaunchException) {
+                ctx.logE(APP_LAUNCH_TAG, e.toString())
+            } catch (e: Exception) {
+                ctx.logE(APP_LAUNCH_TAG, e.toString())
+                e.printStackTrace()
+            }
         }
 
 
@@ -106,8 +120,7 @@ fun launchSwipeAction(
                 SystemControl.expandQuickSettings(
                     ctx
                 )
-            }
-            else expandQuickActionsDrawer(ctx)
+            } else expandQuickActionsDrawer(ctx)
         }
 
         is SwipeActionSerializable.OpenAppDrawer -> {
@@ -173,8 +186,6 @@ fun launchSwipeAction(
 }
 
 
-
-// TODO Here it may be a big bug related to launching package: if an app is in both normal  and work, it may launch the first that it finds
 /**
  * Launch an app directly without any pause check.
  * Used both by launchSwipeAction and after the digital pause screen.
@@ -223,10 +234,13 @@ fun launchAppDirectly(
         // Track recently used app
         appsViewModel.addRecentlyUsedApp(packageName)
     } catch (e: SecurityException) {
+        ctx.logE(APP_LAUNCH_TAG, "Security error launching $packageName",e)
         throw AppLaunchException("Security error launching $packageName", e)
     } catch (e: NullPointerException) {
+        ctx.logE(APP_LAUNCH_TAG, "App component not found for $packageName", e)
         throw AppLaunchException("App component not found for $packageName", e)
     } catch (e: Exception) {
+        ctx.logE(APP_LAUNCH_TAG, "Failed to launch $packageName", e)
         throw AppLaunchException("Failed to launch $packageName", e)
     }
 }

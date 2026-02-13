@@ -44,11 +44,13 @@ import androidx.navigation.navArgument
 import kotlinx.coroutines.launch
 import org.elnix.dragonlauncher.common.FloatingAppObject
 import org.elnix.dragonlauncher.common.R
+import org.elnix.dragonlauncher.common.logging.logD
 import org.elnix.dragonlauncher.common.logging.logE
 import org.elnix.dragonlauncher.common.serializables.SwipeActionSerializable
 import org.elnix.dragonlauncher.common.serializables.SwipePointSerializable
 import org.elnix.dragonlauncher.common.serializables.defaultSwipePointsValues
 import org.elnix.dragonlauncher.common.serializables.dummySwipePoint
+import org.elnix.dragonlauncher.common.utils.Constants.Logging.APP_LAUNCH_TAG
 import org.elnix.dragonlauncher.common.utils.Constants.Logging.TAG
 import org.elnix.dragonlauncher.common.utils.Constants.Navigation.transparentScreens
 import org.elnix.dragonlauncher.common.utils.ROUTES
@@ -209,61 +211,65 @@ fun MainAppUi(
     val digitalPauseLauncher = rememberLauncherForActivityResult(
         ActivityResultContracts.StartActivityForResult()
     ) { result ->
-        if (result.resultCode == DigitalPauseActivity.RESULT_PROCEED && pendingPackageToLaunch != null) {
-            try {
-                // Start reminder-only timer if enabled (no time limit)
-                if (reminderEnabled) {
+        if (pendingPackageToLaunch != null) {
+            val packageName = pendingPackageToLaunch!!
+
+            if (result.resultCode == DigitalPauseActivity.RESULT_PROCEED) {
+                try {
+                    // Start reminder-only timer if enabled (no time limit)
+                    if (reminderEnabled) {
+                        AppTimerService.start(
+                            ctx = ctx,
+                            packageName = packageName,
+                            appName = pendingAppName ?: packageName,
+                            reminderEnabled = true,
+                            reminderIntervalMinutes = reminderInterval,
+                            reminderMode = reminderMode
+                        )
+                    }
+
+                    launchAppDirectly(
+                        appsViewModel,
+                        ctx,
+                        packageName,
+                        pendingUserIdToLaunch!!
+                    )
+                } catch (e: Exception) {
+                    ctx.logE(TAG, "Failed to launch after pause: ${e.message}")
+                }
+            } else if (result.resultCode == DigitalPauseActivity.RESULT_PROCEED_WITH_TIMER) {
+                try {
+                    val data = result.data
+                    val timeLimitMin =
+                        data?.getIntExtra(DigitalPauseActivity.RESULT_EXTRA_TIME_LIMIT, 10) ?: 10
+                    val hasReminder =
+                        data?.getBooleanExtra(DigitalPauseActivity.EXTRA_REMINDER_ENABLED, false)
+                            ?: false
+                    val remInterval =
+                        data?.getIntExtra(DigitalPauseActivity.EXTRA_REMINDER_INTERVAL, 5) ?: 5
+                    val remMode =
+                        data?.getStringExtra(DigitalPauseActivity.EXTRA_REMINDER_MODE) ?: "overlay"
+
                     AppTimerService.start(
                         ctx = ctx,
-                        packageName = pendingPackageToLaunch!!,
-                        appName = pendingAppName ?: pendingPackageToLaunch!!,
-                        reminderEnabled = true,
-                        reminderIntervalMinutes = reminderInterval,
-                        reminderMode = reminderMode
+                        packageName = packageName,
+                        appName = pendingAppName ?: packageName,
+                        reminderEnabled = hasReminder,
+                        reminderIntervalMinutes = remInterval,
+                        reminderMode = remMode,
+                        timeLimitEnabled = true,
+                        timeLimitMinutes = timeLimitMin
                     )
+
+                    launchAppDirectly(
+                        appsViewModel,
+                        ctx,
+                        packageName,
+                        pendingUserIdToLaunch!!
+                    )
+                } catch (e: Exception) {
+                    ctx.logE(APP_LAUNCH_TAG, "Failed to launch after pause with timer: ${e.message}")
                 }
-
-                launchAppDirectly(
-                    appsViewModel,
-                    ctx,
-                    pendingPackageToLaunch!!,
-                    pendingUserIdToLaunch!!
-                )
-            } catch (e: Exception) {
-                ctx.logE(TAG, "Failed to launch after pause: ${e.message}")
-            }
-        } else if (result.resultCode == DigitalPauseActivity.RESULT_PROCEED_WITH_TIMER && pendingPackageToLaunch != null) {
-            try {
-                val data = result.data
-                val timeLimitMin =
-                    data?.getIntExtra(DigitalPauseActivity.RESULT_EXTRA_TIME_LIMIT, 10) ?: 10
-                val hasReminder =
-                    data?.getBooleanExtra(DigitalPauseActivity.EXTRA_REMINDER_ENABLED, false)
-                        ?: false
-                val remInterval =
-                    data?.getIntExtra(DigitalPauseActivity.EXTRA_REMINDER_INTERVAL, 5) ?: 5
-                val remMode =
-                    data?.getStringExtra(DigitalPauseActivity.EXTRA_REMINDER_MODE) ?: "overlay"
-
-                AppTimerService.start(
-                    ctx = ctx,
-                    packageName = pendingPackageToLaunch!!,
-                    appName = pendingAppName ?: pendingPackageToLaunch!!,
-                    reminderEnabled = hasReminder,
-                    reminderIntervalMinutes = remInterval,
-                    reminderMode = remMode,
-                    timeLimitEnabled = true,
-                    timeLimitMinutes = timeLimitMin
-                )
-
-                launchAppDirectly(
-                    appsViewModel,
-                    ctx,
-                    pendingPackageToLaunch!!,
-                    pendingUserIdToLaunch!!
-                )
-            } catch (e: Exception) {
-                ctx.logE(TAG, "Failed to launch after pause with timer: ${e.message}")
             }
         }
         pendingPackageToLaunch = null
@@ -386,19 +392,27 @@ fun MainAppUi(
         if (!forceAppWidgetsSelector) onLaunchSystemWidgetPicker(nestId)
         else showWidgetPicker = nestId
     }
-
-    var pendingPrivateAppPackageToLaunch by remember { mutableStateOf<String?>(null) }
-
-    LaunchedEffect(pendingPrivateAppPackageToLaunch) {
-        if (pendingPrivateAppPackageToLaunch != null){
-            launchAppDirectly(
-                appsViewModel,
-                ctx = ctx,
-                packageName = pendingPackageToLaunch!!,
-                userId = 0
-            )
-        }
-    }
+//
+//    var pendingPrivateAppPackageToLaunch by remember { mutableStateOf<String?>(null) }
+//
+//    LaunchedEffect(pendingPrivateAppPackageToLaunch) {
+//        if (pendingPrivateAppPackageToLaunch != null) {
+//            val packageName = pendingPrivateAppPackageToLaunch!!
+//            try {
+//                launchAppDirectly(
+//                    appsViewModel,
+//                    ctx = ctx,
+//                    packageName = packageName,
+//                    userId = 0
+//                )
+//            } catch (e: AppLaunchException) {
+//                ctx.logE(APP_LAUNCH_TAG, "Got AppLaunchException for $packageName: $e")
+//            } catch (e: Exception) {
+//                ctx.logE(APP_LAUNCH_TAG, "Got Unknown Exception for $packageName: $e")
+//                e.printStackTrace()
+//            }
+//        }
+//    }
 
 
     fun launchAction(point: SwipePointSerializable) {
@@ -437,8 +451,13 @@ fun MainAppUi(
                 onOpenPrivateSpaceApp = { action ->
                     if (action !is SwipeActionSerializable.LaunchApp) return@launchSwipeAction
 
+                    ctx.logD(APP_LAUNCH_TAG, "Wants to launch this private app: ${action.packageName}")
+
                     onUnlockPrivateSpace()
-                    pendingPrivateAppPackageToLaunch = action.packageName
+
+                    ctx.logD(APP_LAUNCH_TAG, "Private Space Unlocked, launching app directly")
+
+                    pendingPackageToLaunch = action.packageName
 
                 },
                 onReloadApps = { scope.launch { appsViewModel.reloadApps() } },
