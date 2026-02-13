@@ -82,7 +82,7 @@ fun AppGridWithMultiSelect(
     if (gridSize == 1) {
         // List mode
         LazyColumn(modifier = Modifier.fillMaxSize()) {
-            items(apps, key = { iconCacheKey(it.packageName, it.userId) }) { app ->
+            items(apps, key = { it.iconCacheKey() }) { app ->
                 val isSelected = app.packageName in selectedPackages
 
                 Row(

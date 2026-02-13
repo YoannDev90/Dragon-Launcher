@@ -27,10 +27,7 @@ class PrivateSpaceUnlockActivity : AppCompatActivity() {
                     appsViewModel = appsViewModel,
                     onStart = { scope ->
                         scope.launch {
-                            val success = appsViewModel.unlockAndReload()
-                            setResult(
-                                if (success) RESULT_OK else RESULT_CANCELED
-                            )
+                            appsViewModel.unlockAndReload()
                             finish()
                         }
                     }

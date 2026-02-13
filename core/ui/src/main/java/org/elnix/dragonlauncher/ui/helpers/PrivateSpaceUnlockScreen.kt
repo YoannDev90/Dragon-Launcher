@@ -6,6 +6,7 @@ import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.rememberCoroutineScope
 import kotlinx.coroutines.CoroutineScope
+import org.elnix.dragonlauncher.enumsui.PrivateSpaceLoadingState
 import org.elnix.dragonlauncher.models.AppsViewModel
 
 @Composable
@@ -15,11 +16,16 @@ fun PrivateSpaceUnlockScreen(
 ) {
     val scope = rememberCoroutineScope()
 
-    val isLoadingPrivateSpace by appsViewModel.isLoadingPrivateSpace.collectAsState()
+    val privateSpaceState by appsViewModel.privateSpaceState.collectAsState()
 
     LaunchedEffect(Unit) {
         onStart(scope)
     }
 
-    PrivateSpaceLoadingOverlay(isLoadingPrivateSpace)
+    if (
+        privateSpaceState == PrivateSpaceLoadingState.Loading ||
+        privateSpaceState == PrivateSpaceLoadingState.Authenticating
+    ) {
+        PrivateSpaceLoadingOverlay(privateSpaceState)
+    }
 }

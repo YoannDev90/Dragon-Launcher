@@ -44,7 +44,6 @@ import androidx.navigation.navArgument
 import kotlinx.coroutines.launch
 import org.elnix.dragonlauncher.common.FloatingAppObject
 import org.elnix.dragonlauncher.common.R
-import org.elnix.dragonlauncher.common.logging.logD
 import org.elnix.dragonlauncher.common.logging.logE
 import org.elnix.dragonlauncher.common.serializables.SwipeActionSerializable
 import org.elnix.dragonlauncher.common.serializables.SwipePointSerializable
@@ -268,7 +267,10 @@ fun MainAppUi(
                         pendingUserIdToLaunch!!
                     )
                 } catch (e: Exception) {
-                    ctx.logE(APP_LAUNCH_TAG, "Failed to launch after pause with timer: ${e.message}")
+                    ctx.logE(
+                        APP_LAUNCH_TAG,
+                        "Failed to launch after pause with timer: ${e.message}"
+                    )
                 }
             }
         }
@@ -298,7 +300,6 @@ fun MainAppUi(
             lifecycleOwner.lifecycle.removeObserver(observer)
         }
     }
-
 
 
     /* navigation functions, all settings are nested under the lock state */
@@ -385,34 +386,10 @@ fun MainAppUi(
     }
 
 
-
-
-
     fun launchWidgetsPicker(nestId: Int) {
         if (!forceAppWidgetsSelector) onLaunchSystemWidgetPicker(nestId)
         else showWidgetPicker = nestId
     }
-//
-//    var pendingPrivateAppPackageToLaunch by remember { mutableStateOf<String?>(null) }
-//
-//    LaunchedEffect(pendingPrivateAppPackageToLaunch) {
-//        if (pendingPrivateAppPackageToLaunch != null) {
-//            val packageName = pendingPrivateAppPackageToLaunch!!
-//            try {
-//                launchAppDirectly(
-//                    appsViewModel,
-//                    ctx = ctx,
-//                    packageName = packageName,
-//                    userId = 0
-//                )
-//            } catch (e: AppLaunchException) {
-//                ctx.logE(APP_LAUNCH_TAG, "Got AppLaunchException for $packageName: $e")
-//            } catch (e: Exception) {
-//                ctx.logE(APP_LAUNCH_TAG, "Got Unknown Exception for $packageName: $e")
-//                e.printStackTrace()
-//            }
-//        }
-//    }
 
 
     fun launchAction(point: SwipePointSerializable) {
@@ -451,12 +428,7 @@ fun MainAppUi(
                 onOpenPrivateSpaceApp = { action ->
                     if (action !is SwipeActionSerializable.LaunchApp) return@launchSwipeAction
 
-                    ctx.logD(APP_LAUNCH_TAG, "Wants to launch this private app: ${action.packageName}")
-
                     onUnlockPrivateSpace()
-
-                    ctx.logD(APP_LAUNCH_TAG, "Private Space Unlocked, launching app directly")
-
                     pendingPackageToLaunch = action.packageName
 
                 },
@@ -568,14 +540,6 @@ fun MainAppUi(
                     points = points,
                     nestNavigation = nestNavigation,
                     onLaunchAction = ::launchAction
-//                    onAppDrawer = { workspaceId ->
-//                        if (workspaceId != null) {
-//                            appsViewModel.selectWorkspace(workspaceId)
-//                        }
-//                        goDrawer()
-//                    },
-//                    onGoWelcome = ::goWelcome,
-//                    onSettings = ::goSettings
                 )
             }
 

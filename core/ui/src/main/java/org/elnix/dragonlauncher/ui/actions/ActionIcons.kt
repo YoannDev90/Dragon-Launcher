@@ -10,8 +10,8 @@ import androidx.compose.ui.graphics.painter.BitmapPainter
 import androidx.compose.ui.graphics.painter.Painter
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
-import org.elnix.dragonlauncher.common.serializables.AppModel
 import org.elnix.dragonlauncher.common.R
+import org.elnix.dragonlauncher.common.serializables.AppModel
 import org.elnix.dragonlauncher.common.serializables.SwipeActionSerializable
 import org.elnix.dragonlauncher.common.serializables.iconCacheKey
 import org.elnix.dragonlauncher.common.utils.ImageUtils.createUntintedBitmap
@@ -37,7 +37,7 @@ fun appIcon(
     app: AppModel,
     icons: Map<String, ImageBitmap>? = null
 ): Painter {
-    val profileKey = iconCacheKey(app.packageName, app.userId)
+    val profileKey = app.iconCacheKey()
     val cached = icons?.get(profileKey) ?: icons?.get(app.packageName)
     return if (cached != null) {
         BitmapPainter(cached)

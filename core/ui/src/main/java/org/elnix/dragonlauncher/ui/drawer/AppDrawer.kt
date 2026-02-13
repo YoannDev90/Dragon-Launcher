@@ -78,6 +78,7 @@ import org.elnix.dragonlauncher.enumsui.DrawerActions.OPEN_FIRST_APP
 import org.elnix.dragonlauncher.enumsui.DrawerActions.OPEN_KB
 import org.elnix.dragonlauncher.enumsui.DrawerActions.SEARCH_WEB
 import org.elnix.dragonlauncher.enumsui.DrawerActions.TOGGLE_KB
+import org.elnix.dragonlauncher.enumsui.PrivateSpaceLoadingState
 import org.elnix.dragonlauncher.enumsui.isUsed
 import org.elnix.dragonlauncher.models.AppLifecycleViewModel
 import org.elnix.dragonlauncher.models.AppsViewModel
@@ -117,28 +118,13 @@ fun AppDrawerScreen(
     val ctx = LocalContext.current
     val scope = rememberCoroutineScope()
 
-    // Doesn't work now, I'll check later us user ask
-//    val lifecycleOwner = LocalLifecycleOwner.current
-//    var lifecycleTrigger = 0
-
-    val privateSpaceAvailable by appsViewModel.privateSpaceAvailable.collectAsState()
-
+    val privateSpaceState by appsViewModel.privateSpaceState.collectAsState()
 
     val workspaceState by appsViewModel.enabledState.collectAsState()
     val visibleWorkspaces = workspaceState.workspaces
     val overrides = workspaceState.appOverrides
     val aliases = workspaceState.appAliases
-//    val showPrivateSpaceWorkspace by DrawerSettingsStore.showPrivateSpaceWorkspace.asState()
 
-//    val visibleWorkspaces by remember(workspaces, showPrivateSpaceWorkspace) {
-//        derivedStateOf {
-//            if (showPrivateSpaceWorkspace) {
-//                workspaces
-//            } else {
-//                workspaces.filter { it.type != WorkspaceType.PRIVATE }
-//            }
-//        }
-//    }
 
     val selectedWorkspaceId by appsViewModel.selectedWorkspaceId.collectAsState()
     val initialIndex = visibleWorkspaces.indexOfFirst { it.id == selectedWorkspaceId }
@@ -200,80 +186,6 @@ fun AppDrawerScreen(
         }
     }
 
-//    // State for Private Space authentication
-//    var isAuthenticatingPrivateSpace by remember { mutableStateOf(false) }
-//
-//    // Poll Private Space lock status when authenticating
-//    // Key on currentPage to cancel polling when user leaves Private Space workspace
-//    LaunchedEffect(isAuthenticatingPrivateSpace, pagerState.currentPage) {
-//        if (!isAuthenticatingPrivateSpace) return@LaunchedEffect
-//        if (!PrivateSpaceUtils.isPrivateSpaceSupported()) return@LaunchedEffect
-//
-//        val currentWorkspace = visibleWorkspaces.getOrNull(pagerState.currentPage)
-//        if (currentWorkspace?.type != WorkspaceType.PRIVATE) {
-//            // User left Private Space workspace, stop polling
-//            logI(PRIVATE_SPACE_TAG, "Left Private Space workspace, stopping authentication polling")
-//            isAuthenticatingPrivateSpace = false
-//            return@LaunchedEffect
-//        }
-//
-//        logI(PRIVATE_SPACE_TAG, "Starting Private Space unlock polling...")
-//
-//        // Poll every 300ms to detect unlock, with timeout safety
-//        var attempts = 0
-//        val maxAttempts = 200 // ~60s
-//
-//        while (isAuthenticatingPrivateSpace && attempts < maxAttempts) {
-//            attempts++
-//            delay(300)
-//
-//            val isLocked = withContext(Dispatchers.IO) {
-//                PrivateSpaceUtils.isPrivateSpaceLocked(ctx)
-//            }
-//
-//            if (isLocked == false) {
-//                // Private Space is now unlocked!
-//                logI(PRIVATE_SPACE_TAG, "Private Space unlocked detected via polling!")
-//                isAuthenticatingPrivateSpace = false
-//
-//                // Call differential detection + reload from the ViewModel's scope
-//                logI(
-//                    PRIVATE_SPACE_TAG,
-//                    "Launching differential private detection + reload from ViewModel scope..."
-//                )
-//                scope.launch {
-//                    logI(
-//                        PRIVATE_SPACE_TAG,
-//                        "Inside scope.launch, calling detectPrivateAppsDiffAndReload()..."
-//                    )
-//                    try {
-//                        appsViewModel.detectPrivateAppsDiffAndReload()
-//                        logI(
-//                            PRIVATE_SPACE_TAG,
-//                            "detectPrivateAppsDiffAndReload() succeeded from ViewModel scope"
-//                        )
-//                    } catch (e: Exception) {
-//                        logI(
-//                            PRIVATE_SPACE_TAG,
-//                            "detectPrivateAppsDiffAndReload() failed: ${e.message}\n${e.stackTraceToString()}"
-//                        )
-//                        // Fallback: try a full reload
-//                        try {
-//                            appsViewModel.reloadApps()
-//                        } catch (_: Exception) { /* ignore */ }
-//                    }
-//                }
-//                logI(PRIVATE_SPACE_TAG, "Polling stopped")
-//                break
-//            }
-//        }
-//
-//        if (isAuthenticatingPrivateSpace && attempts >= maxAttempts) {
-//            logI(PRIVATE_SPACE_TAG, "Private Space unlock polling timed out")
-//            isAuthenticatingPrivateSpace = false
-//        }
-//    }
-
 
     /**
      * Updates the visible workspace
@@ -294,63 +206,6 @@ fun AppDrawerScreen(
         }
     }
 
-
-    // Doesn't work now, I'll check later us user ask
-
-//    DisposableEffect(Unit) {
-//
-//        val receiver = object : BroadcastReceiver() {
-//            override fun onReceive(ctx: Context?, intent: Intent?) {
-//                when (intent?.action) {
-//
-//                    Intent.ACTION_SCREEN_OFF -> {
-//                        // Immediately hide private content
-//                        privateSpaceUnlocked = false
-//                        isAuthenticatingPrivateSpace = false
-//                    }
-//
-//                    Intent.ACTION_USER_PRESENT -> {
-//                        // User unlocked device
-//                        lifecycleTrigger++
-//                    }
-//                }
-//            }
-//        }
-//
-//        val filter = IntentFilter().apply {
-//            addAction(Intent.ACTION_SCREEN_OFF)
-//            addAction(Intent.ACTION_USER_PRESENT)
-//        }
-//
-//        ctx.registerReceiver(receiver, filter)
-//
-//        onDispose {
-//            ctx.unregisterReceiver(receiver)
-//        }
-//    }
-//    LaunchedEffect(lifecycleTrigger) {
-//
-//        val workspace =
-//            visibleWorkspaces.getOrNull(pagerState.currentPage) ?: return@LaunchedEffect
-//
-//        if (workspace.type != WorkspaceType.PRIVATE) return@LaunchedEffect
-//
-//        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.VANILLA_ICE_CREAM) return@LaunchedEffect
-//
-//        val isLocked = withContext(Dispatchers.IO) {
-//            PrivateSpaceUtils.isPrivateSpaceLocked(ctx)
-//        }
-//
-//        if (isLocked == true) {
-//            privateSpaceUnlocked = false
-//            isAuthenticatingPrivateSpace = true
-//        } else {
-//            privateSpaceUnlocked = true
-//            isAuthenticatingPrivateSpace = false
-//        }
-//    }
-
-
     /**
      * Fires on workspace state change
      * launch the private space unlocking prompt if workspace type if private space
@@ -361,66 +216,12 @@ fun AppDrawerScreen(
         val newWorkspace =
             visibleWorkspaces.getOrNull(pagerState.currentPage) ?: return@LaunchedEffect
 
-        // Reset Private Space auth state when leaving Private Space workspace
-//        if (isAuthenticatingPrivateSpace && newWorkspace.type != WorkspaceType.PRIVATE) {
-//            logI(PRIVATE_SPACE_TAG, "Left Private Space workspace, resetting auth state")
-//            isAuthenticatingPrivateSpace = false
-//        }
-
         // Check if switching to Private Space (Android 15+)
         if (PrivateSpaceUtils.isPrivateSpaceSupported() &&
             newWorkspace.type == WorkspaceType.PRIVATE &&
-            !privateSpaceAvailable
+            privateSpaceState != PrivateSpaceLoadingState.Available
         ) {
             onUnlockPrivateSpace()
-
-//            // Check if Private Space is locked
-//            val isLocked = withContext(Dispatchers.IO) {
-//                PrivateSpaceUtils.isPrivateSpaceLocked(ctx)
-//            }
-//
-//            logI(PRIVATE_SPACE_TAG, "Switching to Private Space workspace. Locked: $isLocked")
-//
-//            if (isLocked == true) {
-//                isAuthenticatingPrivateSpace = true
-//
-//                onUnlockPrivateSpace()
-//            } else {
-//                isAuthenticatingPrivateSpace = false
-//            }
-
-//            if (isLocked == true) {
-//                // Start authentication flow
-//                logI(DRAWER_TAG, "Setting isAuthenticatingPrivateSpace = true")
-//                isAuthenticatingPrivateSpace = true
-//                privateSpaceUnlocked = false
-//
-//                // Capture snapshot of main profile before attempting unlock (for differential detection)
-//                withContext(Dispatchers.IO) {
-//                    try {
-//                        appsViewModel.captureMainProfileSnapshotBeforeUnlock()
-//                    } catch (e: Exception) {
-//                        logI(
-//                            PRIVATE_SPACE_TAG,
-//                            "Failed to capture snapshot before unlock: ${e.message}"
-//                        )
-//                    }
-//                }
-//
-//                // Attempt to request unlock programmatically
-//                withContext(Dispatchers.IO) {
-//                    val requestSuccess = PrivateSpaceUtils.requestUnlockPrivateSpace(ctx)
-//                    logI(PRIVATE_SPACE_TAG, "requestUnlockPrivateSpace result: $requestSuccess")
-//                }
-//
-//                // Polling will detect when it's actually unlocked
-//                // If request fails or does nothing, user can manually unlock from Settings
-//            } else {
-//                // Already unlocked
-//                logI(PRIVATE_SPACE_TAG, "Private Space already unlocked")
-//                privateSpaceUnlocked = true
-//                isAuthenticatingPrivateSpace = false
-//            }
         }
 
         workspaceId = newWorkspaceId
@@ -600,7 +401,7 @@ fun AppDrawerScreen(
 
                         Box(modifier = Modifier.fillMaxWidth()) {
                             // If the current workspace is a private space and locked, display a lock icon
-                            if (!privateSpaceAvailable && (workspace.type == WorkspaceType.PRIVATE)) {
+                            if (privateSpaceState != PrivateSpaceLoadingState.Available && (workspace.type == WorkspaceType.PRIVATE)) {
                                 Box(
                                     modifier = Modifier.fillMaxSize(),
                                     contentAlignment = Alignment.Center

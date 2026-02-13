@@ -233,7 +233,7 @@ fun AppGrid(
                     ),
                 verticalArrangement = Arrangement.spacedBy(iconsSpacingVertical.dp),
             ) {
-                items(visibleApps, key = { iconCacheKey(it.packageName, it.userId) }) { app ->
+                items(visibleApps, key = { it.iconCacheKey() }) { app ->
                     AppItemHorizontal(
                         app = app,
                         showIcons = showIcons,
@@ -262,7 +262,7 @@ fun AppGrid(
                 verticalArrangement = Arrangement.spacedBy(iconsSpacingVertical.dp),
                 horizontalArrangement = Arrangement.spacedBy(iconsSpacingHorizontal.dp)
             ) {
-                items(visibleApps, key = { iconCacheKey(it.packageName, it.userId) }) { app ->
+                items(visibleApps, key = { it.iconCacheKey() }) { app ->
                     AppItemGrid(
                         app = app,
                         icons = icons,

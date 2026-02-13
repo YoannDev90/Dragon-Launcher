@@ -13,7 +13,6 @@ import android.os.Build
 import android.os.Bundle
 import android.os.SystemClock
 import android.view.WindowManager
-import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.compose.setContent
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.activity.viewModels
@@ -34,6 +33,7 @@ import androidx.lifecycle.compose.LocalLifecycleOwner
 import androidx.lifecycle.lifecycleScope
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.rememberNavController
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import org.elnix.dragonlauncher.common.R
@@ -42,7 +42,6 @@ import org.elnix.dragonlauncher.common.logging.logD
 import org.elnix.dragonlauncher.common.logging.logW
 import org.elnix.dragonlauncher.common.serializables.SwipeActionSerializable
 import org.elnix.dragonlauncher.common.serializables.SwipePointSerializable
-import org.elnix.dragonlauncher.common.utils.Constants.Logging.PRIVATE_SPACE_TAG
 import org.elnix.dragonlauncher.common.utils.Constants.Logging.WIDGET_TAG
 import org.elnix.dragonlauncher.common.utils.Constants.Navigation.ignoredReturnRoutes
 import org.elnix.dragonlauncher.common.utils.Constants.Settings.HOME_REENTER_WINDOW_MS
@@ -333,41 +332,22 @@ class MainActivity : FragmentActivity(), WidgetHostProvider {
 //            DoubleBackToExit()
 
 
-            val unlockLauncher =
-                rememberLauncherForActivityResult(
-                    contract = ActivityResultContracts.StartActivityForResult()
-                ) { result ->
-
-                    logD(PRIVATE_SPACE_TAG, "Activity result: $result")
-
-                    val success = result.resultCode == RESULT_OK
-
-                    logD(PRIVATE_SPACE_TAG, "Unlock and load success: $success")
-
-
-                    if (success) {
-                        appsViewModel.setPrivateSpaceAvailable()
-                    } else {
-                        appsViewModel.setPrivateSpaceUnavailable()
-                    }
-                }
-
             DisposableEffect(lifecycleOwner) {
                 val observer = LifecycleEventObserver { _, event ->
-                    if (event == Lifecycle.Event.ON_RESUME) {
+                    if (
+                        event == Lifecycle.Event.ON_RESUME &&
+                        PrivateSpaceUtils.isPrivateSpaceSupported()
+                    ) {
+                        val locked = PrivateSpaceUtils.isPrivateSpaceLocked(ctx) ?: false
 
-                        if (PrivateSpaceUtils.isPrivateSpaceSupported()) {
+                        // If private space is locked on return, set it unavailable on the viewmodel state
+                        if (locked) {
+                            appsViewModel.lockPrivateSpace()
+                        } else { // Set it available
+                            appsViewModel.setPrivateSpaceAvailable()
 
-                            val locked = PrivateSpaceUtils.isPrivateSpaceLocked(ctx) ?: false
-
-                            // If private space is locked on return, set it unavailable on the viewmodel state
-                            if (locked) {
-                                appsViewModel.setPrivateSpaceUnavailable()
-                                scope.launch {
-                                    appsViewModel.reloadPrivateSpace()
-                                }
-                            } else { // Set it available
-                                appsViewModel.setPrivateSpaceAvailable()
+                            scope.launch(Dispatchers.IO) {
+                                appsViewModel.reloadPrivateSpace()
                             }
                         }
                     }
@@ -455,8 +435,7 @@ class MainActivity : FragmentActivity(), WidgetHostProvider {
                     widgetHostProvider = this,
                     navController = navController,
                     onUnlockPrivateSpace = {
-                        appsViewModel.isLoadingPrivateSpace
-                        unlockLauncher.launch(
+                        ctx.startActivity(
                             Intent(this, PrivateSpaceUnlockActivity::class.java)
                         )
                     },

@@ -25,12 +25,21 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import org.elnix.dragonlauncher.common.R
+import org.elnix.dragonlauncher.enumsui.PrivateSpaceLoadingState
+import org.elnix.dragonlauncher.enumsui.PrivateSpaceLoadingState.Authenticating
+import org.elnix.dragonlauncher.enumsui.PrivateSpaceLoadingState.Available
+import org.elnix.dragonlauncher.enumsui.PrivateSpaceLoadingState.Loading
+import org.elnix.dragonlauncher.enumsui.PrivateSpaceLoadingState.Locked
 
 @Composable
-fun PrivateSpaceLoadingOverlay(loading: Boolean) {
+fun PrivateSpaceLoadingOverlay(state: PrivateSpaceLoadingState) {
 
-    val title = if (loading) stringResource(R.string.private_space_please_wait)
-    else stringResource(R.string.private_space_authenticating)
+    val title = when (state) {
+        Authenticating -> stringResource(R.string.private_space_authenticating)
+        Loading ->  stringResource(R.string.private_space_please_wait)
+        Available -> error("Shouldn't happen here")
+        Locked -> error("Shouldn't happen here")
+    }
 
     Box(
         modifier = Modifier
@@ -44,7 +53,7 @@ fun PrivateSpaceLoadingOverlay(loading: Boolean) {
             modifier = Modifier.padding(32.dp)
         ) {
 
-            AnimatedVisibility(!loading) {
+            AnimatedVisibility(state == Authenticating) {
                 Icon(
                     imageVector = Icons.Default.Lock,
                     contentDescription = stringResource(R.string.private_space_locked),
@@ -53,7 +62,7 @@ fun PrivateSpaceLoadingOverlay(loading: Boolean) {
                 )
             }
 
-            AnimatedVisibility(loading) {
+            AnimatedVisibility(state == Loading) {
                 Icon(
                     imageVector = Icons.Default.CheckCircle,
                     contentDescription = stringResource(R.string.private_space_loading),
