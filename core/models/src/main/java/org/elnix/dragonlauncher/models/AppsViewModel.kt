@@ -333,13 +333,13 @@ class AppsViewModel(
 
 
 
-    private fun scheduleReload(delayMs: Long = 0L) {
-        scheduledReloadJob?.cancel()
-        scheduledReloadJob = scope.launch {
-            if (delayMs > 0) delay(delayMs)
-            reloadApps()
-        }
-    }
+//    private fun scheduleReload(delayMs: Long = 0L) {
+//        scheduledReloadJob?.cancel()
+//        scheduledReloadJob = scope.launch {
+//            if (delayMs > 0) delay(delayMs)
+//            reloadApps()
+//        }
+//    }
 
     suspend fun reloadApps() {
         try {
