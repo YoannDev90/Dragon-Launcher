@@ -3,6 +3,13 @@ description: Suggest a new feature or enhancement
 title: "[FEATURE] "
 labels: ["enhancement"]
 body:
+  - type: checkboxes
+    id: terms
+    attributes:
+      label: Requirements
+      options:
+        - label: I checked for duplicate feature in both opened and closed
+          required: true
   - type: textarea
     id: summary
     attributes:
