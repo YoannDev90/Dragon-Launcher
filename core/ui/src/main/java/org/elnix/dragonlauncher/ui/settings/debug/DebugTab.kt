@@ -51,6 +51,7 @@ import org.elnix.dragonlauncher.settings.stores.DebugSettingsStore
 import org.elnix.dragonlauncher.settings.stores.PrivateSettingsStore
 import org.elnix.dragonlauncher.ui.colors.AppObjectsColors
 import org.elnix.dragonlauncher.ui.components.TextDivider
+import org.elnix.dragonlauncher.ui.components.settings.SettingsSwitchRow
 import org.elnix.dragonlauncher.ui.components.settings.asState
 import org.elnix.dragonlauncher.ui.dialogs.IconEditorDialog
 import org.elnix.dragonlauncher.ui.helpers.SwitchRow
@@ -196,6 +197,13 @@ fun DebugTab(
             }
         }
 
+        item {
+            SettingsSwitchRow(
+                setting = DebugSettingsStore.privateSpaceDebugInfo,
+                title = "Private space debug info",
+                description = "Display private space state debug infos on top of everything"
+            )
+        }
 
         item {
             Button(

@@ -192,7 +192,8 @@
         <receiver
             android:name=".PrivateSpaceReceiver"
             android:exported="false"
-            android:enabled="true">
+            android:enabled="true"
+            tools:targetApi="35">
             <intent-filter>
                 <action android:name="android.intent.action.PROFILE_AVAILABLE" />
                 <action android:name="android.intent.action.PROFILE_UNAVAILABLE" />

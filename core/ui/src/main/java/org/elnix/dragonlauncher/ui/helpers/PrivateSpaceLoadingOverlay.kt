@@ -1,6 +1,5 @@
 package org.elnix.dragonlauncher.ui.helpers
 
-import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -11,7 +10,6 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.CheckCircle
 import androidx.compose.material.icons.filled.Lock
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Icon
@@ -25,21 +23,16 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import org.elnix.dragonlauncher.common.R
-import org.elnix.dragonlauncher.enumsui.PrivateSpaceLoadingState
-import org.elnix.dragonlauncher.enumsui.PrivateSpaceLoadingState.Authenticating
-import org.elnix.dragonlauncher.enumsui.PrivateSpaceLoadingState.Available
-import org.elnix.dragonlauncher.enumsui.PrivateSpaceLoadingState.Loading
-import org.elnix.dragonlauncher.enumsui.PrivateSpaceLoadingState.Locked
 
 @Composable
-fun PrivateSpaceLoadingOverlay(state: PrivateSpaceLoadingState) {
+fun PrivateSpaceLoadingOverlay(/*state: PrivateSpaceLoadingState*/) {
 
-    val title = when (state) {
-        Authenticating -> stringResource(R.string.private_space_authenticating)
-        Loading ->  stringResource(R.string.private_space_please_wait)
-        Available -> error("Shouldn't happen here")
-        Locked -> error("Shouldn't happen here")
-    }
+//    val title = when (state) {
+//        Authenticating -> stringResource(R.string.private_space_authenticating)
+//        Loading ->  stringResource(R.string.private_space_please_wait)
+//        Available -> error("Shouldn't happen here")
+//        Locked -> error("Shouldn't happen here")
+//    }
 
     Box(
         modifier = Modifier
@@ -53,23 +46,23 @@ fun PrivateSpaceLoadingOverlay(state: PrivateSpaceLoadingState) {
             modifier = Modifier.padding(32.dp)
         ) {
 
-            AnimatedVisibility(state == Authenticating) {
+//            AnimatedVisibility(state == Authenticating) {
                 Icon(
                     imageVector = Icons.Default.Lock,
                     contentDescription = stringResource(R.string.private_space_locked),
                     modifier = Modifier.size(64.dp),
                     tint = MaterialTheme.colorScheme.primary
                 )
-            }
+//            }
 
-            AnimatedVisibility(state == Loading) {
-                Icon(
-                    imageVector = Icons.Default.CheckCircle,
-                    contentDescription = stringResource(R.string.private_space_loading),
-                    modifier = Modifier.size(64.dp),
-                    tint = MaterialTheme.colorScheme.primary
-                )
-            }
+//            AnimatedVisibility(state == Loading) {
+//                Icon(
+//                    imageVector = Icons.Default.CheckCircle,
+//                    contentDescription = stringResource(R.string.private_space_loading),
+//                    modifier = Modifier.size(64.dp),
+//                    tint = MaterialTheme.colorScheme.primary
+//                )
+//            }
 
 
             Spacer(modifier = Modifier.height(24.dp))
@@ -84,7 +77,7 @@ fun PrivateSpaceLoadingOverlay(state: PrivateSpaceLoadingState) {
             Spacer(modifier = Modifier.height(8.dp))
 
             Text(
-                text = title,
+                text = stringResource(R.string.private_space_authenticating),
                 style = MaterialTheme.typography.bodyLarge,
                 color = MaterialTheme.colorScheme.onSurfaceVariant,
                 textAlign = TextAlign.Center

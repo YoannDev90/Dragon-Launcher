@@ -332,6 +332,9 @@ class MainActivity : FragmentActivity(), WidgetHostProvider {
 //            DoubleBackToExit()
 
 
+
+            // Used to visually block private space content on windows quit, and if user locks his phone,
+            // the apps are also visually blocked, since they can't be launched
             DisposableEffect(lifecycleOwner) {
                 val observer = LifecycleEventObserver { _, event ->
                     if (
@@ -342,9 +345,9 @@ class MainActivity : FragmentActivity(), WidgetHostProvider {
 
                         // If private space is locked on return, set it unavailable on the viewmodel state
                         if (locked) {
-                            appsViewModel.lockPrivateSpace()
+                            appsViewModel.setPrivateSpaceLocked()
                         } else { // Set it available
-                            appsViewModel.setPrivateSpaceAvailable()
+//                            appsViewModel.setPrivateSpaceAvailable()
 
                             scope.launch(Dispatchers.IO) {
                                 appsViewModel.reloadPrivateSpace()

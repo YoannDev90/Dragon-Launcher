@@ -75,6 +75,12 @@ object DebugSettingsStore : MapSettingsStore() {
         default = false
     )
 
+    val privateSpaceDebugInfo = Settings.boolean(
+        key = "privateSpaceDebugInfo",
+        dataStoreName = dataStoreName,
+        default = false
+    )
+
 
     override val ALL: List<BaseSettingObject<*,*>>
         get() = listOf(
@@ -88,6 +94,7 @@ object DebugSettingsStore : MapSettingsStore() {
             autoRaiseDragonOnSystemLauncher,
             systemLauncherPackageName,
             useAccessibilityInsteadOfContextToExpandActionPanel,
-            enableLogging
+            enableLogging,
+            privateSpaceDebugInfo
         )
     }

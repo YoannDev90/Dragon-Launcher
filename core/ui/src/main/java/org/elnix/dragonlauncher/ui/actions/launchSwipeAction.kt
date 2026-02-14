@@ -57,9 +57,12 @@ fun launchSwipeAction(
 
             try {
 
+                ctx.logD(APP_LAUNCH_TAG, "Launching action: $action")
+
                 /*  ─────────────  1. Private Space Check ─────────────  */
                 if (action.isPrivateSpace) {
                     onOpenPrivateSpaceApp(action)
+                    return
                 }
 
                 /*  ─────────────  2. Wellbeing Pause Check  ─────────────  */
@@ -84,6 +87,8 @@ fun launchSwipeAction(
                     return
                 }
 
+
+                // If app has no wellbeing checks to do; it launches directly
                 launchAppDirectly(appsViewModel, ctx, action.packageName, action.userId ?: 0)
             } catch (e: AppLaunchException) {
                 ctx.logE(APP_LAUNCH_TAG, e.toString())

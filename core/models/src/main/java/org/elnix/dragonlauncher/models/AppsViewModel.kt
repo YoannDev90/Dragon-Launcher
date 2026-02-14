@@ -8,6 +8,8 @@ import android.content.pm.PackageManager
 import android.content.res.Resources
 import android.content.res.XmlResourceParser
 import android.graphics.drawable.Drawable
+import android.os.Build
+import androidx.annotation.RequiresApi
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.ImageBitmap
 import androidx.compose.ui.graphics.toArgb
@@ -27,10 +29,12 @@ import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.Semaphore
 import kotlinx.coroutines.sync.withLock
 import kotlinx.coroutines.sync.withPermit
 import kotlinx.coroutines.withContext
+import kotlinx.coroutines.withTimeoutOrNull
 import org.elnix.dragonlauncher.common.logging.logD
 import org.elnix.dragonlauncher.common.logging.logE
 import org.elnix.dragonlauncher.common.logging.logI
@@ -51,6 +55,7 @@ import org.elnix.dragonlauncher.common.serializables.dummySwipePoint
 import org.elnix.dragonlauncher.common.serializables.iconCacheKey
 import org.elnix.dragonlauncher.common.serializables.resolveApp
 import org.elnix.dragonlauncher.common.utils.Constants.Logging.APPS_TAG
+import org.elnix.dragonlauncher.common.utils.Constants.Logging.APP_LAUNCH_TAG
 import org.elnix.dragonlauncher.common.utils.Constants.Logging.ICONS_TAG
 import org.elnix.dragonlauncher.common.utils.Constants.Logging.TAG
 import org.elnix.dragonlauncher.common.utils.ImageUtils.createUntintedBitmap
@@ -333,21 +338,34 @@ class AppsViewModel(
      * _private space state, describe the current state of the private space
      * reflected in UI in the AppDrawerScreen and PrivateSpaceUnlockScreen
      */
-    private val _privateSpaceState = MutableStateFlow(PrivateSpaceLoadingState.Locked)
+    private val _privateSpaceState = MutableStateFlow(
+        PrivateSpaceLoadingState(
+            isLocked = true,
+            isLoading = false,
+            isAuthenticating = false
+        )
+    )
     val privateSpaceState = _privateSpaceState.asStateFlow()
 
 
-    fun setPrivateSpaceAvailable() {
-        _privateSpaceState.value = PrivateSpaceLoadingState.Available
-    }
+//    fun setPrivateSpaceAvailable() {
+//        logW(APP_LAUNCH_TAG, "setPrivateSpaceAvailable() was called!")
+//        _privateSpaceState.value = PrivateSpaceLoadingState.Available
+//    }
 
-    fun lockPrivateSpace() {
-        _privateSpaceState.value = PrivateSpaceLoadingState.Locked
+    fun setPrivateSpaceLocked() {
+        _privateSpaceState.update {
+            it.copy(
+                isLocked = true,
+                isLoading = false,
+                isAuthenticating = false
+            )
+        }
     }
 
     // Debounce / coalesce reloads
     private var scheduledReloadJob: Job? = null
-    private val reloadMutex = kotlinx.coroutines.sync.Mutex()
+    private val reloadMutex = Mutex()
 
 
 //    private fun scheduleReload(delayMs: Long = 0L) {
@@ -546,7 +564,7 @@ class AppsViewModel(
     /**
      * Differential Private Space detection helpers
      */
-    suspend fun captureMainProfileSnapshotBeforeUnlock() {
+    private suspend fun captureMainProfileSnapshotBeforeUnlock() {
         try {
             logD(APPS_TAG, "Capturing visible app snapshot before Private Space unlock...")
             privateSnapshotBefore = withContext(Dispatchers.IO) {
@@ -562,7 +580,7 @@ class AppsViewModel(
         }
     }
 
-    suspend fun detectPrivateAppsDiffAndReload() {
+    private suspend fun detectPrivateAppsDiffAndReload() {
         try {
             logD(APPS_TAG, "Detecting Private Space apps via differential snapshot...")
             val before = privateSnapshotBefore ?: emptySet()
@@ -570,7 +588,7 @@ class AppsViewModel(
                 pmCompat.getAllApps().filter { it.isLaunchable == true }
             }
 
-            val after = afterApps.map {it.iconCacheKey() }.toSet()
+            val after = afterApps.map { it.iconCacheKey() }.toSet()
             val diffKeys = after.subtract(before)
             val diffApps = afterApps.filter { it.iconCacheKey() in diffKeys }
 
@@ -582,7 +600,7 @@ class AppsViewModel(
             )
 
             pendingPrivateAssignments =
-                diffApps.associate { it.iconCacheKey()  to it.userId }
+                diffApps.associate { it.iconCacheKey() to it.userId }
 
             // Remove any of these packages from USER workspaces (they belong to Private)
             try {
@@ -607,9 +625,13 @@ class AppsViewModel(
             privateSnapshotBefore = null
 
             // Start Private Space loading state and schedule a debounced reload
-            _privateSpaceState.value = PrivateSpaceLoadingState.Loading
+            _privateSpaceState.update {
+                it.copy(
+                    isLoading = true,
+                )
+            }
 
-            try {
+//            try {
                 // Schedule reload (debounced) and wait for it to complete
                 scheduledReloadJob?.cancel()
                 scheduledReloadJob = scope.launch {
@@ -619,14 +641,18 @@ class AppsViewModel(
                     }
                 }
                 scheduledReloadJob?.join()
-            } finally {
-                _privateSpaceState.value = PrivateSpaceLoadingState.Available
-            }
+//            } finally {
+//                logW(APP_LAUNCH_TAG, "finally block reached before full reload!")
+//
+////                _privateSpaceState.value = PrivateSpaceLoadingState.Available
+//            }
         } catch (e: Exception) {
             logE(APPS_TAG, "Error during differential private detection: ${e.message}", e)
             pendingPrivateAssignments = null
             privateSnapshotBefore = null
-            _privateSpaceState.value = PrivateSpaceLoadingState.Locked
+
+            setPrivateSpaceLocked()
+
             // best-effort fallback: full reload
             try {
                 reloadApps()
@@ -636,53 +662,93 @@ class AppsViewModel(
     }
 
 
+    @RequiresApi(Build.VERSION_CODES.VANILLA_ICE_CREAM)
+    suspend fun unlockPrivateSpace(): Boolean {
+
+        val reallyLocked = withContext(Dispatchers.IO) {
+            PrivateSpaceUtils.isPrivateSpaceLocked(ctx) ?: true
+        }
+
+        if (!reallyLocked) {
+            _privateSpaceState.update {
+                it.copy(isLocked = false, isAuthenticating = false)
+            }
+            return true
+        }
+
+        _privateSpaceState.update { it.copy(isAuthenticating = true) }
+
+
+        // This only request the auth, it does not handle whether the private space was unlocked
+//        val authRequestSuccess = withContext(Dispatchers.IO) {
+            PrivateSpaceUtils.requestUnlockPrivateSpace(ctx)
+//        }
+
+        // If the auth request failed, cancel this unlock function
+//        if (!authRequestSuccess) {
+//            _privateSpaceState.update { it.copy(isAuthenticating = false) }
+//            return false
+//        }
+
+
+        // Test with timeout the real unlock state
+        val unlocked = withTimeoutOrNull(10_000L) {
+            while (true) {
+                val locked = withContext(Dispatchers.IO) {
+                    PrivateSpaceUtils.isPrivateSpaceLocked(ctx) ?: true
+                }
+                if (!locked) break
+                delay(200)
+            }
+            true // return true when unlocked
+        } ?: false // if timeout
+
+
+        _privateSpaceState.update {
+            it.copy(
+                isAuthenticating = false,
+                isLocked = !unlocked
+            )
+        }
+
+        return unlocked
+    }
+
+
+
     suspend fun unlockAndReload() {
 
-        if (!PrivateSpaceUtils.isPrivateSpaceSupported()) {
-            return
-        }
+        if (!PrivateSpaceUtils.isPrivateSpaceSupported()) return
 
-        val locked = withContext(Dispatchers.IO) {
-            PrivateSpaceUtils.isPrivateSpaceLocked(ctx) ?: false
-        }
+        val unlocked = unlockPrivateSpace()
 
-        if (!locked) {
+        if (!unlocked) return
 
-            // Reload Asynchronously the private space, while keeping it enabled with instant reload
-            withContext(Dispatchers.IO) {
-                reloadPrivateSpace()
-            }
-
-            _privateSpaceState.value = PrivateSpaceLoadingState.Available
-            return
-        }
-
-        withContext(Dispatchers.IO) {
-            PrivateSpaceUtils.requestUnlockPrivateSpace(ctx)
-        }
-
-        // Poll for unlock
-        repeat(20) {
-            delay(200)
-
-            _privateSpaceState.value = PrivateSpaceLoadingState.Authenticating
-
-            val stillLocked = withContext(Dispatchers.IO) {
-                PrivateSpaceUtils.isPrivateSpaceLocked(ctx) ?: true
-            }
-
-            if (!stillLocked) {
-                _privateSpaceState.value = PrivateSpaceLoadingState.Loading
-                reloadPrivateSpace()
-                return
-            }
+        // Reloads asynchronously the apps, for letting the unlock UI quit ASAP
+        scope.launch {
+            reloadPrivateSpace()
         }
     }
 
+
     suspend fun reloadPrivateSpace() {
+
+        // Set loading state before load
+        _privateSpaceState.update {
+            it.copy(
+                isLoading = true,
+            )
+        }
         captureMainProfileSnapshotBeforeUnlock()
         detectPrivateAppsDiffAndReload()
-        _privateSpaceState.value = PrivateSpaceLoadingState.Available
+        logI(APP_LAUNCH_TAG, "Available after full private space reload")
+
+        // Finished loading
+        _privateSpaceState.update {
+            it.copy(
+                isLoading = false,
+            )
+        }
     }
 
 

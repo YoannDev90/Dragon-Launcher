@@ -5,6 +5,7 @@ import android.content.Intent
 import android.os.Build
 import android.provider.Settings
 import androidx.activity.compose.BackHandler
+import androidx.compose.animation.AnimatedContent
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box
@@ -27,6 +28,7 @@ import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Lock
 import androidx.compose.material.icons.filled.Search
+import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
@@ -78,7 +80,6 @@ import org.elnix.dragonlauncher.enumsui.DrawerActions.OPEN_FIRST_APP
 import org.elnix.dragonlauncher.enumsui.DrawerActions.OPEN_KB
 import org.elnix.dragonlauncher.enumsui.DrawerActions.SEARCH_WEB
 import org.elnix.dragonlauncher.enumsui.DrawerActions.TOGGLE_KB
-import org.elnix.dragonlauncher.enumsui.PrivateSpaceLoadingState
 import org.elnix.dragonlauncher.enumsui.isUsed
 import org.elnix.dragonlauncher.models.AppLifecycleViewModel
 import org.elnix.dragonlauncher.models.AppsViewModel
@@ -219,7 +220,7 @@ fun AppDrawerScreen(
         // Check if switching to Private Space (Android 15+)
         if (PrivateSpaceUtils.isPrivateSpaceSupported() &&
             newWorkspace.type == WorkspaceType.PRIVATE &&
-            privateSpaceState != PrivateSpaceLoadingState.Available
+            privateSpaceState.isLocked
         ) {
             onUnlockPrivateSpace()
         }
@@ -400,20 +401,49 @@ fun AppDrawerScreen(
                         }
 
                         Box(modifier = Modifier.fillMaxWidth()) {
-                            // If the current workspace is a private space and locked, display a lock icon
-                            if (privateSpaceState != PrivateSpaceLoadingState.Available && (workspace.type == WorkspaceType.PRIVATE)) {
+//                            // If the current workspace is a private space and locked, display a lock icon
+//                            if (workspace.type == WorkspaceType.PRIVATE ) {
+//
+//                                Box(
+//                                    modifier = Modifier.fillMaxSize(),
+//                                    contentAlignment = Alignment.Center
+//                                ) {
+//                                    AnimatedContent(
+//                                        targetState = privateSpaceState
+//                                    ) {
+//                                        if (it.isLoading) {
+//                                            CircularProgressIndicator()
+//                                        } else if (it.isLocked) {
+//                                            DragonIconButton(
+//                                                onClick = onUnlockPrivateSpace,
+//                                                modifier = Modifier.padding(15.dp)
+//                                            ) {
+//                                                Icon(
+//                                                    imageVector = Icons.Default.Lock,
+//                                                    contentDescription = stringResource(R.string.private_space_locked)
+//                                                )
+//                                            }
+//                                        }
+//                                    }
+//                                }
+//                            } else {
+
+                            val showLock = privateSpaceState.isLocked || privateSpaceState.isAuthenticating
+
+                            if (workspace.type == WorkspaceType.PRIVATE && showLock) {
                                 Box(
                                     modifier = Modifier.fillMaxSize(),
                                     contentAlignment = Alignment.Center
                                 ) {
-                                    DragonIconButton(
-                                        onClick = onUnlockPrivateSpace,
-                                        modifier = Modifier.padding(15.dp)
-                                    ) {
-                                        Icon(
-                                            imageVector = Icons.Default.Lock,
-                                            contentDescription = stringResource(R.string.private_space_locked)
-                                        )
+                                    AnimatedContent(targetState = privateSpaceState) {
+                                        when {
+                                            // The loading shouldn't be displayed, but just in case I'll keep it for user visual feedback
+                                            it.isLoading -> CircularProgressIndicator()
+                                            it.isAuthenticating -> CircularProgressIndicator(color = Color.Yellow)
+                                            it.isLocked -> DragonIconButton(onClick = onUnlockPrivateSpace) {
+                                                Icon(Icons.Default.Lock, contentDescription = "Private Space Locked")
+                                            }
+                                        }
                                     }
                                 }
                             } else {

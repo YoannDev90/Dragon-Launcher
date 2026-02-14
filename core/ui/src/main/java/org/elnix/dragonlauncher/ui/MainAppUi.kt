@@ -6,6 +6,7 @@ import android.content.ComponentName
 import android.content.Intent
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
+import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.EnterTransition
 import androidx.compose.animation.ExitTransition
 import androidx.compose.foundation.layout.Column
@@ -41,10 +42,15 @@ import androidx.navigation.compose.composable
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.navigation
 import androidx.navigation.navArgument
+import kotlinx.coroutines.flow.filter
+import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withTimeoutOrNull
 import org.elnix.dragonlauncher.common.FloatingAppObject
 import org.elnix.dragonlauncher.common.R
+import org.elnix.dragonlauncher.common.logging.logD
 import org.elnix.dragonlauncher.common.logging.logE
+import org.elnix.dragonlauncher.common.logging.logW
 import org.elnix.dragonlauncher.common.serializables.SwipeActionSerializable
 import org.elnix.dragonlauncher.common.serializables.SwipePointSerializable
 import org.elnix.dragonlauncher.common.serializables.defaultSwipePointsValues
@@ -82,6 +88,7 @@ import org.elnix.dragonlauncher.ui.dialogs.PinUnlockDialog
 import org.elnix.dragonlauncher.ui.dialogs.UserValidation
 import org.elnix.dragonlauncher.ui.dialogs.WidgetPickerDialog
 import org.elnix.dragonlauncher.ui.drawer.AppDrawerScreen
+import org.elnix.dragonlauncher.ui.helpers.PrivateSpaceStateDebugScreen
 import org.elnix.dragonlauncher.ui.helpers.ReselectAutoBackupBanner
 import org.elnix.dragonlauncher.ui.helpers.SecurityHelper
 import org.elnix.dragonlauncher.ui.helpers.SetDefaultLauncherBanner
@@ -132,6 +139,8 @@ fun MainAppUi(
     val scope = rememberCoroutineScope()
 
     val result by backupViewModel.result.collectAsState()
+
+    val privateSpaceState = appsViewModel.privateSpaceState
 
     // Changelogs system
     val lastSeenVersionCode by PrivateSettingsStore.lastSeenVersionCode.asState()
@@ -192,6 +201,20 @@ fun MainAppUi(
     var startDestination by remember { mutableStateOf(SETTINGS.ROOT) }
 
 
+    // ───────────── Lock gate state ─────────────
+    val lockMethod by PrivateSettingsStore.lockMethod.asState()
+    val pinHash by PrivateSettingsStore.lockPinHash.asState()
+
+    /** Once unlocked during this session, stay unlocked */
+    var isUnlocked by remember { mutableStateOf(false) }
+    var showPinDialog by remember { mutableStateOf(false) }
+    var pinError by remember { mutableStateOf<String?>(null) }
+
+
+    LaunchedEffect(lockMethod) {
+        isUnlocked = true
+    }
+
     /*  ─────────────  Wellbeing Settings  ─────────────  */
     val socialMediaPauseEnabled by WellbeingSettingsStore.socialMediaPauseEnabled.asState()
     val guiltModeEnabled by WellbeingSettingsStore.guiltModeEnabled.asState()
@@ -212,6 +235,8 @@ fun MainAppUi(
     ) { result ->
         if (pendingPackageToLaunch != null) {
             val packageName = pendingPackageToLaunch!!
+
+            ctx.logD(APP_LAUNCH_TAG, "result: $result")
 
             if (result.resultCode == DigitalPauseActivity.RESULT_PROCEED) {
                 try {
@@ -274,6 +299,7 @@ fun MainAppUi(
                 }
             }
         }
+        pendingUserIdToLaunch = null
         pendingPackageToLaunch = null
         pendingAppName = null
     }
@@ -305,6 +331,7 @@ fun MainAppUi(
     /* navigation functions, all settings are nested under the lock state */
 
     fun goMainScreen() {
+        isUnlocked = false
         navController.navigate(ROUTES.MAIN) {
             popUpTo(0) { inclusive = true }
         }
@@ -316,16 +343,6 @@ fun MainAppUi(
     LaunchedEffect(hasSeenWelcome) {
         if (hasSeenWelcome == false) goWelcome()
     }
-
-    // ── Lock gate state ──
-    val lockMethod by PrivateSettingsStore.lockMethod.asState()
-    val pinHash by PrivateSettingsStore.lockPinHash.asState()
-
-    /** Once unlocked during this session, stay unlocked */
-    var isUnlocked by remember { mutableStateOf(false) }
-    var showPinDialog by remember { mutableStateOf(false) }
-    var pinError by remember { mutableStateOf<String?>(null) }
-
 
     LaunchedEffect(Unit) {
         appLifecycleViewModel.homeEvents.collect {
@@ -428,9 +445,31 @@ fun MainAppUi(
                 onOpenPrivateSpaceApp = { action ->
                     if (action !is SwipeActionSerializable.LaunchApp) return@launchSwipeAction
 
-                    onUnlockPrivateSpace()
-                    pendingPackageToLaunch = action.packageName
+                    if (privateSpaceState.value.isLocked) {
+                        ctx.logW(APP_LAUNCH_TAG, "Calling onOnUnlock")
 
+                        onUnlockPrivateSpace()
+                    }
+
+
+
+                    scope.launch {
+
+                        logD(APP_LAUNCH_TAG, "Waiting for private space to unlock before launch")
+
+                        val unlocked = withTimeoutOrNull(10_000L) {
+                            privateSpaceState
+                                .filter { !it.isLocked }
+                                .first()
+                        }
+
+                        if (unlocked != null) {
+                            logD(APP_LAUNCH_TAG, "Private space unlocked, launching")
+                            launchAction(dummySwipePoint(action.copy(isPrivateSpace = false)))
+                        } else {
+                            logW(APP_LAUNCH_TAG, "Timeout expired for private space unlock")
+                        }
+                    }
                 },
                 onReloadApps = { scope.launch { appsViewModel.reloadApps() } },
                 onReselectFile = { showFilePicker = point },
@@ -792,5 +831,12 @@ fun MainAppUi(
             },
             errorMessage = pinError
         )
+    }
+
+    // Private space optional debug info
+    val state by privateSpaceState.collectAsState()
+    val privateSpaceDebugInfo by DebugSettingsStore.privateSpaceDebugInfo.asState()
+    AnimatedVisibility(privateSpaceDebugInfo) {
+        PrivateSpaceStateDebugScreen(state)
     }
 }
