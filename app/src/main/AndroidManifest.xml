@@ -24,6 +24,9 @@
 
     <uses-permission android:name="android.permission.INTERACT_ACROSS_USERS" />
 
+    <!-- Android 15+: Permission to access Private Space and other hidden profiles -->
+    <uses-permission android:name="android.permission.ACCESS_HIDDEN_PROFILES" />
+
     <uses-permission android:name="com.android.alarm.permission.SET_ALARM" />
     <uses-permission android:name="android.permission.VIBRATE" />
 
@@ -98,6 +101,15 @@
             android:theme="@style/DragonLauncherTheme"
             android:excludeFromRecents="true"
             android:launchMode="singleTop" />
+
+
+        <activity
+            android:name="org.elnix.dragonlauncher.PrivateSpaceUnlockActivity"
+            android:exported="false"
+            android:theme="@style/DragonLauncherTheme" />
+
+
+
 
         <service
             android:name="org.elnix.dragonlauncher.ui.wellbeing.OverlayReminderService"
@@ -174,6 +186,18 @@
             <meta-data
                 android:name="android.appwidget.provider"
                 android:resource="@xml/dragon_widget_info" />
+        </receiver>
+
+        <!-- Private Space receiver for Android 15+ -->
+        <receiver
+            android:name=".PrivateSpaceReceiver"
+            android:exported="false"
+            android:enabled="true"
+            tools:targetApi="35">
+            <intent-filter>
+                <action android:name="android.intent.action.PROFILE_AVAILABLE" />
+                <action android:name="android.intent.action.PROFILE_UNAVAILABLE" />
+            </intent-filter>
         </receiver>
 
     </application>

@@ -2,6 +2,8 @@
 
 package org.elnix.dragonlauncher.ui.dialogs
 
+import androidx.compose.animation.AnimatedContent
+import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.horizontalScroll
@@ -101,7 +103,9 @@ fun AppPickerDialog(
 
     CustomAlertDialog(
         alignment = Alignment.Center,
-        modifier = Modifier.padding(15.dp).height(700.dp),
+        modifier = Modifier
+            .padding(15.dp)
+            .height(700.dp),
         onDismissRequest = {
             if (isMultiSelectMode) {
                 isMultiSelectMode = false
@@ -120,77 +124,87 @@ fun AppPickerDialog(
                     modifier = Modifier
                         .height(75.dp)
                 ) {
-                    if (!isSearchBarEnabled) {
-                        Text(
-                            text = if (isMultiSelectMode)
-                                stringResource(R.string.multi_select_count, selectedApps.size)
-                            else
-                                stringResource(R.string.select_app),
-                            color = MaterialTheme.colorScheme.onSurface,
-                            modifier = Modifier.weight(1f)
-                        )
+                    AnimatedContent(
+                        targetState = isSearchBarEnabled
+                    ) {
+                        if (it) {
+                            Text(
+                                text = if (isMultiSelectMode)
+                                    stringResource(R.string.multi_select_count, selectedApps.size)
+                                else
+                                    stringResource(R.string.select_app),
+                                color = MaterialTheme.colorScheme.onSurface,
+                                modifier = Modifier.weight(1f)
+                            )
 
-                        if (isMultiSelectMode) {
+
+                            AnimatedVisibility(isMultiSelectMode) {
+                                DragonIconButton(
+                                    onClick = {
+                                        isMultiSelectMode = false
+                                        selectedApps.clear()
+                                    },
+                                    colors = AppObjectsColors.iconButtonColors()
+                                ) {
+                                    Icon(
+                                        imageVector = Icons.Default.Deselect,
+                                        contentDescription = stringResource(R.string.deselect_all)
+                                    )
+                                }
+                            }
+
                             DragonIconButton(
-                                onClick = {
-                                    isMultiSelectMode = false
-                                    selectedApps.clear()
-                                },
+                                onClick = { isSearchBarEnabled = true },
                                 colors = AppObjectsColors.iconButtonColors()
                             ) {
                                 Icon(
-                                    imageVector = Icons.Default.Deselect,
-                                    contentDescription = stringResource(R.string.deselect_all)
+                                    imageVector = Icons.Default.Search,
+                                    contentDescription = stringResource(R.string.search_apps)
                                 )
                             }
-                        }
 
-                        DragonIconButton(
-                            onClick = { isSearchBarEnabled = true },
-                            colors = AppObjectsColors.iconButtonColors()
-                        ) {
-                            Icon(
-                                imageVector = Icons.Default.Search,
-                                contentDescription = stringResource(R.string.search_apps)
-                            )
-                        }
-
-                        DragonIconButton(
-                            onClick = { scope.launch { appsViewModel.reloadApps() } },
-                            colors = AppObjectsColors.iconButtonColors()
-                        ) {
-                            Icon(
-                                imageVector = Icons.Default.RestartAlt,
-                                contentDescription = stringResource(R.string.reload_apps)
-                            )
-                        }
-                    } else {
-                        TextField(
-                            value = searchQuery,
-                            onValueChange = { searchQuery = it },
-                            singleLine = true,
-                            leadingIcon = {
+                            DragonIconButton(
+                                onClick = { scope.launch { appsViewModel.reloadApps() } },
+                                colors = AppObjectsColors.iconButtonColors()
+                            ) {
                                 Icon(
-                                    imageVector = Icons.Default.Close,
-                                    contentDescription = stringResource(R.string.close),
-                                    tint = MaterialTheme.colorScheme.error,
-                                    modifier = Modifier.clickable {
-                                        searchQuery = ""
-                                        isSearchBarEnabled = false
-                                    }
+                                    imageVector = Icons.Default.RestartAlt,
+                                    contentDescription = stringResource(R.string.reload_apps)
                                 )
-                            },
-                            placeholder = {
-                                Text(
-                                    text = stringResource(R.string.search_apps),
-                                    color = MaterialTheme.colorScheme.onSurface
-                                )
-                            },
-                            colors = AppObjectsColors.outlinedTextFieldColors(backgroundColor = MaterialTheme.colorScheme.surface.adjustBrightness(0.7f), removeBorder = true),
-                            modifier = Modifier
-                                .clip(CircleShape),
-                            maxLines = 1
-                        )
+                            }
+                        } else {
+                            TextField(
+                                value = searchQuery,
+                                onValueChange = { searchQuery = it },
+                                singleLine = true,
+                                leadingIcon = {
+                                    Icon(
+                                        imageVector = Icons.Default.Close,
+                                        contentDescription = stringResource(R.string.close),
+                                        tint = MaterialTheme.colorScheme.error,
+                                        modifier = Modifier.clickable {
+                                            searchQuery = ""
+                                            isSearchBarEnabled = false
+                                        }
+                                    )
+                                },
+                                placeholder = {
+                                    Text(
+                                        text = stringResource(R.string.search_apps),
+                                        color = MaterialTheme.colorScheme.onSurface
+                                    )
+                                },
+                                colors = AppObjectsColors.outlinedTextFieldColors(
+                                    backgroundColor = MaterialTheme.colorScheme.surface.adjustBrightness(
+                                        0.7f
+                                    ), removeBorder = true
+                                ),
+                                modifier = Modifier
+                                    .fillMaxWidth()
+                                    .clip(CircleShape),
+                                maxLines = 1
+                            )
+                        }
                     }
                 }
 
@@ -226,7 +240,7 @@ fun AppPickerDialog(
                 }
 
                 // Multi-select hint
-                if (multiSelectEnabled && !isMultiSelectMode) {
+                AnimatedVisibility(multiSelectEnabled && !isMultiSelectMode) {
                     Text(
                         text = stringResource(R.string.multi_select_drawer_hint),
                         style = MaterialTheme.typography.bodySmall,
@@ -251,7 +265,12 @@ fun AppPickerDialog(
                         .collectAsState(initial = emptyList())
 
                     val filteredApps = if (isSearchBarEnabled)
-                        apps.filter { it.name.contains(searchQuery, ignoreCase = true) || it.packageName.contains(searchQuery, ignoreCase = true) }
+                        apps.filter {
+                            it.name.contains(
+                                searchQuery,
+                                ignoreCase = true
+                            ) || it.packageName.contains(searchQuery, ignoreCase = true)
+                        }
                     else apps
 
                     if (multiSelectEnabled) {
@@ -328,7 +347,11 @@ fun AppPickerDialog(
                             shape = DragonShape,
                             modifier = Modifier.fillMaxWidth()
                         ) {
-                            Icon(Icons.AutoMirrored.Filled.PlaylistAddCheck, null, modifier = Modifier.size(20.dp))
+                            Icon(
+                                Icons.AutoMirrored.Filled.PlaylistAddCheck,
+                                null,
+                                modifier = Modifier.size(20.dp)
+                            )
                             Spacer(Modifier.width(8.dp))
                             Text(stringResource(R.string.add_all_auto))
                         }
@@ -343,7 +366,11 @@ fun AppPickerDialog(
                             shape = DragonShape,
                             modifier = Modifier.fillMaxWidth()
                         ) {
-                            Icon(Icons.AutoMirrored.Filled.PlaylistAdd, null, modifier = Modifier.size(20.dp))
+                            Icon(
+                                Icons.AutoMirrored.Filled.PlaylistAdd,
+                                null,
+                                modifier = Modifier.size(20.dp)
+                            )
                             Spacer(Modifier.width(8.dp))
                             Text(stringResource(R.string.add_all_manual))
                         }

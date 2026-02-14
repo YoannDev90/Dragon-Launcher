@@ -43,7 +43,9 @@ fun WorkspaceListScreen(
     onBack: () -> Unit
 ) {
     val scope = rememberCoroutineScope()
+//    val ctx = LocalContext.current
     val state by appsViewModel.state.collectAsState()
+//    val showPrivateSpaceWorkspace by DrawerSettingsStore.showPrivateSpaceWorkspace.asState()
 
     var showCreateDialog by remember { mutableStateOf(false) }
     var renameTarget by remember { mutableStateOf<Workspace?>(null) }
@@ -92,15 +94,34 @@ fun WorkspaceListScreen(
                         workspace = ws,
                         reorderState = reorderState,
                         isDragging = isDragging,
-                        onClick = { onOpenWorkspace(ws.id) },
+                        onClick = {
+                            if (ws.type != WorkspaceType.PRIVATE) {
+                                onOpenWorkspace(ws.id)
+                            }
+                        },
                         onCheck = { scope.launch { appsViewModel.setWorkspaceEnabled(ws.id, it) } },
+//                        onPrivateVisibilityToggle = if (ws.type == WorkspaceType.PRIVATE) {
+//                            { enabled ->
+//                                scope.launch {
+//                                    DrawerSettingsStore.showPrivateSpaceWorkspace.set(
+//                                        ctx,
+//                                        enabled
+//                                    )
+//                                }
+//                            }
+//                        } else null,
+//                        isPrivateVisibleInDrawer = showPrivateSpaceWorkspace,
                         onAction = { action ->
                             when (action) {
                                 WorkspaceAction.Rename -> {
                                     renameTarget = ws
                                     nameBuffer = ws.name
                                 }
-                                WorkspaceAction.Delete -> { showDeleteConfirm = ws }
+                                WorkspaceAction.Delete -> {
+                                    if (ws.type != WorkspaceType.PRIVATE) {
+                                        showDeleteConfirm = ws
+                                    }
+                                }
                             }
                         }
                     )

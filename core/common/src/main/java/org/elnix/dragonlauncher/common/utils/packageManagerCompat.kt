@@ -15,42 +15,60 @@ import androidx.annotation.RequiresApi
 import androidx.compose.ui.graphics.ImageBitmap
 import androidx.core.content.ContextCompat
 import org.elnix.dragonlauncher.common.R
+import org.elnix.dragonlauncher.common.logging.logD
 import org.elnix.dragonlauncher.common.logging.logE
+import org.elnix.dragonlauncher.common.logging.logI
 import org.elnix.dragonlauncher.common.serializables.AppModel
 import org.elnix.dragonlauncher.common.serializables.mapAppToSection
+import org.elnix.dragonlauncher.common.utils.Constants.Logging.APPS_TAG
 import org.elnix.dragonlauncher.common.utils.Constants.Logging.TAG
 import org.elnix.dragonlauncher.common.utils.ImageUtils.loadDrawableAsBitmap
 
 class PackageManagerCompat(private val pm: PackageManager, private val ctx: Context) {
 
     fun getInstalledPackages(flags: Int = 0): List<PackageInfo> {
-        return if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
-            pm.getInstalledPackages(flags)
-        } else {
-            pm.getInstalledPackages(flags)
-        }
+        return pm.getInstalledPackages(flags)
     }
-
 
     fun getAllApps(): List<AppModel> {
         val userManager = ctx.getSystemService(Context.USER_SERVICE) as UserManager
         val launcherApps = ctx.getSystemService(LauncherApps::class.java)
-        val pm = ctx.packageManager
 
         val result = mutableListOf<AppModel>()
 
         userManager.userProfiles.forEach { userHandle ->
-            val isWorkProfile = userHandle != Process.myUserHandle()
             val userId = userHandle.hashCode()
+            val isMainProfile = userHandle == Process.myUserHandle()
 
-            /* ────────── 1. Launchable apps (LauncherApps) ────────── */
+            var isWorkProfile = false
+            var isPrivateProfile = false
+
+            if (!isMainProfile) {
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.VANILLA_ICE_CREAM) {
+                    try {
+                        val userInfo = launcherApps?.getLauncherUserInfo(userHandle)
+                        val userType = userInfo?.userType
+
+                        isPrivateProfile = userType == "android.os.usertype.profile.PRIVATE"
+                        isWorkProfile = !isPrivateProfile
+                    } catch (e: Exception) {
+                        logE(APPS_TAG, e.toString())
+                        isWorkProfile = false
+                        isPrivateProfile = false
+                    }
+                } else {
+                    isWorkProfile = true
+                }
+            }
+
             val activities = launcherApps
                 ?.getActivityList(null, userHandle)
                 ?: emptyList()
 
+            logD(TAG, "Loading ${activities.size} apps for userId: $userId (Private: $isPrivateProfile)")
+
             activities.forEach { activity ->
                 val appInfo = activity.applicationInfo
-
                 val category = mapAppToSection(appInfo)
                 val pkg = appInfo.packageName
 
@@ -63,46 +81,44 @@ class PackageManagerCompat(private val pm: PackageManager, private val ctx: Cont
                     isEnabled = true,
                     isSystem = isSystemApp(appInfo),
                     isWorkProfile = isWorkProfile,
+                    isPrivateProfile = isPrivateProfile,
                     isLaunchable = true,
                     category = category
                 )
             }
 
+            if (isMainProfile) {
+                pm.getInstalledApplications(PackageManager.GET_META_DATA)
+                    .forEach { appInfo ->
+                        val pkg = appInfo.packageName
+                        val category = mapAppToSection(appInfo)
 
-             /* ────────── 2. Non-launchable system apps (PackageManager) ────────── */
-            pm.getInstalledApplications(PackageManager.GET_META_DATA)
-                .forEach { appInfo ->
-                    val pkg = appInfo.packageName
-                    val category = mapAppToSection(appInfo)
+                        if (result.any { it.packageName == pkg && it.userId == userId }) return@forEach
+                        if (!isSystemApp(appInfo)) return@forEach
+                        if (!appInfo.enabled) return@forEach
 
-
-                    // Skip apps already added via LauncherApps
-                    if (result.any { it.packageName == pkg && it.userId == userId }) return@forEach
-
-                    // Only add enabled system apps
-                    if (!isSystemApp(appInfo)) return@forEach
-                    if (!appInfo.enabled) return@forEach
-
-                    val label = pm.getApplicationLabel(appInfo).toString()
-
-                    result += AppModel(
-                        name = label,
-                        packageName = pkg,
-                        userId = userId,
-                        isEnabled = true,
-                        isSystem = true,
-                        isWorkProfile = isWorkProfile,
-                        isLaunchable = false,
-                        category = category
-                    )
-                }
+                        result += AppModel(
+                            name = pm.getApplicationLabel(appInfo).toString(),
+                            packageName = pkg,
+                            userId = userId,
+                            isEnabled = true,
+                            isSystem = true,
+                            isWorkProfile = false,
+                            isPrivateProfile = false,
+                            isLaunchable = false,
+                            category = category
+                        )
+                    }
+            }
         }
 
-        return result
-            .distinctBy { "${it.packageName}_${it.userId}" }
+        val privateCount = result.count { it.isPrivateProfile }
+        val workCount = result.count { it.isWorkProfile }
+        val userCount = result.count { !it.isPrivateProfile && !it.isWorkProfile }
+        logI(TAG, "Apps loaded: $userCount user, $workCount work, $privateCount private (total: ${result.size})")
+
+        return result.distinctBy { "${it.packageName}_${it.userId}" }
     }
-
-
 
     private fun isAppEnabled(pkgName: String): Boolean {
         return try {
@@ -113,7 +129,6 @@ class PackageManagerCompat(private val pm: PackageManager, private val ctx: Cont
         }
     }
 
-
     private fun isSystemApp(appInfo: ApplicationInfo): Boolean {
         val isSystem = (appInfo.flags and ApplicationInfo.FLAG_SYSTEM) != 0
         val isUpdatedSystem = (appInfo.flags and ApplicationInfo.FLAG_UPDATED_SYSTEM_APP) != 0
@@ -121,10 +136,44 @@ class PackageManagerCompat(private val pm: PackageManager, private val ctx: Cont
                 (appInfo.packageName.startsWith("com.android.") || appInfo.packageName.startsWith("android"))
     }
 
-    fun getAppIcon(
-        packageName: String,
-        userId: Int
-    ): Drawable {
+    /**
+     * Return a snapshot of packages visible on the main profile (User 0).
+     * Used for differential detection when unlocking Private Space: capture before and after
+     * and compute the difference.
+     */
+    fun snapshotMainProfilePackageNames(): Set<String> {
+        val packages = mutableSetOf<String>()
+        try {
+            val launcherApps = ctx.getSystemService(LauncherApps::class.java)
+            val userHandle = Process.myUserHandle()
+            val activities = launcherApps?.getActivityList(null, userHandle) ?: emptyList()
+            activities.forEach { act -> packages.add(act.applicationInfo.packageName) }
+
+            logD(TAG, "snapshotMainProfilePackageNames: found ${packages.size} launcher-visible packages")
+        } catch (e: Exception) {
+            logE(TAG, "Error snapshotting main profile packages: ${e.message}")
+        }
+        return packages
+    }
+
+    /**
+     * Check whether a package is visible/launchable for a given userId.
+     * Returns true if LauncherApps reports an activity for that package in the specified user.
+     */
+    fun isPackageVisibleForUser(packageName: String, userId: Int): Boolean {
+        try {
+            val launcherApps = ctx.getSystemService(LauncherApps::class.java) ?: return false
+            val userManager = ctx.getSystemService(UserManager::class.java) ?: return false
+            val userHandle = userManager.userProfiles.firstOrNull { it.hashCode() == userId } ?: return false
+            val activities = launcherApps.getActivityList(packageName, userHandle)
+            return !activities.isNullOrEmpty()
+        } catch (e: Exception) {
+            logE(TAG, "Error checking package visibility for user $userId: ${e.message}")
+            return false
+        }
+    }
+
+    fun getAppIcon(packageName: String, userId: Int, isPrivateProfile: Boolean = false): Drawable {
         val launcherApps = ctx.getSystemService(LauncherApps::class.java)
         val userManager = ctx.getSystemService(UserManager::class.java)
 
@@ -133,39 +182,36 @@ class PackageManagerCompat(private val pm: PackageManager, private val ctx: Cont
             ?: Process.myUserHandle()
 
         return try {
-            // ─── WORK PROFILE OR ANY NON-CURRENT USER ───
-            if (userHandle != Process.myUserHandle() && launcherApps != null) {
+            val isMainProfile = userHandle == Process.myUserHandle()
 
-                // Try launcher activity icon first (correct & badged)
+            if (!isMainProfile && !isPrivateProfile && launcherApps != null) {
                 val activities = launcherApps.getActivityList(packageName, userHandle)
                 if (!activities.isNullOrEmpty()) {
                     return activities[0].getBadgedIcon(0)
                 }
-
-                // Fallback: application icon via LauncherApps
-                val appInfo = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-                    launcherApps.getApplicationInfo(
-                        packageName,
-                        0,
-                        userHandle
-                    )
-                } else {
-                    pm.getApplicationInfo(packageName, 0)
-                }
-
+                val appInfo =
+                    launcherApps.getApplicationInfo(packageName, 0, userHandle)
                 return appInfo.loadIcon(pm)
             }
 
-            // ─── PERSONAL PROFILE ───
+            if (isPrivateProfile && launcherApps != null) {
+                val activities = launcherApps.getActivityList(packageName, userHandle)
+                if (!activities.isNullOrEmpty()) {
+                    return activities[0].getBadgedIcon(0)
+                }
+                val appInfo =
+                    launcherApps.getApplicationInfo(packageName, 0, userHandle)
+                return appInfo.loadIcon(pm)
+            }
+
             val appInfo = pm.getApplicationInfo(packageName, 0)
             appInfo.loadIcon(pm)
 
         } catch (e: Exception) {
-            logE(TAG, "Failed to load icon for $packageName (userId=$userId)", e)
+            logD(APPS_TAG, e.toString())
             ContextCompat.getDrawable(ctx, R.drawable.ic_app_default)!!
         }
     }
-
 
     fun getResourcesForApplication(pkgName: String): Resources {
         return pm.getResourcesForApplication(pkgName)
@@ -173,18 +219,9 @@ class PackageManagerCompat(private val pm: PackageManager, private val ctx: Cont
 
     @RequiresApi(Build.VERSION_CODES.R)
     fun queryAppShortcuts(packageName: String): List<ShortcutInfo> {
-        logE(TAG, "Starting queryAppShortcuts for package: $packageName")
-
         try {
-            logE(TAG, "Getting LauncherApps service...")
-            val launcherApps = ctx.getSystemService(LauncherApps::class.java)
-            if (launcherApps == null) {
-                logE(TAG, "LauncherApps service is null - returning empty list")
-                return emptyList()
-            }
-            logE(TAG, "LauncherApps service obtained successfully")
+            val launcherApps = ctx.getSystemService(LauncherApps::class.java) ?: return emptyList()
 
-            logE(TAG, "Creating ShortcutQuery with flags...")
             val query = LauncherApps.ShortcutQuery()
                 .setPackage(packageName)
                 .setQueryFlags(
@@ -193,41 +230,18 @@ class PackageManagerCompat(private val pm: PackageManager, private val ctx: Cont
                             LauncherApps.ShortcutQuery.FLAG_MATCH_PINNED or
                             LauncherApps.ShortcutQuery.FLAG_MATCH_CACHED
                 )
-            logE(TAG, "ShortcutQuery created with package: $packageName and flags: $query")
 
-            logE(TAG, "Getting current userHandle...")
             val userHandle = Process.myUserHandle()
-            logE(TAG, "UserHandle obtained: $userHandle")
-
-            logE(TAG, "Calling getShortcuts with query and userHandle...")
             val shortcuts = launcherApps.getShortcuts(query, userHandle)
-            logE(TAG, "getShortcuts returned: ${shortcuts?.size ?: 0} shortcuts")
 
-            if (shortcuts != null) {
-                logE(TAG, "Shortcuts details: ${shortcuts.joinToString { it.id }}")
-                return shortcuts
-            } else {
-                logE(TAG, "getShortcuts returned null - returning empty list")
-                return emptyList()
-            }
+            return shortcuts ?: emptyList()
 
-        } catch (e: SecurityException) {
-            logE(TAG, "SecurityException: ${e.message}", e)
-            ctx.showToast("Need to be default launcher to query shortcuts")
-            return emptyList()
-        } catch (e: IllegalStateException) {
-            logE(TAG, "IllegalStateException: ${e.message}", e)
-            return emptyList()
-        } catch (e: NullPointerException) {
-            logE(TAG, "NullPointerException: ${e.message}", e)
-            return emptyList()
         } catch (e: Exception) {
-            logE(TAG, "Unexpected exception: ${e.message}", e)
+            logD(APPS_TAG, e.toString())
             return emptyList()
         }
     }
 }
-
 
 fun launchShortcut(ctx: Context, pkg: String, id: String) {
     val launcherApps = ctx.getSystemService(LauncherApps::class.java) ?: return
@@ -237,7 +251,6 @@ fun launchShortcut(ctx: Context, pkg: String, id: String) {
         e.printStackTrace()
     }
 }
-
 
 fun loadShortcutIcon(
     ctx: Context,
@@ -261,7 +274,6 @@ fun loadShortcutIcon(
 
         val drawable = launcherApps.getShortcutIconDrawable(shortcut, 0) ?: return null
 
-        // Convert Drawable → ImageBitmap
         return loadDrawableAsBitmap(drawable, 48, 48)
     } catch (e: Exception) {
         e.printStackTrace()

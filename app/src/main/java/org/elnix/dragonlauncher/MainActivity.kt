@@ -16,18 +16,24 @@ import android.view.WindowManager
 import androidx.activity.compose.setContent
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.activity.viewModels
+import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.platform.LocalContext
 import androidx.core.view.WindowCompat
 import androidx.core.view.WindowInsetsCompat
 import androidx.core.view.WindowInsetsControllerCompat
 import androidx.fragment.app.FragmentActivity
+import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.LifecycleEventObserver
+import androidx.lifecycle.compose.LocalLifecycleOwner
 import androidx.lifecycle.lifecycleScope
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.rememberNavController
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import org.elnix.dragonlauncher.common.R
@@ -39,6 +45,7 @@ import org.elnix.dragonlauncher.common.serializables.SwipePointSerializable
 import org.elnix.dragonlauncher.common.utils.Constants.Logging.WIDGET_TAG
 import org.elnix.dragonlauncher.common.utils.Constants.Navigation.ignoredReturnRoutes
 import org.elnix.dragonlauncher.common.utils.Constants.Settings.HOME_REENTER_WINDOW_MS
+import org.elnix.dragonlauncher.common.utils.PrivateSpaceUtils
 import org.elnix.dragonlauncher.common.utils.ROUTES
 import org.elnix.dragonlauncher.common.utils.WidgetHostProvider
 import org.elnix.dragonlauncher.common.utils.showToast
@@ -58,9 +65,9 @@ import java.util.UUID
 
 class MainActivity : FragmentActivity(), WidgetHostProvider {
 
-    private val appLifecycleViewModel : AppLifecycleViewModel by viewModels()
-    private val backupViewModel : BackupViewModel by viewModels()
-    private val floatingAppsViewModel : FloatingAppsViewModel by viewModels()
+    private val appLifecycleViewModel: AppLifecycleViewModel by viewModels()
+    private val backupViewModel: BackupViewModel by viewModels()
+    private val floatingAppsViewModel: FloatingAppsViewModel by viewModels()
 
     private var navControllerHolder = mutableStateOf<NavHostController?>(null)
 
@@ -169,7 +176,10 @@ class MainActivity : FragmentActivity(), WidgetHostProvider {
                     val info = try {
                         appWidgetManager.getAppWidgetInfo(widgetId)
                     } catch (e: SecurityException) {
-                        logW(WIDGET_TAG, "Cannot get AppWidgetInfo for widgetId=$widgetId: ${e.message}")
+                        logW(
+                            WIDGET_TAG,
+                            "Cannot get AppWidgetInfo for widgetId=$widgetId: ${e.message}"
+                        )
                         null
                     }
 
@@ -216,12 +226,22 @@ class MainActivity : FragmentActivity(), WidgetHostProvider {
             } catch (e: Exception) {
                 logW(WIDGET_TAG, "Failed to launch configure activity: ${e.message}")
                 this.showToast("Failed to launch configure activity: ${e.message}")
-                floatingAppsViewModel.addFloatingApp(SwipeActionSerializable.OpenWidget(widgetId,info.provider), info, pendingAddNestId!!)
+                floatingAppsViewModel.addFloatingApp(
+                    SwipeActionSerializable.OpenWidget(
+                        widgetId,
+                        info.provider
+                    ), info, pendingAddNestId!!
+                )
             }
 
         } else {
             logD(WIDGET_TAG, "No configuration needed, adding widget")
-            floatingAppsViewModel.addFloatingApp(SwipeActionSerializable.OpenWidget(widgetId,info.provider), info, pendingAddNestId!!)
+            floatingAppsViewModel.addFloatingApp(
+                SwipeActionSerializable.OpenWidget(
+                    widgetId,
+                    info.provider
+                ), info, pendingAddNestId!!
+            )
         }
     }
 
@@ -238,7 +258,12 @@ class MainActivity : FragmentActivity(), WidgetHostProvider {
 
 
             if (result.resultCode == RESULT_OK) {
-                floatingAppsViewModel.addFloatingApp(SwipeActionSerializable.OpenWidget(widgetId,info.provider), info, pendingAddNestId!!)
+                floatingAppsViewModel.addFloatingApp(
+                    SwipeActionSerializable.OpenWidget(
+                        widgetId,
+                        info.provider
+                    ), info, pendingAddNestId!!
+                )
             } else {
                 logW(WIDGET_TAG, "Widget configure canceled, deleting $widgetId")
                 appWidgetHost.deleteAppWidgetId(widgetId)
@@ -261,7 +286,6 @@ class MainActivity : FragmentActivity(), WidgetHostProvider {
     fun deleteWidget(widgetId: Int) {
         appWidgetHost.deleteAppWidgetId(widgetId)
     }
-
 
 
     private val packageReceiver = PackageReceiver()
@@ -297,6 +321,8 @@ class MainActivity : FragmentActivity(), WidgetHostProvider {
 
         setContent {
             val ctx = LocalContext.current
+            val scope = rememberCoroutineScope()
+            val lifecycleOwner = LocalLifecycleOwner.current
 
             val appsViewModel = remember(ctx) {
                 (ctx.applicationContext as MyApplication).appsViewModel
@@ -304,6 +330,39 @@ class MainActivity : FragmentActivity(), WidgetHostProvider {
 
             // May be used in the future for some quit action / operation
 //            DoubleBackToExit()
+
+
+
+            // Used to visually block private space content on windows quit, and if user locks his phone,
+            // the apps are also visually blocked, since they can't be launched
+            DisposableEffect(lifecycleOwner) {
+                val observer = LifecycleEventObserver { _, event ->
+                    if (
+                        event == Lifecycle.Event.ON_RESUME &&
+                        PrivateSpaceUtils.isPrivateSpaceSupported()
+                    ) {
+                        val locked = PrivateSpaceUtils.isPrivateSpaceLocked(ctx) ?: false
+
+                        // If private space is locked on return, set it unavailable on the viewmodel state
+                        if (locked) {
+                            appsViewModel.setPrivateSpaceLocked()
+                        } else { // Set it available
+//                            appsViewModel.setPrivateSpaceAvailable()
+
+                            scope.launch(Dispatchers.IO) {
+                                appsViewModel.reloadPrivateSpace()
+                            }
+                        }
+                    }
+                }
+
+                // Add the observer to the lifecycle
+                lifecycleOwner.lifecycle.addObserver(observer)
+
+                onDispose {
+                    lifecycleOwner.lifecycle.removeObserver(observer)
+                }
+            }
 
 
             val keepScreenOn by BehaviorSettingsStore.keepScreenOn.asState()
@@ -325,7 +384,8 @@ class MainActivity : FragmentActivity(), WidgetHostProvider {
             LaunchedEffect(Unit, fullscreen) {
                 if (fullscreen) {
                     controller.hide(WindowInsetsCompat.Type.systemBars())
-                    controller.systemBarsBehavior = WindowInsetsControllerCompat.BEHAVIOR_SHOW_TRANSIENT_BARS_BY_SWIPE
+                    controller.systemBarsBehavior =
+                        WindowInsetsControllerCompat.BEHAVIOR_SHOW_TRANSIENT_BARS_BY_SWIPE
                 } else {
                     controller.show(WindowInsetsCompat.Type.systemBars())
                 }
@@ -336,7 +396,8 @@ class MainActivity : FragmentActivity(), WidgetHostProvider {
                 if (hasInitialized == false) {
 
                     /* ───────────── Create the 3 default points (has to be changed ───────────── */
-                    SwipeSettingsStore.savePoints(ctx,
+                    SwipeSettingsStore.savePoints(
+                        ctx,
                         listOf(
                             SwipePointSerializable(
                                 circleNumber = 0,
@@ -376,13 +437,19 @@ class MainActivity : FragmentActivity(), WidgetHostProvider {
                     appLifecycleViewModel = appLifecycleViewModel,
                     widgetHostProvider = this,
                     navController = navController,
+                    onUnlockPrivateSpace = {
+                        ctx.startActivity(
+                            Intent(this, PrivateSpaceUnlockActivity::class.java)
+                        )
+                    },
                     onBindCustomWidget = { widgetId, provider, nestId ->
                         pendingAddNestId = nestId
                         (ctx as MainActivity).bindWidgetFromCustomPicker(widgetId, provider)
                     },
                     onLaunchSystemWidgetPicker = { nestId ->
                         pendingAddNestId = nestId
-                        (ctx as MainActivity).launchWidgetPicker() },
+                        (ctx as MainActivity).launchWidgetPicker()
+                    },
                     onResetWidgetSize = { id, widgetId ->
                         val info = appWidgetManager.getAppWidgetInfo(widgetId)
                         floatingAppsViewModel.resetFloatingAppSize(id, info)

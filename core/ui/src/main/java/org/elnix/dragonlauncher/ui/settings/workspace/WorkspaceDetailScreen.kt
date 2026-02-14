@@ -43,7 +43,6 @@ import org.elnix.dragonlauncher.models.AppsViewModel
 import org.elnix.dragonlauncher.settings.stores.DebugSettingsStore
 import org.elnix.dragonlauncher.settings.stores.DrawerSettingsStore
 import org.elnix.dragonlauncher.settings.stores.UiSettingsStore
-import org.elnix.dragonlauncher.ui.actions.launchSwipeAction
 import org.elnix.dragonlauncher.ui.components.generic.ActionRow
 import org.elnix.dragonlauncher.ui.dialogs.AppAliasesDialog
 import org.elnix.dragonlauncher.ui.dialogs.AppLongPressDialog
@@ -61,7 +60,8 @@ fun WorkspaceDetailScreen(
     gridSize: Int,
     workspaceId: String,
     appsViewModel: AppsViewModel,
-    onBack: () -> Unit
+    onBack: () -> Unit,
+    onLaunchAction: (SwipeActionSerializable) -> Unit
 ) {
     val scope = rememberCoroutineScope()
     val ctx = LocalContext.current
@@ -181,13 +181,7 @@ fun WorkspaceDetailScreen(
 
         AppLongPressDialog(
             app = app,
-            onOpen = {
-                launchSwipeAction(
-                    ctx = ctx,
-                    appsViewModel = appsViewModel,
-                    action = app.action
-                )
-            },
+            onOpen = { onLaunchAction(app.action) },
             onSettings = {
                 ctx.startActivity(
                     Intent(Settings.ACTION_APPLICATION_DETAILS_SETTINGS).apply {
@@ -274,14 +268,19 @@ fun WorkspaceDetailScreen(
 
         val app = iconTargetApp!!
         val pkg = app.packageName
-        val userId = app.userId
 
         val iconOverride =
             overrides[pkg]?.customIcon
 
 
         val tempPoint =
-            dummySwipePoint(SwipeActionSerializable.LaunchApp(pkg, userId), pkg).copy(
+            dummySwipePoint(
+                action = SwipeActionSerializable.LaunchApp(
+                    packageName = pkg,
+                    isPrivateSpace = app.isPrivateProfile,
+                    userId = app.userId
+                ), id = pkg
+            ).copy(
                 customIcon = iconOverride
             )
 

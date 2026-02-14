@@ -121,7 +121,7 @@ fun AppShortcutPickerDialog(
                 ) {
 
                     Image(
-                        painter = appIcon(app.packageName, icons),
+                        painter = appIcon(app, icons),
                         contentDescription = "App icon",
                         modifier = Modifier
                             .size(32.dp)

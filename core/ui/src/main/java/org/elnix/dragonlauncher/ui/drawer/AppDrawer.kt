@@ -1,11 +1,11 @@
 package org.elnix.dragonlauncher.ui.drawer
 
+import android.annotation.SuppressLint
 import android.content.Intent
 import android.os.Build
 import android.provider.Settings
 import androidx.activity.compose.BackHandler
-import androidx.activity.compose.rememberLauncherForActivityResult
-import androidx.activity.result.contract.ActivityResultContracts
+import androidx.compose.animation.AnimatedContent
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box
@@ -26,7 +26,9 @@ import androidx.compose.foundation.pager.rememberPagerState
 import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Lock
 import androidx.compose.material.icons.filled.Search
+import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
@@ -64,9 +66,10 @@ import kotlinx.coroutines.yield
 import org.elnix.dragonlauncher.common.R
 import org.elnix.dragonlauncher.common.serializables.AppModel
 import org.elnix.dragonlauncher.common.serializables.SwipeActionSerializable
+import org.elnix.dragonlauncher.common.serializables.WorkspaceType
 import org.elnix.dragonlauncher.common.serializables.dummySwipePoint
+import org.elnix.dragonlauncher.common.utils.PrivateSpaceUtils
 import org.elnix.dragonlauncher.common.utils.openSearch
-import org.elnix.dragonlauncher.common.utils.showToast
 import org.elnix.dragonlauncher.enumsui.DrawerActions
 import org.elnix.dragonlauncher.enumsui.DrawerActions.CLEAR
 import org.elnix.dragonlauncher.enumsui.DrawerActions.CLOSE
@@ -82,10 +85,8 @@ import org.elnix.dragonlauncher.models.AppLifecycleViewModel
 import org.elnix.dragonlauncher.models.AppsViewModel
 import org.elnix.dragonlauncher.settings.stores.DrawerSettingsStore
 import org.elnix.dragonlauncher.settings.stores.UiSettingsStore
-import org.elnix.dragonlauncher.settings.stores.WellbeingSettingsStore
 import org.elnix.dragonlauncher.ui.UiConstants.DragonShape
-import org.elnix.dragonlauncher.ui.actions.launchAppDirectly
-import org.elnix.dragonlauncher.ui.actions.launchSwipeAction
+import org.elnix.dragonlauncher.ui.components.dragon.DragonIconButton
 import org.elnix.dragonlauncher.ui.components.settings.asState
 import org.elnix.dragonlauncher.ui.dialogs.AppAliasesDialog
 import org.elnix.dragonlauncher.ui.dialogs.AppLongPressDialog
@@ -94,9 +95,8 @@ import org.elnix.dragonlauncher.ui.dialogs.RenameAppDialog
 import org.elnix.dragonlauncher.ui.helpers.AppGrid
 import org.elnix.dragonlauncher.ui.helpers.WallpaperDim
 import org.elnix.dragonlauncher.ui.modifiers.settingsGroup
-import org.elnix.dragonlauncher.ui.wellbeing.AppTimerService
-import org.elnix.dragonlauncher.ui.wellbeing.DigitalPauseActivity
 
+@SuppressLint("LocalContextGetResourceValueCall")
 @Suppress("AssignedValueIsNeverRead")
 @OptIn(ExperimentalComposeUiApi::class)
 @Composable
@@ -112,22 +112,26 @@ fun AppDrawerScreen(
     leftWeight: Float,
     rightAction: DrawerActions,
     rightWeight: Float,
+    onUnlockPrivateSpace: () -> Unit,
+    onLaunchAction: (SwipeActionSerializable) -> Unit,
     onClose: () -> Unit
 ) {
     val ctx = LocalContext.current
     val scope = rememberCoroutineScope()
 
+    val privateSpaceState by appsViewModel.privateSpaceState.collectAsState()
 
     val workspaceState by appsViewModel.enabledState.collectAsState()
-    val workspaces = workspaceState.workspaces
+    val visibleWorkspaces = workspaceState.workspaces
     val overrides = workspaceState.appOverrides
     val aliases = workspaceState.appAliases
 
+
     val selectedWorkspaceId by appsViewModel.selectedWorkspaceId.collectAsState()
-    val initialIndex = workspaces.indexOfFirst { it.id == selectedWorkspaceId }
+    val initialIndex = visibleWorkspaces.indexOfFirst { it.id == selectedWorkspaceId }
     val pagerState = rememberPagerState(
-        initialPage = initialIndex.coerceIn(0, (workspaces.size - 1).coerceAtLeast(0)),
-        pageCount = { workspaces.size }
+        initialPage = initialIndex.coerceIn(0, (visibleWorkspaces.size - 1).coerceAtLeast(0)),
+        pageCount = { visibleWorkspaces.size }
     )
 
     val icons by appsViewModel.icons.collectAsState()
@@ -140,7 +144,7 @@ fun AppDrawerScreen(
         .tapEmptySpaceAction.asState()
 
     val drawerEnterAction by DrawerSettingsStore.drawerEnterAction.asState()
-    val drawerBackAction by DrawerSettingsStore.drawerEnterAction.asState()
+    val drawerBackAction by DrawerSettingsStore.backDrawerAction.asState()
     val drawerHomeAction by DrawerSettingsStore.drawerHomeAction.asState()
     val drawerScrollDownAction by DrawerSettingsStore.scrollDownDrawerAction.asState()
     val drawerScrollUpAction by DrawerSettingsStore.scrollUpDrawerAction.asState()
@@ -152,86 +156,6 @@ fun AppDrawerScreen(
     val recentlyUsedAppsCount by DrawerSettingsStore.recentlyUsedAppsCount.asState()
     val recentApps by appsViewModel.getRecentApps(recentlyUsedAppsCount)
         .collectAsStateWithLifecycle(emptyList())
-
-
-    /*  ─────────────  Wellbeing Settings  ─────────────  */
-    val socialMediaPauseEnabled by WellbeingSettingsStore.socialMediaPauseEnabled.asState()
-    val guiltModeEnabled by WellbeingSettingsStore.guiltModeEnabled.asState()
-    val pauseDuration by WellbeingSettingsStore.pauseDurationSeconds.asState()
-    val pausedApps by WellbeingSettingsStore.getPausedAppsFlow(ctx)
-        .collectAsState(initial = emptySet())
-
-    val reminderEnabled by WellbeingSettingsStore.reminderEnabled.asState()
-    val reminderInterval by WellbeingSettingsStore.reminderIntervalMinutes.asState()
-    val reminderMode by WellbeingSettingsStore.reminderMode.asState()
-    val returnToLauncherEnabled by WellbeingSettingsStore.returnToLauncherEnabled.asState()
-
-    var pendingPackageToLaunch by remember { mutableStateOf<String?>(null) }
-    var pendingUserIdToLaunch by remember { mutableStateOf<Int?>(null) }
-    var pendingAppName by remember { mutableStateOf<String?>(null) }
-
-    val digitalPauseLauncher = rememberLauncherForActivityResult(
-        ActivityResultContracts.StartActivityForResult()
-    ) { result ->
-        if (result.resultCode == DigitalPauseActivity.RESULT_PROCEED && pendingPackageToLaunch != null) {
-            try {
-                if (reminderEnabled) {
-                    AppTimerService.start(
-                        ctx = ctx,
-                        packageName = pendingPackageToLaunch!!,
-                        appName = pendingAppName ?: pendingPackageToLaunch!!,
-                        reminderEnabled = true,
-                        reminderIntervalMinutes = reminderInterval,
-                        reminderMode = reminderMode
-                    )
-                }
-                launchAppDirectly(
-                    appsViewModel = appsViewModel,
-                    ctx = ctx,
-                    packageName = pendingPackageToLaunch!!,
-                    userId = pendingUserIdToLaunch!!
-                )
-                onClose()
-            } catch (e: Exception) {
-                ctx.showToast("Error: ${e.message}")
-            }
-        } else if (result.resultCode == DigitalPauseActivity.RESULT_PROCEED_WITH_TIMER && pendingPackageToLaunch != null) {
-            try {
-                val data = result.data
-                val timeLimitMin =
-                    data?.getIntExtra(DigitalPauseActivity.RESULT_EXTRA_TIME_LIMIT, 10) ?: 10
-                val hasReminder =
-                    data?.getBooleanExtra(DigitalPauseActivity.EXTRA_REMINDER_ENABLED, false)
-                        ?: false
-                val remInterval =
-                    data?.getIntExtra(DigitalPauseActivity.EXTRA_REMINDER_INTERVAL, 5) ?: 5
-                val remMode =
-                    data?.getStringExtra(DigitalPauseActivity.EXTRA_REMINDER_MODE) ?: "overlay"
-
-                AppTimerService.start(
-                    ctx = ctx,
-                    packageName = pendingPackageToLaunch!!,
-                    appName = pendingAppName ?: pendingPackageToLaunch!!,
-                    reminderEnabled = hasReminder,
-                    reminderIntervalMinutes = remInterval,
-                    reminderMode = remMode,
-                    timeLimitEnabled = true,
-                    timeLimitMinutes = timeLimitMin
-                )
-                launchAppDirectly(
-                    appsViewModel = appsViewModel,
-                    ctx = ctx,
-                    packageName = pendingPackageToLaunch!!,
-                    userId = pendingUserIdToLaunch!!
-                )
-                onClose()
-            } catch (e: Exception) {
-                ctx.showToast("Error: ${e.message}")
-            }
-        }
-        pendingPackageToLaunch = null
-        pendingAppName = null
-    }
 
 
     var haveToLaunchFirstApp by remember { mutableStateOf(false) }
@@ -263,9 +187,46 @@ fun AppDrawerScreen(
         }
     }
 
+
+    /**
+     * Updates the visible workspace
+     */
+    LaunchedEffect(visibleWorkspaces, selectedWorkspaceId) {
+        if (visibleWorkspaces.isEmpty()) return@LaunchedEffect
+
+        val selectedVisible = visibleWorkspaces.any { it.id == selectedWorkspaceId }
+        val targetId = if (selectedVisible) selectedWorkspaceId else visibleWorkspaces.first().id
+        val targetIndex = visibleWorkspaces.indexOfFirst { it.id == targetId }
+
+        if (!selectedVisible) {
+            appsViewModel.selectWorkspace(targetId)
+        }
+
+        if (targetIndex >= 0 && pagerState.currentPage != targetIndex) {
+            pagerState.scrollToPage(targetIndex)
+        }
+    }
+
+    /**
+     * Fires on workspace state change
+     * launch the private space unlocking prompt if workspace type if private space
+     */
     LaunchedEffect(pagerState.currentPage) {
-        workspaceId = workspaces.getOrNull(pagerState.currentPage)?.id ?: return@LaunchedEffect
-        appsViewModel.selectWorkspace(workspaceId!!)
+        val newWorkspaceId =
+            visibleWorkspaces.getOrNull(pagerState.currentPage)?.id ?: return@LaunchedEffect
+        val newWorkspace =
+            visibleWorkspaces.getOrNull(pagerState.currentPage) ?: return@LaunchedEffect
+
+        // Check if switching to Private Space (Android 15+)
+        if (PrivateSpaceUtils.isPrivateSpaceSupported() &&
+            newWorkspace.type == WorkspaceType.PRIVATE &&
+            privateSpaceState.isLocked
+        ) {
+            onUnlockPrivateSpace()
+        }
+
+        workspaceId = newWorkspaceId
+        appsViewModel.selectWorkspace(newWorkspaceId)
     }
 
 
@@ -321,43 +282,6 @@ fun AppDrawerScreen(
             onEnterPressed = { launchDrawerAction(drawerEnterAction) },
             onFocusStateChanged = { isSearchFocused = it }
         )
-    }
-
-    fun launchApp(action: SwipeActionSerializable, name: String = "") {
-        // Store package for potential pause callback
-        if (action is SwipeActionSerializable.LaunchApp) {
-            pendingPackageToLaunch = action.packageName
-            pendingUserIdToLaunch = action.userId ?: 0
-            pendingAppName = name.ifBlank { action.packageName }
-        }
-
-        try {
-            launchSwipeAction(
-                ctx = ctx,
-                appsViewModel = appsViewModel,
-                action = action,
-                pausedApps = pausedApps,
-                socialMediaPauseEnabled = socialMediaPauseEnabled,
-                guiltModeEnabled = guiltModeEnabled,
-                pauseDuration = pauseDuration,
-                reminderEnabled = reminderEnabled,
-                reminderIntervalMinutes = reminderInterval,
-                reminderMode = reminderMode,
-                returnToLauncherEnabled = returnToLauncherEnabled,
-                appName = name,
-                digitalPauseLauncher = digitalPauseLauncher
-            )
-            // Only close if not paused (pause closes after user decision)
-            if (!socialMediaPauseEnabled ||
-                action !is SwipeActionSerializable.LaunchApp ||
-                action.packageName !in pausedApps
-            ) {
-                onClose()
-            }
-        } catch (e: Exception) {
-            onClose()
-            ctx.showToast("Error: ${e.message}")
-        }
     }
 
 
@@ -437,7 +361,7 @@ fun AppDrawerScreen(
                                 onScrollDown = null,
                                 onScrollUp = null
                             ) {
-                                launchApp(it.action, it.name)
+                                onLaunchAction(it.action)
                             }
                         }
                     }
@@ -447,7 +371,7 @@ fun AppDrawerScreen(
                         key = { it.hashCode() }
                     ) { pageIndex ->
 
-                        val workspace = workspaces[pageIndex]
+                        val workspace = visibleWorkspaces[pageIndex]
 
                         val apps by appsViewModel
                             .appsForWorkspace(workspace, overrides)
@@ -472,28 +396,78 @@ fun AppDrawerScreen(
 
                         LaunchedEffect(haveToLaunchFirstApp, filteredApps) {
                             if ((autoLaunchSingleMatch && filteredApps.size == 1 && searchQuery.isNotEmpty()) || haveToLaunchFirstApp) {
-                                launchApp(filteredApps.first().action, filteredApps.first().name)
+                                onLaunchAction(filteredApps.first().action)
                             }
                         }
 
-                        Box(
-                            modifier = Modifier
-                                .fillMaxWidth()
-                        ) {
-                            AppGrid(
-                                apps = filteredApps,
-                                icons = icons,
-                                gridSize = gridSize,
-                                iconShape = iconsShape,
-                                txtColor = MaterialTheme.colorScheme.onBackground,
-                                showIcons = showIcons,
-                                showLabels = showLabels,
-                                useCategory = useCategory,
-                                onLongClick = { dialogApp = it },
-                                onScrollDown = { launchDrawerAction(drawerScrollDownAction) },
-                                onScrollUp = { launchDrawerAction(drawerScrollUpAction) }
-                            ) {
-                                launchApp(it.action, it.name)
+                        Box(modifier = Modifier.fillMaxWidth()) {
+//                            // If the current workspace is a private space and locked, display a lock icon
+//                            if (workspace.type == WorkspaceType.PRIVATE ) {
+//
+//                                Box(
+//                                    modifier = Modifier.fillMaxSize(),
+//                                    contentAlignment = Alignment.Center
+//                                ) {
+//                                    AnimatedContent(
+//                                        targetState = privateSpaceState
+//                                    ) {
+//                                        if (it.isLoading) {
+//                                            CircularProgressIndicator()
+//                                        } else if (it.isLocked) {
+//                                            DragonIconButton(
+//                                                onClick = onUnlockPrivateSpace,
+//                                                modifier = Modifier.padding(15.dp)
+//                                            ) {
+//                                                Icon(
+//                                                    imageVector = Icons.Default.Lock,
+//                                                    contentDescription = stringResource(R.string.private_space_locked)
+//                                                )
+//                                            }
+//                                        }
+//                                    }
+//                                }
+//                            } else {
+
+                            val showLock = privateSpaceState.isLocked || privateSpaceState.isAuthenticating
+
+                            if (workspace.type == WorkspaceType.PRIVATE && showLock) {
+                                Box(
+                                    modifier = Modifier.fillMaxSize(),
+                                    contentAlignment = Alignment.Center
+                                ) {
+                                    AnimatedContent(targetState = privateSpaceState) {
+                                        when {
+                                            // The loading shouldn't be displayed, but just in case I'll keep it for user visual feedback
+                                            it.isLoading -> CircularProgressIndicator()
+                                            it.isAuthenticating -> CircularProgressIndicator(color = Color.Yellow)
+                                            it.isLocked -> DragonIconButton(onClick = onUnlockPrivateSpace) {
+                                                Icon(Icons.Default.Lock, contentDescription = "Private Space Locked")
+                                            }
+                                        }
+                                    }
+                                }
+                            } else {
+                                AppGrid(
+                                    apps = filteredApps,
+                                    icons = icons,
+                                    gridSize = gridSize,
+                                    iconShape = iconsShape,
+                                    txtColor = MaterialTheme.colorScheme.onBackground,
+                                    showIcons = showIcons,
+                                    showLabels = showLabels,
+                                    useCategory = useCategory,
+                                    onReload = {
+                                        scope.launch {
+                                            if (workspace.type == WorkspaceType.PRIVATE) appsViewModel.reloadPrivateSpace()
+                                            else appsViewModel.reloadApps()
+                                        }
+                                    },
+                                    onLongClick = { dialogApp = it },
+                                    onScrollDown = { launchDrawerAction(drawerScrollDownAction) },
+                                    onScrollUp = { launchDrawerAction(drawerScrollUpAction) }
+                                ) {
+                                    onLaunchAction(it.action)
+                                }
                             }
                         }
                     }
@@ -529,7 +503,7 @@ fun AppDrawerScreen(
         AppLongPressDialog(
             app = app,
             onDismiss = { dialogApp = null },
-            onOpen = { launchApp(app.action, app.name) },
+            onOpen = { onLaunchAction(app.action) },
             onSettings = {
                 ctx.startActivity(
                     Intent(Settings.ACTION_APPLICATION_DETAILS_SETTINGS).apply {
@@ -600,14 +574,19 @@ fun AppDrawerScreen(
 
         val app = appTarget!!
         val pkg = app.packageName
-        val userId = app.userId
 
         val iconOverride =
             overrides[pkg]?.customIcon
 
 
         val tempPoint =
-            dummySwipePoint(SwipeActionSerializable.LaunchApp(pkg, userId), pkg).copy(
+            dummySwipePoint(
+                SwipeActionSerializable.LaunchApp(
+                    pkg,
+                    app.isPrivateProfile,
+                    app.userId
+                ), pkg
+            ).copy(
                 customIcon = iconOverride
             )
 

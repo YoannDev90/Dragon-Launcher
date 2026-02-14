@@ -645,4 +645,25 @@
     <string name="disable_haptic_globally_desc">Prevent Dragon to produce any haptic feedback in points selection in case you hate it</string>
     <string name="point_action_snaps_to_outer_circle">Point action snaps to outer circle</string>
     <string name="point_action_snaps_to_outer_circle_desc">Choose if the action is activated on the inner circle or the outer one</string>
+    <string name="error_with_message">Error: %1$s</string>
+    <string name="drag_handle">Drag handle</string>
+    <string name="private_space_title">Private Space</string>
+    <string name="private_space_locked">Private Space locked</string>
+    <string name="private_space_authenticating">Authenticating…</string>
+    <string name="private_space_loading">Private Space loading</string>
+    <string name="private_space_please_wait">Please wait</string>
+    <string name="private_space_loading_description">Your Private Space is being loaded…</string>
+    <string name="private_space_managed_by_android">This profile is managed by Android system.</string>
+    <string name="private_space_manage_instructions">To add or remove apps, or delete this profile, use Android Settings.</string>
+    <string name="app_info_name">name = %1$s</string>
+    <string name="app_info_package_name">packageName = %1$s</string>
+    <string name="app_info_is_enabled">isEnabled = %1$s</string>
+    <string name="app_info_is_system">isSystem = %1$s</string>
+    <string name="app_info_is_work_profile">isWorkProfile = %1$s</string>
+    <string name="app_info_is_private_profile">isPrivateProfile = %1$s</string>
+    <string name="app_info_is_launchable">isLaunchable = %1$s</string>
+    <string name="app_info_settings">settings = %1$s</string>
+    <string name="app_info_user_id">userId = %1$s</string>
+    <string name="no_apps">No apps</string>
+    <string name="unlock">Unlock</string>
 </resources>

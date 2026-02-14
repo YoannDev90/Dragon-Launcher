@@ -409,4 +409,23 @@
     <string name="show_recently_used_apps">हाल के ऐप्स दिखाएं</string>
     <string name="show_recently_used_apps_desc">ऐप ड्रॉअर के शीर्ष पर हाल ही में उपयोग किए गए ऐप्स दिखाएं</string>
     <string name="recently_used_apps_count">हाल के ऐप्स की संख्या</string>
+    <string name="error_with_message">त्रुटि: %1$s</string>
+    <string name="drag_handle">ड्रैग हैंडल</string>
+    <string name="private_space_title">निजी स्पेस</string>
+    <string name="private_space_locked">निजी स्पेस लॉक है</string>
+    <string name="private_space_authenticating">प्रमाणीकरण हो रहा है…</string>
+    <string name="private_space_loading">निजी स्पेस लोड हो रहा है</string>
+    <string name="private_space_please_wait">कृपया प्रतीक्षा करें</string>
+    <string name="private_space_loading_description">आपका निजी स्पेस लोड किया जा रहा है…</string>
+    <string name="private_space_managed_by_android">यह प्रोफ़ाइल Android सिस्टम द्वारा प्रबंधित है।</string>
+    <string name="private_space_manage_instructions">ऐप जोड़ने/हटाने या इस प्रोफ़ाइल को हटाने के लिए Android सेटिंग्स का उपयोग करें।</string>
+    <string name="app_info_name">name = %1$s</string>
+    <string name="app_info_package_name">packageName = %1$s</string>
+    <string name="app_info_is_enabled">isEnabled = %1$s</string>
+    <string name="app_info_is_system">isSystem = %1$s</string>
+    <string name="app_info_is_work_profile">isWorkProfile = %1$s</string>
+    <string name="app_info_is_private_profile">isPrivateProfile = %1$s</string>
+    <string name="app_info_is_launchable">isLaunchable = %1$s</string>
+    <string name="app_info_settings">settings = %1$s</string>
+    <string name="app_info_user_id">userId = %1$s</string>
 </resources>

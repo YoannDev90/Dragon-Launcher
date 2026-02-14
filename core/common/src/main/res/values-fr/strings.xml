@@ -506,4 +506,23 @@
     <string name="show_recently_used_apps">Afficher les apps récentes</string>
     <string name="show_recently_used_apps_desc">Afficher les applications récemment utilisées en haut du tiroir d\'apps</string>
     <string name="recently_used_apps_count">Nombre d\'apps récentes</string>
+    <string name="error_with_message">Erreur : %1$s</string>
+    <string name="drag_handle">Poignée de déplacement</string>
+    <string name="private_space_title">Espace privé</string>
+    <string name="private_space_locked">Espace privé verrouillé</string>
+    <string name="private_space_authenticating">Authentification…</string>
+    <string name="private_space_loading">Chargement de l\'espace privé</string>
+    <string name="private_space_please_wait">Veuillez patienter</string>
+    <string name="private_space_loading_description">Votre espace privé est en cours de chargement…</string>
+    <string name="private_space_managed_by_android">Ce profil est géré par le système Android.</string>
+    <string name="private_space_manage_instructions">Pour ajouter ou supprimer des apps, ou supprimer ce profil, utilisez les paramètres Android.</string>
+    <string name="app_info_name">name = %1$s</string>
+    <string name="app_info_package_name">packageName = %1$s</string>
+    <string name="app_info_is_enabled">isEnabled = %1$s</string>
+    <string name="app_info_is_system">isSystem = %1$s</string>
+    <string name="app_info_is_work_profile">isWorkProfile = %1$s</string>
+    <string name="app_info_is_private_profile">isPrivateProfile = %1$s</string>
+    <string name="app_info_is_launchable">isLaunchable = %1$s</string>
+    <string name="app_info_settings">settings = %1$s</string>
+    <string name="app_info_user_id">userId = %1$s</string>
 </resources>

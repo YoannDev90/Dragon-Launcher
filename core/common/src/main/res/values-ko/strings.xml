@@ -367,4 +367,23 @@
     <string name="show_recently_used_apps">최근 앱 표시</string>
     <string name="show_recently_used_apps_desc">앱 서랍 상단에 최근 사용한 앱 표시</string>
     <string name="recently_used_apps_count">최근 앱 수</string>
+    <string name="error_with_message">오류: %1$s</string>
+    <string name="drag_handle">드래그 핸들</string>
+    <string name="private_space_title">프라이빗 스페이스</string>
+    <string name="private_space_locked">프라이빗 스페이스가 잠겨 있습니다</string>
+    <string name="private_space_authenticating">인증 중…</string>
+    <string name="private_space_loading">프라이빗 스페이스 로딩 중</string>
+    <string name="private_space_please_wait">잠시만 기다려 주세요</string>
+    <string name="private_space_loading_description">프라이빗 스페이스를 불러오는 중입니다…</string>
+    <string name="private_space_managed_by_android">이 프로필은 Android 시스템에서 관리합니다.</string>
+    <string name="private_space_manage_instructions">앱 추가/제거 또는 이 프로필 삭제는 Android 설정에서 수행하세요.</string>
+    <string name="app_info_name">name = %1$s</string>
+    <string name="app_info_package_name">packageName = %1$s</string>
+    <string name="app_info_is_enabled">isEnabled = %1$s</string>
+    <string name="app_info_is_system">isSystem = %1$s</string>
+    <string name="app_info_is_work_profile">isWorkProfile = %1$s</string>
+    <string name="app_info_is_private_profile">isPrivateProfile = %1$s</string>
+    <string name="app_info_is_launchable">isLaunchable = %1$s</string>
+    <string name="app_info_settings">settings = %1$s</string>
+    <string name="app_info_user_id">userId = %1$s</string>
 </resources>
