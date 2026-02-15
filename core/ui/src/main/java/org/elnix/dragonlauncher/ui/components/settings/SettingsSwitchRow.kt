@@ -10,8 +10,11 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.stringResource
 import kotlinx.coroutines.launch
+import org.elnix.dragonlauncher.common.R
 import org.elnix.dragonlauncher.settings.bases.BaseSettingObject
+import org.elnix.dragonlauncher.ui.dialogs.UserValidation
 import org.elnix.dragonlauncher.ui.helpers.SwitchRow
 
 @Composable
@@ -20,6 +23,9 @@ fun SettingsSwitchRow(
     title: String,
     description: String,
     enabled: Boolean = true,
+    needValidationToEnable: Boolean = false,
+    needValidationToDisable: Boolean = false,
+    confirmText: String = stringResource(R.string.are_you_sure),
     onCheck: ((Boolean) -> Unit)? = null
 ) {
     val ctx = LocalContext.current
@@ -29,8 +35,22 @@ fun SettingsSwitchRow(
 
     var tempState by remember { mutableStateOf(state) }
 
+    var showConfirmPopup by remember { mutableStateOf<Boolean?>(null) }
+
+
     LaunchedEffect(state) {
+        // Only sync tempState with setting when no popup is active
+        if (showConfirmPopup == null) {
+            tempState = state
+        }
+    }
+
+    fun toggle(state: Boolean) {
         tempState = state
+        scope.launch {
+            setting.set(ctx, state)
+        }
+        onCheck?.invoke(state)
     }
 
     SwitchRow(
@@ -38,11 +58,21 @@ fun SettingsSwitchRow(
         text = title,
         subText = description,
         enabled = enabled
-    ) {
-        tempState = it
-        scope.launch {
-            setting.set(ctx, it)
+    ) { clicked ->
+        when {
+            clicked && needValidationToEnable -> showConfirmPopup = true
+            !clicked && needValidationToDisable -> showConfirmPopup = false
+            else -> toggle(clicked)
         }
-        onCheck?.invoke(it)
+    }
+
+    if (showConfirmPopup != null) {
+        UserValidation(
+            message = confirmText,
+            onDismiss = { showConfirmPopup = null }
+        ) {
+            toggle(showConfirmPopup!!)
+            showConfirmPopup = null
+        }
     }
 }
