@@ -596,6 +596,8 @@ fun SettingsScreen(
                 }
         ) {
 
+            // Draws all the points, is recomposed at every instance of the recompose trigger
+            // Used cause otherwise Compose wouldn't recompose on changes inside the points and nests classes
             key(recomposeTrigger) {
                 Canvas(Modifier.fillMaxSize()) {
                     circlesSettingsOverlay(
