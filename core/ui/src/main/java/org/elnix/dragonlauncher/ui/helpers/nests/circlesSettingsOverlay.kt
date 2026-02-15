@@ -12,9 +12,8 @@ import org.elnix.dragonlauncher.common.serializables.CircleNest
 import org.elnix.dragonlauncher.common.serializables.IconShape
 import org.elnix.dragonlauncher.common.serializables.SwipePointSerializable
 import org.elnix.dragonlauncher.common.utils.UiCircle
+import org.elnix.dragonlauncher.common.utils.circles.computePointPosition
 import org.elnix.dragonlauncher.ui.theme.ExtraColors
-import kotlin.math.cos
-import kotlin.math.sin
 
 fun DrawScope.circlesSettingsOverlay(
     circles: List<UiCircle>,
@@ -79,10 +78,14 @@ fun DrawScope.circlesSettingsOverlay(
             .sortedBy { it.id == selectedPoint?.id }
             .forEach { p ->
 
-                val newCenter = Offset(
+                val newCenter = computePointPosition(
+                    point = p,
+                    circles = circles,
+                    center = center
+                )/*Offset(
                     x = center.x + circle.radius * sin(Math.toRadians(p.angleDeg)).toFloat(),
                     y = center.y - circle.radius * cos(Math.toRadians(p.angleDeg)).toFloat()
-                )
+                )*/
 
 
                 actionsInCircle(

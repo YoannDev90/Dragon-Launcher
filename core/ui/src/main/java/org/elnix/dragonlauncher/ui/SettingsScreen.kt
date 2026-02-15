@@ -2,6 +2,9 @@ package org.elnix.dragonlauncher.ui
 
 import android.annotation.SuppressLint
 import androidx.activity.compose.BackHandler
+import androidx.compose.animation.core.Animatable
+import androidx.compose.animation.core.FastOutSlowInEasing
+import androidx.compose.animation.core.VectorConverter
 import androidx.compose.animation.core.animateDpAsState
 import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.animation.core.tween
@@ -98,6 +101,7 @@ import org.elnix.dragonlauncher.common.utils.Constants.Settings.SNAP_STEP_DEG
 import org.elnix.dragonlauncher.common.utils.Constants.Settings.TOUCH_THRESHOLD_PX
 import org.elnix.dragonlauncher.common.utils.UiCircle
 import org.elnix.dragonlauncher.common.utils.circles.autoSeparate
+import org.elnix.dragonlauncher.common.utils.circles.computePointPosition
 import org.elnix.dragonlauncher.common.utils.circles.minAngleGapForCircle
 import org.elnix.dragonlauncher.common.utils.circles.normalizeAngle
 import org.elnix.dragonlauncher.common.utils.circles.randomFreeAngle
@@ -167,7 +171,8 @@ fun SettingsScreen(
     val circles: SnapshotStateList<UiCircle> = remember { mutableStateListOf() }
 
     var selectedPoint by remember { mutableStateOf<SwipePointSerializable?>(null) }
-    var selectedPointTempOffset by remember { mutableStateOf<Offset?>(null) }
+    val selectedPointTempOffset = remember { Animatable(Offset.Zero, Offset.VectorConverter) }
+    var isDragging by remember { mutableStateOf(false) }
 
     var lastSelectedCircle by remember { mutableIntStateOf(0) }
     val aPointIsSelected = selectedPoint != null
@@ -610,7 +615,7 @@ fun SettingsScreen(
 
                     // Shows all points, excepted the currently dragged one, if any
                     val displayedFilteredPoints = points.filter {
-                        if (selectedPointTempOffset != null) it.id != selectedPoint?.id
+                        if (isDragging) it.id != selectedPoint?.id
                         else true
                     }
 
@@ -634,13 +639,13 @@ fun SettingsScreen(
                     )
 
 
-                    if (selectedPointTempOffset != null && selectedPoint != null) {
+                    if (isDragging && selectedPoint != null) {
                         actionsInCircle(
                             selected = true,
                             point = selectedPoint!!,
                             nests = nests,
                             points = points,
-                            center = selectedPointTempOffset!!,
+                            center = selectedPointTempOffset.value,
                             ctx = ctx,
                             showCircle = true,
                             surfaceColorDraw = backgroundColor,
@@ -690,59 +695,62 @@ fun SettingsScreen(
                                 selectedPoint =
                                     if (best <= TOUCH_THRESHOLD_PX) closest else null
 
-                                selectedPoint?.let { lastSelectedCircle = it.circleNumber }
+                                selectedPoint?.let {
+                                    lastSelectedCircle = it.circleNumber
+                                    isDragging = true
+                                    scope.launch {
+                                        selectedPointTempOffset.snapTo(offset)
+                                    }
+                                }
 
                                 bannerVisible = selectedPoint != null
                             },
                             onDrag = { change, _ ->
                                 change.consume()
-
-                                val selected = points.find { it.id == selectedPoint?.id }
-                                    ?: return@detectDragGestures
-
-                                lastSelectedCircle = selected.circleNumber
-
-                                // All points that are part of the same circle
-                                val sameCirclePoints =
-                                    currentFilteredPoints.filter { it.circleNumber == selected.circleNumber }
-                                if (sameCirclePoints.isEmpty()) return@detectDragGestures
-
-                                val p =
-                                    currentFilteredPoints.find { it.id == selectedPoint?.id }
-                                        ?: return@detectDragGestures
-//                                updatePointPosition(
-//                                    p,
-//                                    circles,
-//                                    center,
-//                                    change.position,
-//                                    snapPoints
-//                                )
-                                selectedPointTempOffset = change.position
-                                recomposeTrigger++
+                                selectedPoint?.let {
+                                    scope.launch {
+                                        selectedPointTempOffset.snapTo(change.position)
+                                    }
+                                    recomposeTrigger++
+                                }
                             },
                             onDragEnd = {
-                                val p =
-                                    currentFilteredPoints.find { it.id == selectedPoint?.id }
-                                        ?: return@detectDragGestures
+                                selectedPoint?.let { p ->
+                                    val position = selectedPointTempOffset.value
 
-                                val position = selectedPointTempOffset ?: return@detectDragGestures
+                                    updatePointPosition(
+                                        p,
+                                        circles,
+                                        center,
+                                        position,
+                                        snapPoints
+                                    )
 
-                                updatePointPosition(
-                                    p,
-                                    circles,
-                                    center,
-                                    position,
-                                    snapPoints
-                                )
+                                    if (autoSeparatePoints) autoSeparate(
+                                        points,
+                                        nestId,
+                                        circles.find { it.id == p.circleNumber },
+                                        p
+                                    )
 
-                                if (autoSeparatePoints) autoSeparate(
-                                    points,
-                                    nestId,
-                                    circles.find { it.id == p.circleNumber },
-                                    p
-                                )
+                                    // Compute final snapped position
+                                    val finalOffset = computePointPosition(
+                                        p,
+                                        circles,
+                                        center
+                                    )
 
-                                selectedPointTempOffset = null
+                                    scope.launch {
+                                        selectedPointTempOffset.animateTo(
+                                            finalOffset,
+                                            animationSpec = tween(300, easing = FastOutSlowInEasing)
+                                        )
+
+                                        // Stop dragging
+                                        isDragging = false
+                                        selectedPoint = null
+                                    }
+                                }
                             }
                         )
                     }
