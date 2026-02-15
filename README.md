@@ -33,8 +33,11 @@
 ---
 [<img src="https://raw.githubusercontent.com/ImranR98/Obtainium/main/assets/graphics/badge_obtainium.png" alt="Get it on Obtainium" height="60">](http://apps.obtainium.imranr.dev/redirect.html?r=obtainium://add/https://github.com/Elnix90/Dragon-Launcher)
 ---
-**Due to Android restrictions, you may disable android Play protect during installation, to avoid it being blocked**
 </div>
+
+## **⚠️⚠️⚠️Due to Android restrictions, you have disable Android Play protect during installation, to avoid Dragon being blocked by google**
+The reason is likely that dragon asks for _sensitive permissions_ - normal, that's a launcher
+
 
 ---
 # 🎉 Thank you very much to the stargazers !
