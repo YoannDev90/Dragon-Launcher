@@ -18,7 +18,6 @@ import kotlin.math.sin
 
 fun DrawScope.circlesSettingsOverlay(
     circles: List<UiCircle>,
-    circleColor: Color,
     showCircle: Boolean,
     center: Offset,
     points: List<SwipePointSerializable>,
@@ -65,7 +64,7 @@ fun DrawScope.circlesSettingsOverlay(
     circles.forEach { circle ->
         if (showCircle) {
             drawCircle(
-                color = circleColor,
+                color = extraColors.circle,
                 radius = circle.radius,
                 center = center,
                 style = Stroke(if (selectedAll) 8f else 4f)
@@ -93,7 +92,6 @@ fun DrawScope.circlesSettingsOverlay(
                     points = points,
                     center = newCenter,
                     ctx = ctx,
-                    circleColor = circleColor,
                     showCircle = showCircle,
                     surfaceColorDraw = backgroundColor,
                     extraColors = extraColors,

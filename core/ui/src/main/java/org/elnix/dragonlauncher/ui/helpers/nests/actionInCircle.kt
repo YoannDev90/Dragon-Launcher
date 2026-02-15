@@ -40,7 +40,6 @@ fun DrawScope.actionsInCircle(
     points: List<SwipePointSerializable>,
     center: Offset,
     ctx: Context,
-    circleColor: Color,
     showCircle: Boolean,
     surfaceColorDraw: Color,
     extraColors: ExtraColors,
@@ -71,7 +70,7 @@ fun DrawScope.actionsInCircle(
             ?: defaultPoint.borderColorSelected?.let { Color(it) }
     } else {
         point.borderColor?.let { Color(it) } ?: defaultPoint.borderColor?.let { Color(it) }
-    } ?: circleColor
+    } ?: extraColors.circle
 
     val borderStroke = if (selected) {
         point.borderStrokeSelected ?: defaultPoint.borderStrokeSelected ?: 8f
@@ -209,7 +208,6 @@ fun DrawScope.actionsInCircle(
             if (depth < nest.parent(nests).depth) {
                 circlesSettingsOverlay(
                     circles = newCircles,
-                    circleColor = circleColor,
                     showCircle = showCircle,
                     center = center,
                     points = points,
