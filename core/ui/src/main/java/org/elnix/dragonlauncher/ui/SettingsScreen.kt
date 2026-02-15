@@ -566,7 +566,11 @@ fun SettingsScreen(
                     val w = size.width.toFloat()
                     val h = size.height.toFloat()
                     center = Offset(w / 2f, h / 2f)
-                    availableWidth = w - (POINT_RADIUS_PX * 2)  // Safe space for points + padding
+
+                    // Use the minimum size between height and width, to prevent the box being untouchable on large displays
+                    val usedSize = min(w, h)
+
+                    availableWidth = usedSize - (POINT_RADIUS_PX * 2)  // Safe space for points + padding
 
                     // Proportional radii: largest fits screen, others reduce evenly
                     val baseRadius = availableWidth / 2 * 0.95f // almost half of screen width
