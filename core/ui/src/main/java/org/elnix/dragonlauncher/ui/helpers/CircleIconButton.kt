@@ -8,7 +8,6 @@ import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.interaction.collectIsPressedAsState
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.DropdownMenu
@@ -163,7 +162,6 @@ fun CircleIconButton(
     Box {
         Box(
             modifier = modifier
-                .size(40.dp)
                 .clip(shape)
                 .then(clickModifier)
                 .background(backgroundColor)
