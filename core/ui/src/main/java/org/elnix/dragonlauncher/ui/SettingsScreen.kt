@@ -1088,7 +1088,9 @@ fun SettingsScreen(
 
 
 
-            Column {
+            Column(
+                verticalArrangement = Arrangement.spacedBy(3.dp)
+            ) {
                 CircleIconButton(
                     text = "+1",
                     contentDescription = stringResource(R.string.add_circle),
