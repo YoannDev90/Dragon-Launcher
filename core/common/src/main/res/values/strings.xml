@@ -666,4 +666,47 @@
     <string name="app_info_user_id">userId = %1$s</string>
     <string name="no_apps">No apps</string>
     <string name="unlock">Unlock</string>
+
+    <string name="activate_debug_mode">Activate Debug Mode</string>
+    <string name="activate_debug_mode_desc">Enable debug features across the app</string>
+
+    <string name="show_debug_infos">Show debug infos</string>
+    <string name="show_debug_infos_desc">Display debug information globally</string>
+
+    <string name="show_debug_infos_settings">Show debug infos in settings page</string>
+    <string name="show_debug_infos_settings_desc">Display debug information inside settings</string>
+
+    <string name="show_debug_infos_widgets">Show debug infos in widgets page</string>
+    <string name="show_debug_infos_widgets_desc">Display debug information inside widgets</string>
+
+    <string name="show_debug_infos_workspace">Show debug infos in workspace page</string>
+    <string name="show_debug_infos_workspace_desc">Display debug information in workspace</string>
+
+    <string name="has_initialized">Has initialized</string>
+    <string name="has_initialized_desc">Whether the app has completed initialization</string>
+
+    <string name="show_default_launcher_banner">Show default launcher banner</string>
+    <string name="show_default_launcher_banner_desc">Display the banner prompting to set the default launcher</string>
+
+    <string name="force_app_language_selector">Force app language selector</string>
+    <string name="force_app_language_selector_desc">Use the app\'s language selector instead of Android\'s system selector</string>
+
+    <string name="force_app_widgets_selector">Force app widgets selector</string>
+    <string name="force_app_widgets_selector_desc">Force the app to use its own widget selector</string>
+
+    <string name="use_accessibility_instead_of_context">Use accessibility instead of context</string>
+    <string name="use_accessibility_instead_of_context_desc">Expand action panel using accessibility instead of context</string>
+
+    <string name="ask_notifications_behavior">Ask notifications behavior</string>
+    <string name="ask_notifications_behavior_desc">Prompt each time for notifications / quick settings behavior</string>
+
+    <string name="auto_raise_dragon_on_system_launcher">Auto launch Dragon on system launcher</string>
+    <string name="auto_raise_dragon_on_system_launcher_desc">Automatically raise Dragon when on the system launcher (requires accessibility)</string>
+    <string name="are_you_sure">Are you sure?</string>
+    <string name="store_reset">Stores reset</string>
+    <string name="debug_infos">Debug Infos</string>
+
+    <string name="private_space_debug_info">Private space debug info</string>
+    <string name="private_space_debug_info_desc">Display private space state debug infos on top of everything</string>
+
 </resources>

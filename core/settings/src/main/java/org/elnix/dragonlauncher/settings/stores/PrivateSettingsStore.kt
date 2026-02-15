@@ -29,12 +29,6 @@ object PrivateSettingsStore : MapSettingsStore() {
         default = true
     )
 
-    val showMethodAsking = Settings.boolean(
-        key = "showMethodAsking",
-        dataStoreName = dataStoreName,
-        default = false
-    )
-
     val lastSeenVersionCode = Settings.int(
         key = "lastSeenVersionCode",
         dataStoreName = dataStoreName,
@@ -60,7 +54,6 @@ object PrivateSettingsStore : MapSettingsStore() {
         hasSeenWelcome,
         hasInitialized,
         showSetDefaultLauncherBanner,
-        showMethodAsking,
         lastSeenVersionCode,
         lockPinHash,
         lockMethod

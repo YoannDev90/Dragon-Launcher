@@ -1,13 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <device-admin>
     <uses-policies>
-        <limit-password />
-        <watch-login />
-        <reset-password />
+        <!-- Device admin is only used to prevent system to kill app somehow-->
         <force-lock />
-        <wipe-data />
-        <expire-password />
-        <encrypted-storage />
-        <disable-camera />
     </uses-policies>
 </device-admin>
