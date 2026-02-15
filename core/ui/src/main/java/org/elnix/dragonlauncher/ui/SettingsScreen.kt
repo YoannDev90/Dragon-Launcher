@@ -127,6 +127,7 @@ import kotlin.math.atan2
 import kotlin.math.cos
 import kotlin.math.hypot
 import kotlin.math.max
+import kotlin.math.min
 import kotlin.math.round
 import kotlin.math.sin
 
@@ -591,7 +592,6 @@ fun SettingsScreen(
                         }
                 }
         ) {
-
 
             key(recomposeTrigger) {
                 Canvas(Modifier.fillMaxSize()) {
@@ -1160,7 +1160,7 @@ fun SettingsScreen(
 
                 // Create a new swipe point, ids are still random, I think I'll keep it that way
                 // unless I really have to manage them correctly
-                val point = SwipePointSerializable(
+                val newPoint = SwipePointSerializable(
                     id = UUID.randomUUID().toString(),
                     angleDeg = newAngle,
                     action = action,
@@ -1169,20 +1169,21 @@ fun SettingsScreen(
                 )
 
                 appsViewModel.reloadPointIcon(
-                    point = point,
+                    point = newPoint,
                     sizePx = sizePx
                 )
 
                 applyChange {
-                    points.add(point)
+                    points.add(newPoint)
                     autoSeparate(
                         points,
                         nestId,
-                        circles.find { it.id == point.circleNumber },
-                        point
+                        circles.find { it.id == newPoint.circleNumber },
+                        newPoint
                     )
                 }
 
+                selectedPoint = newPoint
                 showAddDialog = false
             },
             onMultipleActionsSelected = { actions, autoPlace ->
