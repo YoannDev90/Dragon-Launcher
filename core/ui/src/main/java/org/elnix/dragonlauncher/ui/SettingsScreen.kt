@@ -20,6 +20,7 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.ime
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.safeDrawing
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.windowInsetsPadding
 import androidx.compose.material.icons.Icons
@@ -118,6 +119,7 @@ import org.elnix.dragonlauncher.ui.dialogs.NestManagementDialog
 import org.elnix.dragonlauncher.ui.dialogs.UserValidation
 import org.elnix.dragonlauncher.ui.helpers.CircleIconButton
 import org.elnix.dragonlauncher.ui.helpers.RepeatingPressButton
+import org.elnix.dragonlauncher.ui.helpers.nests.actionsInCircle
 import org.elnix.dragonlauncher.ui.helpers.nests.circlesSettingsOverlay
 import org.elnix.dragonlauncher.ui.theme.LocalExtraColors
 import java.math.RoundingMode
@@ -165,6 +167,8 @@ fun SettingsScreen(
     val circles: SnapshotStateList<UiCircle> = remember { mutableStateListOf() }
 
     var selectedPoint by remember { mutableStateOf<SwipePointSerializable?>(null) }
+    var selectedPointTempOffset by remember { mutableStateOf<Offset?>(null) }
+
     var lastSelectedCircle by remember { mutableIntStateOf(0) }
     val aPointIsSelected = selectedPoint != null
 
@@ -603,12 +607,18 @@ fun SettingsScreen(
             // Used cause otherwise Compose wouldn't recompose on changes inside the points and nests classes
             key(recomposeTrigger) {
                 Canvas(Modifier.fillMaxSize()) {
+
+                    // Shows all points, excepted the currently dragged one, if any
+                    val displayedFilteredPoints = points.filter {
+                        if (selectedPointTempOffset != null) it.id != selectedPoint?.id
+                        else true
+                    }
+
                     circlesSettingsOverlay(
                         circles = circles,
-                        circleColor = extraColors.circle,
                         showCircle = true,
                         center = center,
-                        points = points,
+                        points = displayedFilteredPoints,
                         defaultPoint = defaultPoint,
                         selectedPoint = selectedPoint,
                         backgroundColor = backgroundColor,
@@ -622,6 +632,27 @@ fun SettingsScreen(
                         density = density,
                         preventBgErasing = true
                     )
+
+
+                    if (selectedPointTempOffset != null && selectedPoint != null) {
+                        actionsInCircle(
+                            selected = true,
+                            point = selectedPoint!!,
+                            nests = nests,
+                            points = points,
+                            center = selectedPointTempOffset!!,
+                            ctx = ctx,
+                            showCircle = true,
+                            surfaceColorDraw = backgroundColor,
+                            extraColors = extraColors,
+                            pointIcons = pointIcons,
+                            defaultPoint = defaultPoint,
+                            depth = 1,
+                            iconShape = iconsShape,
+                            density = density,
+                            preventBgErasing = true
+                        )
+                    }
                 }
             }
 
@@ -679,25 +710,39 @@ fun SettingsScreen(
                                 val p =
                                     currentFilteredPoints.find { it.id == selectedPoint?.id }
                                         ?: return@detectDragGestures
-                                updatePointPosition(
-                                    p,
-                                    circles,
-                                    center,
-                                    change.position,
-                                    snapPoints
-                                )
+//                                updatePointPosition(
+//                                    p,
+//                                    circles,
+//                                    center,
+//                                    change.position,
+//                                    snapPoints
+//                                )
+                                selectedPointTempOffset = change.position
                                 recomposeTrigger++
                             },
                             onDragEnd = {
                                 val p =
                                     currentFilteredPoints.find { it.id == selectedPoint?.id }
                                         ?: return@detectDragGestures
+
+                                val position = selectedPointTempOffset ?: return@detectDragGestures
+
+                                updatePointPosition(
+                                    p,
+                                    circles,
+                                    center,
+                                    position,
+                                    snapPoints
+                                )
+
                                 if (autoSeparatePoints) autoSeparate(
                                     points,
                                     nestId,
                                     circles.find { it.id == p.circleNumber },
                                     p
                                 )
+
+                                selectedPointTempOffset = null
                             }
                         )
                     }
@@ -1104,7 +1149,8 @@ fun SettingsScreen(
                     text = "+1",
                     contentDescription = stringResource(R.string.add_circle),
                     padding = 7.dp,
-                    tint = addRemoveCirclesColor
+                    tint = addRemoveCirclesColor,
+                    modifier = Modifier.size(40.dp)
                 ) {
                     // The new circle id is the size minus one, cause circleIndexes
                     // starts at 0 and the cancel zone is always in the list
@@ -1131,7 +1177,8 @@ fun SettingsScreen(
                     contentDescription = stringResource(R.string.remove_circle),
                     padding = 7.dp,
                     enabled = canRemoveCircle,
-                    tint = addRemoveCirclesColor
+                    tint = addRemoveCirclesColor,
+                    modifier = Modifier.size(40.dp)
                 ) {
                     // Remove last circle
                     pendingNestUpdate = nests.map {
