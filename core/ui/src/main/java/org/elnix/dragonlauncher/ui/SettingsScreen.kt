@@ -407,7 +407,8 @@ fun SettingsScreen(
                     @Suppress("USELESS_ELVIS")
                     points.add(
                         it.copy(
-                            action = it.action ?: SwipeActionSerializable.OpenDragonLauncherSettings()
+                            action = it.action
+                                ?: SwipeActionSerializable.OpenDragonLauncherSettings()
                         )
                     )
                 }
@@ -511,7 +512,8 @@ fun SettingsScreen(
                                 Icon(
                                     imageVector = Icons.Default.Refresh,
                                     tint = MaterialTheme.colorScheme.onSurface,
-                                    contentDescription = null)
+                                    contentDescription = null
+                                )
                                 Text(
                                     text = stringResource(R.string.reload_point_icons),
                                     color = MaterialTheme.colorScheme.onSurface
@@ -571,7 +573,8 @@ fun SettingsScreen(
                     // Use the minimum size between height and width, to prevent the box being untouchable on large displays
                     val usedSize = min(w, h)
 
-                    availableWidth = usedSize - (POINT_RADIUS_PX * 2)  // Safe space for points + padding
+                    availableWidth =
+                        usedSize - (POINT_RADIUS_PX * 2)  // Safe space for points + padding
 
                     // Proportional radii: largest fits screen, others reduce evenly
                     val baseRadius = availableWidth / 2 * 0.95f // almost half of screen width
@@ -699,7 +702,8 @@ fun SettingsScreen(
                                 // Manual placement mode: place the current queued app where user tapped
                                 if (isInManualPlacementMode) {
                                     val action = manualPlacementQueue.first()
-                                    val targetCircle = lastSelectedCircle.coerceAtMost(circleNumber - 1)
+                                    val targetCircle =
+                                        lastSelectedCircle.coerceAtMost(circleNumber - 1)
 
                                     // Compute angle from center
                                     val dx = offset.x - center.x
@@ -738,7 +742,7 @@ fun SettingsScreen(
                                     selectedPoint = point
                                     bannerVisible = true
 
-                    // Dequeue: move to the next app
+                                    // Dequeue: move to the next app
                                     manualPlacementQueue = manualPlacementQueue.drop(1)
                                     return@detectTapGestures
                                 }
@@ -1302,6 +1306,7 @@ fun SettingsScreen(
                     ).toString()
                 }.getOrDefault(currentAction.packageName)
             }
+
             else -> currentAction::class.simpleName ?: ""
         }
         val remaining = manualPlacementQueue.size
