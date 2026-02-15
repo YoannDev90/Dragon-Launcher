@@ -561,6 +561,9 @@ fun SettingsScreen(
             }
         }
 
+
+        // Main content box: Adapts its size to the screen,
+        // computes the circles radii and host the pointer input for the points selection
         Box(
             modifier = Modifier
                 .fillMaxSize()
