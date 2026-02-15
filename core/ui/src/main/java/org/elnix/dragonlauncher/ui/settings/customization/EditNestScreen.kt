@@ -180,7 +180,6 @@ fun NestEditingScreen(
             ) {
                 circlesSettingsOverlay(
                     circles = circles,
-                    circleColor = extraColors.circle,
                     showCircle = true,
                     center = center,
                     points = points,

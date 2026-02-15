@@ -35,7 +35,6 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.geometry.center
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.ImageBitmap
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalDensity
@@ -50,13 +49,11 @@ import org.elnix.dragonlauncher.common.serializables.defaultSwipePointsValues
 import org.elnix.dragonlauncher.common.utils.colors.adjustBrightness
 import org.elnix.dragonlauncher.common.utils.copyToClipboard
 import org.elnix.dragonlauncher.models.AppsViewModel
-import org.elnix.dragonlauncher.settings.stores.ColorSettingsStore
 import org.elnix.dragonlauncher.settings.stores.DrawerSettingsStore
 import org.elnix.dragonlauncher.settings.stores.SwipeSettingsStore
 import org.elnix.dragonlauncher.ui.UiConstants.DragonShape
 import org.elnix.dragonlauncher.ui.colors.AppObjectsColors
 import org.elnix.dragonlauncher.ui.components.dragon.DragonIconButton
-import org.elnix.dragonlauncher.ui.components.settings.asState
 import org.elnix.dragonlauncher.ui.helpers.nests.actionsInCircle
 import org.elnix.dragonlauncher.ui.theme.LocalExtraColors
 
@@ -75,7 +72,6 @@ fun NestManagementDialog(
 
     val points by SwipeSettingsStore.getPointsFlow(ctx).collectAsState(emptyList())
     val nests by SwipeSettingsStore.getNestsFlow(ctx).collectAsState(emptyList())
-    val circleColor by ColorSettingsStore.circleColor.asState()
 
     val pointIcons by appsViewModel.pointIcons.collectAsState()
     val defaultPoint by appsViewModel.defaultPoint.collectAsState(defaultSwipePointsValues)
@@ -133,7 +129,6 @@ fun NestManagementDialog(
                         nests = nests,
                         points = points,
                         defaultPoint = defaultPoint,
-                        circleColor = circleColor,
                         pointIcons = pointIcons,
                         canCopyId = canCopyId,
                         shape = iconsShape,
@@ -155,7 +150,6 @@ private fun NestManagementItem(
     nests: List<CircleNest>,
     points: List<SwipePointSerializable>,
     defaultPoint: SwipePointSerializable,
-    circleColor: Color,
     pointIcons: Map<String, ImageBitmap>,
     canCopyId: Boolean,
     shape: IconShape,
@@ -203,7 +197,6 @@ private fun NestManagementItem(
                 points = points,
                 center = center,
                 ctx = ctx,
-                circleColor = circleColor,
                 showCircle = true,
                 surfaceColorDraw = surfaceColorDraw,
                 extraColors = extraColors,
