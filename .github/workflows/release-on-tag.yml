@@ -62,7 +62,10 @@ jobs:
         with:
           tag_name: ${{ env.VERSION }}
           name: ${{ env.VERSION }}
-          body: ${{ steps.changelog.outputs.changelog }}
-          files: ${{ env.APK }}
+          body: |
+            ${{ steps.changelog.outputs.changelog }}
+
+            ## ⚠️ Play Protect Warning
+            Due to Android restrictions, disable Play Protect during installation to avoid Dragon being blocked.
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
