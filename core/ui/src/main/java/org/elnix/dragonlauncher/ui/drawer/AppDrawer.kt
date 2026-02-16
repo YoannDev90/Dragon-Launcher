@@ -6,7 +6,6 @@ import android.os.Build
 import android.provider.Settings
 import androidx.activity.compose.BackHandler
 import androidx.compose.animation.AnimatedContent
-import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -23,17 +22,11 @@ import androidx.compose.foundation.layout.safeDrawing
 import androidx.compose.foundation.layout.windowInsetsPadding
 import androidx.compose.foundation.pager.HorizontalPager
 import androidx.compose.foundation.pager.rememberPagerState
-import androidx.compose.foundation.text.KeyboardActions
-import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Lock
-import androidx.compose.material.icons.filled.Search
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.Text
-import androidx.compose.material3.TextField
-import androidx.compose.material3.TextFieldDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
@@ -46,16 +39,13 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.clip
 import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusRequester
-import androidx.compose.ui.focus.onFocusChanged
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.unit.dp
 import androidx.core.net.toUri
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
@@ -85,13 +75,13 @@ import org.elnix.dragonlauncher.models.AppLifecycleViewModel
 import org.elnix.dragonlauncher.models.AppsViewModel
 import org.elnix.dragonlauncher.settings.stores.DrawerSettingsStore
 import org.elnix.dragonlauncher.settings.stores.UiSettingsStore
-import org.elnix.dragonlauncher.ui.UiConstants.DragonShape
 import org.elnix.dragonlauncher.ui.components.dragon.DragonIconButton
 import org.elnix.dragonlauncher.ui.components.settings.asState
 import org.elnix.dragonlauncher.ui.dialogs.AppAliasesDialog
 import org.elnix.dragonlauncher.ui.dialogs.AppLongPressDialog
 import org.elnix.dragonlauncher.ui.dialogs.IconEditorDialog
 import org.elnix.dragonlauncher.ui.dialogs.RenameAppDialog
+import org.elnix.dragonlauncher.ui.helpers.AppDrawerSearch
 import org.elnix.dragonlauncher.ui.helpers.AppGrid
 import org.elnix.dragonlauncher.ui.helpers.WallpaperDim
 import org.elnix.dragonlauncher.ui.modifiers.settingsGroup
@@ -273,16 +263,6 @@ fun AppDrawerScreen(
         }
     }
 
-    @Composable
-    fun DrawerTextInput() {
-        AppDrawerSearch(
-            searchQuery = searchQuery,
-            onSearchChanged = { searchQuery = it },
-            modifier = Modifier.focusRequester(focusRequester),
-            onEnterPressed = { launchDrawerAction(drawerEnterAction) },
-            onFocusStateChanged = { isSearchFocused = it }
-        )
-    }
 
 
     /* Dim wallpaper system */
@@ -401,33 +381,7 @@ fun AppDrawerScreen(
                         }
 
                         Box(modifier = Modifier.fillMaxWidth()) {
-//                            // If the current workspace is a private space and locked, display a lock icon
-//                            if (workspace.type == WorkspaceType.PRIVATE ) {
-//
-//                                Box(
-//                                    modifier = Modifier.fillMaxSize(),
-//                                    contentAlignment = Alignment.Center
-//                                ) {
-//                                    AnimatedContent(
-//                                        targetState = privateSpaceState
-//                                    ) {
-//                                        if (it.isLoading) {
-//                                            CircularProgressIndicator()
-//                                        } else if (it.isLocked) {
-//                                            DragonIconButton(
-//                                                onClick = onUnlockPrivateSpace,
-//                                                modifier = Modifier.padding(15.dp)
-//                                            ) {
-//                                                Icon(
-//                                                    imageVector = Icons.Default.Lock,
-//                                                    contentDescription = stringResource(R.string.private_space_locked)
-//                                                )
-//                                            }
-//                                        }
-//                                    }
-//                                }
-//                            } else {
-
+                            // If the current workspace is a private space and locked, display a lock icon
                             val showLock = privateSpaceState.isLocked || privateSpaceState.isAuthenticating
 
                             if (workspace.type == WorkspaceType.PRIVATE && showLock) {
@@ -493,7 +447,13 @@ fun AppDrawerScreen(
                 .imePadding(),
             contentAlignment = if (searchBarBottom) Alignment.BottomCenter else Alignment.TopCenter
         ) {
-            DrawerTextInput()
+            AppDrawerSearch(
+                searchQuery = searchQuery,
+                onSearchChanged = { searchQuery = it },
+                modifier = Modifier.focusRequester(focusRequester),
+                onEnterPressed = { launchDrawerAction(drawerEnterAction) },
+                onFocusStateChanged = { isSearchFocused = it }
+            )
         }
     }
 
@@ -631,56 +591,4 @@ fun AppDrawerScreen(
             onDismiss = { showAliasDialog = null }
         )
     }
-}
-
-
-@Composable
-private fun AppDrawerSearch(
-    searchQuery: String,
-    onSearchChanged: (String) -> Unit,
-    modifier: Modifier = Modifier,
-    onEnterPressed: () -> Unit = {},
-    onFocusStateChanged: (Boolean) -> Unit
-) {
-    val keyboardController = LocalSoftwareKeyboardController.current
-
-    TextField(
-        value = searchQuery,
-        onValueChange = onSearchChanged,
-        modifier = modifier
-            .fillMaxWidth()
-            .padding(5.dp)
-            .clip(DragonShape)
-            .background(MaterialTheme.colorScheme.surfaceVariant)
-            .onFocusChanged { focusState ->
-                val focused = focusState.isFocused
-                onFocusStateChanged(focused) // Notify parent of focus change
-                if (focused) {
-                    keyboardController?.show() // Show keyboard when TextField gains focus
-                }
-                // Keyboard hiding on focus loss is handled by system, IME actions, or explicit calls elsewhere (e.g., scroll logic)
-            },
-        leadingIcon = {
-            Icon(
-                imageVector = Icons.Default.Search,
-                contentDescription = stringResource(R.string.search_apps),
-                tint = MaterialTheme.colorScheme.onSurfaceVariant
-            )
-        },
-        placeholder = {
-            Text(
-                text = stringResource(R.string.search_apps),
-                color = MaterialTheme.colorScheme.onSurface
-            )
-        },
-        singleLine = true,
-        keyboardOptions = KeyboardOptions(imeAction = ImeAction.Search),
-        keyboardActions = KeyboardActions(onSearch = { onEnterPressed() }),
-        colors = TextFieldDefaults.colors(
-            focusedContainerColor = Color.Transparent,
-            unfocusedContainerColor = Color.Transparent,
-            focusedIndicatorColor = Color.Transparent,
-            unfocusedIndicatorColor = Color.Transparent,
-        )
-    )
 }

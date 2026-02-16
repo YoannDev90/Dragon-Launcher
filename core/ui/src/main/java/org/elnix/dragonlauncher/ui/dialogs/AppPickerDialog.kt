@@ -1,5 +1,3 @@
-@file:Suppress("AssignedValueIsNeverRead")
-
 package org.elnix.dragonlauncher.ui.dialogs
 
 import androidx.compose.animation.AnimatedContent
@@ -19,7 +17,6 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.pager.HorizontalPager
 import androidx.compose.foundation.pager.rememberPagerState
 import androidx.compose.foundation.rememberScrollState
-import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.PlaylistAdd
 import androidx.compose.material.icons.automirrored.filled.PlaylistAddCheck
@@ -32,7 +29,6 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
-import androidx.compose.material3.TextField
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
@@ -44,23 +40,26 @@ import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.clip
+import androidx.compose.ui.focus.FocusRequester
+import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.yield
 import org.elnix.dragonlauncher.common.R
 import org.elnix.dragonlauncher.common.serializables.AppModel
 import org.elnix.dragonlauncher.common.serializables.IconShape
-import org.elnix.dragonlauncher.common.utils.colors.adjustBrightness
 import org.elnix.dragonlauncher.models.AppsViewModel
 import org.elnix.dragonlauncher.ui.UiConstants.DragonShape
 import org.elnix.dragonlauncher.ui.colors.AppObjectsColors
 import org.elnix.dragonlauncher.ui.components.dragon.DragonIconButton
+import org.elnix.dragonlauncher.ui.helpers.AppDrawerSearch
 import org.elnix.dragonlauncher.ui.helpers.AppGrid
 import org.elnix.dragonlauncher.ui.helpers.AppGridWithMultiSelect
 import org.elnix.dragonlauncher.ui.modifiers.settingsGroup
 
+@Suppress("AssignedValueIsNeverRead")
 @OptIn(ExperimentalFoundationApi::class)
 @Composable
 fun AppPickerDialog(
@@ -74,6 +73,21 @@ fun AppPickerDialog(
     onAppSelected: (AppModel) -> Unit,
     onMultipleAppsSelected: ((List<AppModel>, Boolean) -> Unit)? = null
 ) {
+
+    // Auto Show keyboard logic
+    val focusRequester = remember { FocusRequester() }
+
+    var searchQuery by remember { mutableStateOf("") }
+    var isSearchBarEnabled by remember { mutableStateOf(false) }
+
+    LaunchedEffect(isSearchBarEnabled) {
+        if (isSearchBarEnabled) {
+            yield()
+            focusRequester.requestFocus()
+        }
+    }
+
+
     val workspaceState by appsViewModel.enabledState.collectAsState()
     val workspaces = workspaceState.workspaces
     val overrides = workspaceState.appOverrides
@@ -88,9 +102,6 @@ fun AppPickerDialog(
     )
 
     val scope = rememberCoroutineScope()
-
-    var searchQuery by remember { mutableStateOf("") }
-    var isSearchBarEnabled by remember { mutableStateOf(false) }
 
     // Multi-select state
     var isMultiSelectMode by remember { mutableStateOf(false) }
@@ -118,16 +129,16 @@ fun AppPickerDialog(
         title = {
             Column(horizontalAlignment = Alignment.CenterHorizontally) {
 
-                Row(
-                    horizontalArrangement = Arrangement.spacedBy(5.dp),
-                    verticalAlignment = Alignment.CenterVertically,
-                    modifier = Modifier
-                        .height(75.dp)
-                ) {
-                    AnimatedContent(
-                        targetState = isSearchBarEnabled
-                    ) {
-                        if (it) {
+                AnimatedContent(
+                    targetState = isSearchBarEnabled
+                ) { searchBarDisplayed ->
+
+                    if (!searchBarDisplayed) {
+                        Row(
+                            horizontalArrangement = Arrangement.spacedBy(5.dp),
+                            verticalAlignment = Alignment.CenterVertically
+                        ) {
+
                             Text(
                                 text = if (isMultiSelectMode)
                                     stringResource(R.string.multi_select_count, selectedApps.size)
@@ -136,7 +147,6 @@ fun AppPickerDialog(
                                 color = MaterialTheme.colorScheme.onSurface,
                                 modifier = Modifier.weight(1f)
                             )
-
 
                             AnimatedVisibility(isMultiSelectMode) {
                                 DragonIconButton(
@@ -172,41 +182,28 @@ fun AppPickerDialog(
                                     contentDescription = stringResource(R.string.reload_apps)
                                 )
                             }
-                        } else {
-                            TextField(
-                                value = searchQuery,
-                                onValueChange = { searchQuery = it },
-                                singleLine = true,
-                                leadingIcon = {
-                                    Icon(
-                                        imageVector = Icons.Default.Close,
-                                        contentDescription = stringResource(R.string.close),
-                                        tint = MaterialTheme.colorScheme.error,
-                                        modifier = Modifier.clickable {
-                                            searchQuery = ""
-                                            isSearchBarEnabled = false
-                                        }
-                                    )
-                                },
-                                placeholder = {
-                                    Text(
-                                        text = stringResource(R.string.search_apps),
-                                        color = MaterialTheme.colorScheme.onSurface
-                                    )
-                                },
-                                colors = AppObjectsColors.outlinedTextFieldColors(
-                                    backgroundColor = MaterialTheme.colorScheme.surface.adjustBrightness(
-                                        0.7f
-                                    ), removeBorder = true
-                                ),
-                                modifier = Modifier
-                                    .fillMaxWidth()
-                                    .clip(CircleShape),
-                                maxLines = 1
-                            )
                         }
+                    } else {
+                        AppDrawerSearch(
+                            searchQuery = searchQuery,
+                            onSearchChanged = { searchQuery = it },
+                            leadingIcon = {
+                                Icon(
+                                    imageVector = Icons.Default.Close,
+                                    contentDescription = stringResource(R.string.close_kb),
+                                    tint = MaterialTheme.colorScheme.error,
+                                    modifier = Modifier.clickable {
+                                        isSearchBarEnabled = false
+                                        searchQuery = ""
+                                    }
+                                )
+                            },
+                            modifier = Modifier.focusRequester(focusRequester),
+                            onFocusStateChanged = { isSearchBarEnabled = it }
+                        )
                     }
                 }
+
 
                 Spacer(Modifier.height(6.dp))
 
