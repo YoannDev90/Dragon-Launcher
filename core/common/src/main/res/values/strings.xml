@@ -655,6 +655,10 @@
     <string name="private_space_loading_description">Your Private Space is being loaded…</string>
     <string name="private_space_managed_by_android">This profile is managed by Android system.</string>
     <string name="private_space_manage_instructions">To add or remove apps, or delete this profile, use Android Settings.</string>
+    <string name="samsung_secure_folder_settings">Samsung Secure Folder</string>
+    <string name="secure_folder_prefer_enabled">Secure Folder will be used instead of Private Space.</string>
+    <string name="secure_folder_prefer_disabled">Using standard Android Private Space.</string>
+    <string name="secure_folder_unavailable">Secure Folder not available on this device</string>
     <string name="app_info_name">name = %1$s</string>
     <string name="app_info_package_name">packageName = %1$s</string>
     <string name="app_info_is_enabled">isEnabled = %1$s</string>

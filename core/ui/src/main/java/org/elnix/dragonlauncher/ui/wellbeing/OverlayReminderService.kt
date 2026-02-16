@@ -104,6 +104,7 @@ class OverlayReminderService : Service() {
     private var overlayView: View? = null
     private val handler = Handler(Looper.getMainLooper())
     private var pulseAnimator: ValueAnimator? = null
+    private var autoDismissRunnable: Runnable? = null
     private val serviceScope = CoroutineScope(SupervisorJob() + Dispatchers.Main.immediate)
 
     override fun onBind(intent: Intent?): IBinder? = null
@@ -196,18 +197,17 @@ class OverlayReminderService : Service() {
                 }
 
                 // Auto-dismiss
-                handler.postDelayed({
+                autoDismissRunnable = Runnable {
                     try {
                         if (overlayView === container) {
-                            animateOut(container) {
-                                removeOverlay()
-                                stopSelf()
-                            }
+                            removeOverlay()
+                            stopSelf()
                         }
                     } catch (e: Exception) {
                         Log.e(TAG, "Error in auto-dismiss", e)
                     }
-                }, DISMISS_DELAY)
+                }
+                handler.postDelayed(autoDismissRunnable!!, DISMISS_DELAY)
 
             } catch (e: Exception) {
                 Log.e(TAG, "Error in showOverlay", e)
@@ -308,10 +308,8 @@ class OverlayReminderService : Service() {
             isClickable = true
             isFocusable = true
             setOnClickListener {
-                animateOut(wrapper) {
-                    removeOverlay()
-                    stopSelf()
-                }
+                removeOverlay()
+                stopSelf()
             }
         }
 
@@ -510,12 +508,14 @@ class OverlayReminderService : Service() {
     // ───────────────────── Lifecycle ─────────────────────
 
     private fun removeOverlay() {
+        autoDismissRunnable?.let { handler.removeCallbacks(it) }
+        autoDismissRunnable = null
         pulseAnimator?.cancel()
         pulseAnimator = null
         try {
             overlayView?.let { view ->
                 if (view.isAttachedToWindow) {
-                    windowManager?.removeView(view)
+                    windowManager?.removeViewImmediate(view)
                     Log.d(TAG, "Overlay removed")
                 }
             }
@@ -523,6 +523,7 @@ class OverlayReminderService : Service() {
             Log.e(TAG, "Error removing overlay", e)
         } finally {
             overlayView = null
+            windowManager = null
         }
     }
 

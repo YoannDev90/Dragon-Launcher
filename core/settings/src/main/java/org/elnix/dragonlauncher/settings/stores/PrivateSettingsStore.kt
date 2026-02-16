@@ -50,12 +50,19 @@ object PrivateSettingsStore : MapSettingsStore() {
         enumClass = LockMethod::class.java
     )
 
+    val samsungPreferSecureFolder = Settings.boolean(
+        key = "samsung_prefer_secure_folder",
+        dataStoreName = dataStoreName,
+        default = false
+    )
+
     override val ALL: List<BaseSettingObject<*,*>> = listOf(
         hasSeenWelcome,
         hasInitialized,
         showSetDefaultLauncherBanner,
         lastSeenVersionCode,
         lockPinHash,
-        lockMethod
+        lockMethod,
+        samsungPreferSecureFolder
     )
 }

@@ -12,6 +12,7 @@ import android.content.pm.ActivityInfo
 import android.os.Build
 import android.os.Bundle
 import android.os.SystemClock
+import android.util.Log
 import android.view.WindowManager
 import androidx.activity.compose.setContent
 import androidx.activity.result.contract.ActivityResultContracts
@@ -47,6 +48,7 @@ import org.elnix.dragonlauncher.common.utils.Constants.Navigation.ignoredReturnR
 import org.elnix.dragonlauncher.common.utils.Constants.Settings.HOME_REENTER_WINDOW_MS
 import org.elnix.dragonlauncher.common.utils.PrivateSpaceUtils
 import org.elnix.dragonlauncher.common.utils.ROUTES
+import org.elnix.dragonlauncher.common.utils.SamsungWorkspaceIntegration
 import org.elnix.dragonlauncher.common.utils.WidgetHostProvider
 import org.elnix.dragonlauncher.common.utils.showToast
 import org.elnix.dragonlauncher.models.AppLifecycleViewModel
@@ -333,10 +335,33 @@ class MainActivity : FragmentActivity(), WidgetHostProvider {
 
             LaunchedEffect(Unit) {
                 appLifecycleViewModel.privateSpaceUnlockRequestEvents.collect {
-                    // unlocks private space
-                    ctx.startActivity(
-                        Intent(ctx, PrivateSpaceUnlockActivity::class.java)
-                    )
+                    
+                    val openPrivateSpace = {
+                            Log.i("SamsungIntegration", "Using standard Android Private Space")
+                            ctx.startActivity(
+                                Intent(this, PrivateSpaceUnlockActivity::class.java)
+                            )
+                        }
+
+                        Log.i("SamsungIntegration", "Loading Samsung preference: $samsungPreferSecureFolder")
+                        val useSecureFolder = SamsungWorkspaceIntegration.resolveUseSecureFolder(
+                            context = ctx,
+                            preferenceEnabled = samsungPreferSecureFolder
+                        )
+
+                        Log.i(
+                            "SamsungIntegration",
+                            "Using system: ${if (useSecureFolder) "Secure Folder" else "Private Space"}"
+                        )
+
+                        if (useSecureFolder) {
+                            SamsungWorkspaceIntegration.openSecureFolder(
+                                context = ctx,
+                                onFallback = openPrivateSpace
+                            )
+                        } else {
+                            openPrivateSpace()
+                        }
                 }
             }
 
@@ -376,6 +401,7 @@ class MainActivity : FragmentActivity(), WidgetHostProvider {
             val keepScreenOn by BehaviorSettingsStore.keepScreenOn.asState()
             val fullscreen by UiSettingsStore.fullScreen.asState()
             val hasInitialized by PrivateSettingsStore.hasInitialized.asStateNull()
+            val samsungPreferSecureFolder by PrivateSettingsStore.samsungPreferSecureFolder.asState()
 
 
             val window = this@MainActivity.window
