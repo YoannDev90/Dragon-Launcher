@@ -186,6 +186,7 @@ private fun FullScreenPinPrompt(
     }
 
     val superWaningMode by BehaviorSettingsStore.superWarningMode.asState()
+    val superWaningModeSound by BehaviorSettingsStore.superWarningModeSound.asState()
 
     val backgroundOverlayColor = Animatable(
          Color.Transparent
@@ -207,17 +208,20 @@ private fun FullScreenPinPrompt(
     LaunchedEffect(failedTries) {
         if (failedTries > 0 && superWaningMode) {
 
-            // Plays annoying sound alarm infinitely
-            soundPool.setOnLoadCompleteListener { _, sampleId, status ->
-                if (status == 0) {
-                    soundPool.play(
-                        sampleId,
-                        1f,
-                        1f,
-                        1,
-                        -1,
-                        1f
-                    )
+
+            if (superWaningModeSound) {
+                // Plays annoying sound alarm infinitely
+                soundPool.setOnLoadCompleteListener { _, sampleId, status ->
+                    if (status == 0) {
+                        soundPool.play(
+                            sampleId,
+                            1f,
+                            1f,
+                            1,
+                            -1,
+                            1f
+                        )
+                    }
                 }
             }
 
