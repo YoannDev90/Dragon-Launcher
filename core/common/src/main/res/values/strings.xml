@@ -718,4 +718,10 @@
 
     <string name="super_warning_mode_sound">Super Warning mode + sound</string>
     <string name="super_warning_mode_sound_desc">Adds the sound</string>
+    <string name="alarm_sound">Alarm Sound</string>
+    <string name="alarm_sound_desc">Play an alarm sound when wrong pin entered</string>
+    <string name="metal_pipes_sound">Metal pipes sound</string>
+    <string name="metal_pipes_sound_desc">Play metal pipes sound when wrong pin entered</string>
+    <string name="vibrate_on_error">Vibrate on error</string>
+    <string name="vibrate_on_error_desc">Launches an infinite vibration upon pin error</string>
 </resources>

@@ -112,6 +112,26 @@ object BehaviorSettingsStore : MapSettingsStore() {
         default = false
     )
 
+
+    val vibrateOnError = Settings.boolean(
+        key = "vibrateOnError",
+        dataStoreName = dataStoreName,
+        default = false
+    )
+
+
+    val alarmSound = Settings.boolean(
+        key = "alarmSound",
+        dataStoreName = dataStoreName,
+        default = false
+    )
+
+    val metalPipesSound = Settings.boolean(
+        key = "metalPipesSound",
+        dataStoreName = dataStoreName,
+        default = false
+    )
+
     val superWarningModeSound = Settings.int(
         key = "superWarningModeSound",
         dataStoreName = dataStoreName,

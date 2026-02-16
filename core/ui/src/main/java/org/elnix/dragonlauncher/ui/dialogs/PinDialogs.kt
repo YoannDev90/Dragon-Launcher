@@ -3,6 +3,7 @@
 package org.elnix.dragonlauncher.ui.dialogs
 
 import android.content.Context
+import android.media.AudioAttributes
 import android.media.AudioManager
 import android.media.SoundPool
 import androidx.compose.animation.Animatable
@@ -205,62 +206,33 @@ private fun FullScreenPinPrompt(
         }
     }
 
-    val superWaningMode by BehaviorSettingsStore.superWarningMode.asState()
-    val superWaningModeSound by BehaviorSettingsStore.superWarningModeSound.asState()
+    val superWarningMode by BehaviorSettingsStore.superWarningMode.asState()
+    val superWarningModeSound by BehaviorSettingsStore.superWarningModeSound.asState()
+    val vibrateOnError by BehaviorSettingsStore.vibrateOnError.asState()
+    val alarmSound by BehaviorSettingsStore.alarmSound.asState()
+    val metalPipesSound by BehaviorSettingsStore.metalPipesSound.asState()
+
+    PlayWarningSounds(
+        failedTries = failedTries,
+        superWarningMode = superWarningMode,
+        superWarningModeSound = superWarningModeSound,
+        alarmSoundEnabled = alarmSound,
+        metalPipesSoundEnabled = metalPipesSound
+    )
 
     val backgroundOverlayColor = Animatable(
         Color.Transparent
     )
 
-    val soundPool = remember {
-        SoundPool.Builder()
-            .setMaxStreams(1)
-            .build()
-    }
-
-    @Suppress("UnusedVariable", "unused")
-    // It is used, as it loads the sound, without it doesn't work
-    val soundId = soundPool.load(ctx, R.raw.warning, 1)
-
-    DisposableEffect(Unit) {
-        onDispose {
-            soundPool.release()
-        }
-    }
-
     LaunchedEffect(failedTries) {
-        if (failedTries > 0 && superWaningMode) {
-
-            if (superWaningModeSound > 0f) {
-
-                val audioManager = ctx.getSystemService(Context.AUDIO_SERVICE) as AudioManager
-                val max = audioManager.getStreamMaxVolume(AudioManager.STREAM_MUSIC)
-
-                audioManager.setStreamVolume(
-                    AudioManager.STREAM_MUSIC,
-                    superWaningModeSound.coerceAtMost(max),
-                    0
-                )
-
-
-                // Plays annoying sound alarm infinitely
-                soundPool.setOnLoadCompleteListener { _, sampleId, status ->
-                    if (status == 0) {
-                        soundPool.play(
-                            sampleId,
-                            1f,
-                            1f,
-                            1,
-                            -1,
-                            1f
-                        )
-                    }
-                }
-            }
-
+        if (failedTries > 0 && superWarningMode) {
             while (true) {
                 backgroundOverlayColor.animateTo(Color.Red)
-                vibrate(ctx, 500L)
+
+                if (vibrateOnError) {
+                    vibrate(ctx, 500L)
+                }
+
                 backgroundOverlayColor.animateTo(Color.Transparent)
             }
         }
@@ -543,4 +515,75 @@ private fun Modifier.keyPadModifier(
         )
         .background(MaterialTheme.colorScheme.surface.semiTransparentIfDisabled(enabled))
         .padding(15.dp)
+}
+
+
+@Composable
+fun PlayWarningSounds(
+    failedTries: Int,
+    superWarningMode: Boolean,
+    superWarningModeSound: Int,
+    alarmSoundEnabled: Boolean,
+    metalPipesSoundEnabled: Boolean
+) {
+    val ctx = LocalContext.current
+
+    val soundPool = remember {
+        SoundPool.Builder()
+            .setMaxStreams(2)
+            .setAudioAttributes(
+                AudioAttributes.Builder()
+                    .setUsage(AudioAttributes.USAGE_MEDIA)
+                    .setContentType(AudioAttributes.CONTENT_TYPE_SONIFICATION)
+                    .build()
+            )
+            .build()
+    }
+
+    var alarmLoaded by remember { mutableStateOf(false) }
+    var metalLoaded by remember { mutableStateOf(false) }
+
+    val alarmSoundId = remember {
+        soundPool.load(ctx, R.raw.warning, 1)
+    }
+
+    val metalSoundId = remember {
+        soundPool.load(ctx, R.raw.metal_pipe, 1)
+    }
+
+    DisposableEffect(Unit) {
+        soundPool.setOnLoadCompleteListener { _, sampleId, status ->
+            if (status == 0) {
+                if (sampleId == alarmSoundId) alarmLoaded = true
+                if (sampleId == metalSoundId) metalLoaded = true
+            }
+        }
+
+        onDispose { soundPool.release() }
+    }
+
+    LaunchedEffect(failedTries, superWarningMode) {
+        if (failedTries > 0 && superWarningMode && superWarningModeSound > 0) {
+
+            val audioManager =
+                ctx.getSystemService(Context.AUDIO_SERVICE) as AudioManager
+
+            val maxVolume =
+                audioManager.getStreamMaxVolume(AudioManager.STREAM_MUSIC)
+
+            audioManager.setStreamVolume(
+                AudioManager.STREAM_MUSIC,
+                superWarningModeSound.coerceIn(0, maxVolume),
+                0
+            )
+
+            if (alarmSoundEnabled && alarmLoaded) {
+                soundPool.play(alarmSoundId, 1f, 1f, 1, -1, 1f)
+            }
+
+            if (metalPipesSoundEnabled && metalLoaded) {
+                soundPool.play(metalSoundId, 1f, 1f, 1, 0, 1f)
+            }
+        }
+    }
 }

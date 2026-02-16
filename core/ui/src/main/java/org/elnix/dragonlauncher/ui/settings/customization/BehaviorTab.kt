@@ -271,6 +271,24 @@ fun BehaviorTab(
                     description = stringResource(R.string.super_warning_mode_desc),
                 )
 
+                SettingsSwitchRow(
+                    setting = BehaviorSettingsStore.vibrateOnError,
+                    title = stringResource(R.string.vibrate_on_error),
+                    description = stringResource(R.string.vibrate_on_error_desc),
+                )
+
+                SettingsSwitchRow(
+                    setting = BehaviorSettingsStore.alarmSound,
+                    title = stringResource(R.string.alarm_sound),
+                    description = stringResource(R.string.super_warning_mode_desc),
+                )
+
+                SettingsSwitchRow(
+                    setting = BehaviorSettingsStore.metalPipesSound,
+                    title = stringResource(R.string.metal_pipes_sound),
+                    description = stringResource(R.string.metal_pipes_sound_desc),
+                )
+
                 SettingsSlider(
                     setting = BehaviorSettingsStore.superWarningModeSound,
                     title = stringResource(R.string.super_warning_mode_sound),
