@@ -54,10 +54,12 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import kotlinx.coroutines.yield
 import org.elnix.dragonlauncher.common.R
+import org.elnix.dragonlauncher.common.logging.logE
 import org.elnix.dragonlauncher.common.serializables.AppModel
 import org.elnix.dragonlauncher.common.serializables.SwipeActionSerializable
 import org.elnix.dragonlauncher.common.serializables.WorkspaceType
 import org.elnix.dragonlauncher.common.serializables.dummySwipePoint
+import org.elnix.dragonlauncher.common.utils.Constants
 import org.elnix.dragonlauncher.common.utils.PrivateSpaceUtils
 import org.elnix.dragonlauncher.common.utils.openSearch
 import org.elnix.dragonlauncher.enumsui.DrawerActions
@@ -102,7 +104,6 @@ fun AppDrawerScreen(
     leftWeight: Float,
     rightAction: DrawerActions,
     rightWeight: Float,
-    onUnlockPrivateSpace: () -> Unit,
     onLaunchAction: (SwipeActionSerializable) -> Unit,
     onClose: () -> Unit
 ) {
@@ -202,17 +203,17 @@ fun AppDrawerScreen(
      * launch the private space unlocking prompt if workspace type if private space
      */
     LaunchedEffect(pagerState.currentPage) {
-        val newWorkspaceId =
-            visibleWorkspaces.getOrNull(pagerState.currentPage)?.id ?: return@LaunchedEffect
         val newWorkspace =
             visibleWorkspaces.getOrNull(pagerState.currentPage) ?: return@LaunchedEffect
+        val newWorkspaceId = newWorkspace.id
 
         // Check if switching to Private Space (Android 15+)
         if (PrivateSpaceUtils.isPrivateSpaceSupported() &&
             newWorkspace.type == WorkspaceType.PRIVATE &&
             privateSpaceState.isLocked
         ) {
-            onUnlockPrivateSpace()
+            logE(Constants.Logging.PRIVATE_SPACE_TAG, "Drawer launch!")
+            appLifecycleViewModel.onUnlockPrivateSpace()
         }
 
         workspaceId = newWorkspaceId
@@ -262,7 +263,6 @@ fun AppDrawerScreen(
             launchDrawerAction(drawerHomeAction)
         }
     }
-
 
 
     /* Dim wallpaper system */
@@ -382,7 +382,8 @@ fun AppDrawerScreen(
 
                         Box(modifier = Modifier.fillMaxWidth()) {
                             // If the current workspace is a private space and locked, display a lock icon
-                            val showLock = privateSpaceState.isLocked || privateSpaceState.isAuthenticating
+                            val showLock =
+                                privateSpaceState.isLocked || privateSpaceState.isAuthenticating
 
                             if (workspace.type == WorkspaceType.PRIVATE && showLock) {
                                 Box(
@@ -394,8 +395,17 @@ fun AppDrawerScreen(
                                             // The loading shouldn't be displayed, but just in case I'll keep it for user visual feedback
                                             it.isLoading -> CircularProgressIndicator()
                                             it.isAuthenticating -> CircularProgressIndicator(color = Color.Yellow)
-                                            it.isLocked -> DragonIconButton(onClick = onUnlockPrivateSpace) {
-                                                Icon(Icons.Default.Lock, contentDescription = "Private Space Locked")
+                                            it.isLocked -> {
+                                                DragonIconButton(
+                                                    onClick = {
+                                                        logE(Constants.Logging.PRIVATE_SPACE_TAG, "Drawer reload button launch!")
+                                                        appLifecycleViewModel.onUnlockPrivateSpace()
+                                                    }) {
+                                                    Icon(
+                                                        Icons.Default.Lock,
+                                                        contentDescription = "Private Space Locked"
+                                                    )
+                                                }
                                             }
                                         }
                                     }

@@ -75,7 +75,7 @@ fun AppPreviewTitle(
                                 else null,
                             modifier = Modifier
                                 .size(iconSize.dp)
-                                .clip(resolveShape(shape))
+                                .clip(shape.resolveShape())
                         )
                     }
                 }

@@ -39,6 +39,7 @@ import org.elnix.dragonlauncher.common.serializables.defaultSwipePointsValues
 import org.elnix.dragonlauncher.common.serializables.dummySwipePoint
 import org.elnix.dragonlauncher.enumsui.WorkspaceViewMode
 import org.elnix.dragonlauncher.enumsui.workspaceViewMode
+import org.elnix.dragonlauncher.models.AppLifecycleViewModel
 import org.elnix.dragonlauncher.models.AppsViewModel
 import org.elnix.dragonlauncher.settings.stores.DebugSettingsStore
 import org.elnix.dragonlauncher.settings.stores.DrawerSettingsStore
@@ -55,11 +56,12 @@ import kotlin.math.max
 
 @Composable
 fun WorkspaceDetailScreen(
+    appsViewModel: AppsViewModel,
+    appLifecycleViewModel: AppLifecycleViewModel,
     showLabels: Boolean,
     showIcons: Boolean,
     gridSize: Int,
     workspaceId: String,
-    appsViewModel: AppsViewModel,
     onBack: () -> Unit,
     onLaunchAction: (SwipeActionSerializable) -> Unit
 ) {
@@ -163,6 +165,7 @@ fun WorkspaceDetailScreen(
     if (showAppPicker) {
         AppPickerDialog(
             appsViewModel = appsViewModel,
+            appLifecycleViewModel = appLifecycleViewModel,
             gridSize = gridSize,
             iconShape = iconsShape,
             showIcons = showIcons,

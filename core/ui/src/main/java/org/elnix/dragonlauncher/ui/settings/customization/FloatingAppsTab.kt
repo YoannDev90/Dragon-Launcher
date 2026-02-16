@@ -69,6 +69,7 @@ import org.elnix.dragonlauncher.common.logging.logD
 import org.elnix.dragonlauncher.common.serializables.SwipeActionSerializable
 import org.elnix.dragonlauncher.common.utils.Constants.Logging.WIDGET_TAG
 import org.elnix.dragonlauncher.common.utils.WidgetHostProvider
+import org.elnix.dragonlauncher.models.AppLifecycleViewModel
 import org.elnix.dragonlauncher.models.AppsViewModel
 import org.elnix.dragonlauncher.models.FloatingAppsViewModel
 import org.elnix.dragonlauncher.settings.stores.DebugSettingsStore
@@ -87,6 +88,7 @@ import org.elnix.dragonlauncher.ui.statusbar.StatusBar
 @Composable
 fun FloatingAppsTab(
     appsViewModel: AppsViewModel,
+    appLifecycleViewModel: AppLifecycleViewModel,
     floatingAppsViewModel: FloatingAppsViewModel,
     widgetHostProvider: WidgetHostProvider,
     onBack: () -> Unit,
@@ -220,7 +222,7 @@ fun FloatingAppsTab(
                     floatingAppsViewModel = floatingAppsViewModel,
                     app = floatingApp,
                     icons = icons,
-                    shape = resolveShape(iconsShape),
+                    shape =iconsShape.resolveShape(),
                     selected = floatingApp.id == selected?.id,
                     widgetHostProvider = widgetHostProvider,
                     onSelect = { selected = floatingApp },
@@ -376,6 +378,7 @@ fun FloatingAppsTab(
     if (showAddDialog) {
         AddPointDialog(
             appsViewModel = appsViewModel,
+            appLifecycleViewModel = appLifecycleViewModel,
             onDismiss = { showAddDialog = false },
             actions = listOf(
                 SwipeActionSerializable.OpenWidget(0, ComponentName("", "")),

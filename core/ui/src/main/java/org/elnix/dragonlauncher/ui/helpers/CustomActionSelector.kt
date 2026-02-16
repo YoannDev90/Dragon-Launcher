@@ -33,6 +33,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import org.elnix.dragonlauncher.common.serializables.SwipeActionSerializable
 import org.elnix.dragonlauncher.common.utils.semiTransparentIfDisabled
+import org.elnix.dragonlauncher.models.AppLifecycleViewModel
 import org.elnix.dragonlauncher.models.AppsViewModel
 import org.elnix.dragonlauncher.ui.UiConstants.DragonShape
 import org.elnix.dragonlauncher.ui.actions.ActionIcon
@@ -46,6 +47,7 @@ import org.elnix.dragonlauncher.ui.theme.LocalExtraColors
 @Composable
 fun CustomActionSelector(
     appsViewModel: AppsViewModel,
+    appLifecycleViewModel: AppLifecycleViewModel,
     currentAction: SwipeActionSerializable?,
     nullText: String? = null,
     enabled: Boolean = true,
@@ -149,6 +151,7 @@ fun CustomActionSelector(
     if (showDialog) {
         AddPointDialog(
             appsViewModel = appsViewModel,
+            appLifecycleViewModel = appLifecycleViewModel,
             onDismiss = { showDialog = false },
             onActionSelected = {
                 onSelected(it)

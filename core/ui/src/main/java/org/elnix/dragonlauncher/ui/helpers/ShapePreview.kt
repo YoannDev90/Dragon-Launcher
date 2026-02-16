@@ -47,7 +47,7 @@ fun ShapePreview(
         contentAlignment = Alignment.Center
     ) {
         if (iconShape !is IconShape.Random) {
-            val shape = resolveShape(iconShape)
+            val shape = iconShape.resolveShape()
 
             Box(
                 modifier = Modifier

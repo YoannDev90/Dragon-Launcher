@@ -85,7 +85,7 @@ fun DrawScope.actionsInCircle(
     } ?: IconShape.Circle
 
 
-    val borderShape = resolveShape(borderIconShape)
+    val borderShape = borderIconShape.resolveShape()
 
     val backgroundColor = if (selected) {
         point.backgroundColorSelected?.let { Color(it) }
@@ -98,7 +98,7 @@ fun DrawScope.actionsInCircle(
         Color.Transparent
     }
 
-    val shape = resolveShape(point.customIcon?.shape ?: iconShape)
+    val shape = (point.customIcon?.shape ?: iconShape).resolveShape()
 
 
     if (action !is SwipeActionSerializable.OpenCircleNest) {

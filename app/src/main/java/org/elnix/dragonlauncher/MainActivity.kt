@@ -331,6 +331,14 @@ class MainActivity : FragmentActivity(), WidgetHostProvider {
             // May be used in the future for some quit action / operation
 //            DoubleBackToExit()
 
+            LaunchedEffect(Unit) {
+                appLifecycleViewModel.privateSpaceUnlockRequestEvents.collect {
+                    // unlocks private space
+                    ctx.startActivity(
+                        Intent(ctx, PrivateSpaceUnlockActivity::class.java)
+                    )
+                }
+            }
 
 
             // Used to visually block private space content on windows quit, and if user locks his phone,
@@ -437,11 +445,6 @@ class MainActivity : FragmentActivity(), WidgetHostProvider {
                     appLifecycleViewModel = appLifecycleViewModel,
                     widgetHostProvider = this,
                     navController = navController,
-                    onUnlockPrivateSpace = {
-                        ctx.startActivity(
-                            Intent(this, PrivateSpaceUnlockActivity::class.java)
-                        )
-                    },
                     onBindCustomWidget = { widgetId, provider, nestId ->
                         pendingAddNestId = nestId
                         (ctx as MainActivity).bindWidgetFromCustomPicker(widgetId, provider)
