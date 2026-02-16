@@ -65,3 +65,19 @@ val allShapes = listOf(
     IconShape.Random,
     IconShape.Dragon
 )
+
+
+val allShapesWithoutRandom = listOf(
+    IconShape.PlatformDefault,
+    IconShape.Circle,
+    IconShape.Square,
+    IconShape.RoundedSquare,
+    IconShape.Triangle,
+    IconShape.Squircle,
+    IconShape.Hexagon,
+    IconShape.Pentagon,
+    IconShape.Teardrop,
+    IconShape.Pebble,
+    IconShape.EasterEgg,
+    IconShape.Dragon
+)

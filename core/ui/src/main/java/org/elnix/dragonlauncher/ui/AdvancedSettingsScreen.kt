@@ -50,6 +50,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
+import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
@@ -69,7 +70,9 @@ import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import org.elnix.dragonlauncher.common.R
 import org.elnix.dragonlauncher.common.logging.logD
+import org.elnix.dragonlauncher.common.serializables.IconShape
 import org.elnix.dragonlauncher.common.serializables.SwipeActionSerializable
+import org.elnix.dragonlauncher.common.serializables.allShapesWithoutRandom
 import org.elnix.dragonlauncher.common.utils.Constants.Links.discordInviteLink
 import org.elnix.dragonlauncher.common.utils.SETTINGS
 import org.elnix.dragonlauncher.common.utils.copyToClipboard
@@ -559,6 +562,7 @@ fun AdvancedSettingsScreen(
 
     if (showRemovePinConfirm) {
         var pin by remember { mutableStateOf("") }
+        val pinShapes = remember { mutableStateListOf<IconShape>() }
         var failedTries by remember { mutableStateOf(0) }
 
         PinUnlockDialog(
@@ -572,12 +576,25 @@ fun AdvancedSettingsScreen(
                 } else {
                     ctx.showToast(ctx.getString(R.string.wrong_pin))
                     pin = ""
+                    pinShapes.clear()
                     failedTries++
                 }
             },
             pin = { pin },
+            pinShapes = { pinShapes },
             failedTries = { failedTries },
-            onPinChanged = { pin = it }
+            onPinChanged = { newValue ->
+                pin = newValue
+                if (pinShapes.size < newValue.length) {
+                    repeat(newValue.length - pinShapes.size) {
+                        pinShapes.add(allShapesWithoutRandom.random())
+                    }
+                } else {
+                    repeat(pinShapes.size - newValue.length) {
+                        pinShapes.removeLast()
+                    }
+                }
+            }
         )
     }
 
