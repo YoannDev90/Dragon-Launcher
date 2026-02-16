@@ -112,9 +112,10 @@ object BehaviorSettingsStore : MapSettingsStore() {
         default = false
     )
 
-    val superWarningModeSound = Settings.boolean(
+    val superWarningModeSound = Settings.int(
         key = "superWarningModeSound",
         dataStoreName = dataStoreName,
-        default = false
+        default = 100,
+        allowedRange = 0..100
     )
 }

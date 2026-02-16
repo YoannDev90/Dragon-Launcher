@@ -271,10 +271,11 @@ fun BehaviorTab(
                     description = stringResource(R.string.super_warning_mode_desc),
                 )
 
-                SettingsSwitchRow(
+                SettingsSlider(
                     setting = BehaviorSettingsStore.superWarningModeSound,
                     title = stringResource(R.string.super_warning_mode_sound),
                     description = stringResource(R.string.super_warning_mode_sound_desc),
+                    valueRange = 0..100
                 )
             }
         }

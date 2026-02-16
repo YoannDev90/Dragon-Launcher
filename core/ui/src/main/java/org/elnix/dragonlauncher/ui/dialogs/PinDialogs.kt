@@ -2,6 +2,8 @@
 
 package org.elnix.dragonlauncher.ui.dialogs
 
+import android.content.Context
+import android.media.AudioManager
 import android.media.SoundPool
 import androidx.activity.compose.BackHandler
 import androidx.compose.animation.Animatable
@@ -189,8 +191,8 @@ private fun FullScreenPinPrompt(
     val superWaningModeSound by BehaviorSettingsStore.superWarningModeSound.asState()
 
     val backgroundOverlayColor = Animatable(
-         Color.Transparent
-     )
+        Color.Transparent
+    )
 
     val soundPool = remember {
         SoundPool.Builder()
@@ -208,8 +210,17 @@ private fun FullScreenPinPrompt(
     LaunchedEffect(failedTries) {
         if (failedTries > 0 && superWaningMode) {
 
+            val audioManager = ctx.getSystemService(Context.AUDIO_SERVICE) as AudioManager
+            val max = audioManager.getStreamMaxVolume(AudioManager.STREAM_MUSIC)
 
-            if (superWaningModeSound) {
+            if (superWaningModeSound > 0f) {
+                audioManager.setStreamVolume(
+                    AudioManager.STREAM_MUSIC,
+                    superWaningModeSound.coerceAtMost(max),
+                    0
+                )
+
+
                 // Plays annoying sound alarm infinitely
                 soundPool.setOnLoadCompleteListener { _, sampleId, status ->
                     if (status == 0) {
@@ -234,7 +245,7 @@ private fun FullScreenPinPrompt(
     }
 
     // Lock color animation system
-    val defaultLockColor =  MaterialTheme.colorScheme.primary
+    val defaultLockColor = MaterialTheme.colorScheme.primary
     val errorColor = MaterialTheme.colorScheme.error
 
     val lockColor = Animatable(
