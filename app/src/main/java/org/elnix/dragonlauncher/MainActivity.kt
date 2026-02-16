@@ -12,7 +12,6 @@ import android.content.pm.ActivityInfo
 import android.os.Build
 import android.os.Bundle
 import android.os.SystemClock
-import android.util.Log
 import android.view.WindowManager
 import androidx.activity.compose.setContent
 import androidx.activity.result.contract.ActivityResultContracts
@@ -40,6 +39,7 @@ import kotlinx.coroutines.launch
 import org.elnix.dragonlauncher.common.R
 import org.elnix.dragonlauncher.common.logging.DragonLogManager
 import org.elnix.dragonlauncher.common.logging.logD
+import org.elnix.dragonlauncher.common.logging.logI
 import org.elnix.dragonlauncher.common.logging.logW
 import org.elnix.dragonlauncher.common.serializables.SwipeActionSerializable
 import org.elnix.dragonlauncher.common.serializables.SwipePointSerializable
@@ -333,39 +333,6 @@ class MainActivity : FragmentActivity(), WidgetHostProvider {
             // May be used in the future for some quit action / operation
 //            DoubleBackToExit()
 
-            LaunchedEffect(Unit) {
-                appLifecycleViewModel.privateSpaceUnlockRequestEvents.collect {
-                    
-                    val openPrivateSpace = {
-                            Log.i("SamsungIntegration", "Using standard Android Private Space")
-                            ctx.startActivity(
-                                Intent(this, PrivateSpaceUnlockActivity::class.java)
-                            )
-                        }
-
-                        Log.i("SamsungIntegration", "Loading Samsung preference: $samsungPreferSecureFolder")
-                        val useSecureFolder = SamsungWorkspaceIntegration.resolveUseSecureFolder(
-                            context = ctx,
-                            preferenceEnabled = samsungPreferSecureFolder
-                        )
-
-                        Log.i(
-                            "SamsungIntegration",
-                            "Using system: ${if (useSecureFolder) "Secure Folder" else "Private Space"}"
-                        )
-
-                        if (useSecureFolder) {
-                            SamsungWorkspaceIntegration.openSecureFolder(
-                                context = ctx,
-                                onFallback = openPrivateSpace
-                            )
-                        } else {
-                            openPrivateSpace()
-                        }
-                }
-            }
-
-
             // Used to visually block private space content on windows quit, and if user locks his phone,
             // the apps are also visually blocked, since they can't be launched
             DisposableEffect(lifecycleOwner) {
@@ -402,6 +369,42 @@ class MainActivity : FragmentActivity(), WidgetHostProvider {
             val fullscreen by UiSettingsStore.fullScreen.asState()
             val hasInitialized by PrivateSettingsStore.hasInitialized.asStateNull()
             val samsungPreferSecureFolder by PrivateSettingsStore.samsungPreferSecureFolder.asState()
+
+
+            LaunchedEffect(Unit) {
+                appLifecycleViewModel.privateSpaceUnlockRequestEvents.collect {
+
+                    val openPrivateSpace = {
+                        ctx.logI("SamsungIntegration", "Using standard Android Private Space")
+                        ctx.startActivity(
+                            Intent(ctx, PrivateSpaceUnlockActivity::class.java)
+                        )
+                    }
+
+                    ctx.logI(
+                        "SamsungIntegration",
+                        "Loading Samsung preference: $samsungPreferSecureFolder"
+                    )
+                    val useSecureFolder = SamsungWorkspaceIntegration.resolveUseSecureFolder(
+                        context = ctx,
+                        preferenceEnabled = samsungPreferSecureFolder
+                    )
+
+                    ctx.logI(
+                        "SamsungIntegration",
+                        "Using system: ${if (useSecureFolder) "Secure Folder" else "Private Space"}"
+                    )
+
+                    if (useSecureFolder) {
+                        SamsungWorkspaceIntegration.openSecureFolder(
+                            context = ctx,
+                            onFallback = openPrivateSpace
+                        )
+                    } else {
+                        openPrivateSpace()
+                    }
+                }
+            }
 
 
             val window = this@MainActivity.window
