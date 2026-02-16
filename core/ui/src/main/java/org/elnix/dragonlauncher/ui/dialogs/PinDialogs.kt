@@ -199,6 +199,9 @@ private fun FullScreenPinPrompt(
             .setMaxStreams(1)
             .build()
     }
+
+    @Suppress("UnusedVariable", "unused")
+    // It is used, as it loads the sound, without it doesn't work
     val soundId = soundPool.load(ctx, R.raw.warning, 1)
 
     DisposableEffect(Unit) {
