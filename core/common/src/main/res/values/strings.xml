@@ -712,5 +712,6 @@
 
     <string name="private_space_debug_info">Private space debug info</string>
     <string name="private_space_debug_info_desc">Display private space state debug infos on top of everything</string>
+    <string name="backspace">Backspace</string>
 
 </resources>

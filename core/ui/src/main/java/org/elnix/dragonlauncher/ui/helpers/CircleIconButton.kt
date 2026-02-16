@@ -35,6 +35,7 @@ fun CircleIconButton(
     contentDescription: String,
     tint: Color = MaterialTheme.colorScheme.primary,
     enabled: Boolean = true,
+    allowDisplayHelp: Boolean = true,
     padding: Dp = 20.dp,
     onClick: (() -> Unit)?
 ) {
@@ -52,6 +53,7 @@ fun CircleIconButton(
             modifier = modifier
                 .circleIconButtonModifier(
                     showHelp = showHelp,
+                    allowDisplayHelp = allowDisplayHelp,
                     borderColor = borderColor,
                     backgroundColor = backgroundColor,
                     padding = padding,
@@ -87,6 +89,7 @@ fun CircleIconButton(
     contentDescription: String,
     tint: Color = MaterialTheme.colorScheme.primary,
     enabled: Boolean = true,
+    allowDisplayHelp: Boolean = true,
     padding: Dp = 20.dp,
     onClick: (() -> Unit)?
 ) {
@@ -101,6 +104,7 @@ fun CircleIconButton(
             modifier = modifier
                 .circleIconButtonModifier(
                     showHelp = showHelp,
+                    allowDisplayHelp = allowDisplayHelp,
                     borderColor = borderColor,
                     backgroundColor = backgroundColor,
                     padding = padding,
@@ -138,6 +142,7 @@ fun CircleIconButton(
 @Composable
 private fun Modifier.circleIconButtonModifier(
     showHelp: Boolean,
+    allowDisplayHelp: Boolean,
     borderColor: Color,
     backgroundColor: Color,
     padding: Dp,
@@ -165,7 +170,7 @@ private fun Modifier.circleIconButtonModifier(
             if (onClick != null) {
                 Modifier.combinedClickable(
                     interactionSource = interactionSource,
-                    onLongClick = onShowHelp,
+                    onLongClick = onShowHelp.takeIf { allowDisplayHelp },
                     onClick = onClick
                 )
             } else {

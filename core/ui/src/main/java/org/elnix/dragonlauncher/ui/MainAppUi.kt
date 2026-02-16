@@ -207,7 +207,7 @@ fun MainAppUi(
 
     /** Once unlocked during this session, stay unlocked */
     var isUnlocked by remember { mutableStateOf(false) }
-    var showPinDialog by remember { mutableStateOf(false) }
+    var showPinDialog by remember { mutableStateOf<String?>(null) }
     var pinError by remember { mutableStateOf<String?>(null) }
 
 
@@ -360,7 +360,7 @@ fun MainAppUi(
         @Suppress("KotlinConstantConditions")
         when (lockMethod) {
             LockMethod.PIN -> {
-                showPinDialog = true
+                showPinDialog = route
             }
 
             LockMethod.DEVICE_UNLOCK -> {
@@ -394,7 +394,6 @@ fun MainAppUi(
 
     var pendingNestToEdit by remember { mutableStateOf<Int?>(null) }
 
-    fun navigateToAdvSettings() = goSettings(SETTINGS.ADVANCED_ROOT)
     fun goAppearance() = goSettings(SETTINGS.APPEARANCE)
     fun goDebug() = goSettings(SETTINGS.DEBUG)
     fun goNestEdit(nest: Int) {
@@ -821,20 +820,32 @@ fun MainAppUi(
     }
 
     /* ────────── PIN unlock dialog ────────── */
-    if (showPinDialog) {
+    if (showPinDialog != null) {
+        val routeQuery = showPinDialog!!
+        var pin by remember { mutableStateOf("") }
+        var failedTries by remember { mutableStateOf(0) }
+
         PinUnlockDialog(
-            onDismiss = { showPinDialog = false; pinError = null },
-            onPinEntered = { enteredPin ->
-                if (SecurityHelper.verifyPin(enteredPin, pinHash)) {
+            onDismiss = { showPinDialog = null; pinError = null },
+            onValidate = {
+                if (SecurityHelper.verifyPin(pin, pinHash)) {
                     isUnlocked = true
-                    showPinDialog = false
+                    showPinDialog = null
                     pinError = null
-                    navigateToAdvSettings()
+                    goSettings(routeQuery)
                 } else {
                     pinError = ctx.getString(R.string.wrong_pin)
+                    failedTries++
                 }
+                pin = ""
             },
-            errorMessage = pinError
+            errorMessage = pinError,
+            pin = { pin },
+            failedTries = { failedTries },
+            onPinChanged = {
+                pinError = null
+                pin = it
+            }
         )
     }
 

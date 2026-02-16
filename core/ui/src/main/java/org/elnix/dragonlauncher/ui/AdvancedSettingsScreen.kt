@@ -558,18 +558,26 @@ fun AdvancedSettingsScreen(
     }
 
     if (showRemovePinConfirm) {
+        var pin by remember { mutableStateOf("") }
+        var failedTries by remember { mutableStateOf(0) }
+
         PinUnlockDialog(
             onDismiss = { showRemovePinConfirm = false },
-            onPinEntered = { enteredPin ->
-                if (SecurityHelper.verifyPin(enteredPin, pinHash)) {
+            onValidate = {
+                if (SecurityHelper.verifyPin(pin, pinHash)) {
                     scope.launch {
                         PrivateSettingsStore.lockMethod.reset(ctx)
+                        showRemovePinConfirm = false
                     }
                 } else {
                     ctx.showToast(ctx.getString(R.string.wrong_pin))
+                    pin = ""
+                    failedTries++
                 }
-                showRemovePinConfirm = false
-            }
+            },
+            pin = { pin },
+            failedTries = { failedTries },
+            onPinChanged = { pin = it }
         )
     }
 
