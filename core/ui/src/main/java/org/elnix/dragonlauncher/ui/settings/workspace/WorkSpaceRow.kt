@@ -11,6 +11,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.DragIndicator
 import androidx.compose.material.icons.filled.Lock
+import androidx.compose.material.icons.filled.Settings
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.Checkbox
@@ -41,6 +42,8 @@ fun WorkspaceRow(
     isDragging: Boolean = false,
     onClick: () -> Unit,
     onCheck: (Boolean) -> Unit,
+    showSamsungSettingsIcon: Boolean = false,
+    onSamsungSettingsClick: (() -> Unit)? = null,
 //    onPrivateVisibilityToggle: ((Boolean) -> Unit)? = null,
 //    isPrivateVisibleInDrawer: Boolean = true,
     onAction: (WorkspaceAction) -> Unit
@@ -97,6 +100,15 @@ fun WorkspaceRow(
                         onCheckedChange = onCheck/*{ onPrivateVisibilityToggle?.invoke(it) }*/,
                         colors = AppObjectsColors.switchColors()
                     )
+
+                    if (showSamsungSettingsIcon && onSamsungSettingsClick != null) {
+                        DragonIconButton(onClick = onSamsungSettingsClick) {
+                            Icon(
+                                imageVector = Icons.Default.Settings,
+                                contentDescription = stringResource(R.string.samsung_secure_folder_settings)
+                            )
+                        }
+                    }
 
                     Icon(
                         imageVector = Icons.Default.DragIndicator,

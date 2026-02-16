@@ -212,7 +212,7 @@ fun MainAppUi(
 
 
     LaunchedEffect(lockMethod) {
-        isUnlocked = true
+        isUnlocked = lockMethod == LockMethod.NONE
     }
 
     /*  ─────────────  Wellbeing Settings  ─────────────  */
