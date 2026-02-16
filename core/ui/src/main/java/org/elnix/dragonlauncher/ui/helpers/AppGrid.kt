@@ -45,7 +45,6 @@ import org.elnix.dragonlauncher.common.serializables.IconShape
 import org.elnix.dragonlauncher.common.serializables.iconCacheKey
 import org.elnix.dragonlauncher.settings.stores.DrawerSettingsStore
 import org.elnix.dragonlauncher.ui.components.dragon.DragonIconButton
-import org.elnix.dragonlauncher.ui.components.resolveShape
 import org.elnix.dragonlauncher.ui.components.settings.asState
 import org.elnix.dragonlauncher.ui.drawer.AppItemGrid
 import org.elnix.dragonlauncher.ui.drawer.AppItemHorizontal
@@ -63,6 +62,13 @@ fun AppGrid(
     showLabels: Boolean,
     useCategory: Boolean = false,
     fillMaxSize: Boolean = true,
+
+    // Multi select things
+    isMultiSelectMode: Boolean = false,
+    selectedPackages: List<String> = emptyList(),
+    onEnterMultiSelect: ((AppModel) -> Unit)? = null,
+    onToggleSelect: ((AppModel) -> Unit)? = null,
+
     onReload: (() -> Unit)? = null,
     onLongClick: ((AppModel) -> Unit)? = null,
     onScrollDown: (() -> Unit)? = null,
@@ -176,12 +182,11 @@ fun AppGrid(
                         }
                     }
                 }
-
-
             }
         }
 
-        useCategory && openedCategory == null -> {
+        // Can't use categories with multi-select mode cause it's too annoying to implement
+        useCategory && openedCategory == null && !isMultiSelectMode -> {
             LazyVerticalGrid(
                 state = gridState,
                 columns = GridCells.Fixed(categoryGridSize),
@@ -219,7 +224,6 @@ fun AppGrid(
                             }
                         }
                 }
-
             }
         }
 
@@ -234,17 +238,32 @@ fun AppGrid(
                 verticalArrangement = Arrangement.spacedBy(iconsSpacingVertical.dp),
             ) {
                 items(visibleApps, key = { it.iconCacheKey() }) { app ->
+                    val selected = app.packageName in selectedPackages
+
                     AppItemHorizontal(
                         app = app,
+                        selected = selected,
                         showIcons = showIcons,
                         showLabels = showLabels,
                         txtColor = txtColor,
                         icons = icons,
-                        shape = resolveShape(iconShape),
-                        onClick = { onClick(app) },
-                        onLongClick = if (onLongClick != null) {
-                            { onLongClick(app) }
-                        } else null
+                        iconShape = iconShape,
+                        onLongClick = {
+                            if (!isMultiSelectMode && onEnterMultiSelect != null) {
+                                onEnterMultiSelect(app)
+                            }  else if (isMultiSelectMode && onToggleSelect != null) {
+                                onToggleSelect(app)
+                            } else {
+                                onLongClick?.invoke(app)
+                            }
+                        },
+                        onClick = {
+                            if (isMultiSelectMode && onToggleSelect != null) {
+                                onToggleSelect(app)
+                            } else{
+                                onClick(app)
+                            }
+                        }
                     )
                 }
             }
@@ -263,16 +282,30 @@ fun AppGrid(
                 horizontalArrangement = Arrangement.spacedBy(iconsSpacingHorizontal.dp)
             ) {
                 items(visibleApps, key = { it.iconCacheKey() }) { app ->
+                    val selected = app.packageName in selectedPackages
+
+
                     AppItemGrid(
                         app = app,
+                        selected = selected,
                         icons = icons,
                         showIcons = showIcons,
                         maxIconSize = maxIconSize,
                         iconShape = iconShape,
                         showLabels = showLabels,
                         txtColor = txtColor,
-                        onLongClick = onLongClick,
-                        onClick = onClick
+                        onLongClick = {
+                            if (!isMultiSelectMode && onEnterMultiSelect != null) {
+                                onEnterMultiSelect(app)
+                            } else if (isMultiSelectMode && onToggleSelect != null) {
+                                onToggleSelect(app)
+                            } else onLongClick?.invoke(app)
+                        },
+                        onClick = {
+                            if (isMultiSelectMode && onToggleSelect != null) {
+                                onToggleSelect(app)
+                            } else onClick(app)
+                        }
                     )
                 }
             }

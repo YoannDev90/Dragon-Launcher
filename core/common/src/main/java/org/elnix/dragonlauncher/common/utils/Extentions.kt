@@ -350,3 +350,6 @@ fun Color?.orDefault(default: Color = Color.Unspecified): Color = this ?: defaul
 
 fun Color.semiTransparentIfDisabled(enabled: Boolean): Color =
     if (enabled) this else this.copy(alpha = this.alpha * 0.5f)
+
+fun <T> ((T) -> Unit)?.bind(value: T): (() -> Unit)? =
+    this?.let { { it(value) } }

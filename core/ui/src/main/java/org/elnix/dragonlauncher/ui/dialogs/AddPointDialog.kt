@@ -39,6 +39,7 @@ import org.elnix.dragonlauncher.common.serializables.SwipeActionSerializable
 import org.elnix.dragonlauncher.common.utils.Constants
 import org.elnix.dragonlauncher.common.utils.Constants.Actions.defaultChoosableActions
 import org.elnix.dragonlauncher.common.utils.PackageManagerCompat
+import org.elnix.dragonlauncher.models.AppLifecycleViewModel
 import org.elnix.dragonlauncher.models.AppsViewModel
 import org.elnix.dragonlauncher.settings.stores.DrawerSettingsStore
 import org.elnix.dragonlauncher.settings.stores.UiSettingsStore
@@ -54,6 +55,7 @@ import org.elnix.dragonlauncher.ui.theme.LocalExtraColors
 @Composable
 fun AddPointDialog(
     appsViewModel: AppsViewModel,
+    appLifecycleViewModel: AppLifecycleViewModel,
     actions: List<SwipeActionSerializable> = defaultChoosableActions,
     onNewNest: (() -> Unit)? = null,
     onDismiss: () -> Unit,
@@ -200,6 +202,7 @@ fun AddPointDialog(
     if (showAppPicker) {
         AppPickerDialog(
             appsViewModel = appsViewModel,
+            appLifecycleViewModel = appLifecycleViewModel,
             gridSize = gridSize,
             iconShape = iconsShape,
             showIcons = showIcons,
@@ -267,7 +270,7 @@ fun AddPointDialog(
         AppShortcutPickerDialog(
             app = selectedApp!!,
             icons = icons,
-            shape = resolveShape(iconsShape),
+            shape = iconsShape.resolveShape(),
             shortcuts = shortcuts,
             onDismiss = { shortcutDialogVisible = false },
             onShortcutSelected = {pkg, id ->

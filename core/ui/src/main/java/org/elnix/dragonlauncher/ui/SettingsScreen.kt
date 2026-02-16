@@ -107,6 +107,7 @@ import org.elnix.dragonlauncher.common.utils.circles.normalizeAngle
 import org.elnix.dragonlauncher.common.utils.circles.randomFreeAngle
 import org.elnix.dragonlauncher.common.utils.circles.rememberNestNavigation
 import org.elnix.dragonlauncher.common.utils.showToast
+import org.elnix.dragonlauncher.models.AppLifecycleViewModel
 import org.elnix.dragonlauncher.models.AppsViewModel
 import org.elnix.dragonlauncher.settings.stores.DebugSettingsStore
 import org.elnix.dragonlauncher.settings.stores.DrawerSettingsStore
@@ -142,6 +143,7 @@ import kotlin.math.sin
 @Composable
 fun SettingsScreen(
     appsViewModel: AppsViewModel,
+    appLifecycleViewModel: AppLifecycleViewModel,
     pointIcons: Map<String, ImageBitmap>,
     defaultPoint: SwipePointSerializable,
     nests: List<CircleNest>,
@@ -1211,6 +1213,7 @@ fun SettingsScreen(
     if (showAddDialog) {
         AddPointDialog(
             appsViewModel = appsViewModel,
+            appLifecycleViewModel = appLifecycleViewModel,
             onNewNest = ::addNewNest,
             onDismiss = {
                 showAddDialog = false
@@ -1295,6 +1298,7 @@ fun SettingsScreen(
 
         EditPointDialog(
             appsViewModel = appsViewModel,
+            appLifecycleViewModel = appLifecycleViewModel,
             point = editPoint,
             onDismiss = {
                 showEditDialog = null
@@ -1410,6 +1414,7 @@ fun SettingsScreen(
     if (showEditDefaultPoint) {
         EditPointDialog(
             appsViewModel = appsViewModel,
+            appLifecycleViewModel = appLifecycleViewModel,
             point = defaultPoint,
             isDefaultEditing = true,
             onDismiss = {

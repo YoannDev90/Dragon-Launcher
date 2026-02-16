@@ -69,6 +69,7 @@ import org.elnix.dragonlauncher.common.R
 import org.elnix.dragonlauncher.common.serializables.IconShape
 import org.elnix.dragonlauncher.common.utils.Constants.PackageNameLists.knownSocialMediaApps
 import org.elnix.dragonlauncher.common.utils.hasUsageStatsPermission
+import org.elnix.dragonlauncher.models.AppLifecycleViewModel
 import org.elnix.dragonlauncher.models.AppsViewModel
 import org.elnix.dragonlauncher.settings.stores.DrawerSettingsStore
 import org.elnix.dragonlauncher.settings.stores.WellbeingSettingsStore
@@ -87,6 +88,7 @@ import org.elnix.dragonlauncher.ui.modifiers.settingsGroup
 @Composable
 fun WellbeingTab(
     appsViewModel: AppsViewModel,
+    appLifecycleViewModel: AppLifecycleViewModel,
     onBack: () -> Unit
 ) {
     val ctx = LocalContext.current
@@ -458,11 +460,12 @@ fun WellbeingTab(
         }
     }
 
-    // ── Dialogs ──
+    // ───────────── Dialogs ─────────────
 
     if (showAppPicker) {
         AppPickerDialog(
             appsViewModel = appsViewModel,
+            appLifecycleViewModel = appLifecycleViewModel,
             gridSize = gridSize,
             iconShape = iconsShape,
             showIcons = showIcons,
@@ -747,14 +750,14 @@ private fun PausedAppItem(
                     contentDescription = appName,
                     modifier = Modifier
                         .size(36.dp)
-                        .clip(resolveShape(iconsShape)),
+                        .clip(iconsShape.resolveShape()),
                     contentScale = ContentScale.Fit
                 )
             } else {
                 Box(
                     modifier = Modifier
                         .size(36.dp)
-                        .clip(resolveShape(iconsShape))
+                        .clip(iconsShape.resolveShape())
                         .background(MaterialTheme.colorScheme.surfaceVariant),
                     contentAlignment = Alignment.Center
                 ) {

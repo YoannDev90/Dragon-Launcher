@@ -55,6 +55,7 @@ import org.elnix.dragonlauncher.common.serializables.SwipeActionSerializable
 import org.elnix.dragonlauncher.common.serializables.SwipePointSerializable
 import org.elnix.dragonlauncher.common.serializables.defaultSwipePointsValues
 import org.elnix.dragonlauncher.common.serializables.dummySwipePoint
+import org.elnix.dragonlauncher.common.utils.Constants
 import org.elnix.dragonlauncher.common.utils.Constants.Logging.APP_LAUNCH_TAG
 import org.elnix.dragonlauncher.common.utils.Constants.Logging.TAG
 import org.elnix.dragonlauncher.common.utils.Constants.Navigation.transparentScreens
@@ -129,7 +130,6 @@ fun MainAppUi(
     appLifecycleViewModel: AppLifecycleViewModel,
     navController: NavHostController,
     widgetHostProvider: WidgetHostProvider,
-    onUnlockPrivateSpace: () -> Unit,
     onBindCustomWidget: (Int, ComponentName, nestId: Int) -> Unit,
     onLaunchSystemWidgetPicker: (nestId: Int) -> Unit,
     onResetWidgetSize: (id: Int, widgetId: Int) -> Unit,
@@ -446,9 +446,9 @@ fun MainAppUi(
                     if (action !is SwipeActionSerializable.LaunchApp) return@launchSwipeAction
 
                     if (privateSpaceState.value.isLocked) {
-                        ctx.logW(APP_LAUNCH_TAG, "Calling onOnUnlock")
-
-                        onUnlockPrivateSpace()
+//                        ctx.logW(APP_LAUNCH_TAG, "Calling onOnUnlock")
+                        ctx.logE(Constants.Logging.PRIVATE_SPACE_TAG, "MainAppUi launch!")
+                        appLifecycleViewModel.onUnlockPrivateSpace()
                     }
 
 
@@ -595,8 +595,7 @@ fun MainAppUi(
                     leftWeight = leftDrawerWidth,
                     rightAction = rightDrawerAction,
                     rightWeight = rightDrawerWidth,
-                    onLaunchAction = ::launchApp,
-                    onUnlockPrivateSpace = onUnlockPrivateSpace
+                    onLaunchAction = ::launchApp
                 ) { goMainScreen() }
             }
 
@@ -618,6 +617,7 @@ fun MainAppUi(
                 noAnimComposable(SETTINGS.ROOT) {
                     SettingsScreen(
                         appsViewModel = appsViewModel,
+                        appLifecycleViewModel = appLifecycleViewModel,
                         pointIcons = pointIcons,
                         defaultPoint = defaultPoint,
                         nests = nests,
@@ -636,35 +636,37 @@ fun MainAppUi(
 
                 noAnimComposable(SETTINGS.APPEARANCE) {
                     AppearanceTab(
-                        appsViewModel,
-                        navController,
-                        ::goAdvSettingsRoot
+                        appsViewModel = appsViewModel,
+                        navController = navController,
+                        onBack = ::goAdvSettingsRoot
                     )
                 }
                 noAnimComposable(SETTINGS.WALLPAPER) { WallpaperTab(::goAppearance) }
                 noAnimComposable(SETTINGS.ICON_PACK) { IconPackTab(appsViewModel, ::goAppearance) }
                 noAnimComposable(SETTINGS.STATUS_BAR) {
                     StatusBarTab(
-                        appsViewModel,
-                        ::goAppearance
+                        appsViewModel = appsViewModel,
+                        appLifecycleViewModel = appLifecycleViewModel,
+                        onBack = ::goAppearance
                     )
                 }
                 noAnimComposable(SETTINGS.THEME) { ThemesTab(::goAppearance) }
 
                 noAnimComposable(SETTINGS.BEHAVIOR) {
                     BehaviorTab(
-                        appsViewModel,
-                        ::goAdvSettingsRoot
+                        appsViewModel = appsViewModel,
+                        appLifecycleViewModel = appLifecycleViewModel,
+                        onBack = ::goAdvSettingsRoot
                     )
                 }
                 noAnimComposable(SETTINGS.DRAWER) { DrawerTab(appsViewModel, ::goAdvSettingsRoot) }
                 noAnimComposable(SETTINGS.COLORS) { ColorSelectorTab(::goAppearance) }
                 noAnimComposable(SETTINGS.DEBUG) {
                     DebugTab(
-                        navController,
-                        appsViewModel,
+                        navController = navController,
+                        appsViewModel = appsViewModel,
                         onShowWelcome = ::goWelcome,
-                        ::goAdvSettingsRoot
+                        onBack = ::goAdvSettingsRoot
                     )
                 }
                 noAnimComposable(SETTINGS.LOGS) { LogsTab(::goDebug) }
@@ -672,8 +674,8 @@ fun MainAppUi(
                 noAnimComposable(SETTINGS.LANGUAGE) { LanguageTab(::goAdvSettingsRoot) }
                 noAnimComposable(SETTINGS.BACKUP) {
                     BackupTab(
-                        backupViewModel,
-                        ::goAdvSettingsRoot
+                        backupViewModel = backupViewModel,
+                        onBack = ::goAdvSettingsRoot
                     )
                 }
                 noAnimComposable(SETTINGS.CHANGELOGS) { ChangelogsScreen(::goAdvSettingsRoot) }
@@ -681,6 +683,7 @@ fun MainAppUi(
                 noAnimComposable(SETTINGS.WELLBEING) {
                     WellbeingTab(
                         appsViewModel = appsViewModel,
+                        appLifecycleViewModel = appLifecycleViewModel,
                         onBack = ::goAdvSettingsRoot
                     )
                 }
@@ -699,6 +702,7 @@ fun MainAppUi(
                 noAnimComposable(SETTINGS.FLOATING_APPS) {
                     FloatingAppsTab(
                         appsViewModel = appsViewModel,
+                        appLifecycleViewModel = appLifecycleViewModel,
                         floatingAppsViewModel = floatingAppsViewModel,
                         widgetHostProvider = widgetHostProvider,
                         onBack = ::goAppearance,
@@ -729,13 +733,14 @@ fun MainAppUi(
                     popExitTransition = { ExitTransition.None }
                 ) { backStack ->
                     WorkspaceDetailScreen(
-                        workspaceId = backStack.arguments!!.getString("id")!!,
                         appsViewModel = appsViewModel,
-                        showIcons = showAppIconsInDrawer,
+                        appLifecycleViewModel = appLifecycleViewModel,
                         showLabels = showAppLabelsInDrawer,
+                        showIcons = showAppIconsInDrawer,
                         gridSize = gridSize,
-                        onLaunchAction = ::launchApp,
-                        onBack = { navController.popBackStack() }
+                        workspaceId = backStack.arguments!!.getString("id")!!,
+                        onBack = { navController.popBackStack() },
+                        onLaunchAction = ::launchApp
                     )
                 }
             }

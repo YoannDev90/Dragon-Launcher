@@ -67,9 +67,7 @@ fun AppDrawerSearch(
         singleLine = true,
         keyboardOptions = KeyboardOptions(imeAction = ImeAction.Search),
         keyboardActions = KeyboardActions(
-            onSearch =
-                if (onEnterPressed != null) { { onEnterPressed() } }
-                else null
+            onSearch = onEnterPressed?.let { { it() } }
         ),
         colors = TextFieldDefaults.colors(
             focusedContainerColor = Color.Transparent,

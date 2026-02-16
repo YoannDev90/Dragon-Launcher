@@ -45,6 +45,7 @@ import org.elnix.dragonlauncher.common.utils.colors.adjustBrightness
 import org.elnix.dragonlauncher.common.utils.definedOrNull
 import org.elnix.dragonlauncher.enumsui.SelectedUnselectedViewMode
 import org.elnix.dragonlauncher.enumsui.selectedUnselectedViewName
+import org.elnix.dragonlauncher.models.AppLifecycleViewModel
 import org.elnix.dragonlauncher.models.AppsViewModel
 import org.elnix.dragonlauncher.settings.stores.ColorSettingsStore
 import org.elnix.dragonlauncher.settings.stores.SwipeSettingsStore
@@ -69,6 +70,7 @@ import kotlin.math.max
 @Composable
 fun EditPointDialog(
     appsViewModel: AppsViewModel,
+    appLifecycleViewModel: AppLifecycleViewModel,
     point: SwipePointSerializable,
     isDefaultEditing: Boolean = false,
     onDismiss: () -> Unit,
@@ -575,6 +577,7 @@ fun EditPointDialog(
     if (showEditActionDialog) {
         AddPointDialog(
             appsViewModel = appsViewModel,
+            appLifecycleViewModel = appLifecycleViewModel,
             onDismiss = { showEditActionDialog = false },
             onActionSelected = { selectedAction ->
                 editPoint = editPoint.copy(action = selectedAction)

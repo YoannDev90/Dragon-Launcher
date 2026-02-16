@@ -476,7 +476,7 @@ fun MainScreen(
                 FloatingAppsHostView(
                     floatingAppObject = floatingAppObject,
                     icons = icons,
-                    shape = resolveShape(iconsShape),
+                    shape = iconsShape.resolveShape(),
                     cellSizePx = cellSizePx,
                     modifier = Modifier
                         .offset {

@@ -2,29 +2,36 @@ package org.elnix.dragonlauncher.ui.dialogs
 
 import androidx.compose.animation.AnimatedContent
 import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.animation.animateColorAsState
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.clickable
-import androidx.compose.foundation.horizontalScroll
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.lazy.LazyRow
+import androidx.compose.foundation.lazy.itemsIndexed
+import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.pager.HorizontalPager
 import androidx.compose.foundation.pager.rememberPagerState
-import androidx.compose.foundation.rememberScrollState
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.PlaylistAdd
 import androidx.compose.material.icons.automirrored.filled.PlaylistAddCheck
 import androidx.compose.material.icons.filled.Close
 import androidx.compose.material.icons.filled.Deselect
+import androidx.compose.material.icons.filled.Lock
 import androidx.compose.material.icons.filled.RestartAlt
 import androidx.compose.material.icons.filled.Search
 import androidx.compose.material3.Button
+import androidx.compose.material3.ButtonDefaults
+import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
@@ -42,21 +49,27 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusRequester
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.yield
 import org.elnix.dragonlauncher.common.R
+import org.elnix.dragonlauncher.common.logging.logE
 import org.elnix.dragonlauncher.common.serializables.AppModel
 import org.elnix.dragonlauncher.common.serializables.IconShape
+import org.elnix.dragonlauncher.common.serializables.WorkspaceType
+import org.elnix.dragonlauncher.common.utils.Constants
+import org.elnix.dragonlauncher.common.utils.PrivateSpaceUtils
+import org.elnix.dragonlauncher.models.AppLifecycleViewModel
 import org.elnix.dragonlauncher.models.AppsViewModel
 import org.elnix.dragonlauncher.ui.UiConstants.DragonShape
 import org.elnix.dragonlauncher.ui.colors.AppObjectsColors
 import org.elnix.dragonlauncher.ui.components.dragon.DragonIconButton
 import org.elnix.dragonlauncher.ui.helpers.AppDrawerSearch
 import org.elnix.dragonlauncher.ui.helpers.AppGrid
-import org.elnix.dragonlauncher.ui.helpers.AppGridWithMultiSelect
+import org.elnix.dragonlauncher.ui.modifiers.rememberPressedShape
 import org.elnix.dragonlauncher.ui.modifiers.settingsGroup
 
 @Suppress("AssignedValueIsNeverRead")
@@ -64,6 +77,7 @@ import org.elnix.dragonlauncher.ui.modifiers.settingsGroup
 @Composable
 fun AppPickerDialog(
     appsViewModel: AppsViewModel,
+    appLifecycleViewModel: AppLifecycleViewModel,
     gridSize: Int,
     iconShape: IconShape,
     showIcons: Boolean,
@@ -73,6 +87,7 @@ fun AppPickerDialog(
     onAppSelected: (AppModel) -> Unit,
     onMultipleAppsSelected: ((List<AppModel>, Boolean) -> Unit)? = null
 ) {
+    val privateSpaceState by appsViewModel.privateSpaceState.collectAsState()
 
     // Auto Show keyboard logic
     val focusRequester = remember { FocusRequester() }
@@ -108,8 +123,20 @@ fun AppPickerDialog(
     val selectedApps = remember { mutableStateListOf<String>() }
 
     LaunchedEffect(pagerState.currentPage) {
-        val workspaceId = workspaces.getOrNull(pagerState.currentPage)?.id ?: return@LaunchedEffect
-        appsViewModel.selectWorkspace(workspaceId)
+        val newWorkspace =
+            workspaces.getOrNull(pagerState.currentPage) ?: return@LaunchedEffect
+        val newWorkspaceId = newWorkspace.id
+
+        // Check if switching to Private Space (Android 15+)
+        if (PrivateSpaceUtils.isPrivateSpaceSupported() &&
+            newWorkspace.type == WorkspaceType.PRIVATE &&
+            privateSpaceState.isLocked
+        ) {
+            logE(Constants.Logging.PRIVATE_SPACE_TAG, "Picker launch!")
+            appLifecycleViewModel.onUnlockPrivateSpace()
+        }
+
+        appsViewModel.selectWorkspace(newWorkspaceId)
     }
 
     CustomAlertDialog(
@@ -199,7 +226,11 @@ fun AppPickerDialog(
                                 )
                             },
                             modifier = Modifier.focusRequester(focusRequester),
-                            onFocusStateChanged = { isSearchBarEnabled = it }
+
+                            // No need to put anything here, the thing is working well without,
+                            // if i put isSearchbarEnabled = true inside, I need to spam
+                            // that search button to show the search abr somehow
+                            onFocusStateChanged = { }
                         )
                     }
                 }
@@ -207,14 +238,29 @@ fun AppPickerDialog(
 
                 Spacer(Modifier.height(6.dp))
 
-                Row(
-                    modifier = Modifier
-                        .horizontalScroll(rememberScrollState())
-                        .fillMaxWidth(),
+                val listState = rememberLazyListState()
+
+                LaunchedEffect(pagerState.currentPage) {
+                    listState.animateScrollToItem(pagerState.currentPage)
+                }
+
+                LazyRow(
+                    state = listState,
+                    modifier = Modifier.fillMaxWidth(),
                     horizontalArrangement = Arrangement.Center
                 ) {
-                    workspaces.forEachIndexed { index, workspace ->
+                    itemsIndexed(workspaces) { index, workspace ->
                         val selected = pagerState.currentPage == index
+
+                        val animatedColor by animateColorAsState(
+                            if (selected)
+                                MaterialTheme.colorScheme.surface
+                            else
+                                MaterialTheme.colorScheme.surfaceVariant
+                        )
+
+                        val (shape, interactionSource) = rememberPressedShape(selected)
+
 
                         TextButton(
                             onClick = {
@@ -222,11 +268,12 @@ fun AppPickerDialog(
                                     pagerState.animateScrollToPage(index)
                                 }
                             },
-                            shape = DragonShape,
-                            colors = AppObjectsColors.buttonColors(
-                                if (!selected) MaterialTheme.colorScheme.surface else null
-                            ),
-                            modifier = Modifier.padding(5.dp)
+                            modifier = Modifier.padding(5.dp),
+                            interactionSource = interactionSource,
+                            shape = shape,
+                            colors = ButtonDefaults.textButtonColors(
+                                containerColor = animatedColor
+                            )
                         ) {
                             Text(
                                 text = workspace.name,
@@ -235,6 +282,7 @@ fun AppPickerDialog(
                         }
                     }
                 }
+
 
                 // Multi-select hint
                 AnimatedVisibility(multiSelectEnabled && !isMultiSelectMode) {
@@ -270,8 +318,36 @@ fun AppPickerDialog(
                         }
                     else apps
 
-                    if (multiSelectEnabled) {
-                        AppGridWithMultiSelect(
+                    val showLock =
+                        privateSpaceState.isLocked || privateSpaceState.isAuthenticating
+
+                    if (workspace.type == WorkspaceType.PRIVATE && showLock) {
+                        Box(
+                            modifier = Modifier.fillMaxSize(),
+                            contentAlignment = Alignment.Center
+                        ) {
+                            AnimatedContent(targetState = privateSpaceState) {
+                                when {
+                                    // The loading shouldn't be displayed, but just in case I'll keep it for user visual feedback
+                                    it.isLoading -> CircularProgressIndicator()
+                                    it.isAuthenticating -> CircularProgressIndicator(color = Color.Yellow)
+                                    it.isLocked -> {
+                                        DragonIconButton(
+                                            onClick = {
+                                                logE(Constants.Logging.PRIVATE_SPACE_TAG, "Drawer reload button launch!")
+                                                appLifecycleViewModel.onUnlockPrivateSpace()
+                                            }) {
+                                            Icon(
+                                                Icons.Default.Lock,
+                                                contentDescription = "Private Space Locked"
+                                            )
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    } else {
+                        AppGrid(
                             apps = filteredApps,
                             icons = icons,
                             iconShape = iconShape,
@@ -279,8 +355,14 @@ fun AppPickerDialog(
                             txtColor = MaterialTheme.colorScheme.onSurface,
                             showIcons = showIcons,
                             showLabels = showLabels,
-                            isMultiSelectMode = isMultiSelectMode,
                             selectedPackages = selectedApps,
+                            isMultiSelectMode = isMultiSelectMode,
+                            onReload = {
+                                scope.launch {
+                                    if (workspace.type == WorkspaceType.PRIVATE) appsViewModel.reloadPrivateSpace()
+                                    else appsViewModel.reloadApps()
+                                }
+                            },
                             onEnterMultiSelect = { app ->
                                 isMultiSelectMode = true
                                 if (!selectedApps.contains(app.packageName)) {
@@ -297,24 +379,11 @@ fun AppPickerDialog(
                                     isMultiSelectMode = false
                                 }
                             },
-                            onAppClick = { app ->
-                                onAppSelected(app)
+                            onClick = {
+                                onAppSelected(it)
                                 onDismiss()
                             }
                         )
-                    } else {
-                        AppGrid(
-                            apps = filteredApps,
-                            icons = icons,
-                            iconShape = iconShape,
-                            gridSize = gridSize,
-                            txtColor = MaterialTheme.colorScheme.onSurface,
-                            showIcons = showIcons,
-                            showLabels = showLabels
-                        ) {
-                            onAppSelected(it)
-                            onDismiss()
-                        }
                     }
                 }
 

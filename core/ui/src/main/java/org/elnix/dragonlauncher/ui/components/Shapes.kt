@@ -24,8 +24,8 @@ import kotlin.math.pow
 import kotlin.math.roundToInt
 
 
-fun resolveShape(shape: IconShape?): Shape =
-    when (val s = shape ?: IconShape.PlatformDefault) {
+fun IconShape?.resolveShape(): Shape =
+    when (val s = this ?: IconShape.PlatformDefault) {
 
         IconShape.PlatformDefault -> PlatformShape
         IconShape.Circle -> CircleShape
@@ -40,11 +40,10 @@ fun resolveShape(shape: IconShape?): Shape =
         IconShape.Pebble -> PebbleShape
         IconShape.EasterEgg -> EasterEggShape
 
-        IconShape.Random ->  resolveShape(allShapes.filter { it !is IconShape.Random }.random())
+        IconShape.Random ->  (allShapes.filter { it !is IconShape.Random }.random()).resolveShape()
 
         is IconShape.Custom -> customIconShape(s.shape)
     }
-
 
 
 // Shapes from https://github.com/MM2-0/Kvaesitso/blob/main/app/ui/src/main/java/de/mm20/launcher2/ui/component/ShapedLauncherIcon.kt

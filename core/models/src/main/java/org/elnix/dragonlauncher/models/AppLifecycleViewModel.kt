@@ -20,6 +20,15 @@ class AppLifecycleViewModel(application: Application) : AndroidViewModel(applica
     }
 
 
+    /** ───────────── Tracks the private space unlocking requests ─────────────*/
+    private val _privateSpaceUnlockRequest = MutableSharedFlow<Unit>(
+        extraBufferCapacity = 1
+    )
+    val privateSpaceUnlockRequestEvents = _privateSpaceUnlockRequest.asSharedFlow()
+
+    fun onUnlockPrivateSpace() {
+        _privateSpaceUnlockRequest.tryEmit(Unit)
+    }
 
     /** ───────────── Computes when the app goes background, to return main screen after cooldown (10 sec) ─────────────*/
     private val _lastInteraction = MutableStateFlow(System.currentTimeMillis().toDouble())

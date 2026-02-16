@@ -333,6 +333,37 @@ class MainActivity : FragmentActivity(), WidgetHostProvider {
             // May be used in the future for some quit action / operation
 //            DoubleBackToExit()
 
+            LaunchedEffect(Unit) {
+                appLifecycleViewModel.privateSpaceUnlockRequestEvents.collect {
+                    
+                    val openPrivateSpace = {
+                            Log.i("SamsungIntegration", "Using standard Android Private Space")
+                            ctx.startActivity(
+                                Intent(this, PrivateSpaceUnlockActivity::class.java)
+                            )
+                        }
+
+                        Log.i("SamsungIntegration", "Loading Samsung preference: $samsungPreferSecureFolder")
+                        val useSecureFolder = SamsungWorkspaceIntegration.resolveUseSecureFolder(
+                            context = ctx,
+                            preferenceEnabled = samsungPreferSecureFolder
+                        )
+
+                        Log.i(
+                            "SamsungIntegration",
+                            "Using system: ${if (useSecureFolder) "Secure Folder" else "Private Space"}"
+                        )
+
+                        if (useSecureFolder) {
+                            SamsungWorkspaceIntegration.openSecureFolder(
+                                context = ctx,
+                                onFallback = openPrivateSpace
+                            )
+                        } else {
+                            openPrivateSpace()
+                        }
+                }
+            }
 
 
             // Used to visually block private space content on windows quit, and if user locks his phone,
@@ -440,34 +471,6 @@ class MainActivity : FragmentActivity(), WidgetHostProvider {
                     appLifecycleViewModel = appLifecycleViewModel,
                     widgetHostProvider = this,
                     navController = navController,
-                    onUnlockPrivateSpace = {
-                        val openPrivateSpace = {
-                            Log.i("SamsungIntegration", "Using standard Android Private Space")
-                            ctx.startActivity(
-                                Intent(this, PrivateSpaceUnlockActivity::class.java)
-                            )
-                        }
-
-                        Log.i("SamsungIntegration", "Loading Samsung preference: $samsungPreferSecureFolder")
-                        val useSecureFolder = SamsungWorkspaceIntegration.resolveUseSecureFolder(
-                            context = ctx,
-                            preferenceEnabled = samsungPreferSecureFolder
-                        )
-
-                        Log.i(
-                            "SamsungIntegration",
-                            "Using system: ${if (useSecureFolder) "Secure Folder" else "Private Space"}"
-                        )
-
-                        if (useSecureFolder) {
-                            SamsungWorkspaceIntegration.openSecureFolder(
-                                context = ctx,
-                                onFallback = openPrivateSpace
-                            )
-                        } else {
-                            openPrivateSpace()
-                        }
-                    },
                     onBindCustomWidget = { widgetId, provider, nestId ->
                         pendingAddNestId = nestId
                         (ctx as MainActivity).bindWidgetFromCustomPicker(widgetId, provider)

@@ -20,6 +20,7 @@ import androidx.compose.ui.res.stringResource
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import org.elnix.dragonlauncher.common.R
+import org.elnix.dragonlauncher.models.AppLifecycleViewModel
 import org.elnix.dragonlauncher.models.AppsViewModel
 import org.elnix.dragonlauncher.settings.stores.BehaviorSettingsStore
 import org.elnix.dragonlauncher.settings.stores.UiSettingsStore
@@ -36,6 +37,7 @@ import org.elnix.dragonlauncher.ui.helpers.settings.SettingsLazyHeader
 @Composable
 fun BehaviorTab(
     appsViewModel: AppsViewModel,
+    appLifecycleViewModel: AppLifecycleViewModel,
     onBack: () -> Unit
 ) {
     val ctx = LocalContext.current
@@ -96,6 +98,7 @@ fun BehaviorTab(
         item {
             CustomActionSelector(
                 appsViewModel = appsViewModel,
+                appLifecycleViewModel = appLifecycleViewModel,
                 currentAction = backAction,
                 label = stringResource(R.string.back_action),
                 onToggle = {
@@ -113,6 +116,7 @@ fun BehaviorTab(
         item {
             CustomActionSelector(
                 appsViewModel = appsViewModel,
+                appLifecycleViewModel = appLifecycleViewModel,
                 currentAction = doubleClickAction,
                 label = stringResource(R.string.double_click_action),
                 onToggle = {
@@ -130,6 +134,7 @@ fun BehaviorTab(
         item {
             CustomActionSelector(
                 appsViewModel = appsViewModel,
+                appLifecycleViewModel = appLifecycleViewModel,
                 currentAction = homeAction,
                 label = stringResource(R.string.home_action),
                 onToggle = {
