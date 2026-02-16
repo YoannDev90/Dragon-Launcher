@@ -713,5 +713,9 @@
     <string name="private_space_debug_info">Private space debug info</string>
     <string name="private_space_debug_info_desc">Display private space state debug infos on top of everything</string>
     <string name="backspace">Backspace</string>
+    <string name="super_warning_mode">Super Warning mode</string>
+    <string name="super_warning_mode_desc">Do something funny when you enter a wrong pin</string>
 
+    <string name="super_warning_mode_sound">Super Warning mode + sound</string>
+    <string name="super_warning_mode_sound_desc">Adds the sound</string>
 </resources>

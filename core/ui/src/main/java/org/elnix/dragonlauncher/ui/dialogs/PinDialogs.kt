@@ -2,6 +2,7 @@
 
 package org.elnix.dragonlauncher.ui.dialogs
 
+import android.media.SoundPool
 import androidx.activity.compose.BackHandler
 import androidx.compose.animation.Animatable
 import androidx.compose.animation.AnimatedContent
@@ -34,6 +35,7 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -44,11 +46,15 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import org.elnix.dragonlauncher.common.R
 import org.elnix.dragonlauncher.common.utils.semiTransparentIfDisabled
+import org.elnix.dragonlauncher.common.utils.vibrate
+import org.elnix.dragonlauncher.settings.stores.BehaviorSettingsStore
+import org.elnix.dragonlauncher.ui.components.settings.asState
 import org.elnix.dragonlauncher.ui.modifiers.rememberPressedShape
 
 /**
@@ -154,6 +160,9 @@ private fun FullScreenPinPrompt(
     maxDigits: Int = Int.MAX_VALUE,
     onSecondaryAction: () -> Unit = onDismiss
 ) {
+    val ctx = LocalContext.current
+
+
     val horizontalOffsetError = Animatable(
         initialValue = 0f
     )
@@ -176,6 +185,49 @@ private fun FullScreenPinPrompt(
         }
     }
 
+    val superWaningMode by BehaviorSettingsStore.superWarningMode.asState()
+
+    val backgroundOverlayColor = Animatable(
+         Color.Transparent
+     )
+
+    val soundPool = remember {
+        SoundPool.Builder()
+            .setMaxStreams(1)
+            .build()
+    }
+    val soundId = soundPool.load(ctx, R.raw.warning, 1)
+
+    DisposableEffect(Unit) {
+        onDispose {
+            soundPool.release()
+        }
+    }
+
+    LaunchedEffect(failedTries) {
+        if (failedTries > 0 && superWaningMode) {
+
+            // Plays annoying sound alarm infinitely
+            soundPool.setOnLoadCompleteListener { _, sampleId, status ->
+                if (status == 0) {
+                    soundPool.play(
+                        sampleId,
+                        1f,
+                        1f,
+                        1,
+                        -1,
+                        1f
+                    )
+                }
+            }
+
+            while (true) {
+                backgroundOverlayColor.animateTo(Color.Red)
+                vibrate(ctx, 500L)
+                backgroundOverlayColor.animateTo(Color.Transparent)
+            }
+        }
+    }
 
     // Lock color animation system
     val defaultLockColor =  MaterialTheme.colorScheme.primary
@@ -207,6 +259,7 @@ private fun FullScreenPinPrompt(
         Column(
             modifier = Modifier
                 .fillMaxSize()
+                .background(backgroundOverlayColor.value)
                 .padding(20.dp),
             horizontalAlignment = Alignment.CenterHorizontally,
             verticalArrangement = Arrangement.SpaceBetween

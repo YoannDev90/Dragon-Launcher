@@ -262,6 +262,22 @@ fun BehaviorTab(
                 )
             }
         }
+
+        item {
+            DragonColumnGroup {
+                SettingsSwitchRow(
+                    setting = BehaviorSettingsStore.superWarningMode,
+                    title = stringResource(R.string.super_warning_mode),
+                    description = stringResource(R.string.super_warning_mode_desc),
+                )
+
+                SettingsSwitchRow(
+                    setting = BehaviorSettingsStore.superWarningModeSound,
+                    title = stringResource(R.string.super_warning_mode_sound),
+                    description = stringResource(R.string.super_warning_mode_sound_desc),
+                )
+            }
+        }
     }
 
 

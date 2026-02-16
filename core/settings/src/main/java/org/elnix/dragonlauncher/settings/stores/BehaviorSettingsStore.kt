@@ -24,7 +24,8 @@ object BehaviorSettingsStore : MapSettingsStore() {
             bottomPadding,
             holdDelayBeforeStartingLongClickSettings,
             longCLickSettingsDuration,
-            disableHapticFeedbackGlobally
+            disableHapticFeedbackGlobally,
+            pointsActionSnapsToOuterCircle
         )
 
     val backAction = Settings.swipeAction(
@@ -103,5 +104,17 @@ object BehaviorSettingsStore : MapSettingsStore() {
         key = "pointsActionSnapsToOuterCircle",
         dataStoreName = dataStoreName,
         default = true
+    )
+
+    val superWarningMode = Settings.boolean(
+        key = "superWarningMode",
+        dataStoreName = dataStoreName,
+        default = false
+    )
+
+    val superWarningModeSound = Settings.boolean(
+        key = "superWarningModeSound",
+        dataStoreName = dataStoreName,
+        default = false
     )
 }
