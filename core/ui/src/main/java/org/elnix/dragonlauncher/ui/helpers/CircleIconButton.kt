@@ -51,7 +51,6 @@ fun CircleIconButton(
             tint = displayColor,
             modifier = modifier
                 .circleIconButtonModifier(
-                    enabled = enabled,
                     showHelp = showHelp,
                     borderColor = borderColor,
                     backgroundColor = backgroundColor,
@@ -101,7 +100,6 @@ fun CircleIconButton(
         Box(
             modifier = modifier
                 .circleIconButtonModifier(
-                    enabled = enabled,
                     showHelp = showHelp,
                     borderColor = borderColor,
                     backgroundColor = backgroundColor,
@@ -139,7 +137,6 @@ fun CircleIconButton(
 
 @Composable
 private fun Modifier.circleIconButtonModifier(
-    enabled: Boolean,
     showHelp: Boolean,
     borderColor: Color,
     backgroundColor: Color,
