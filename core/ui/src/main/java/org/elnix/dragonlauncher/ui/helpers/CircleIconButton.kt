@@ -42,41 +42,7 @@ fun CircleIconButton(
     val backgroundColor = tint.copy(if (enabled) 0.2f else 0f)
     val borderColor = tint.copy(if (enabled) 1f else 0.5f)
 
-
     var showHelp by remember { mutableStateOf(false) }
-
-
-    // Shape animation
-    val interactionSource = remember { MutableInteractionSource() }
-    val isPressed by interactionSource.collectIsPressedAsState()
-
-    val shapeRound by animateDpAsState(
-        targetValue = if ((isPressed && enabled) || showHelp)
-            UiConstants.DRAGON_SHAPE_CORNER_DP
-        else
-            UiConstants.CIRCLE_SHAPE_CORNER_DP,
-        label = "shape_anim"
-    )
-
-
-    val shape = RoundedCornerShape(shapeRound)
-
-
-    // Only enable the click if onClick is actually enabled, else it let the parent handle click
-    val clickModifier =
-        if (onClick != null && enabled) {
-            Modifier.combinedClickable(
-                interactionSource = interactionSource,
-                onLongClick = { showHelp = true },
-                onClick = { onClick() }
-            )
-        } else {
-            Modifier.combinedClickable(
-                interactionSource = interactionSource,
-                onLongClick = { showHelp = true },
-                onClick = { showHelp = true },
-            )
-        }
 
     Box {
         Icon(
@@ -84,11 +50,15 @@ fun CircleIconButton(
             contentDescription = contentDescription,
             tint = displayColor,
             modifier = modifier
-                .clip(shape)
-                .then(clickModifier)
-                .background(backgroundColor)
-                .border(width = 1.dp, color = borderColor, shape = shape)
-                .padding(padding)
+                .circleIconButtonModifier(
+                    enabled = enabled,
+                    showHelp = showHelp,
+                    borderColor = borderColor,
+                    backgroundColor = backgroundColor,
+                    padding = padding,
+                    onShowHelp = { showHelp = true },
+                    onClick = onClick
+                )
         )
 
         DropdownMenu(
@@ -125,48 +95,20 @@ fun CircleIconButton(
     val backgroundColor = tint.copy(if (enabled) 0.2f else 0f)
     val borderColor = tint.copy(if (enabled) 1f else 0.5f)
 
-
     var showHelp by remember { mutableStateOf(false) }
 
-    // Shape animation
-    val interactionSource = remember { MutableInteractionSource() }
-    val isPressed by interactionSource.collectIsPressedAsState()
-
-    val shapeRound by animateDpAsState(
-        targetValue = if ((isPressed && enabled) || showHelp)
-            UiConstants.DRAGON_SHAPE_CORNER_DP
-        else
-            UiConstants.CIRCLE_SHAPE_CORNER_DP,
-        label = "shape_anim"
-    )
-
-
-    val shape = RoundedCornerShape(shapeRound)
-
-
-    // Only enable the click if onClick is actually enabled, else it let the parent handle click
-    val clickModifier =
-        if (onClick != null && enabled) {
-            Modifier.combinedClickable(
-                interactionSource = interactionSource,
-                onLongClick = { showHelp = true },
-                onClick = { onClick() }
-            )
-        } else {
-            Modifier.combinedClickable(
-                interactionSource = interactionSource,
-                onLongClick = { showHelp = true },
-                onClick = { showHelp = true },
-            )
-        }
     Box {
         Box(
             modifier = modifier
-                .clip(shape)
-                .then(clickModifier)
-                .background(backgroundColor)
-                .border(width = 1.dp, color = borderColor, shape = shape)
-                .padding(padding),
+                .circleIconButtonModifier(
+                    enabled = enabled,
+                    showHelp = showHelp,
+                    borderColor = borderColor,
+                    backgroundColor = backgroundColor,
+                    padding = padding,
+                    onShowHelp = { showHelp = true },
+                    onClick = onClick
+                ),
             contentAlignment = Alignment.Center
         ) {
             Text(
@@ -192,4 +134,48 @@ fun CircleIconButton(
             )
         }
     }
+}
+
+
+@Composable
+private fun Modifier.circleIconButtonModifier(
+    enabled: Boolean,
+    showHelp: Boolean,
+    borderColor: Color,
+    backgroundColor: Color,
+    padding: Dp,
+    onShowHelp: () -> Unit,
+    onClick: (() -> Unit)? = null
+): Modifier {
+
+    val interactionSource = remember { MutableInteractionSource() }
+    val isPressed by interactionSource.collectIsPressedAsState()
+
+    val shapeRound by animateDpAsState(
+        targetValue = if (isPressed || showHelp)
+            UiConstants.DRAGON_SHAPE_CORNER_DP
+        else
+            UiConstants.CIRCLE_SHAPE_CORNER_DP,
+        label = "shape_anim"
+    )
+
+    val shape = RoundedCornerShape(shapeRound)
+
+    return this
+        .clip(shape)
+        .then(
+            // Only enable the click if onClick is actually enabled, else it let the parent handle click
+            if (onClick != null) {
+                Modifier.combinedClickable(
+                    interactionSource = interactionSource,
+                    onLongClick = onShowHelp,
+                    onClick = onClick
+                )
+            } else {
+                Modifier
+            }
+        )
+        .background(backgroundColor)
+        .border(width = 1.dp, color = borderColor, shape = shape)
+        .padding(padding)
 }
