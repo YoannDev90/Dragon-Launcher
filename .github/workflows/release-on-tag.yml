@@ -62,6 +62,7 @@ jobs:
         with:
           tag_name: ${{ env.VERSION }}
           name: ${{ env.VERSION }}
+          files: ${{ env.APK }}
           body: |
             ${{ steps.changelog.outputs.changelog }}
 
