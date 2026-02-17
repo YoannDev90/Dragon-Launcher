@@ -388,57 +388,59 @@ fun AppPickerDialog(
                 }
 
                 // Multi-select action bar
-                if (isMultiSelectMode && selectedApps.isNotEmpty() && onMultipleAppsSelected != null) {
-                    Column(
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .settingsGroup(border = true),
-                        horizontalAlignment = Alignment.CenterHorizontally,
-                        verticalArrangement = Arrangement.spacedBy(6.dp)
-                    ) {
-                        // Resolve picked apps to AppModel list
-                        Button(
-                            onClick = {
+                AnimatedVisibility(isMultiSelectMode && selectedApps.isNotEmpty() && onMultipleAppsSelected != null) {
+                    if (onMultipleAppsSelected != null) {
+                        Column(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .settingsGroup(border = true),
+                            horizontalAlignment = Alignment.CenterHorizontally,
+                            verticalArrangement = Arrangement.spacedBy(6.dp)
+                        ) {
+                            // Resolve picked apps to AppModel list
+                            Button(
+                                onClick = {
 //                                val workspaceApps = workspaces.flatMap { ws ->
 //                                    val flow = appsViewModel.appsForWorkspace(ws, overrides)
 //                                    // we'll resolve via getAllApps from ViewModel
 //                                    emptyList<AppModel>()
 //                                }
-                                // We'll use the allApps state reference
-                                val allApps = appsViewModel.allApps.value
-                                val pickedApps = allApps.filter { it.packageName in selectedApps }
-                                onMultipleAppsSelected(pickedApps, true)
-                                onDismiss()
-                            },
-                            shape = DragonShape,
-                            modifier = Modifier.fillMaxWidth()
-                        ) {
-                            Icon(
-                                Icons.AutoMirrored.Filled.PlaylistAddCheck,
-                                null,
-                                modifier = Modifier.size(20.dp)
-                            )
-                            Spacer(Modifier.width(8.dp))
-                            Text(stringResource(R.string.add_all_auto))
-                        }
+                                    // We'll use the allApps state reference
+                                    val allApps = appsViewModel.allApps.value
+                                    val pickedApps = allApps.filter { it.packageName in selectedApps }
+                                    onMultipleAppsSelected(pickedApps, true)
+                                    onDismiss()
+                                },
+                                shape = DragonShape,
+                                modifier = Modifier.fillMaxWidth()
+                            ) {
+                                Icon(
+                                    Icons.AutoMirrored.Filled.PlaylistAddCheck,
+                                    null,
+                                    modifier = Modifier.size(20.dp)
+                                )
+                                Spacer(Modifier.width(8.dp))
+                                Text(stringResource(R.string.add_all_auto))
+                            }
 
-                        Button(
-                            onClick = {
-                                val allApps = appsViewModel.allApps.value
-                                val pickedApps = allApps.filter { it.packageName in selectedApps }
-                                onMultipleAppsSelected(pickedApps, false)
-                                onDismiss()
-                            },
-                            shape = DragonShape,
-                            modifier = Modifier.fillMaxWidth()
-                        ) {
-                            Icon(
-                                Icons.AutoMirrored.Filled.PlaylistAdd,
-                                null,
-                                modifier = Modifier.size(20.dp)
-                            )
-                            Spacer(Modifier.width(8.dp))
-                            Text(stringResource(R.string.add_all_manual))
+                            Button(
+                                onClick = {
+                                    val allApps = appsViewModel.allApps.value
+                                    val pickedApps = allApps.filter { it.packageName in selectedApps }
+                                    onMultipleAppsSelected(pickedApps, false)
+                                    onDismiss()
+                                },
+                                shape = DragonShape,
+                                modifier = Modifier.fillMaxWidth()
+                            ) {
+                                Icon(
+                                    Icons.AutoMirrored.Filled.PlaylistAdd,
+                                    null,
+                                    modifier = Modifier.size(20.dp)
+                                )
+                                Spacer(Modifier.width(8.dp))
+                                Text(stringResource(R.string.add_all_manual))
+                            }
                         }
                     }
                 }
