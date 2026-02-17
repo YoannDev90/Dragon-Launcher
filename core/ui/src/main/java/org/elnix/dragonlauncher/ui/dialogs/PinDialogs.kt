@@ -6,6 +6,8 @@ import android.content.Context
 import android.media.AudioAttributes
 import android.media.AudioManager
 import android.media.SoundPool
+import android.os.Build
+import androidx.annotation.RequiresApi
 import androidx.compose.animation.Animatable
 import androidx.compose.animation.AnimatedContent
 import androidx.compose.animation.AnimatedVisibility
@@ -42,6 +44,8 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableFloatStateOf
+import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -98,6 +102,7 @@ fun PinUnlockDialog(
 /**
  * Dialog for setting up a new PIN (enter + confirm).
  */
+@RequiresApi(Build.VERSION_CODES.VANILLA_ICE_CREAM)
 @Composable
 fun PinSetupDialog(
     onDismiss: () -> Unit,
@@ -107,7 +112,7 @@ fun PinSetupDialog(
     var confirmPin by remember { mutableStateOf("") }
     var isConfirmStep by remember { mutableStateOf(false) }
     var errorMessage by remember { mutableStateOf<String?>(null) }
-    var failedTries by remember { mutableStateOf(0) }
+    var failedTries by remember { mutableIntStateOf(0) }
     val pinMismatch = stringResource(R.string.pin_mismatch)
 
     val pinShapes = remember { mutableStateListOf<IconShape>() }
@@ -126,7 +131,7 @@ fun PinSetupDialog(
                 }
             } else {
                 repeat(pinShapes.size - newValue.length) {
-                    pinShapes.removeLast()
+                    pinShapes.removeAt(pinShapes.lastIndex)
                 }
             }
             if (isConfirmStep) {
@@ -184,9 +189,11 @@ private fun FullScreenPinPrompt(
     onSecondaryAction: () -> Unit = onDismiss
 ) {
     val ctx = LocalContext.current
-    val horizontalOffsetError = Animatable(
-        initialValue = 0f
-    )
+    val horizontalOffsetError = remember {
+        Animatable(
+            initialValue = 0f
+        )
+    }
 
     LaunchedEffect(failedTries) {
         if (failedTries > 0) {
@@ -220,9 +227,11 @@ private fun FullScreenPinPrompt(
         metalPipesSoundEnabled = metalPipesSound
     )
 
-    val backgroundOverlayColor = Animatable(
-        Color.Transparent
-    )
+    val backgroundOverlayColor = remember {
+        Animatable(
+            Color.Transparent
+        )
+    }
 
     LaunchedEffect(failedTries) {
         if (failedTries > 0 && superWarningMode) {
@@ -242,9 +251,11 @@ private fun FullScreenPinPrompt(
     val defaultLockColor = MaterialTheme.colorScheme.primary
     val errorColor = MaterialTheme.colorScheme.error
 
-    val lockColor = Animatable(
-        initialValue = defaultLockColor
-    )
+    val lockColor = remember {
+        Animatable(
+            initialValue = defaultLockColor
+        )
+    }
 
     LaunchedEffect(failedTries) {
         if (failedTries > 0) {
@@ -347,7 +358,7 @@ private fun PinIndicator(
 ) {
     Row(horizontalArrangement = Arrangement.spacedBy(10.dp)) {
         shapes.forEachIndexed { _, shape ->
-            var scaleTarget by remember { mutableStateOf(0f) }
+            var scaleTarget by remember { mutableFloatStateOf(0f) }
 
             // Trigger visibility only once when shape is added
             // I find this genius
@@ -453,10 +464,10 @@ private fun NumericPinPad(
 
 @Composable
 private fun KeypadButton(
-    enabled: Boolean = true,
+    modifier: Modifier = Modifier,
     icon: ImageVector,
     tint: Color,
-    modifier: Modifier = Modifier,
+    enabled: Boolean = true,
     onClick: (() -> Unit)? = null,
 ) {
 
