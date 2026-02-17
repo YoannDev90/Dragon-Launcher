@@ -78,6 +78,7 @@ fun DrawerTab(
 
     val iconsShape by DrawerSettingsStore.iconsShape.asState()
 
+    var drawerBehaviorSettingsExpanded by remember { mutableStateOf(false) }
     var drawerCategorySettingsExpanded by remember { mutableStateOf(false) }
     var drawerNormalSettingsExpanded by remember { mutableStateOf(false) }
     var drawerPullDownSettingsExpanded by remember { mutableStateOf(false) }
@@ -114,30 +115,71 @@ fun DrawerTab(
         }
     ) {
 
-        item { TextDivider(stringResource(R.string.behavior)) }
 
         item {
-            SettingsSwitchRow(
-                setting = DrawerSettingsStore.autoOpenSingleMatch,
-                title = stringResource(R.string.auto_launch_single_match),
-                description = stringResource(R.string.auto_launch_single_match_desc),
-            )
+            ExpandableSection(
+                expanded = { drawerBehaviorSettingsExpanded },
+                title = stringResource(R.string.behavior),
+                onExpand = { drawerBehaviorSettingsExpanded = !drawerBehaviorSettingsExpanded },
+            ) {
+                SettingsSwitchRow(
+                    setting = DrawerSettingsStore.autoOpenSingleMatch,
+                    title = stringResource(R.string.auto_launch_single_match),
+                    description = stringResource(R.string.auto_launch_single_match_desc),
+                )
+
+                SettingsSwitchRow(
+                    setting = DrawerSettingsStore.autoShowKeyboardOnDrawer,
+                    title = stringResource(R.string.auto_show_keyboard),
+                    description = stringResource(R.string.auto_show_keyboard_desc),
+                )
+
+                SettingsSwitchRow(
+                    setting = DrawerSettingsStore.searchBarBottom,
+                    title = stringResource(R.string.search_bar_bottom),
+                    description = stringResource(R.string.search_bar_bottom_desc),
+                )
+
+                SettingsSwitchRow(
+                    setting = DrawerSettingsStore.drawerEnterExitAnimations,
+                    title = stringResource(R.string.drawer_enter_exit_animations),
+                    description = stringResource(R.string.drawer_enter_exit_animations_desc),
+                )
+            }
         }
 
         item {
-            SettingsSwitchRow(
-                setting = DrawerSettingsStore.autoShowKeyboardOnDrawer,
-                title = stringResource(R.string.auto_show_keyboard),
-                description = stringResource(R.string.auto_show_keyboard_desc),
-            )
-        }
+            ExpandableSection(
+                expanded = { drawerPullDownSettingsExpanded },
+                title = stringResource(R.string.drawer_pull_down_settings),
+                onExpand = { drawerPullDownSettingsExpanded = !drawerPullDownSettingsExpanded },
+            ) {
+                SettingsSwitchRow(
+                    setting = DrawerSettingsStore.pullDownAnimations,
+                    title = stringResource(R.string.pull_down_animations),
+                    description = stringResource(R.string.pull_down_animations_desc)
+                )
 
-        item {
-            SettingsSwitchRow(
-                setting = DrawerSettingsStore.searchBarBottom,
-                title = stringResource(R.string.search_bar_bottom),
-                description = stringResource(R.string.search_bar_bottom_desc),
-            )
+                SettingsSwitchRow(
+                    setting = DrawerSettingsStore.pullDownWallPaperDimFade,
+                    title = stringResource(R.string.pull_down_wallpaper_dim),
+                    description = stringResource(R.string.pull_down_wallpaper_dim_desc)
+                )
+
+                SettingsSwitchRow(
+                    setting = DrawerSettingsStore.pullDownScaleIn,
+                    title = stringResource(R.string.pull_down_scale_in),
+                    description = stringResource(R.string.pull_down_scale_in_desc)
+                )
+
+                SettingsSwitchRow(
+                    setting = DrawerSettingsStore.pullDownIconFade,
+                    enabled = false,
+                    title = stringResource(R.string.pull_down_icon_fade),
+                    description = stringResource(R.string.not_implemented)
+//                    description = stringResource(R.string.pull_down_icon_fade_desc)
+                )
+            }
         }
 
         /* ───────────── Recently Used Apps ───────────── */
@@ -248,41 +290,6 @@ fun DrawerTab(
                 apps = apps,
                 icons = icons
             )
-        }
-
-
-        item {
-            ExpandableSection(
-                expanded = { drawerPullDownSettingsExpanded },
-                title = stringResource(R.string.drawer_pull_down_settings),
-                onExpand = { drawerPullDownSettingsExpanded = !drawerPullDownSettingsExpanded },
-            ) {
-                SettingsSwitchRow(
-                    setting = DrawerSettingsStore.pullDownAnimations,
-                    title = stringResource(R.string.pull_down_animations),
-                    description = stringResource(R.string.pull_down_animations_desc)
-                )
-
-                SettingsSwitchRow(
-                    setting = DrawerSettingsStore.pullDownWallPaperDimFade,
-                    title = stringResource(R.string.pull_down_wallpaper_dim),
-                    description = stringResource(R.string.pull_down_wallpaper_dim_desc)
-                )
-
-                SettingsSwitchRow(
-                    setting = DrawerSettingsStore.pullDownScaleIn,
-                    title = stringResource(R.string.pull_down_scale_in),
-                    description = stringResource(R.string.pull_down_scale_in_desc)
-                )
-
-                SettingsSwitchRow(
-                    setting = DrawerSettingsStore.pullDownIconFade,
-                    enabled = false,
-                    title = stringResource(R.string.pull_down_icon_fade),
-                    description = stringResource(R.string.not_implemented)
-//                    description = stringResource(R.string.pull_down_icon_fade_desc)
-                )
-            }
         }
 
         //Shapes picker

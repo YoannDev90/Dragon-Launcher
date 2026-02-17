@@ -232,6 +232,14 @@ object DrawerSettingsStore : MapSettingsStore() {
         default = true
     )
 
+
+
+    val drawerEnterExitAnimations = Settings.boolean(
+        key = "drawerEnterExitAnimations",
+        dataStoreName = dataStoreName,
+        default = true
+    )
+
     override val ALL: List<BaseSettingObject<*,*>>
         get() = listOf(
             autoOpenSingleMatch,
@@ -265,6 +273,7 @@ object DrawerSettingsStore : MapSettingsStore() {
             pullDownAnimations,
             pullDownWallPaperDimFade,
             pullDownIconFade,
-            pullDownScaleIn
+            pullDownScaleIn,
+            drawerEnterExitAnimations
         )
 }
