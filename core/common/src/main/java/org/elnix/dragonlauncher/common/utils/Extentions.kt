@@ -345,11 +345,85 @@ fun Long.formatDuration(): String {
 //}
 
 
-fun Color?.definedOrNull(): Color? = this.takeIf { it != Color.Unspecified }
-fun Color?.orDefault(default: Color = Color.Unspecified): Color = this ?: default
+/**
+ * Returns this [Color] only if it is explicitly defined.
+ *
+ * If the receiver is `null` or equal to [Color.Unspecified], this returns `null`.
+ * Otherwise, it returns the receiver unchanged.
+ *
+ * This is useful when treating [Color.Unspecified] as an absent value
+ * and normalizing it to `null` for clearer nullable handling.
+ *
+ * @return this color if defined, or `null` if it is `null` or `Color.Unspecified`
+ */
+fun Color?.definedOrNull(): Color? =
+    this.takeIf { it != Color.Unspecified }
 
+
+/**
+ * Returns this [Color] if it is non-null, or [default] otherwise.
+ *
+ * This is a convenience extension for providing a fallback color when
+ * working with nullable [Color] values.
+ *
+ * Note that this does not treat [Color.Unspecified] as null; if the
+ * receiver is `Color.Unspecified`, it will be returned as-is.
+ *
+ * @param default the color to return when the receiver is null
+ * @return the receiver if non-null, otherwise [default]
+ */
+fun Color?.orDefault(default: Color = Color.Unspecified): Color =
+    this ?: default
+
+/**
+ * Returns this [Color], reducing its alpha by half when [enabled] is false.
+ *
+ * If [enabled] is true, the color is returned unchanged.
+ * If false, the resulting color keeps the same RGB components and
+ * multiplies the current alpha by `0.5f`.
+ *
+ * @param enabled whether the color should remain fully effective
+ * @return this color, or a version with its alpha halved when disabled
+ */
 fun Color.semiTransparentIfDisabled(enabled: Boolean): Color =
-    if (enabled) this else this.copy(alpha = this.alpha * 0.5f)
+    if (enabled) this else copy(alpha = alpha * 0.5f)
 
+/**
+ * Returns a copy of this [Color] with its alpha multiplied by [multiplier].
+ *
+ * The RGB components remain unchanged. The resulting alpha is computed as:
+ * `currentAlpha * multiplier`.
+ *
+ * This can be used to uniformly increase or decrease transparency while
+ * preserving the original opacity proportion.
+ *
+ * @param multiplier factor applied to the current alpha value
+ * @return a copy of this color with the adjusted alpha
+ */
+fun Color.alphaMultiplier(multiplier: Float): Color =
+    copy(alpha = alpha * multiplier)
+
+/**
+ * Binds a value to a nullable single-argument lambda, returning a parameterless lambda.
+ *
+ * If the receiver lambda is non-null, this returns a new `() -> Unit` that,
+ * when invoked, calls the original lambda with the provided [value].
+ * If the receiver is null, this returns null.
+ *
+ * Useful when an API expects a `() -> Unit` callback but you have a
+ * nullable `(T) -> Unit` and a value to supply in advance.
+ *
+ * Example:
+ * ```
+ * val onClick: ((Int) -> Unit)? = { println(it) }
+ * val bound = onClick.bind(42)
+ * bound?.invoke() // prints 42
+ * ```
+ *
+ * @param T the parameter type of the original lambda
+ * @param value the value to pass to the lambda when invoked
+ * @return a parameterless lambda invoking the original lambda with [value],
+ *         or null if the receiver lambda is null
+ */
 fun <T> ((T) -> Unit)?.bind(value: T): (() -> Unit)? =
     this?.let { { it(value) } }

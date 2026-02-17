@@ -40,6 +40,7 @@ import org.elnix.dragonlauncher.settings.stores.UiSettingsStore.showLaunchingApp
 import org.elnix.dragonlauncher.ui.components.AppPreviewTitle
 import org.elnix.dragonlauncher.ui.components.ExpandableSection
 import org.elnix.dragonlauncher.ui.components.TextDivider
+import org.elnix.dragonlauncher.ui.components.dragon.DragonColumnGroup
 import org.elnix.dragonlauncher.ui.components.settings.SettingsSlider
 import org.elnix.dragonlauncher.ui.components.settings.SettingsSwitchRow
 import org.elnix.dragonlauncher.ui.components.settings.asState
@@ -146,21 +147,6 @@ fun AppearanceTab(
             )
         }
 
-        item {
-            SettingsSwitchRow(
-                setting = UiSettingsStore.rgbLoading,
-                title = stringResource(R.string.rgb_loading_settings),
-                description = stringResource(R.string.rgb_loading_description)
-            )
-        }
-
-        item {
-            SettingsSwitchRow(
-                setting = UiSettingsStore.rgbLine,
-                title = stringResource(R.string.rgb_line_selector),
-                description = stringResource(R.string.rgb_line_selector_description)
-            )
-        }
 
         item {
             ExpandableSection(
@@ -207,8 +193,6 @@ fun AppearanceTab(
             }
         }
 
-        item { TextDivider(stringResource(R.string.shortcuts_settings)) }
-
         item {
             SettingsSwitchRow(
                 setting = UiSettingsStore.promptForShortcutsWhenAddingApp,
@@ -218,63 +202,73 @@ fun AppearanceTab(
         }
 
         item {
-            SettingsSwitchRow(
-                setting = UiSettingsStore.showAppLaunchingPreview,
-                title = stringResource(R.string.show_app_launch_preview),
-                description = stringResource(R.string.show_app_launch_preview_description)
+            SettingsSlider(
+                setting = UiSettingsStore.maxNestsDepth,
+                title = stringResource(R.string.depth),
+                description = stringResource(R.string.depth_desc),
+                valueRange = 1..10
             )
         }
 
         item {
-            SettingsSwitchRow(
-                setting = UiSettingsStore.showCirclePreview,
-                title = stringResource(R.string.show_app_circle_preview),
-                description = stringResource(R.string.show_app_circle_preview_description)
-            )
-        }
+            DragonColumnGroup {
+                SettingsSwitchRow(
+                    setting = UiSettingsStore.rgbLoading,
+                    title = stringResource(R.string.rgb_loading_settings),
+                    description = stringResource(R.string.rgb_loading_description)
+                )
 
-        item {
-            SettingsSwitchRow(
-                setting = UiSettingsStore.showLinePreview,
-                title = stringResource(R.string.show_app_line_preview),
-                description = stringResource(R.string.show_app_line_preview_description)
-            )
-        }
+                SettingsSwitchRow(
+                    setting = UiSettingsStore.rgbLine,
+                    title = stringResource(R.string.rgb_line_selector),
+                    description = stringResource(R.string.rgb_line_selector_description)
+                )
 
-        item {
-            SettingsSwitchRow(
-                setting = UiSettingsStore.showAnglePreview,
-                title = stringResource(
-                    R.string.show_app_angle_preview,
-                    if (!showAppAnglePreview) stringResource(R.string.do_you_hate_it) else ""
-                ),
-                description = stringResource(R.string.show_app_angle_preview_description)
-            )
-        }
+                SettingsSwitchRow(
+                    setting = UiSettingsStore.showAppLaunchingPreview,
+                    title = stringResource(R.string.show_app_launch_preview),
+                    description = stringResource(R.string.show_app_launch_preview_description)
+                )
 
-        item {
-            SettingsSwitchRow(
-                setting = UiSettingsStore.showAppPreviewIconCenterStartPosition,
-                title = stringResource(R.string.show_app_icon_start_drag_position),
-                description = stringResource(R.string.show_app_icon_start_drag_position_description)
-            )
-        }
+                SettingsSwitchRow(
+                    setting = UiSettingsStore.showCirclePreview,
+                    title = stringResource(R.string.show_app_circle_preview),
+                    description = stringResource(R.string.show_app_circle_preview_description)
+                )
 
-        item {
-            SettingsSwitchRow(
-                setting = UiSettingsStore.linePreviewSnapToAction,
-                title = stringResource(R.string.line_preview_snap_to_action),
-                description = stringResource(R.string.line_preview_snap_to_action_description)
-            )
-        }
+                SettingsSwitchRow(
+                    setting = UiSettingsStore.showLinePreview,
+                    title = stringResource(R.string.show_app_line_preview),
+                    description = stringResource(R.string.show_app_line_preview_description)
+                )
 
+                SettingsSwitchRow(
+                    setting = UiSettingsStore.showAnglePreview,
+                    title = stringResource(
+                        R.string.show_app_angle_preview,
+                        if (!showAppAnglePreview) stringResource(R.string.do_you_hate_it) else ""
+                    ),
+                    description = stringResource(R.string.show_app_angle_preview_description)
+                )
 
-        item {
-            SettingsSwitchRow(
-                setting = UiSettingsStore.showAllActionsOnCurrentCircle,
-                title = stringResource(R.string.show_all_actions_on_current_circle),
-                description = stringResource(R.string.show_all_actions_on_current_circle_description)
-            )
+                SettingsSwitchRow(
+                    setting = UiSettingsStore.showAppPreviewIconCenterStartPosition,
+                    title = stringResource(R.string.show_app_icon_start_drag_position),
+                    description = stringResource(R.string.show_app_icon_start_drag_position_description)
+                )
+
+                SettingsSwitchRow(
+                    setting = UiSettingsStore.linePreviewSnapToAction,
+                    title = stringResource(R.string.line_preview_snap_to_action),
+                    description = stringResource(R.string.line_preview_snap_to_action_description)
+                )
+
+                SettingsSwitchRow(
+                    setting = UiSettingsStore.showAllActionsOnCurrentCircle,
+                    title = stringResource(R.string.show_all_actions_on_current_circle),
+                    description = stringResource(R.string.show_all_actions_on_current_circle_description)
+                )
+            }
         }
     }
 

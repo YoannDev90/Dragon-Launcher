@@ -14,12 +14,9 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateMapOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -43,12 +40,12 @@ import org.elnix.dragonlauncher.enumsui.NestEditMode
 import org.elnix.dragonlauncher.enumsui.NestEditMode.DRAG
 import org.elnix.dragonlauncher.enumsui.NestEditMode.HAPTIC
 import org.elnix.dragonlauncher.enumsui.NestEditMode.MIN_ANGLE
-import org.elnix.dragonlauncher.enumsui.NestEditMode.depth
-import org.elnix.dragonlauncher.enumsui.nestEditModeIcon
 import org.elnix.dragonlauncher.settings.stores.DrawerSettingsStore
 import org.elnix.dragonlauncher.settings.stores.SwipeSettingsStore
+import org.elnix.dragonlauncher.settings.stores.UiSettingsStore
 import org.elnix.dragonlauncher.ui.UiConstants.DragonShape
 import org.elnix.dragonlauncher.ui.components.generic.ActionRow
+import org.elnix.dragonlauncher.ui.components.settings.asState
 import org.elnix.dragonlauncher.ui.defaultDragDistance
 import org.elnix.dragonlauncher.ui.defaultHapticFeedback
 import org.elnix.dragonlauncher.ui.defaultMinAngleActivation
@@ -75,8 +72,9 @@ fun NestEditingScreen(
     val backgroundColor = MaterialTheme.colorScheme.background
     val angleColor = MaterialTheme.colorScheme.tertiary
 
-    val iconsShape by DrawerSettingsStore.iconsShape.flow(ctx)
-        .collectAsState(DrawerSettingsStore.iconsShape.default)
+    val iconsShape by DrawerSettingsStore.iconsShape.asState()
+    val maxNestsDepth by UiSettingsStore.maxNestsDepth.asState()
+
 
     val dragDistancesState = remember(currentNest.id) {
         mutableStateMapOf<Int, Int>().apply {
@@ -95,23 +93,6 @@ fun NestEditingScreen(
             putAll(currentNest.minAngleActivation)
         }
     }
-
-
-    // used to draw the circles in the preview
-//    val circles: SnapshotStateList<UiCircle> = remember { mutableStateListOf() }
-//
-//    LaunchedEffect(currentNest.dragDistances, dragDistancesState) {
-//        circles.clear()
-//        dragDistancesState.forEach { (circleNumber, radius) ->
-//                circles.add(
-//                    UiCircle(
-//                        id = circleNumber,
-//                        radius = radius.toFloat()
-//                    )
-//                )
-//            }
-//    }
-
 
     val circles = dragDistancesState.map { (id, radius) ->
         UiCircle(
@@ -196,6 +177,7 @@ fun NestEditingScreen(
                     pointIcons = pointIcons,
                     nestId = nestId,
                     depth = 1,
+                    maxDepth = maxNestsDepth,
                     shape = iconsShape,
                     density = density,
                     preventBgErasing = true
@@ -229,7 +211,7 @@ fun NestEditingScreen(
             ActionRow(
                 actions = NestEditMode.entries,
                 selectedView = currentEditMode,
-                actionIcon = { nestEditModeIcon(it) }
+                actionIcon = { it.icon }
             ) {
                 currentEditMode = it
             }
@@ -324,31 +306,31 @@ fun NestEditingScreen(
                             }
                     }
 
-                    depth -> {
-
-                        var tempDepth by remember { mutableIntStateOf(currentNest.depth) }
-                        SliderWithLabel(
-                            label = stringResource(R.string.depth),
-                            description = stringResource(R.string.depth_desc),
-                            backgroundColor = MaterialTheme.colorScheme.surfaceVariant,
-                            value = tempDepth,
-                            valueRange = 1..5
-                        ) {
-                            tempDepth = it
-                            pendingNestUpdate = nests.map { nest ->
-                                if (nest.id == nestId) {
-                                    nest.copy(depth = it)
-                                } else nest
-                            }
-                        }
-
-
-                        Text(
-                            text = stringResource(R.string.warning_large_values_can_lag_your_phone),
-                            color = MaterialTheme.colorScheme.onSurface,
-                            style = MaterialTheme.typography.labelLarge
-                        )
-                    }
+//                    depth -> {
+//
+//                        var tempDepth by remember { mutableIntStateOf(currentNest.depth) }
+//                        SliderWithLabel(
+//                            label = stringResource(R.string.depth),
+//                            description = stringResource(R.string.depth_desc),
+//                            backgroundColor = MaterialTheme.colorScheme.surfaceVariant,
+//                            value = tempDepth,
+//                            valueRange = 1..5
+//                        ) {
+//                            tempDepth = it
+//                            pendingNestUpdate = nests.map { nest ->
+//                                if (nest.id == nestId) {
+//                                    nest.copy(depth = it)
+//                                } else nest
+//                            }
+//                        }
+//
+//
+//                        Text(
+//                            text = stringResource(R.string.warning_large_values_can_lag_your_phone),
+//                            color = MaterialTheme.colorScheme.onSurface,
+//                            style = MaterialTheme.typography.labelLarge
+//                        )
+//                    }
                 }
             }
         }

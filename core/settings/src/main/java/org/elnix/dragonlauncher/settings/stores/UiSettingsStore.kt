@@ -148,6 +148,12 @@ object UiSettingsStore : MapSettingsStore() {
         default = false
     )
 
+    val maxNestsDepth = Settings.int(
+        key = "maxNestsDepth",
+        dataStoreName = dataStoreName,
+        default = 2,
+        allowedRange = 1..10
+    )
 
     override val ALL: List<BaseSettingObject<*,*>> = listOf(
         rgbLoading,
@@ -171,6 +177,7 @@ object UiSettingsStore : MapSettingsStore() {
         appIconOverlaySize,
         wallpaperDimMainScreen,
         wallpaperDimDrawerScreen,
-        promptForShortcutsWhenAddingApp
+        promptForShortcutsWhenAddingApp,
+        maxNestsDepth
     )
 }

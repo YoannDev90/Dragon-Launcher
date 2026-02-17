@@ -89,6 +89,8 @@ fun MainScreenOverlay(
     val appLabelIconOverlayTopPadding by UiSettingsStore.appLabelIconOverlayTopPadding.asState()
     val appLabelOverlaySize by UiSettingsStore.appLabelOverlaySize.asState()
     val appIconOverlaySize by UiSettingsStore.appIconOverlaySize.asState()
+    val maxNestsDepth by UiSettingsStore.maxNestsDepth.asState()
+
     val disableHapticFeedback by BehaviorSettingsStore.disableHapticFeedbackGlobally.asState()
     val pointsActionSnapsToOuterCircle by BehaviorSettingsStore.pointsActionSnapsToOuterCircle.asState()
 
@@ -440,6 +442,7 @@ fun MainScreenOverlay(
                                         pointIcons = pointIcons,
                                         defaultPoint = defaultPoint,
                                         depth = 1,
+                                        maxDepth = maxNestsDepth,
                                         iconShape = iconsShape,
                                         density = density
                                     )
@@ -461,6 +464,7 @@ fun MainScreenOverlay(
                                 pointIcons = pointIcons,
                                 defaultPoint = defaultPoint,
                                 depth = 1,
+                                maxDepth = maxNestsDepth,
                                 iconShape = iconsShape,
                                 density = density
                             )
@@ -486,6 +490,7 @@ fun MainScreenOverlay(
                         pointIcons = pointIcons,
                         defaultPoint = defaultPoint,
                         depth = 1,
+                        maxDepth = maxNestsDepth,
                         iconShape = iconsShape,
                         density = density
                     )

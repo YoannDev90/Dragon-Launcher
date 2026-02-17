@@ -162,6 +162,8 @@ fun SettingsScreen(
     val autoSeparatePoints by UiSettingsStore.autoSeparatePoints.asState()
     val appLabelOverlaySize by UiSettingsStore.appLabelOverlaySize.asState()
     val appIconOverlaySize by UiSettingsStore.appIconOverlaySize.asState()
+    val maxNestsDepth by UiSettingsStore.maxNestsDepth.asState()
+
     val settingsDebugInfos by DebugSettingsStore.settingsDebugInfo.asState()
     val iconsShape by DrawerSettingsStore.iconsShape.asState()
 
@@ -190,7 +192,6 @@ fun SettingsScreen(
     var manualPlacementQueue by remember { mutableStateOf<List<SwipeActionSerializable>>(emptyList()) }
     val isInManualPlacementMode = manualPlacementQueue.isNotEmpty()
 
-//    var showDeleteNestDialog by remember { mutableStateOf<Int?>(null) }
     var showNestManagementDialog by remember { mutableStateOf(false) }
     var showResetPointsAndNestsDialog by remember { mutableStateOf(false) }
 
@@ -202,7 +203,7 @@ fun SettingsScreen(
 
     val nestNavigation = rememberNestNavigation(nests)
     val currentNest = nestNavigation.currentNest
-    val nestId = nestNavigation.nestId
+    val nestId = currentNest.id
 
     val filteredPoints by remember(points, nestId) {
         derivedStateOf {
@@ -232,7 +233,7 @@ fun SettingsScreen(
     LaunchedEffect(nestId, nests.size) {
         if (nests.isNotEmpty() && nests.none { it.id == nestId }) {
             logD(TAG, "Creating missing nest $nestId")
-            pendingNestUpdate = nests + CircleNest(id = nestId, parentId = 0)
+            pendingNestUpdate = nests + CircleNest(id = nestId)
         }
     }
 
@@ -357,10 +358,7 @@ fun SettingsScreen(
         }
 
         // Launch the nests update with the new one and the good open / parent ids
-        pendingNestUpdate = nests + CircleNest(
-            id = newNestId,
-            parentId = nestId
-        )
+        pendingNestUpdate = nests + CircleNest(newNestId)
     }
 
 
@@ -635,6 +633,7 @@ fun SettingsScreen(
                         pointIcons = pointIcons,
                         nestId = nestId,
                         depth = 1,
+                        maxDepth = maxNestsDepth,
                         shape = iconsShape,
                         density = density,
                         preventBgErasing = true
@@ -655,6 +654,7 @@ fun SettingsScreen(
                             pointIcons = pointIcons,
                             defaultPoint = defaultPoint,
                             depth = 1,
+                            maxDepth = maxNestsDepth,
                             iconShape = iconsShape,
                             density = density,
                             preventBgErasing = true
@@ -893,7 +893,7 @@ fun SettingsScreen(
                 }
 
 
-                val canGoback = currentNest.parentId != nestId
+                val canGoback = currentNest.id != 0
 
                 CircleIconButton(
                     icon = Icons.Filled.FullscreenExit,

@@ -51,9 +51,11 @@ import org.elnix.dragonlauncher.common.utils.copyToClipboard
 import org.elnix.dragonlauncher.models.AppsViewModel
 import org.elnix.dragonlauncher.settings.stores.DrawerSettingsStore
 import org.elnix.dragonlauncher.settings.stores.SwipeSettingsStore
+import org.elnix.dragonlauncher.settings.stores.UiSettingsStore
 import org.elnix.dragonlauncher.ui.UiConstants.DragonShape
 import org.elnix.dragonlauncher.ui.colors.AppObjectsColors
 import org.elnix.dragonlauncher.ui.components.dragon.DragonIconButton
+import org.elnix.dragonlauncher.ui.components.settings.asState
 import org.elnix.dragonlauncher.ui.helpers.nests.actionsInCircle
 import org.elnix.dragonlauncher.ui.theme.LocalExtraColors
 
@@ -162,6 +164,8 @@ private fun NestManagementItem(
     val density = LocalDensity.current
 
 
+    val maxNestsDepth by UiSettingsStore.maxNestsDepth.asState()
+
     var tempCustomName by remember { mutableStateOf(nest.name ?: "") }
 
     val surfaceColorDraw = MaterialTheme.colorScheme.surface.adjustBrightness(0.5f)
@@ -203,6 +207,7 @@ private fun NestManagementItem(
                 pointIcons = pointIcons,
                 defaultPoint = defaultPoint,
                 depth = 1,
+                maxDepth = maxNestsDepth,
                 preventBgErasing = true,
                 iconShape = shape,
                 density = density

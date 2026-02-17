@@ -37,6 +37,7 @@ fun SettingsItem(
 ) {
 
     DragonSurfaceRow (
+        modifier = modifier,
         enabled = enabled,
         backgroundColor = backgroundColor,
         onLongClick = onLongClick,

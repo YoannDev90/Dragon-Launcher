@@ -45,9 +45,7 @@ fun launchSwipeAction(
     onReloadApps: (() -> Unit)? = null,
     onReselectFile: (() -> Unit)? = null,
     onAppSettings: ((String) -> Unit)? = null,
-    onAppDrawer: ((workspaceId: String?) -> Unit)? = null,
-    onParentNest: (() -> Unit)? = null,
-    onOpenNestCircle: ((nestId: Int) -> Unit)? = null,
+    onAppDrawer: ((workspaceId: String?) -> Unit)? = null
 ) {
     if (action == null) return
 
@@ -183,8 +181,7 @@ fun launchSwipeAction(
             SystemControl.openRecentApps(ctx)
         }
 
-        is SwipeActionSerializable.OpenCircleNest -> onOpenNestCircle?.invoke(action.nestId)
-        SwipeActionSerializable.GoParentNest -> onParentNest?.invoke()
+        is SwipeActionSerializable.OpenCircleNest, SwipeActionSerializable.GoParentNest -> {} // Handled by the main screen / settings
         is SwipeActionSerializable.OpenWidget -> {} // The widget action isn't mean to be part of the choosable actions, so nothing on launch
         SwipeActionSerializable.None -> {}
     }

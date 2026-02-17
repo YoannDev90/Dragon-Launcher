@@ -59,7 +59,7 @@ import org.elnix.dragonlauncher.common.serializables.defaultSwipePointsValues
 import org.elnix.dragonlauncher.common.serializables.dummySwipePoint
 import org.elnix.dragonlauncher.common.utils.SETTINGS
 import org.elnix.dragonlauncher.common.utils.WidgetHostProvider
-import org.elnix.dragonlauncher.common.utils.circles.NestNavigationState
+import org.elnix.dragonlauncher.common.utils.circles.rememberNestNavigation
 import org.elnix.dragonlauncher.models.AppLifecycleViewModel
 import org.elnix.dragonlauncher.models.AppsViewModel
 import org.elnix.dragonlauncher.models.FloatingAppsViewModel
@@ -89,17 +89,12 @@ fun MainScreen(
     widgetHostProvider: WidgetHostProvider,
     nests: List<CircleNest>,
     points: List<SwipePointSerializable>,
-    nestNavigation: NestNavigationState,
-//    onOpenPrivateSpaceApp: (SwipeActionSerializable) -> Unit,
-//    onAppDrawer: (workspaceId: String?) -> Unit,
-//    onGoWelcome: () -> Unit,
-//    onSettings: (route: String) -> Unit,
+//    nestNavigation: NestNavigationState,
     onLaunchAction: (SwipePointSerializable) -> Unit
 ) {
     val ctx = LocalContext.current
     val scope = rememberCoroutineScope()
 
-//    var showFilePicker: SwipePointSerializable? by remember { mutableStateOf(null) }
     var lastClickTime by remember { mutableLongStateOf(0L) }
 
     val floatingAppObjects by floatingAppsViewModel.floatingApps.collectAsState()
@@ -118,90 +113,8 @@ fun MainScreen(
 
     val iconsShape by DrawerSettingsStore.iconsShape.asState()
 
-    val holdDelayBeforeStartingLongClickSettings by BehaviorSettingsStore
-        .holdDelayBeforeStartingLongClickSettings.asState()
+    val holdDelayBeforeStartingLongClickSettings by BehaviorSettingsStore.holdDelayBeforeStartingLongClickSettings.asState()
     val longCLickSettingsDuration by BehaviorSettingsStore.longCLickSettingsDuration.asState()
-
-
-//    /*  ─────────────  Wellbeing Settings  ─────────────  */
-//    val socialMediaPauseEnabled by WellbeingSettingsStore.socialMediaPauseEnabled.asState()
-//    val guiltModeEnabled by WellbeingSettingsStore.guiltModeEnabled.asState()
-//    val pauseDuration by WellbeingSettingsStore.pauseDurationSeconds.asState()
-//    val pausedApps by WellbeingSettingsStore.getPausedAppsFlow(ctx)
-//        .collectAsState(initial = emptySet())
-//    val reminderEnabled by WellbeingSettingsStore.reminderEnabled.asState()
-//    val reminderInterval by WellbeingSettingsStore.reminderIntervalMinutes.asState()
-//    val reminderMode by WellbeingSettingsStore.reminderMode.asState()
-//    val returnToLauncherEnabled by WellbeingSettingsStore.returnToLauncherEnabled.asState()
-//
-//    // Store pending package to launch after pause
-//    var pendingPackageToLaunch by remember { mutableStateOf<String?>(null) }
-//    var pendingUserIdToLaunch by remember { mutableStateOf<Int?>(null) }
-//    var pendingAppName by remember { mutableStateOf<String?>(null) }
-//
-//    val digitalPauseLauncher = rememberLauncherForActivityResult(
-//        ActivityResultContracts.StartActivityForResult()
-//    ) { result ->
-//        if (result.resultCode == DigitalPauseActivity.RESULT_PROCEED && pendingPackageToLaunch != null) {
-//            try {
-//                // Start reminder-only timer if enabled (no time limit)
-//                if (reminderEnabled) {
-//                    AppTimerService.start(
-//                        ctx = ctx,
-//                        packageName = pendingPackageToLaunch!!,
-//                        appName = pendingAppName ?: pendingPackageToLaunch!!,
-//                        reminderEnabled = true,
-//                        reminderIntervalMinutes = reminderInterval,
-//                        reminderMode = reminderMode
-//                    )
-//                }
-//
-//                launchAppDirectly(
-//                    appsViewModel,
-//                    ctx,
-//                    pendingPackageToLaunch!!,
-//                    pendingUserIdToLaunch!!
-//                )
-//            } catch (e: Exception) {
-//                ctx.logE(TAG, "Failed to launch after pause: ${e.message}")
-//            }
-//        } else if (result.resultCode == DigitalPauseActivity.RESULT_PROCEED_WITH_TIMER && pendingPackageToLaunch != null) {
-//            try {
-//                val data = result.data
-//                val timeLimitMin =
-//                    data?.getIntExtra(DigitalPauseActivity.RESULT_EXTRA_TIME_LIMIT, 10) ?: 10
-//                val hasReminder =
-//                    data?.getBooleanExtra(DigitalPauseActivity.EXTRA_REMINDER_ENABLED, false)
-//                        ?: false
-//                val remInterval =
-//                    data?.getIntExtra(DigitalPauseActivity.EXTRA_REMINDER_INTERVAL, 5) ?: 5
-//                val remMode =
-//                    data?.getStringExtra(DigitalPauseActivity.EXTRA_REMINDER_MODE) ?: "overlay"
-//
-//                AppTimerService.start(
-//                    ctx = ctx,
-//                    packageName = pendingPackageToLaunch!!,
-//                    appName = pendingAppName ?: pendingPackageToLaunch!!,
-//                    reminderEnabled = hasReminder,
-//                    reminderIntervalMinutes = remInterval,
-//                    reminderMode = remMode,
-//                    timeLimitEnabled = true,
-//                    timeLimitMinutes = timeLimitMin
-//                )
-//
-//                launchAppDirectly(
-//                    appsViewModel,
-//                    ctx,
-//                    pendingPackageToLaunch!!,
-//                    pendingUserIdToLaunch!!
-//                )
-//            } catch (e: Exception) {
-//                ctx.logE(TAG, "Failed to launch after pause with timer: ${e.message}")
-//            }
-//        }
-//        pendingPackageToLaunch = null
-//        pendingAppName = null
-//    }
 
 
     val icons by appsViewModel.icons.collectAsState()
@@ -228,18 +141,11 @@ fun MainScreen(
     val defaultColor = Color.Red
     val rgbLoading by UiSettingsStore.rgbLoading.asState()
 
-//    val hasSeenWelcome by PrivateSettingsStore.hasSeenWelcome.asStateNull()
-//
-//    val useAccessibilityInsteadOfContextToExpandActionPanel by DebugSettingsStore
-//        .useAccessibilityInsteadOfContextToExpandActionPanel.asState()
-
 
     /* ───────────── status bar things ───────────── */
 
     val showStatusBar by StatusBarSettingsStore.showStatusBar.asState()
-
     val systemInsets = WindowInsets.systemBars.asPaddingValues()
-
     val isRealFullscreen = systemInsets.calculateTopPadding() == 0.dp
 
     /* ────────────────────────────────────────────── */
@@ -253,14 +159,10 @@ fun MainScreen(
     }
 
 
-//    LaunchedEffect(hasSeenWelcome) {
-//        if (hasSeenWelcome == false) onGoWelcome()
-//    }
-
     LaunchedEffect(Unit) { lastClickTime = 0 }
 
-//    val nestNavigation = rememberNestNavigation(nests)
-    val nestId = nestNavigation.nestId
+    val nestNavigation = rememberNestNavigation(nests)
+    val nestId = nestNavigation.currentNest.id
 
     val filteredFloatingAppObjects by remember(floatingAppObjects, nestId) {
         derivedStateOf {
@@ -301,55 +203,20 @@ fun MainScreen(
 
     fun launchAction(point: SwipePointSerializable) {
         isDragging = false
-        nestNavigation.goToNest(0)
         start = null
         current = null
         lastClickTime = 0
 
-        onLaunchAction(point)
 
-//        // Store package for potential pause callback
-//        if (action is SwipeActionSerializable.LaunchApp) {
-//            pendingPackageToLaunch = action.packageName
-//            pendingUserIdToLaunch = action.userId ?: 0
-//            pendingAppName = point.customName ?: try {
-//                ctx.packageManager.getApplicationLabel(
-//                    ctx.packageManager.getApplicationInfo(action.packageName, 0)
-//                ).toString()
-//            } catch (_: Exception) {
-//                action.packageName
-//            }
-//        }
-//
-//        try {
-//            launchSwipeAction(
-//                ctx = ctx,
-//                appsViewModel = appsViewModel,
-//                action = action,
-//                useAccessibilityInsteadOfContextToExpandActionPanel = useAccessibilityInsteadOfContextToExpandActionPanel,
-//                pausedApps = pausedApps,
-//                socialMediaPauseEnabled = socialMediaPauseEnabled,
-//                guiltModeEnabled = guiltModeEnabled,
-//                pauseDuration = pauseDuration,
-//                reminderEnabled = reminderEnabled,
-//                reminderIntervalMinutes = reminderInterval,
-//                reminderMode = reminderMode,
-//                returnToLauncherEnabled = returnToLauncherEnabled,
-//                appName = pendingAppName ?: "",
-//                digitalPauseLauncher = digitalPauseLauncher,
-//                onOpenPrivateSpaceApp = onOpenPrivateSpaceApp,
-//                onReloadApps = { scope.launch { appsViewModel.reloadApps() } },
-//                onReselectFile = { showFilePicker = point },
-//                onAppSettings = onSettings,
-//                onAppDrawer = onAppDrawer,
-//                onParentNest = { nestNavigation.goBack() },
-//                onOpenNestCircle = { nestNavigation.goToNest(it) }
-//            )
-//        } catch (e: AppLaunchException) {
-//            ctx.logE(TAG, e.message!!) // Lol if it crashes when logging for an exception
-//        } catch (e: Exception) {
-//            ctx.logE(TAG, e.message ?: "")
-//        }
+        // Handle nest related actions here, and let the rest pass trough
+        when (val action = point.action) {
+            SwipeActionSerializable.GoParentNest -> nestNavigation.goBack()
+            is SwipeActionSerializable.OpenCircleNest -> nestNavigation.goToNest(action.nestId)
+            else -> {
+                nestNavigation.clearStack()
+                onLaunchAction(point)
+            }
+        }
     }
 
 

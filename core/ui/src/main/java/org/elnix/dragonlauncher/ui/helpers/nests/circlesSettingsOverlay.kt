@@ -29,6 +29,7 @@ fun DrawScope.circlesSettingsOverlay(
     pointIcons: Map<String, ImageBitmap>,
     nestId: Int,
     depth: Int,
+    maxDepth: Int,
     shape: IconShape,
     density: Density,
     selectedAll: Boolean = false,
@@ -82,11 +83,7 @@ fun DrawScope.circlesSettingsOverlay(
                     point = p,
                     circles = circles,
                     center = center
-                )/*Offset(
-                    x = center.x + circle.radius * sin(Math.toRadians(p.angleDeg)).toFloat(),
-                    y = center.y - circle.radius * cos(Math.toRadians(p.angleDeg)).toFloat()
-                )*/
-
+                )
 
                 actionsInCircle(
                     selected = selectedAll || (p.id == selectedPoint?.id),
@@ -101,6 +98,7 @@ fun DrawScope.circlesSettingsOverlay(
                     pointIcons = pointIcons,
                     defaultPoint = defaultPoint,
                     depth = depth,
+                    maxDepth = maxDepth,
                     iconShape = shape,
                     density = density,
                     preventBgErasing = preventBgErasing

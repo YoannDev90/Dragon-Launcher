@@ -25,13 +25,6 @@ data class CircleNest(
         1 to 450,
         2 to 600
     ),
-
-    /**
-     * The id of the nest that holds this one, used for drawing correctly the outer circles
-     * And also to navigate across nests
-     */
-    @SerializedName("parentId") val parentId: Int = 0,
-
     /**
      * A custom name for the nest you can set for easier identification
      */
@@ -45,14 +38,5 @@ data class CircleNest(
     /**
      * Haptic feedback, as default for the points in  the circle, separated from the point system
      */
-    @SerializedName("minAngleActivation") val minAngleActivation: Map<Int, Int> = emptyMap(),
-
-    /**
-     * depth: how many sub circles are drawn for current nest, defaults to 2 levels, more may lag and crash
-     */
-    @SerializedName("depth") val depth: Int = 2
+    @SerializedName("minAngleActivation") val minAngleActivation: Map<Int, Int> = emptyMap()
 )
-
-
-fun CircleNest.parent(nests: List<CircleNest>): CircleNest =
-    nests.find { it.id == parentId } ?: CircleNest()

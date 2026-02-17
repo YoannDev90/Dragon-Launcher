@@ -3,7 +3,6 @@ package org.elnix.dragonlauncher.ui.components
 import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.layout.height
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.Offset
@@ -17,6 +16,8 @@ import org.elnix.dragonlauncher.common.serializables.CircleNest
 import org.elnix.dragonlauncher.common.serializables.SwipePointSerializable
 import org.elnix.dragonlauncher.common.utils.Constants.Logging.ICONS_TAG
 import org.elnix.dragonlauncher.settings.stores.DrawerSettingsStore
+import org.elnix.dragonlauncher.settings.stores.UiSettingsStore
+import org.elnix.dragonlauncher.ui.components.settings.asState
 import org.elnix.dragonlauncher.ui.helpers.nests.actionsInCircle
 import org.elnix.dragonlauncher.ui.theme.ExtraColors
 
@@ -34,8 +35,8 @@ fun PointPreviewCanvas(
     val ctx = LocalContext.current
     val density = LocalDensity.current
 
-    val iconsShape by DrawerSettingsStore.iconsShape.flow(ctx)
-        .collectAsState(DrawerSettingsStore.iconsShape.default)
+    val iconsShape by DrawerSettingsStore.iconsShape.asState()
+    val maxNestsDepth by UiSettingsStore.maxNestsDepth.asState()
 
     ctx.logW(ICONS_TAG, "PointPreview: editPoint: $editPoint; pointIcons: $pointIcons")
     ctx.logW(ICONS_TAG, "${pointIcons[editPoint.id]}")
@@ -63,6 +64,7 @@ fun PointPreviewCanvas(
             pointIcons = pointIcons,
             defaultPoint = defaultPoint,
             depth = 1,
+            maxDepth = maxNestsDepth,
             preventBgErasing = true,
             iconShape = iconsShape,
             density = density
@@ -82,6 +84,7 @@ fun PointPreviewCanvas(
             pointIcons = pointIcons,
             defaultPoint = defaultPoint,
             depth = 1,
+            maxDepth = maxNestsDepth,
             preventBgErasing = true,
             iconShape = iconsShape,
             density = density

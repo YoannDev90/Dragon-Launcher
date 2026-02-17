@@ -22,6 +22,7 @@ import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.produceState
@@ -58,14 +59,12 @@ import org.elnix.dragonlauncher.common.serializables.SwipePointSerializable
 import org.elnix.dragonlauncher.common.serializables.allShapesWithoutRandom
 import org.elnix.dragonlauncher.common.serializables.defaultSwipePointsValues
 import org.elnix.dragonlauncher.common.serializables.dummySwipePoint
-import org.elnix.dragonlauncher.common.utils.Constants
 import org.elnix.dragonlauncher.common.utils.Constants.Logging.APP_LAUNCH_TAG
 import org.elnix.dragonlauncher.common.utils.Constants.Logging.TAG
 import org.elnix.dragonlauncher.common.utils.Constants.Navigation.transparentScreens
 import org.elnix.dragonlauncher.common.utils.ROUTES
 import org.elnix.dragonlauncher.common.utils.SETTINGS
 import org.elnix.dragonlauncher.common.utils.WidgetHostProvider
-import org.elnix.dragonlauncher.common.utils.circles.rememberNestNavigation
 import org.elnix.dragonlauncher.common.utils.getVersionCode
 import org.elnix.dragonlauncher.common.utils.hasUriReadWritePermission
 import org.elnix.dragonlauncher.common.utils.isDefaultLauncher
@@ -198,7 +197,7 @@ fun MainAppUi(
     val nests by SwipeSettingsStore.getNestsFlow(ctx).collectAsState(initial = emptyList())
     val points by SwipeSettingsStore.getPointsFlow(ctx).collectAsState(emptyList())
 
-    val nestNavigation = rememberNestNavigation(nests)
+//    val nestNavigation = rememberNestNavigation(nests)
 
     val pointIcons by appsViewModel.pointIcons.collectAsState()
     val defaultPoint by appsViewModel.defaultPoint.collectAsState(defaultSwipePointsValues)
@@ -451,12 +450,8 @@ fun MainAppUi(
                     if (action !is SwipeActionSerializable.LaunchApp) return@launchSwipeAction
 
                     if (privateSpaceState.value.isLocked) {
-//                        ctx.logW(APP_LAUNCH_TAG, "Calling onOnUnlock")
-                        ctx.logE(Constants.Logging.PRIVATE_SPACE_TAG, "MainAppUi launch!")
                         appLifecycleViewModel.onUnlockPrivateSpace()
                     }
-
-
 
                     scope.launch {
 
@@ -484,9 +479,7 @@ fun MainAppUi(
                         appsViewModel.selectWorkspace(workspaceId)
                     }
                     goDrawer()
-                },
-                onParentNest = { nestNavigation.goBack() },
-                onOpenNestCircle = { nestNavigation.goToNest(it) }
+                }
             )
         } catch (e: AppLaunchException) {
             ctx.logE(TAG, e.message ?: "")
@@ -582,7 +575,7 @@ fun MainAppUi(
                     widgetHostProvider = widgetHostProvider,
                     nests = nests,
                     points = points,
-                    nestNavigation = nestNavigation,
+//                    nestNavigation = nestNavigation,
                     onLaunchAction = ::launchAction
                 )
             }
@@ -832,7 +825,7 @@ fun MainAppUi(
         val routeQuery = showPinDialog!!
         var pin by remember { mutableStateOf("") }
         val pinShapes = remember { mutableStateListOf<IconShape>() }
-        var failedTries by remember { mutableStateOf(0) }
+        var failedTries by remember { mutableIntStateOf(0) }
 
         PinUnlockDialog(
             onDismiss = { showPinDialog = null; pinError = null },
@@ -862,7 +855,7 @@ fun MainAppUi(
                     }
                 } else {
                     repeat(pinShapes.size - newValue.length) {
-                        pinShapes.removeLast()
+                        pinShapes.removeAt(pinShapes.lastIndex)
                     }
                 }
             }

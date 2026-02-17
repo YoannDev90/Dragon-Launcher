@@ -1,18 +1,15 @@
 package org.elnix.dragonlauncher.common.utils.circles
 
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableIntStateOf
+import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
 import org.elnix.dragonlauncher.common.serializables.CircleNest
-import kotlin.collections.find
 
 data class NestNavigationState(
-    val nestId: Int,
     val currentNest: CircleNest,
     val goBack: () -> Unit,
-    val goToNest: (Int) -> Unit
+    val goToNest: (Int) -> Unit,
+    val clearStack: () -> Unit
 )
 
 
@@ -22,27 +19,28 @@ data class NestNavigationState(
 @Composable
 fun rememberNestNavigation(
     nests: List<CircleNest>,
-    initialNestId: Int = 0
 ): NestNavigationState {
-    var nestId by remember { mutableIntStateOf(initialNestId) }
+    val nestsStack = remember { mutableStateListOf<Int>() }
+    val nestId = nestsStack.lastOrNull() ?: 0
 
     val currentNest = remember(nestId, nests) {
-        nests.find { it.id == nestId }
-            ?: CircleNest(id = nestId, parentId = 0)
+        nests.find { it.id ==  nestId}
+            ?: CircleNest(nestId)
     }
 
     return NestNavigationState(
-        nestId = nestId,
         currentNest = currentNest,
         goBack = {
-            if (currentNest.parentId != nestId) {
-                nestId = currentNest.parentId
+            // Remove last element of the navigation and use it as the new nest
+            if (nestsStack.isNotEmpty()) {
+                nestsStack.removeAt(nestsStack.lastIndex)
             }
         },
         goToNest = { newNestId ->
             if (newNestId != nestId) {
-                nestId = newNestId
+                nestsStack.add(newNestId)
             }
-        }
+        },
+        clearStack = { nestsStack.clear() }
     )
 }

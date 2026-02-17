@@ -24,7 +24,6 @@ import org.elnix.dragonlauncher.common.serializables.SwipeActionSerializable
 import org.elnix.dragonlauncher.common.serializables.SwipePointSerializable
 import org.elnix.dragonlauncher.common.serializables.applyColorAction
 import org.elnix.dragonlauncher.common.serializables.defaultSwipePointsValues
-import org.elnix.dragonlauncher.common.serializables.parent
 import org.elnix.dragonlauncher.common.utils.ImageUtils
 import org.elnix.dragonlauncher.common.utils.ImageUtils.loadDrawableResAsBitmap
 import org.elnix.dragonlauncher.common.utils.UiCircle
@@ -46,6 +45,7 @@ fun DrawScope.actionsInCircle(
     pointIcons: Map<String, ImageBitmap>,
     defaultPoint: SwipePointSerializable,
     depth: Int,
+    maxDepth: Int,
     iconShape: IconShape,
     density: Density,
     preventBgErasing: Boolean = false
@@ -101,111 +101,108 @@ fun DrawScope.actionsInCircle(
     val shape = (point.customIcon?.shape ?: iconShape).resolveShape()
 
 
-    if (action !is SwipeActionSerializable.OpenCircleNest) {
+    if (depth <= maxDepth) {
 
+        if (action !is SwipeActionSerializable.OpenCircleNest) {
 
+            /* ───────────── Erases the circle in the point ───────────── */
 
-        /* ───────────── Erases the circle in the point ───────────── */
+            // if no background color provided, erases the background
+            val eraseBg = backgroundColor == Color.Transparent && !preventBgErasing
 
-        // if no background color provided, erases the background
-        val eraseBg = backgroundColor == Color.Transparent && !preventBgErasing
-
-        // Erases the color, instead of putting it, that lets the wallpaper pass trough
-        drawCircle(
-            color = Color.Transparent,
-            radius = borderRadii,
-            center = center,
-            blendMode = BlendMode.Clear
-        )
-
-        // If requested to not erase the bg, draw it (this avoid the more tinted bg when using a half transparent bg color
-        if (!eraseBg) {
+            // Erases the color, instead of putting it, that lets the wallpaper pass trough
             drawCircle(
-                color = backgroundColor,
+                color = Color.Transparent,
                 radius = borderRadii,
-                center = center
-            )
-        }
-
-
-
-        /* ───────────── Draws the border (custom shape) ───────────── */
-
-        val iconSizeF = borderRadii * 2f
-
-
-        val outline = borderShape.createOutline(
-            size = Size(iconSizeF, iconSizeF),
-            layoutDirection = layoutDirection,
-            density = this
-        )
-
-        val path = when (outline) {
-            is Outline.Rectangle -> Path().apply { addRect(outline.rect) }
-            is Outline.Rounded -> Path().apply { addRoundRect(outline.roundRect) }
-            is Outline.Generic -> outline.path
-        }
-
-        // Move drawing to icon position
-        translate(
-            left = center.x - borderRadii,
-            top = center.y - borderRadii
-        ) {
-
-            if (borderStroke > 0f) {
-                if (borderColor.alpha != 0f) {
-
-                    drawPath(
-                        path = path,
-                        color = borderColor,
-                        style = Stroke(width = borderStroke)
-                    )
-                }
-            }
-        }
-
-
-        val icon = point.id.let { pointIcons[it] }
-        val colorAction = actionColor(point.action, extraColors)
-
-
-
-        if (icon != null) {
-
-            val clipped = ImageUtils.clipImageToShape(
-                image = icon,
-                shape = shape,
-                sizePx = size,
-                density = density
+                center = center,
+                blendMode = BlendMode.Clear
             )
 
-            drawImage(
-                image = clipped,
-                dstOffset = dstOffset,
-                dstSize = intSize,
-                colorFilter =
-                    if (point.applyColorAction()) ColorFilter.tint(colorAction)
-                    else null
-            )
-        }
-
-    } else {
-        nests.find { it.id == action.nestId }?.let { nest ->
-
-
-            val circlesWidthIncrement = 1f / (nest.dragDistances.size - 1)
-
-            val newCircles: SnapshotStateList<UiCircle> = mutableStateListOf()
-
-
-            nest.dragDistances.filter { it.key != -1 }.forEach { (index, _) ->
-                val radius = (100f / depth) * circlesWidthIncrement * (index + 1)
-                newCircles.add(
-                    UiCircle(index, radius)
+            // If requested to not erase the bg, draw it (this avoid the more tinted bg when using a half transparent bg color
+            if (!eraseBg) {
+                drawCircle(
+                    color = backgroundColor,
+                    radius = borderRadii,
+                    center = center
                 )
             }
 
-            if (depth < nest.parent(nests).depth) {
+
+            /* ───────────── Draws the border (custom shape) ───────────── */
+
+            val iconSizeF = borderRadii * 2f
+
+
+            val outline = borderShape.createOutline(
+                size = Size(iconSizeF, iconSizeF),
+                layoutDirection = layoutDirection,
+                density = this
+            )
+
+            val path = when (outline) {
+                is Outline.Rectangle -> Path().apply { addRect(outline.rect) }
+                is Outline.Rounded -> Path().apply { addRoundRect(outline.roundRect) }
+                is Outline.Generic -> outline.path
+            }
+
+            // Move drawing to icon position
+            translate(
+                left = center.x - borderRadii,
+                top = center.y - borderRadii
+            ) {
+
+                if (borderStroke > 0f) {
+                    if (borderColor.alpha != 0f) {
+
+                        drawPath(
+                            path = path,
+                            color = borderColor,
+                            style = Stroke(width = borderStroke)
+                        )
+                    }
+                }
+            }
+
+
+            val icon = point.id.let { pointIcons[it] }
+            val colorAction = actionColor(point.action, extraColors)
+
+
+
+            if (icon != null) {
+
+                val clipped = ImageUtils.clipImageToShape(
+                    image = icon,
+                    shape = shape,
+                    sizePx = size,
+                    density = density
+                )
+
+                drawImage(
+                    image = clipped,
+                    dstOffset = dstOffset,
+                    dstSize = intSize,
+                    colorFilter =
+                        if (point.applyColorAction()) ColorFilter.tint(colorAction)
+                        else null
+                )
+            }
+
+        } else {
+            nests.find { it.id == action.nestId }?.let { nest ->
+
+                val circlesWidthIncrement = 1f / (nest.dragDistances.size - 1)
+
+                val newCircles: SnapshotStateList<UiCircle> = mutableStateListOf()
+
+
+                nest.dragDistances.filter { it.key != -1 }.forEach { (index, _) ->
+                    val radius = (100f / depth) * circlesWidthIncrement * (index + 1)
+                    newCircles.add(
+                        UiCircle(index, radius)
+                    )
+                }
+
                 circlesSettingsOverlay(
                     circles = newCircles,
                     showCircle = showCircle,
@@ -220,29 +217,17 @@ fun DrawScope.actionsInCircle(
                     pointIcons = pointIcons,
                     nestId = nest.id,
                     depth = depth + 1,
+                    maxDepth = maxDepth,
                     shape = iconShape,
                     density = density,
                     selectedAll = selected,
                     preventBgErasing = preventBgErasing
                 )
-            } else {
-                // Draw a placeholder for a sub nest, cause otherwise it'll eat all the phone's resources by trying to draw infinite sub nests
-
-                // Action is OpenCirclesNext (draws small the circleNests)
-                newCircles.forEach { (_, radius) ->
-                    drawCircle(
-                        color = extraColors.circle,
-                        radius = radius,
-                        center = center,
-                        style = Stroke(if (selected) 8f else 4f)
-                    )
-                }
-            }
-
-        } ?: drawImage(
-            image = loadDrawableResAsBitmap(ctx, R.drawable.ic_app_default, 48, 48),
-            dstOffset = dstOffset,
-            dstSize = intSize
-        )
+            } ?: drawImage( // <- if this is drawn there a big bug
+                image = loadDrawableResAsBitmap(ctx, R.drawable.ic_action_target, 48, 48),
+                dstOffset = dstOffset,
+                dstSize = intSize
+            )
+        }
     }
 }
