@@ -20,9 +20,11 @@ import androidx.compose.ui.res.stringResource
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import org.elnix.dragonlauncher.common.R
+import org.elnix.dragonlauncher.enumsui.LockMethod
 import org.elnix.dragonlauncher.models.AppLifecycleViewModel
 import org.elnix.dragonlauncher.models.AppsViewModel
 import org.elnix.dragonlauncher.settings.stores.BehaviorSettingsStore
+import org.elnix.dragonlauncher.settings.stores.PrivateSettingsStore
 import org.elnix.dragonlauncher.settings.stores.UiSettingsStore
 import org.elnix.dragonlauncher.ui.components.ExpandableSection
 import org.elnix.dragonlauncher.ui.components.dragon.DragonColumnGroup
@@ -51,7 +53,11 @@ fun BehaviorTab(
     val topPadding by BehaviorSettingsStore.topPadding.asState()
     val bottomPadding by BehaviorSettingsStore.bottomPadding.asState()
 
+    val lockMethod by PrivateSettingsStore.lockMethod.asState()
+    val superWarningModeEnabled = lockMethod != LockMethod.NONE
+
     var isPaddingBlockExtended by remember { mutableStateOf(false) }
+    var superWarningModeSettingsExpanded by remember { mutableStateOf(false) }
 
     var isDragging by remember { mutableStateOf(false) }
 
@@ -264,33 +270,42 @@ fun BehaviorTab(
         }
 
         item {
-            DragonColumnGroup {
+            ExpandableSection(
+                expanded = { superWarningModeSettingsExpanded },
+                title = stringResource(R.string.drag_zone_padding),
+                onExpand = { superWarningModeSettingsExpanded = !superWarningModeSettingsExpanded }
+            ) {
                 SettingsSwitchRow(
                     setting = BehaviorSettingsStore.superWarningMode,
+                    enabled = superWarningModeEnabled,
                     title = stringResource(R.string.super_warning_mode),
                     description = stringResource(R.string.super_warning_mode_desc),
                 )
 
                 SettingsSwitchRow(
                     setting = BehaviorSettingsStore.vibrateOnError,
+                    enabled = superWarningModeEnabled,
                     title = stringResource(R.string.vibrate_on_error),
                     description = stringResource(R.string.vibrate_on_error_desc),
                 )
 
                 SettingsSwitchRow(
                     setting = BehaviorSettingsStore.alarmSound,
+                    enabled = superWarningModeEnabled,
                     title = stringResource(R.string.alarm_sound),
                     description = stringResource(R.string.super_warning_mode_desc),
                 )
 
                 SettingsSwitchRow(
                     setting = BehaviorSettingsStore.metalPipesSound,
+                    enabled = superWarningModeEnabled,
                     title = stringResource(R.string.metal_pipes_sound),
                     description = stringResource(R.string.metal_pipes_sound_desc),
                 )
 
                 SettingsSlider(
                     setting = BehaviorSettingsStore.superWarningModeSound,
+                    enabled = superWarningModeEnabled,
                     title = stringResource(R.string.super_warning_mode_sound),
                     description = stringResource(R.string.super_warning_mode_sound_desc),
                     valueRange = 0..100
