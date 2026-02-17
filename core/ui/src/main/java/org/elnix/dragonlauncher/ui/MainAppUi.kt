@@ -96,8 +96,10 @@ import org.elnix.dragonlauncher.ui.helpers.PrivateSpaceStateDebugScreen
 import org.elnix.dragonlauncher.ui.helpers.ReselectAutoBackupBanner
 import org.elnix.dragonlauncher.ui.helpers.SecurityHelper
 import org.elnix.dragonlauncher.ui.helpers.SetDefaultLauncherBanner
+import org.elnix.dragonlauncher.ui.helpers.collapseDownAnimation
 import org.elnix.dragonlauncher.ui.helpers.findFragmentActivity
 import org.elnix.dragonlauncher.ui.helpers.noAnimComposable
+import org.elnix.dragonlauncher.ui.helpers.raiseUpAnimation
 import org.elnix.dragonlauncher.ui.settings.backup.BackupTab
 import org.elnix.dragonlauncher.ui.settings.customization.AppearanceTab
 import org.elnix.dragonlauncher.ui.settings.customization.BehaviorTab
@@ -163,6 +165,7 @@ fun MainAppUi(
     val autoShowKeyboardOnDrawer by DrawerSettingsStore.autoShowKeyboardOnDrawer.asState()
     val gridSize by DrawerSettingsStore.gridSize.asState()
     val searchBarBottom by DrawerSettingsStore.searchBarBottom.asState()
+    val drawerEnterExitAnimations by DrawerSettingsStore.drawerEnterExitAnimations.asState()
 
 
     val leftDrawerAction by DrawerSettingsStore.leftDrawerAction.asState()
@@ -584,7 +587,13 @@ fun MainAppUi(
                 )
             }
 
-            noAnimComposable(ROUTES.DRAWER) {
+            composable(
+                route = ROUTES.DRAWER,
+                enterTransition = { if (drawerEnterExitAnimations) raiseUpAnimation() else EnterTransition.None },
+                exitTransition = { if (drawerEnterExitAnimations) collapseDownAnimation() else ExitTransition.None },
+                popEnterTransition = { if (drawerEnterExitAnimations) raiseUpAnimation() else EnterTransition.None },
+                popExitTransition = { if (drawerEnterExitAnimations) collapseDownAnimation() else ExitTransition.None },
+            ) {
                 AppDrawerScreen(
                     appsViewModel = appsViewModel,
                     appLifecycleViewModel = appLifecycleViewModel,
@@ -726,13 +735,9 @@ fun MainAppUi(
                     )
                 }
 
-                composable(
+                noAnimComposable(
                     route = SETTINGS.WORKSPACE_DETAIL,
                     arguments = listOf(navArgument("id") { type = NavType.StringType }),
-                    enterTransition = { EnterTransition.None },
-                    exitTransition = { ExitTransition.None },
-                    popEnterTransition = { EnterTransition.None },
-                    popExitTransition = { ExitTransition.None }
                 ) { backStack ->
                     WorkspaceDetailScreen(
                         appsViewModel = appsViewModel,
