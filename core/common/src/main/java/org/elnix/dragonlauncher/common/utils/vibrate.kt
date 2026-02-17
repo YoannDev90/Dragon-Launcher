@@ -14,10 +14,5 @@ fun vibrate(context: Context, milliseconds: Long) {
         context.getSystemService(Context.VIBRATOR_SERVICE) as Vibrator
     }
 
-    if (Build.VERSION.SDK_INT >= 26) {
-        vibrator.vibrate(VibrationEffect.createOneShot(milliseconds, VibrationEffect.DEFAULT_AMPLITUDE))
-    } else {
-        @Suppress("DEPRECATION")
-        vibrator.vibrate(milliseconds)
-    }
+    vibrator.vibrate(VibrationEffect.createOneShot(milliseconds, VibrationEffect.DEFAULT_AMPLITUDE))
 }
