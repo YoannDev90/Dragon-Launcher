@@ -82,6 +82,7 @@ fun DrawerTab(
     var drawerCategorySettingsExpanded by remember { mutableStateOf(false) }
     var drawerNormalSettingsExpanded by remember { mutableStateOf(false) }
     var drawerPullDownSettingsExpanded by remember { mutableStateOf(false) }
+    var actionsSettingsExpanded by remember { mutableStateOf(false) }
 
     val showRecentlyUsed by DrawerSettingsStore.showRecentlyUsedApps.asState()
     val useCategory by DrawerSettingsStore.useCategory.asState()
@@ -413,63 +414,55 @@ fun DrawerTab(
         }
 
         item {
-            DrawerActionSelector(
-                settingObject = DrawerSettingsStore.leftDrawerAction,
-                label = stringResource(R.string.left_drawer_action),
-                allowNone = true
-            )
-        }
+            ExpandableSection(
+                expanded = { actionsSettingsExpanded },
+                title = stringResource(R.string.action_settings),
+                onExpand = { actionsSettingsExpanded = !actionsSettingsExpanded },
+            ) {
+                DrawerActionSelector(
+                    settingObject = DrawerSettingsStore.leftDrawerAction,
+                    label = stringResource(R.string.left_drawer_action),
+                    allowNone = true
+                )
 
-        item {
-            DrawerActionSelector(
-                settingObject = DrawerSettingsStore.rightDrawerAction,
-                label = stringResource(R.string.right_drawer_action),
-                allowNone = true
-            )
-        }
+                DrawerActionSelector(
+                    settingObject = DrawerSettingsStore.rightDrawerAction,
+                    label = stringResource(R.string.right_drawer_action),
+                    allowNone = true
+                )
+                HorizontalDivider()
 
-        item { HorizontalDivider() }
 
-        item {
-            DrawerActionSelector(
-                settingObject = DrawerSettingsStore.scrollUpDrawerAction,
-                label = stringResource(R.string.scroll_up_action),
-            )
-        }
+                DrawerActionSelector(
+                    settingObject = DrawerSettingsStore.scrollUpDrawerAction,
+                    label = stringResource(R.string.scroll_up_action),
+                )
 
-        item {
-            DrawerActionSelector(
-                settingObject = DrawerSettingsStore.scrollDownDrawerAction,
-                label = stringResource(R.string.scroll_down_actiob),
-            )
-        }
+                DrawerActionSelector(
+                    settingObject = DrawerSettingsStore.scrollDownDrawerAction,
+                    label = stringResource(R.string.scroll_down_actiob),
+                )
 
-        item {
-            DrawerActionSelector(
-                settingObject = DrawerSettingsStore.tapEmptySpaceAction,
-                label = stringResource(R.string.tap_empty_space_action),
-            )
-        }
+                DrawerActionSelector(
+                    settingObject = DrawerSettingsStore.tapEmptySpaceAction,
+                    label = stringResource(R.string.tap_empty_space_action),
+                )
 
-        item {
-            DrawerActionSelector(
-                settingObject = DrawerSettingsStore.backDrawerAction,
-                label = stringResource(R.string.back_action),
-            )
-        }
+                DrawerActionSelector(
+                    settingObject = DrawerSettingsStore.backDrawerAction,
+                    label = stringResource(R.string.back_action),
+                )
 
-        item {
-            DrawerActionSelector(
-                settingObject = DrawerSettingsStore.drawerEnterAction,
-                label = stringResource(R.string.drawer_enter_key_action),
-            )
-        }
+                DrawerActionSelector(
+                    settingObject = DrawerSettingsStore.drawerEnterAction,
+                    label = stringResource(R.string.drawer_enter_key_action),
+                )
 
-        item {
-            DrawerActionSelector(
-                settingObject = DrawerSettingsStore.drawerHomeAction,
-                label = stringResource(R.string.drawer_home_action),
-            )
+                DrawerActionSelector(
+                    settingObject = DrawerSettingsStore.drawerHomeAction,
+                    label = stringResource(R.string.drawer_home_action),
+                )
+            }
         }
     }
 
