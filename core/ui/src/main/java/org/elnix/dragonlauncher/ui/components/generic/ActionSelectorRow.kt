@@ -29,13 +29,14 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import org.elnix.dragonlauncher.common.utils.colors.adjustBrightness
+import org.elnix.dragonlauncher.common.utils.semiTransparentIfDisabled
 import org.elnix.dragonlauncher.ui.UiConstants.DragonShape
 import org.elnix.dragonlauncher.ui.colors.AppObjectsColors
 import org.elnix.dragonlauncher.ui.dialogs.CustomAlertDialog
+import org.elnix.dragonlauncher.ui.modifiers.conditional
 
 
 @Composable
@@ -45,26 +46,31 @@ fun <T> ActionSelectorRow(
     enabled: Boolean = true,
     switchEnabled: Boolean = true,
     label: String,
-    backgroundColor: Color = MaterialTheme.colorScheme.surface,
-    surfaceColor: Color = MaterialTheme.colorScheme.surface,
-    textColor: Color = MaterialTheme.colorScheme.onSurface,
     optionLabel: (T) -> String = { it.toString() },
     toggled: Boolean? = null,
     onSelected: (T?) -> Unit
 ) {
+    val textColor = MaterialTheme.colorScheme.onSurface
+
     var showDialog by remember { mutableStateOf(false) }
 
     val baseModifier = Modifier.fillMaxWidth()
 
     val switchInteractionSource = remember { MutableInteractionSource() }
+    val globalInteractionSource = remember { MutableInteractionSource() }
+
 
     Row(
         verticalAlignment = Alignment.CenterVertically,
         modifier = baseModifier
             .clip(DragonShape)
             .height(IntrinsicSize.Max)
-            .background(
-                color = backgroundColor.copy(if (enabled) 1f else 0.5f),
+            .background(MaterialTheme.colorScheme.surface.semiTransparentIfDisabled(enabled))
+            .conditional(
+                condition = enabled && toggled == false,
+                other = Modifier.clickable(
+                    interactionSource = switchInteractionSource
+                ) { showDialog = true }
             )
     ) {
         Row(
@@ -73,7 +79,12 @@ fun <T> ActionSelectorRow(
             modifier = Modifier
                 .weight(1f)
                 .fillMaxHeight()
-                .clickable(enabled) { showDialog = true }
+                .conditional(
+                    condition = enabled && toggled == true,
+                    other = Modifier.clickable(
+                        interactionSource = globalInteractionSource
+                    ) { showDialog = true }
+                )
                 .padding(horizontal = 16.dp, vertical = 14.dp)
         ) {
             Text(
@@ -94,15 +105,15 @@ fun <T> ActionSelectorRow(
             Row(
                 verticalAlignment = Alignment.CenterVertically,
                 modifier = Modifier
-                    .clickable(enabled = switchEnabled) {
-                        if (!toggled) {
-                            // Not toggled show dialog to select an entry
-                            showDialog = true
-                        } else {
+                    .conditional(
+                        condition = enabled && toggled,
+                        other = Modifier.clickable(
+                            interactionSource = switchInteractionSource
+                        ) {
                             // Disables, selects nothing
                             onSelected(null)
                         }
-                    }
+                    )
                     .fillMaxHeight()
                     .padding(top = 10.dp, bottom = 10.dp, end = 10.dp)
             ) {
@@ -116,6 +127,7 @@ fun <T> ActionSelectorRow(
                 Spacer(modifier = Modifier.width(8.dp))
                 Switch(
                     checked = toggled,
+                    interactionSource = switchInteractionSource,
                     enabled = switchEnabled,
                     onCheckedChange = null,
                     colors = AppObjectsColors.switchColors(),
@@ -128,8 +140,6 @@ fun <T> ActionSelectorRow(
     ActionSelector(
         visible = showDialog,
         label = label,
-        textColor = textColor,
-        surfaceColor = surfaceColor,
         options = options,
         optionLabel = optionLabel,
         selected = selected,
@@ -143,14 +153,14 @@ fun <T> ActionSelectorRow(
 fun <T> ActionSelector(
     visible: Boolean,
     label: String?,
-    textColor: Color = MaterialTheme.colorScheme.onSurface,
-    surfaceColor: Color = MaterialTheme.colorScheme.surface,
     options: List<T>,
     optionLabel: (T) -> String = { it.toString() },
     selected: T?,
     onSelected: (T) -> Unit,
     onDismiss: () -> Unit,
 ) {
+    val textColor = MaterialTheme.colorScheme.onSurface
+    val surfaceColor = MaterialTheme.colorScheme.surface
 
     if (visible) {
         CustomAlertDialog(
