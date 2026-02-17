@@ -2,10 +2,11 @@ package org.elnix.dragonlauncher.ui.drawer
 
 import android.annotation.SuppressLint
 import android.content.Intent
-import android.os.Build
 import android.provider.Settings
 import androidx.activity.compose.BackHandler
 import androidx.compose.animation.AnimatedContent
+import androidx.compose.animation.core.animateDpAsState
+import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -20,6 +21,7 @@ import androidx.compose.foundation.layout.imePadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.safeDrawing
 import androidx.compose.foundation.layout.windowInsetsPadding
+import androidx.compose.foundation.lazy.grid.rememberLazyGridState
 import androidx.compose.foundation.pager.HorizontalPager
 import androidx.compose.foundation.pager.rememberPagerState
 import androidx.compose.material.icons.Icons
@@ -32,6 +34,7 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableFloatStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
@@ -41,11 +44,19 @@ import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusRequester
+import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.graphicsLayer
+import androidx.compose.ui.hapticfeedback.HapticFeedbackType
+import androidx.compose.ui.input.nestedscroll.NestedScrollConnection
+import androidx.compose.ui.input.nestedscroll.NestedScrollSource
+import androidx.compose.ui.input.nestedscroll.nestedScroll
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalFocusManager
+import androidx.compose.ui.platform.LocalHapticFeedback
 import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.unit.Velocity
 import androidx.compose.ui.unit.dp
 import androidx.core.net.toUri
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
@@ -53,6 +64,8 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import kotlinx.coroutines.yield
+import org.elnix.dragonlauncher.base.ktx.toDp
+import org.elnix.dragonlauncher.base.ktx.toPixels
 import org.elnix.dragonlauncher.common.R
 import org.elnix.dragonlauncher.common.logging.logE
 import org.elnix.dragonlauncher.common.serializables.AppModel
@@ -86,7 +99,10 @@ import org.elnix.dragonlauncher.ui.dialogs.RenameAppDialog
 import org.elnix.dragonlauncher.ui.helpers.AppDrawerSearch
 import org.elnix.dragonlauncher.ui.helpers.AppGrid
 import org.elnix.dragonlauncher.ui.helpers.WallpaperDim
+import org.elnix.dragonlauncher.ui.modifiers.conditional
 import org.elnix.dragonlauncher.ui.modifiers.settingsGroup
+import kotlin.math.abs
+import kotlin.math.pow
 
 @SuppressLint("LocalContextGetResourceValueCall")
 @Suppress("AssignedValueIsNeverRead")
@@ -265,15 +281,6 @@ fun AppDrawerScreen(
     }
 
 
-    /* Dim wallpaper system */
-    val drawerDimRadius by UiSettingsStore.wallpaperDimDrawerScreen.flow(ctx)
-        .collectAsState(UiSettingsStore.wallpaperDimDrawerScreen.default)
-
-    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
-        WallpaperDim(drawerDimRadius)
-    }
-
-
     BackHandler {
         launchDrawerAction(drawerBackAction)
     }
@@ -281,6 +288,147 @@ fun AppDrawerScreen(
     val topPadding = if (!searchBarBottom) 60.dp else 0.dp
     val bottomPadding = if (searchBarBottom) 60.dp else 0.dp
 
+
+    /* ───────────── Pull Down System ───────────── */
+
+    val pullDownAnimations by DrawerSettingsStore.pullDownAnimations.asState()
+    val pullDownScaleIn by DrawerSettingsStore.pullDownScaleIn.asState()
+//    val pullDownIconFade by DrawerSettingsStore.pullDownIconFade.asState()
+
+    val gridState = rememberLazyGridState()
+    val haptic = LocalHapticFeedback.current
+
+    val thresholdPx = Constants.Drawer.DRAWER_DRAG_DOWN_THRESHOLD.dp.toPixels()
+    val maxDragDownOffset = Constants.Drawer.DRAWER_MAX_DRAG_DOWN.dp.toPixels()
+
+    var pullOffset by remember { mutableFloatStateOf(0f) }
+
+    /**
+     * Of..1f, used for animations
+     * 1f is at the threshold
+     */
+    val pullProgress = 1 - (pullOffset / thresholdPx).coerceAtMost(1f)
+
+    /**
+     * Hapticed; if the haptic feedback has already been executes, to avoid repeating it indefinitely
+     */
+    var hapticed by remember { mutableStateOf(false) }
+
+    /**
+     * The scroll state basically, defines what happen on vertical scrolls, the horizontal being handled by the pager
+     * Responsible for the drag up/down actions, and the top padding of the drawer on down drag
+     */
+    val nestedConnection = remember {
+
+        object : NestedScrollConnection {
+
+            override fun onPreScroll(
+                available: Offset,
+                source: NestedScrollSource
+            ): Offset {
+
+                if (source != NestedScrollSource.UserInput)
+                    return Offset.Zero
+
+                // ignore horizontal gestures
+                if (abs(available.y) <= abs(available.x))
+                    return Offset.Zero
+
+                val atTop =
+                    gridState.firstVisibleItemIndex == 0 &&
+                            gridState.firstVisibleItemScrollOffset == 0
+
+                // Down Drag (pull-to-trigger)
+                if (available.y > 0f && atTop) {
+
+                    // Linear curve for clean output
+                     val newPullOffset = pullOffset + available.y * (1f - (pullOffset / thresholdPx))
+                         .coerceAtLeast(0.2f)
+
+                    // Block when max offset is reached (constant)
+                    pullOffset = newPullOffset.coerceAtMost(maxDragDownOffset)
+
+                    val thresholdReachedNow = pullOffset > thresholdPx
+
+                    // Haptic feedback
+                    if (thresholdReachedNow && !hapticed) {
+                        hapticed = true
+                        haptic.performHapticFeedback(HapticFeedbackType.LongPress)
+                    }
+                    if (!thresholdReachedNow && hapticed) hapticed = false
+
+                    // consume only what we used
+                    return Offset(0f, available.y)
+                }
+
+                // UP DRAG while stretching (reversible)
+                if (available.y < 0f && pullOffset > 0f) {
+
+                    pullOffset = (pullOffset + available.y).coerceAtLeast(0f)
+
+
+                    if (!(pullOffset > thresholdPx) && hapticed) hapticed = false
+                    return Offset(0f, available.y)
+                }
+
+
+                // Launch Up action on any up scroll large enough
+                if (available.y < -15) {
+                    launchDrawerAction(drawerScrollUpAction)
+                }
+
+                return Offset.Zero
+            }
+
+            override suspend fun onPostFling(
+                consumed: Velocity,
+                available: Velocity
+            ): Velocity {
+
+                // No need to enclave in if statement as values aren't changing if !pullDownAnimations
+
+                // DOWN action
+                if (pullOffset > thresholdPx) {
+                    launchDrawerAction(drawerScrollDownAction)
+                }
+
+                // reset
+                pullOffset = 0f
+                hapticed = false
+
+                return Velocity.Zero
+            }
+        }
+    }
+
+
+    val scaleFactor =
+        if (pullDownScaleIn) (pullProgress.pow(0.9f)).coerceIn(0.95f, 1f)
+        else 1f
+
+    val animatedScale by animateFloatAsState(targetValue = scaleFactor)
+
+
+    val pullDownPadding = if (pullDownAnimations) pullOffset else 0f
+    val animatedPadding by animateDpAsState(targetValue = pullDownPadding.toDp)
+
+
+    /* ───────────── Dim wallpaper system ───────────── */
+    val wallpaperDimDrawerScreen by UiSettingsStore.wallpaperDimDrawerScreen.asState()
+    val pullDownWallPaperDimFade by DrawerSettingsStore.pullDownWallPaperDimFade.asState()
+
+    val animatedDim by animateFloatAsState(targetValue = pullProgress)
+    // Dims the wallpaper, when the user starts pulling down,
+    // the dim amount is reduced proportionally to the drag amount
+    val dimAmount = wallpaperDimDrawerScreen *
+        if (pullDownWallPaperDimFade) animatedDim
+        else 1f
+
+
+    WallpaperDim(dimAmount)
+
+
+    /* ───────────── Main Content ───────────── */
     Box(
         modifier = Modifier
             .windowInsetsPadding(WindowInsets.safeDrawing.exclude(WindowInsets.ime))
@@ -288,7 +436,14 @@ fun AppDrawerScreen(
         Column(
             modifier = Modifier
                 .fillMaxSize()
-                .padding(top = topPadding, bottom = bottomPadding)
+                .nestedScroll(nestedConnection)
+                .padding(top = topPadding + animatedPadding, bottom = bottomPadding)
+                .conditional(
+                    condition = pullDownScaleIn,
+                    other = Modifier.graphicsLayer {
+                        scaleX = animatedScale
+                        scaleY = animatedScale
+                    })
                 .clickable(
                     enabled = tapEmptySpaceToRaiseKeyboard.isUsed(),
                     indication = null,
@@ -331,15 +486,13 @@ fun AppDrawerScreen(
                             AppGrid(
                                 apps = recentApps,
                                 icons = icons,
-                                gridSize = gridSize,
                                 iconShape = iconsShape,
+                                gridSize = gridSize,
                                 txtColor = MaterialTheme.colorScheme.onBackground,
                                 showIcons = showIcons,
                                 showLabels = showLabels,
                                 fillMaxSize = false,
-                                onLongClick = { dialogApp = it },
-                                onScrollDown = null,
-                                onScrollUp = null
+                                onLongClick = { dialogApp = it }
                             ) {
                                 onLaunchAction(it.action)
                             }
@@ -398,7 +551,10 @@ fun AppDrawerScreen(
                                             it.isLocked -> {
                                                 DragonIconButton(
                                                     onClick = {
-                                                        logE(Constants.Logging.PRIVATE_SPACE_TAG, "Drawer reload button launch!")
+                                                        logE(
+                                                            Constants.Logging.PRIVATE_SPACE_TAG,
+                                                            "Drawer reload button launch!"
+                                                        )
                                                         appLifecycleViewModel.onUnlockPrivateSpace()
                                                     }) {
                                                     Icon(
@@ -414,8 +570,8 @@ fun AppDrawerScreen(
                                 AppGrid(
                                     apps = filteredApps,
                                     icons = icons,
-                                    gridSize = gridSize,
                                     iconShape = iconsShape,
+                                    gridSize = gridSize,
                                     txtColor = MaterialTheme.colorScheme.onBackground,
                                     showIcons = showIcons,
                                     showLabels = showLabels,
@@ -426,9 +582,7 @@ fun AppDrawerScreen(
                                             else appsViewModel.reloadApps()
                                         }
                                     },
-                                    onLongClick = { dialogApp = it },
-                                    onScrollDown = { launchDrawerAction(drawerScrollDownAction) },
-                                    onScrollUp = { launchDrawerAction(drawerScrollUpAction) }
+                                    onLongClick = { dialogApp = it }
                                 ) {
                                     onLaunchAction(it.action)
                                 }

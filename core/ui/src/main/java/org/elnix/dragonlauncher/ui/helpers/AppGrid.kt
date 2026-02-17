@@ -13,9 +13,7 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.lazy.grid.items
-import androidx.compose.foundation.lazy.grid.rememberLazyGridState
 import androidx.compose.foundation.lazy.items
-import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.MoreHoriz
 import androidx.compose.material.icons.filled.Refresh
@@ -30,12 +28,8 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.ImageBitmap
-import androidx.compose.ui.input.nestedscroll.NestedScrollConnection
-import androidx.compose.ui.input.nestedscroll.NestedScrollSource
-import androidx.compose.ui.input.nestedscroll.nestedScroll
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import org.elnix.dragonlauncher.common.R
@@ -71,8 +65,6 @@ fun AppGrid(
 
     onReload: (() -> Unit)? = null,
     onLongClick: ((AppModel) -> Unit)? = null,
-    onScrollDown: (() -> Unit)? = null,
-    onScrollUp: (() -> Unit)? = null,
     onClick: (AppModel) -> Unit
 ) {
     val maxIconSize by DrawerSettingsStore.maxIconSize.asState()
@@ -94,61 +86,6 @@ fun AppGrid(
             }
         }
     }
-
-    val listState = rememberLazyListState()
-    val nestedConnection = remember {
-        object : NestedScrollConnection {
-            override fun onPreScroll(
-                available: Offset,
-                source: NestedScrollSource
-            ): Offset {
-                if (
-                    listState.firstVisibleItemIndex == 0 &&
-                    listState.firstVisibleItemScrollOffset == 0
-                ) {
-
-                    /* Launches onScrollDown on any down drag */
-                    if (available.y > 15) {
-                        onScrollDown?.invoke()
-                    }
-
-                    /* Launches onScrollUp on any up drag */
-                    if (available.y < 15) {
-                        onScrollUp?.invoke()
-                    }
-                }
-                return Offset.Zero
-            }
-        }
-    }
-
-    val gridState = rememberLazyGridState()
-    val nestedConnectionGrid = remember {
-        object : NestedScrollConnection {
-            override fun onPreScroll(
-                available: Offset,
-                source: NestedScrollSource
-            ): Offset {
-                if (
-                    gridState.firstVisibleItemIndex == 0 &&
-                    gridState.firstVisibleItemScrollOffset == 0
-                ) {
-
-                    /* Launches onScrollDown on any down drag */
-                    if (available.y > 15) {
-                        onScrollDown?.invoke()
-                    }
-
-                    /* Launches onScrollUp on any up drag */
-                    if (available.y < 15) {
-                        onScrollUp?.invoke()
-                    }
-                }
-                return Offset.Zero
-            }
-        }
-    }
-
 
     BackHandler(openedCategory != null) {
         openedCategory = null
@@ -188,13 +125,8 @@ fun AppGrid(
         // Can't use categories with multi-select mode cause it's too annoying to implement
         useCategory && openedCategory == null && !isMultiSelectMode -> {
             LazyVerticalGrid(
-                state = gridState,
                 columns = GridCells.Fixed(categoryGridSize),
-                modifier = modifier
-                    .then(
-                        if (onScrollDown != null) Modifier.nestedScroll(nestedConnectionGrid)
-                        else Modifier
-                    ),
+                modifier = modifier,
                 verticalArrangement = Arrangement.spacedBy(iconsSpacingVertical.dp),
                 horizontalArrangement = Arrangement.spacedBy(iconsSpacingHorizontal.dp)
             ) {
@@ -229,12 +161,7 @@ fun AppGrid(
 
         gridSize == 1 -> {
             LazyColumn(
-                state = listState,
-                modifier = modifier
-                    .then(
-                        if (onScrollDown != null) Modifier.nestedScroll(nestedConnection)
-                        else Modifier
-                    ),
+                modifier = modifier,
                 verticalArrangement = Arrangement.spacedBy(iconsSpacingVertical.dp),
             ) {
                 items(visibleApps, key = { it.iconCacheKey() }) { app ->
@@ -271,13 +198,7 @@ fun AppGrid(
 
         else -> {
             LazyVerticalGrid(
-                state = gridState,
                 columns = GridCells.Fixed(gridSize),
-                modifier = modifier
-                    .then(
-                        if (onScrollDown != null) Modifier.nestedScroll(nestedConnectionGrid)
-                        else Modifier
-                    ),
                 verticalArrangement = Arrangement.spacedBy(iconsSpacingVertical.dp),
                 horizontalArrangement = Arrangement.spacedBy(iconsSpacingHorizontal.dp)
             ) {

@@ -195,19 +195,42 @@ object DrawerSettingsStore : MapSettingsStore() {
         allowedRange = 1..20
     )
 
-    /** JSON-encoded ordered list of recently-used package names (most recent first). */
+    /**
+     * JSON-encoded ordered list of recently-used package names (most recent first).
+     * TODO change that shitty method of storage
+     */
     val recentlyUsedPackages = Settings.string(
         key = "recentlyUsedPackages",
         dataStoreName = dataStoreName,
         default = ""
     )
 
-//    val showPrivateSpaceWorkspace = Settings.boolean(
-//        key = "showPrivateSpaceWorkspace",
-//        dataStoreName = dataStoreName,
-//        default = true
-//    )
 
+    /*  ─────────────  Drawer pull down settings  ─────────────  */
+
+    val pullDownAnimations = Settings.boolean(
+        key = "pullDownAnimations",
+        dataStoreName = dataStoreName,
+        default = true
+    )
+
+    val pullDownWallPaperDimFade = Settings.boolean(
+        key = "pullDownWallPaperDim",
+        dataStoreName = dataStoreName,
+        default = true
+    )
+
+    val pullDownIconFade = Settings.boolean(
+        key = "pullDownIconFade",
+        dataStoreName = dataStoreName,
+        default = true
+    )
+
+    val pullDownScaleIn = Settings.boolean(
+        key = "pullDownScaleIn",
+        dataStoreName = dataStoreName,
+        default = true
+    )
 
     override val ALL: List<BaseSettingObject<*,*>>
         get() = listOf(
@@ -239,6 +262,9 @@ object DrawerSettingsStore : MapSettingsStore() {
             categoryGridCells,
             showCategoryName,
             backDrawerAction,
-//            showPrivateSpaceWorkspace
+            pullDownAnimations,
+            pullDownWallPaperDimFade,
+            pullDownIconFade,
+            pullDownScaleIn
         )
 }

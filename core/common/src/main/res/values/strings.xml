@@ -724,4 +724,20 @@
     <string name="metal_pipes_sound_desc">Play metal pipes sound when wrong pin entered</string>
     <string name="vibrate_on_error">Vibrate on error</string>
     <string name="vibrate_on_error_desc">Launches an infinite vibration upon pin error</string>
+
+
+    <string name="drawer_pull_down_settings">Pull Down Settings</string>
+
+    <string name="pull_down_animations">Pull-down Animations</string>
+    <string name="pull_down_animations_desc">Enable or disable animations when pulling down the drawer</string>
+
+    <string name="pull_down_wallpaper_dim">Pull-down Wallpaper Dim</string>
+    <string name="pull_down_wallpaper_dim_desc">Dim the wallpaper when the drawer is pulled down</string>
+
+    <string name="pull_down_icon_fade">Pull-down Icon Fade</string>
+    <string name="pull_down_icon_fade_desc">Fade icons in/out during pull-down drawer animation</string>
+
+    <string name="pull_down_scale_in">Pull-down Scale In</string>
+    <string name="pull_down_scale_in_desc">Scale icons when the drawer is pulled down</string>
+
 </resources>

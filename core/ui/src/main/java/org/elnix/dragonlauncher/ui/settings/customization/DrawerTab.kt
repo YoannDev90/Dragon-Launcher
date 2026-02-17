@@ -80,6 +80,7 @@ fun DrawerTab(
 
     var drawerCategorySettingsExpanded by remember { mutableStateOf(false) }
     var drawerNormalSettingsExpanded by remember { mutableStateOf(false) }
+    var drawerPullDownSettingsExpanded by remember { mutableStateOf(false) }
 
     val showRecentlyUsed by DrawerSettingsStore.showRecentlyUsedApps.asState()
     val useCategory by DrawerSettingsStore.useCategory.asState()
@@ -249,6 +250,40 @@ fun DrawerTab(
             )
         }
 
+
+        item {
+            ExpandableSection(
+                expanded = { drawerPullDownSettingsExpanded },
+                title = stringResource(R.string.drawer_pull_down_settings),
+                onExpand = { drawerPullDownSettingsExpanded = !drawerPullDownSettingsExpanded },
+            ) {
+                SettingsSwitchRow(
+                    setting = DrawerSettingsStore.pullDownAnimations,
+                    title = stringResource(R.string.pull_down_animations),
+                    description = stringResource(R.string.pull_down_animations_desc)
+                )
+
+                SettingsSwitchRow(
+                    setting = DrawerSettingsStore.pullDownWallPaperDimFade,
+                    title = stringResource(R.string.pull_down_wallpaper_dim),
+                    description = stringResource(R.string.pull_down_wallpaper_dim_desc)
+                )
+
+                SettingsSwitchRow(
+                    setting = DrawerSettingsStore.pullDownScaleIn,
+                    title = stringResource(R.string.pull_down_scale_in),
+                    description = stringResource(R.string.pull_down_scale_in_desc)
+                )
+
+                SettingsSwitchRow(
+                    setting = DrawerSettingsStore.pullDownIconFade,
+                    enabled = false,
+                    title = stringResource(R.string.pull_down_icon_fade),
+                    description = stringResource(R.string.not_implemented)
+//                    description = stringResource(R.string.pull_down_icon_fade_desc)
+                )
+            }
+        }
 
         //Shapes picker
         item {

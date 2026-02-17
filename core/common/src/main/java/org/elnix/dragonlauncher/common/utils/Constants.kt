@@ -197,4 +197,9 @@ object Constants {
         const val SNAP_STEP_DEG = 15.0
         const val HOME_REENTER_WINDOW_MS = 80L
     }
+
+    object Drawer {
+        const val DRAWER_DRAG_DOWN_THRESHOLD = 50
+        const val DRAWER_MAX_DRAG_DOWN = 70
+    }
 }

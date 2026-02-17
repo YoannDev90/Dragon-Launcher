@@ -63,6 +63,7 @@ import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import kotlinx.coroutines.launch
+import org.elnix.dragonlauncher.base.ktx.toDp
 import org.elnix.dragonlauncher.common.FloatingAppObject
 import org.elnix.dragonlauncher.common.R
 import org.elnix.dragonlauncher.common.logging.logD
@@ -465,10 +466,6 @@ private fun DraggableFloatingApp(
 
     val cellSizePx = floatingAppsViewModel.cellSizePx
 
-
-    val density = LocalDensity.current
-
-
     val dm = ctx.resources.displayMetrics
 
     val widthPixels = dm.widthPixels
@@ -489,8 +486,8 @@ private fun DraggableFloatingApp(
                 )
             }
             .size(
-                width = with(density) { width.toDp() },
-                height = with(density) { height.toDp() }
+                width = width.toDp,
+                height = height.toDp
             )
             .border(
                 width = if (selected) 2.dp else 0.dp,

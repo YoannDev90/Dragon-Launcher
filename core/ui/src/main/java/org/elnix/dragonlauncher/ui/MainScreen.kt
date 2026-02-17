@@ -48,6 +48,7 @@ import androidx.compose.ui.unit.IntSize
 import androidx.compose.ui.unit.dp
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
+import org.elnix.dragonlauncher.base.ktx.toDp
 import org.elnix.dragonlauncher.base.ktx.toPixels
 import org.elnix.dragonlauncher.common.FloatingAppObject
 import org.elnix.dragonlauncher.common.R
@@ -486,8 +487,8 @@ fun MainScreen(
                             )
                         }
                         .size(
-                            width = with(density) { (floatingAppObject.spanX * cellSizePx).toDp() },
-                            height = with(density) { (floatingAppObject.spanY * cellSizePx).toDp() }
+                            width = (floatingAppObject.spanX * cellSizePx).toDp,
+                            height = (floatingAppObject.spanY * cellSizePx).toDp
                         ),
                     onLaunchAction = {
                         launchAction(
@@ -677,10 +678,10 @@ private fun isInsideForegroundWidget(
         val left = (widget.x * dm.widthPixels).toInt()
         val top = (widget.y * dm.heightPixels).toInt()
         val right =
-            left + with(density) { (widget.spanX * cellSizePx).toDp() }.value.times(density.density)
+            left + (widget.spanX * cellSizePx).toDp(density).value.times(density.density)
                 .toInt()
         val bottom =
-            top + with(density) { (widget.spanY * cellSizePx).toDp() }.value.times(density.density)
+            top + (widget.spanY * cellSizePx).toDp(density).value.times(density.density)
                 .toInt()
 
         pos.x >= left && pos.x <= right &&

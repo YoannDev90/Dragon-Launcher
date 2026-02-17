@@ -9,7 +9,6 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 
-@RequiresApi(Build.VERSION_CODES.S)
 @Composable
 fun WallpaperDim(dimAmount: Float) {
     Box(
