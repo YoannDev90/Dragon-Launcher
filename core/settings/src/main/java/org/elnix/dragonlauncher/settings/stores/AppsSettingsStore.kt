@@ -18,7 +18,7 @@ object AppsSettingsStore : JsonSettingsStore() {
     val cachedApps = Settings.string(
         key = "cached_apps_json",
         dataStoreName = dataStoreName,
-        default = ""
+        default = "{}"
     )
 
     /**
