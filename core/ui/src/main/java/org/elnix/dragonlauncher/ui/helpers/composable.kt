@@ -49,22 +49,6 @@ fun NavGraphBuilder.noAnimComposable(
 }
 
 
-fun NavGraphBuilder.drawerComposable(
-    route: String,
-    animations: Boolean,
-    content: @Composable AnimatedContentScope.(NavBackStackEntry) -> Unit
-) {
-    composable(
-        route = route,
-        enterTransition = { if (animations) raiseUpAnimation() else EnterTransition.None },
-        exitTransition = { if (animations) collapseDownAnimation() else ExitTransition.None },
-        popEnterTransition = { if (animations) raiseUpAnimation() else EnterTransition.None },
-        popExitTransition = { if (animations) collapseDownAnimation() else ExitTransition.None },
-        content = content
-    )
-}
-
-
 //fun NavGraphBuilder.settingComposable(
 //    route: String,
 //    arguments: List<NamedNavArgument> = emptyList(),
@@ -83,21 +67,21 @@ fun NavGraphBuilder.drawerComposable(
 
 
 fun raiseUpAnimation() =
-    scaleIn(
-        initialScale = 0.8f,
-        animationSpec = tween(300, easing = FastOutSlowInEasing)
+    fadeIn(
+        animationSpec = tween(50),
+        initialAlpha = 0.5f
     ) + slideInVertically(
         initialOffsetY = { it / 2 },
-        animationSpec = tween(300, easing = FastOutSlowInEasing)
+        animationSpec = tween(100, easing = FastOutSlowInEasing)
     )
 
 fun collapseDownAnimation() =
-    scaleOut(
-        targetScale = 0.8f,
-        animationSpec = tween(250, easing = LinearOutSlowInEasing)
+    fadeOut(
+        animationSpec = tween(50),
+        targetAlpha = 0f
     ) + slideOutVertically(
         targetOffsetY = { it / 2 },
-        animationSpec = tween(250, easing = LinearOutSlowInEasing)
+        animationSpec = tween(50, easing = LinearOutSlowInEasing)
     )
 
 
