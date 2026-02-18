@@ -147,9 +147,7 @@ fun AppDrawerScreen(
     val useCategory by DrawerSettingsStore.useCategory.asState()
 
     /* ───────────── Actions ───────────── */
-    val tapEmptySpaceToRaiseKeyboard by DrawerSettingsStore
-        .tapEmptySpaceAction.asState()
-
+    val tapEmptySpaceToRaiseKeyboard by DrawerSettingsStore.tapEmptySpaceAction.asState()
     val drawerEnterAction by DrawerSettingsStore.drawerEnterAction.asState()
     val drawerBackAction by DrawerSettingsStore.backDrawerAction.asState()
     val drawerHomeAction by DrawerSettingsStore.drawerHomeAction.asState()
@@ -342,8 +340,8 @@ fun AppDrawerScreen(
                 if (available.y > 0f && atTop) {
 
                     // Linear curve for clean output
-                     val newPullOffset = pullOffset + available.y * (1f - (pullOffset / thresholdPx))
-                         .coerceAtLeast(0.2f)
+                    val newPullOffset = pullOffset + available.y * (1f - (pullOffset / thresholdPx))
+                        .coerceAtLeast(0.2f)
 
                     // Block when max offset is reached (constant)
                     pullOffset = newPullOffset.coerceAtMost(maxDragDownOffset)
@@ -421,8 +419,8 @@ fun AppDrawerScreen(
     // Dims the wallpaper, when the user starts pulling down,
     // the dim amount is reduced proportionally to the drag amount
     val dimAmount = wallpaperDimDrawerScreen *
-        if (pullDownWallPaperDimFade) animatedDim
-        else 1f
+            if (pullDownWallPaperDimFade) animatedDim
+            else 1f
 
 
     WallpaperDim(dimAmount)
@@ -470,10 +468,7 @@ fun AppDrawerScreen(
                     )
                 }
 
-                Column(
-                    modifier = Modifier
-                        .weight(1f)
-                ) {
+                Column(modifier = Modifier.weight(1f)) {
                     /* ───────────── Recently Used Apps section ───────────── */
                     if (showRecentlyUsedApps && searchQuery.isBlank() && recentApps.isNotEmpty()) {
 
@@ -533,59 +528,58 @@ fun AppDrawerScreen(
                             }
                         }
 
-                        Box(modifier = Modifier.fillMaxWidth()) {
-                            // If the current workspace is a private space and locked, display a lock icon
-                            val showLock =
-                                privateSpaceState.isLocked || privateSpaceState.isAuthenticating
+                        // If the current workspace is a private space and locked, display a lock icon
+                        val showLock =
+                            privateSpaceState.isLocked || privateSpaceState.isAuthenticating
 
-                            if (workspace.type == WorkspaceType.PRIVATE && showLock) {
-                                Box(
-                                    modifier = Modifier.fillMaxSize(),
-                                    contentAlignment = Alignment.Center
-                                ) {
-                                    AnimatedContent(targetState = privateSpaceState) {
-                                        when {
-                                            // The loading shouldn't be displayed, but just in case I'll keep it for user visual feedback
-                                            it.isLoading -> CircularProgressIndicator()
-                                            it.isAuthenticating -> CircularProgressIndicator(color = Color.Yellow)
-                                            it.isLocked -> {
-                                                DragonIconButton(
-                                                    onClick = {
-                                                        logE(
-                                                            Constants.Logging.PRIVATE_SPACE_TAG,
-                                                            "Drawer reload button launch!"
-                                                        )
-                                                        appLifecycleViewModel.onUnlockPrivateSpace()
-                                                    }) {
-                                                    Icon(
-                                                        Icons.Default.Lock,
-                                                        contentDescription = "Private Space Locked"
+                        if (workspace.type == WorkspaceType.PRIVATE && showLock) {
+                            Box(
+                                modifier = Modifier.fillMaxSize(),
+                                contentAlignment = Alignment.Center
+                            ) {
+                                AnimatedContent(targetState = privateSpaceState) {
+                                    when {
+                                        // The loading shouldn't be displayed, but just in case I'll keep it for user visual feedback
+                                        it.isLoading -> CircularProgressIndicator()
+                                        it.isAuthenticating -> CircularProgressIndicator(color = Color.Yellow)
+                                        it.isLocked -> {
+                                            DragonIconButton(
+                                                onClick = {
+                                                    logE(
+                                                        Constants.Logging.PRIVATE_SPACE_TAG,
+                                                        "Drawer reload button launch!"
                                                     )
-                                                }
+                                                    appLifecycleViewModel.onUnlockPrivateSpace()
+                                                }) {
+                                                Icon(
+                                                    Icons.Default.Lock,
+                                                    contentDescription = "Private Space Locked"
+                                                )
                                             }
                                         }
                                     }
                                 }
-                            } else {
-                                AppGrid(
-                                    apps = filteredApps,
-                                    icons = icons,
-                                    iconShape = iconsShape,
-                                    gridSize = gridSize,
-                                    txtColor = MaterialTheme.colorScheme.onBackground,
-                                    showIcons = showIcons,
-                                    showLabels = showLabels,
-                                    useCategory = useCategory,
-                                    onReload = {
-                                        scope.launch {
-                                            if (workspace.type == WorkspaceType.PRIVATE) appsViewModel.reloadPrivateSpace()
-                                            else appsViewModel.reloadApps()
-                                        }
-                                    },
-                                    onLongClick = { dialogApp = it }
-                                ) {
-                                    onLaunchAction(it.action)
-                                }
+                            }
+                        } else {
+
+                            AppGrid(
+                                apps = filteredApps,
+                                icons = icons,
+                                iconShape = iconsShape,
+                                gridSize = gridSize,
+                                txtColor = MaterialTheme.colorScheme.onBackground,
+                                showIcons = showIcons,
+                                showLabels = showLabels,
+                                useCategory = useCategory,
+                                onReload = {
+                                    scope.launch {
+                                        if (workspace.type == WorkspaceType.PRIVATE) appsViewModel.reloadPrivateSpace()
+                                        else appsViewModel.reloadApps()
+                                    }
+                                },
+                                onLongClick = { dialogApp = it }
+                            ) {
+                                onLaunchAction(it.action)
                             }
                         }
                     }

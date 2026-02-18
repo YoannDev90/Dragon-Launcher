@@ -198,6 +198,7 @@ fun AppGrid(
 
         else -> {
             LazyVerticalGrid(
+                modifier = modifier,
                 columns = GridCells.Fixed(gridSize),
                 verticalArrangement = Arrangement.spacedBy(iconsSpacingVertical.dp),
                 horizontalArrangement = Arrangement.spacedBy(iconsSpacingHorizontal.dp)
