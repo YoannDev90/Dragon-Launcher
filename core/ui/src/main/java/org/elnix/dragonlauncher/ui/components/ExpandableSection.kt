@@ -8,7 +8,6 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.ColumnScope
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.lazy.LazyListScope
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ChevronRight
 import androidx.compose.material3.Icon
@@ -56,12 +55,11 @@ fun ExpandableSection(
 
     Column(
         modifier = Modifier.settingsGroup(
-            clickModifier = Modifier.conditional(
-                !expanded(),
-                Modifier.clickable {
+            clickModifier = Modifier.conditional(!expanded()) {
+                clickable {
                     onExpand(!expanded())
                 }
-            ),
+            },
             backgroundColor = backgroundColor.value
         ),
         verticalArrangement = Arrangement.spacedBy(10.dp)
@@ -69,12 +67,11 @@ fun ExpandableSection(
         Row(
             modifier = Modifier
                 .settingsGroup(
-                    clickModifier = Modifier.conditional(
-                        expanded(),
-                        Modifier.clickable {
+                    clickModifier = Modifier.conditional(expanded()) {
+                        clickable {
                             onExpand(!expanded())
                         }
-                    ),
+                    },
                     backgroundColor = Color.Transparent,
                     border = false
                 )

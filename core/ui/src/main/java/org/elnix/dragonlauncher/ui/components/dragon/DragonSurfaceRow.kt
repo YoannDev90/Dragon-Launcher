@@ -12,6 +12,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.Shape
 import androidx.compose.ui.unit.dp
 import org.elnix.dragonlauncher.common.utils.semiTransparentIfDisabled
 import org.elnix.dragonlauncher.ui.UiConstants.DragonShape
@@ -22,15 +23,18 @@ import org.elnix.dragonlauncher.ui.modifiers.shapedClickable
 fun DragonSurfaceRow(
     modifier: Modifier = Modifier,
     enabled: Boolean = true,
+    shape: Shape? = DragonShape,
     shapedCLickable: Boolean = false,
     onClick: () -> Unit,
     onLongClick: (() -> Unit)? = null,
     backgroundColor: Color = MaterialTheme.colorScheme.surface,
     content: @Composable RowScope.() -> Unit
 ) {
+    // If you specify the shape, you cannot be shapedClickable
+    require((shape != null) xor (shapedCLickable))
+
     Row(
         modifier = modifier
-            .clip(DragonShape)
             .then(
                 if (shapedCLickable) {
                     Modifier.shapedClickable(
@@ -39,7 +43,9 @@ fun DragonSurfaceRow(
                         onClick = onClick
                     )
                 } else {
-                    Modifier.combinedClickable(
+                    Modifier
+                        .clip(shape!!)
+                        .combinedClickable(
                         enabled = enabled,
                         onLongClick = onLongClick,
                         onClick = onClick

@@ -55,11 +55,9 @@ fun AppItemHorizontal(
         modifier = Modifier
             .fillMaxWidth()
             .clip(DragonShape)
-            .conditional(
-                condition = selected,
-                other = Modifier
-                        .background(MaterialTheme.colorScheme.primaryContainer.copy(alpha = 0.4f))
-            )
+            .conditional(selected) {
+                background(MaterialTheme.colorScheme.primaryContainer.copy(alpha = 0.4f))
+            }
             .combinedClickable(
                 onLongClick = onLongClick.bind(app),
                 onClick = { onClick(app) }
@@ -119,16 +117,14 @@ fun AppItemGrid(
         horizontalAlignment = Alignment.CenterHorizontally,
         modifier = Modifier
             .clip(DragonShape)
-            .conditional(
-                condition = selected,
-                other = Modifier
-                    .background(MaterialTheme.colorScheme.primaryContainer.copy(alpha = 0.4f))
+            .conditional(selected) {
+                background(MaterialTheme.colorScheme.primaryContainer.copy(alpha = 0.4f))
                     .border(
                         2.dp,
                         MaterialTheme.colorScheme.primary,
                         DragonShape
                     )
-            )
+            }
             .combinedClickable(
                 onLongClick = onLongClick.bind(app),
                 onClick = { onClick(app) }

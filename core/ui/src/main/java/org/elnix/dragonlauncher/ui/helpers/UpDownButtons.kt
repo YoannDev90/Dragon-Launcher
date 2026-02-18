@@ -25,6 +25,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
+import org.elnix.dragonlauncher.ui.components.dragon.DragonDropDownMenu
 
 @Composable
 fun UpDownButton(
@@ -102,12 +103,9 @@ fun UpDownButton(
                     .padding(padding)
             )
 
-            DropdownMenu(
+            DragonDropDownMenu(
                 expanded = showHelpDown,
                 onDismissRequest = { showHelpDown = false },
-                containerColor = Color.Transparent,
-                shadowElevation = 0.dp,
-                tonalElevation = 0.dp
             ) {
                 Text(
                     text = contentDescriptionDown,

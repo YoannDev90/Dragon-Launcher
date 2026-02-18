@@ -742,5 +742,7 @@
     <string name="drawer_enter_exit_animations">Drawer Enter/Exit Animations</string>
     <string name="drawer_enter_exit_animations_desc">Play animations when entering / exiting the drawer if set to false, this is instant</string>
     <string name="action_settings">Action Settings</string>
+    <string name="drawer_settings">Drawer Settings</string>
+    <string name="more">More</string>
 
 </resources>

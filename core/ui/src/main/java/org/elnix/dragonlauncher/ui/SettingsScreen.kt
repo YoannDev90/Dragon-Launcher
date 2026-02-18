@@ -500,13 +500,9 @@ fun SettingsScreen(
                             ) {
                                 Icon(
                                     imageVector = Icons.Default.EditNote,
-                                    tint = MaterialTheme.colorScheme.onSurface,
                                     contentDescription = null
                                 )
-                                Text(
-                                    text = stringResource(R.string.edit_default_point_settings),
-                                    color = MaterialTheme.colorScheme.onSurface
-                                )
+                                Text(stringResource(R.string.edit_default_point_settings))
                             },
                             BurgerAction(
                                 onClick = {
@@ -520,26 +516,18 @@ fun SettingsScreen(
                             ) {
                                 Icon(
                                     imageVector = Icons.Default.Refresh,
-                                    tint = MaterialTheme.colorScheme.onSurface,
                                     contentDescription = null
                                 )
-                                Text(
-                                    text = stringResource(R.string.reload_point_icons),
-                                    color = MaterialTheme.colorScheme.onSurface
-                                )
+                                Text(stringResource(R.string.reload_point_icons))
                             },
                             BurgerAction(
                                 onClick = { onNestEdit(currentNest.id) }
                             ) {
                                 Icon(
                                     imageVector = Icons.Default.ChangeCircle,
-                                    tint = MaterialTheme.colorScheme.onSurface,
                                     contentDescription = null
                                 )
-                                Text(
-                                    text = stringResource(R.string.toggle_drag_distances_editing),
-                                    color = MaterialTheme.colorScheme.onSurface
-                                )
+                                Text(stringResource(R.string.toggle_drag_distances_editing))
                             },
                             BurgerAction(
                                 onClick = {

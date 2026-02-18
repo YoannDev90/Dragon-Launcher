@@ -40,10 +40,9 @@ fun ShapePreview(
             .size(60.dp)
             .aspectRatio(1f)
             .clip(DragonShape)
-            .conditional(
-                condition = onClick != null,
-                other = Modifier.clickable { onClick?.invoke() }
-            ),
+            .conditional(onClick != null) {
+                clickable { onClick?.invoke() }
+            },
         contentAlignment = Alignment.Center
     ) {
         if (iconShape !is IconShape.Random) {

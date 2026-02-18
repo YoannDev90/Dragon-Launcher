@@ -66,12 +66,11 @@ fun <T> ActionSelectorRow(
             .clip(DragonShape)
             .height(IntrinsicSize.Max)
             .background(MaterialTheme.colorScheme.surface.semiTransparentIfDisabled(enabled))
-            .conditional(
-                condition = enabled && toggled == false,
-                other = Modifier.clickable(
+            .conditional(enabled && toggled == false) {
+                clickable(
                     interactionSource = switchInteractionSource
                 ) { showDialog = true }
-            )
+            }
     ) {
         Row(
             verticalAlignment = Alignment.CenterVertically,
@@ -79,12 +78,11 @@ fun <T> ActionSelectorRow(
             modifier = Modifier
                 .weight(1f)
                 .fillMaxHeight()
-                .conditional(
-                    condition = enabled && toggled == true,
-                    other = Modifier.clickable(
+                .conditional(enabled && toggled == true) {
+                    clickable(
                         interactionSource = globalInteractionSource
                     ) { showDialog = true }
-                )
+                }
                 .padding(horizontal = 16.dp, vertical = 14.dp)
         ) {
             Text(
@@ -105,15 +103,14 @@ fun <T> ActionSelectorRow(
             Row(
                 verticalAlignment = Alignment.CenterVertically,
                 modifier = Modifier
-                    .conditional(
-                        condition = enabled && toggled,
-                        other = Modifier.clickable(
+                    .conditional(enabled && toggled) {
+                        clickable(
                             interactionSource = switchInteractionSource
                         ) {
                             // Disables, selects nothing
                             onSelected(null)
                         }
-                    )
+                    }
                     .fillMaxHeight()
                     .padding(top = 10.dp, bottom = 10.dp, end = 10.dp)
             ) {

@@ -30,6 +30,7 @@ fun AppDrawerSearch(
     onSearchChanged: (String) -> Unit,
     modifier: Modifier = Modifier,
     leadingIcon: (@Composable () -> Unit)? = null,
+    trailingIcon: (@Composable () -> Unit)? = null,
     onEnterPressed: (() -> Unit)? = null,
     onFocusStateChanged: (Boolean) -> Unit
 ) {
@@ -58,6 +59,7 @@ fun AppDrawerSearch(
                 tint = MaterialTheme.colorScheme.onSurfaceVariant
             )
         },
+        trailingIcon = trailingIcon,
         placeholder = {
             Text(
                 text = stringResource(R.string.search_apps),

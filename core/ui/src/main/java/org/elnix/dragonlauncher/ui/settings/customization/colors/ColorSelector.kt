@@ -258,10 +258,9 @@ fun ColorSelectorTab(
                             .weight(1f)
                             .fillMaxHeight()
                             .clip(DragonShape)
-                            .conditional(
-                                condition = selected,
-                                other = Modifier.background(MaterialTheme.colorScheme.surfaceDim)
-                            )
+                            .conditional(selected) {
+                                background(MaterialTheme.colorScheme.surfaceDim)
+                            }
                             .clickable {
                                 scope.launch {
                                     ColorModesSettingsStore.defaultTheme.set(ctx, it)

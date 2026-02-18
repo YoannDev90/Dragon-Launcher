@@ -575,7 +575,6 @@ fun MainAppUi(
                     widgetHostProvider = widgetHostProvider,
                     nests = nests,
                     points = points,
-//                    nestNavigation = nestNavigation,
                     onLaunchAction = ::launchAction
                 )
             }

@@ -18,7 +18,6 @@ import androidx.compose.material.icons.filled.Wallpaper
 import androidx.compose.material.icons.filled.Widgets
 import androidx.compose.material3.DropdownMenu
 import androidx.compose.material3.Icon
-import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -89,7 +88,6 @@ fun MainScreen(
     widgetHostProvider: WidgetHostProvider,
     nests: List<CircleNest>,
     points: List<SwipePointSerializable>,
-//    nestNavigation: NestNavigationState,
     onLaunchAction: (SwipePointSerializable) -> Unit
 ) {
     val ctx = LocalContext.current
@@ -424,13 +422,9 @@ fun MainScreen(
                         ) {
                             Icon(
                                 imageVector = Icons.Default.Settings,
-                                tint = MaterialTheme.colorScheme.onSurface,
                                 contentDescription = null
                             )
-                            Text(
-                                text = stringResource(R.string.settings),
-                                color = MaterialTheme.colorScheme.onSurface
-                            )
+                            Text(stringResource(R.string.settings))
                         },
                         BurgerAction(
                             onClick = {
@@ -440,12 +434,9 @@ fun MainScreen(
                         ) {
                             Icon(
                                 imageVector = Icons.Default.Widgets,
-                                tint = MaterialTheme.colorScheme.onSurface,
                                 contentDescription = null
                             )
-                            Text(
-                                text = stringResource(R.string.widgets),
-                                color = MaterialTheme.colorScheme.onSurface
+                            Text(stringResource(R.string.widgets),
                             )
                         },
                         BurgerAction(
@@ -456,12 +447,9 @@ fun MainScreen(
                         ) {
                             Icon(
                                 imageVector = Icons.Default.Wallpaper,
-                                tint = MaterialTheme.colorScheme.onSurface,
                                 contentDescription = null
                             )
-                            Text(
-                                text = stringResource(R.string.wallpaper),
-                                color = MaterialTheme.colorScheme.onSurface
+                            Text(stringResource(R.string.wallpaper),
                             )
                         }
                     )
@@ -469,31 +457,6 @@ fun MainScreen(
             }
         }
     }
-
-//    if (showFilePicker != null) {
-//        val currentPoint = showFilePicker!!
-//
-//        FilePickerDialog(
-//            onDismiss = { showFilePicker = null },
-//            onFileSelected = { newAction ->
-//
-//                // Build the updated point
-//                val updatedPoint = currentPoint.copy(action = newAction)
-//
-//                // Replace only this point
-//                val finalList = points.map { p ->
-//                    if (p.id == currentPoint.id) updatedPoint else p
-//                }
-//
-//
-//                scope.launch {
-//                    SwipeSettingsStore.savePoints(ctx, finalList)
-//                }
-//
-//                showFilePicker = null
-//            }
-//        )
-//    }
 }
 
 

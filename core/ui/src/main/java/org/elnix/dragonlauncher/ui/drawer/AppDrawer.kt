@@ -26,9 +26,12 @@ import androidx.compose.foundation.pager.HorizontalPager
 import androidx.compose.foundation.pager.rememberPagerState
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Lock
+import androidx.compose.material.icons.filled.MoreVert
+import androidx.compose.material.icons.filled.Settings
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
@@ -74,6 +77,7 @@ import org.elnix.dragonlauncher.common.serializables.WorkspaceType
 import org.elnix.dragonlauncher.common.serializables.dummySwipePoint
 import org.elnix.dragonlauncher.common.utils.Constants
 import org.elnix.dragonlauncher.common.utils.PrivateSpaceUtils
+import org.elnix.dragonlauncher.common.utils.SETTINGS
 import org.elnix.dragonlauncher.common.utils.openSearch
 import org.elnix.dragonlauncher.enumsui.DrawerActions
 import org.elnix.dragonlauncher.enumsui.DrawerActions.CLEAR
@@ -90,6 +94,9 @@ import org.elnix.dragonlauncher.models.AppLifecycleViewModel
 import org.elnix.dragonlauncher.models.AppsViewModel
 import org.elnix.dragonlauncher.settings.stores.DrawerSettingsStore
 import org.elnix.dragonlauncher.settings.stores.UiSettingsStore
+import org.elnix.dragonlauncher.ui.components.burger.BurgerAction
+import org.elnix.dragonlauncher.ui.components.burger.BurgerListAction
+import org.elnix.dragonlauncher.ui.components.dragon.DragonDropDownMenu
 import org.elnix.dragonlauncher.ui.components.dragon.DragonIconButton
 import org.elnix.dragonlauncher.ui.components.settings.asState
 import org.elnix.dragonlauncher.ui.dialogs.AppAliasesDialog
@@ -101,6 +108,7 @@ import org.elnix.dragonlauncher.ui.helpers.AppGrid
 import org.elnix.dragonlauncher.ui.helpers.WallpaperDim
 import org.elnix.dragonlauncher.ui.modifiers.conditional
 import org.elnix.dragonlauncher.ui.modifiers.settingsGroup
+import org.elnix.dragonlauncher.ui.modifiers.shapedClickable
 import kotlin.math.abs
 import kotlin.math.pow
 
@@ -183,6 +191,8 @@ fun AppDrawerScreen(
 
 
     var appTarget by remember { mutableStateOf<AppModel?>(null) }
+    var showMoreMenu by remember { mutableStateOf(false) }
+
 
 
     LaunchedEffect(autoShowKeyboard) {
@@ -436,12 +446,12 @@ fun AppDrawerScreen(
                 .fillMaxSize()
                 .nestedScroll(nestedConnection)
                 .padding(top = topPadding + animatedPadding, bottom = bottomPadding)
-                .conditional(
-                    condition = pullDownScaleIn,
-                    other = Modifier.graphicsLayer {
+                .conditional(pullDownScaleIn) {
+                    graphicsLayer {
                         scaleX = animatedScale
                         scaleY = animatedScale
-                    })
+                    }
+                }
                 .clickable(
                     enabled = tapEmptySpaceToRaiseKeyboard.isUsed(),
                     indication = null,
@@ -605,8 +615,45 @@ fun AppDrawerScreen(
                 .imePadding(),
             contentAlignment = if (searchBarBottom) Alignment.BottomCenter else Alignment.TopCenter
         ) {
+
             AppDrawerSearch(
                 searchQuery = searchQuery,
+                trailingIcon = {
+                    Box {
+                        Icon(
+                            imageVector = Icons.Default.MoreVert,
+                            contentDescription = stringResource(R.string.more),
+                            tint = MaterialTheme.colorScheme.onSurfaceVariant,
+                            modifier = Modifier.shapedClickable { showMoreMenu = true }
+                        )
+
+                        DragonDropDownMenu(
+                            expanded = showMoreMenu,
+                            onDismissRequest = { showMoreMenu = false }
+                        ) {
+                            BurgerListAction(
+                                listOf(
+                                    BurgerAction(
+                                        onClick = {
+                                            onLaunchAction(
+                                                SwipeActionSerializable.OpenDragonLauncherSettings(
+                                                    SETTINGS.DRAWER
+                                                )
+                                            )
+                                        },
+                                        content = {
+                                            Icon(
+                                                imageVector = Icons.Default.Settings,
+                                                contentDescription = null
+                                            )
+                                            Text(stringResource(R.string.drawer_settings))
+                                        }
+                                    )
+                                )
+                            )
+                        }
+                    }
+                },
                 onSearchChanged = { searchQuery = it },
                 modifier = Modifier.focusRequester(focusRequester),
                 onEnterPressed = { launchDrawerAction(drawerEnterAction) },

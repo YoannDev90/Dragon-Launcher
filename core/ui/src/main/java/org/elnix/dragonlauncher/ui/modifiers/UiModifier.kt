@@ -21,10 +21,9 @@ fun Modifier.settingsGroup(
     return this
         .clip(DragonShape)
         .background(backgroundColor)
-        .conditional(
-            condition = border,
-            other = Modifier.border(1.dp, MaterialTheme.colorScheme.outlineVariant, DragonShape)
-        )
+        .conditional(border) {
+            border(1.dp, MaterialTheme.colorScheme.outlineVariant, DragonShape)
+        }
         .then(clickModifier ?: this)
         .padding(10.dp)
 }
