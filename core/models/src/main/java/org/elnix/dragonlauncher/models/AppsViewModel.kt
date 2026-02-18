@@ -631,21 +631,16 @@ class AppsViewModel(
                 )
             }
 
-//            try {
-                // Schedule reload (debounced) and wait for it to complete
-                scheduledReloadJob?.cancel()
-                scheduledReloadJob = scope.launch {
-                    delay(300) // short debounce to coalesce multiple triggers
-                    reloadMutex.withLock {
-                        reloadApps()
-                    }
+            // Schedule reload (debounced) and wait for it to complete
+            scheduledReloadJob?.cancel()
+            scheduledReloadJob = scope.launch {
+                delay(300) // short debounce to coalesce multiple triggers
+                reloadMutex.withLock {
+                    reloadApps()
                 }
-                scheduledReloadJob?.join()
-//            } finally {
-//                logW(APP_LAUNCH_TAG, "finally block reached before full reload!")
-//
-////                _privateSpaceState.value = PrivateSpaceLoadingState.Available
-//            }
+            }
+            scheduledReloadJob?.join()
+
         } catch (e: Exception) {
             logE(APPS_TAG, "Error during differential private detection: ${e.message}", e)
             pendingPrivateAssignments = null
@@ -680,16 +675,7 @@ class AppsViewModel(
 
 
         // This only request the auth, it does not handle whether the private space was unlocked
-//        val authRequestSuccess = withContext(Dispatchers.IO) {
-            PrivateSpaceUtils.requestUnlockPrivateSpace(ctx)
-//        }
-
-        // If the auth request failed, cancel this unlock function
-//        if (!authRequestSuccess) {
-//            _privateSpaceState.update { it.copy(isAuthenticating = false) }
-//            return false
-//        }
-
+        PrivateSpaceUtils.requestUnlockPrivateSpace(ctx)
 
         // Test with timeout the real unlock state
         val unlocked = withTimeoutOrNull(10_000L) {
@@ -715,11 +701,11 @@ class AppsViewModel(
     }
 
 
-
     suspend fun unlockAndReload() {
 
         if (!PrivateSpaceUtils.isPrivateSpaceSupported()) return
 
+        // Suspends until unlock, timeout or user cancel
         val unlocked = unlockPrivateSpace()
 
         if (!unlocked) return

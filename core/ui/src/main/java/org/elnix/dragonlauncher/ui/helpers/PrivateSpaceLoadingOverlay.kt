@@ -5,11 +5,17 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.WindowInsets
+import androidx.compose.foundation.layout.exclude
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.ime
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.safeDrawing
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.windowInsetsPadding
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Close
 import androidx.compose.material.icons.filled.Lock
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Icon
@@ -23,46 +29,42 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import org.elnix.dragonlauncher.common.R
+import org.elnix.dragonlauncher.ui.modifiers.shapedClickable
 
 @Composable
-fun PrivateSpaceLoadingOverlay(/*state: PrivateSpaceLoadingState*/) {
-
-//    val title = when (state) {
-//        Authenticating -> stringResource(R.string.private_space_authenticating)
-//        Loading ->  stringResource(R.string.private_space_please_wait)
-//        Available -> error("Shouldn't happen here")
-//        Locked -> error("Shouldn't happen here")
-//    }
+fun PrivateSpaceLoadingOverlay(
+    onCancel: () -> Unit,
+) {
 
     Box(
         modifier = Modifier
             .fillMaxSize()
-            .background(MaterialTheme.colorScheme.surface.copy(alpha = 0.95f)),
+            .background(MaterialTheme.colorScheme.surface.copy(alpha = 0.95f))
+            .windowInsetsPadding(WindowInsets.safeDrawing.exclude(WindowInsets.ime)),
         contentAlignment = Alignment.Center
     ) {
+        Icon(
+            imageVector = Icons.Default.Close,
+            contentDescription = stringResource(R.string.close),
+            modifier = Modifier
+                .align(Alignment.TopStart)
+                .shapedClickable(onClick = onCancel)
+                .padding(30.dp),
+            tint = MaterialTheme.colorScheme.error
+        )
+
         Column(
             horizontalAlignment = Alignment.CenterHorizontally,
             verticalArrangement = Arrangement.Center,
             modifier = Modifier.padding(32.dp)
         ) {
 
-//            AnimatedVisibility(state == Authenticating) {
-                Icon(
-                    imageVector = Icons.Default.Lock,
-                    contentDescription = stringResource(R.string.private_space_locked),
-                    modifier = Modifier.size(64.dp),
-                    tint = MaterialTheme.colorScheme.primary
-                )
-//            }
-
-//            AnimatedVisibility(state == Loading) {
-//                Icon(
-//                    imageVector = Icons.Default.CheckCircle,
-//                    contentDescription = stringResource(R.string.private_space_loading),
-//                    modifier = Modifier.size(64.dp),
-//                    tint = MaterialTheme.colorScheme.primary
-//                )
-//            }
+            Icon(
+                imageVector = Icons.Default.Lock,
+                contentDescription = stringResource(R.string.private_space_locked),
+                modifier = Modifier.size(64.dp),
+                tint = MaterialTheme.colorScheme.primary
+            )
 
 
             Spacer(modifier = Modifier.height(24.dp))

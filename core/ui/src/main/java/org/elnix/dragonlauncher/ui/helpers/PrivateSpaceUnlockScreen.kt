@@ -7,6 +7,7 @@ import kotlinx.coroutines.CoroutineScope
 
 @Composable
 fun PrivateSpaceUnlockScreen(
+    onCancel: () -> Unit,
     onStart: (CoroutineScope) -> Unit
 ) {
     val scope = rememberCoroutineScope()
@@ -14,5 +15,5 @@ fun PrivateSpaceUnlockScreen(
     LaunchedEffect(Unit) {
         onStart(scope)
     }
-    PrivateSpaceLoadingOverlay()
+    PrivateSpaceLoadingOverlay(onCancel)
 }

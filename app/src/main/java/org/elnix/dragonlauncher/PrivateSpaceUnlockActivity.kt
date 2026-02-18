@@ -30,6 +30,7 @@ class PrivateSpaceUnlockActivity : AppCompatActivity() {
             DragonLauncherTheme {
 
                 PrivateSpaceUnlockScreen(
+                    onCancel = { finish() },
                     onStart = { scope ->
                         scope.launch {
                             appsViewModel.unlockAndReload()
