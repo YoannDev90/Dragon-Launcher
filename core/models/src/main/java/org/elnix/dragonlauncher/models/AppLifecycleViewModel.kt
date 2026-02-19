@@ -2,21 +2,21 @@ package org.elnix.dragonlauncher.models
 
 import android.app.Application
 import androidx.lifecycle.AndroidViewModel
+import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asSharedFlow
+import kotlinx.coroutines.flow.receiveAsFlow
 
 class AppLifecycleViewModel(application: Application) : AndroidViewModel(application) {
 
 
     /** ───────────── Tracks the home events ─────────────*/
-    private val _homeEvents = MutableSharedFlow<Unit>(
-        extraBufferCapacity = 1
-    )
-    val homeEvents = _homeEvents.asSharedFlow()
+    private val _homeEvents = Channel<Unit>(Channel.CONFLATED)
+    val homeEvents = _homeEvents.receiveAsFlow()
 
     fun launchHomeAction() {
-        _homeEvents.tryEmit(Unit)
+        _homeEvents.trySend(Unit)
     }
 
 
