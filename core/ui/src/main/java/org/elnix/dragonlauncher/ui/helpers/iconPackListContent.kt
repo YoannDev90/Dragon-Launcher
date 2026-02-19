@@ -30,6 +30,7 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import org.elnix.dragonlauncher.common.R
 import org.elnix.dragonlauncher.common.serializables.IconPackInfo
+import org.elnix.dragonlauncher.common.serializables.dummyAppModel
 import org.elnix.dragonlauncher.ui.UiConstants.DragonShape
 
 fun LazyListScope.iconPackListContent(
@@ -73,11 +74,16 @@ fun LazyListScope.iconPackListContent(
             horizontalArrangement = Arrangement.SpaceBetween,
             verticalAlignment = Alignment.CenterVertically
         ) {
+            val packPkg = pack.packageName
+            val packCacheKey = dummyAppModel(packPkg).iconCacheKey.cacheKey
 
             Row(horizontalArrangement = Arrangement.spacedBy(12.dp)) {
-                val packIcon = icons[pack.packageName]
+                val packIcon = icons[packCacheKey]
 
-                Box(Modifier.size(40.dp)) {
+                Box(
+                    Modifier.size(40.dp),
+                    contentAlignment = Alignment.Center
+                ) {
                     if (packIcon != null) {
                         Image(
                             bitmap = packIcon,
