@@ -745,5 +745,6 @@
     <string name="action_settings">Action Settings</string>
     <string name="drawer_settings">Drawer Settings</string>
     <string name="more">More</string>
+    <string name="reload">Reload</string>
 
 </resources>

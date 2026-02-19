@@ -32,6 +32,7 @@ import org.elnix.dragonlauncher.common.R
 import org.elnix.dragonlauncher.common.serializables.IconPackInfo
 import org.elnix.dragonlauncher.common.serializables.dummyAppModel
 import org.elnix.dragonlauncher.ui.UiConstants.DragonShape
+import org.elnix.dragonlauncher.ui.components.dragon.DragonIconButton
 
 fun LazyListScope.iconPackListContent(
     packs: List<IconPackInfo>,
@@ -52,14 +53,12 @@ fun LazyListScope.iconPackListContent(
                 color = MaterialTheme.colorScheme.onBackground
             )
             // Refresh icon
-            Icon(
-                Icons.Default.Refresh,
-                contentDescription = null,
-                modifier = Modifier
-                    .padding(horizontal = 16.dp, vertical = 8.dp)
-                    .size(20.dp)
-                    .clickable { onReloadPacks() }
-            )
+            DragonIconButton(onReloadPacks) {
+                Icon(
+                    Icons.Default.Refresh,
+                    contentDescription = stringResource(R.string.reload),
+                )
+            }
         }
     }
 
