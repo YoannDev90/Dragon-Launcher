@@ -42,7 +42,7 @@ import org.elnix.dragonlauncher.common.logging.logE
 import org.elnix.dragonlauncher.common.serializables.CustomIconSerializable
 import org.elnix.dragonlauncher.common.serializables.IconType
 import org.elnix.dragonlauncher.common.serializables.SwipeActionSerializable
-import org.elnix.dragonlauncher.common.serializables.targetPackage
+import org.elnix.dragonlauncher.common.serializables.toAppModel
 import org.elnix.dragonlauncher.common.utils.Constants.Logging.IMAGE_TAG
 import java.io.ByteArrayOutputStream
 import kotlin.math.ceil
@@ -271,22 +271,21 @@ object ImageUtils {
         val pmCompat = PackageManagerCompat(pm, ctx)
 
         return when (action) {
-            is SwipeActionSerializable.LaunchApp,
+            is SwipeActionSerializable.LaunchApp -> {
+                val dummyAppModel = action.toAppModel()
+
+                val drawable = pmCompat.getAppIcon(
+                    packageName = action.packageName,
+                    userId = action.userId ?: 0,
+                    isPrivateProfile = action.isPrivateSpace
+                )
+                icons[dummyAppModel.iconCacheKey.cacheKey] ?:
+                loadDrawableAsBitmap(drawable, width, height)
+            }
+
             is SwipeActionSerializable.LaunchShortcut -> {
-                val pkg = action.targetPackage()
-                // Empty package = sentinel for "Pinned Shortcuts" chooser entry
-                if (pkg.isNullOrEmpty()) {
-                    return loadDrawableResAsBitmap(ctx, R.drawable.ic_action_pinned_shortcut, width, height)
-                }
-
-                if (action is SwipeActionSerializable.LaunchShortcut) {
-                    val shortcutIcon = loadShortcutIcon(ctx, pkg, action.shortcutId)
-                    if (shortcutIcon != null) return shortcutIcon
-                }
-
-                pmCompat.getAppIcon(pkg, 0)
-                icons[pkg]
-
+                loadShortcutIcon(ctx, action.packageName, action.shortcutId) ?:
+                loadDrawableResAsBitmap(ctx, R.drawable.ic_action_pinned_shortcut, width, height)
             }
 
             is SwipeActionSerializable.OpenUrl ->

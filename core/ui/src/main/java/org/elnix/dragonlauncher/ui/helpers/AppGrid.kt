@@ -36,7 +36,6 @@ import org.elnix.dragonlauncher.common.R
 import org.elnix.dragonlauncher.common.serializables.AppCategory
 import org.elnix.dragonlauncher.common.serializables.AppModel
 import org.elnix.dragonlauncher.common.serializables.IconShape
-import org.elnix.dragonlauncher.common.serializables.iconCacheKey
 import org.elnix.dragonlauncher.settings.stores.DrawerSettingsStore
 import org.elnix.dragonlauncher.ui.components.dragon.DragonIconButton
 import org.elnix.dragonlauncher.ui.components.settings.asState
@@ -164,7 +163,7 @@ fun AppGrid(
                 modifier = modifier,
                 verticalArrangement = Arrangement.spacedBy(iconsSpacingVertical.dp),
             ) {
-                items(visibleApps, key = { it.iconCacheKey() }) { app ->
+                items(visibleApps, key = { it.iconCacheKey.cacheKey }) { app ->
                     val selected = app.packageName in selectedPackages
 
                     AppItemHorizontal(
@@ -203,7 +202,7 @@ fun AppGrid(
                 verticalArrangement = Arrangement.spacedBy(iconsSpacingVertical.dp),
                 horizontalArrangement = Arrangement.spacedBy(iconsSpacingHorizontal.dp)
             ) {
-                items(visibleApps, key = { it.iconCacheKey() }) { app ->
+                items(visibleApps, key = { it.iconCacheKey.cacheKey }) { app ->
                     val selected = app.packageName in selectedPackages
 
 

@@ -181,8 +181,7 @@ fun AppDrawerScreen(
     val keyboardController = LocalSoftwareKeyboardController.current
     var isSearchFocused by remember { mutableStateOf(false) }
 
-    var showRenameAppDialog by remember { mutableStateOf(false) }
-    var renameTargetPackage by remember { mutableStateOf<String?>(null) }
+    var renameTarget by remember { mutableStateOf<AppModel?>(null) }
     var renameText by remember { mutableStateOf("") }
 
     var showAliasDialog by remember { mutableStateOf<AppModel?>(null) }
@@ -664,6 +663,7 @@ fun AppDrawerScreen(
 
     if (dialogApp != null) {
         val app = dialogApp!!
+        val cacheKey = app.iconCacheKey
 
         AppLongPressDialog(
             app = app,
@@ -686,62 +686,62 @@ fun AppDrawerScreen(
                 onClose()
             },
             onRemoveFromWorkspace = {
-                workspaceId?.let {
+                workspaceId?.let { wsId ->
                     scope.launch {
                         appsViewModel.removeAppFromWorkspace(
-                            it,
-                            app.packageName
+                            workspaceId = wsId,
+                            cacheKey = cacheKey
                         )
                     }
                 }
             },
             onRenameApp = {
                 renameText = app.name
-                renameTargetPackage = app.packageName
-                showRenameAppDialog = true
+                renameTarget = app
             },
             onChangeAppIcon = { appTarget = app },
             onAliases = { showAliasDialog = app }
         )
     }
 
-    RenameAppDialog(
-        visible = showRenameAppDialog,
-        title = stringResource(R.string.rename_app),
-        name = renameText,
-        onNameChange = { renameText = it },
-        onConfirm = {
-            val pkg = renameTargetPackage ?: return@RenameAppDialog
+    if (renameTarget != null) {
+        val app = renameTarget!!
+        val cacheKey = app.iconCacheKey
 
-            scope.launch {
-                appsViewModel.renameApp(
-                    packageName = pkg,
-                    name = renameText
-                )
-            }
+        RenameAppDialog(
+            title = stringResource(R.string.rename_app),
+            name = app.name,
+            onNameChange = { renameText = it },
+            onConfirm = {
 
-            showRenameAppDialog = false
-            renameTargetPackage = null
-        },
-        onReset = {
-            val pkg = renameTargetPackage ?: return@RenameAppDialog
+                scope.launch {
+                    appsViewModel.renameApp(
+                        cacheKey = cacheKey,
+                        name = renameText
+                    )
+                }
 
-            scope.launch {
-                appsViewModel.resetAppName(pkg)
-            }
-            showRenameAppDialog = false
-            renameTargetPackage = null
-        },
-        onDismiss = { showRenameAppDialog = false }
-    )
+                renameTarget = null
+            },
+            onReset = {
+
+                scope.launch {
+                    appsViewModel.resetAppName(cacheKey)
+                }
+                renameTarget = null
+            },
+            onDismiss = { renameTarget = null }
+        )
+    }
 
     if (appTarget != null) {
 
         val app = appTarget!!
         val pkg = app.packageName
+        val cacheKey = app.iconCacheKey
 
         val iconOverride =
-            overrides[pkg]?.customIcon
+            overrides[cacheKey.cacheKey]?.customIcon
 
 
         val tempPoint =
@@ -760,22 +760,22 @@ fun AppDrawerScreen(
             point = tempPoint,
             appsViewModel = appsViewModel,
             onReset = {
-                appsViewModel.updateSingleIcon(app, false)
+                appsViewModel.reloadAppIcon(app, false)
             },
             onDismiss = { appTarget = null }
-        ) {
+        ) { customIcon ->
 
             /* ───────────── Reload icon once firstly ───────────── */
             scope.launch {
-                if (it != null) {
+                if (customIcon != null) {
                     appsViewModel.setAppIcon(
-                        pkg,
-                        it
+                        cacheKey = cacheKey,
+                        customIcon = customIcon
                     )
                 } else {
-                    appsViewModel.resetAppIcon(pkg)
+                    appsViewModel.resetAppIcon(cacheKey)
                 }
-                appsViewModel.updateSingleIcon(app, true)
+                appsViewModel.reloadAppIcon(app, true)
 
                 /* ───────────── Reload all points upon icon change to synchronize with points ───────────── */
                 withContext(Dispatchers.IO) {

@@ -116,7 +116,6 @@ fun MainScreen(
 
 
     val icons by appsViewModel.icons.collectAsState()
-    val pointIcons by appsViewModel.pointIcons.collectAsState()
 
     var start by remember { mutableStateOf<Offset?>(null) }
     var current by remember { mutableStateOf<Offset?>(null) }
@@ -383,7 +382,7 @@ fun MainScreen(
             surface = size,
             points = points,
             defaultPoint = defaultPoint,
-            pointIcons = pointIcons,
+            pointIcons = icons,
             nests = nests,
             onLaunch = { launchAction(it) }
         )

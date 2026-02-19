@@ -199,7 +199,7 @@ fun MainAppUi(
 
 //    val nestNavigation = rememberNestNavigation(nests)
 
-    val pointIcons by appsViewModel.pointIcons.collectAsState()
+    val icons by appsViewModel.icons.collectAsState()
     val defaultPoint by appsViewModel.defaultPoint.collectAsState(defaultSwipePointsValues)
 
 
@@ -621,7 +621,7 @@ fun MainAppUi(
                     SettingsScreen(
                         appsViewModel = appsViewModel,
                         appLifecycleViewModel = appLifecycleViewModel,
-                        pointIcons = pointIcons,
+                        pointIcons = icons,
                         defaultPoint = defaultPoint,
                         nests = nests,
                         onAdvSettings = ::goAdvSettingsRoot,
@@ -696,7 +696,7 @@ fun MainAppUi(
                         nestId = pendingNestToEdit,
                         nests = nests,
                         points = points,
-                        pointIcons = pointIcons,
+                        pointIcons = icons,
                         defaultPoint = defaultPoint,
                         onBack = ::goSettingsRoot
                     )

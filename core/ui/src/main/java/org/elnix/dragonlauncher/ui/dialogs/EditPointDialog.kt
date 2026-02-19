@@ -91,7 +91,7 @@ fun EditPointDialog(
 
     val circleColor by ColorSettingsStore.circleColor.asState()
 
-    val pointIcons by appsViewModel.pointIcons.collectAsState()
+    val icons by appsViewModel.icons.collectAsState()
     val defaultPoint by appsViewModel.defaultPoint.collectAsState(defaultSwipePointsValues)
 
 
@@ -260,7 +260,7 @@ fun EditPointDialog(
                         defaultPoint = defaultPoint,
                         backgroundSurfaceColor = backgroundSurfaceColor,
                         extraColors = extraColors,
-                        pointIcons = pointIcons,
+                        pointIcons = icons,
                         modifier = Modifier.fillMaxWidth(1f)
                     )
                 }

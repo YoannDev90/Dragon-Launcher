@@ -16,7 +16,6 @@ import org.elnix.dragonlauncher.ui.colors.AppObjectsColors
 
 @Composable
 fun RenameAppDialog(
-    visible: Boolean,
     title: String,
     name: String,
     onNameChange: (String) -> Unit,
@@ -24,8 +23,6 @@ fun RenameAppDialog(
     onReset: () -> Unit,
     onDismiss: () -> Unit
 ) {
-    if (!visible) return
-
     AlertDialog(
         onDismissRequest = onDismiss,
         confirmButton = {
