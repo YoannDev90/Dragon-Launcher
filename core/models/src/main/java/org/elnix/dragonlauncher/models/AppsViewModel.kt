@@ -105,9 +105,6 @@ class AppsViewModel(
     private val _icons = MutableStateFlow<Map<String, ImageBitmap>>(emptyMap())
     val icons = _icons.asStateFlow()
 
-//    private val _icons = MutableStateFlow<Map<String, ImageBitmap>>(emptyMap())
-//    val pointIcons = _icons.asStateFlow()
-//
 
     private val _defaultPoint = MutableStateFlow(defaultSwipePointsValues)
     val defaultPoint = _defaultPoint.asStateFlow()
@@ -604,9 +601,9 @@ class AppsViewModel(
                 pmCompat.getAllApps().filter { it.isLaunchable == true }
             }
 
-            val after = afterApps.map { it.iconCacheKey }.toSet()
+            val after = afterApps.map { it.iconCacheKey.cacheKey }.toSet()
             val diffKeys = after.subtract(before)
-            val diffApps = afterApps.filter { it.iconCacheKey in diffKeys }
+            val diffApps = afterApps.filter { it.iconCacheKey.cacheKey in diffKeys }
 
             logI(
                 APPS_TAG,

@@ -61,7 +61,21 @@ fun SwipeActionSerializable.LaunchApp.toAppModel() =
         isPrivateProfile = false, // Unknown
     )
 
-
+fun dummyAppModel(
+    packageName: String,
+    userId: Int = 0
+) =
+    AppModel(
+        name = packageName,
+        packageName = packageName,
+        isEnabled = true, // Dummy
+        isSystem = false, // Dummy
+        isWorkProfile = false, // Dummy
+        isLaunchable = true, // Dummy
+        userId = userId,
+        category = AppCategory.Other,
+        isPrivateProfile = false, // Dummy
+    )
 
 enum class AppCategory {
     Games,
