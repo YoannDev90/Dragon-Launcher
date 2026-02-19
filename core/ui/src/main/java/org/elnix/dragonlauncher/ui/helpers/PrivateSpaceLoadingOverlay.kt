@@ -43,15 +43,6 @@ fun PrivateSpaceLoadingOverlay(
             .windowInsetsPadding(WindowInsets.safeDrawing.exclude(WindowInsets.ime)),
         contentAlignment = Alignment.Center
     ) {
-        Icon(
-            imageVector = Icons.Default.Close,
-            contentDescription = stringResource(R.string.close),
-            modifier = Modifier
-                .align(Alignment.TopStart)
-                .shapedClickable(onClick = onCancel)
-                .padding(30.dp),
-            tint = MaterialTheme.colorScheme.error
-        )
 
         Column(
             horizontalAlignment = Alignment.CenterHorizontally,
@@ -92,5 +83,16 @@ fun PrivateSpaceLoadingOverlay(
                 color = MaterialTheme.colorScheme.primary
             )
         }
+
+        Icon(
+            imageVector = Icons.Default.Close,
+            contentDescription = stringResource(R.string.close),
+            modifier = Modifier
+                .align(Alignment.BottomCenter)
+                .padding(bottom = 50.dp)
+                .shapedClickable(onClick = onCancel)
+                .padding(30.dp),
+            tint = MaterialTheme.colorScheme.error
+        )
     }
 }
