@@ -45,7 +45,9 @@ fun LazyListScope.iconPackListContent(
 ) {
 
     item {
-        Row{
+        Row(
+            verticalAlignment = Alignment.CenterVertically
+        ) {
             Text(
                 text = stringResource(R.string.icon_packs_found, packs.size),
                 modifier = Modifier.padding(horizontal = 16.dp, vertical = 8.dp),
