@@ -59,6 +59,7 @@ import org.elnix.dragonlauncher.common.serializables.SwipePointSerializable
 import org.elnix.dragonlauncher.common.serializables.allShapesWithoutRandom
 import org.elnix.dragonlauncher.common.serializables.defaultSwipePointsValues
 import org.elnix.dragonlauncher.common.serializables.dummySwipePoint
+import org.elnix.dragonlauncher.common.utils.Constants
 import org.elnix.dragonlauncher.common.utils.Constants.Logging.APP_LAUNCH_TAG
 import org.elnix.dragonlauncher.common.utils.Constants.Logging.TAG
 import org.elnix.dragonlauncher.common.utils.Constants.Navigation.transparentScreens
@@ -76,6 +77,7 @@ import org.elnix.dragonlauncher.models.AppsViewModel
 import org.elnix.dragonlauncher.models.BackupViewModel
 import org.elnix.dragonlauncher.models.FloatingAppsViewModel
 import org.elnix.dragonlauncher.settings.stores.BackupSettingsStore
+import org.elnix.dragonlauncher.settings.stores.BehaviorSettingsStore
 import org.elnix.dragonlauncher.settings.stores.DebugSettingsStore
 import org.elnix.dragonlauncher.settings.stores.DrawerSettingsStore
 import org.elnix.dragonlauncher.settings.stores.PrivateSettingsStore
@@ -167,6 +169,8 @@ fun MainAppUi(
     val drawerEnterExitAnimations by DrawerSettingsStore.drawerEnterExitAnimations.asState()
 
 
+    val homeAction by BehaviorSettingsStore.homeAction.asState()
+
     val leftDrawerAction by DrawerSettingsStore.leftDrawerAction.asState()
     val rightDrawerAction by DrawerSettingsStore.rightDrawerAction.asState()
 
@@ -188,6 +192,12 @@ fun MainAppUi(
 
     val navBackStackEntry by navController.currentBackStackEntryAsState()
     val currentRoute = navBackStackEntry?.destination?.route
+    var lastRoute by remember { mutableStateOf(ROUTES.MAIN) }
+    LaunchedEffect(currentRoute) {
+        currentRoute?.let {
+            lastRoute = it
+        }
+    }
 
 
     val autoBackupEnabled by BackupSettingsStore.autoBackupEnabled.asState()
@@ -349,12 +359,6 @@ fun MainAppUi(
         if (hasSeenWelcome == false) goWelcome()
     }
 
-    LaunchedEffect(Unit) {
-        appLifecycleViewModel.homeEvents.collect {
-            isUnlocked = false
-            goMainScreen()
-        }
-    }
 
     @SuppressLint("LocalContextGetResourceValueCall")
     fun goSettings(route: String) {
@@ -494,6 +498,31 @@ fun MainAppUi(
         )
     }
 
+
+
+
+    // Drawer home action receiver
+    var drawerHomeHandler by remember { mutableStateOf<(() -> Unit)?>(null) }
+
+    LaunchedEffect(Unit) {
+        appLifecycleViewModel.homeEvents.collect {
+
+            logD(Constants.Logging.DRAWER_TAG, "Got home event, launching home action, lastRoute: $lastRoute")
+            when (lastRoute) {
+                ROUTES.DRAWER -> {
+                    drawerHomeHandler?.invoke()
+                }
+                ROUTES.MAIN -> {
+                    launchApp(homeAction)
+                }
+                else -> {
+                    isUnlocked = false
+                    goMainScreen()
+                }
+            }
+        }
+    }
+
     val showSetAsDefaultBanner = showSetDefaultLauncherBanner &&
             !isDefaultLauncher &&
             currentRoute != ROUTES.WELCOME
@@ -571,7 +600,6 @@ fun MainAppUi(
                 MainScreen(
                     appsViewModel = appsViewModel,
                     floatingAppsViewModel = floatingAppsViewModel,
-                    appLifecycleViewModel = appLifecycleViewModel,
                     widgetHostProvider = widgetHostProvider,
                     nests = nests,
                     points = points,
@@ -593,6 +621,9 @@ fun MainAppUi(
                     showLabels = showAppLabelsInDrawer,
                     autoShowKeyboard = autoShowKeyboardOnDrawer,
                     gridSize = gridSize,
+                    onRegisterHomeHandler = { handler ->
+                        drawerHomeHandler = handler
+                    },
                     searchBarBottom = searchBarBottom,
                     leftAction = leftDrawerAction,
                     leftWeight = leftDrawerWidth,

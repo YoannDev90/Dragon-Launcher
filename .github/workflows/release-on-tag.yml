@@ -49,12 +49,17 @@ jobs:
           echo "KEY_PASSWORD=${{ secrets.KEY_PASSWORD }}" >> $GITHUB_ENV
 
       - name: Build Release APK
-        run: ./gradlew assembleStableRelease
+        run: ./gradlew assembleStableRelease assembleBetaDebuggableRelease
 
       - name: Rename APK
         run: |
           NAME="DragonLauncher-${{ env.VERSION }}.apk"
           mv app/build/outputs/apk/stable/release/app-stable-release.apk "$NAME"
+
+          DEBUG="DragonLauncher-v${{ env.VERSION }}-debuggable.apk"
+          mv app/build/outputs/apk/beta/debuggableRelease/app-beta-debuggableRelease.apk "$DEBUG"
+          
+          echo "APK_DEBUG=$DEBUG" >> $GITHUB_ENV
           echo "APK=$NAME" >> $GITHUB_ENV
 
       - name: Create GitHub Release
@@ -62,9 +67,15 @@ jobs:
         with:
           tag_name: ${{ env.VERSION }}
           name: ${{ env.VERSION }}
-          files: ${{ env.APK }}
+          files: |
+            ${{ env.APK }}
+            ${{ env.APK_DEBUG }}
           body: |
             ${{ steps.changelog.outputs.changelog }}
+
+            ### Debuggable version
+            If you encounter bugs or crash, you can install the debuggable version of the app, and check for logs using your computer via ***adb***
+            Here's some [help](https://developer.android.com/tools/logcat)
 
             ## ⚠️ Play Protect Warning
             Due to Android restrictions, disable Play Protect during installation to avoid Dragon being blocked.

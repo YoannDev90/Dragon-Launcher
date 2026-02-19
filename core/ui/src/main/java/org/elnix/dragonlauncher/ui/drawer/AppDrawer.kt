@@ -24,6 +24,8 @@ import androidx.compose.foundation.layout.windowInsetsPadding
 import androidx.compose.foundation.lazy.grid.rememberLazyGridState
 import androidx.compose.foundation.pager.HorizontalPager
 import androidx.compose.foundation.pager.rememberPagerState
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Lock
 import androidx.compose.material.icons.filled.MoreVert
@@ -33,6 +35,7 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.derivedStateOf
@@ -128,6 +131,7 @@ fun AppDrawerScreen(
     leftWeight: Float,
     rightAction: DrawerActions,
     rightWeight: Float,
+    onRegisterHomeHandler: ((() -> Unit)?) -> Unit,
     onLaunchAction: (SwipeActionSerializable) -> Unit,
     onClose: () -> Unit
 ) {
@@ -280,13 +284,19 @@ fun AppDrawerScreen(
         }
     }
 
+    // Used to correctly handle the home action when in drawer (otherwise the action is consumed by the nav host and not made here)
+    DisposableEffect(Unit) {
 
-    LaunchedEffect(Unit) {
-        appLifecycleViewModel.homeEvents.collect {
+        val handler = {
             launchDrawerAction(drawerHomeAction)
         }
-    }
 
+        onRegisterHomeHandler(handler)
+
+        onDispose {
+            onRegisterHomeHandler(null)
+        }
+    }
 
     BackHandler {
         launchDrawerAction(drawerBackAction)
@@ -543,7 +553,10 @@ fun AppDrawerScreen(
 
                         if (workspace.type == WorkspaceType.PRIVATE && showLock) {
                             Box(
-                                modifier = Modifier.fillMaxSize(),
+                                modifier = Modifier
+                                    .fillMaxSize()
+                                    // Just so that the scroll actions are registered
+                                    .verticalScroll(rememberScrollState()),
                                 contentAlignment = Alignment.Center
                             ) {
                                 AnimatedContent(targetState = privateSpaceState) {

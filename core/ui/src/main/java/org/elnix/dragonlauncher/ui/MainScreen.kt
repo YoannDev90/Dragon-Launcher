@@ -84,7 +84,6 @@ import kotlin.math.max
 fun MainScreen(
     appsViewModel: AppsViewModel,
     floatingAppsViewModel: FloatingAppsViewModel,
-    appLifecycleViewModel: AppLifecycleViewModel,
     widgetHostProvider: WidgetHostProvider,
     nests: List<CircleNest>,
     points: List<SwipePointSerializable>,
@@ -102,7 +101,6 @@ fun MainScreen(
     /* ───────────── Custom Actions ─────────────*/
     val doubleClickAction by BehaviorSettingsStore.doubleClickAction.asStateNull()
     val backAction by BehaviorSettingsStore.backAction.asStateNull()
-    val homeAction by BehaviorSettingsStore.homeAction.asStateNull()
 
     val leftPadding by BehaviorSettingsStore.leftPadding.asState()
     val rightPadding by BehaviorSettingsStore.rightPadding.asState()
@@ -225,17 +223,17 @@ fun MainScreen(
         )
     }
 
-
-    LaunchedEffect(Unit) {
-        appLifecycleViewModel.homeEvents.collect {
-            // HOME while already on MAIN
-            // Decide locally what it means
-
-            if (homeAction != null) {
-                launchAction(dummySwipePoint(homeAction))
-            }
-        }
-    }
+//
+//    LaunchedEffect(Unit) {
+//        appLifecycleViewModel.homeEvents.collect {
+//            // HOME while already on MAIN
+//            // Decide locally what it means
+//
+//            if (homeAction != null) {
+//                launchAction(dummySwipePoint(homeAction))
+//            }
+//        }
+//    }
 
     /**
      * 1. Tests if the current nest is the main, if not, go back one nest
