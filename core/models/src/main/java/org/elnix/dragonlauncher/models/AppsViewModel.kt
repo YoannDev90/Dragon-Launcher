@@ -8,6 +8,7 @@ import android.content.res.Resources
 import android.content.res.XmlResourceParser
 import android.graphics.drawable.Drawable
 import android.os.Build
+import android.util.Xml
 import androidx.annotation.RequiresApi
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.ImageBitmap
@@ -769,23 +770,30 @@ class AppsViewModel(
     ): ImageBitmap {
 
         val base: ImageBitmap =
-            customIcon.takeIf { it.type == IconType.ICON_PACK }
-                ?.source
-                ?.takeIf { ',' in it }
-                ?.let { source ->
-                    val (drawable, packName) = source.split(',', limit = 2)
+            if (customIcon.type == IconType.ICON_PACK) {
 
-                    logD(ICONS_TAG, "$drawable $packName")
+                val source = customIcon.source
 
-                    // If source is a specified icon from icon pack, use it, else, load the action icon
-                    loadIconFromPack(packName, drawable)
-                        ?.let {
-                            logD(ICONS_TAG, "$it")
+                if (!source.isNullOrBlank() && ',' in source) {
 
-                            loadDrawableAsBitmap(it, sizePx, sizePx, packTint.value)
-                        }
-                }
-                ?: orig
+                    val (drawableName, packPkg) = source.split(',', limit = 2)
+
+                    loadIconFromPack(
+                        packPkg = packPkg,
+                        iconName = drawableName,
+                        targetPkg = "" // Manual selection
+                    )?.let { drawable ->
+                        loadDrawableAsBitmap(
+                            drawable = drawable,
+                            width = sizePx,
+                            height = sizePx,
+                            tint = packTint.value
+                        )
+                    } ?: orig
+
+                } else orig
+
+            } else orig
 
         return resolveCustomIconBitmap(
             base = base,
@@ -849,13 +857,21 @@ class AppsViewModel(
 
         var isIconPack = false
         val packIconName = getCachedIconMapping(packageName)
+        val selectedPack = selectedIconPack.value
+
         val drawable =
-            packIconName?.let { packName ->
+            if (selectedPack != null) {
                 isIconPack = true
-                loadIconFromPack(
-                    packPkg = selectedIconPack.value?.packageName,
-                    iconName = packName
-                )
+
+                packIconName?.let { packName ->
+                    loadIconFromPack(
+                        packPkg = selectedPack.packageName,
+                        iconName = packName,
+                        targetPkg = packageName
+                    )
+                }
+            } else {
+                null
             } ?: pmCompat.getAppIcon(packageName, userId ?: 0, isPrivateProfile)
 
 
@@ -941,7 +957,6 @@ class AppsViewModel(
     /* ───────────── Multiple Load Functions ───────────── */
 
 
-
     /**
      * Preload a given list of point icons asynchronously and per icon updates the icons list
      *
@@ -992,29 +1007,51 @@ class AppsViewModel(
         _icons.update { updated }
     }
 
-    @SuppressLint("DiscouragedApi")
-    fun loadIconFromPack(packPkg: String?, iconName: String): Drawable? {
-        if (packPkg == null || iconName.isEmpty()) return null
-
-        return try {
-            logI(ICONS_TAG, "packPkg: $packPkg; iconName: $iconName")
-            val packResources = ctx.packageManager.getResourcesForApplication(packPkg)
-            val resId = packResources.getIdentifier(iconName, "drawable", packPkg)
-            if (resId != 0) {
-                ResourcesCompat.getDrawable(packResources, resId, null)
-            } else if (isIconPackStudioPack(packPkg)) {
-                val normalized = packPkg.replace('.', '_')
-                loadDrawableFromIpsPack(packPkg, normalized)
-            } else null
-        } catch (_: Exception) {
-            logE(ICONS_TAG, "Failed to load icon $iconName from $packPkg")
-            null
-        }
-    }
-
-
 
     /* ──────────────────────────────────────────────────  */
+
+
+    /**
+     * Loads a drawable from the specified icon pack using a resolved drawable name.
+     *
+     * The function attempts to resolve the provided [iconName] as a `drawable`
+     * resource within the icon pack identified by [packPkg]. If a matching
+     * resource is found, it is returned as a [Drawable].
+     *
+     * This method assumes that the correct drawable name has already been
+     * determined (e.g., via appfilter mapping or manual naming strategy).
+     * No additional fallback logic is performed here.
+     *
+     * @param packPkg Package name of the icon pack. If `null`, the function
+     *                returns `null` immediately.
+     * @param iconName Name of the drawable resource inside the icon pack.
+     * @param targetPkg Package name of the target application (used for logging/debugging).
+     *
+     * @return The resolved [Drawable] if found, or `null` if the drawable
+     *         resource does not exist in the icon pack.
+     */
+    @SuppressLint("DiscouragedApi")
+    fun loadIconFromPack(
+        packPkg: String?,
+        iconName: String,
+        targetPkg: String
+    ): Drawable? {
+
+        logD(ICONS_TAG, "Resolving icon → app=$targetPkg pack=$packPkg resolvedName=$iconName")
+
+        if (packPkg == null) return null
+
+        val packResources = ctx.packageManager.getResourcesForApplication(packPkg)
+
+        // 1. Try standard drawable name
+        val drawableId = packResources.getIdentifier(iconName, "drawable", packPkg)
+        logD(ICONS_TAG, "Trying drawable: name=$iconName id=$drawableId")
+        if (drawableId != 0) {
+            return ResourcesCompat.getDrawable(packResources, drawableId, null)
+        }
+
+        return null
+    }
 
 
     /**
@@ -1042,14 +1079,27 @@ class AppsViewModel(
         }
     }
 
+    /**
+     * Retrieves a cached icon mapping for the given application package.
+     *
+     * This method checks the currently selected icon pack for a drawable
+     * mapping corresponding to [pkgName]. It first attempts an exact
+     * component-level match using the app's launch intent. If no exact match
+     * is found, it falls back to a package-level match.
+     *
+     * The result is cached in [IconPackCache] to avoid repeatedly parsing
+     * icon pack resources.
+     *
+     * @param pkgName The package name of the target application.
+     *
+     * @return The drawable name from the icon pack if a mapping exists,
+     *         or `null` if no mapping is found.
+     */
     private fun getCachedIconMapping(pkgName: String): String? {
         val pack = selectedIconPack.value ?: return null
         val cache = getCache(pack.packageName)
 
-        if (isIconPackStudioPack(pack.packageName)) {
-            val lastSeg = pkgName.substringAfterLast('.')
-            return cache.componentToDrawable[lastSeg]
-        }
+        logD(ICONS_TAG, "getCachedIconMapping → app=$pkgName pack=${pack.packageName}")
 
         val launchIntent = runCatching {
             pm.getLaunchIntentForPackage(pkgName)
@@ -1071,6 +1121,7 @@ class AppsViewModel(
             return it
         }
 
+        logD(ICONS_TAG, "No mapping found for $pkgName")
         return null
     }
 
@@ -1110,21 +1161,19 @@ class AppsViewModel(
 
             try {
                 val packResources = pmCompat.getResourcesForApplication(pkgInfo.packageName)
-                val hasAppfilter = hasStandardAppFilter(packResources, pkgInfo.packageName)
-                val isIps = isIconPackStudioPack(pkgInfo.packageName)
+                val hasAppfilter = hasStandardAppFilter(packResources)
 
-                if (hasAppfilter || isIps) {
+                if (hasAppfilter) {
                     val name = pkgInfo.applicationInfo?.loadLabel(pm).toString()
                     logD(
                         ICONS_TAG,
-                        "FOUND icon pack: $name (${pkgInfo.packageName}); is standard: $isIps"
+                        "FOUND icon pack: $name (${pkgInfo.packageName}"
                     )
 
                     packs.add(
                         IconPackInfo(
                             packageName = pkgInfo.packageName,
-                            name = name,
-                            isManualOnly = isIps
+                            name = name
                         )
                     )
                 }
@@ -1139,15 +1188,6 @@ class AppsViewModel(
 
     fun loadIconPackMappings(packPkg: String): IconPackCache {
         return try {
-            if (isIconPackStudioPack(packPkg)) {
-                val drawables = loadIpsIcons(packPkg)
-                val componentMap = drawables.associateWith { it }
-                return IconPackCache(
-                    pkgToDrawables = emptyMap(),
-                    componentToDrawable = componentMap
-                )
-            }
-
             val entries = parseAppFilterXml(ctx, packPkg) ?: emptyList()
 
             val componentToDrawable = mutableMapOf<String, String>()
@@ -1175,31 +1215,6 @@ class AppsViewModel(
         }
     }
 
-
-    private fun loadIpsIcons(packPkg: String): List<String> {
-        return try {
-            val clazz = Class.forName("$packPkg.R\$drawable")
-            clazz.fields
-                .filter { it.type == Int::class.javaPrimitiveType }
-                .map { it.name }
-        } catch (e: Exception) {
-            logE(ICONS_TAG, "Failed to load IPS drawables: ${e.message}")
-            emptyList()
-        }
-    }
-
-    fun loadDrawableFromIpsPack(packPkg: String, iconName: String): Drawable? {
-        return try {
-            val clazz = Class.forName("$packPkg.R\$drawable")
-            val field = clazz.getDeclaredField(iconName)
-            val resId = field.getInt(null)
-            val res = ctx.packageManager.getResourcesForApplication(packPkg)
-            ResourcesCompat.getDrawable(res, resId, null)
-        } catch (e: Exception) {
-            logE(ICONS_TAG, "Failed to load IPS icon $iconName from $packPkg: ${e.message}")
-            null
-        }
-    }
 
     private fun normalizeComponent(raw: String): String {
         var comp = raw
@@ -1315,7 +1330,6 @@ class AppsViewModel(
                 .mapNotNull { pkg -> allApps[pkg] }
         }.stateIn(scope, SharingStarted.Eagerly, emptyList())
     }
-
 
 
     /* ───────────── Workspace System───────────── */
@@ -1583,44 +1597,118 @@ class AppsViewModel(
     }
 }
 
-
-private fun isIconPackStudioPack(pkg: String): Boolean {
-    return pkg == "ginlemon.iconpackstudio.exported"
+/**
+ * Checks whether the given [Resources] instance contains an `appfilter.xml`
+ * inside the `assets/` directory.
+ *
+ * This is used as a lightweight heuristic to detect traditional icon packs
+ * that ship a standard `appfilter.xml` file in their assets folder.
+ *
+ * Note:
+ * - Some icon packs place `appfilter.xml` under `res/xml/` instead of `assets/`.
+ * - A `false` result does not guarantee that no app filter exists, only that
+ *   it was not found in the `assets` directory.
+ *
+ * @param res Resources of the icon pack application.
+ * @return `true` if `assets/appfilter.xml` can be opened successfully,
+ *         `false` otherwise.
+ */
+private fun hasStandardAppFilter(res: Resources): Boolean {
+    return try {
+        res.assets.open("appfilter.xml").use { true }
+    } catch (e: Exception) {
+        e.printStackTrace()
+        false
+    }
 }
 
-@SuppressLint("DiscouragedApi")
-private fun hasStandardAppFilter(res: Resources, pkg: String): Boolean {
-    return res.getIdentifier("appfilter", "xml", pkg) != 0
-}
-
-
+/**
+ * Attempts to parse icon mappings from an icon pack's `appfilter.xml`.
+ *
+ * The function tries both common locations used by icon packs:
+ *
+ * 1. `assets/appfilter.xml`
+ * 2. `res/xml/appfilter.xml`
+ *
+ * If mappings are successfully parsed from the first location, the second
+ * is not attempted. If neither location yields valid mappings, `null`
+ * is returned.
+ *
+ * This supports both traditional icon packs and variations that place
+ * the filter file in different locations.
+ *
+ * @param ctx Context used to obtain the target application's resources.
+ * @param packPkg Package name of the icon pack.
+ * @return A list of [IconMapping] entries if parsing succeeds,
+ *         or `null` if no valid `appfilter.xml` could be found or parsed.
+ */
 @SuppressLint("DiscouragedApi")
 private fun parseAppFilterXml(ctx: Context, packPkg: String): List<IconMapping>? {
-    return try {
-        val packResources = ctx.packageManager.getResourcesForApplication(packPkg)
-        val resId = packResources.getIdentifier("appfilter", "xml", packPkg)
-        if (resId == 0) return null
+    val packResources = ctx.packageManager.getResourcesForApplication(packPkg)
+    var mappings: List<IconMapping>? = null
 
-        val parser: XmlResourceParser = packResources.getXml(resId)
-        val mappings = mutableListOf<IconMapping>()
-
-        var eventType = parser.eventType
-        while (eventType != XmlPullParser.END_DOCUMENT) {
-            if (eventType == XmlPullParser.START_TAG && parser.name == "item") {
-                val component = parser.getAttributeValue(null, "component")
-                val drawable = parser.getAttributeValue(null, "drawable")
-                if (!component.isNullOrEmpty() && !drawable.isNullOrEmpty()) {
-                    mappings.add(IconMapping(component, drawable))
-                }
-            }
-            eventType = parser.next()
+    // 1. Try assets/appfilter.xml first
+    try {
+        packResources.assets.open("appfilter.xml").use { input ->
+            val parser = Xml.newPullParser()
+            parser.setInput(input.reader())
+            mappings = parseXml(parser)
         }
-        parser.close()
-        mappings
+        if (mappings?.isNotEmpty() == true) {
+            ctx.logD(ICONS_TAG, "Loaded ${mappings.size} mappings from assets/appfilter.xml")
+            return mappings
+        }
     } catch (e: Exception) {
-        ctx.logE(ICONS_TAG, "XML parse failed: ${e.message}")
-        null
+        ctx.logD(ICONS_TAG, "Assets appfilter.xml failed: ${e.message}")
     }
+
+    // 2. Fallback to res/xml/appfilter.xml
+    val resId = packResources.getIdentifier("appfilter", "xml", packPkg)
+    if (resId == 0) return null
+
+    try {
+        val parser: XmlResourceParser = packResources.getXml(resId)
+        mappings = parseXml(parser)
+        ctx.logD(ICONS_TAG, "Loaded ${mappings.size} mappings from res/xml/appfilter.xml")
+    } catch (e: Exception) {
+        ctx.logE(ICONS_TAG, "res/xml/appfilter.xml parse failed: ${e.message}")
+    }
+
+    return mappings
+}
+
+/**
+ * Parses an `appfilter.xml` document and extracts icon mapping entries.
+ *
+ * The parser scans for `<item>` tags and reads:
+ * - `component` or `activity` attribute (component name)
+ * - `drawable` attribute (icon resource name)
+ *
+ * Each valid pair is converted into an [IconMapping] and added to the result list.
+ * Entries missing required attributes are ignored.
+ *
+ * @param parser An initialized [XmlPullParser] positioned at the start of
+ *               an `appfilter.xml` document.
+ * @return A list of parsed [IconMapping] objects. The list may be empty
+ *         if no valid `<item>` entries are found.
+ */
+private fun parseXml(parser: XmlPullParser): List<IconMapping> {
+    val mappings = mutableListOf<IconMapping>()
+    var eventType = parser.eventType
+    while (eventType != XmlPullParser.END_DOCUMENT) {
+        if (eventType == XmlPullParser.START_TAG && parser.name == "item") {
+            val component = parser.getAttributeValue(null, "component") ?: parser.getAttributeValue(
+                null,
+                "activity"
+            )
+            val drawable = parser.getAttributeValue(null, "drawable")
+            if (!component.isNullOrEmpty() && !drawable.isNullOrEmpty()) {
+                mappings.add(IconMapping(component, drawable))
+            }
+        }
+        eventType = parser.next()
+    }
+    return mappings
 }
 
 /**
