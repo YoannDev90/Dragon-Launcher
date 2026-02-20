@@ -30,8 +30,8 @@ import org.elnix.dragonlauncher.common.serializables.AppModel
 import org.elnix.dragonlauncher.common.serializables.WorkspaceState
 import org.elnix.dragonlauncher.models.AppsViewModel
 import org.elnix.dragonlauncher.ui.UiConstants.DragonShape
-import org.elnix.dragonlauncher.ui.components.dragon.DragonIconButton
 import org.elnix.dragonlauncher.ui.components.ValidateCancelButtons
+import org.elnix.dragonlauncher.ui.components.dragon.DragonIconButton
 import org.elnix.dragonlauncher.ui.helpers.Bubble
 
 @Composable
@@ -41,6 +41,7 @@ fun AppAliasesDialog(
     onDismiss: () -> Unit
 ) {
     var showAliasEditScreen by remember { mutableStateOf<String?>(null) }
+    val cacheKey = app.iconCacheKey
 
     val state by appsViewModel.enabledState
         .collectAsState(WorkspaceState())
@@ -104,7 +105,7 @@ fun AppAliasesDialog(
                         Bubble(
                             onClick = { showAliasEditScreen = alias },
                             onLongClick = {
-                                appsViewModel.removeAliasFromWorkspace(alias, app.packageName)
+                                appsViewModel.removeAliasFromWorkspace(alias, cacheKey)
                             }
                         ) {
                             Text(
@@ -136,10 +137,9 @@ fun AppAliasesDialog(
             initialAlias = aliasToEdit,
             onDismiss = { showAliasEditScreen = null }
         ) {
-            appsViewModel.removeAliasFromWorkspace(aliasToEdit, app.packageName)
-            appsViewModel.addAliasToApp(it, app.packageName)
+            appsViewModel.removeAliasFromWorkspace(aliasToEdit, cacheKey)
+            appsViewModel.addAliasToApp(it, cacheKey)
             showAliasEditScreen = null
         }
     }
-
 }

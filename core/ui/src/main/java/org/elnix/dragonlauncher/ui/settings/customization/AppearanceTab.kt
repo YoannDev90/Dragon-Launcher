@@ -79,7 +79,7 @@ fun AppearanceTab(
         animationSpec = tween(150)
     )
 
-    val icons by appsViewModel.pointIcons.collectAsState()
+    val icons by appsViewModel.icons.collectAsState()
 
 
     SettingsLazyHeader(

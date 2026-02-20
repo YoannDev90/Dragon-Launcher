@@ -1,7 +1,6 @@
 package org.elnix.dragonlauncher.ui.dialogs
 
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
@@ -27,8 +26,9 @@ fun AppModelInfoDialog(
                 Text(text = stringResource(R.string.app_info_is_work_profile, app.isWorkProfile.toString()))
                 Text(text = stringResource(R.string.app_info_is_private_profile, app.isPrivateProfile.toString()))
                 Text(text = stringResource(R.string.app_info_is_launchable, app.isLaunchable.toString()))
-                Text(text = stringResource(R.string.app_info_settings, app.settings.toString()))
+//                Text(text = stringResource(R.string.app_info_settings, app.settings.toString()))
                 Text(text = stringResource(R.string.app_info_user_id, app.userId.toString()))
+                Text(text = stringResource(R.string.app_info_user_id, app.iconCacheKey.cacheKey))
             }
         },
         dismissButton = {},

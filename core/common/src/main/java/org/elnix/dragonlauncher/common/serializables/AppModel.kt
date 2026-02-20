@@ -16,12 +16,66 @@ data class AppModel(
     @SerializedName("isPrivateProfile") val isPrivateProfile: Boolean = false // Android 15+ Private Space
 ) {
     val action = SwipeActionSerializable.LaunchApp(packageName,isPrivateProfile , userId ?: 0)
+
+    /**
+     * Builds a stable cache key for an app icon entry.
+     *
+     * The key is composed of:
+     * - the application package name
+     * - a user identifier suffix
+     *
+     * Format:
+     * `packageName#userId`
+     *
+     * If [userId] is null, `0` is used as a fallback. This ensures:
+     * - consistent keys for primary user apps
+     * - separation between the same package installed for different users/profiles
+     *
+     * Example:
+     * - `com.example.app#0`
+     * - `com.example.app#10`
+     *
+     * @param packageName The application package name.
+     * @param userId The Android user/profile id. Null defaults to 0.
+     * @return A unique and deterministic cache key for icon storage.
+     */
+    val iconCacheKey: CacheKey
+        get() = CacheKey("$packageName#${userId ?: 0}")
 }
 
-fun iconCacheKey(packageName: String, userId: Int?): String = "$packageName#${userId ?: 0}"
 
-fun AppModel.iconCacheKey(): String = iconCacheKey(packageName, userId)
+data class CacheKey (
+    val cacheKey: String
+)
 
+fun SwipeActionSerializable.LaunchApp.toAppModel() =
+    AppModel(
+        name = packageName,
+        packageName = packageName,
+        isEnabled = true, // Unknown
+        isSystem = false, // Unknown
+        isWorkProfile = false, // Unknown
+        isLaunchable = true, // Unknown
+        userId = userId,
+        category = AppCategory.Other,
+        isPrivateProfile = false, // Unknown
+    )
+
+fun dummyAppModel(
+    packageName: String,
+    userId: Int = 0
+) =
+    AppModel(
+        name = packageName,
+        packageName = packageName,
+        isEnabled = true, // Dummy
+        isSystem = false, // Dummy
+        isWorkProfile = false, // Dummy
+        isLaunchable = true, // Dummy
+        userId = userId,
+        category = AppCategory.Other,
+        isPrivateProfile = false, // Dummy
+    )
 
 enum class AppCategory {
     Games,
@@ -122,6 +176,6 @@ val defaultWorkspaces = listOf(
 data class IconPackInfo(
     val packageName: String,
     val name: String,
-    val isManualOnly: Boolean
+//    val isManualOnly: Boolean
 )
 data class IconMapping(val component: String, val drawable: String)

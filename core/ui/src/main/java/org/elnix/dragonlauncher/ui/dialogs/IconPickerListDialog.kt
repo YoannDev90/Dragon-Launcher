@@ -178,7 +178,7 @@ private fun IconCell(
 
     val bitmap by produceState<ImageBitmap?>(null, drawableName) {
         value = withContext(Dispatchers.IO) {
-            appsViewModel.loadIconFromPack(pack.packageName, drawableName)
+            appsViewModel.loadIconFromPack(pack.packageName, drawableName, "")
                 ?.let { loadDrawableAsBitmap(it, 96, 96, packTint) }
         }
     }

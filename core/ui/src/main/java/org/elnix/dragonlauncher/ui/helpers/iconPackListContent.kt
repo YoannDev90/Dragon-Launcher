@@ -30,7 +30,9 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import org.elnix.dragonlauncher.common.R
 import org.elnix.dragonlauncher.common.serializables.IconPackInfo
+import org.elnix.dragonlauncher.common.serializables.dummyAppModel
 import org.elnix.dragonlauncher.ui.UiConstants.DragonShape
+import org.elnix.dragonlauncher.ui.components.dragon.DragonIconButton
 
 fun LazyListScope.iconPackListContent(
     packs: List<IconPackInfo>,
@@ -43,7 +45,9 @@ fun LazyListScope.iconPackListContent(
 ) {
 
     item {
-        Row{
+        Row(
+            verticalAlignment = Alignment.CenterVertically
+        ) {
             Text(
                 text = stringResource(R.string.icon_packs_found, packs.size),
                 modifier = Modifier.padding(horizontal = 16.dp, vertical = 8.dp),
@@ -51,14 +55,12 @@ fun LazyListScope.iconPackListContent(
                 color = MaterialTheme.colorScheme.onBackground
             )
             // Refresh icon
-            Icon(
-                Icons.Default.Refresh,
-                contentDescription = null,
-                modifier = Modifier
-                    .padding(horizontal = 16.dp, vertical = 8.dp)
-                    .size(20.dp)
-                    .clickable { onReloadPacks() }
-            )
+            DragonIconButton(onReloadPacks) {
+                Icon(
+                    Icons.Default.Refresh,
+                    contentDescription = stringResource(R.string.reload),
+                )
+            }
         }
     }
 
@@ -73,11 +75,16 @@ fun LazyListScope.iconPackListContent(
             horizontalArrangement = Arrangement.SpaceBetween,
             verticalAlignment = Alignment.CenterVertically
         ) {
+            val packPkg = pack.packageName
+            val packCacheKey = dummyAppModel(packPkg).iconCacheKey.cacheKey
 
             Row(horizontalArrangement = Arrangement.spacedBy(12.dp)) {
-                val packIcon = icons[pack.packageName]
+                val packIcon = icons[packCacheKey]
 
-                Box(Modifier.size(40.dp)) {
+                Box(
+                    Modifier.size(40.dp),
+                    contentAlignment = Alignment.Center
+                ) {
                     if (packIcon != null) {
                         Image(
                             bitmap = packIcon,

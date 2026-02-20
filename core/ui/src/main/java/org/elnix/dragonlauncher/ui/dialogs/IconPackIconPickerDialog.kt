@@ -52,7 +52,7 @@ fun IconPackPickerDialog(
                         appsViewModel.loadIconPacks()
                     },
                     onPackClick = { pack ->
-                        appsViewModel.loadAllIconsFromPack(pack)
+                        appsViewModel.loadAllIconsMappingsFromPack(pack)
                         showIconPickerDialog = pack
                     },
                     onClearClick = {}

@@ -93,8 +93,7 @@ fun WorkspaceDetailScreen(
     var showAppPicker by remember { mutableStateOf(false) }
     var showDetailScreen by remember { mutableStateOf<AppModel?>(null) }
 
-    var showRenameAppDialog by remember { mutableStateOf(false) }
-    var renameTargetPackage by remember { mutableStateOf<String?>(null) }
+    var renameTarget by remember { mutableStateOf<AppModel?>(null) }
     var renameText by remember { mutableStateOf("") }
 
     var showAliasDialog by remember { mutableStateOf<AppModel?>(null) }
@@ -148,7 +147,7 @@ fun WorkspaceDetailScreen(
             modifier = Modifier
                 .align(Alignment.BottomEnd)
                 .padding(16.dp),
-            containerColor =  MaterialTheme.colorScheme.primary
+            containerColor = MaterialTheme.colorScheme.primary
         ) {
             Icon(Icons.Default.Add, null)
         }
@@ -173,7 +172,7 @@ fun WorkspaceDetailScreen(
             onDismiss = { showAppPicker = false },
             onAppSelected = { app ->
                 scope.launch {
-                    appsViewModel.addAppToWorkspace(workspaceId, app.packageName)
+                    appsViewModel.addAppToWorkspace(workspaceId, app.iconCacheKey)
                 }
             }
         )
@@ -181,6 +180,8 @@ fun WorkspaceDetailScreen(
 
     if (showDetailScreen != null) {
         val app = showDetailScreen!!
+        val cacheKey = app.iconCacheKey
+        val cacheKeyString = cacheKey.cacheKey
 
         AppLongPressDialog(
             app = app,
@@ -199,13 +200,15 @@ fun WorkspaceDetailScreen(
                     }
                 )
             },
-            onRemoveFromWorkspace = if (app.packageName !in (workspace.removedAppIds ?: emptyList())) {
+            onRemoveFromWorkspace = if (cacheKeyString !in (workspace.removedAppIds
+                    ?: emptyList())
+            ) {
                 {
                     workspaceId.let {
                         scope.launch {
                             appsViewModel.removeAppFromWorkspace(
-                                it,
-                                app.packageName
+                                workspaceId = it,
+                                cacheKey = cacheKey
                             )
                         }
                     }
@@ -216,8 +219,8 @@ fun WorkspaceDetailScreen(
                     workspaceId.let {
                         scope.launch {
                             appsViewModel.addAppToWorkspace(
-                                it,
-                                app.packageName
+                                workspaceId = it,
+                                cacheKey = cacheKey
                             )
                         }
                     }
@@ -225,8 +228,7 @@ fun WorkspaceDetailScreen(
             } else null,
             onRenameApp = {
                 renameText = app.name
-                renameTargetPackage = app.packageName
-                showRenameAppDialog = true
+                renameTarget = app
             },
             onChangeAppIcon = {
                 iconTargetApp = app
@@ -236,41 +238,41 @@ fun WorkspaceDetailScreen(
         )
     }
 
-    RenameAppDialog(
-        visible = showRenameAppDialog,
-        title = stringResource(R.string.rename_app),
-        name = renameText,
-        onNameChange = { renameText = it },
-        onConfirm = {
-            val pkg = renameTargetPackage ?: return@RenameAppDialog
+    if (renameTarget != null) {
+        val app = renameTarget!!
+        val cacheKey = app.iconCacheKey
+        RenameAppDialog(
+            title = stringResource(R.string.rename_app),
+            name = renameText,
+            onNameChange = { renameText = it },
+            onConfirm = {
 
-            scope.launch {
-                appsViewModel.renameApp(
-                    packageName = pkg,
-                    name = renameText
-                )
-            }
+                scope.launch {
+                    appsViewModel.renameApp(
+                        cacheKey = cacheKey,
+                        name = renameText
+                    )
+                }
 
-            showRenameAppDialog = false
-            showDetailScreen = null
-            renameTargetPackage = null
-        },
-        onReset = {
-            val pkg = renameTargetPackage ?: return@RenameAppDialog
+                showDetailScreen = null
+                renameTarget = null
+            },
+            onReset = {
 
-            scope.launch {
-                appsViewModel.resetAppName(pkg)
-            }
-            showRenameAppDialog = false
-            renameTargetPackage = null
-        },
-        onDismiss = { showRenameAppDialog = false }
-    )
+                scope.launch {
+                    appsViewModel.resetAppName(cacheKey)
+                }
+                renameTarget = null
+            },
+            onDismiss = { renameTarget = null }
+        )
+    }
 
     if (iconTargetApp != null) {
 
         val app = iconTargetApp!!
         val pkg = app.packageName
+        val cacheKey = app.iconCacheKey
 
         val iconOverride =
             overrides[pkg]?.customIcon
@@ -303,17 +305,14 @@ fun WorkspaceDetailScreen(
             appsViewModel = appsViewModel,
             onDismiss = { iconTargetApp = null }
         ) {
-            val app = iconTargetApp ?: return@IconEditorDialog
-            val pkg = app.packageName
-
             scope.launch {
                 if (it != null) {
                     appsViewModel.setAppIcon(
-                        pkg,
-                        it
+                        cacheKey = cacheKey,
+                        customIcon = it
                     )
                 } else {
-                    appsViewModel.resetAppIcon(pkg)
+                    appsViewModel.resetAppIcon(cacheKey)
                 }
             }
             iconTargetApp = null

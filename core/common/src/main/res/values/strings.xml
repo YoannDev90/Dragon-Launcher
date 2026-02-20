@@ -668,6 +668,7 @@
     <string name="app_info_is_launchable">isLaunchable = %1$s</string>
     <string name="app_info_settings">settings = %1$s</string>
     <string name="app_info_user_id">userId = %1$s</string>
+    <string name="app_info_cacheKey">cacheKey = %1$s</string>
     <string name="no_apps">No apps</string>
     <string name="unlock">Unlock</string>
 
@@ -744,5 +745,6 @@
     <string name="action_settings">Action Settings</string>
     <string name="drawer_settings">Drawer Settings</string>
     <string name="more">More</string>
+    <string name="reload">Reload</string>
 
 </resources>
