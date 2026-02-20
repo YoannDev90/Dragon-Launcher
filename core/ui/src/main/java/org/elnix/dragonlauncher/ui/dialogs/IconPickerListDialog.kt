@@ -5,23 +5,19 @@ import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.wrapContentWidth
 import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.lazy.grid.items
-import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Close
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
-import androidx.compose.material3.TextField
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
@@ -31,7 +27,6 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.ImageBitmap
 import androidx.compose.ui.res.stringResource
@@ -43,10 +38,10 @@ import kotlinx.coroutines.withContext
 import org.elnix.dragonlauncher.common.R
 import org.elnix.dragonlauncher.common.serializables.IconPackInfo
 import org.elnix.dragonlauncher.common.utils.ImageUtils.loadDrawableAsBitmap
-import org.elnix.dragonlauncher.common.utils.colors.adjustBrightness
 import org.elnix.dragonlauncher.models.AppsViewModel
 import org.elnix.dragonlauncher.ui.UiConstants.DragonShape
-import org.elnix.dragonlauncher.ui.colors.AppObjectsColors
+import org.elnix.dragonlauncher.ui.helpers.AppDrawerSearch
+import org.elnix.dragonlauncher.ui.modifiers.shapedClickable
 
 @OptIn(ExperimentalFoundationApi::class)
 @Composable
@@ -79,45 +74,26 @@ fun IconPickerListDialog(
         onDismissRequest = onDismiss,
         title = {
             Column {
-                Row(
-                    verticalAlignment = Alignment.CenterVertically,
-                    horizontalArrangement = Arrangement.spacedBy(5.dp),
-                    modifier = Modifier
-                        .height(75.dp)
-                ) {
-                    Text(
-                        text = "Select Icon",
-                        modifier = Modifier.wrapContentWidth(),
-                        color = MaterialTheme.colorScheme.onSurface,
-                        style = MaterialTheme.typography.titleMedium,
-                    )
 
-
-                    TextField(
-                        value = searchQuery,
-                        onValueChange = { searchQuery = it },
-                        singleLine = true,
-                        trailingIcon = {
-                            Icon(
-                                Icons.Default.Close,
-                                contentDescription = null,
-                                modifier = Modifier.clickable {
-                                    searchQuery = ""
-                                }
-                            )
-                        },
-                        placeholder = { Text("Search drawableNames") },
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .clip(CircleShape),
-                        colors = AppObjectsColors.outlinedTextFieldColors(
-                            removeBorder = true,
-                            backgroundColor = MaterialTheme.colorScheme.surface.adjustBrightness(
-                                0.8f
-                            )
+                AppDrawerSearch(
+                    searchQuery = searchQuery,
+                    placeholderText = stringResource(R.string.select_icon),
+                    trailingIcon = {
+                        Icon(
+                            Icons.Default.Close,
+                            contentDescription = null,
+                            modifier = Modifier.shapedClickable {
+                                searchQuery = ""
+                            }
                         )
-                    )
-                }
+                    },
+                    onSearchChanged = { searchQuery = it },
+
+                    // No need to put anything here, the thing is working well without,
+                    // if i put isSearchbarEnabled = true inside, I need to spam
+                    // that search button to show the search abr somehow
+                    onFocusStateChanged = { }
+                )
             }
         },
         text = {

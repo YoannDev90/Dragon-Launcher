@@ -746,5 +746,6 @@
     <string name="drawer_settings">Drawer Settings</string>
     <string name="more">More</string>
     <string name="reload">Reload</string>
+    <string name="select_icon">Select Icon</string>
 
 </resources>
