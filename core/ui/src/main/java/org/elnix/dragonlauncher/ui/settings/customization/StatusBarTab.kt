@@ -268,10 +268,19 @@ fun StatusBarTab(
 
                             SettingsSwitchRow(
                                 setting = StatusBarSettingsStore.showNotifications,
-                                enabled = false,
                                 title = stringResource(R.string.show_notifications),
-                                description = stringResource(R.string.not_implemented)
+                                description = stringResource(R.string.show_notifications_desc)
                             )
+
+                            val showNotifications by StatusBarSettingsStore.showNotifications.asState()
+                            AnimatedVisibility(showNotifications) {
+                                SettingsSlider(
+                                    setting = StatusBarSettingsStore.maxNotificationIcons,
+                                    title = stringResource(R.string.max_notification_icons),
+                                    valueRange = 1..10,
+                                )
+                            }
+
                             SettingsSwitchRow(
                                 setting = StatusBarSettingsStore.showBattery,
                                 title = stringResource(R.string.show_battery),
@@ -282,6 +291,12 @@ fun StatusBarTab(
                                 setting = StatusBarSettingsStore.showConnectivity,
                                 title = stringResource(R.string.show_connectivity),
                                 description = stringResource(R.string.show_connectivity_desc)
+                            )
+
+                            SettingsSwitchRow(
+                                setting = StatusBarSettingsStore.showBandwidth,
+                                title = stringResource(R.string.show_bandwidth),
+                                description = stringResource(R.string.show_bandwidth_desc)
                             )
                         }
 
