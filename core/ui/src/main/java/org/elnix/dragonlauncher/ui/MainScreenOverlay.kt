@@ -39,6 +39,8 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.IntSize
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import org.elnix.dragonlauncher.base.theme.LocalExtraColors
+import org.elnix.dragonlauncher.common.points.SwipeDrawParams
 import org.elnix.dragonlauncher.common.serializables.CircleNest
 import org.elnix.dragonlauncher.common.serializables.SwipePointSerializable
 import org.elnix.dragonlauncher.common.utils.vibrate
@@ -49,7 +51,6 @@ import org.elnix.dragonlauncher.settings.stores.UiSettingsStore
 import org.elnix.dragonlauncher.ui.components.AppPreviewTitle
 import org.elnix.dragonlauncher.ui.components.settings.asState
 import org.elnix.dragonlauncher.ui.helpers.nests.actionsInCircle
-import org.elnix.dragonlauncher.ui.theme.LocalExtraColors
 import kotlin.math.abs
 import kotlin.math.atan2
 import kotlin.math.cos
@@ -432,19 +433,21 @@ fun MainScreenOverlay(
                                     actionsInCircle(
                                         selected = false,
                                         point = p,
-                                        nests = nests,
-                                        points = points,
-                                        center = localCenter,
-                                        ctx = ctx,
-                                        showCircle = showAppCirclePreview,
-                                        surfaceColorDraw = Color.Unspecified,
-                                        extraColors = extraColors,
-                                        pointIcons = pointIcons,
-                                        defaultPoint = defaultPoint,
-                                        depth = 1,
-                                        maxDepth = maxNestsDepth,
-                                        iconShape = iconsShape,
-                                        density = density
+                                        drawParams = SwipeDrawParams(
+                                            nests = nests,
+                                            points = points,
+                                            center = localCenter,
+                                            ctx = ctx,
+                                            defaultPoint = defaultPoint,
+                                            pointIcons = pointIcons,
+                                            surfaceColorDraw = Color.Unspecified,
+                                            extraColors = extraColors,
+                                            showCircle = showAppCirclePreview,
+                                            density = density,
+                                            depth = 1,
+                                            maxDepth = maxNestsDepth,
+                                            iconShape = iconsShape
+                                        )
                                     )
                                 }
                         }
@@ -454,45 +457,49 @@ fun MainScreenOverlay(
                             actionsInCircle(
                                 selected = true,
                                 point = point,
-                                nests = nests,
-                                points = points,
-                                center = end,
-                                ctx = ctx,
-                                showCircle = showAppCirclePreview,
-                                surfaceColorDraw = Color.Unspecified,
-                                extraColors = extraColors,
-                                pointIcons = pointIcons,
-                                defaultPoint = defaultPoint,
-                                depth = 1,
-                                maxDepth = maxNestsDepth,
-                                iconShape = iconsShape,
-                                density = density
+                                drawParams = SwipeDrawParams(
+                                    nests = nests,
+                                    points = points,
+                                    center = end,
+                                    ctx = ctx,
+                                    defaultPoint = defaultPoint,
+                                    pointIcons = pointIcons,
+                                    surfaceColorDraw = Color.Unspecified,
+                                    extraColors = extraColors,
+                                    showCircle = showAppCirclePreview,
+                                    density = density,
+                                    depth = 1,
+                                    maxDepth = maxNestsDepth,
+                                    iconShape = iconsShape
+                                )
                             )
                         }
                     }
                 }
 
 
-                // Show the current selected app in the center of the circle
+                // Show the current selected app in the center of the circle (start pos)
                 if (showAppPreviewIconCenterStartPosition && hoveredPoint != null) {
                     val currentPoint = hoveredPoint!!
 
                     actionsInCircle(
                         selected = true,
                         point = currentPoint,
-                        nests = nests,
-                        points = points,
-                        center = start,
-                        ctx = ctx,
-                        showCircle = showAppCirclePreview,
-                        surfaceColorDraw = Color.Unspecified,
-                        extraColors = extraColors,
-                        pointIcons = pointIcons,
-                        defaultPoint = defaultPoint,
-                        depth = 1,
-                        maxDepth = maxNestsDepth,
-                        iconShape = iconsShape,
-                        density = density
+                        drawParams = SwipeDrawParams(
+                            nests = nests,
+                            points = points,
+                            center = start,
+                            ctx = ctx,
+                            defaultPoint = defaultPoint,
+                            pointIcons = pointIcons,
+                            surfaceColorDraw = Color.Unspecified,
+                            extraColors = extraColors,
+                            showCircle = showAppCirclePreview,
+                            density = density,
+                            depth = 1,
+                            maxDepth = maxNestsDepth,
+                            iconShape = iconsShape
+                        )
                     )
                 }
             }

@@ -1,46 +1,35 @@
 package org.elnix.dragonlauncher.ui.helpers.nests
 
-import android.content.Context
-import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.BlendMode
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.ImageBitmap
 import androidx.compose.ui.graphics.drawscope.DrawScope
 import androidx.compose.ui.graphics.drawscope.Stroke
-import androidx.compose.ui.unit.Density
-import org.elnix.dragonlauncher.common.serializables.CircleNest
-import org.elnix.dragonlauncher.common.serializables.IconShape
+import org.elnix.dragonlauncher.common.points.SwipeDrawParams
 import org.elnix.dragonlauncher.common.serializables.SwipePointSerializable
 import org.elnix.dragonlauncher.common.utils.UiCircle
 import org.elnix.dragonlauncher.common.utils.circles.computePointPosition
-import org.elnix.dragonlauncher.ui.theme.ExtraColors
 
 fun DrawScope.circlesSettingsOverlay(
+    drawParams: SwipeDrawParams,
+
     circles: List<UiCircle>,
-    showCircle: Boolean,
-    center: Offset,
-    points: List<SwipePointSerializable>,
-    defaultPoint: SwipePointSerializable,
     selectedPoint: SwipePointSerializable?,
-    backgroundColor: Color,
-    nests: List<CircleNest>,
-    ctx: Context,
-    extraColors: ExtraColors,
-    pointIcons: Map<String, ImageBitmap>,
     nestId: Int,
-    depth: Int,
-    maxDepth: Int,
-    shape: IconShape,
-    density: Density,
     selectedAll: Boolean = false,
     preventBgErasing: Boolean = false
 ) {
+
+    val points = drawParams.points
+    val surfaceColorDraw = drawParams.surfaceColorDraw
+    val extraColors = drawParams.extraColors
+    val center = drawParams.center
+    val showCircle = drawParams.showCircle
 
     // 0. Erases the inner circle
     /* ───────────── Erases the circle in the point ───────────── */
 
     // if no background color provided, erases the background
-    val eraseBg = backgroundColor == Color.Transparent && !preventBgErasing
+    val eraseBg = surfaceColorDraw == Color.Transparent && !preventBgErasing
     val maxCircleSize = circles.maxBy { it.radius }
 
     // Erases the color, instead of putting it, that lets the wallpaper pass trough
@@ -54,7 +43,7 @@ fun DrawScope.circlesSettingsOverlay(
     // If requested to not erase the bg, draw it (this avoid the more tinted bg when using a half transparent bg color
     if (!eraseBg) {
         drawCircle(
-            color = backgroundColor,
+            color = surfaceColorDraw,
             radius = maxCircleSize.radius,
             center = center
         )
@@ -86,21 +75,11 @@ fun DrawScope.circlesSettingsOverlay(
                 )
 
                 actionsInCircle(
-                    selected = selectedAll || (p.id == selectedPoint?.id),
+                    drawParams = drawParams.copy(
+                        center = newCenter
+                    ),
                     point = p,
-                    nests = nests,
-                    points = points,
-                    center = newCenter,
-                    ctx = ctx,
-                    showCircle = showCircle,
-                    surfaceColorDraw = backgroundColor,
-                    extraColors = extraColors,
-                    pointIcons = pointIcons,
-                    defaultPoint = defaultPoint,
-                    depth = depth,
-                    maxDepth = maxDepth,
-                    iconShape = shape,
-                    density = density,
+                    selected = selectedAll || (p.id == selectedPoint?.id),
                     preventBgErasing = preventBgErasing
                 )
             }

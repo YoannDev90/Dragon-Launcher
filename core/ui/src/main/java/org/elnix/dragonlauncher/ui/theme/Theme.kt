@@ -14,6 +14,7 @@ import androidx.compose.ui.platform.LocalContext
 import org.elnix.dragonlauncher.base.theme.AmoledDragonColorScheme
 import org.elnix.dragonlauncher.base.theme.DarkDragonColorScheme
 import org.elnix.dragonlauncher.base.theme.LightDragonColorScheme
+import org.elnix.dragonlauncher.base.theme.LocalExtraColors
 import org.elnix.dragonlauncher.enumsui.DefaultThemes
 import org.elnix.dragonlauncher.enumsui.DefaultThemes.AMOLED
 import org.elnix.dragonlauncher.enumsui.DefaultThemes.CUSTOM

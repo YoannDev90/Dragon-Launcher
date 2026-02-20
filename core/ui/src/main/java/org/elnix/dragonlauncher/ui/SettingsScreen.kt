@@ -85,12 +85,14 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.launch
 import org.elnix.dragonlauncher.base.ktx.toPixels
+import org.elnix.dragonlauncher.base.theme.LocalExtraColors
 import org.elnix.dragonlauncher.base.theme.addRemoveCirclesColor
 import org.elnix.dragonlauncher.base.theme.copyColor
 import org.elnix.dragonlauncher.base.theme.moveColor
 import org.elnix.dragonlauncher.common.R
 import org.elnix.dragonlauncher.common.logging.logD
 import org.elnix.dragonlauncher.common.logging.logE
+import org.elnix.dragonlauncher.common.points.SwipeDrawParams
 import org.elnix.dragonlauncher.common.serializables.CircleNest
 import org.elnix.dragonlauncher.common.serializables.SwipeActionSerializable
 import org.elnix.dragonlauncher.common.serializables.SwipePointSerializable
@@ -126,7 +128,6 @@ import org.elnix.dragonlauncher.ui.helpers.CircleIconButton
 import org.elnix.dragonlauncher.ui.helpers.RepeatingPressButton
 import org.elnix.dragonlauncher.ui.helpers.nests.actionsInCircle
 import org.elnix.dragonlauncher.ui.helpers.nests.circlesSettingsOverlay
-import org.elnix.dragonlauncher.ui.theme.LocalExtraColors
 import java.math.RoundingMode
 import java.util.UUID
 import kotlin.math.abs
@@ -608,43 +609,47 @@ fun SettingsScreen(
                     }
 
                     circlesSettingsOverlay(
+                        drawParams = SwipeDrawParams(
+                            nests = nests,
+                            points = displayedFilteredPoints,
+                            center = center,
+                            ctx = ctx,
+                            defaultPoint = defaultPoint,
+                            pointIcons = pointIcons,
+                            surfaceColorDraw = backgroundColor,
+                            extraColors = extraColors,
+                            showCircle = true,
+                            density = density,
+                            depth = 1,
+                            maxDepth = maxNestsDepth,
+                            iconShape = iconsShape
+                        ),
                         circles = circles,
-                        showCircle = true,
-                        center = center,
-                        points = displayedFilteredPoints,
-                        defaultPoint = defaultPoint,
                         selectedPoint = selectedPoint,
-                        backgroundColor = backgroundColor,
-                        nests = nests,
-                        ctx = ctx,
-                        extraColors = extraColors,
-                        pointIcons = pointIcons,
                         nestId = nestId,
-                        depth = 1,
-                        maxDepth = maxNestsDepth,
-                        shape = iconsShape,
-                        density = density,
                         preventBgErasing = true
                     )
 
 
                     if (isDragging && selectedPoint != null) {
                         actionsInCircle(
-                            selected = true,
+                            drawParams = SwipeDrawParams(
+                                nests = nests,
+                                points = displayedFilteredPoints,
+                                center = center,
+                                ctx = ctx,
+                                defaultPoint = defaultPoint,
+                                pointIcons = pointIcons,
+                                surfaceColorDraw = backgroundColor,
+                                extraColors = extraColors,
+                                showCircle = true,
+                                density = density,
+                                depth = 1,
+                                maxDepth = maxNestsDepth,
+                                iconShape = iconsShape
+                            ),
                             point = selectedPoint!!,
-                            nests = nests,
-                            points = points,
-                            center = selectedPointTempOffset.value,
-                            ctx = ctx,
-                            showCircle = true,
-                            surfaceColorDraw = backgroundColor,
-                            extraColors = extraColors,
-                            pointIcons = pointIcons,
-                            defaultPoint = defaultPoint,
-                            depth = 1,
-                            maxDepth = maxNestsDepth,
-                            iconShape = iconsShape,
-                            density = density,
+                            selected = true,
                             preventBgErasing = true
                         )
                     }

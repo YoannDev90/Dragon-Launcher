@@ -16,7 +16,7 @@ import org.elnix.dragonlauncher.common.serializables.SwipeActionSerializable
 import org.elnix.dragonlauncher.common.utils.ImageUtils.createUntintedBitmap
 import org.elnix.dragonlauncher.common.utils.ImageUtils.loadDrawableResAsBitmap
 import org.elnix.dragonlauncher.ui.components.PlatformShape
-import org.elnix.dragonlauncher.ui.theme.LocalExtraColors
+import org.elnix.dragonlauncher.base.theme.LocalExtraColors
 
 @Composable
 fun appIcon(

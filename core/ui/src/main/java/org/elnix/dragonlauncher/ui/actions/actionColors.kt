@@ -2,7 +2,7 @@ package org.elnix.dragonlauncher.ui.actions
 
 import androidx.compose.ui.graphics.Color
 import org.elnix.dragonlauncher.common.serializables.SwipeActionSerializable
-import org.elnix.dragonlauncher.ui.theme.ExtraColors
+import org.elnix.dragonlauncher.base.theme.ExtraColors
 
 fun actionColor(
     action: SwipeActionSerializable?,

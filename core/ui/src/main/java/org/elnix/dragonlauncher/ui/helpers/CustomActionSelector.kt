@@ -36,7 +36,7 @@ import org.elnix.dragonlauncher.ui.actions.actionLabel
 import org.elnix.dragonlauncher.ui.colors.AppObjectsColors
 import org.elnix.dragonlauncher.ui.components.dragon.DragonSurfaceRow
 import org.elnix.dragonlauncher.ui.dialogs.AddPointDialog
-import org.elnix.dragonlauncher.ui.theme.LocalExtraColors
+import org.elnix.dragonlauncher.base.theme.LocalExtraColors
 
 
 @Composable

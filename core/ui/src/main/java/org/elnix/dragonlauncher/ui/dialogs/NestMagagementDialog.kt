@@ -35,12 +35,15 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.geometry.center
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.ImageBitmap
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
+import org.elnix.dragonlauncher.base.theme.LocalExtraColors
 import org.elnix.dragonlauncher.common.R
+import org.elnix.dragonlauncher.common.points.SwipeDrawParams
 import org.elnix.dragonlauncher.common.serializables.CircleNest
 import org.elnix.dragonlauncher.common.serializables.IconShape
 import org.elnix.dragonlauncher.common.serializables.SwipeActionSerializable
@@ -57,7 +60,6 @@ import org.elnix.dragonlauncher.ui.colors.AppObjectsColors
 import org.elnix.dragonlauncher.ui.components.dragon.DragonIconButton
 import org.elnix.dragonlauncher.ui.components.settings.asState
 import org.elnix.dragonlauncher.ui.helpers.nests.actionsInCircle
-import org.elnix.dragonlauncher.ui.theme.LocalExtraColors
 
 @Composable
 fun NestManagementDialog(
@@ -133,7 +135,7 @@ fun NestManagementDialog(
                         defaultPoint = defaultPoint,
                         pointIcons = icons,
                         canCopyId = canCopyId,
-                        shape = iconsShape,
+                        iconShape = iconsShape,
                         onNameChange = onNameChange,
                         onDelete = onDelete,
                         onSelect = { onSelect?.invoke(nest) }
@@ -154,7 +156,7 @@ private fun NestManagementItem(
     defaultPoint: SwipePointSerializable,
     pointIcons: Map<String, ImageBitmap>,
     canCopyId: Boolean,
-    shape: IconShape,
+    iconShape: IconShape,
     onNameChange: ((id: Int, name: String) -> Unit)?,
     onDelete: ((id: Int) -> Unit)?,
     onSelect: (() -> Unit)? = null
@@ -197,20 +199,21 @@ private fun NestManagementItem(
             actionsInCircle(
                 selected = false,
                 point = editPoint,
-                nests = nests,
-                points = points,
-                center = center,
-                ctx = ctx,
-                showCircle = true,
-                surfaceColorDraw = surfaceColorDraw,
-                extraColors = extraColors,
-                pointIcons = pointIcons,
-                defaultPoint = defaultPoint,
-                depth = 1,
-                maxDepth = maxNestsDepth,
-                preventBgErasing = true,
-                iconShape = shape,
-                density = density
+                drawParams = SwipeDrawParams(
+                    nests = nests,
+                    points = points,
+                    center =center,
+                    ctx = ctx,
+                    defaultPoint = defaultPoint,
+                    pointIcons = pointIcons,
+                    surfaceColorDraw = Color.Unspecified,
+                    extraColors = extraColors,
+                    showCircle = true,
+                    density = density,
+                    depth = 1,
+                    maxDepth = maxNestsDepth,
+                    iconShape = iconShape
+                )
             )
         }
 

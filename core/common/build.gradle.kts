@@ -58,4 +58,6 @@ dependencies {
 
     /* Image Bitmap*/
     implementation(libs.androidx.ui.graphics)
+
+    implementation(project(":core:base"))
 }

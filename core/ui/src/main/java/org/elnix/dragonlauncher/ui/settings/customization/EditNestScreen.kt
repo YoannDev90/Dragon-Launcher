@@ -31,7 +31,9 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
+import org.elnix.dragonlauncher.base.theme.LocalExtraColors
 import org.elnix.dragonlauncher.common.R
+import org.elnix.dragonlauncher.common.points.SwipeDrawParams
 import org.elnix.dragonlauncher.common.serializables.CircleNest
 import org.elnix.dragonlauncher.common.serializables.SwipePointSerializable
 import org.elnix.dragonlauncher.common.utils.UiCircle
@@ -52,7 +54,6 @@ import org.elnix.dragonlauncher.ui.defaultMinAngleActivation
 import org.elnix.dragonlauncher.ui.helpers.SliderWithLabel
 import org.elnix.dragonlauncher.ui.helpers.nests.circlesSettingsOverlay
 import org.elnix.dragonlauncher.ui.helpers.settings.SettingsLazyHeader
-import org.elnix.dragonlauncher.ui.theme.LocalExtraColors
 
 @Composable
 fun NestEditingScreen(
@@ -160,26 +161,24 @@ fun NestEditingScreen(
                     .weight(1f)
             ) {
                 circlesSettingsOverlay(
+                    drawParams = SwipeDrawParams(
+                        nests = nests,
+                        points = points,
+                        center = center,
+                        ctx = ctx,
+                        defaultPoint = defaultPoint,
+                        pointIcons = pointIcons,
+                        surfaceColorDraw = backgroundColor,
+                        extraColors = extraColors,
+                        showCircle = true,
+                        density = density,
+                        depth = 1,
+                        maxDepth = maxNestsDepth,
+                        iconShape = iconsShape
+                    ),
                     circles = circles,
-                    showCircle = true,
-                    center = center,
-                    points = points,
-                    defaultPoint = defaultPoint,
                     selectedPoint = null,
-                    backgroundColor = backgroundColor,
-                    nests = nests.map {
-                        if (it.id == nestId) it.copy(
-                            dragDistances = dragDistancesState
-                        ) else it
-                    },
-                    ctx = ctx,
-                    extraColors = extraColors,
-                    pointIcons = pointIcons,
                     nestId = nestId,
-                    depth = 1,
-                    maxDepth = maxNestsDepth,
-                    shape = iconsShape,
-                    density = density,
                     preventBgErasing = true
                 )
 

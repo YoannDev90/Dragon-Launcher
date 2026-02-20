@@ -49,7 +49,7 @@ import org.elnix.dragonlauncher.ui.actions.actionColor
 import org.elnix.dragonlauncher.ui.actions.actionLabel
 import org.elnix.dragonlauncher.ui.components.resolveShape
 import org.elnix.dragonlauncher.ui.components.settings.asState
-import org.elnix.dragonlauncher.ui.theme.LocalExtraColors
+import org.elnix.dragonlauncher.base.theme.LocalExtraColors
 
 @Suppress("AssignedValueIsNeverRead")
 @Composable

@@ -85,7 +85,7 @@ import org.elnix.dragonlauncher.ui.dialogs.UserValidation
 import org.elnix.dragonlauncher.ui.helpers.SwitchRow
 import org.elnix.dragonlauncher.ui.helpers.settings.SettingsLazyHeader
 import org.elnix.dragonlauncher.ui.modifiers.conditional
-import org.elnix.dragonlauncher.ui.theme.DefaultExtraColors
+import org.elnix.dragonlauncher.base.theme.DefaultExtraColors
 import org.elnix.dragonlauncher.ui.theme.getSystemColorScheme
 
 @Suppress("AssignedValueIsNeverRead")

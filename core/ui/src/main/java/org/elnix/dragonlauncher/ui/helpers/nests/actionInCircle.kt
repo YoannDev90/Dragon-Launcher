@@ -1,24 +1,20 @@
 package org.elnix.dragonlauncher.ui.helpers.nests
 
-import android.content.Context
 import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.snapshots.SnapshotStateList
-import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.graphics.BlendMode
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.ColorFilter
-import androidx.compose.ui.graphics.ImageBitmap
 import androidx.compose.ui.graphics.Outline
 import androidx.compose.ui.graphics.Path
 import androidx.compose.ui.graphics.drawscope.DrawScope
 import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.graphics.drawscope.translate
-import androidx.compose.ui.unit.Density
 import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.IntSize
 import org.elnix.dragonlauncher.common.R
-import org.elnix.dragonlauncher.common.serializables.CircleNest
+import org.elnix.dragonlauncher.common.points.SwipeDrawParams
 import org.elnix.dragonlauncher.common.serializables.IconShape
 import org.elnix.dragonlauncher.common.serializables.SwipeActionSerializable
 import org.elnix.dragonlauncher.common.serializables.SwipePointSerializable
@@ -29,27 +25,28 @@ import org.elnix.dragonlauncher.common.utils.ImageUtils.loadDrawableResAsBitmap
 import org.elnix.dragonlauncher.common.utils.UiCircle
 import org.elnix.dragonlauncher.ui.actions.actionColor
 import org.elnix.dragonlauncher.ui.components.resolveShape
-import org.elnix.dragonlauncher.ui.theme.ExtraColors
 
 
 fun DrawScope.actionsInCircle(
-    selected: Boolean,
+    drawParams: SwipeDrawParams,
+
     point: SwipePointSerializable,
-    nests: List<CircleNest>,
-    points: List<SwipePointSerializable>,
-    center: Offset,
-    ctx: Context,
-    showCircle: Boolean,
-    surfaceColorDraw: Color,
-    extraColors: ExtraColors,
-    pointIcons: Map<String, ImageBitmap>,
-    defaultPoint: SwipePointSerializable,
-    depth: Int,
-    maxDepth: Int,
-    iconShape: IconShape,
-    density: Density,
+    selected: Boolean,
     preventBgErasing: Boolean = false
 ) {
+    val ctx = drawParams.ctx
+    val nests = drawParams.nests
+    val defaultPoint = drawParams.defaultPoint
+    val pointIcons = drawParams.pointIcons
+    val surfaceColorDraw = drawParams.surfaceColorDraw
+    val extraColors = drawParams.extraColors
+    val density = drawParams.density
+    val depth = drawParams.depth
+    val maxDepth = drawParams.maxDepth
+    val iconShape = drawParams.iconShape
+    val center = drawParams.center
+
+
     val action = point.action
 
     val px = center.x
@@ -204,22 +201,13 @@ fun DrawScope.actionsInCircle(
                 }
 
                 circlesSettingsOverlay(
+                    drawParams = drawParams.copy(
+                        depth = depth + 1
+                    ),
+
                     circles = newCircles,
-                    showCircle = showCircle,
-                    center = center,
-                    points = points,
-                    defaultPoint = defaultPoint,
                     selectedPoint = point,
-                    backgroundColor = backgroundColor,
-                    nests = nests,
-                    ctx = ctx,
-                    extraColors = extraColors,
-                    pointIcons = pointIcons,
                     nestId = nest.id,
-                    depth = depth + 1,
-                    maxDepth = maxDepth,
-                    shape = iconShape,
-                    density = density,
                     selectedAll = selected,
                     preventBgErasing = preventBgErasing
                 )

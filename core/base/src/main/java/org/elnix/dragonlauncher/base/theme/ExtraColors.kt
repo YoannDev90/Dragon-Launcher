@@ -1,4 +1,4 @@
-package org.elnix.dragonlauncher.ui.theme
+package org.elnix.dragonlauncher.base.theme
 
 import androidx.compose.runtime.staticCompositionLocalOf
 import androidx.compose.ui.graphics.Color

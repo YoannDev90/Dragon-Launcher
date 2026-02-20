@@ -5,8 +5,8 @@ import androidx.compose.runtime.getValue
 import org.elnix.dragonlauncher.common.utils.definedOrNull
 import org.elnix.dragonlauncher.settings.stores.ColorSettingsStore
 import org.elnix.dragonlauncher.ui.components.settings.asStateNull
-import org.elnix.dragonlauncher.ui.theme.DefaultExtraColors
-import org.elnix.dragonlauncher.ui.theme.ExtraColors
+import org.elnix.dragonlauncher.base.theme.DefaultExtraColors
+import org.elnix.dragonlauncher.base.theme.ExtraColors
 
 @Composable
 fun rememberExtraColors(): ExtraColors {

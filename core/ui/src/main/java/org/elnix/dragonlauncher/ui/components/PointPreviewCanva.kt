@@ -11,7 +11,9 @@ import androidx.compose.ui.graphics.ImageBitmap
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.unit.dp
+import org.elnix.dragonlauncher.base.theme.ExtraColors
 import org.elnix.dragonlauncher.common.logging.logW
+import org.elnix.dragonlauncher.common.points.SwipeDrawParams
 import org.elnix.dragonlauncher.common.serializables.CircleNest
 import org.elnix.dragonlauncher.common.serializables.SwipePointSerializable
 import org.elnix.dragonlauncher.common.utils.Constants.Logging.ICONS_TAG
@@ -19,7 +21,6 @@ import org.elnix.dragonlauncher.settings.stores.DrawerSettingsStore
 import org.elnix.dragonlauncher.settings.stores.UiSettingsStore
 import org.elnix.dragonlauncher.ui.components.settings.asState
 import org.elnix.dragonlauncher.ui.helpers.nests.actionsInCircle
-import org.elnix.dragonlauncher.ui.theme.ExtraColors
 
 @Composable
 fun PointPreviewCanvas(
@@ -54,40 +55,42 @@ fun PointPreviewCanvas(
         actionsInCircle(
             selected = false,
             point = editPoint,
-            nests = nests,
-            points = points,
-            center = Offset(leftX, centerY),
-            ctx = ctx,
-            showCircle = true,
-            surfaceColorDraw = backgroundSurfaceColor,
-            extraColors = extraColors,
-            pointIcons = pointIcons,
-            defaultPoint = defaultPoint,
-            depth = 1,
-            maxDepth = maxNestsDepth,
-            preventBgErasing = true,
-            iconShape = iconsShape,
-            density = density
+            drawParams = SwipeDrawParams(
+                nests = nests,
+                points = points,
+                center = Offset(leftX, centerY),
+                ctx = ctx,
+                defaultPoint = defaultPoint,
+                pointIcons = pointIcons,
+                surfaceColorDraw = Color.Unspecified,
+                extraColors = extraColors,
+                showCircle = true,
+                density = density,
+                depth = 1,
+                maxDepth = maxNestsDepth,
+                iconShape = iconsShape
+            )
         )
 
         // Right action
         actionsInCircle(
             selected = true,
             point = editPoint,
-            nests = nests,
-            points = points,
-            center = Offset(rightX, centerY),
-            ctx = ctx,
-            showCircle = true,
-            surfaceColorDraw = backgroundSurfaceColor,
-            extraColors = extraColors,
-            pointIcons = pointIcons,
-            defaultPoint = defaultPoint,
-            depth = 1,
-            maxDepth = maxNestsDepth,
-            preventBgErasing = true,
-            iconShape = iconsShape,
-            density = density
+            drawParams = SwipeDrawParams(
+                nests = nests,
+                points = points,
+                center = Offset(rightX, centerY),
+                ctx = ctx,
+                defaultPoint = defaultPoint,
+                pointIcons = pointIcons,
+                surfaceColorDraw = Color.Unspecified,
+                extraColors = extraColors,
+                showCircle = true,
+                density = density,
+                depth = 1,
+                maxDepth = maxNestsDepth,
+                iconShape = iconsShape
+            )
         )
     }
 }
