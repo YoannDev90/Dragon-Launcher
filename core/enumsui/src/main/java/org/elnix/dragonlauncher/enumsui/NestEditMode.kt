@@ -13,9 +13,3 @@ enum class NestEditMode(
     HAPTIC(Icons.Default.Vibration),
     MIN_ANGLE(Icons.Default.TextRotationAngleup)
 }
-
-//fun nestEditModeLabel(ctx: Context,action: NestEditMode) = when (action) {
-//    DRAG -> ctx.getString(R.string.drag_distances)
-//    HAPTIC -> ctx.getString(R.string.haptic_feedback)
-//    MIN_ANGLE ->ctx.getString(R.string.min_angle_to_activate)
-//}
