@@ -1,9 +1,7 @@
 package org.elnix.dragonlauncher.ui.helpers.nests
 
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.remember
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.ImageBitmap
 import androidx.compose.ui.platform.LocalContext
@@ -12,11 +10,10 @@ import org.elnix.dragonlauncher.base.theme.LocalExtraColors
 import org.elnix.dragonlauncher.common.points.SwipeDrawParams
 import org.elnix.dragonlauncher.common.serializables.CircleNest
 import org.elnix.dragonlauncher.common.serializables.SwipePointSerializable
-import org.elnix.dragonlauncher.common.serializables.defaultSwipePointsValues
 import org.elnix.dragonlauncher.settings.stores.SwipeMapSettingsStore
-import org.elnix.dragonlauncher.settings.stores.SwipeSettingsStore
 import org.elnix.dragonlauncher.settings.stores.UiSettingsStore
 import org.elnix.dragonlauncher.ui.components.settings.asState
+import org.elnix.dragonlauncher.ui.remembers.LocalDefaultPoint
 import org.elnix.dragonlauncher.ui.remembers.LocalIconShape
 import org.elnix.dragonlauncher.ui.remembers.LocalIcons
 import org.elnix.dragonlauncher.ui.remembers.LocalNests
@@ -24,7 +21,7 @@ import org.elnix.dragonlauncher.ui.remembers.LocalPoints
 
 
 @Composable
-fun rememberSwipeDefaultParams(
+fun swipeDefaultParams(
     backgroundColor: Color? = null,
     points: List<SwipePointSerializable>? = null,
     nests: List<CircleNest>? = null,
@@ -34,6 +31,7 @@ fun rememberSwipeDefaultParams(
 ): SwipeDrawParams {
     val ctx = LocalContext.current
     val points = points ?: LocalPoints.current
+    val defaultPointSettings = LocalDefaultPoint.current
     val nests = nests ?: LocalNests.current
     val icons = icons ?: LocalIcons.current
     val iconShape = LocalIconShape.current
@@ -42,9 +40,6 @@ fun rememberSwipeDefaultParams(
 
     val surfaceColorDraw = backgroundColor ?: Color.Unspecified
 
-    val defaultPointSettings by SwipeSettingsStore.getDefaultPointFlow(ctx).collectAsState(
-        defaultSwipePointsValues
-    )
     val defaultPoint = defaultPointSerializable ?: defaultPointSettings
 
     val showCircleSetting by UiSettingsStore.showCirclePreview.asState()
@@ -54,20 +49,18 @@ fun rememberSwipeDefaultParams(
 
     val subNestDefaultRadius by SwipeMapSettingsStore.subNestDefaultRadius.asState()
 
-    return remember(icons, points, nests) {
-        SwipeDrawParams(
-            nests = nests,
-            points = points,
-            ctx = ctx,
-            defaultPoint = defaultPoint,
-            icons = icons,
-            surfaceColorDraw = surfaceColorDraw,
-            extraColors = extraColors,
-            showCircle = showCircle,
-            density = density,
-            maxDepth = maxNestsDepth,
-            iconShape = iconShape,
-            subNestDefaultRadius = subNestDefaultRadius,
-        )
-    }
+    return SwipeDrawParams(
+        nests = nests,
+        points = points,
+        ctx = ctx,
+        defaultPoint = defaultPoint,
+        icons = icons,
+        surfaceColorDraw = surfaceColorDraw,
+        extraColors = extraColors,
+        showCircle = showCircle,
+        density = density,
+        maxDepth = maxNestsDepth,
+        iconShape = iconShape,
+        subNestDefaultRadius = subNestDefaultRadius,
+    )
 }

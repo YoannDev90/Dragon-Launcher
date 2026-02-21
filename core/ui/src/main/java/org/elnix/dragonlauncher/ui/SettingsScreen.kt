@@ -55,7 +55,6 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.key
 import androidx.compose.runtime.mutableFloatStateOf
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateListOf
@@ -73,7 +72,6 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.layout.onSizeChanged
 import androidx.compose.ui.platform.LocalContext
-import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
@@ -91,7 +89,6 @@ import org.elnix.dragonlauncher.base.theme.moveColor
 import org.elnix.dragonlauncher.common.R
 import org.elnix.dragonlauncher.common.logging.logD
 import org.elnix.dragonlauncher.common.logging.logE
-import org.elnix.dragonlauncher.common.points.SwipeDrawParams
 import org.elnix.dragonlauncher.common.serializables.CircleNest
 import org.elnix.dragonlauncher.common.serializables.SwipeActionSerializable
 import org.elnix.dragonlauncher.common.serializables.SwipePointSerializable
@@ -111,7 +108,6 @@ import org.elnix.dragonlauncher.common.utils.showToast
 import org.elnix.dragonlauncher.models.AppLifecycleViewModel
 import org.elnix.dragonlauncher.models.AppsViewModel
 import org.elnix.dragonlauncher.settings.stores.DebugSettingsStore
-import org.elnix.dragonlauncher.settings.stores.DrawerSettingsStore
 import org.elnix.dragonlauncher.settings.stores.SwipeSettingsStore
 import org.elnix.dragonlauncher.settings.stores.UiSettingsStore
 import org.elnix.dragonlauncher.ui.components.AppPreviewTitle
@@ -127,9 +123,8 @@ import org.elnix.dragonlauncher.ui.helpers.CircleIconButton
 import org.elnix.dragonlauncher.ui.helpers.RepeatingPressButton
 import org.elnix.dragonlauncher.ui.helpers.nests.actionsInCircle
 import org.elnix.dragonlauncher.ui.helpers.nests.circlesSettingsOverlay
-import org.elnix.dragonlauncher.ui.helpers.nests.rememberSwipeDefaultParams
+import org.elnix.dragonlauncher.ui.helpers.nests.swipeDefaultParams
 import org.elnix.dragonlauncher.ui.remembers.LocalDefaultPoint
-import org.elnix.dragonlauncher.ui.remembers.LocalIcons
 import org.elnix.dragonlauncher.ui.remembers.LocalNests
 import java.math.RoundingMode
 import java.util.UUID
@@ -154,11 +149,9 @@ fun SettingsScreen(
 ) {
     val ctx = LocalContext.current
     val nests = LocalNests.current
-    val icons = LocalIcons.current
     val defaultPoint = LocalDefaultPoint.current
 
     val extraColors = LocalExtraColors.current
-    val density = LocalDensity.current
     val scope = rememberCoroutineScope()
 
     val backgroundColor = MaterialTheme.colorScheme.background
@@ -167,10 +160,8 @@ fun SettingsScreen(
     val autoSeparatePoints by UiSettingsStore.autoSeparatePoints.asState()
     val appLabelOverlaySize by UiSettingsStore.appLabelOverlaySize.asState()
     val appIconOverlaySize by UiSettingsStore.appIconOverlaySize.asState()
-    val maxNestsDepth by UiSettingsStore.maxNestsDepth.asState()
 
     val settingsDebugInfos by DebugSettingsStore.settingsDebugInfo.asState()
-    val iconsShape by DrawerSettingsStore.iconsShape.asState()
 
     var center by remember { mutableStateOf(Offset.Zero) }
 
@@ -450,11 +441,35 @@ fun SettingsScreen(
         else onBack()
     }
 
-    val drawParams = rememberSwipeDefaultParams(
+    // Shows all points, excepted the currently dragged one, if any
+    val displayedFilteredPoints by remember(points, isDragging, selectedPoint?.id) {
+        derivedStateOf {
+            if (!isDragging) points
+            else points.filter { it.id != selectedPoint?.id }
+        }
+    }
+
+
+    val baseDrawParams = swipeDefaultParams(
         points = points,
         backgroundColor = MaterialTheme.colorScheme.background,
         showCircle = true
     )
+
+
+    val drawParams by remember(
+        displayedFilteredPoints,
+        backgroundColor,
+        extraColors
+    ) {
+        derivedStateOf {
+            baseDrawParams.copy(
+                points = displayedFilteredPoints,
+                surfaceColorDraw = backgroundColor,
+                extraColors = extraColors
+            )
+        }
+    }
 
 
     Column(
@@ -608,7 +623,6 @@ fun SettingsScreen(
 
             // Draws all the points, is recomposed at every instance of the recompose trigger
             // Used cause otherwise Compose wouldn't recompose on changes inside the points and nests classes
-            key(recomposeTrigger) {
                 Canvas(Modifier.fillMaxSize()) {
                     circlesSettingsOverlay(
                         drawParams = drawParams,
@@ -622,27 +636,8 @@ fun SettingsScreen(
 
 
                     if (isDragging && selectedPoint != null) {
-
-                        // Shows all points, excepted the currently dragged one, if any
-                        val displayedFilteredPoints = points.filter {
-                                if (isDragging) it.id != selectedPoint?.id
-                                else true
-                            }
-
                         actionsInCircle(
-                            drawParams = SwipeDrawParams(
-                                nests = nests,
-                                points = displayedFilteredPoints,
-                                ctx = ctx,
-                                defaultPoint = defaultPoint,
-                                icons = icons,
-                                surfaceColorDraw = backgroundColor,
-                                extraColors = extraColors,
-                                showCircle = true,
-                                density = density,
-                                maxDepth = maxNestsDepth,
-                                iconShape = iconsShape, 100
-                            ),
+                            drawParams = drawParams,
                             center = selectedPointTempOffset.value,
                             depth = 1,
                             point = selectedPoint!!,
@@ -651,7 +646,7 @@ fun SettingsScreen(
                         )
                     }
                 }
-            }
+
 
 
             Box(

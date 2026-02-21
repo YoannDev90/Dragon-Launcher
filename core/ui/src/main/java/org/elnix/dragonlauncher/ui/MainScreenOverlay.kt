@@ -47,7 +47,7 @@ import org.elnix.dragonlauncher.settings.stores.UiSettingsStore
 import org.elnix.dragonlauncher.ui.components.AppPreviewTitle
 import org.elnix.dragonlauncher.ui.components.settings.asState
 import org.elnix.dragonlauncher.ui.helpers.nests.actionsInCircle
-import org.elnix.dragonlauncher.ui.helpers.nests.rememberSwipeDefaultParams
+import org.elnix.dragonlauncher.ui.helpers.nests.swipeDefaultParams
 import org.elnix.dragonlauncher.ui.remembers.LocalNests
 import org.elnix.dragonlauncher.ui.remembers.LocalPoints
 import kotlin.math.abs
@@ -321,7 +321,7 @@ fun MainScreenOverlay(
 //        val colorAction = if (hoveredPoint != null) actionColor(hoveredPoint!!.action, extraColors) else Color.Unspecified
 
 
-        val drawParams = rememberSwipeDefaultParams()
+        val drawParams = swipeDefaultParams()
         // Main drawing canva (the lines, circles and selected actions
         Canvas(
             modifier = Modifier

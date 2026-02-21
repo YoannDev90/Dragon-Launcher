@@ -44,7 +44,7 @@ import org.elnix.dragonlauncher.ui.defaultDragDistance
 import org.elnix.dragonlauncher.ui.defaultHapticFeedback
 import org.elnix.dragonlauncher.ui.helpers.SliderWithLabel
 import org.elnix.dragonlauncher.ui.helpers.nests.circlesSettingsOverlay
-import org.elnix.dragonlauncher.ui.helpers.nests.rememberSwipeDefaultParams
+import org.elnix.dragonlauncher.ui.helpers.nests.swipeDefaultParams
 import org.elnix.dragonlauncher.ui.helpers.settings.SettingsLazyHeader
 import org.elnix.dragonlauncher.ui.remembers.LocalNests
 
@@ -62,7 +62,7 @@ fun NestEditingScreen(
 
     val angleColor = MaterialTheme.colorScheme.tertiary
 
-    val drawParams = rememberSwipeDefaultParams(
+    val drawParams = swipeDefaultParams(
         backgroundColor = MaterialTheme.colorScheme.background
     )
 

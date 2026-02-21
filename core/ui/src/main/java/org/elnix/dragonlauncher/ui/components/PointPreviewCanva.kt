@@ -10,7 +10,7 @@ import androidx.compose.ui.graphics.ImageBitmap
 import androidx.compose.ui.unit.dp
 import org.elnix.dragonlauncher.common.serializables.SwipePointSerializable
 import org.elnix.dragonlauncher.ui.helpers.nests.actionsInCircle
-import org.elnix.dragonlauncher.ui.helpers.nests.rememberSwipeDefaultParams
+import org.elnix.dragonlauncher.ui.helpers.nests.swipeDefaultParams
 
 @Composable
 fun PointPreviewCanvas(
@@ -20,7 +20,7 @@ fun PointPreviewCanvas(
     modifier: Modifier = Modifier,
     icons: Map<String, ImageBitmap>? = null,
 ) {
-    val drawParams = rememberSwipeDefaultParams(
+    val drawParams = swipeDefaultParams(
         icons = icons,
         defaultPointSerializable = defaultPoint,
         backgroundColor = backgroundSurfaceColor

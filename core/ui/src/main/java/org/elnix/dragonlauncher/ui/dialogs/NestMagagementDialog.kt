@@ -47,7 +47,7 @@ import org.elnix.dragonlauncher.ui.UiConstants.DragonShape
 import org.elnix.dragonlauncher.ui.colors.AppObjectsColors
 import org.elnix.dragonlauncher.ui.components.dragon.DragonIconButton
 import org.elnix.dragonlauncher.ui.helpers.nests.actionsInCircle
-import org.elnix.dragonlauncher.ui.helpers.nests.rememberSwipeDefaultParams
+import org.elnix.dragonlauncher.ui.helpers.nests.swipeDefaultParams
 import org.elnix.dragonlauncher.ui.remembers.LocalNests
 
 @Composable
@@ -131,7 +131,7 @@ private fun NestManagementItem(
     onSelect: (() -> Unit)? = null
 ) {
     val ctx = LocalContext.current
-    val drawParams = rememberSwipeDefaultParams()
+    val drawParams = swipeDefaultParams()
 
     var tempCustomName by remember { mutableStateOf(nest.name ?: "") }
 
