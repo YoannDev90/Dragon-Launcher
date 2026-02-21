@@ -195,14 +195,11 @@ object DrawerSettingsStore : MapSettingsStore() {
         allowedRange = 1..20
     )
 
-    /**
-     * JSON-encoded ordered list of recently-used package names (most recent first).
-     * TODO change that shitty method of storage
-     */
-    val recentlyUsedPackages = Settings.string(
-        key = "recentlyUsedPackages",
+
+    val recentlyUsedPackages = Settings.stringSet(
+        key = "recentlyUsedPackagesSet",
         dataStoreName = dataStoreName,
-        default = ""
+        default = emptySet()
     )
 
 
@@ -231,8 +228,6 @@ object DrawerSettingsStore : MapSettingsStore() {
         dataStoreName = dataStoreName,
         default = true
     )
-
-
 
     val drawerEnterExitAnimations = Settings.boolean(
         key = "drawerEnterExitAnimations",

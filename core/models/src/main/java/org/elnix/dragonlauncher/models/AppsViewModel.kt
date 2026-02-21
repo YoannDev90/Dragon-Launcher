@@ -1285,8 +1285,7 @@ class AppsViewModel(
         val json = DrawerSettingsStore.recentlyUsedPackages.get(ctx)
         if (!json.isNullOrEmpty()) {
             try {
-                val type = object : TypeToken<List<String>>() {}.type
-                _recentlyUsedPackages.value = gson.fromJson(json, type) ?: emptyList()
+                _recentlyUsedPackages.value = json.toList()
             } catch (_: Exception) {
                 _recentlyUsedPackages.value = emptyList()
             }
@@ -1305,7 +1304,7 @@ class AppsViewModel(
         val trimmed = current.take(maxStored)
         _recentlyUsedPackages.value = trimmed
         scope.launch {
-            DrawerSettingsStore.recentlyUsedPackages.set(ctx, gson.toJson(trimmed))
+            DrawerSettingsStore.recentlyUsedPackages.set(ctx, trimmed.toSet())
         }
     }
 
