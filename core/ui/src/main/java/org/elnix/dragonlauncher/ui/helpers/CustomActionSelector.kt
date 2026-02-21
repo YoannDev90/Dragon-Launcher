@@ -72,18 +72,20 @@ fun CustomActionSelector(
             )
         }
 
-        if (toggled) {
-            Row(
-                horizontalArrangement = Arrangement.spacedBy(5.dp),
-                verticalAlignment = Alignment.CenterVertically,
-                modifier = Modifier
-                    .weight(1f)
-                    .padding(start = 12.dp)
-            ) {
+        Row(
+            horizontalArrangement = Arrangement.End,
+            verticalAlignment = Alignment.CenterVertically,
+            modifier = Modifier
+                .weight(1f)
+                .padding(start = 12.dp)
+        ) {
+            if (toggled) {
+
                 ActionIcon(
                     action = currentAction,
                     modifier = Modifier.size(30.dp)
                 )
+                Spacer(Modifier.width(5.dp))
 
                 Text(
                     text = actionLabel(currentAction),
@@ -91,17 +93,17 @@ fun CustomActionSelector(
                     fontSize = 18.sp,
                     fontWeight = FontWeight.Bold
                 )
+            } else if (nullText != null) {
+                Text(
+                    text = nullText,
+                    color = textColor.copy(0.7f),
+                    fontSize = 14.sp,
+                    textAlign = TextAlign.Right,
+                    modifier = Modifier
+                        .weight(1f)
+                        .padding(start = 12.dp)
+                )
             }
-        } else if (nullText != null) {
-            Text(
-                text = nullText,
-                color = textColor.copy(0.7f),
-                fontSize = 14.sp,
-                textAlign = TextAlign.Right,
-                modifier = Modifier
-                    .weight(1f)
-                    .padding(start = 12.dp)
-            )
         }
 
         Row(
