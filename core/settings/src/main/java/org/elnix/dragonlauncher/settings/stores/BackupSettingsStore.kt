@@ -43,13 +43,4 @@ object BackupSettingsStore : MapSettingsStore() {
         dataStoreName = dataStoreName,
         default = defaultBackupStores
     )
-
-
-    // TODO PUT THIS IN PRIVATE SETTINGS STORE
-    val lastBackupTime = Settings.long(
-        key = "lastBackupTime",
-        dataStoreName = dataStoreName,
-        default = System.currentTimeMillis(),
-        allowedRange = Long.MIN_VALUE..Long.MAX_VALUE
-    )
 }

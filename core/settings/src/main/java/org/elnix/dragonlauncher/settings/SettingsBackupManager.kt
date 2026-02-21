@@ -15,6 +15,7 @@ import org.elnix.dragonlauncher.common.utils.getFilePathFromUri
 import org.elnix.dragonlauncher.common.utils.hasUriReadWritePermission
 import org.elnix.dragonlauncher.common.utils.showToast
 import org.elnix.dragonlauncher.settings.stores.BackupSettingsStore
+import org.elnix.dragonlauncher.settings.stores.PrivateSettingsStore
 import org.elnix.dragonlauncher.settings.stores.SwipeSettingsStore
 import org.json.JSONObject
 import java.io.FileOutputStream
@@ -56,7 +57,7 @@ object SettingsBackupManager {
 
             exportSettings(ctx, uri, selectedStores)
 
-            BackupSettingsStore.lastBackupTime.set(ctx, System.currentTimeMillis())
+            PrivateSettingsStore.lastBackupTime.set(ctx, System.currentTimeMillis())
             logI(BACKUP_TAG, "Auto-backup completed to $path")
 
         } catch (e: Exception) {
