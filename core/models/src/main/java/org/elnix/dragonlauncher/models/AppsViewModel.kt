@@ -170,7 +170,6 @@ class AppsViewModel(
      */
     suspend fun loadAll() {
         loadWorkspaces()
-        loadDefaultPoint()
         loadRecentlyUsedApps()
         val savedPackTint = UiSettingsStore.iconPackTint.get(ctx)
         savedPackTint?.let { tint ->
@@ -1572,15 +1571,6 @@ class AppsViewModel(
             appOverrides = emptyMap()
         )
         persist()
-    }
-
-    suspend fun loadDefaultPoint() {
-        _defaultPoint.value = SwipeSettingsStore.getDefaultPoint(ctx)
-    }
-
-    suspend fun setDefaultPoint(point: SwipePointSerializable) {
-        _defaultPoint.value = point
-        SwipeSettingsStore.setDefaultPoint(ctx, point)
     }
 
     suspend fun setIconPackTint(tint: Color?) {

@@ -27,57 +27,46 @@ import androidx.compose.ui.geometry.Rect
 import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.platform.LocalContext
-import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
-import org.elnix.dragonlauncher.base.theme.LocalExtraColors
 import org.elnix.dragonlauncher.common.R
-import org.elnix.dragonlauncher.common.points.SwipeDrawParams
 import org.elnix.dragonlauncher.common.serializables.CircleNest
-import org.elnix.dragonlauncher.common.serializables.SwipePointSerializable
 import org.elnix.dragonlauncher.common.utils.UiCircle
 import org.elnix.dragonlauncher.common.utils.vibrate
 import org.elnix.dragonlauncher.enumsui.NestEditMode
 import org.elnix.dragonlauncher.enumsui.NestEditMode.DRAG
 import org.elnix.dragonlauncher.enumsui.NestEditMode.HAPTIC
 import org.elnix.dragonlauncher.enumsui.NestEditMode.MIN_ANGLE
-import org.elnix.dragonlauncher.settings.stores.DrawerSettingsStore
 import org.elnix.dragonlauncher.settings.stores.SwipeSettingsStore
-import org.elnix.dragonlauncher.settings.stores.UiSettingsStore
 import org.elnix.dragonlauncher.ui.UiConstants.DragonShape
 import org.elnix.dragonlauncher.ui.components.generic.ActionRow
-import org.elnix.dragonlauncher.ui.components.settings.asState
 import org.elnix.dragonlauncher.ui.defaultDragDistance
 import org.elnix.dragonlauncher.ui.defaultHapticFeedback
 import org.elnix.dragonlauncher.ui.defaultMinAngleActivation
 import org.elnix.dragonlauncher.ui.helpers.SliderWithLabel
 import org.elnix.dragonlauncher.ui.helpers.nests.circlesSettingsOverlay
+import org.elnix.dragonlauncher.ui.helpers.nests.rememberSwipeDefaultParams
 import org.elnix.dragonlauncher.ui.helpers.settings.SettingsLazyHeader
-import org.elnix.dragonlauncher.ui.remembers.LocalIcons
 import org.elnix.dragonlauncher.ui.remembers.LocalNests
-import org.elnix.dragonlauncher.ui.remembers.LocalPoints
 
 @Composable
 fun NestEditingScreen(
     nestId: Int?,
-    defaultPoint: SwipePointSerializable,
     onBack: () -> Unit
 ) {
-    val points = LocalPoints.current
+    val ctx = LocalContext.current
     val nests = LocalNests.current
-    val icons = LocalIcons.current
 
     if (nestId == null) return
     val currentNest = nests.find { it.id == nestId } ?: return
 
-    val ctx = LocalContext.current
-    val extraColors = LocalExtraColors.current
-    val density = LocalDensity.current
-    val backgroundColor = MaterialTheme.colorScheme.background
+
     val angleColor = MaterialTheme.colorScheme.tertiary
 
-    val iconsShape by DrawerSettingsStore.iconsShape.asState()
-    val maxNestsDepth by UiSettingsStore.maxNestsDepth.asState()
+    val drawParams = rememberSwipeDefaultParams(
+        backgroundColor = MaterialTheme.colorScheme.background
+    )
+
 
 
     val dragDistancesState = remember(currentNest.id) {
@@ -164,21 +153,9 @@ fun NestEditingScreen(
                     .weight(1f)
             ) {
                 circlesSettingsOverlay(
-                    drawParams = SwipeDrawParams(
-                        nests = nests,
-                        points = points,
-                        center = center,
-                        ctx = ctx,
-                        defaultPoint = defaultPoint,
-                        icons = icons,
-                        surfaceColorDraw = backgroundColor,
-                        extraColors = extraColors,
-                        showCircle = true,
-                        density = density,
-                        depth = 1,
-                        maxDepth = maxNestsDepth,
-                        iconShape = iconsShape,100
-                    ),
+                    drawParams = drawParams,
+                    center = center,
+                    depth = 1,
                     circles = circles,
                     selectedPoint = null,
                     nestId = nestId,

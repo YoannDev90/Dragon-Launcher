@@ -1,7 +1,6 @@
 package org.elnix.dragonlauncher.ui.helpers.nests
 
-import androidx.compose.runtime.mutableStateListOf
-import androidx.compose.runtime.snapshots.SnapshotStateList
+import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.graphics.BlendMode
 import androidx.compose.ui.graphics.Color
@@ -30,6 +29,8 @@ import org.elnix.dragonlauncher.ui.components.resolveShape
 fun DrawScope.actionsInCircle(
     drawParams: SwipeDrawParams,
 
+    center: Offset,
+    depth: Int,
     point: SwipePointSerializable,
     selected: Boolean,
     preventBgErasing: Boolean = false
@@ -37,14 +38,12 @@ fun DrawScope.actionsInCircle(
     val ctx = drawParams.ctx
     val nests = drawParams.nests
     val defaultPoint = drawParams.defaultPoint
-    val pointIcons = drawParams.icons
+    val icons = drawParams.icons
     val surfaceColorDraw = drawParams.surfaceColorDraw
     val extraColors = drawParams.extraColors
     val density = drawParams.density
-    val depth = drawParams.depth
     val maxDepth = drawParams.maxDepth
     val iconShape = drawParams.iconShape
-    val center = drawParams.center
 
 
     val action = point.action
@@ -161,7 +160,7 @@ fun DrawScope.actionsInCircle(
             }
 
 
-            val icon = point.id.let { pointIcons[it] }
+            val icon = point.id.let { icons[it] }
             val colorAction = actionColor(point.action, extraColors)
 
 
@@ -190,8 +189,7 @@ fun DrawScope.actionsInCircle(
 
                 val circlesWidthIncrement = 1f / (nest.dragDistances.size - 1)
 
-                val newCircles: SnapshotStateList<UiCircle> = mutableStateListOf()
-
+                val newCircles = mutableListOf<UiCircle>()
 
                 nest.dragDistances.filter { it.key != -1 }.forEach { (index, _) ->
                     val radius = (100f / depth) * circlesWidthIncrement * (index + 1)
@@ -201,9 +199,10 @@ fun DrawScope.actionsInCircle(
                 }
 
                 circlesSettingsOverlay(
-                    drawParams = drawParams.copy(
-                        depth = depth + 1
-                    ),
+                    drawParams = drawParams,
+
+                    center = center,
+                    depth = depth + 1,
 
                     circles = newCircles,
                     selectedPoint = point,

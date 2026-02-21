@@ -18,6 +18,7 @@ import androidx.compose.material.icons.filled.Warning
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
@@ -102,6 +103,10 @@ import org.elnix.dragonlauncher.ui.helpers.collapseDownAnimation
 import org.elnix.dragonlauncher.ui.helpers.findFragmentActivity
 import org.elnix.dragonlauncher.ui.helpers.noAnimComposable
 import org.elnix.dragonlauncher.ui.helpers.raiseUpAnimation
+import org.elnix.dragonlauncher.ui.remembers.LocalDefaultPoint
+import org.elnix.dragonlauncher.ui.remembers.LocalIconShape
+import org.elnix.dragonlauncher.ui.remembers.LocalIcons
+import org.elnix.dragonlauncher.ui.remembers.LocalNests
 import org.elnix.dragonlauncher.ui.remembers.LocalPoints
 import org.elnix.dragonlauncher.ui.settings.backup.BackupTab
 import org.elnix.dragonlauncher.ui.settings.customization.AppearanceTab
@@ -144,9 +149,6 @@ fun MainAppUi(
     onRemoveFloatingApp: (FloatingAppObject) -> Unit
 ) {
     val ctx = LocalContext.current
-    val points = LocalPoints.current
-
-
     val scope = rememberCoroutineScope()
 
     val result by backupViewModel.result.collectAsState()
@@ -208,12 +210,6 @@ fun MainAppUi(
     val autoBackupEnabled by BackupSettingsStore.autoBackupEnabled.asState()
     val autoBackupUriString by BackupSettingsStore.autoBackupUri.asStateNull()
     val autoBackupUri = autoBackupUriString?.toUri()
-
-
-//    val nestNavigation = rememberNestNavigation(nests)
-
-    val defaultPoint by appsViewModel.defaultPoint.collectAsState(defaultSwipePointsValues)
-
 
     var startDestination by remember { mutableStateOf(SETTINGS.ROOT) }
 
@@ -576,196 +572,209 @@ fun MainAppUi(
         }
 
 
-    Scaffold(
-        topBar = {
-            Column {
-                if (showSetAsDefaultBanner) {
-                    SetDefaultLauncherBanner()
-                }
-                if (showReselectAutoBackupFile) {
-                    ReselectAutoBackupBanner {
-                        autoBackupLauncher.launch("dragonlauncher-auto-backup.json")
+    val icons by appsViewModel.icons.collectAsState()
+    val iconsShape by DrawerSettingsStore.iconsShape.asState()
+
+    val nests by SwipeSettingsStore.getNestsFlow(ctx).collectAsState(initial = emptyList())
+    val points by SwipeSettingsStore.getPointsFlow(ctx).collectAsState(emptyList())
+    val defaultPoint by SwipeSettingsStore.getDefaultPointFlow(ctx).collectAsState(defaultSwipePointsValues)
+
+    CompositionLocalProvider(
+        LocalDefaultPoint provides defaultPoint,
+        LocalIcons provides icons,
+        LocalIconShape provides iconsShape,
+        LocalPoints provides points,
+        LocalNests provides nests
+    ) {
+        Scaffold(
+            topBar = {
+                Column {
+                    if (showSetAsDefaultBanner) {
+                        SetDefaultLauncherBanner()
+                    }
+                    if (showReselectAutoBackupFile) {
+                        ReselectAutoBackupBanner {
+                            autoBackupLauncher.launch("dragonlauncher-auto-backup.json")
+                        }
                     }
                 }
-            }
-        },
-        contentWindowInsets = WindowInsets(),
-        containerColor = containerColor,
-    ) { paddingValues ->
-        NavHost(
-            navController = navController,
-            startDestination = ROUTES.MAIN,
-            modifier = Modifier.padding(paddingValues)
-        ) {
-            // Main App (LauncherScreen)
-            noAnimComposable(ROUTES.MAIN) {
-                MainScreen(
-                    appsViewModel = appsViewModel,
-                    floatingAppsViewModel = floatingAppsViewModel,
-                    widgetHostProvider = widgetHostProvider,
-                    onLaunchAction = ::launchAction
-                )
-            }
-
-            composable(
-                route = ROUTES.DRAWER,
-                enterTransition = { if (drawerEnterExitAnimations) raiseUpAnimation() else EnterTransition.None },
-                exitTransition = { if (drawerEnterExitAnimations) collapseDownAnimation() else ExitTransition.None },
-                popEnterTransition = { if (drawerEnterExitAnimations) raiseUpAnimation() else EnterTransition.None },
-                popExitTransition = { if (drawerEnterExitAnimations) collapseDownAnimation() else ExitTransition.None },
+            },
+            contentWindowInsets = WindowInsets(),
+            containerColor = containerColor,
+        ) { paddingValues ->
+            NavHost(
+                navController = navController,
+                startDestination = ROUTES.MAIN,
+                modifier = Modifier.padding(paddingValues)
             ) {
-                AppDrawerScreen(
-                    appsViewModel = appsViewModel,
-                    appLifecycleViewModel = appLifecycleViewModel,
-                    showIcons = showAppIconsInDrawer,
-                    showLabels = showAppLabelsInDrawer,
-                    autoShowKeyboard = autoShowKeyboardOnDrawer,
-                    gridSize = gridSize,
-                    onRegisterHomeHandler = { handler ->
-                        drawerHomeHandler = handler
-                    },
-                    searchBarBottom = searchBarBottom,
-                    leftAction = leftDrawerAction,
-                    leftWeight = leftDrawerWidth,
-                    rightAction = rightDrawerAction,
-                    rightWeight = rightDrawerWidth,
-                    onLaunchAction = ::launchApp
-                ) { goMainScreen() }
-            }
-
-            // Welcome screen
-            noAnimComposable(ROUTES.WELCOME) {
-                WelcomeScreen(
-                    backupVm = backupViewModel,
-                    onEnterSettings = ::goSettingsRoot,
-                    onEnterApp = ::goMainScreen
-                )
-            }
-
-
-            /* ───────────── Settings navigation ───────────── */
-            navigation(
-                startDestination = startDestination,
-                route = "settings_graph"
-            ) {
-                noAnimComposable(SETTINGS.ROOT) {
-                    SettingsScreen(
+                // Main App (LauncherScreen)
+                noAnimComposable(ROUTES.MAIN) {
+                    MainScreen(
                         appsViewModel = appsViewModel,
-                        appLifecycleViewModel = appLifecycleViewModel,
-                        defaultPoint = defaultPoint,
-                        onAdvSettings = ::goAdvSettingsRoot,
-                        onNestEdit = ::goNestEdit,
-                        onBack = ::goMainScreen
-                    )
-                }
-                noAnimComposable(SETTINGS.ADVANCED_ROOT) {
-                    AdvancedSettingsScreen(
-                        appViewModel = appsViewModel,
-                        navController = navController,
-                        onLaunchAction = ::launchApp,
-                    ) { goSettingsRoot() }
-                }
-
-                noAnimComposable(SETTINGS.APPEARANCE) {
-                    AppearanceTab(
-                        navController = navController,
-                        onBack = ::goAdvSettingsRoot
-                    )
-                }
-                noAnimComposable(SETTINGS.WALLPAPER) { WallpaperTab(::goAppearance) }
-                noAnimComposable(SETTINGS.ICON_PACK) { IconPackTab(appsViewModel, ::goAppearance) }
-                noAnimComposable(SETTINGS.STATUS_BAR) {
-                    StatusBarTab(
-                        appsViewModel = appsViewModel,
-                        appLifecycleViewModel = appLifecycleViewModel,
-                        onBack = ::goAppearance
-                    )
-                }
-                noAnimComposable(SETTINGS.THEME) { ThemesTab(::goAppearance) }
-
-                noAnimComposable(SETTINGS.BEHAVIOR) {
-                    BehaviorTab(
-                        appsViewModel = appsViewModel,
-                        appLifecycleViewModel = appLifecycleViewModel,
-                        onBack = ::goAdvSettingsRoot
-                    )
-                }
-                noAnimComposable(SETTINGS.DRAWER) { DrawerTab(appsViewModel, ::goAdvSettingsRoot) }
-                noAnimComposable(SETTINGS.COLORS) { ColorSelectorTab(::goAppearance) }
-                noAnimComposable(SETTINGS.DEBUG) {
-                    DebugTab(
-                        navController = navController,
-                        appsViewModel = appsViewModel,
-                        onShowWelcome = ::goWelcome,
-                        onBack = ::goAdvSettingsRoot
-                    )
-                }
-                noAnimComposable(SETTINGS.LOGS) { LogsTab(::goDebug) }
-                noAnimComposable(SETTINGS.SETTINGS_JSON) { SettingsDebugTab(::goDebug) }
-                noAnimComposable(SETTINGS.LANGUAGE) { LanguageTab(::goAdvSettingsRoot) }
-                noAnimComposable(SETTINGS.BACKUP) {
-                    BackupTab(
-                        backupViewModel = backupViewModel,
-                        onBack = ::goAdvSettingsRoot
-                    )
-                }
-                noAnimComposable(SETTINGS.CHANGELOGS) { ChangelogsScreen(::goAdvSettingsRoot) }
-
-                noAnimComposable(SETTINGS.WELLBEING) {
-                    WellbeingTab(
-                        appsViewModel = appsViewModel,
-                        appLifecycleViewModel = appLifecycleViewModel,
-                        onBack = ::goAdvSettingsRoot
-                    )
-                }
-
-                noAnimComposable(SETTINGS.NESTS_EDIT) {
-                    NestEditingScreen(
-                        nestId = pendingNestToEdit,
-                        defaultPoint = defaultPoint,
-                        onBack = ::goSettingsRoot
-                    )
-                }
-
-                noAnimComposable(SETTINGS.FLOATING_APPS) {
-                    FloatingAppsTab(
-                        appsViewModel = appsViewModel,
-                        appLifecycleViewModel = appLifecycleViewModel,
                         floatingAppsViewModel = floatingAppsViewModel,
                         widgetHostProvider = widgetHostProvider,
-                        onBack = ::goAppearance,
-                        onLaunchSystemWidgetPicker = ::launchWidgetsPicker,
-                        onResetWidgetSize = onResetWidgetSize,
-                        onRemoveWidget = onRemoveFloatingApp
+                        onLaunchAction = ::launchAction
                     )
                 }
 
-                noAnimComposable(SETTINGS.WORKSPACE) {
-                    WorkspaceListScreen(
-                        appsViewModel = appsViewModel,
-                        onOpenWorkspace = { id ->
-                            navController.navigate(
-                                SETTINGS.WORKSPACE_DETAIL.replace("{id}", id)
-                            )
-                        },
-                        onBack = ::goAdvSettingsRoot
-                    )
-                }
-
-                noAnimComposable(
-                    route = SETTINGS.WORKSPACE_DETAIL,
-                    arguments = listOf(navArgument("id") { type = NavType.StringType }),
-                ) { backStack ->
-                    WorkspaceDetailScreen(
+                composable(
+                    route = ROUTES.DRAWER,
+                    enterTransition = { if (drawerEnterExitAnimations) raiseUpAnimation() else EnterTransition.None },
+                    exitTransition = { if (drawerEnterExitAnimations) collapseDownAnimation() else ExitTransition.None },
+                    popEnterTransition = { if (drawerEnterExitAnimations) raiseUpAnimation() else EnterTransition.None },
+                    popExitTransition = { if (drawerEnterExitAnimations) collapseDownAnimation() else ExitTransition.None },
+                ) {
+                    AppDrawerScreen(
                         appsViewModel = appsViewModel,
                         appLifecycleViewModel = appLifecycleViewModel,
-                        showLabels = showAppLabelsInDrawer,
                         showIcons = showAppIconsInDrawer,
+                        showLabels = showAppLabelsInDrawer,
+                        autoShowKeyboard = autoShowKeyboardOnDrawer,
                         gridSize = gridSize,
-                        workspaceId = backStack.arguments!!.getString("id")!!,
-                        onBack = { navController.popBackStack() },
+                        onRegisterHomeHandler = { handler ->
+                            drawerHomeHandler = handler
+                        },
+                        searchBarBottom = searchBarBottom,
+                        leftAction = leftDrawerAction,
+                        leftWeight = leftDrawerWidth,
+                        rightAction = rightDrawerAction,
+                        rightWeight = rightDrawerWidth,
                         onLaunchAction = ::launchApp
+                    ) { goMainScreen() }
+                }
+
+                // Welcome screen
+                noAnimComposable(ROUTES.WELCOME) {
+                    WelcomeScreen(
+                        backupVm = backupViewModel,
+                        onEnterSettings = ::goSettingsRoot,
+                        onEnterApp = ::goMainScreen
                     )
+                }
+
+
+                /* ───────────── Settings navigation ───────────── */
+                navigation(
+                    startDestination = startDestination,
+                    route = "settings_graph"
+                ) {
+                    noAnimComposable(SETTINGS.ROOT) {
+                        SettingsScreen(
+                            appsViewModel = appsViewModel,
+                            appLifecycleViewModel = appLifecycleViewModel,
+                            onAdvSettings = ::goAdvSettingsRoot,
+                            onNestEdit = ::goNestEdit,
+                            onBack = ::goMainScreen
+                        )
+                    }
+                    noAnimComposable(SETTINGS.ADVANCED_ROOT) {
+                        AdvancedSettingsScreen(
+                            appViewModel = appsViewModel,
+                            navController = navController,
+                            onLaunchAction = ::launchApp,
+                        ) { goSettingsRoot() }
+                    }
+
+                    noAnimComposable(SETTINGS.APPEARANCE) {
+                        AppearanceTab(
+                            navController = navController,
+                            onBack = ::goAdvSettingsRoot
+                        )
+                    }
+                    noAnimComposable(SETTINGS.WALLPAPER) { WallpaperTab(::goAppearance) }
+                    noAnimComposable(SETTINGS.ICON_PACK) { IconPackTab(appsViewModel, ::goAppearance) }
+                    noAnimComposable(SETTINGS.STATUS_BAR) {
+                        StatusBarTab(
+                            appsViewModel = appsViewModel,
+                            appLifecycleViewModel = appLifecycleViewModel,
+                            onBack = ::goAppearance
+                        )
+                    }
+                    noAnimComposable(SETTINGS.THEME) { ThemesTab(::goAppearance) }
+
+                    noAnimComposable(SETTINGS.BEHAVIOR) {
+                        BehaviorTab(
+                            appsViewModel = appsViewModel,
+                            appLifecycleViewModel = appLifecycleViewModel,
+                            onBack = ::goAdvSettingsRoot
+                        )
+                    }
+                    noAnimComposable(SETTINGS.DRAWER) { DrawerTab(appsViewModel, ::goAdvSettingsRoot) }
+                    noAnimComposable(SETTINGS.COLORS) { ColorSelectorTab(::goAppearance) }
+                    noAnimComposable(SETTINGS.DEBUG) {
+                        DebugTab(
+                            navController = navController,
+                            appsViewModel = appsViewModel,
+                            onShowWelcome = ::goWelcome,
+                            onBack = ::goAdvSettingsRoot
+                        )
+                    }
+                    noAnimComposable(SETTINGS.LOGS) { LogsTab(::goDebug) }
+                    noAnimComposable(SETTINGS.SETTINGS_JSON) { SettingsDebugTab(::goDebug) }
+                    noAnimComposable(SETTINGS.LANGUAGE) { LanguageTab(::goAdvSettingsRoot) }
+                    noAnimComposable(SETTINGS.BACKUP) {
+                        BackupTab(
+                            backupViewModel = backupViewModel,
+                            onBack = ::goAdvSettingsRoot
+                        )
+                    }
+                    noAnimComposable(SETTINGS.CHANGELOGS) { ChangelogsScreen(::goAdvSettingsRoot) }
+
+                    noAnimComposable(SETTINGS.WELLBEING) {
+                        WellbeingTab(
+                            appsViewModel = appsViewModel,
+                            appLifecycleViewModel = appLifecycleViewModel,
+                            onBack = ::goAdvSettingsRoot
+                        )
+                    }
+
+                    noAnimComposable(SETTINGS.NESTS_EDIT) {
+                        NestEditingScreen(
+                            nestId = pendingNestToEdit,
+                            onBack = ::goSettingsRoot
+                        )
+                    }
+
+                    noAnimComposable(SETTINGS.FLOATING_APPS) {
+                        FloatingAppsTab(
+                            appsViewModel = appsViewModel,
+                            appLifecycleViewModel = appLifecycleViewModel,
+                            floatingAppsViewModel = floatingAppsViewModel,
+                            widgetHostProvider = widgetHostProvider,
+                            onBack = ::goAppearance,
+                            onLaunchSystemWidgetPicker = ::launchWidgetsPicker,
+                            onResetWidgetSize = onResetWidgetSize,
+                            onRemoveWidget = onRemoveFloatingApp
+                        )
+                    }
+
+                    noAnimComposable(SETTINGS.WORKSPACE) {
+                        WorkspaceListScreen(
+                            appsViewModel = appsViewModel,
+                            onOpenWorkspace = { id ->
+                                navController.navigate(
+                                    SETTINGS.WORKSPACE_DETAIL.replace("{id}", id)
+                                )
+                            },
+                            onBack = ::goAdvSettingsRoot
+                        )
+                    }
+
+                    noAnimComposable(
+                        route = SETTINGS.WORKSPACE_DETAIL,
+                        arguments = listOf(navArgument("id") { type = NavType.StringType }),
+                    ) { backStack ->
+                        WorkspaceDetailScreen(
+                            appsViewModel = appsViewModel,
+                            appLifecycleViewModel = appLifecycleViewModel,
+                            showLabels = showAppLabelsInDrawer,
+                            showIcons = showAppIconsInDrawer,
+                            gridSize = gridSize,
+                            workspaceId = backStack.arguments!!.getString("id")!!,
+                            onBack = { navController.popBackStack() },
+                            onLaunchAction = ::launchApp
+                        )
+                    }
                 }
             }
         }

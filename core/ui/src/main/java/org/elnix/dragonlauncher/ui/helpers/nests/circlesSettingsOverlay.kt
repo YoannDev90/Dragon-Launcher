@@ -1,5 +1,6 @@
 package org.elnix.dragonlauncher.ui.helpers.nests
 
+import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.BlendMode
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.drawscope.DrawScope
@@ -12,6 +13,10 @@ import org.elnix.dragonlauncher.common.utils.circles.computePointPosition
 fun DrawScope.circlesSettingsOverlay(
     drawParams: SwipeDrawParams,
 
+
+    center: Offset,
+    depth: Int,
+
     circles: List<UiCircle>,
     selectedPoint: SwipePointSerializable?,
     nestId: Int,
@@ -22,7 +27,6 @@ fun DrawScope.circlesSettingsOverlay(
     val points = drawParams.points
     val surfaceColorDraw = drawParams.surfaceColorDraw
     val extraColors = drawParams.extraColors
-    val center = drawParams.center
     val showCircle = drawParams.showCircle
 
     // 0. Erases the inner circle
@@ -63,8 +67,10 @@ fun DrawScope.circlesSettingsOverlay(
 
         // 2. Draw all points that belongs to the actual circle, selected last
         points
-            .filter { it.circleNumber == circle.id }
-            .filter { it.nestId == nestId }
+            .filter {
+                it.circleNumber == circle.id &&
+                it.nestId == nestId
+            }
             .sortedBy { it.id == selectedPoint?.id }
             .forEach { p ->
 
@@ -75,9 +81,10 @@ fun DrawScope.circlesSettingsOverlay(
                 )
 
                 actionsInCircle(
-                    drawParams = drawParams.copy(
-                        center = newCenter
-                    ),
+                    drawParams = drawParams,
+
+                    center = newCenter,
+                    depth = depth,
                     point = p,
                     selected = selectedAll || (p.id == selectedPoint?.id),
                     preventBgErasing = preventBgErasing

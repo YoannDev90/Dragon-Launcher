@@ -127,6 +127,8 @@ import org.elnix.dragonlauncher.ui.helpers.CircleIconButton
 import org.elnix.dragonlauncher.ui.helpers.RepeatingPressButton
 import org.elnix.dragonlauncher.ui.helpers.nests.actionsInCircle
 import org.elnix.dragonlauncher.ui.helpers.nests.circlesSettingsOverlay
+import org.elnix.dragonlauncher.ui.helpers.nests.rememberSwipeDefaultParams
+import org.elnix.dragonlauncher.ui.remembers.LocalDefaultPoint
 import org.elnix.dragonlauncher.ui.remembers.LocalIcons
 import org.elnix.dragonlauncher.ui.remembers.LocalNests
 import java.math.RoundingMode
@@ -146,7 +148,6 @@ import kotlin.math.sin
 fun SettingsScreen(
     appsViewModel: AppsViewModel,
     appLifecycleViewModel: AppLifecycleViewModel,
-    defaultPoint: SwipePointSerializable,
     onAdvSettings: () -> Unit,
     onNestEdit: (nest: Int) -> Unit,
     onBack: () -> Unit
@@ -154,6 +155,7 @@ fun SettingsScreen(
     val ctx = LocalContext.current
     val nests = LocalNests.current
     val icons = LocalIcons.current
+    val defaultPoint = LocalDefaultPoint.current
 
     val extraColors = LocalExtraColors.current
     val density = LocalDensity.current
@@ -448,6 +450,11 @@ fun SettingsScreen(
         else onBack()
     }
 
+    val drawParams = rememberSwipeDefaultParams(
+        points = points,
+        backgroundColor = MaterialTheme.colorScheme.background,
+        showCircle = true
+    )
 
 
     Column(
@@ -603,29 +610,10 @@ fun SettingsScreen(
             // Used cause otherwise Compose wouldn't recompose on changes inside the points and nests classes
             key(recomposeTrigger) {
                 Canvas(Modifier.fillMaxSize()) {
-
-                    // Shows all points, excepted the currently dragged one, if any
-                    val displayedFilteredPoints = points.filter {
-                        if (isDragging) it.id != selectedPoint?.id
-                        else true
-                    }
-
                     circlesSettingsOverlay(
-                        drawParams = SwipeDrawParams(
-                            nests = nests,
-                            points = displayedFilteredPoints,
-                            center = center,
-                            ctx = ctx,
-                            defaultPoint = defaultPoint,
-                            icons = icons,
-                            surfaceColorDraw = backgroundColor,
-                            extraColors = extraColors,
-                            showCircle = true,
-                            density = density,
-                            depth = 1,
-                            maxDepth = maxNestsDepth,
-                            iconShape = iconsShape, 100
-                        ),
+                        drawParams = drawParams,
+                        center = center,
+                        depth = 1,
                         circles = circles,
                         selectedPoint = selectedPoint,
                         nestId = nestId,
@@ -634,11 +622,17 @@ fun SettingsScreen(
 
 
                     if (isDragging && selectedPoint != null) {
+
+                        // Shows all points, excepted the currently dragged one, if any
+                        val displayedFilteredPoints = points.filter {
+                                if (isDragging) it.id != selectedPoint?.id
+                                else true
+                            }
+
                         actionsInCircle(
                             drawParams = SwipeDrawParams(
                                 nests = nests,
                                 points = displayedFilteredPoints,
-                                center = selectedPointTempOffset.value,
                                 ctx = ctx,
                                 defaultPoint = defaultPoint,
                                 icons = icons,
@@ -646,10 +640,11 @@ fun SettingsScreen(
                                 extraColors = extraColors,
                                 showCircle = true,
                                 density = density,
-                                depth = 1,
                                 maxDepth = maxNestsDepth,
-                                iconShape = iconsShape,100
+                                iconShape = iconsShape, 100
                             ),
+                            center = selectedPointTempOffset.value,
+                            depth = 1,
                             point = selectedPoint!!,
                             selected = true,
                             preventBgErasing = true
@@ -1315,7 +1310,6 @@ fun SettingsScreen(
 
     if (showNestManagementDialog) {
         NestManagementDialog(
-            appsViewModel = appsViewModel,
             onDismissRequest = { showNestManagementDialog = false },
             onNewNest = ::addNewNest,
             onNameChange = null /*{ id, newName ->
@@ -1415,7 +1409,7 @@ fun SettingsScreen(
             },
         ) {
             scope.launch {
-                appsViewModel.setDefaultPoint(it)
+                SwipeSettingsStore.setDefaultPoint(ctx,it)
             }
             showEditDefaultPoint = false
         }

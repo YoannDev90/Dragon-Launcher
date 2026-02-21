@@ -26,7 +26,6 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextField
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -35,37 +34,24 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.geometry.center
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
-import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
-import org.elnix.dragonlauncher.base.theme.LocalExtraColors
 import org.elnix.dragonlauncher.common.R
-import org.elnix.dragonlauncher.common.points.SwipeDrawParams
 import org.elnix.dragonlauncher.common.serializables.CircleNest
 import org.elnix.dragonlauncher.common.serializables.SwipeActionSerializable
 import org.elnix.dragonlauncher.common.serializables.SwipePointSerializable
-import org.elnix.dragonlauncher.common.serializables.defaultSwipePointsValues
 import org.elnix.dragonlauncher.common.utils.colors.adjustBrightness
 import org.elnix.dragonlauncher.common.utils.copyToClipboard
-import org.elnix.dragonlauncher.models.AppsViewModel
-import org.elnix.dragonlauncher.settings.stores.DrawerSettingsStore
-import org.elnix.dragonlauncher.settings.stores.SwipeSettingsStore
-import org.elnix.dragonlauncher.settings.stores.UiSettingsStore
 import org.elnix.dragonlauncher.ui.UiConstants.DragonShape
 import org.elnix.dragonlauncher.ui.colors.AppObjectsColors
 import org.elnix.dragonlauncher.ui.components.dragon.DragonIconButton
-import org.elnix.dragonlauncher.ui.components.settings.asState
 import org.elnix.dragonlauncher.ui.helpers.nests.actionsInCircle
-import org.elnix.dragonlauncher.ui.remembers.LocalIconShape
-import org.elnix.dragonlauncher.ui.remembers.LocalIcons
+import org.elnix.dragonlauncher.ui.helpers.nests.rememberSwipeDefaultParams
 import org.elnix.dragonlauncher.ui.remembers.LocalNests
-import org.elnix.dragonlauncher.ui.remembers.LocalPoints
 
 @Composable
 fun NestManagementDialog(
-    appsViewModel: AppsViewModel,
     title: String? = null,
     canCopyId: Boolean = true,
     onDismissRequest: () -> Unit,
@@ -74,15 +60,7 @@ fun NestManagementDialog(
     onDelete: ((id: Int) -> Unit)?,
     onSelect: ((CircleNest) -> Unit)? = null
 ) {
-    val ctx = LocalContext.current
-
-    val points by SwipeSettingsStore.getPointsFlow(ctx).collectAsState(emptyList())
-    val nests by SwipeSettingsStore.getNestsFlow(ctx).collectAsState(emptyList())
-
-    val defaultPoint by appsViewModel.defaultPoint.collectAsState(defaultSwipePointsValues)
-
-    val iconsShape by DrawerSettingsStore.iconsShape.flow(ctx)
-        .collectAsState(DrawerSettingsStore.iconsShape.default)
+    val nests = LocalNests.current
 
     CustomAlertDialog(
         modifier = Modifier.padding(15.dp),
@@ -131,7 +109,6 @@ fun NestManagementDialog(
                 items(nests) { nest ->
                     NestManagementItem(
                         nest = nest,
-                        defaultPoint = defaultPoint,
                         canCopyId = canCopyId,
                         onNameChange = onNameChange,
                         onDelete = onDelete,
@@ -148,22 +125,13 @@ fun NestManagementDialog(
 @Composable
 private fun NestManagementItem(
     nest: CircleNest,
-    defaultPoint: SwipePointSerializable,
     canCopyId: Boolean,
     onNameChange: ((id: Int, name: String) -> Unit)?,
     onDelete: ((id: Int) -> Unit)?,
     onSelect: (() -> Unit)? = null
 ) {
     val ctx = LocalContext.current
-    val extraColors = LocalExtraColors.current
-    val density = LocalDensity.current
-    val nests = LocalNests.current
-    val points = LocalPoints.current
-    val icons = LocalIcons.current
-    val iconShape = LocalIconShape.current
-
-
-    val maxNestsDepth by UiSettingsStore.maxNestsDepth.asState()
+    val drawParams = rememberSwipeDefaultParams()
 
     var tempCustomName by remember { mutableStateOf(nest.name ?: "") }
 
@@ -196,21 +164,9 @@ private fun NestManagementItem(
             actionsInCircle(
                 selected = false,
                 point = editPoint,
-                drawParams = SwipeDrawParams(
-                    nests = nests,
-                    points = points,
-                    center =center,
-                    ctx = ctx,
-                    defaultPoint = defaultPoint,
-                    icons = icons,
-                    surfaceColorDraw = Color.Unspecified,
-                    extraColors = extraColors,
-                    showCircle = true,
-                    density = density,
-                    depth = 1,
-                    maxDepth = maxNestsDepth,
-                    iconShape = iconShape,100
-                )
+                center = center,
+                depth = 1,
+                drawParams = drawParams
             )
         }
 

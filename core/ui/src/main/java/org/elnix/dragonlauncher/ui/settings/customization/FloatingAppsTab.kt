@@ -396,7 +396,6 @@ fun FloatingAppsTab(
 
     if (showNestPickerDialog) {
         NestManagementDialog(
-            appsViewModel = appsViewModel,
             title = stringResource(R.string.pick_a_nest),
             canCopyId = false,
             onDismissRequest = { showNestPickerDialog = false },

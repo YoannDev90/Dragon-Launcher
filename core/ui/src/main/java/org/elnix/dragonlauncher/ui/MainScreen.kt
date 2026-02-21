@@ -373,7 +373,6 @@ fun MainScreen(
             nestId = nestId,
             isDragging = isDragging,
             surface = size,
-            defaultPoint = defaultPoint,
             onLaunch = { launchAction(it) }
         )
 
