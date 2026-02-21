@@ -63,7 +63,6 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.rememberUpdatedState
 import androidx.compose.runtime.setValue
-import androidx.compose.runtime.snapshotFlow
 import androidx.compose.runtime.snapshots.SnapshotStateList
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -79,7 +78,6 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.launch
 import org.elnix.dragonlauncher.base.ktx.toPixels
 import org.elnix.dragonlauncher.base.theme.LocalExtraColors
@@ -182,7 +180,6 @@ fun SettingsScreen(
     var showEditDefaultPoint by remember { mutableStateOf(false) }
     var showAddDialog by remember { mutableStateOf(false) }
     var showEditDialog by remember { mutableStateOf<SwipePointSerializable?>(null) }
-    var recomposeTrigger by remember { mutableIntStateOf(0) }
 
     // Manual placement mode state (multi-select "Place one by one")
     var manualPlacementQueue by remember { mutableStateOf<List<SwipeActionSerializable>>(emptyList()) }
@@ -290,6 +287,15 @@ fun SettingsScreen(
     fun snapshotPoints(): List<SwipePointSerializable> = points.map { it.copy() }
     fun snapshotNests(): List<CircleNest> = nests.map { it.copy() }
 
+
+    fun save() {
+        scope.launch {
+            SwipeSettingsStore.savePoints(ctx, snapshotPoints())
+            SwipeSettingsStore.saveNests(ctx, snapshotNests())
+        }
+    }
+
+
     fun applyChange(mutator: () -> Unit) {
         // Save current state into undo before mutation
         undoStack = undoStack + listOf(snapshotPoints())
@@ -299,7 +305,7 @@ fun SettingsScreen(
         nestsRedoStack = emptyList()
         // Now apply the change
         mutator()
-        recomposeTrigger++
+        save()
     }
 
     fun undo() {
@@ -421,16 +427,6 @@ fun SettingsScreen(
                 logE(SWIPE_TAG, "Fallback loading also failed, clearing all points: $e")
             }
         }
-    }
-
-
-    // Save points
-    LaunchedEffect(Unit, recomposeTrigger) {
-        snapshotFlow { points.toList() }
-            .distinctUntilChanged()
-            .collect { list ->
-                SwipeSettingsStore.savePoints(ctx, list)
-            }
     }
 
 
@@ -621,31 +617,30 @@ fun SettingsScreen(
                 }
         ) {
 
-            // Draws all the points, is recomposed at every instance of the recompose trigger
-            // Used cause otherwise Compose wouldn't recompose on changes inside the points and nests classes
-                Canvas(Modifier.fillMaxSize()) {
-                    circlesSettingsOverlay(
+
+            Canvas(Modifier.fillMaxSize()) {
+                circlesSettingsOverlay(
+                    drawParams = drawParams,
+                    center = center,
+                    depth = 1,
+                    circles = circles,
+                    selectedPoint = selectedPoint,
+                    nestId = nestId,
+                    preventBgErasing = true
+                )
+
+
+                if (isDragging && selectedPoint != null) {
+                    actionsInCircle(
                         drawParams = drawParams,
-                        center = center,
+                        center = selectedPointTempOffset.value,
                         depth = 1,
-                        circles = circles,
-                        selectedPoint = selectedPoint,
-                        nestId = nestId,
+                        point = selectedPoint!!,
+                        selected = true,
                         preventBgErasing = true
                     )
-
-
-                    if (isDragging && selectedPoint != null) {
-                        actionsInCircle(
-                            drawParams = drawParams,
-                            center = selectedPointTempOffset.value,
-                            depth = 1,
-                            point = selectedPoint!!,
-                            selected = true,
-                            preventBgErasing = true
-                        )
-                    }
                 }
+            }
 
 
 
@@ -698,7 +693,6 @@ fun SettingsScreen(
                                     scope.launch {
                                         selectedPointTempOffset.snapTo(change.position)
                                     }
-                                    recomposeTrigger++
                                 }
                             },
                             onDragEnd = {
@@ -982,7 +976,6 @@ fun SettingsScreen(
                                 circles.find { it.id == point.circleNumber },
                                 point
                             )
-                            recomposeTrigger++
                         }
                     }
                 }
@@ -1032,7 +1025,6 @@ fun SettingsScreen(
                                 circles.find { it.id == point.circleNumber },
                                 point
                             )
-                            recomposeTrigger++
                         }
                     }
                 }
@@ -1404,7 +1396,7 @@ fun SettingsScreen(
             },
         ) {
             scope.launch {
-                SwipeSettingsStore.setDefaultPoint(ctx,it)
+                SwipeSettingsStore.setDefaultPoint(ctx, it)
             }
             showEditDefaultPoint = false
         }
