@@ -435,7 +435,7 @@ fun DrawerTab(
 
                 DrawerActionSelector(
                     settingObject = DrawerSettingsStore.scrollDownDrawerAction,
-                    label = stringResource(R.string.scroll_down_actiob),
+                    label = stringResource(R.string.scroll_down_action),
                 )
 
                 DrawerActionSelector(

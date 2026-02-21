@@ -42,7 +42,6 @@ import org.elnix.dragonlauncher.ui.UiConstants.DragonShape
 import org.elnix.dragonlauncher.ui.components.generic.ActionRow
 import org.elnix.dragonlauncher.ui.defaultDragDistance
 import org.elnix.dragonlauncher.ui.defaultHapticFeedback
-import org.elnix.dragonlauncher.ui.defaultMinAngleActivation
 import org.elnix.dragonlauncher.ui.helpers.SliderWithLabel
 import org.elnix.dragonlauncher.ui.helpers.nests.circlesSettingsOverlay
 import org.elnix.dragonlauncher.ui.helpers.nests.rememberSwipeDefaultParams
@@ -66,7 +65,6 @@ fun NestEditingScreen(
     val drawParams = rememberSwipeDefaultParams(
         backgroundColor = MaterialTheme.colorScheme.background
     )
-
 
 
     val dragDistancesState = remember(currentNest.id) {
@@ -263,15 +261,15 @@ fun NestEditingScreen(
 
                     MIN_ANGLE -> {
                         dragDistancesState.toSortedMap().filter { it.key != -1 }
-                            .forEach { (index, distance) ->
-                                val angle = minAngleState[index] ?: defaultMinAngleActivation(distance)
+                            .forEach { (index, _) ->
+                                val angle = minAngleState[index] ?: 0
                                 SliderWithLabel(
                                     label = "${stringResource(R.string.min_angle_to_activate)}: $index ->",
                                     value = angle,
                                     valueRange = 0..360,
                                     backgroundColor = MaterialTheme.colorScheme.surfaceVariant,
                                     onReset = {
-                                        minAngleState[index] = defaultMinAngleActivation(distance)
+                                        minAngleState[index] = 0
                                         commitAngle(minAngleState)
                                     },
                                     onDragStateChange = { isDragging ->
@@ -284,32 +282,6 @@ fun NestEditingScreen(
                                 }
                             }
                     }
-
-//                    depth -> {
-//
-//                        var tempDepth by remember { mutableIntStateOf(currentNest.depth) }
-//                        SliderWithLabel(
-//                            label = stringResource(R.string.depth),
-//                            description = stringResource(R.string.depth_desc),
-//                            backgroundColor = MaterialTheme.colorScheme.surfaceVariant,
-//                            value = tempDepth,
-//                            valueRange = 1..5
-//                        ) {
-//                            tempDepth = it
-//                            pendingNestUpdate = nests.map { nest ->
-//                                if (nest.id == nestId) {
-//                                    nest.copy(depth = it)
-//                                } else nest
-//                            }
-//                        }
-//
-//
-//                        Text(
-//                            text = stringResource(R.string.warning_large_values_can_lag_your_phone),
-//                            color = MaterialTheme.colorScheme.onSurface,
-//                            style = MaterialTheme.typography.labelLarge
-//                        )
-//                    }
                 }
             }
         }
