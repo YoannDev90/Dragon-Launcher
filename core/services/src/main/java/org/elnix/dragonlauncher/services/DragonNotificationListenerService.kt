@@ -2,6 +2,8 @@ package org.elnix.dragonlauncher.services
 
 import android.content.ComponentName
 import android.content.Context
+import android.content.Intent
+import android.provider.Settings
 import android.service.notification.NotificationListenerService
 import android.service.notification.StatusBarNotification
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -59,6 +61,17 @@ class DragonNotificationListenerService : NotificationListenerService() {
             ) ?: return false
             val cn = ComponentName(context, DragonNotificationListenerService::class.java)
             return flat.split(":").any { ComponentName.unflattenFromString(it) == cn }
+        }
+
+        /**
+         * Opens the system Notification Access settings screen where the user can grant
+         * or revoke the notification listener permission for this app.
+         */
+        fun openNotificationSettings(context: Context) {
+            context.startActivity(
+                Intent(Settings.ACTION_NOTIFICATION_LISTENER_SETTINGS)
+                    .addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+            )
         }
     }
 }
