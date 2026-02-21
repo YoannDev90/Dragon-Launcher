@@ -46,6 +46,8 @@ import org.elnix.dragonlauncher.common.logging.logE
 import org.elnix.dragonlauncher.common.utils.formatDateTime
 import org.elnix.dragonlauncher.common.utils.getFilePathFromUri
 import org.elnix.dragonlauncher.common.utils.showToast
+import org.elnix.dragonlauncher.enumsui.BackupActions
+import org.elnix.dragonlauncher.enumsui.label
 import org.elnix.dragonlauncher.models.BackupResult
 import org.elnix.dragonlauncher.models.BackupViewModel
 import org.elnix.dragonlauncher.settings.DataStoreName
@@ -280,39 +282,28 @@ fun BackupTab(
             item {
 
                 if (backupPath != null) {
-                    val actions = listOf(
-                        "change", "remove", "trigger"
-                    )
+
                     ActionRow(
-                        actions = actions,
-                        selectedView = "",
-                        actionName = {
-                            when (it) {
-                                "change" -> ctx.getString(R.string.change)
-                                "remove" -> ctx.getString(R.string.remove)
-                                "trigger" -> ctx.getString(R.string.trigger_backup)
-                                else -> ""
-                            }
-                        }
+                        actions = BackupActions.entries,
+                        selectedView = null,
+                        actionName = { it.label(ctx) }
                     ) {
                         when (it) {
-                            "change" -> {
+                            BackupActions.CHANGE -> {
                                 autoBackupLauncher.launch("dragonlauncher-auto-backup.json")
                             }
 
-                            "remove" -> {
+                            BackupActions.REMOVE -> {
                                 scope.launch {
                                     BackupSettingsStore.autoBackupUri.set(ctx, null)
                                 }
                             }
 
-                            "trigger" -> {
+                            BackupActions.TRIGGER -> {
                                 scope.launch {
                                     SettingsBackupManager.triggerBackup(ctx)
                                 }
                             }
-
-                            else -> null
                         }
                     }
                 } else {
