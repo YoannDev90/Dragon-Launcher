@@ -91,7 +91,6 @@ fun MainScreenOverlay(
     val pointsActionSnapsToOuterCircle by BehaviorSettingsStore.pointsActionSnapsToOuterCircle.asState()
 
 
-
     var lastAngle by remember { mutableStateOf<Double?>(null) }
     var cumulativeAngle by remember { mutableDoubleStateOf(0.0) }   // continuous rotation without jumps
 
@@ -162,7 +161,6 @@ fun MainScreenOverlay(
 
     // The chosen swipe action
     var currentAction: SwipePointSerializable? by remember { mutableStateOf(null) }
-
 
 
     // Computes the target circle based on the mode selected
@@ -357,29 +355,6 @@ fun MainScreenOverlay(
                     }
                 }
 
-
-                // The angle rotating around the start point (have to fix that and allow more customization) TODO
-                // The "do you hate it" thing in settings
-                if (showAppAnglePreview) {
-                    val arcRadius = 72f
-                    val rect = Rect(
-                        start.x - arcRadius,
-                        start.y - arcRadius,
-                        start.x + arcRadius,
-                        start.y + arcRadius
-                    )
-
-                    drawArc(
-                        color = lineColor,
-                        startAngle = -90f,
-                        sweepAngle = sweepAngle,
-                        useCenter = false,
-                        topLeft = rect.topLeft,
-                        size = Size(rect.width, rect.height),
-                        style = Stroke(width = 3f)
-                    )
-                }
-
                 if (showAppCirclePreview || showAppLinePreview || showAppLaunchPreview) {
                     hoveredPoint?.let { point ->
 
@@ -460,6 +435,30 @@ fun MainScreenOverlay(
                         depth = 1
                     )
                 }
+
+
+                // The angle rotating around the start point (have to fix that and allow more customization) TODO
+                // Draws last to display over the sub nests
+                // The "do you hate it" thing in settings
+                if (showAppAnglePreview) {
+                    val arcRadius = 72f
+                    val rect = Rect(
+                        start.x - arcRadius,
+                        start.y - arcRadius,
+                        start.x + arcRadius,
+                        start.y + arcRadius
+                    )
+
+                    drawArc(
+                        color = lineColor,
+                        startAngle = -90f,
+                        sweepAngle = sweepAngle,
+                        useCenter = false,
+                        topLeft = rect.topLeft,
+                        size = Size(rect.width, rect.height),
+                        style = Stroke(width = 3f)
+                    )
+                }
             }
         }
     }
@@ -521,14 +520,3 @@ fun defaultHapticFeedback(id: Int): Int = when (id) {
     0 -> 20  // First circle 20ms
     else -> 20 + 20 * id // others: add 20ms each
 }
-
-
-// TODO I'll need to compute the angle to make it always look stable, regardless of the radius, to have always same length
-fun defaultMinAngleActivation(size: Int): Int =
-    0 // Just return 0 cause I found out that its annoying
-//       Math.toRadians(size.toDouble()).toInt()
-//        y = start.y - radius * cos(Math.toRadians(point.angleDeg)).toFloat()
-
-//    -1 -> 0 // Cancel zone, no points on it
-//    0 -> 30  // First circle 30°
-//    else -> 30 + 20 * size // others: add 20° each
