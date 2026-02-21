@@ -2,6 +2,7 @@ package org.elnix.dragonlauncher.ui.statusbar
 
 import android.graphics.drawable.BitmapDrawable
 import androidx.compose.foundation.Image
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.size
@@ -46,7 +47,9 @@ fun StatusBarNotifications(
             imageVector = Icons.Default.Notifications,
             contentDescription = "Notifications",
             tint = textColor.copy(alpha = 0.4f),
-            modifier = Modifier.size(14.dp)
+            modifier = Modifier
+                .size(14.dp)
+                .clickable { DragonNotificationListenerService.openNotificationSettings(ctx) }
         )
         return
     }
