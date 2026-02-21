@@ -274,7 +274,11 @@ fun StatusBarTab(
                                 setting = StatusBarSettingsStore.showNotifications,
                                 title = stringResource(R.string.show_notifications),
                                 description = stringResource(R.string.show_notifications_desc)
-                            )
+                            ) { enabled ->
+                                if (enabled && !DragonNotificationListenerService.isPermissionGranted(ctx)) {
+                                    DragonNotificationListenerService.openNotificationSettings(ctx)
+                                }
+                            }
 
                             val showNotifications by StatusBarSettingsStore.showNotifications.asState()
                             var hasNotificationPermission by remember {
