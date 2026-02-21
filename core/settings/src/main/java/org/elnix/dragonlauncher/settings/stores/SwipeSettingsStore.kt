@@ -92,7 +92,7 @@ object SwipeSettingsStore : JsonSettingsStore() {
     override suspend fun getAll(ctx: Context): JSONObject {
         val points = getPoints(ctx)
         val nests = getNests(ctx)
-        val defaultPoint = getDefaultPointFlow(ctx).first()
+        val defaultPoint = getDefaultPoint(ctx  )
 
         if (points.isEmpty() && nests.isEmpty()) return JSONObject()
 

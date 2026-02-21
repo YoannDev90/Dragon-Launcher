@@ -57,7 +57,6 @@ import org.elnix.dragonlauncher.common.serializables.resolveApp
 import org.elnix.dragonlauncher.common.utils.Constants.Logging.APPS_TAG
 import org.elnix.dragonlauncher.common.utils.Constants.Logging.APP_LAUNCH_TAG
 import org.elnix.dragonlauncher.common.utils.Constants.Logging.ICONS_TAG
-import org.elnix.dragonlauncher.common.utils.Constants.Logging.TAG
 import org.elnix.dragonlauncher.common.utils.ImageUtils.createUntintedBitmap
 import org.elnix.dragonlauncher.common.utils.ImageUtils.loadDrawableAsBitmap
 import org.elnix.dragonlauncher.common.utils.ImageUtils.resolveCustomIconBitmap
@@ -182,7 +181,7 @@ class AppsViewModel(
             _selectedIconPack.value = _iconPacksList.value.find { it.packageName == pkg }
         }
 
-        loadApps()
+        reloadApps()
     }
 
     /**
@@ -243,56 +242,9 @@ class AppsViewModel(
 
                     val added = list.filter { it.packageName in workspace.appIds }
 
-                    // For special workspaces (USER, WORK, PRIVATE), make sure manually-added apps
-                    // don't violate the workspace's profile constraints
-                    val filtered = when (workspace.type) {
-                        WorkspaceType.USER -> {
-                            // Exclude manually-added apps that are Work or Private profile apps
-                            val userAdded =
-                                added.filter { !it.isWorkProfile && !it.isPrivateProfile }
-                            if (added.size != userAdded.size) {
-                                logI(
-                                    APPS_TAG,
-                                    "USER workspace: filtering out ${added.size - userAdded.size} non-user apps from manually-added"
-                                )
-                                added.filter { it.isWorkProfile || it.isPrivateProfile }.forEach {
-                                    logI(
-                                        APPS_TAG,
-                                        "  Excluded: ${it.name} (work=${it.isWorkProfile}, private=${it.isPrivateProfile})"
-                                    )
-                                }
-                            }
-                            userAdded
-                        }
-
-                        WorkspaceType.WORK -> {
-                            // Exclude manually-added apps that are not Work profile apps
-                            added.filter { it.isWorkProfile }
-                        }
-
-                        WorkspaceType.PRIVATE -> {
-                            // Exclude manually-added apps that are not Private profile apps
-                            val privateAdded = added.filter { it.isPrivateProfile }
-                            if (added.size != privateAdded.size) {
-                                logI(
-                                    APPS_TAG,
-                                    "PRIVATE workspace: added apps = ${added.size}, actual private = ${privateAdded.size}"
-                                )
-                                added.forEach {
-                                    logI(
-                                        APPS_TAG,
-                                        "  - ${it.name}: isPrivate=${it.isPrivateProfile}, userId=${it.userId}"
-                                    )
-                                }
-                            }
-                            privateAdded
-                        }
-
-                        else -> added  // For ALL and CUSTOM, allow any manually-added apps
-                    }
 
                     // Use the base list, and add the filtered manually-added apps, then remove explicitly removed ones
-                    (base + filtered)
+                    (base + added)
                         .distinctBy { "${it.packageName}_${it.userId}" }
                         .filter { it.packageName !in removed }
                         .sortedBy { it.name.lowercase() }
@@ -304,26 +256,6 @@ class AppsViewModel(
             SharingStarted.Eagerly,
             emptyList()
         )
-    }
-
-
-    private suspend fun loadApps() {
-        val cachedJson = AppsSettingsStore.cachedApps.get(ctx)
-
-        // try to het from the json cache before querying the package manager
-        // TODO this thing doesn't seem to work properly
-        if (!(cachedJson.isNullOrEmpty() || cachedJson == "{}")) {
-            try {
-                val type = object : TypeToken<List<AppModel>>() {}.type
-                _apps.value = gson.fromJson(cachedJson, type) ?: emptyList()
-            } catch (e: Exception) {
-                logE(TAG, "Failed to parse cached apps, clearing: ${e.message}")
-                AppsSettingsStore.cachedApps.reset(ctx) // Clear bad cache
-                _apps.value = emptyList()
-            }
-        }
-
-        scope.launch { reloadApps() }
     }
 
 
@@ -350,12 +282,6 @@ class AppsViewModel(
     )
     val privateSpaceState = _privateSpaceState.asStateFlow()
 
-
-//    fun setPrivateSpaceAvailable() {
-//        logW(APP_LAUNCH_TAG, "setPrivateSpaceAvailable() was called!")
-//        _privateSpaceState.value = PrivateSpaceLoadingState.Available
-//    }
-
     fun setPrivateSpaceLocked() {
         _privateSpaceState.update {
             it.copy(
@@ -370,14 +296,6 @@ class AppsViewModel(
     private var scheduledReloadJob: Job? = null
     private val reloadMutex = Mutex()
 
-
-//    private fun scheduleReload(delayMs: Long = 0L) {
-//        scheduledReloadJob?.cancel()
-//        scheduledReloadJob = scope.launch {
-//            if (delayMs > 0) delay(delayMs)
-//            reloadApps()
-//        }
-//    }
 
     suspend fun reloadApps() {
         try {
@@ -508,11 +426,6 @@ class AppsViewModel(
                 sizePx = 128,
                 reloadAll = true,
             )
-
-
-            withContext(Dispatchers.IO) {
-                AppsSettingsStore.cachedApps.set(ctx, gson.toJson(finalApps))
-            }
 
             // Auto-enable Private Space workspace if Private Space exists (Android 15+)
             if (PrivateSpaceUtils.isPrivateSpaceSupported()) {

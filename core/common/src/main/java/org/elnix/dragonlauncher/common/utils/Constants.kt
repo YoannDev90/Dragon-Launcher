@@ -181,6 +181,7 @@ object Constants {
         const val DRAWER_TAG = "DrawerDebug"
         const val APP_LAUNCH_TAG = "AppLaunchDebug"
         const val PRIVATE_SPACE_TAG = "PrivateSpaceDebug"
+        const val APPS_JSON_TAG = "AppsJsonDebug"
     }
 
     /*  ─────────────  Links  ─────────────  */
