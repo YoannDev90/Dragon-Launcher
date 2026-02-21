@@ -21,7 +21,8 @@ import androidx.compose.foundation.layout.imePadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.safeDrawing
 import androidx.compose.foundation.layout.windowInsetsPadding
-import androidx.compose.foundation.lazy.grid.rememberLazyGridState
+import androidx.compose.foundation.lazy.LazyListState
+import androidx.compose.foundation.lazy.grid.LazyGridState
 import androidx.compose.foundation.pager.HorizontalPager
 import androidx.compose.foundation.pager.rememberPagerState
 import androidx.compose.foundation.rememberScrollState
@@ -309,7 +310,8 @@ fun AppDrawerScreen(
     val pullDownScaleIn by DrawerSettingsStore.pullDownScaleIn.asState()
 //    val pullDownIconFade by DrawerSettingsStore.pullDownIconFade.asState()
 
-    val gridState = rememberLazyGridState()
+    var atTop by remember { mutableStateOf(true) }
+
     val haptic = LocalHapticFeedback.current
 
     val thresholdPx = Constants.Drawer.DRAWER_DRAG_DOWN_THRESHOLD.dp.toPixels()
@@ -347,10 +349,6 @@ fun AppDrawerScreen(
                 // ignore horizontal gestures
                 if (abs(available.y) <= abs(available.x))
                     return Offset.Zero
-
-                val atTop =
-                    gridState.firstVisibleItemIndex == 0 &&
-                            gridState.firstVisibleItemScrollOffset == 0
 
                 // Down Drag (pull-to-trigger)
                 if (available.y > 0f && atTop) {
@@ -515,6 +513,18 @@ fun AppDrawerScreen(
 
                         val workspace = visibleWorkspaces[pageIndex]
 
+                        val gridState = remember(workspace.id) {
+                            LazyGridState()
+                        }
+
+                        val categoryGridState = remember(workspace.id) {
+                            LazyGridState()
+                        }
+
+                        val listState = remember(workspace.id) {
+                            LazyListState()
+                        }
+
                         val apps by appsViewModel
                             .appsForWorkspace(workspace, overrides)
                             .collectAsStateWithLifecycle(emptyList())
@@ -586,6 +596,10 @@ fun AppDrawerScreen(
                                 showIcons = showIcons,
                                 showLabels = showLabels,
                                 useCategory = useCategory,
+                                gridState = gridState,
+                                categoryGridState = categoryGridState,
+                                listState = listState,
+                                onTopStateChange = { atTop = it },
                                 onReload = {
                                     scope.launch {
                                         if (workspace.type == WorkspaceType.PRIVATE) appsViewModel.reloadPrivateSpace()

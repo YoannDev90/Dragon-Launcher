@@ -10,10 +10,14 @@ import androidx.compose.foundation.layout.aspectRatio
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.LazyListState
 import androidx.compose.foundation.lazy.grid.GridCells
+import androidx.compose.foundation.lazy.grid.LazyGridState
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.lazy.grid.items
+import androidx.compose.foundation.lazy.grid.rememberLazyGridState
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.MoreHoriz
 import androidx.compose.material.icons.filled.Refresh
@@ -21,6 +25,7 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -52,17 +57,21 @@ fun AppGrid(
     useCategory: Boolean = false,
     fillMaxSize: Boolean = true,
 
+    gridState: LazyGridState? = null,
+    categoryGridState: LazyGridState? = null,
+    listState: LazyListState? = null,
+
     // Multi select things
     isMultiSelectMode: Boolean = false,
     selectedPackages: List<String> = emptyList(),
     onEnterMultiSelect: ((AppModel) -> Unit)? = null,
     onToggleSelect: ((AppModel) -> Unit)? = null,
 
+    onTopStateChange: ((Boolean) -> Unit)? = null,
     onReload: (() -> Unit)? = null,
     onLongClick: ((AppModel) -> Unit)? = null,
     onClick: (AppModel) -> Unit
 ) {
-
     val maxIconSize by DrawerSettingsStore.maxIconSize.asState()
     val iconsSpacingVertical by DrawerSettingsStore.iconsSpacingVertical.asState()
     val iconsSpacingHorizontal by DrawerSettingsStore.iconsSpacingHorizontal.asState()
@@ -89,6 +98,29 @@ fun AppGrid(
 
 
     val modifier = if (fillMaxSize) Modifier.fillMaxSize() else Modifier
+
+
+    val isAtTop by remember {
+        derivedStateOf {
+            when {
+                gridSize == 1 ->
+                    listState?.firstVisibleItemIndex == 0 &&
+                            listState.firstVisibleItemScrollOffset == 0
+
+                useCategory && openedCategory == null && !isMultiSelectMode ->
+                    categoryGridState?.firstVisibleItemIndex == 0 &&
+                            categoryGridState.firstVisibleItemScrollOffset == 0
+
+                else ->
+                    gridState?.firstVisibleItemIndex == 0 &&
+                            gridState.firstVisibleItemScrollOffset == 0
+            }
+        }
+    }
+
+    LaunchedEffect(isAtTop) {
+        onTopStateChange?.invoke(isAtTop)
+    }
 
     when {
         visibleApps.isEmpty() -> {
@@ -123,6 +155,7 @@ fun AppGrid(
             LazyVerticalGrid(
                 columns = GridCells.Fixed(categoryGridSize),
                 modifier = modifier,
+                state = categoryGridState ?: rememberLazyGridState(),
                 verticalArrangement = Arrangement.spacedBy(iconsSpacingVertical.dp),
                 horizontalArrangement = Arrangement.spacedBy(iconsSpacingHorizontal.dp)
             ) {
@@ -156,6 +189,7 @@ fun AppGrid(
         gridSize == 1 -> {
             LazyColumn(
                 modifier = modifier,
+                state = listState ?: rememberLazyListState(),
                 verticalArrangement = Arrangement.spacedBy(iconsSpacingVertical.dp),
             ) {
                 items(visibleApps, key = { it.iconCacheKey.cacheKey }) { app ->
@@ -191,6 +225,7 @@ fun AppGrid(
         else -> {
             LazyVerticalGrid(
                 modifier = modifier,
+                state = gridState ?: rememberLazyGridState(),
                 columns = GridCells.Fixed(gridSize),
                 verticalArrangement = Arrangement.spacedBy(iconsSpacingVertical.dp),
                 horizontalArrangement = Arrangement.spacedBy(iconsSpacingHorizontal.dp)
