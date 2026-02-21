@@ -56,6 +56,7 @@ fun StatusBarNotifications(
 
     if (packageNames.isEmpty()) return
 
+    // TODO replace with later LocalIcons search, in the upcoming refactor RN it doesn't display any icon, just the fallback
     val icons = remember(packageNames, maxIcons) {
         packageNames.take(maxIcons).map { pkg ->
             pkg to try {
