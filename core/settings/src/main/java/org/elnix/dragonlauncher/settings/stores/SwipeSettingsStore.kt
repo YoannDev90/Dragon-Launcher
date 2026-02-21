@@ -26,7 +26,7 @@ object SwipeSettingsStore : JsonSettingsStore() {
         get() = emptyList()
 
     override val jsonSetting: BaseSettingObject<String, String>
-        get() = error("SwipeSettingsStore does not use a single JSON backing value")
+        get() = error("SwipeSettingsStore does not use a single JSON backup value")
 
 
     private val POINTS = stringPreferencesKey("points_json")
