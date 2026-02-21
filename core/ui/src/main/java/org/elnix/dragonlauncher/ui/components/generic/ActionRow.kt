@@ -26,7 +26,7 @@ import org.elnix.dragonlauncher.ui.modifiers.shapedClickable
 @Composable
 fun <T> ActionRow(
     actions: List<T>,
-    selectedView: T,
+    selectedView: T?,
     enabled: Boolean = true,
     backgroundColorUnselected: Color? = null,
     actionName: @Composable ((T) -> String)? = null,
