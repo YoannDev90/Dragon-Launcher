@@ -14,7 +14,6 @@ import androidx.compose.material.icons.filled.Wallpaper
 import androidx.compose.material.icons.filled.Widgets
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -29,8 +28,6 @@ import org.elnix.dragonlauncher.common.R
 import org.elnix.dragonlauncher.common.serializables.SwipeActionSerializable
 import org.elnix.dragonlauncher.common.serializables.dummySwipePoint
 import org.elnix.dragonlauncher.common.utils.SETTINGS
-import org.elnix.dragonlauncher.models.AppsViewModel
-import org.elnix.dragonlauncher.settings.stores.DrawerSettingsStore.iconsShape
 import org.elnix.dragonlauncher.settings.stores.UiSettingsStore
 import org.elnix.dragonlauncher.settings.stores.UiSettingsStore.appIconOverlaySize
 import org.elnix.dragonlauncher.settings.stores.UiSettingsStore.appLabelIconOverlayTopPadding
@@ -46,16 +43,16 @@ import org.elnix.dragonlauncher.ui.components.settings.SettingsSwitchRow
 import org.elnix.dragonlauncher.ui.components.settings.asState
 import org.elnix.dragonlauncher.ui.helpers.settings.SettingsItem
 import org.elnix.dragonlauncher.ui.helpers.settings.SettingsLazyHeader
+import org.elnix.dragonlauncher.ui.remembers.LocalIcons
 
 
 @Composable
 fun AppearanceTab(
-    appsViewModel: AppsViewModel,
     navController: NavController,
     onBack: () -> Unit
 ) {
-
     val ctx = LocalContext.current
+    val icons = LocalIcons.current
     val scope = rememberCoroutineScope()
 
     val showLaunchingAppLabel by showLaunchingAppLabel.asState()
@@ -64,7 +61,6 @@ fun AppearanceTab(
     val appLabelIconOverlayTopPadding by appLabelIconOverlayTopPadding.asState()
     val appLabelOverlaySize by appLabelOverlaySize.asState()
     val appIconOverlaySize by appIconOverlaySize.asState()
-    val iconsShape by iconsShape.asState()
 
     var topOverlaySettingsExpanded by remember { mutableStateOf(false) }
 
@@ -78,8 +74,6 @@ fun AppearanceTab(
         targetValue = if (isDraggingAppPreviewOverlays) 0.dp else (-20).dp,
         animationSpec = tween(150)
     )
-
-    val icons by appsViewModel.icons.collectAsState()
 
 
     SettingsLazyHeader(
@@ -276,12 +270,10 @@ fun AppearanceTab(
         AppPreviewTitle(
             offsetY = offsetY,
             alpha = alpha,
-            pointIcons = icons,
             point = dummySwipePoint(SwipeActionSerializable.OpenRecentApps).copy(
                 customName = "Preview",
                 id = icons.keys.random() // Kinda funny so I'll keep it :)
             ),
-            iconsShape = iconsShape,
             topPadding = appLabelIconOverlayTopPadding.dp,
             labelSize = appLabelOverlaySize,
             iconSize = appIconOverlaySize,

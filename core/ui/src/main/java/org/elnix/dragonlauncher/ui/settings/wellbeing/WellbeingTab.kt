@@ -84,6 +84,7 @@ import org.elnix.dragonlauncher.ui.helpers.SwitchRow
 import org.elnix.dragonlauncher.ui.helpers.settings.SettingsItem
 import org.elnix.dragonlauncher.ui.helpers.settings.SettingsLazyHeader
 import org.elnix.dragonlauncher.ui.modifiers.settingsGroup
+import org.elnix.dragonlauncher.ui.remembers.LocalIcons
 
 @Composable
 fun WellbeingTab(
@@ -92,9 +93,8 @@ fun WellbeingTab(
     onBack: () -> Unit
 ) {
     val ctx = LocalContext.current
+    val icons = LocalIcons.current
     val scope = rememberCoroutineScope()
-
-    val icons by appsViewModel.icons.collectAsState()
 
     val socialMediaPauseEnabled by WellbeingSettingsStore.socialMediaPauseEnabled.asState()
     val guiltModeEnabled by WellbeingSettingsStore.guiltModeEnabled.asState()
@@ -467,7 +467,6 @@ fun WellbeingTab(
             appsViewModel = appsViewModel,
             appLifecycleViewModel = appLifecycleViewModel,
             gridSize = gridSize,
-            iconShape = iconsShape,
             showIcons = showIcons,
             showLabels = showLabels,
             onDismiss = { showAppPicker = false },

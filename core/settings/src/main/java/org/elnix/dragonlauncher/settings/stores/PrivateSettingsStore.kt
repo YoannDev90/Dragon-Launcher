@@ -56,6 +56,13 @@ object PrivateSettingsStore : MapSettingsStore() {
         default = false
     )
 
+    val lastBackupTime = Settings.long(
+        key = "lastBackupTime",
+        dataStoreName = dataStoreName,
+        default = System.currentTimeMillis(),
+        allowedRange = Long.MIN_VALUE..Long.MAX_VALUE
+    )
+
     override val ALL: List<BaseSettingObject<*,*>> = listOf(
         hasSeenWelcome,
         hasInitialized,
@@ -63,6 +70,7 @@ object PrivateSettingsStore : MapSettingsStore() {
         lastSeenVersionCode,
         lockPinHash,
         lockMethod,
-        samsungPreferSecureFolder
+        samsungPreferSecureFolder,
+        lastBackupTime
     )
 }

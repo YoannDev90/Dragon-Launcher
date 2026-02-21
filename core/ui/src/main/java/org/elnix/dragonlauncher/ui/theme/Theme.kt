@@ -76,7 +76,9 @@ fun DragonLauncherTheme(
     val colorScheme = getDefaultColorScheme(defaultTheme, dynamicColor)
     val extraColors = rememberExtraColors()
 
-    CompositionLocalProvider(LocalExtraColors provides extraColors) {
+    CompositionLocalProvider(
+        LocalExtraColors provides extraColors,
+    ) {
         MaterialTheme(
             colorScheme = colorScheme,
             typography = Typography,

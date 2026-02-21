@@ -52,6 +52,7 @@ import org.elnix.dragonlauncher.settings.DataStoreName
 import org.elnix.dragonlauncher.settings.SettingsBackupManager
 import org.elnix.dragonlauncher.settings.backupableStores
 import org.elnix.dragonlauncher.settings.stores.BackupSettingsStore
+import org.elnix.dragonlauncher.settings.stores.PrivateSettingsStore
 import org.elnix.dragonlauncher.ui.UiConstants.DragonShape
 import org.elnix.dragonlauncher.ui.components.TextDivider
 import org.elnix.dragonlauncher.ui.components.generic.ActionRow
@@ -75,7 +76,7 @@ fun BackupTab(
 
     val autoBackupEnabled by BackupSettingsStore.autoBackupEnabled.flow(ctx).collectAsState(initial = false)
     val autoBackupUriString by BackupSettingsStore.autoBackupUri.flow(ctx).collectAsState(initial = null)
-    val lastBackupTime by BackupSettingsStore.lastBackupTime.flow(ctx).collectAsState(initial = 0L)
+    val lastBackupTime by PrivateSettingsStore.lastBackupTime.flow(ctx).collectAsState(initial = 0L)
 
     val backupStores by BackupSettingsStore.backupStores.flow(ctx).collectAsState(initial = emptySet())
 

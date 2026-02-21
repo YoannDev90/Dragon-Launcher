@@ -25,56 +25,46 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.geometry.Rect
 import androidx.compose.ui.geometry.Size
-import androidx.compose.ui.graphics.ImageBitmap
 import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.platform.LocalContext
-import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
-import org.elnix.dragonlauncher.base.theme.LocalExtraColors
 import org.elnix.dragonlauncher.common.R
-import org.elnix.dragonlauncher.common.points.SwipeDrawParams
 import org.elnix.dragonlauncher.common.serializables.CircleNest
-import org.elnix.dragonlauncher.common.serializables.SwipePointSerializable
 import org.elnix.dragonlauncher.common.utils.UiCircle
 import org.elnix.dragonlauncher.common.utils.vibrate
 import org.elnix.dragonlauncher.enumsui.NestEditMode
 import org.elnix.dragonlauncher.enumsui.NestEditMode.DRAG
 import org.elnix.dragonlauncher.enumsui.NestEditMode.HAPTIC
 import org.elnix.dragonlauncher.enumsui.NestEditMode.MIN_ANGLE
-import org.elnix.dragonlauncher.settings.stores.DrawerSettingsStore
 import org.elnix.dragonlauncher.settings.stores.SwipeSettingsStore
-import org.elnix.dragonlauncher.settings.stores.UiSettingsStore
 import org.elnix.dragonlauncher.ui.UiConstants.DragonShape
 import org.elnix.dragonlauncher.ui.components.generic.ActionRow
-import org.elnix.dragonlauncher.ui.components.settings.asState
 import org.elnix.dragonlauncher.ui.defaultDragDistance
 import org.elnix.dragonlauncher.ui.defaultHapticFeedback
-import org.elnix.dragonlauncher.ui.defaultMinAngleActivation
 import org.elnix.dragonlauncher.ui.helpers.SliderWithLabel
 import org.elnix.dragonlauncher.ui.helpers.nests.circlesSettingsOverlay
+import org.elnix.dragonlauncher.ui.helpers.nests.swipeDefaultParams
 import org.elnix.dragonlauncher.ui.helpers.settings.SettingsLazyHeader
+import org.elnix.dragonlauncher.ui.remembers.LocalNests
 
 @Composable
 fun NestEditingScreen(
     nestId: Int?,
-    nests: List<CircleNest>,
-    points: List<SwipePointSerializable>,
-    pointIcons: Map<String, ImageBitmap>,
-    defaultPoint: SwipePointSerializable,
     onBack: () -> Unit
 ) {
+    val ctx = LocalContext.current
+    val nests = LocalNests.current
+
     if (nestId == null) return
     val currentNest = nests.find { it.id == nestId } ?: return
 
-    val ctx = LocalContext.current
-    val extraColors = LocalExtraColors.current
-    val density = LocalDensity.current
-    val backgroundColor = MaterialTheme.colorScheme.background
+
     val angleColor = MaterialTheme.colorScheme.tertiary
 
-    val iconsShape by DrawerSettingsStore.iconsShape.asState()
-    val maxNestsDepth by UiSettingsStore.maxNestsDepth.asState()
+    val drawParams = swipeDefaultParams(
+        backgroundColor = MaterialTheme.colorScheme.background
+    )
 
 
     val dragDistancesState = remember(currentNest.id) {
@@ -161,21 +151,9 @@ fun NestEditingScreen(
                     .weight(1f)
             ) {
                 circlesSettingsOverlay(
-                    drawParams = SwipeDrawParams(
-                        nests = nests,
-                        points = points,
-                        center = center,
-                        ctx = ctx,
-                        defaultPoint = defaultPoint,
-                        pointIcons = pointIcons,
-                        surfaceColorDraw = backgroundColor,
-                        extraColors = extraColors,
-                        showCircle = true,
-                        density = density,
-                        depth = 1,
-                        maxDepth = maxNestsDepth,
-                        iconShape = iconsShape
-                    ),
+                    drawParams = drawParams,
+                    center = center,
+                    depth = 1,
                     circles = circles,
                     selectedPoint = null,
                     nestId = nestId,
@@ -283,15 +261,15 @@ fun NestEditingScreen(
 
                     MIN_ANGLE -> {
                         dragDistancesState.toSortedMap().filter { it.key != -1 }
-                            .forEach { (index, distance) ->
-                                val angle = minAngleState[index] ?: defaultMinAngleActivation(distance)
+                            .forEach { (index, _) ->
+                                val angle = minAngleState[index] ?: 0
                                 SliderWithLabel(
                                     label = "${stringResource(R.string.min_angle_to_activate)}: $index ->",
                                     value = angle,
                                     valueRange = 0..360,
                                     backgroundColor = MaterialTheme.colorScheme.surfaceVariant,
                                     onReset = {
-                                        minAngleState[index] = defaultMinAngleActivation(distance)
+                                        minAngleState[index] = 0
                                         commitAngle(minAngleState)
                                     },
                                     onDragStateChange = { isDragging ->
@@ -304,32 +282,6 @@ fun NestEditingScreen(
                                 }
                             }
                     }
-
-//                    depth -> {
-//
-//                        var tempDepth by remember { mutableIntStateOf(currentNest.depth) }
-//                        SliderWithLabel(
-//                            label = stringResource(R.string.depth),
-//                            description = stringResource(R.string.depth_desc),
-//                            backgroundColor = MaterialTheme.colorScheme.surfaceVariant,
-//                            value = tempDepth,
-//                            valueRange = 1..5
-//                        ) {
-//                            tempDepth = it
-//                            pendingNestUpdate = nests.map { nest ->
-//                                if (nest.id == nestId) {
-//                                    nest.copy(depth = it)
-//                                } else nest
-//                            }
-//                        }
-//
-//
-//                        Text(
-//                            text = stringResource(R.string.warning_large_values_can_lag_your_phone),
-//                            color = MaterialTheme.colorScheme.onSurface,
-//                            style = MaterialTheme.typography.labelLarge
-//                        )
-//                    }
                 }
             }
         }

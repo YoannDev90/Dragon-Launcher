@@ -51,7 +51,6 @@ import org.elnix.dragonlauncher.base.ktx.toDp
 import org.elnix.dragonlauncher.base.ktx.toPixels
 import org.elnix.dragonlauncher.common.FloatingAppObject
 import org.elnix.dragonlauncher.common.R
-import org.elnix.dragonlauncher.common.serializables.CircleNest
 import org.elnix.dragonlauncher.common.serializables.SwipeActionSerializable
 import org.elnix.dragonlauncher.common.serializables.SwipePointSerializable
 import org.elnix.dragonlauncher.common.serializables.defaultSwipePointsValues
@@ -59,21 +58,20 @@ import org.elnix.dragonlauncher.common.serializables.dummySwipePoint
 import org.elnix.dragonlauncher.common.utils.SETTINGS
 import org.elnix.dragonlauncher.common.utils.WidgetHostProvider
 import org.elnix.dragonlauncher.common.utils.circles.rememberNestNavigation
-import org.elnix.dragonlauncher.models.AppLifecycleViewModel
 import org.elnix.dragonlauncher.models.AppsViewModel
 import org.elnix.dragonlauncher.models.FloatingAppsViewModel
 import org.elnix.dragonlauncher.settings.stores.BehaviorSettingsStore
-import org.elnix.dragonlauncher.settings.stores.DrawerSettingsStore
 import org.elnix.dragonlauncher.settings.stores.StatusBarSettingsStore
 import org.elnix.dragonlauncher.settings.stores.UiSettingsStore
 import org.elnix.dragonlauncher.ui.components.FloatingAppsHostView
 import org.elnix.dragonlauncher.ui.components.burger.BurgerAction
 import org.elnix.dragonlauncher.ui.components.burger.BurgerListAction
-import org.elnix.dragonlauncher.ui.components.resolveShape
 import org.elnix.dragonlauncher.ui.components.settings.asState
 import org.elnix.dragonlauncher.ui.components.settings.asStateNull
 import org.elnix.dragonlauncher.ui.helpers.HoldToActivateArc
 import org.elnix.dragonlauncher.ui.helpers.WallpaperDim
+import org.elnix.dragonlauncher.ui.remembers.LocalNests
+import org.elnix.dragonlauncher.ui.remembers.LocalPoints
 import org.elnix.dragonlauncher.ui.remembers.rememberHoldToOpenSettings
 import org.elnix.dragonlauncher.ui.statusbar.StatusBar
 import kotlin.math.max
@@ -85,11 +83,12 @@ fun MainScreen(
     appsViewModel: AppsViewModel,
     floatingAppsViewModel: FloatingAppsViewModel,
     widgetHostProvider: WidgetHostProvider,
-    nests: List<CircleNest>,
-    points: List<SwipePointSerializable>,
     onLaunchAction: (SwipePointSerializable) -> Unit
 ) {
     val ctx = LocalContext.current
+    val points = LocalPoints.current
+    val nests = LocalNests.current
+
     val scope = rememberCoroutineScope()
 
     var lastClickTime by remember { mutableLongStateOf(0L) }
@@ -107,13 +106,11 @@ fun MainScreen(
     val topPadding by BehaviorSettingsStore.topPadding.asState()
     val bottomPadding by BehaviorSettingsStore.bottomPadding.asState()
 
-    val iconsShape by DrawerSettingsStore.iconsShape.asState()
 
     val holdDelayBeforeStartingLongClickSettings by BehaviorSettingsStore.holdDelayBeforeStartingLongClickSettings.asState()
     val longCLickSettingsDuration by BehaviorSettingsStore.longCLickSettingsDuration.asState()
 
 
-    val icons by appsViewModel.icons.collectAsState()
 
     var start by remember { mutableStateOf<Offset?>(null) }
     var current by remember { mutableStateOf<Offset?>(null) }
@@ -338,8 +335,6 @@ fun MainScreen(
             key(floatingAppObject.id, nestId) {
                 FloatingAppsHostView(
                     floatingAppObject = floatingAppObject,
-                    icons = icons,
-                    shape = iconsShape.resolveShape(),
                     cellSizePx = cellSizePx,
                     modifier = Modifier
                         .offset {
@@ -378,10 +373,6 @@ fun MainScreen(
             nestId = nestId,
             isDragging = isDragging,
             surface = size,
-            points = points,
-            defaultPoint = defaultPoint,
-            pointIcons = icons,
-            nests = nests,
             onLaunch = { launchAction(it) }
         )
 

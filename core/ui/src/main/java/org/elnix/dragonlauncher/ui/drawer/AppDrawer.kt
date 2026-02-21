@@ -21,7 +21,8 @@ import androidx.compose.foundation.layout.imePadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.safeDrawing
 import androidx.compose.foundation.layout.windowInsetsPadding
-import androidx.compose.foundation.lazy.grid.rememberLazyGridState
+import androidx.compose.foundation.lazy.LazyListState
+import androidx.compose.foundation.lazy.grid.LazyGridState
 import androidx.compose.foundation.pager.HorizontalPager
 import androidx.compose.foundation.pager.rememberPagerState
 import androidx.compose.foundation.rememberScrollState
@@ -153,8 +154,6 @@ fun AppDrawerScreen(
         pageCount = { visibleWorkspaces.size }
     )
 
-    val icons by appsViewModel.icons.collectAsState()
-
     val autoLaunchSingleMatch by DrawerSettingsStore.autoOpenSingleMatch.asState()
     val useCategory by DrawerSettingsStore.useCategory.asState()
 
@@ -166,7 +165,6 @@ fun AppDrawerScreen(
     val drawerScrollDownAction by DrawerSettingsStore.scrollDownDrawerAction.asState()
     val drawerScrollUpAction by DrawerSettingsStore.scrollUpDrawerAction.asState()
 
-    val iconsShape by DrawerSettingsStore.iconsShape.asState()
 
     /* ───────────── Recently Used Apps ───────────── */
     val showRecentlyUsedApps by DrawerSettingsStore.showRecentlyUsedApps.asState()
@@ -312,7 +310,8 @@ fun AppDrawerScreen(
     val pullDownScaleIn by DrawerSettingsStore.pullDownScaleIn.asState()
 //    val pullDownIconFade by DrawerSettingsStore.pullDownIconFade.asState()
 
-    val gridState = rememberLazyGridState()
+    var atTop by remember { mutableStateOf(true) }
+
     val haptic = LocalHapticFeedback.current
 
     val thresholdPx = Constants.Drawer.DRAWER_DRAG_DOWN_THRESHOLD.dp.toPixels()
@@ -350,10 +349,6 @@ fun AppDrawerScreen(
                 // ignore horizontal gestures
                 if (abs(available.y) <= abs(available.x))
                     return Offset.Zero
-
-                val atTop =
-                    gridState.firstVisibleItemIndex == 0 &&
-                            gridState.firstVisibleItemScrollOffset == 0
 
                 // Down Drag (pull-to-trigger)
                 if (available.y > 0f && atTop) {
@@ -499,8 +494,6 @@ fun AppDrawerScreen(
                         ) {
                             AppGrid(
                                 apps = recentApps,
-                                icons = icons,
-                                iconShape = iconsShape,
                                 gridSize = gridSize,
                                 txtColor = MaterialTheme.colorScheme.onBackground,
                                 showIcons = showIcons,
@@ -519,6 +512,18 @@ fun AppDrawerScreen(
                     ) { pageIndex ->
 
                         val workspace = visibleWorkspaces[pageIndex]
+
+                        val gridState = remember(workspace.id) {
+                            LazyGridState()
+                        }
+
+                        val categoryGridState = remember(workspace.id) {
+                            LazyGridState()
+                        }
+
+                        val listState = remember(workspace.id) {
+                            LazyListState()
+                        }
 
                         val apps by appsViewModel
                             .appsForWorkspace(workspace, overrides)
@@ -586,13 +591,15 @@ fun AppDrawerScreen(
 
                             AppGrid(
                                 apps = filteredApps,
-                                icons = icons,
-                                iconShape = iconsShape,
                                 gridSize = gridSize,
                                 txtColor = MaterialTheme.colorScheme.onBackground,
                                 showIcons = showIcons,
                                 showLabels = showLabels,
                                 useCategory = useCategory,
+                                gridState = gridState,
+                                categoryGridState = categoryGridState,
+                                listState = listState,
+                                onTopStateChange = { atTop = it },
                                 onReload = {
                                     scope.launch {
                                         if (workspace.type == WorkspaceType.PRIVATE) appsViewModel.reloadPrivateSpace()

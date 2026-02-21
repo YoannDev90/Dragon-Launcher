@@ -315,8 +315,8 @@
     <string name="reset_widget">Réinitialiser le widget</string>
     <string name="select_previous_widget">Sélectionner le widget précédent</string>
     <string name="select_next_widget">Sélectionnez le widget suivant</string>
-    <string name="move_selectec_widget_up">Déplacer le widget sélectionné vers le haut</string>
-    <string name="move_selectec_widget_down">Déplacer le widget sélectionné vers le bas</string>
+    <string name="move_selected_widget_up">Déplacer le widget sélectionné vers le haut</string>
+    <string name="move_selected_widget_down">Déplacer le widget sélectionné vers le bas</string>
     <string name="enable_grid">Activer la grille</string>
     <string name="enable_scale_snap">Activer l\'accrochage à l\'échelle</string>
     <string name="add_circle">Ajouter un cercle</string>
@@ -399,7 +399,7 @@
     <string name="reminder_mode_overlay">Popup à l\'écran</string>
     <string name="overlay_permission_required">Permission de superposition</string>
     <string name="overlay_permission_description">Pour afficher des rappels par-dessus d\'autres applications, Dragon Launcher a besoin de la permission « Afficher par-dessus d\'autres apps ».</string>
-    
+
     <!--  Options d'affichage popup  -->
     <string name="popup_display_title">Contenu de la popup</string>
     <string name="popup_display_description">Choisissez les informations à afficher dans la popup de rappel</string>
@@ -409,13 +409,13 @@
     <string name="popup_show_today_time_desc">Temps total passé sur cette app aujourd\'hui</string>
     <string name="popup_show_remaining_time">Afficher le temps restant</string>
     <string name="popup_show_remaining_time_desc">Temps avant retour auto (si activé)</string>
-    
+
     <!--  Labels popup  -->
     <string name="popup_session_label">Session</string>
     <string name="popup_today_label">Aujourd\'hui</string>
     <string name="popup_remaining_label">Restant</string>
     <string name="popup_no_limit">Pas de limite</string>
-    
+
     <string name="reminder_notification_title">Toujours sur %s</string>
     <string name="reminder_notification_text">Vous utilisez %1$s depuis %2$s. Et si vous faisiez une pause ?</string>
     <string name="reminder_overlay_text">Vous êtes sur %1$s depuis %2$s</string>

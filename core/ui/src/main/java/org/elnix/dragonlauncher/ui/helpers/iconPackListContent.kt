@@ -24,7 +24,6 @@ import androidx.compose.material3.Text
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.graphics.ImageBitmap
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
@@ -33,10 +32,10 @@ import org.elnix.dragonlauncher.common.serializables.IconPackInfo
 import org.elnix.dragonlauncher.common.serializables.dummyAppModel
 import org.elnix.dragonlauncher.ui.UiConstants.DragonShape
 import org.elnix.dragonlauncher.ui.components.dragon.DragonIconButton
+import org.elnix.dragonlauncher.ui.remembers.LocalIcons
 
 fun LazyListScope.iconPackListContent(
     packs: List<IconPackInfo>,
-    icons: Map<String, ImageBitmap>,
     selectedPackPackage: String?,
     showClearOption: Boolean,
     onReloadPacks: () -> Unit,
@@ -65,6 +64,8 @@ fun LazyListScope.iconPackListContent(
     }
 
     items(packs) { pack ->
+        val icons = LocalIcons.current
+
         Row(
             modifier = Modifier
                 .fillMaxWidth()

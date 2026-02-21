@@ -62,12 +62,10 @@ fun DrawerTab(
     appsViewModel: AppsViewModel,
     onBack: () -> Unit
 ) {
-
     val ctx = LocalContext.current
     val scope = rememberCoroutineScope()
 
     val apps by appsViewModel.userApps.collectAsState(initial = emptyList())
-    val icons by appsViewModel.icons.collectAsState()
 
     val leftDrawerAction by DrawerSettingsStore.leftDrawerAction.asState()
 
@@ -287,10 +285,7 @@ fun DrawerTab(
         }
 
         item {
-            GridSizeSlider(
-                apps = apps,
-                icons = icons
-            )
+            GridSizeSlider(apps)
         }
 
         //Shapes picker
@@ -440,7 +435,7 @@ fun DrawerTab(
 
                 DrawerActionSelector(
                     settingObject = DrawerSettingsStore.scrollDownDrawerAction,
-                    label = stringResource(R.string.scroll_down_actiob),
+                    label = stringResource(R.string.scroll_down_action),
                 )
 
                 DrawerActionSelector(

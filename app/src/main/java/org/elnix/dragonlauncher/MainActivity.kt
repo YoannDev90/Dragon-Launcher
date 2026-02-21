@@ -36,6 +36,7 @@ import androidx.navigation.compose.rememberNavController
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.yield
 import org.elnix.dragonlauncher.common.R
 import org.elnix.dragonlauncher.common.logging.DragonLogManager
 import org.elnix.dragonlauncher.common.logging.logD
@@ -330,6 +331,12 @@ class MainActivity : FragmentActivity(), WidgetHostProvider {
                 (ctx.applicationContext as MyApplication).appsViewModel
             }
 
+            // Launch full viewmodel after first frame for performance
+            LaunchedEffect(Unit) {
+                yield()
+                appsViewModel.loadAll()
+            }
+
             // May be used in the future for some quit action / operation
 //            DoubleBackToExit()
 
@@ -466,6 +473,7 @@ class MainActivity : FragmentActivity(), WidgetHostProvider {
 
                 val navController = rememberNavController()
                 navControllerHolder.value = navController
+
 
                 MainAppUi(
                     backupViewModel = backupViewModel,

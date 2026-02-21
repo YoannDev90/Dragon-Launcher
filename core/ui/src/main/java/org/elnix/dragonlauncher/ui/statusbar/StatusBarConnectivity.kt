@@ -18,14 +18,12 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
 import kotlinx.coroutines.delay
 
 @Composable
 fun StatusBarConnectivity(
-    textColor: Color,
     modifier: Modifier = Modifier
 ) {
     val ctx = LocalContext.current
@@ -56,7 +54,6 @@ fun StatusBarConnectivity(
             Icon(
                 imageVector = Icons.Default.AirplanemodeActive,
                 contentDescription = "Airplane",
-                tint = textColor,
                 modifier = Modifier.size(14.dp)
             )
         }
@@ -64,7 +61,6 @@ fun StatusBarConnectivity(
             Icon(
                 imageVector = Icons.Default.Wifi,
                 contentDescription = "WiFi on",
-                tint = textColor,
                 modifier = Modifier.size(14.dp)
             )
         }
@@ -73,7 +69,6 @@ fun StatusBarConnectivity(
             Icon(
                 imageVector = Icons.Default.Bluetooth,
                 contentDescription = "Bluetooth",
-                tint = textColor,
                 modifier = Modifier.size(14.dp)
             )
         }

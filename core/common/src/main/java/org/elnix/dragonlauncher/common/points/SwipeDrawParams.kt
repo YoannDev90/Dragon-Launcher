@@ -1,7 +1,6 @@
 package org.elnix.dragonlauncher.common.points
 
 import android.content.Context
-import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.ImageBitmap
 import androidx.compose.ui.unit.Density
@@ -13,15 +12,14 @@ import org.elnix.dragonlauncher.common.serializables.SwipePointSerializable
 data class SwipeDrawParams(
     val nests: List<CircleNest>,
     val points: List<SwipePointSerializable>,
-    val center: Offset,
     val ctx: Context,
     val defaultPoint: SwipePointSerializable,
-    val pointIcons: Map<String, ImageBitmap>,
+    val icons: Map<String, ImageBitmap>,
     val surfaceColorDraw: Color,
     val extraColors: ExtraColors,
     val showCircle: Boolean,
     val density: Density,
-    val depth: Int,
     val maxDepth: Int,
     val iconShape: IconShape,
+    val subNestDefaultRadius: Int,
 )

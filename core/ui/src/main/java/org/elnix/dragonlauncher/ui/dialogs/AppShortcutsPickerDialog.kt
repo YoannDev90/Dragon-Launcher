@@ -24,8 +24,6 @@ import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.graphics.ImageBitmap
-import androidx.compose.ui.graphics.Shape
 import androidx.compose.ui.graphics.painter.BitmapPainter
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
@@ -33,18 +31,20 @@ import org.elnix.dragonlauncher.common.serializables.AppModel
 import org.elnix.dragonlauncher.common.utils.ImageUtils.loadDrawableAsBitmap
 import org.elnix.dragonlauncher.ui.UiConstants.DragonShape
 import org.elnix.dragonlauncher.ui.actions.appIcon
+import org.elnix.dragonlauncher.ui.components.resolveShape
+import org.elnix.dragonlauncher.ui.remembers.LocalIconShape
 
 @Composable
 fun AppShortcutPickerDialog(
     app: AppModel,
-    icons: Map<String, ImageBitmap>,
-    shape: Shape,
     shortcuts: List<ShortcutInfo>,
     onDismiss: () -> Unit,
     onShortcutSelected: (packageName: String, shortcutId: String) -> Unit,
     onOpenApp: () -> Unit
 ) {
     val ctx = LocalContext.current
+    val iconsShape = LocalIconShape.current
+
 
     val appName = app.name
 
@@ -82,11 +82,11 @@ fun AppShortcutPickerDialog(
                                     try {
                                         val bmp = loadDrawableAsBitmap(drawable, 48, 48)
                                         BitmapPainter(bmp)
-                                    } catch (e: Exception) {
+                                    } catch (_: Exception) {
                                         null
                                     }
                                 }
-                                
+
                                 if (bitmapPainter != null) {
                                     Image(
                                         painter = bitmapPainter,
@@ -121,11 +121,11 @@ fun AppShortcutPickerDialog(
                 ) {
 
                     Image(
-                        painter = appIcon(app, icons),
+                        painter = appIcon(app),
                         contentDescription = "App icon",
                         modifier = Modifier
                             .size(32.dp)
-                            .clip(shape)
+                            .clip(iconsShape.resolveShape())
                     )
                     Spacer(Modifier.width(8.dp))
 

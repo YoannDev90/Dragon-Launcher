@@ -42,7 +42,6 @@ import org.elnix.dragonlauncher.enumsui.workspaceViewMode
 import org.elnix.dragonlauncher.models.AppLifecycleViewModel
 import org.elnix.dragonlauncher.models.AppsViewModel
 import org.elnix.dragonlauncher.settings.stores.DebugSettingsStore
-import org.elnix.dragonlauncher.settings.stores.DrawerSettingsStore
 import org.elnix.dragonlauncher.settings.stores.UiSettingsStore
 import org.elnix.dragonlauncher.ui.components.generic.ActionRow
 import org.elnix.dragonlauncher.ui.dialogs.AppAliasesDialog
@@ -65,8 +64,8 @@ fun WorkspaceDetailScreen(
     onBack: () -> Unit,
     onLaunchAction: (SwipeActionSerializable) -> Unit
 ) {
-    val scope = rememberCoroutineScope()
     val ctx = LocalContext.current
+    val scope = rememberCoroutineScope()
 
     val workspaceState by appsViewModel.state.collectAsState()
     val workspace = workspaceState.workspaces.first { it.id == workspaceId }
@@ -74,9 +73,6 @@ fun WorkspaceDetailScreen(
 
     val workspaceDebugInfos by DebugSettingsStore.workspacesDebugInfo.flow(ctx)
         .collectAsState(initial = false)
-
-    val iconsShape by DrawerSettingsStore.iconsShape.flow(ctx)
-        .collectAsState(DrawerSettingsStore.iconsShape.default)
 
 
     var selectedView by remember { mutableStateOf(WorkspaceViewMode.DEFAULTS) }
@@ -88,7 +84,6 @@ fun WorkspaceDetailScreen(
         .appsForWorkspace(workspace, overrides, getOnlyAdded, getOnlyRemoved)
         .collectAsState(initial = emptyList())
 
-    val icons by appsViewModel.icons.collectAsState()
 
     var showAppPicker by remember { mutableStateOf(false) }
     var showDetailScreen by remember { mutableStateOf<AppModel?>(null) }
@@ -130,8 +125,6 @@ fun WorkspaceDetailScreen(
 
                 AppGrid(
                     apps = apps,
-                    icons = icons,
-                    iconShape = iconsShape,
                     gridSize = gridSize,
                     txtColor = Color.White,
                     showIcons = showIcons,
@@ -166,8 +159,7 @@ fun WorkspaceDetailScreen(
             appsViewModel = appsViewModel,
             appLifecycleViewModel = appLifecycleViewModel,
             gridSize = gridSize,
-            iconShape = iconsShape,
-            showIcons = showIcons,
+             showIcons = showIcons,
             showLabels = showLabels,
             onDismiss = { showAppPicker = false },
             onAppSelected = { app ->

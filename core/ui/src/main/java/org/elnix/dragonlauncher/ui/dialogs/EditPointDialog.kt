@@ -37,6 +37,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import org.elnix.dragonlauncher.base.ktx.toPixels
+import org.elnix.dragonlauncher.base.theme.LocalExtraColors
 import org.elnix.dragonlauncher.common.R
 import org.elnix.dragonlauncher.common.serializables.SwipeActionSerializable
 import org.elnix.dragonlauncher.common.serializables.SwipePointSerializable
@@ -48,7 +49,6 @@ import org.elnix.dragonlauncher.enumsui.selectedUnselectedViewName
 import org.elnix.dragonlauncher.models.AppLifecycleViewModel
 import org.elnix.dragonlauncher.models.AppsViewModel
 import org.elnix.dragonlauncher.settings.stores.ColorSettingsStore
-import org.elnix.dragonlauncher.settings.stores.SwipeSettingsStore
 import org.elnix.dragonlauncher.settings.stores.UiSettingsStore
 import org.elnix.dragonlauncher.ui.UiConstants.DragonShape
 import org.elnix.dragonlauncher.ui.actions.actionColor
@@ -63,7 +63,6 @@ import org.elnix.dragonlauncher.ui.components.generic.ActionRow
 import org.elnix.dragonlauncher.ui.components.settings.asState
 import org.elnix.dragonlauncher.ui.helpers.ShapeRow
 import org.elnix.dragonlauncher.ui.helpers.SliderWithLabel
-import org.elnix.dragonlauncher.base.theme.LocalExtraColors
 import kotlin.math.max
 
 
@@ -76,12 +75,9 @@ fun EditPointDialog(
     onDismiss: () -> Unit,
     onConfirm: (SwipePointSerializable) -> Unit
 ) {
-
     val ctx = LocalContext.current
     val extraColors = LocalExtraColors.current
 
-    val points by SwipeSettingsStore.getPointsFlow(ctx).collectAsState(emptyList())
-    val nests by SwipeSettingsStore.getNestsFlow(ctx).collectAsState(emptyList())
 
     var editPoint by remember { mutableStateOf(point) }
     var showEditIconDialog by remember { mutableStateOf(false) }
@@ -91,7 +87,6 @@ fun EditPointDialog(
 
     val circleColor by ColorSettingsStore.circleColor.asState()
 
-    val icons by appsViewModel.icons.collectAsState()
     val defaultPoint by appsViewModel.defaultPoint.collectAsState(defaultSwipePointsValues)
 
 
@@ -255,12 +250,8 @@ fun EditPointDialog(
 
                     PointPreviewCanvas(
                         editPoint = editPoint,
-                        nests = nests,
-                        points = points,
                         defaultPoint = defaultPoint,
                         backgroundSurfaceColor = backgroundSurfaceColor,
-                        extraColors = extraColors,
-                        pointIcons = icons,
                         modifier = Modifier.fillMaxWidth(1f)
                     )
                 }

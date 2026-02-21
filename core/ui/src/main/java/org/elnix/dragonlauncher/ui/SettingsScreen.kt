@@ -55,7 +55,6 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.key
 import androidx.compose.runtime.mutableFloatStateOf
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateListOf
@@ -64,17 +63,14 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.rememberUpdatedState
 import androidx.compose.runtime.setValue
-import androidx.compose.runtime.snapshotFlow
 import androidx.compose.runtime.snapshots.SnapshotStateList
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.ImageBitmap
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.layout.onSizeChanged
 import androidx.compose.ui.platform.LocalContext
-import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
@@ -82,7 +78,6 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.launch
 import org.elnix.dragonlauncher.base.ktx.toPixels
 import org.elnix.dragonlauncher.base.theme.LocalExtraColors
@@ -92,7 +87,6 @@ import org.elnix.dragonlauncher.base.theme.moveColor
 import org.elnix.dragonlauncher.common.R
 import org.elnix.dragonlauncher.common.logging.logD
 import org.elnix.dragonlauncher.common.logging.logE
-import org.elnix.dragonlauncher.common.points.SwipeDrawParams
 import org.elnix.dragonlauncher.common.serializables.CircleNest
 import org.elnix.dragonlauncher.common.serializables.SwipeActionSerializable
 import org.elnix.dragonlauncher.common.serializables.SwipePointSerializable
@@ -112,7 +106,6 @@ import org.elnix.dragonlauncher.common.utils.showToast
 import org.elnix.dragonlauncher.models.AppLifecycleViewModel
 import org.elnix.dragonlauncher.models.AppsViewModel
 import org.elnix.dragonlauncher.settings.stores.DebugSettingsStore
-import org.elnix.dragonlauncher.settings.stores.DrawerSettingsStore
 import org.elnix.dragonlauncher.settings.stores.SwipeSettingsStore
 import org.elnix.dragonlauncher.settings.stores.UiSettingsStore
 import org.elnix.dragonlauncher.ui.components.AppPreviewTitle
@@ -128,6 +121,9 @@ import org.elnix.dragonlauncher.ui.helpers.CircleIconButton
 import org.elnix.dragonlauncher.ui.helpers.RepeatingPressButton
 import org.elnix.dragonlauncher.ui.helpers.nests.actionsInCircle
 import org.elnix.dragonlauncher.ui.helpers.nests.circlesSettingsOverlay
+import org.elnix.dragonlauncher.ui.helpers.nests.swipeDefaultParams
+import org.elnix.dragonlauncher.ui.remembers.LocalDefaultPoint
+import org.elnix.dragonlauncher.ui.remembers.LocalNests
 import java.math.RoundingMode
 import java.util.UUID
 import kotlin.math.abs
@@ -145,16 +141,15 @@ import kotlin.math.sin
 fun SettingsScreen(
     appsViewModel: AppsViewModel,
     appLifecycleViewModel: AppLifecycleViewModel,
-    pointIcons: Map<String, ImageBitmap>,
-    defaultPoint: SwipePointSerializable,
-    nests: List<CircleNest>,
     onAdvSettings: () -> Unit,
     onNestEdit: (nest: Int) -> Unit,
     onBack: () -> Unit
 ) {
     val ctx = LocalContext.current
+    val nests = LocalNests.current
+    val defaultPoint = LocalDefaultPoint.current
+
     val extraColors = LocalExtraColors.current
-    val density = LocalDensity.current
     val scope = rememberCoroutineScope()
 
     val backgroundColor = MaterialTheme.colorScheme.background
@@ -163,10 +158,8 @@ fun SettingsScreen(
     val autoSeparatePoints by UiSettingsStore.autoSeparatePoints.asState()
     val appLabelOverlaySize by UiSettingsStore.appLabelOverlaySize.asState()
     val appIconOverlaySize by UiSettingsStore.appIconOverlaySize.asState()
-    val maxNestsDepth by UiSettingsStore.maxNestsDepth.asState()
 
     val settingsDebugInfos by DebugSettingsStore.settingsDebugInfo.asState()
-    val iconsShape by DrawerSettingsStore.iconsShape.asState()
 
     var center by remember { mutableStateOf(Offset.Zero) }
 
@@ -187,7 +180,6 @@ fun SettingsScreen(
     var showEditDefaultPoint by remember { mutableStateOf(false) }
     var showAddDialog by remember { mutableStateOf(false) }
     var showEditDialog by remember { mutableStateOf<SwipePointSerializable?>(null) }
-    var recomposeTrigger by remember { mutableIntStateOf(0) }
 
     // Manual placement mode state (multi-select "Place one by one")
     var manualPlacementQueue by remember { mutableStateOf<List<SwipeActionSerializable>>(emptyList()) }
@@ -295,6 +287,15 @@ fun SettingsScreen(
     fun snapshotPoints(): List<SwipePointSerializable> = points.map { it.copy() }
     fun snapshotNests(): List<CircleNest> = nests.map { it.copy() }
 
+
+    fun save() {
+        scope.launch {
+            SwipeSettingsStore.savePoints(ctx, snapshotPoints())
+            SwipeSettingsStore.saveNests(ctx, snapshotNests())
+        }
+    }
+
+
     fun applyChange(mutator: () -> Unit) {
         // Save current state into undo before mutation
         undoStack = undoStack + listOf(snapshotPoints())
@@ -304,7 +305,7 @@ fun SettingsScreen(
         nestsRedoStack = emptyList()
         // Now apply the change
         mutator()
-        recomposeTrigger++
+        save()
     }
 
     fun undo() {
@@ -429,16 +430,6 @@ fun SettingsScreen(
     }
 
 
-    // Save points
-    LaunchedEffect(Unit, recomposeTrigger) {
-        snapshotFlow { points.toList() }
-            .distinctUntilChanged()
-            .collect { list ->
-                SwipeSettingsStore.savePoints(ctx, list)
-            }
-    }
-
-
     BackHandler {
         if (isInManualPlacementMode) manualPlacementQueue = emptyList()
         else if (selectedPoint != null) selectedPoint = null
@@ -446,6 +437,35 @@ fun SettingsScreen(
         else onBack()
     }
 
+    // Shows all points, excepted the currently dragged one, if any
+    val displayedFilteredPoints by remember(points, isDragging, selectedPoint?.id) {
+        derivedStateOf {
+            if (!isDragging) points
+            else points.filter { it.id != selectedPoint?.id }
+        }
+    }
+
+
+    val baseDrawParams = swipeDefaultParams(
+        points = points,
+        backgroundColor = MaterialTheme.colorScheme.background,
+        showCircle = true
+    )
+
+
+    val drawParams by remember(
+        displayedFilteredPoints,
+        backgroundColor,
+        extraColors
+    ) {
+        derivedStateOf {
+            baseDrawParams.copy(
+                points = displayedFilteredPoints,
+                surfaceColorDraw = backgroundColor,
+                extraColors = extraColors
+            )
+        }
+    }
 
 
     Column(
@@ -597,64 +617,31 @@ fun SettingsScreen(
                 }
         ) {
 
-            // Draws all the points, is recomposed at every instance of the recompose trigger
-            // Used cause otherwise Compose wouldn't recompose on changes inside the points and nests classes
-            key(recomposeTrigger) {
-                Canvas(Modifier.fillMaxSize()) {
 
-                    // Shows all points, excepted the currently dragged one, if any
-                    val displayedFilteredPoints = points.filter {
-                        if (isDragging) it.id != selectedPoint?.id
-                        else true
-                    }
+            Canvas(Modifier.fillMaxSize()) {
+                circlesSettingsOverlay(
+                    drawParams = drawParams,
+                    center = center,
+                    depth = 1,
+                    circles = circles,
+                    selectedPoint = selectedPoint,
+                    nestId = nestId,
+                    preventBgErasing = true
+                )
 
-                    circlesSettingsOverlay(
-                        drawParams = SwipeDrawParams(
-                            nests = nests,
-                            points = displayedFilteredPoints,
-                            center = center,
-                            ctx = ctx,
-                            defaultPoint = defaultPoint,
-                            pointIcons = pointIcons,
-                            surfaceColorDraw = backgroundColor,
-                            extraColors = extraColors,
-                            showCircle = true,
-                            density = density,
-                            depth = 1,
-                            maxDepth = maxNestsDepth,
-                            iconShape = iconsShape
-                        ),
-                        circles = circles,
-                        selectedPoint = selectedPoint,
-                        nestId = nestId,
+
+                if (isDragging && selectedPoint != null) {
+                    actionsInCircle(
+                        drawParams = drawParams,
+                        center = selectedPointTempOffset.value,
+                        depth = 1,
+                        point = selectedPoint!!,
+                        selected = true,
                         preventBgErasing = true
                     )
-
-
-                    if (isDragging && selectedPoint != null) {
-                        actionsInCircle(
-                            drawParams = SwipeDrawParams(
-                                nests = nests,
-                                points = displayedFilteredPoints,
-                                center = center,
-                                ctx = ctx,
-                                defaultPoint = defaultPoint,
-                                pointIcons = pointIcons,
-                                surfaceColorDraw = backgroundColor,
-                                extraColors = extraColors,
-                                showCircle = true,
-                                density = density,
-                                depth = 1,
-                                maxDepth = maxNestsDepth,
-                                iconShape = iconsShape
-                            ),
-                            point = selectedPoint!!,
-                            selected = true,
-                            preventBgErasing = true
-                        )
-                    }
                 }
             }
+
 
 
             Box(
@@ -706,7 +693,6 @@ fun SettingsScreen(
                                     scope.launch {
                                         selectedPointTempOffset.snapTo(change.position)
                                     }
-                                    recomposeTrigger++
                                 }
                             },
                             onDragEnd = {
@@ -990,7 +976,6 @@ fun SettingsScreen(
                                 circles.find { it.id == point.circleNumber },
                                 point
                             )
-                            recomposeTrigger++
                         }
                     }
                 }
@@ -1040,7 +1025,6 @@ fun SettingsScreen(
                                 circles.find { it.id == point.circleNumber },
                                 point
                             )
-                            recomposeTrigger++
                         }
                     }
                 }
@@ -1313,7 +1297,6 @@ fun SettingsScreen(
 
     if (showNestManagementDialog) {
         NestManagementDialog(
-            appsViewModel = appsViewModel,
             onDismissRequest = { showNestManagementDialog = false },
             onNewNest = ::addNewNest,
             onNameChange = null /*{ id, newName ->
@@ -1342,9 +1325,7 @@ fun SettingsScreen(
         AppPreviewTitle(
             offsetY = offsetY,
             alpha = alpha,
-            pointIcons = pointIcons,
             point = currentPoint,
-            iconsShape = iconsShape,
             topPadding = 80.dp,
             labelSize = appLabelOverlaySize,
             iconSize = appIconOverlaySize,
@@ -1415,7 +1396,7 @@ fun SettingsScreen(
             },
         ) {
             scope.launch {
-                appsViewModel.setDefaultPoint(it)
+                SwipeSettingsStore.setDefaultPoint(ctx, it)
             }
             showEditDefaultPoint = false
         }

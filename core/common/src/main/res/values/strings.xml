@@ -302,8 +302,8 @@
     <string name="reset_widget">Reset Widget</string>
     <string name="select_previous_widget">Select previous widget</string>
     <string name="select_next_widget">Select Next Widget</string>
-    <string name="move_selectec_widget_up">Move selected widget up</string>
-    <string name="move_selectec_widget_down">Move selected widget down</string>
+    <string name="move_selected_widget_up">Move selected widget up</string>
+    <string name="move_selected_widget_down">Move selected widget down</string>
     <string name="enable_grid">Enable Grid</string>
     <string name="enable_scale_snap">Enable scale snap</string>
     <string name="add_circle">Add circle</string>
@@ -343,7 +343,7 @@
     <string name="add_alias">Add alias</string>
     <string name="create_alias">Create Alias</string>
     <string name="scroll_up_action">Scroll up action</string>
-    <string name="scroll_down_actiob">Scroll down action</string>
+    <string name="scroll_down_action">Scroll down action</string>
     <string name="auto_launch_single_match">Auto launch single match</string>
     <string name="auto_launch_single_match_desc">When only one app is visible in the drawer, it\'ll be automatically launched</string>
     <string name="auto_show_keyboard">Auto show keyboard</string>
@@ -543,10 +543,10 @@
     <string name="show_app_icons_in_drawer_desc">Display the app icons or not it the grid</string>
     <string name="show_app_labels_in_drawer">Show app labels in drawer</string>
     <string name="show_app_labels_in_drawer_desc">Display or not the app names along their icons</string>
-    <string name="max_icon_size_desc">The maximum size that the icons can reach, play with other settigns to achieve something you like</string>
+    <string name="max_icon_size_desc">The maximum size that the icons can reach, play with other settings to achieve something you like</string>
     <string name="icons_spacing_vertical_desc">Vertical icons padding</string>
     <string name="icons_spacing_horizontal_desc">Horizontal icons padding</string>
-    <string name="category_settings">Catagory settings</string>
+    <string name="category_settings">Category settings</string>
     <string name="expanded_chevron_indicator">Expanded chevron indicator</string>
     <string name="category_grid_width">Category grid width</string>
     <string name="grid_settings">Grid Settings</string>
@@ -636,9 +636,9 @@
     <string name="not_implemented">Not implemented</string>
     <string name="show_next_alarm_desc">Show the time of the next upcoming alarm</string>
     <string name="show_battery_desc">Display the phone battery %</string>
-    <string name="show_connectivity_desc">Not working well, pleas wait for an hypotetical release about this one day</string>
+    <string name="show_connectivity_desc">Not working well, pleas wait for an hypothetical release about this one day</string>
     <string name="show_time_desc">Display the time using the custom formatter</string>
-    <string name="show_date_desc">Diaplay the date next to the time using the custom formatter</string>
+    <string name="show_date_desc">Display the date next to the time using the custom formatter</string>
     <string name="show_status_bar_desc">Display the status bar, if disabled nothing\'s showed</string>
     <string name="display_options_settings">Display options settings</string>
     <string name="disable_haptic_globally">Disable Haptic feedback globally</string>

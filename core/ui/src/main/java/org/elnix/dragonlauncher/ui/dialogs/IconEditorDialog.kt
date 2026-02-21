@@ -56,8 +56,7 @@ import org.elnix.dragonlauncher.common.utils.ImageUtils.uriToBase64
 import org.elnix.dragonlauncher.common.utils.colors.adjustBrightness
 import org.elnix.dragonlauncher.common.utils.definedOrNull
 import org.elnix.dragonlauncher.models.AppsViewModel
-import org.elnix.dragonlauncher.settings.stores.DrawerSettingsStore
-import org.elnix.dragonlauncher.settings.stores.SwipeSettingsStore
+import org.elnix.dragonlauncher.settings.stores.DrawerSettingsStore.iconsShape
 import org.elnix.dragonlauncher.ui.UiConstants.DragonShape
 import org.elnix.dragonlauncher.ui.colors.AppObjectsColors
 import org.elnix.dragonlauncher.ui.colors.ColorPickerRow
@@ -65,10 +64,9 @@ import org.elnix.dragonlauncher.ui.components.PointPreviewCanvas
 import org.elnix.dragonlauncher.ui.components.TextDivider
 import org.elnix.dragonlauncher.ui.components.ValidateCancelButtons
 import org.elnix.dragonlauncher.ui.components.dragon.DragonIconButton
-import org.elnix.dragonlauncher.ui.components.settings.asState
 import org.elnix.dragonlauncher.ui.helpers.ShapeRow
 import org.elnix.dragonlauncher.ui.helpers.SliderWithLabel
-import org.elnix.dragonlauncher.base.theme.LocalExtraColors
+import org.elnix.dragonlauncher.ui.remembers.LocalIconShape
 
 @Composable
 fun IconEditorDialog(
@@ -78,17 +76,12 @@ fun IconEditorDialog(
     onDismiss: () -> Unit,
     onPicked: (CustomIconSerializable?) -> Unit
 ) {
-
     val ctx = LocalContext.current
-    val extraColors = LocalExtraColors.current
+    val iconShapes = LocalIconShape.current
+
     val scope = rememberCoroutineScope()
 
-    val points by SwipeSettingsStore.getPointsFlow(ctx).collectAsState(emptyList())
-    val nests by SwipeSettingsStore.getNestsFlow(ctx).collectAsState(emptyList())
 
-    val iconsShape by DrawerSettingsStore.iconsShape.asState()
-
-    val circleColor = LocalExtraColors.current.circle
     val backgroundColor = MaterialTheme.colorScheme.surface
 
     val defaultPoint by appsViewModel.defaultPoint.collectAsState(defaultSwipePointsValues)
@@ -165,12 +158,9 @@ fun IconEditorDialog(
 
                 PointPreviewCanvas(
                     editPoint = previewPoint,
-                    nests = nests,
-                    points = points,
                     defaultPoint = defaultPoint,
                     backgroundSurfaceColor = backgroundColor,
-                    extraColors = extraColors,
-                    pointIcons = previewIcon,
+                    icons = previewIcon,
                     modifier = Modifier.weight(1f)
                 )
 
@@ -426,7 +416,7 @@ fun IconEditorDialog(
                     }
 
                     ShapeRow(
-                        selected = selectedIcon?.shape ?: iconsShape,
+                        selected = selectedIcon?.shape ?: iconShapes,
                         onReset = {
                             selectedIcon = (selectedIcon ?: CustomIconSerializable()).copy(
                                 shape = null
@@ -473,7 +463,7 @@ fun IconEditorDialog(
 
     if (showShapePickerDialog) {
         ShapePickerDialog(
-            selected = selectedIcon?.shape ?: iconsShape,
+            selected = selectedIcon?.shape ?: iconShapes,
             onDismiss = { showShapePickerDialog = false }
         ) {
             selectedIcon = (selectedIcon ?: CustomIconSerializable()).copy(

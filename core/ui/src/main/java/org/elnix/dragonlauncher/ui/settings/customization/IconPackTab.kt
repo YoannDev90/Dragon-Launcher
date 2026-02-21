@@ -21,7 +21,6 @@ import kotlinx.coroutines.launch
 import org.elnix.dragonlauncher.common.R
 import org.elnix.dragonlauncher.common.utils.definedOrNull
 import org.elnix.dragonlauncher.models.AppsViewModel
-import org.elnix.dragonlauncher.settings.stores.DrawerSettingsStore
 import org.elnix.dragonlauncher.settings.stores.UiSettingsStore
 import org.elnix.dragonlauncher.ui.colors.ColorPickerRow
 import org.elnix.dragonlauncher.ui.helpers.AppGrid
@@ -34,18 +33,15 @@ fun IconPackTab(
     onBack: () -> Unit
 ) {
     val ctx = LocalContext.current
+
     val scope = rememberCoroutineScope()
 
     val apps by appsViewModel.userApps.collectAsState(initial = emptyList())
-    val icons by appsViewModel.icons.collectAsState()
 
     val selectedPack by appsViewModel.selectedIconPack.collectAsState()
     val packs by appsViewModel.iconPacksList.collectAsState()
 
     val iconPackTint by UiSettingsStore.iconPackTint.flow(ctx).collectAsState(null)
-
-    val iconsShape by DrawerSettingsStore.iconsShape.flow(ctx)
-        .collectAsState(DrawerSettingsStore.iconsShape.default)
 
 
     // Used to delay the grid showing up, to prevent lag
@@ -74,8 +70,6 @@ fun IconPackTab(
                     Box(Modifier.height(80.dp)){
                         AppGrid(
                             apps = apps.shuffled().take(6),
-                            icons = icons,
-                            iconShape = iconsShape,
                             txtColor = MaterialTheme.colorScheme.onBackground,
                             gridSize = 6,
                             showIcons = true,
@@ -98,7 +92,6 @@ fun IconPackTab(
 
         iconPackListContent(
             packs = packs,
-            icons = icons,
             selectedPackPackage = selectedPack?.packageName,
             showClearOption = true,
             onReloadPacks = {

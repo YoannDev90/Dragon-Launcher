@@ -10,7 +10,6 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import kotlinx.coroutines.delay
 import org.elnix.dragonlauncher.common.R
@@ -20,7 +19,7 @@ import java.time.format.DateTimeFormatter
 
 
 @Composable
-fun StatusBarNextAlarm(textColor: Color) {
+fun StatusBarNextAlarm() {
     val ctx = LocalContext.current
     var nextAlarm by remember { mutableStateOf<NextAlarmInfo?>(null) }
 
@@ -34,7 +33,6 @@ fun StatusBarNextAlarm(textColor: Color) {
     nextAlarm?.let { alarm ->
         Text(
             text = alarm.formattedTime,
-            color = textColor,
             style = MaterialTheme.typography.bodyMedium,
         )
     }

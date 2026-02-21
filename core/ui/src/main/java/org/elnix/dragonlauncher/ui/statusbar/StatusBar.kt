@@ -6,7 +6,9 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
+import androidx.compose.material3.LocalContentColor
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -40,58 +42,60 @@ fun StatusBar(
     val clockAction by StatusBarSettingsStore.clockAction.asState()
     val dateAction by StatusBarSettingsStore.dateAction.asState()
 
-    Row(
-        modifier = Modifier
-            .fillMaxWidth()
-            .background(statusBarBackground)
-            .padding(
-                start = leftStatusBarPadding.dp,
-                top = topStatusBarPadding.dp,
-                end = rightStatusBarPadding.dp,
-                bottom = bottomStatusBarPadding.dp
-            ),
-        verticalAlignment = Alignment.CenterVertically,
+    CompositionLocalProvider(
+        LocalContentColor provides statusBarText
     ) {
+        Row(
+            modifier = Modifier
+                .fillMaxWidth()
+                .background(statusBarBackground)
+                .padding(
+                    start = leftStatusBarPadding.dp,
+                    top = topStatusBarPadding.dp,
+                    end = rightStatusBarPadding.dp,
+                    bottom = bottomStatusBarPadding.dp
+                ),
+            verticalAlignment = Alignment.CenterVertically,
+        ) {
 
-        StatusBarClock(
-            showTime = showTime,
-            showDate = showDate,
-            timeFormatter = timeFormatter,
-            dateFormatter = dateFormatter,
-            clockAction = clockAction,
-            dateAction = dateAction,
-            textColor = statusBarText,
-            onClockAction = onClockAction,
-            onDateAction = onDateAction
-        )
-
-        Spacer(modifier = Modifier.weight(1f))
-
-        if (showNextAlarm) {
-            StatusBarNextAlarm(statusBarText)
-            Spacer(modifier = Modifier.width(6.dp))
-        }
-
-        if (showNotifications) {
-            StatusBarNotifications(
-                textColor = statusBarText,
-                maxIcons = maxNotificationIcons
+            StatusBarClock(
+                showTime = showTime,
+                showDate = showDate,
+                timeFormatter = timeFormatter,
+                dateFormatter = dateFormatter,
+                clockAction = clockAction,
+                dateAction = dateAction,
+                onClockAction = onClockAction,
+                onDateAction = onDateAction
             )
-            Spacer(modifier = Modifier.width(6.dp))
-        }
 
-        if (showConnectivity) {
-            StatusBarConnectivity(statusBarText)
-            Spacer(modifier = Modifier.width(6.dp))
-        }
+            Spacer(modifier = Modifier.weight(1f))
 
-        if (showBandwidth) {
-            StatusBarBandwidth(statusBarText)
-            Spacer(modifier = Modifier.width(6.dp))
-        }
+            if (showNextAlarm) {
+                StatusBarNextAlarm()
+                Spacer(modifier = Modifier.width(6.dp))
+            }
 
-        if (showBattery) {
-            StatusBarBattery(statusBarText)
+            if (showNotifications) {
+                StatusBarNotifications(
+                    maxIcons = maxNotificationIcons
+                )
+                Spacer(modifier = Modifier.width(6.dp))
+            }
+
+            if (showConnectivity) {
+                StatusBarConnectivity()
+                Spacer(modifier = Modifier.width(6.dp))
+            }
+
+            if (showBandwidth) {
+                StatusBarBandwidth()
+                Spacer(modifier = Modifier.width(6.dp))
+            }
+
+            if (showBattery) {
+                StatusBarBattery()
+            }
         }
     }
 }
