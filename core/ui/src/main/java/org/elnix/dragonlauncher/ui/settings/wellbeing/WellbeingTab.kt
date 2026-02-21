@@ -467,7 +467,6 @@ fun WellbeingTab(
             appsViewModel = appsViewModel,
             appLifecycleViewModel = appLifecycleViewModel,
             gridSize = gridSize,
-            iconShape = iconsShape,
             showIcons = showIcons,
             showLabels = showLabels,
             onDismiss = { showAppPicker = false },

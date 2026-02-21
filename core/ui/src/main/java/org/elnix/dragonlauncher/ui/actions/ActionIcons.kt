@@ -10,21 +10,23 @@ import androidx.compose.ui.graphics.painter.BitmapPainter
 import androidx.compose.ui.graphics.painter.Painter
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
+import org.elnix.dragonlauncher.base.theme.LocalExtraColors
 import org.elnix.dragonlauncher.common.R
 import org.elnix.dragonlauncher.common.serializables.AppModel
 import org.elnix.dragonlauncher.common.serializables.SwipeActionSerializable
 import org.elnix.dragonlauncher.common.utils.ImageUtils.createUntintedBitmap
 import org.elnix.dragonlauncher.common.utils.ImageUtils.loadDrawableResAsBitmap
 import org.elnix.dragonlauncher.ui.components.PlatformShape
-import org.elnix.dragonlauncher.base.theme.LocalExtraColors
+import org.elnix.dragonlauncher.ui.remembers.LocalIcons
 
 @Composable
 fun appIcon(
     app: AppModel,
-    icons: Map<String, ImageBitmap>? = null
 ): Painter {
+    val icons = LocalIcons.current
+
     val profileKey = app.iconCacheKey.cacheKey
-    val cached = icons?.get(profileKey) ?: icons?.get(app.packageName)
+    val cached = icons[profileKey] ?: icons[app.packageName]
     return if (cached != null) {
         BitmapPainter(cached)
     } else {
@@ -36,12 +38,12 @@ fun appIcon(
 @Composable
 fun ActionIcon(
     action: SwipeActionSerializable,
-    icons: Map<String, ImageBitmap>,
     modifier: Modifier = Modifier,
     size: Int = 64,
     showLaunchAppVectorGrid: Boolean = false
 ) {
     val ctx = LocalContext.current
+    val icons = LocalIcons.current
     val extraColors = LocalExtraColors.current
 
 

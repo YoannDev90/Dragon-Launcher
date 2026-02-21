@@ -16,8 +16,10 @@ import android.view.WindowManager
 import androidx.activity.compose.setContent
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.activity.viewModels
+import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -56,12 +58,15 @@ import org.elnix.dragonlauncher.models.BackupViewModel
 import org.elnix.dragonlauncher.models.FloatingAppsViewModel
 import org.elnix.dragonlauncher.settings.SettingsBackupManager
 import org.elnix.dragonlauncher.settings.stores.BehaviorSettingsStore
+import org.elnix.dragonlauncher.settings.stores.DrawerSettingsStore
 import org.elnix.dragonlauncher.settings.stores.PrivateSettingsStore
 import org.elnix.dragonlauncher.settings.stores.SwipeSettingsStore
 import org.elnix.dragonlauncher.settings.stores.UiSettingsStore
 import org.elnix.dragonlauncher.ui.MainAppUi
 import org.elnix.dragonlauncher.ui.components.settings.asState
 import org.elnix.dragonlauncher.ui.components.settings.asStateNull
+import org.elnix.dragonlauncher.ui.remembers.LocalIconShape
+import org.elnix.dragonlauncher.ui.remembers.LocalIcons
 import org.elnix.dragonlauncher.ui.theme.DragonLauncherTheme
 import java.util.UUID
 
@@ -369,6 +374,7 @@ class MainActivity : FragmentActivity(), WidgetHostProvider {
             val fullscreen by UiSettingsStore.fullScreen.asState()
             val hasInitialized by PrivateSettingsStore.hasInitialized.asStateNull()
             val samsungPreferSecureFolder by PrivateSettingsStore.samsungPreferSecureFolder.asState()
+            val iconsShape by DrawerSettingsStore.iconsShape.asState()
 
 
             LaunchedEffect(Unit) {
@@ -467,31 +473,40 @@ class MainActivity : FragmentActivity(), WidgetHostProvider {
                 val navController = rememberNavController()
                 navControllerHolder.value = navController
 
-                MainAppUi(
-                    backupViewModel = backupViewModel,
-                    appsViewModel = appsViewModel,
-                    floatingAppsViewModel = floatingAppsViewModel,
-                    appLifecycleViewModel = appLifecycleViewModel,
-                    widgetHostProvider = this,
-                    navController = navController,
-                    onBindCustomWidget = { widgetId, provider, nestId ->
-                        pendingAddNestId = nestId
-                        (ctx as MainActivity).bindWidgetFromCustomPicker(widgetId, provider)
-                    },
-                    onLaunchSystemWidgetPicker = { nestId ->
-                        pendingAddNestId = nestId
-                        (ctx as MainActivity).launchWidgetPicker()
-                    },
-                    onResetWidgetSize = { id, widgetId ->
-                        val info = appWidgetManager.getAppWidgetInfo(widgetId)
-                        floatingAppsViewModel.resetFloatingAppSize(id, info)
-                    },
-                    onRemoveFloatingApp = { floatingAppObject ->
-                        floatingAppsViewModel.removeFloatingApp(floatingAppObject.id) {
-                            (ctx as MainActivity).deleteWidget(it)
+                val icons by appsViewModel.icons.collectAsState()
+
+
+
+                CompositionLocalProvider(
+                    LocalIcons provides icons,
+                    LocalIconShape provides iconsShape
+                ) {
+                    MainAppUi(
+                        backupViewModel = backupViewModel,
+                        appsViewModel = appsViewModel,
+                        floatingAppsViewModel = floatingAppsViewModel,
+                        appLifecycleViewModel = appLifecycleViewModel,
+                        widgetHostProvider = this,
+                        navController = navController,
+                        onBindCustomWidget = { widgetId, provider, nestId ->
+                            pendingAddNestId = nestId
+                            (ctx as MainActivity).bindWidgetFromCustomPicker(widgetId, provider)
+                        },
+                        onLaunchSystemWidgetPicker = { nestId ->
+                            pendingAddNestId = nestId
+                            (ctx as MainActivity).launchWidgetPicker()
+                        },
+                        onResetWidgetSize = { id, widgetId ->
+                            val info = appWidgetManager.getAppWidgetInfo(widgetId)
+                            floatingAppsViewModel.resetFloatingAppSize(id, info)
+                        },
+                        onRemoveFloatingApp = { floatingAppObject ->
+                            floatingAppsViewModel.removeFloatingApp(floatingAppObject.id) {
+                                (ctx as MainActivity).deleteWidget(it)
+                            }
                         }
-                    }
-                )
+                    )
+                }
             }
         }
     }

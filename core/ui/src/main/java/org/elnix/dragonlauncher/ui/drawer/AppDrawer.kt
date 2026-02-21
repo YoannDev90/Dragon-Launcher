@@ -112,6 +112,7 @@ import org.elnix.dragonlauncher.ui.helpers.WallpaperDim
 import org.elnix.dragonlauncher.ui.modifiers.conditional
 import org.elnix.dragonlauncher.ui.modifiers.settingsGroup
 import org.elnix.dragonlauncher.ui.modifiers.shapedClickable
+import org.elnix.dragonlauncher.ui.remembers.LocalIcons
 import kotlin.math.abs
 import kotlin.math.pow
 
@@ -136,6 +137,8 @@ fun AppDrawerScreen(
     onClose: () -> Unit
 ) {
     val ctx = LocalContext.current
+    val icons = LocalIcons.current
+
     val scope = rememberCoroutineScope()
 
     val privateSpaceState by appsViewModel.privateSpaceState.collectAsState()
@@ -152,8 +155,6 @@ fun AppDrawerScreen(
         initialPage = initialIndex.coerceIn(0, (visibleWorkspaces.size - 1).coerceAtLeast(0)),
         pageCount = { visibleWorkspaces.size }
     )
-
-    val icons by appsViewModel.icons.collectAsState()
 
     val autoLaunchSingleMatch by DrawerSettingsStore.autoOpenSingleMatch.asState()
     val useCategory by DrawerSettingsStore.useCategory.asState()

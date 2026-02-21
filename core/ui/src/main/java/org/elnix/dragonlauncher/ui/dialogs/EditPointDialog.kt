@@ -37,6 +37,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import org.elnix.dragonlauncher.base.ktx.toPixels
+import org.elnix.dragonlauncher.base.theme.LocalExtraColors
 import org.elnix.dragonlauncher.common.R
 import org.elnix.dragonlauncher.common.serializables.SwipeActionSerializable
 import org.elnix.dragonlauncher.common.serializables.SwipePointSerializable
@@ -63,7 +64,7 @@ import org.elnix.dragonlauncher.ui.components.generic.ActionRow
 import org.elnix.dragonlauncher.ui.components.settings.asState
 import org.elnix.dragonlauncher.ui.helpers.ShapeRow
 import org.elnix.dragonlauncher.ui.helpers.SliderWithLabel
-import org.elnix.dragonlauncher.base.theme.LocalExtraColors
+import org.elnix.dragonlauncher.ui.remembers.LocalIcons
 import kotlin.math.max
 
 
@@ -76,8 +77,9 @@ fun EditPointDialog(
     onDismiss: () -> Unit,
     onConfirm: (SwipePointSerializable) -> Unit
 ) {
-
     val ctx = LocalContext.current
+    val icons = LocalIcons.current
+
     val extraColors = LocalExtraColors.current
 
     val points by SwipeSettingsStore.getPointsFlow(ctx).collectAsState(emptyList())
@@ -91,7 +93,6 @@ fun EditPointDialog(
 
     val circleColor by ColorSettingsStore.circleColor.asState()
 
-    val icons by appsViewModel.icons.collectAsState()
     val defaultPoint by appsViewModel.defaultPoint.collectAsState(defaultSwipePointsValues)
 
 

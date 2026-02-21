@@ -16,7 +16,7 @@ data class SwipeDrawParams(
     val center: Offset,
     val ctx: Context,
     val defaultPoint: SwipePointSerializable,
-    val pointIcons: Map<String, ImageBitmap>,
+    val icons: Map<String, ImageBitmap>,
     val surfaceColorDraw: Color,
     val extraColors: ExtraColors,
     val showCircle: Boolean,
@@ -24,4 +24,5 @@ data class SwipeDrawParams(
     val depth: Int,
     val maxDepth: Int,
     val iconShape: IconShape,
+    val subNestDefaultRadius: Int,
 )

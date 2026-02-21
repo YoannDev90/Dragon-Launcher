@@ -57,7 +57,6 @@ import androidx.compose.ui.graphics.ImageBitmap
 import androidx.compose.ui.graphics.Shape
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.platform.LocalContext
-import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.dp
@@ -84,6 +83,7 @@ import org.elnix.dragonlauncher.ui.dialogs.NestManagementDialog
 import org.elnix.dragonlauncher.ui.helpers.CircleIconButton
 import org.elnix.dragonlauncher.ui.helpers.UpDownButton
 import org.elnix.dragonlauncher.ui.helpers.settings.SettingsLazyHeader
+import org.elnix.dragonlauncher.ui.remembers.LocalIcons
 import org.elnix.dragonlauncher.ui.statusbar.StatusBar
 
 @Composable
@@ -98,9 +98,10 @@ fun FloatingAppsTab(
     onRemoveWidget: (FloatingAppObject) -> Unit
 ) {
     val ctx = LocalContext.current
+    val icons = LocalIcons.current
+
     val scope = rememberCoroutineScope()
 
-    val icons by appsViewModel.icons.collectAsState()
 
     val widgetsDebugInfos by DebugSettingsStore.widgetsDebugInfo.flow(ctx)
         .collectAsState(initial = false)

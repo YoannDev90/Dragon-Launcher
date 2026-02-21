@@ -54,16 +54,19 @@ import org.elnix.dragonlauncher.ui.defaultMinAngleActivation
 import org.elnix.dragonlauncher.ui.helpers.SliderWithLabel
 import org.elnix.dragonlauncher.ui.helpers.nests.circlesSettingsOverlay
 import org.elnix.dragonlauncher.ui.helpers.settings.SettingsLazyHeader
+import org.elnix.dragonlauncher.ui.theme.LocalNests
+import org.elnix.dragonlauncher.ui.theme.LocalPoints
 
 @Composable
 fun NestEditingScreen(
     nestId: Int?,
-    nests: List<CircleNest>,
-    points: List<SwipePointSerializable>,
     pointIcons: Map<String, ImageBitmap>,
     defaultPoint: SwipePointSerializable,
     onBack: () -> Unit
 ) {
+    val points = LocalPoints.current
+    val nests = LocalNests.current
+
     if (nestId == null) return
     val currentNest = nests.find { it.id == nestId } ?: return
 
@@ -167,7 +170,7 @@ fun NestEditingScreen(
                         center = center,
                         ctx = ctx,
                         defaultPoint = defaultPoint,
-                        pointIcons = pointIcons,
+                        icons = pointIcons,
                         surfaceColorDraw = backgroundColor,
                         extraColors = extraColors,
                         showCircle = true,

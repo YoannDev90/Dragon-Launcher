@@ -58,7 +58,6 @@ import kotlinx.coroutines.yield
 import org.elnix.dragonlauncher.common.R
 import org.elnix.dragonlauncher.common.logging.logE
 import org.elnix.dragonlauncher.common.serializables.AppModel
-import org.elnix.dragonlauncher.common.serializables.IconShape
 import org.elnix.dragonlauncher.common.serializables.WorkspaceType
 import org.elnix.dragonlauncher.common.utils.Constants
 import org.elnix.dragonlauncher.common.utils.PrivateSpaceUtils
@@ -79,7 +78,6 @@ fun AppPickerDialog(
     appsViewModel: AppsViewModel,
     appLifecycleViewModel: AppLifecycleViewModel,
     gridSize: Int,
-    iconShape: IconShape,
     showIcons: Boolean,
     showLabels: Boolean,
     multiSelectEnabled: Boolean = false,
@@ -107,7 +105,6 @@ fun AppPickerDialog(
     val workspaces = workspaceState.workspaces
     val overrides = workspaceState.appOverrides
 
-    val icons by appsViewModel.icons.collectAsState()
 
     val selectedWorkspaceId by appsViewModel.selectedWorkspaceId.collectAsState()
     val initialIndex = workspaces.indexOfFirst { it.id == selectedWorkspaceId }
@@ -349,8 +346,6 @@ fun AppPickerDialog(
                     } else {
                         AppGrid(
                             apps = filteredApps,
-                            icons = icons,
-                            iconShape = iconShape,
                             gridSize = gridSize,
                             txtColor = MaterialTheme.colorScheme.onSurface,
                             showIcons = showIcons,

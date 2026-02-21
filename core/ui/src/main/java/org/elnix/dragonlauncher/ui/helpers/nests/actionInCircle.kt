@@ -37,7 +37,7 @@ fun DrawScope.actionsInCircle(
     val ctx = drawParams.ctx
     val nests = drawParams.nests
     val defaultPoint = drawParams.defaultPoint
-    val pointIcons = drawParams.pointIcons
+    val pointIcons = drawParams.icons
     val surfaceColorDraw = drawParams.surfaceColorDraw
     val extraColors = drawParams.extraColors
     val density = drawParams.density

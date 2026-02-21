@@ -77,7 +77,6 @@ fun NestManagementDialog(
     val points by SwipeSettingsStore.getPointsFlow(ctx).collectAsState(emptyList())
     val nests by SwipeSettingsStore.getNestsFlow(ctx).collectAsState(emptyList())
 
-    val icons by appsViewModel.icons.collectAsState()
     val defaultPoint by appsViewModel.defaultPoint.collectAsState(defaultSwipePointsValues)
 
     val iconsShape by DrawerSettingsStore.iconsShape.flow(ctx)
@@ -130,12 +129,8 @@ fun NestManagementDialog(
                 items(nests) { nest ->
                     NestManagementItem(
                         nest = nest,
-                        nests = nests,
-                        points = points,
                         defaultPoint = defaultPoint,
-                        pointIcons = icons,
                         canCopyId = canCopyId,
-                        iconShape = iconsShape,
                         onNameChange = onNameChange,
                         onDelete = onDelete,
                         onSelect = { onSelect?.invoke(nest) }
@@ -205,7 +200,7 @@ private fun NestManagementItem(
                     center =center,
                     ctx = ctx,
                     defaultPoint = defaultPoint,
-                    pointIcons = pointIcons,
+                    icons = pointIcons,
                     surfaceColorDraw = Color.Unspecified,
                     extraColors = extraColors,
                     showCircle = true,

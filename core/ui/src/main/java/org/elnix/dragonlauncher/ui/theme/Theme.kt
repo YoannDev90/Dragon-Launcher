@@ -9,12 +9,16 @@ import androidx.compose.material3.dynamicDarkColorScheme
 import androidx.compose.material3.dynamicLightColorScheme
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.compositionLocalOf
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.platform.LocalContext
 import org.elnix.dragonlauncher.base.theme.AmoledDragonColorScheme
 import org.elnix.dragonlauncher.base.theme.DarkDragonColorScheme
 import org.elnix.dragonlauncher.base.theme.LightDragonColorScheme
 import org.elnix.dragonlauncher.base.theme.LocalExtraColors
+import org.elnix.dragonlauncher.common.serializables.CircleNest
+import org.elnix.dragonlauncher.common.serializables.SwipePointSerializable
 import org.elnix.dragonlauncher.enumsui.DefaultThemes
 import org.elnix.dragonlauncher.enumsui.DefaultThemes.AMOLED
 import org.elnix.dragonlauncher.enumsui.DefaultThemes.CUSTOM
@@ -22,6 +26,7 @@ import org.elnix.dragonlauncher.enumsui.DefaultThemes.DARK
 import org.elnix.dragonlauncher.enumsui.DefaultThemes.LIGHT
 import org.elnix.dragonlauncher.enumsui.DefaultThemes.SYSTEM
 import org.elnix.dragonlauncher.settings.stores.ColorModesSettingsStore
+import org.elnix.dragonlauncher.settings.stores.SwipeSettingsStore
 import org.elnix.dragonlauncher.ui.components.settings.asState
 import org.elnix.dragonlauncher.ui.remembers.rememberCustomColorScheme
 import org.elnix.dragonlauncher.ui.remembers.rememberExtraColors
@@ -70,13 +75,24 @@ private fun getDefaultColorScheme(
 fun DragonLauncherTheme(
     content: @Composable () -> Unit
 ) {
+    val ctx = LocalContext.current
+
+
     val dynamicColor by ColorModesSettingsStore.dynamicColor.asState()
     val defaultTheme by ColorModesSettingsStore.defaultTheme.asState()
 
     val colorScheme = getDefaultColorScheme(defaultTheme, dynamicColor)
     val extraColors = rememberExtraColors()
 
-    CompositionLocalProvider(LocalExtraColors provides extraColors) {
+    val nests by SwipeSettingsStore.getNestsFlow(ctx).collectAsState(initial = emptyList())
+    val points by SwipeSettingsStore.getPointsFlow(ctx).collectAsState(emptyList())
+
+
+    CompositionLocalProvider(
+        LocalExtraColors provides extraColors,
+        LocalPoints provides points,
+        LocalNests provides nests
+    ) {
         MaterialTheme(
             colorScheme = colorScheme,
             typography = Typography,
@@ -84,3 +100,7 @@ fun DragonLauncherTheme(
         )
     }
 }
+
+
+val LocalNests = compositionLocalOf { emptyList<CircleNest>() }
+val LocalPoints = compositionLocalOf { emptyList<SwipePointSerializable>() }

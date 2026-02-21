@@ -27,11 +27,11 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.ImageBitmap
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
+import org.elnix.dragonlauncher.base.theme.LocalExtraColors
 import org.elnix.dragonlauncher.common.R
 import org.elnix.dragonlauncher.common.logging.logD
 import org.elnix.dragonlauncher.common.serializables.AppModel
@@ -47,9 +47,7 @@ import org.elnix.dragonlauncher.ui.UiConstants.DragonShape
 import org.elnix.dragonlauncher.ui.actions.ActionIcon
 import org.elnix.dragonlauncher.ui.actions.actionColor
 import org.elnix.dragonlauncher.ui.actions.actionLabel
-import org.elnix.dragonlauncher.ui.components.resolveShape
 import org.elnix.dragonlauncher.ui.components.settings.asState
-import org.elnix.dragonlauncher.base.theme.LocalExtraColors
 
 @Suppress("AssignedValueIsNeverRead")
 @Composable
@@ -77,13 +75,9 @@ fun AddPointDialog(
 
     val workspaces by appsViewModel.enabledState.collectAsState()
 
-
-    val icons by appsViewModel.icons.collectAsState()
-
     val gridSize by DrawerSettingsStore.gridSize.asState()
     val showIcons by DrawerSettingsStore.showAppIconsInDrawer.asState()
     val showLabels by DrawerSettingsStore.showAppLabelInDrawer.asState()
-    val iconsShape by DrawerSettingsStore.iconsShape.asState()
     val promptForShortcuts by UiSettingsStore.promptForShortcutsWhenAddingApp.asState()
 
 
@@ -113,7 +107,6 @@ fun AddPointDialog(
                         is SwipeActionSerializable.LaunchApp -> {
                             AddPointColumn(
                                 action = action,
-                                icons = icons,
                                 onSelected = { showAppPicker = true }
                             )
                             Spacer(Modifier.height(8.dp))
@@ -123,7 +116,6 @@ fun AddPointDialog(
                         is SwipeActionSerializable.OpenUrl -> {
                             AddPointColumn(
                                 action = action,
-                                icons = icons,
                                 onSelected = { showUrlInput = true }
                             )
                             Spacer(Modifier.height(8.dp))
@@ -133,7 +125,6 @@ fun AddPointDialog(
                         is SwipeActionSerializable.OpenFile -> {
                             AddPointColumn(
                                 action = action,
-                                icons = icons,
                                 onSelected = { showFilePicker = true }
                             )
                             Spacer(Modifier.height(8.dp))
@@ -143,7 +134,6 @@ fun AddPointDialog(
                         is SwipeActionSerializable.OpenCircleNest -> {
                             AddPointColumn(
                                 action = action,
-                                icons = icons,
                                 onSelected = { showNestPicker = true }
                             )
                             Spacer(Modifier.height(8.dp))
@@ -153,7 +143,6 @@ fun AddPointDialog(
                         is SwipeActionSerializable.OpenAppDrawer -> {
                             AddPointColumn(
                                 action = action,
-                                icons = icons,
                                 onSelected = { showWorkspacePicker = true }
                             )
                             Spacer(Modifier.height(8.dp))
@@ -163,7 +152,6 @@ fun AddPointDialog(
                         is SwipeActionSerializable.OpenDragonLauncherSettings -> {
                             AddPointColumn(
                                 action = action,
-                                icons = icons,
                                 onSelected = { showSettingsPagePicker = true }
                             )
                             Spacer(Modifier.height(8.dp))
@@ -175,7 +163,6 @@ fun AddPointDialog(
                                 // Sentinel entry: open pinned shortcuts picker
                                 AddPointColumn(
                                     action = action,
-                                    icons = icons,
                                     onSelected = { showPinnedShortcutsPicker = true }
                                 )
                                 Spacer(Modifier.height(8.dp))
@@ -186,7 +173,6 @@ fun AddPointDialog(
                         else -> {
                             AddPointColumn(
                                 action = action,
-                                icons = icons,
                                 onSelected = { onActionSelected(action) }
                             )
                             Spacer(Modifier.height(8.dp))
@@ -204,7 +190,6 @@ fun AddPointDialog(
             appsViewModel = appsViewModel,
             appLifecycleViewModel = appLifecycleViewModel,
             gridSize = gridSize,
-            iconShape = iconsShape,
             showIcons = showIcons,
             showLabels = showLabels,
             multiSelectEnabled = onMultipleActionsSelected != null,
@@ -269,8 +254,6 @@ fun AddPointDialog(
     if (shortcutDialogVisible && selectedApp != null) {
         AppShortcutPickerDialog(
             app = selectedApp!!,
-            icons = icons,
-            shape = iconsShape.resolveShape(),
             shortcuts = shortcuts,
             onDismiss = { shortcutDialogVisible = false },
             onShortcutSelected = {pkg, id ->
@@ -390,7 +373,6 @@ fun AddPointDialog(
 @Composable
 fun AddPointColumn(
     action: SwipeActionSerializable,
-    icons: Map<String, ImageBitmap>,
     onSelected: () -> Unit
 ) {
     val extraColors = LocalExtraColors.current
@@ -424,7 +406,6 @@ fun AddPointColumn(
 
         ActionIcon(
             action = action,
-            icons = icons,
             modifier = Modifier.size(30.dp),
             showLaunchAppVectorGrid = true
         )

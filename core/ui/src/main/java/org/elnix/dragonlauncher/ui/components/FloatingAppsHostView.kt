@@ -11,8 +11,6 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.graphics.ImageBitmap
-import androidx.compose.ui.graphics.Shape
 import androidx.compose.ui.input.pointer.pointerInteropFilter
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.viewinterop.AndroidView
@@ -20,14 +18,13 @@ import org.elnix.dragonlauncher.common.FloatingAppObject
 import org.elnix.dragonlauncher.common.serializables.SwipeActionSerializable
 import org.elnix.dragonlauncher.common.utils.WidgetHostProvider
 import org.elnix.dragonlauncher.ui.actions.ActionIcon
+import org.elnix.dragonlauncher.ui.remembers.LocalIconShape
 import kotlin.math.min
 
 
 @Composable
 fun FloatingAppsHostView(
     floatingAppObject: FloatingAppObject,
-    icons: Map<String, ImageBitmap>,
-    shape: Shape,
     cellSizePx: Float,
     modifier: Modifier = Modifier,
     blockTouches: Boolean = false,
@@ -35,6 +32,7 @@ fun FloatingAppsHostView(
     onLaunchAction: () -> Unit
 ) {
     val ctx = LocalContext.current
+    val iconShape = LocalIconShape.current
 
 
     if (floatingAppObject.action is SwipeActionSerializable.OpenWidget) {
@@ -78,10 +76,9 @@ fun FloatingAppsHostView(
 
         ActionIcon(
             action = floatingAppObject.action,
-            icons = icons,
             modifier = modifier
                 .fillMaxSize()
-                .clip(shape)
+                .clip(iconShape.resolveShape())
                 .let { mod ->
                     if (blockTouches) { mod } else { mod.clickable{ onLaunchAction() } }
                 },

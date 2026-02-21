@@ -27,30 +27,31 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.ImageBitmap
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import org.elnix.dragonlauncher.common.serializables.AppModel
-import org.elnix.dragonlauncher.common.serializables.IconShape
 import org.elnix.dragonlauncher.common.utils.bind
 import org.elnix.dragonlauncher.ui.UiConstants.DragonShape
 import org.elnix.dragonlauncher.ui.actions.appIcon
 import org.elnix.dragonlauncher.ui.components.resolveShape
 import org.elnix.dragonlauncher.ui.modifiers.conditional
+import org.elnix.dragonlauncher.ui.remembers.LocalIconShape
+import org.elnix.dragonlauncher.ui.remembers.LocalIcons
 
 @Composable
 fun AppItemHorizontal(
     app: AppModel,
     selected: Boolean = false,
-    iconShape: IconShape,
     showIcons: Boolean,
     showLabels: Boolean,
     txtColor: Color,
-    icons: Map<String, ImageBitmap>,
     onLongClick: ((AppModel) -> Unit)? = null,
     onClick: (AppModel) -> Unit
 ) {
+    val iconShape = LocalIconShape.current
+    val icons = LocalIcons.current
+
     Row(
         modifier = Modifier
             .fillMaxWidth()
@@ -104,15 +105,16 @@ fun AppItemHorizontal(
 fun AppItemGrid(
     app: AppModel,
     selected: Boolean = false,
-    icons: Map<String, ImageBitmap>,
     showIcons: Boolean,
     maxIconSize: Int,
-    iconShape: IconShape,
     showLabels: Boolean,
     txtColor: Color,
     onLongClick: ((AppModel) -> Unit)?,
     onClick: (AppModel) -> Unit
 ) {
+    val iconShape = LocalIconShape.current
+    val icons = LocalIcons.current
+
     Column(
         horizontalAlignment = Alignment.CenterHorizontally,
         modifier = Modifier

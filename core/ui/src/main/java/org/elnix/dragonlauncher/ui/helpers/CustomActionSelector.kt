@@ -15,7 +15,6 @@ import androidx.compose.material3.Switch
 import androidx.compose.material3.Text
 import androidx.compose.material3.VerticalDivider
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -26,6 +25,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import org.elnix.dragonlauncher.base.theme.LocalExtraColors
 import org.elnix.dragonlauncher.common.serializables.SwipeActionSerializable
 import org.elnix.dragonlauncher.common.utils.semiTransparentIfDisabled
 import org.elnix.dragonlauncher.models.AppLifecycleViewModel
@@ -36,7 +36,7 @@ import org.elnix.dragonlauncher.ui.actions.actionLabel
 import org.elnix.dragonlauncher.ui.colors.AppObjectsColors
 import org.elnix.dragonlauncher.ui.components.dragon.DragonSurfaceRow
 import org.elnix.dragonlauncher.ui.dialogs.AddPointDialog
-import org.elnix.dragonlauncher.base.theme.LocalExtraColors
+import org.elnix.dragonlauncher.ui.remembers.LocalIcons
 
 
 @Composable
@@ -52,8 +52,9 @@ fun CustomActionSelector(
     onSelected: (SwipeActionSerializable) -> Unit
 ) {
     val extraColors = LocalExtraColors.current
+    val icons = LocalIcons.current
+
     val textColor = MaterialTheme.colorScheme.onSurface.semiTransparentIfDisabled(enabled)
-    val icons by appsViewModel.icons.collectAsState()
 
     var showDialog by remember { mutableStateOf(false) }
 

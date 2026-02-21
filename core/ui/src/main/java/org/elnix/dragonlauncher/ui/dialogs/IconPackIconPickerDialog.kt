@@ -29,7 +29,6 @@ fun IconPackPickerDialog(
 ) {
     var showIconPickerDialog by remember { mutableStateOf<IconPackInfo?>(null) }
 
-    val icons by appsViewModel.icons.collectAsState()
     val packs by appsViewModel.iconPacksList.collectAsState()
 
     LaunchedEffect(Unit) {
@@ -45,7 +44,6 @@ fun IconPackPickerDialog(
             ) {
                 iconPackListContent(
                     packs = packs,
-                    icons = icons,
                     selectedPackPackage = null,
                     showClearOption = false,
                     onReloadPacks = {

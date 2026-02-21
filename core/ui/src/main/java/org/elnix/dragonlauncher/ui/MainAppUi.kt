@@ -101,6 +101,7 @@ import org.elnix.dragonlauncher.ui.helpers.collapseDownAnimation
 import org.elnix.dragonlauncher.ui.helpers.findFragmentActivity
 import org.elnix.dragonlauncher.ui.helpers.noAnimComposable
 import org.elnix.dragonlauncher.ui.helpers.raiseUpAnimation
+import org.elnix.dragonlauncher.ui.remembers.LocalIcons
 import org.elnix.dragonlauncher.ui.settings.backup.BackupTab
 import org.elnix.dragonlauncher.ui.settings.customization.AppearanceTab
 import org.elnix.dragonlauncher.ui.settings.customization.BehaviorTab
@@ -119,6 +120,7 @@ import org.elnix.dragonlauncher.ui.settings.language.LanguageTab
 import org.elnix.dragonlauncher.ui.settings.wellbeing.WellbeingTab
 import org.elnix.dragonlauncher.ui.settings.workspace.WorkspaceDetailScreen
 import org.elnix.dragonlauncher.ui.settings.workspace.WorkspaceListScreen
+import org.elnix.dragonlauncher.ui.theme.LocalPoints
 import org.elnix.dragonlauncher.ui.welcome.WelcomeScreen
 import org.elnix.dragonlauncher.ui.wellbeing.AppTimerService
 import org.elnix.dragonlauncher.ui.wellbeing.DigitalPauseActivity
@@ -142,6 +144,10 @@ fun MainAppUi(
     onRemoveFloatingApp: (FloatingAppObject) -> Unit
 ) {
     val ctx = LocalContext.current
+    val points = LocalPoints.current
+    val icons = LocalIcons.current
+
+
     val scope = rememberCoroutineScope()
 
     val result by backupViewModel.result.collectAsState()
@@ -204,12 +210,9 @@ fun MainAppUi(
     val autoBackupUriString by BackupSettingsStore.autoBackupUri.asStateNull()
     val autoBackupUri = autoBackupUriString?.toUri()
 
-    val nests by SwipeSettingsStore.getNestsFlow(ctx).collectAsState(initial = emptyList())
-    val points by SwipeSettingsStore.getPointsFlow(ctx).collectAsState(emptyList())
 
 //    val nestNavigation = rememberNestNavigation(nests)
 
-    val icons by appsViewModel.icons.collectAsState()
     val defaultPoint by appsViewModel.defaultPoint.collectAsState(defaultSwipePointsValues)
 
 
@@ -601,8 +604,6 @@ fun MainAppUi(
                     appsViewModel = appsViewModel,
                     floatingAppsViewModel = floatingAppsViewModel,
                     widgetHostProvider = widgetHostProvider,
-                    nests = nests,
-                    points = points,
                     onLaunchAction = ::launchAction
                 )
             }
@@ -654,7 +655,6 @@ fun MainAppUi(
                         appLifecycleViewModel = appLifecycleViewModel,
                         pointIcons = icons,
                         defaultPoint = defaultPoint,
-                        nests = nests,
                         onAdvSettings = ::goAdvSettingsRoot,
                         onNestEdit = ::goNestEdit,
                         onBack = ::goMainScreen
@@ -670,7 +670,6 @@ fun MainAppUi(
 
                 noAnimComposable(SETTINGS.APPEARANCE) {
                     AppearanceTab(
-                        appsViewModel = appsViewModel,
                         navController = navController,
                         onBack = ::goAdvSettingsRoot
                     )
@@ -725,8 +724,6 @@ fun MainAppUi(
                 noAnimComposable(SETTINGS.NESTS_EDIT) {
                     NestEditingScreen(
                         nestId = pendingNestToEdit,
-                        nests = nests,
-                        points = points,
                         pointIcons = icons,
                         defaultPoint = defaultPoint,
                         onBack = ::goSettingsRoot

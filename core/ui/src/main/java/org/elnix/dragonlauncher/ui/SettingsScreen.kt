@@ -128,6 +128,8 @@ import org.elnix.dragonlauncher.ui.helpers.CircleIconButton
 import org.elnix.dragonlauncher.ui.helpers.RepeatingPressButton
 import org.elnix.dragonlauncher.ui.helpers.nests.actionsInCircle
 import org.elnix.dragonlauncher.ui.helpers.nests.circlesSettingsOverlay
+import org.elnix.dragonlauncher.ui.theme.LocalNests
+import org.elnix.dragonlauncher.ui.theme.LocalPoints
 import java.math.RoundingMode
 import java.util.UUID
 import kotlin.math.abs
@@ -147,12 +149,13 @@ fun SettingsScreen(
     appLifecycleViewModel: AppLifecycleViewModel,
     pointIcons: Map<String, ImageBitmap>,
     defaultPoint: SwipePointSerializable,
-    nests: List<CircleNest>,
     onAdvSettings: () -> Unit,
     onNestEdit: (nest: Int) -> Unit,
     onBack: () -> Unit
 ) {
     val ctx = LocalContext.current
+    val nests = LocalNests.current
+
     val extraColors = LocalExtraColors.current
     val density = LocalDensity.current
     val scope = rememberCoroutineScope()
@@ -615,7 +618,7 @@ fun SettingsScreen(
                             center = center,
                             ctx = ctx,
                             defaultPoint = defaultPoint,
-                            pointIcons = pointIcons,
+                            icons = pointIcons,
                             surfaceColorDraw = backgroundColor,
                             extraColors = extraColors,
                             showCircle = true,
@@ -639,7 +642,7 @@ fun SettingsScreen(
                                 center = center,
                                 ctx = ctx,
                                 defaultPoint = defaultPoint,
-                                pointIcons = pointIcons,
+                                icons = pointIcons,
                                 surfaceColorDraw = backgroundColor,
                                 extraColors = extraColors,
                                 showCircle = true,

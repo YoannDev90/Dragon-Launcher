@@ -29,13 +29,11 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.ImageBitmap
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import org.elnix.dragonlauncher.common.R
 import org.elnix.dragonlauncher.common.serializables.AppCategory
 import org.elnix.dragonlauncher.common.serializables.AppModel
-import org.elnix.dragonlauncher.common.serializables.IconShape
 import org.elnix.dragonlauncher.settings.stores.DrawerSettingsStore
 import org.elnix.dragonlauncher.ui.components.dragon.DragonIconButton
 import org.elnix.dragonlauncher.ui.components.settings.asState
@@ -47,8 +45,6 @@ import kotlin.math.min
 @Composable
 fun AppGrid(
     apps: List<AppModel>,
-    icons: Map<String, ImageBitmap>,
-    iconShape: IconShape,
     gridSize: Int,
     txtColor: Color,
     showIcons: Boolean,
@@ -66,6 +62,7 @@ fun AppGrid(
     onLongClick: ((AppModel) -> Unit)? = null,
     onClick: (AppModel) -> Unit
 ) {
+
     val maxIconSize by DrawerSettingsStore.maxIconSize.asState()
     val iconsSpacingVertical by DrawerSettingsStore.iconsSpacingVertical.asState()
     val iconsSpacingHorizontal by DrawerSettingsStore.iconsSpacingHorizontal.asState()
@@ -140,8 +137,6 @@ fun AppGrid(
                                 CategoryGrid(
                                     category = category,
                                     apps = categoryApps,
-                                    icons = icons,
-                                    iconShape = iconShape,
                                     maxIconSize = maxIconSize,
                                     txtColor = txtColor,
                                     showIcons = showIcons,
@@ -172,8 +167,6 @@ fun AppGrid(
                         showIcons = showIcons,
                         showLabels = showLabels,
                         txtColor = txtColor,
-                        icons = icons,
-                        iconShape = iconShape,
                         onLongClick = {
                             if (!isMultiSelectMode && onEnterMultiSelect != null) {
                                 onEnterMultiSelect(app)
@@ -209,10 +202,8 @@ fun AppGrid(
                     AppItemGrid(
                         app = app,
                         selected = selected,
-                        icons = icons,
                         showIcons = showIcons,
                         maxIconSize = maxIconSize,
-                        iconShape = iconShape,
                         showLabels = showLabels,
                         txtColor = txtColor,
                         onLongClick = {
@@ -240,8 +231,6 @@ private fun CategoryGrid(
     category: AppCategory,
     apps: List<AppModel>,
 
-    icons: Map<String, ImageBitmap>,
-    iconShape: IconShape,
     maxIconSize: Int,
     txtColor: Color,
     showIcons: Boolean,
@@ -264,8 +253,6 @@ private fun CategoryGrid(
         ) {
             AppDefinedGrid(
                 apps = apps,
-                icons = icons,
-                iconShape = iconShape,
                 maxIconSize = maxIconSize,
                 txtColor = txtColor,
                 showIcons = showIcons,
@@ -289,8 +276,6 @@ private fun CategoryGrid(
 private fun AppDefinedGrid(
     apps: List<AppModel>,
 
-    icons: Map<String, ImageBitmap>,
-    iconShape: IconShape,
     maxIconSize: Int,
     txtColor: Color,
     showIcons: Boolean,
@@ -323,10 +308,8 @@ private fun AppDefinedGrid(
                         if (appIndex < sanitizedAppNumber) {
                             AppItemGrid(
                                 app = apps[appIndex],
-                                icons = icons,
                                 showIcons = showIcons,
                                 maxIconSize = maxIconSize,
-                                iconShape = iconShape,
                                 showLabels = false,
                                 txtColor = txtColor,
                                 onLongClick = onLongClick,
