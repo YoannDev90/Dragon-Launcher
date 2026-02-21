@@ -60,6 +60,13 @@ object StatusBarSettingsStore : MapSettingsStore() {
         default = false
     )
 
+    val maxNotificationIcons = Settings.int(
+        key = "maxNotificationIcons",
+        dataStoreName = dataStoreName,
+        default = 3,
+        allowedRange = 1..10
+    )
+
     val showBattery = Settings.boolean(
         key = "showBattery",
         dataStoreName = dataStoreName,
@@ -68,6 +75,12 @@ object StatusBarSettingsStore : MapSettingsStore() {
 
     val showConnectivity = Settings.boolean(
         key = "showConnectivity",
+        dataStoreName = dataStoreName,
+        default = false
+    )
+
+    val showBandwidth = Settings.boolean(
+        key = "showBandwidth",
         dataStoreName = dataStoreName,
         default = false
     )
@@ -127,8 +140,10 @@ object StatusBarSettingsStore : MapSettingsStore() {
         timeFormatter,
         dateFormater,
         showNotifications,
+        maxNotificationIcons,
         showBattery,
         showConnectivity,
+        showBandwidth,
         showNextAlarm,
         leftPadding,
         rightPadding,

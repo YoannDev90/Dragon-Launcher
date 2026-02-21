@@ -28,8 +28,10 @@ fun StatusBar(
     val timeFormatter by StatusBarSettingsStore.timeFormatter.asState()
     val dateFormatter by StatusBarSettingsStore.dateFormater.asState()
     val showNotifications by StatusBarSettingsStore.showNotifications.asState()
+    val maxNotificationIcons by StatusBarSettingsStore.maxNotificationIcons.asState()
     val showBattery by StatusBarSettingsStore.showBattery.asState()
     val showConnectivity by StatusBarSettingsStore.showConnectivity.asState()
+    val showBandwidth by StatusBarSettingsStore.showBandwidth.asState()
     val showNextAlarm by StatusBarSettingsStore.showNextAlarm.asState()
     val leftStatusBarPadding by StatusBarSettingsStore.leftPadding.asState()
     val rightStatusBarPadding by StatusBarSettingsStore.rightPadding.asState()
@@ -71,12 +73,20 @@ fun StatusBar(
         }
 
         if (showNotifications) {
-            StatusBarNotifications()
+            StatusBarNotifications(
+                textColor = statusBarText,
+                maxIcons = maxNotificationIcons
+            )
             Spacer(modifier = Modifier.width(6.dp))
         }
 
         if (showConnectivity) {
             StatusBarConnectivity(statusBarText)
+            Spacer(modifier = Modifier.width(6.dp))
+        }
+
+        if (showBandwidth) {
+            StatusBarBandwidth(statusBarText)
             Spacer(modifier = Modifier.width(6.dp))
         }
 

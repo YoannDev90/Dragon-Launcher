@@ -748,4 +748,11 @@
     <string name="reload">Reload</string>
     <string name="select_icon">Select Icon</string>
 
+    <string name="show_notifications_desc">Show icons of apps with active notifications (requires Notification Access permission)</string>
+    <string name="max_notification_icons">Max notification icons</string>
+    <string name="max_notification_icons_desc">Maximum number of app notification icons to display in the status bar</string>
+    <string name="grant_notification_access">Grant Notification Access</string>
+    <string name="show_bandwidth">Show live bandwidth</string>
+    <string name="show_bandwidth_desc">Display live network upload and download speed next to the battery</string>
+
 </resources>

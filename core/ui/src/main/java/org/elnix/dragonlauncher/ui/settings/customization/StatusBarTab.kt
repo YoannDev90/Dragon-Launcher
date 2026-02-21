@@ -15,6 +15,7 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -25,12 +26,15 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.isActive
 import kotlinx.coroutines.launch
 import org.elnix.dragonlauncher.common.R
 import org.elnix.dragonlauncher.common.utils.isValidDateFormat
 import org.elnix.dragonlauncher.common.utils.isValidTimeFormat
 import org.elnix.dragonlauncher.models.AppLifecycleViewModel
 import org.elnix.dragonlauncher.models.AppsViewModel
+import org.elnix.dragonlauncher.services.DragonNotificationListenerService
 import org.elnix.dragonlauncher.settings.stores.StatusBarSettingsStore
 import org.elnix.dragonlauncher.ui.colors.AppObjectsColors
 import org.elnix.dragonlauncher.ui.components.ExpandableSection
@@ -268,10 +272,47 @@ fun StatusBarTab(
 
                             SettingsSwitchRow(
                                 setting = StatusBarSettingsStore.showNotifications,
-                                enabled = false,
                                 title = stringResource(R.string.show_notifications),
-                                description = stringResource(R.string.not_implemented)
-                            )
+                                description = stringResource(R.string.show_notifications_desc)
+                            ) { enabled ->
+                                if (enabled && !DragonNotificationListenerService.isPermissionGranted(ctx)) {
+                                    DragonNotificationListenerService.openNotificationSettings(ctx)
+                                }
+                            }
+
+                            val showNotifications by StatusBarSettingsStore.showNotifications.asState()
+                            var hasNotificationPermission by remember {
+                                mutableStateOf(DragonNotificationListenerService.isPermissionGranted(ctx))
+                            }
+                            LaunchedEffect(showNotifications) {
+                                if (!showNotifications) return@LaunchedEffect
+                                while (isActive) {
+                                    hasNotificationPermission =
+                                        DragonNotificationListenerService.isPermissionGranted(ctx)
+                                    if (hasNotificationPermission) break
+                                    delay(2_000L)
+                                }
+                            }
+                            AnimatedVisibility(showNotifications && !hasNotificationPermission) {
+                                Text(
+                                    text = stringResource(R.string.grant_notification_access),
+                                    color = MaterialTheme.colorScheme.primary,
+                                    style = MaterialTheme.typography.labelMedium,
+                                    modifier = Modifier
+                                        .fillMaxWidth()
+                                        .clickable {
+                                            DragonNotificationListenerService.openNotificationSettings(ctx)
+                                        }
+                                )
+                            }
+                            AnimatedVisibility(showNotifications) {
+                                SettingsSlider(
+                                    setting = StatusBarSettingsStore.maxNotificationIcons,
+                                    title = stringResource(R.string.max_notification_icons),
+                                    valueRange = 1..10,
+                                )
+                            }
+
                             SettingsSwitchRow(
                                 setting = StatusBarSettingsStore.showBattery,
                                 title = stringResource(R.string.show_battery),
@@ -282,6 +323,12 @@ fun StatusBarTab(
                                 setting = StatusBarSettingsStore.showConnectivity,
                                 title = stringResource(R.string.show_connectivity),
                                 description = stringResource(R.string.show_connectivity_desc)
+                            )
+
+                            SettingsSwitchRow(
+                                setting = StatusBarSettingsStore.showBandwidth,
+                                title = stringResource(R.string.show_bandwidth),
+                                description = stringResource(R.string.show_bandwidth_desc)
                             )
                         }
 
