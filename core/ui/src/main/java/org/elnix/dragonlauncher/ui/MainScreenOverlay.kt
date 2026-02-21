@@ -27,7 +27,6 @@ import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.graphics.BlendMode
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.CompositingStrategy
-import androidx.compose.ui.graphics.ImageBitmap
 import androidx.compose.ui.graphics.StrokeCap
 import androidx.compose.ui.graphics.drawscope.DrawScope
 import androidx.compose.ui.graphics.drawscope.Fill
@@ -51,6 +50,9 @@ import org.elnix.dragonlauncher.settings.stores.UiSettingsStore
 import org.elnix.dragonlauncher.ui.components.AppPreviewTitle
 import org.elnix.dragonlauncher.ui.components.settings.asState
 import org.elnix.dragonlauncher.ui.helpers.nests.actionsInCircle
+import org.elnix.dragonlauncher.ui.remembers.LocalIcons
+import org.elnix.dragonlauncher.ui.remembers.LocalNests
+import org.elnix.dragonlauncher.ui.remembers.LocalPoints
 import kotlin.math.abs
 import kotlin.math.atan2
 import kotlin.math.cos
@@ -65,13 +67,13 @@ fun MainScreenOverlay(
     nestId: Int,
     isDragging: Boolean,
     surface: IntSize,
-    points: List<SwipePointSerializable>,
     defaultPoint: SwipePointSerializable,
-    pointIcons: Map<String, ImageBitmap>,
-    nests: List<CircleNest>,
     onLaunch: (SwipePointSerializable) -> Unit
 ) {
     val ctx = LocalContext.current
+    val nests = LocalNests.current
+    val points = LocalPoints.current
+    val icons = LocalIcons.current
     val extraColors = LocalExtraColors.current
 
     val rgbLine by UiSettingsStore.rgbLine.asState()
@@ -439,14 +441,15 @@ fun MainScreenOverlay(
                                             center = localCenter,
                                             ctx = ctx,
                                             defaultPoint = defaultPoint,
-                                            icons = pointIcons,
+                                            icons = icons,
                                             surfaceColorDraw = Color.Unspecified,
                                             extraColors = extraColors,
                                             showCircle = showAppCirclePreview,
                                             density = density,
                                             depth = 1,
                                             maxDepth = maxNestsDepth,
-                                            iconShape = iconsShape
+                                            iconShape = iconsShape,
+                                            100
                                         )
                                     )
                                 }
@@ -463,14 +466,14 @@ fun MainScreenOverlay(
                                     center = end,
                                     ctx = ctx,
                                     defaultPoint = defaultPoint,
-                                    icons = pointIcons,
+                                    icons = icons,
                                     surfaceColorDraw = Color.Unspecified,
                                     extraColors = extraColors,
                                     showCircle = showAppCirclePreview,
                                     density = density,
                                     depth = 1,
                                     maxDepth = maxNestsDepth,
-                                    iconShape = iconsShape
+                                    iconShape = iconsShape, 100
                                 )
                             )
                         }
@@ -491,14 +494,15 @@ fun MainScreenOverlay(
                             center = start,
                             ctx = ctx,
                             defaultPoint = defaultPoint,
-                            icons = pointIcons,
+                            icons = icons,
                             surfaceColorDraw = Color.Unspecified,
                             extraColors = extraColors,
                             showCircle = showAppCirclePreview,
                             density = density,
                             depth = 1,
                             maxDepth = maxNestsDepth,
-                            iconShape = iconsShape
+                            iconShape = iconsShape,
+                            100
                         )
                     )
                 }
@@ -513,9 +517,7 @@ fun MainScreenOverlay(
         AppPreviewTitle(
             offsetY = offsetY,
             alpha = alpha,
-            pointIcons = pointIcons,
             point = currentPoint,
-            iconsShape = iconsShape,
             topPadding = appLabelIconOverlayTopPadding.dp,
             labelSize = appLabelOverlaySize,
             iconSize = appIconOverlaySize,

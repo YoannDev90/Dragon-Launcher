@@ -11,7 +11,6 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import kotlinx.coroutines.delay
 import org.elnix.dragonlauncher.common.serializables.SwipeActionSerializable
@@ -25,7 +24,6 @@ import java.time.format.DateTimeFormatter
 fun StatusBarClock(
     showTime: Boolean,
     showDate: Boolean,
-    textColor: Color,
     timeFormatter: String,
     dateFormatter: String,
     clockAction: SwipeActionSerializable?,
@@ -86,7 +84,6 @@ fun StatusBarClock(
         if (showTime) {
             Text(
                 text = timeText,
-                color = textColor,
                 style = MaterialTheme.typography.bodyMedium,
                 modifier = Modifier.clickable(onClockAction != null) {
                     clockAction?.let { onClockAction!!(it) } ?: openAlarmApp(ctx)
@@ -97,7 +94,6 @@ fun StatusBarClock(
         if (showDate) {
             Text(
                 text = dateText,
-                color = textColor,
                 style = MaterialTheme.typography.bodyMedium,
                 modifier = Modifier.clickable(onDateAction != null) {
                     dateAction?.let { onDateAction!!(it) } ?: openCalendar(ctx)

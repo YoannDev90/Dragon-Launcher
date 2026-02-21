@@ -112,7 +112,6 @@ import org.elnix.dragonlauncher.ui.helpers.WallpaperDim
 import org.elnix.dragonlauncher.ui.modifiers.conditional
 import org.elnix.dragonlauncher.ui.modifiers.settingsGroup
 import org.elnix.dragonlauncher.ui.modifiers.shapedClickable
-import org.elnix.dragonlauncher.ui.remembers.LocalIcons
 import kotlin.math.abs
 import kotlin.math.pow
 
@@ -137,8 +136,6 @@ fun AppDrawerScreen(
     onClose: () -> Unit
 ) {
     val ctx = LocalContext.current
-    val icons = LocalIcons.current
-
     val scope = rememberCoroutineScope()
 
     val privateSpaceState by appsViewModel.privateSpaceState.collectAsState()
@@ -167,7 +164,6 @@ fun AppDrawerScreen(
     val drawerScrollDownAction by DrawerSettingsStore.scrollDownDrawerAction.asState()
     val drawerScrollUpAction by DrawerSettingsStore.scrollUpDrawerAction.asState()
 
-    val iconsShape by DrawerSettingsStore.iconsShape.asState()
 
     /* ───────────── Recently Used Apps ───────────── */
     val showRecentlyUsedApps by DrawerSettingsStore.showRecentlyUsedApps.asState()
@@ -500,8 +496,6 @@ fun AppDrawerScreen(
                         ) {
                             AppGrid(
                                 apps = recentApps,
-                                icons = icons,
-                                iconShape = iconsShape,
                                 gridSize = gridSize,
                                 txtColor = MaterialTheme.colorScheme.onBackground,
                                 showIcons = showIcons,
@@ -587,8 +581,6 @@ fun AppDrawerScreen(
 
                             AppGrid(
                                 apps = filteredApps,
-                                icons = icons,
-                                iconShape = iconsShape,
                                 gridSize = gridSize,
                                 txtColor = MaterialTheme.colorScheme.onBackground,
                                 showIcons = showIcons,

@@ -13,11 +13,10 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 
 @Composable
-fun StatusBarBattery(textColor: Color) {
+fun StatusBarBattery() {
     val ctx = LocalContext.current
     var level by remember { mutableIntStateOf(100) }
 
@@ -44,7 +43,6 @@ fun StatusBarBattery(textColor: Color) {
 
     Text(
         text = "$level%",
-        color = textColor,
         style = MaterialTheme.typography.bodyMedium
     )
 }

@@ -17,7 +17,6 @@ import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.graphics.ImageBitmap
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
@@ -29,10 +28,7 @@ import org.elnix.dragonlauncher.ui.UiConstants.DragonShape
 import org.elnix.dragonlauncher.ui.components.settings.asState
 
 @Composable
-fun GridSizeSlider(
-    apps: List<AppModel>,
-    icons: Map<String, ImageBitmap>,
-) {
+fun GridSizeSlider(apps: List<AppModel>) {
     val ctx = LocalContext.current
     val scope = rememberCoroutineScope()
 
@@ -41,7 +37,6 @@ fun GridSizeSlider(
     val showLabels by DrawerSettingsStore.showAppLabelInDrawer.asState()
     val useCategory by DrawerSettingsStore.useCategory.asState()
 
-    val iconsShape by DrawerSettingsStore.iconsShape.asState()
 
 
     var tempGridSize by remember { mutableIntStateOf(gridSize) }
@@ -75,8 +70,6 @@ fun GridSizeSlider(
         ) {
             AppGrid(
                 apps = apps.shuffled().take(if (tempGridSize == 1) 3 else tempGridSize * 2),
-                icons = icons,
-                iconShape = iconsShape,
                 gridSize = tempGridSize,
                 txtColor = MaterialTheme.colorScheme.onBackground,
                 showIcons = showIcons,

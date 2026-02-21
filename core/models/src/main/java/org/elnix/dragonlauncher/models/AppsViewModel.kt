@@ -162,14 +162,7 @@ class AppsViewModel(
 
     /* ───────────── Recently Used Apps ───────────── */
     private val _recentlyUsedPackages = MutableStateFlow<List<String>>(emptyList())
-//    val recentlyUsedPackages: StateFlow<List<String>> = _recentlyUsedPackages.asStateFlow()
 
-
-    init {
-        scope.launch {
-            loadAll()
-        }
-    }
 
     /**
      * Loads everything the AppViewModel needs

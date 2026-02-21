@@ -70,7 +70,6 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.ImageBitmap
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.layout.onSizeChanged
 import androidx.compose.ui.platform.LocalContext
@@ -128,8 +127,8 @@ import org.elnix.dragonlauncher.ui.helpers.CircleIconButton
 import org.elnix.dragonlauncher.ui.helpers.RepeatingPressButton
 import org.elnix.dragonlauncher.ui.helpers.nests.actionsInCircle
 import org.elnix.dragonlauncher.ui.helpers.nests.circlesSettingsOverlay
-import org.elnix.dragonlauncher.ui.theme.LocalNests
-import org.elnix.dragonlauncher.ui.theme.LocalPoints
+import org.elnix.dragonlauncher.ui.remembers.LocalIcons
+import org.elnix.dragonlauncher.ui.remembers.LocalNests
 import java.math.RoundingMode
 import java.util.UUID
 import kotlin.math.abs
@@ -147,7 +146,6 @@ import kotlin.math.sin
 fun SettingsScreen(
     appsViewModel: AppsViewModel,
     appLifecycleViewModel: AppLifecycleViewModel,
-    pointIcons: Map<String, ImageBitmap>,
     defaultPoint: SwipePointSerializable,
     onAdvSettings: () -> Unit,
     onNestEdit: (nest: Int) -> Unit,
@@ -155,6 +153,7 @@ fun SettingsScreen(
 ) {
     val ctx = LocalContext.current
     val nests = LocalNests.current
+    val icons = LocalIcons.current
 
     val extraColors = LocalExtraColors.current
     val density = LocalDensity.current
@@ -618,14 +617,14 @@ fun SettingsScreen(
                             center = center,
                             ctx = ctx,
                             defaultPoint = defaultPoint,
-                            icons = pointIcons,
+                            icons = icons,
                             surfaceColorDraw = backgroundColor,
                             extraColors = extraColors,
                             showCircle = true,
                             density = density,
                             depth = 1,
                             maxDepth = maxNestsDepth,
-                            iconShape = iconsShape
+                            iconShape = iconsShape, 100
                         ),
                         circles = circles,
                         selectedPoint = selectedPoint,
@@ -639,17 +638,17 @@ fun SettingsScreen(
                             drawParams = SwipeDrawParams(
                                 nests = nests,
                                 points = displayedFilteredPoints,
-                                center = center,
+                                center = selectedPointTempOffset.value,
                                 ctx = ctx,
                                 defaultPoint = defaultPoint,
-                                icons = pointIcons,
+                                icons = icons,
                                 surfaceColorDraw = backgroundColor,
                                 extraColors = extraColors,
                                 showCircle = true,
                                 density = density,
                                 depth = 1,
                                 maxDepth = maxNestsDepth,
-                                iconShape = iconsShape
+                                iconShape = iconsShape,100
                             ),
                             point = selectedPoint!!,
                             selected = true,
@@ -1345,9 +1344,7 @@ fun SettingsScreen(
         AppPreviewTitle(
             offsetY = offsetY,
             alpha = alpha,
-            pointIcons = pointIcons,
             point = currentPoint,
-            iconsShape = iconsShape,
             topPadding = 80.dp,
             labelSize = appLabelOverlaySize,
             iconSize = appIconOverlaySize,

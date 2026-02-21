@@ -25,7 +25,6 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.geometry.Rect
 import androidx.compose.ui.geometry.Size
-import androidx.compose.ui.graphics.ImageBitmap
 import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalDensity
@@ -54,18 +53,19 @@ import org.elnix.dragonlauncher.ui.defaultMinAngleActivation
 import org.elnix.dragonlauncher.ui.helpers.SliderWithLabel
 import org.elnix.dragonlauncher.ui.helpers.nests.circlesSettingsOverlay
 import org.elnix.dragonlauncher.ui.helpers.settings.SettingsLazyHeader
-import org.elnix.dragonlauncher.ui.theme.LocalNests
-import org.elnix.dragonlauncher.ui.theme.LocalPoints
+import org.elnix.dragonlauncher.ui.remembers.LocalIcons
+import org.elnix.dragonlauncher.ui.remembers.LocalNests
+import org.elnix.dragonlauncher.ui.remembers.LocalPoints
 
 @Composable
 fun NestEditingScreen(
     nestId: Int?,
-    pointIcons: Map<String, ImageBitmap>,
     defaultPoint: SwipePointSerializable,
     onBack: () -> Unit
 ) {
     val points = LocalPoints.current
     val nests = LocalNests.current
+    val icons = LocalIcons.current
 
     if (nestId == null) return
     val currentNest = nests.find { it.id == nestId } ?: return
@@ -170,14 +170,14 @@ fun NestEditingScreen(
                         center = center,
                         ctx = ctx,
                         defaultPoint = defaultPoint,
-                        icons = pointIcons,
+                        icons = icons,
                         surfaceColorDraw = backgroundColor,
                         extraColors = extraColors,
                         showCircle = true,
                         density = density,
                         depth = 1,
                         maxDepth = maxNestsDepth,
-                        iconShape = iconsShape
+                        iconShape = iconsShape,100
                     ),
                     circles = circles,
                     selectedPoint = null,

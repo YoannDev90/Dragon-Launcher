@@ -68,7 +68,7 @@ fun PointPreviewCanvas(
                 density = density,
                 depth = 1,
                 maxDepth = maxNestsDepth,
-                iconShape = iconsShape
+                iconShape = iconsShape,100
             )
         )
 
@@ -89,7 +89,7 @@ fun PointPreviewCanvas(
                 density = density,
                 depth = 1,
                 maxDepth = maxNestsDepth,
-                iconShape = iconsShape
+                iconShape = iconsShape,100
             )
         )
     }

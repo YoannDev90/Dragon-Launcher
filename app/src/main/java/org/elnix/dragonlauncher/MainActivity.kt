@@ -38,6 +38,7 @@ import androidx.navigation.compose.rememberNavController
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.yield
 import org.elnix.dragonlauncher.common.R
 import org.elnix.dragonlauncher.common.logging.DragonLogManager
 import org.elnix.dragonlauncher.common.logging.logD
@@ -67,6 +68,8 @@ import org.elnix.dragonlauncher.ui.components.settings.asState
 import org.elnix.dragonlauncher.ui.components.settings.asStateNull
 import org.elnix.dragonlauncher.ui.remembers.LocalIconShape
 import org.elnix.dragonlauncher.ui.remembers.LocalIcons
+import org.elnix.dragonlauncher.ui.remembers.LocalNests
+import org.elnix.dragonlauncher.ui.remembers.LocalPoints
 import org.elnix.dragonlauncher.ui.theme.DragonLauncherTheme
 import java.util.UUID
 
@@ -335,6 +338,12 @@ class MainActivity : FragmentActivity(), WidgetHostProvider {
                 (ctx.applicationContext as MyApplication).appsViewModel
             }
 
+            // Launch full viewmodel after first frame for performance
+            LaunchedEffect(Unit) {
+                yield()
+                appsViewModel.loadAll()
+            }
+
             // May be used in the future for some quit action / operation
 //            DoubleBackToExit()
 
@@ -374,7 +383,6 @@ class MainActivity : FragmentActivity(), WidgetHostProvider {
             val fullscreen by UiSettingsStore.fullScreen.asState()
             val hasInitialized by PrivateSettingsStore.hasInitialized.asStateNull()
             val samsungPreferSecureFolder by PrivateSettingsStore.samsungPreferSecureFolder.asState()
-            val iconsShape by DrawerSettingsStore.iconsShape.asState()
 
 
             LaunchedEffect(Unit) {
@@ -474,12 +482,16 @@ class MainActivity : FragmentActivity(), WidgetHostProvider {
                 navControllerHolder.value = navController
 
                 val icons by appsViewModel.icons.collectAsState()
+                val iconsShape by DrawerSettingsStore.iconsShape.asState()
 
-
+                val nests by SwipeSettingsStore.getNestsFlow(ctx).collectAsState(initial = emptyList())
+                val points by SwipeSettingsStore.getPointsFlow(ctx).collectAsState(emptyList())
 
                 CompositionLocalProvider(
                     LocalIcons provides icons,
-                    LocalIconShape provides iconsShape
+                    LocalIconShape provides iconsShape,
+                    LocalPoints provides points,
+                    LocalNests provides nests
                 ) {
                     MainAppUi(
                         backupViewModel = backupViewModel,

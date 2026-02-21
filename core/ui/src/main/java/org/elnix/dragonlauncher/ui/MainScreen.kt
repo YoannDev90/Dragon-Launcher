@@ -61,21 +61,19 @@ import org.elnix.dragonlauncher.common.utils.circles.rememberNestNavigation
 import org.elnix.dragonlauncher.models.AppsViewModel
 import org.elnix.dragonlauncher.models.FloatingAppsViewModel
 import org.elnix.dragonlauncher.settings.stores.BehaviorSettingsStore
-import org.elnix.dragonlauncher.settings.stores.DrawerSettingsStore
 import org.elnix.dragonlauncher.settings.stores.StatusBarSettingsStore
 import org.elnix.dragonlauncher.settings.stores.UiSettingsStore
 import org.elnix.dragonlauncher.ui.components.FloatingAppsHostView
 import org.elnix.dragonlauncher.ui.components.burger.BurgerAction
 import org.elnix.dragonlauncher.ui.components.burger.BurgerListAction
-import org.elnix.dragonlauncher.ui.components.resolveShape
 import org.elnix.dragonlauncher.ui.components.settings.asState
 import org.elnix.dragonlauncher.ui.components.settings.asStateNull
 import org.elnix.dragonlauncher.ui.helpers.HoldToActivateArc
 import org.elnix.dragonlauncher.ui.helpers.WallpaperDim
+import org.elnix.dragonlauncher.ui.remembers.LocalNests
+import org.elnix.dragonlauncher.ui.remembers.LocalPoints
 import org.elnix.dragonlauncher.ui.remembers.rememberHoldToOpenSettings
 import org.elnix.dragonlauncher.ui.statusbar.StatusBar
-import org.elnix.dragonlauncher.ui.theme.LocalNests
-import org.elnix.dragonlauncher.ui.theme.LocalPoints
 import kotlin.math.max
 
 
@@ -108,7 +106,6 @@ fun MainScreen(
     val topPadding by BehaviorSettingsStore.topPadding.asState()
     val bottomPadding by BehaviorSettingsStore.bottomPadding.asState()
 
-    val iconsShape by DrawerSettingsStore.iconsShape.asState()
 
     val holdDelayBeforeStartingLongClickSettings by BehaviorSettingsStore.holdDelayBeforeStartingLongClickSettings.asState()
     val longCLickSettingsDuration by BehaviorSettingsStore.longCLickSettingsDuration.asState()
@@ -338,8 +335,6 @@ fun MainScreen(
             key(floatingAppObject.id, nestId) {
                 FloatingAppsHostView(
                     floatingAppObject = floatingAppObject,
-                    icons = icons,
-                    shape = iconsShape.resolveShape(),
                     cellSizePx = cellSizePx,
                     modifier = Modifier
                         .offset {
@@ -378,10 +373,7 @@ fun MainScreen(
             nestId = nestId,
             isDragging = isDragging,
             surface = size,
-            points = points,
             defaultPoint = defaultPoint,
-            pointIcons = icons,
-            nests = nests,
             onLaunch = { launchAction(it) }
         )
 

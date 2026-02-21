@@ -36,7 +36,6 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.geometry.center
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.ImageBitmap
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.res.stringResource
@@ -45,7 +44,6 @@ import org.elnix.dragonlauncher.base.theme.LocalExtraColors
 import org.elnix.dragonlauncher.common.R
 import org.elnix.dragonlauncher.common.points.SwipeDrawParams
 import org.elnix.dragonlauncher.common.serializables.CircleNest
-import org.elnix.dragonlauncher.common.serializables.IconShape
 import org.elnix.dragonlauncher.common.serializables.SwipeActionSerializable
 import org.elnix.dragonlauncher.common.serializables.SwipePointSerializable
 import org.elnix.dragonlauncher.common.serializables.defaultSwipePointsValues
@@ -60,6 +58,10 @@ import org.elnix.dragonlauncher.ui.colors.AppObjectsColors
 import org.elnix.dragonlauncher.ui.components.dragon.DragonIconButton
 import org.elnix.dragonlauncher.ui.components.settings.asState
 import org.elnix.dragonlauncher.ui.helpers.nests.actionsInCircle
+import org.elnix.dragonlauncher.ui.remembers.LocalIconShape
+import org.elnix.dragonlauncher.ui.remembers.LocalIcons
+import org.elnix.dragonlauncher.ui.remembers.LocalNests
+import org.elnix.dragonlauncher.ui.remembers.LocalPoints
 
 @Composable
 fun NestManagementDialog(
@@ -146,12 +148,8 @@ fun NestManagementDialog(
 @Composable
 private fun NestManagementItem(
     nest: CircleNest,
-    nests: List<CircleNest>,
-    points: List<SwipePointSerializable>,
     defaultPoint: SwipePointSerializable,
-    pointIcons: Map<String, ImageBitmap>,
     canCopyId: Boolean,
-    iconShape: IconShape,
     onNameChange: ((id: Int, name: String) -> Unit)?,
     onDelete: ((id: Int) -> Unit)?,
     onSelect: (() -> Unit)? = null
@@ -159,6 +157,10 @@ private fun NestManagementItem(
     val ctx = LocalContext.current
     val extraColors = LocalExtraColors.current
     val density = LocalDensity.current
+    val nests = LocalNests.current
+    val points = LocalPoints.current
+    val icons = LocalIcons.current
+    val iconShape = LocalIconShape.current
 
 
     val maxNestsDepth by UiSettingsStore.maxNestsDepth.asState()
@@ -200,14 +202,14 @@ private fun NestManagementItem(
                     center =center,
                     ctx = ctx,
                     defaultPoint = defaultPoint,
-                    icons = pointIcons,
+                    icons = icons,
                     surfaceColorDraw = Color.Unspecified,
                     extraColors = extraColors,
                     showCircle = true,
                     density = density,
                     depth = 1,
                     maxDepth = maxNestsDepth,
-                    iconShape = iconShape
+                    iconShape = iconShape,100
                 )
             )
         }

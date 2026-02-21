@@ -36,7 +36,6 @@ import org.elnix.dragonlauncher.ui.actions.actionLabel
 import org.elnix.dragonlauncher.ui.colors.AppObjectsColors
 import org.elnix.dragonlauncher.ui.components.dragon.DragonSurfaceRow
 import org.elnix.dragonlauncher.ui.dialogs.AddPointDialog
-import org.elnix.dragonlauncher.ui.remembers.LocalIcons
 
 
 @Composable
@@ -52,7 +51,6 @@ fun CustomActionSelector(
     onSelected: (SwipeActionSerializable) -> Unit
 ) {
     val extraColors = LocalExtraColors.current
-    val icons = LocalIcons.current
 
     val textColor = MaterialTheme.colorScheme.onSurface.semiTransparentIfDisabled(enabled)
 
@@ -84,7 +82,6 @@ fun CustomActionSelector(
             ) {
                 ActionIcon(
                     action = currentAction,
-                    icons = icons,
                     modifier = Modifier.size(30.dp)
                 )
 

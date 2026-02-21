@@ -1,13 +1,15 @@
 package org.elnix.dragonlauncher.ui.statusbar
 
-import android.graphics.drawable.BitmapDrawable
+import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.size
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.MoreHoriz
 import androidx.compose.material.icons.filled.Notifications
+import androidx.compose.material.icons.filled.NotificationsOff
 import androidx.compose.material3.Icon
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -18,20 +20,20 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.asImageBitmap
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.isActive
+import org.elnix.dragonlauncher.common.serializables.dummyAppModel
 import org.elnix.dragonlauncher.services.DragonNotificationListenerService
+import org.elnix.dragonlauncher.ui.remembers.LocalIcons
 
 @Composable
 fun StatusBarNotifications(
-    textColor: Color,
     maxIcons: Int
 ) {
     val ctx = LocalContext.current
+    val icons = LocalIcons.current
     val packageNames by DragonNotificationListenerService.notifications.collectAsState()
     var hasPermission by remember { mutableStateOf(DragonNotificationListenerService.isPermissionGranted(ctx)) }
 
@@ -44,9 +46,8 @@ fun StatusBarNotifications(
 
     if (!hasPermission) {
         Icon(
-            imageVector = Icons.Default.Notifications,
+            imageVector = Icons.Default.NotificationsOff,
             contentDescription = "Notifications",
-            tint = textColor.copy(alpha = 0.4f),
             modifier = Modifier
                 .size(14.dp)
                 .clickable { DragonNotificationListenerService.openNotificationSettings(ctx) }
@@ -56,23 +57,18 @@ fun StatusBarNotifications(
 
     if (packageNames.isEmpty()) return
 
-    // TODO replace with later LocalIcons search, in the upcoming refactor RN it doesn't display any icon, just the fallback
-    val icons = remember(packageNames, maxIcons) {
-        packageNames.take(maxIcons).map { pkg ->
-            pkg to try {
-                val drawable = ctx.packageManager.getApplicationIcon(pkg)
-                (drawable as? BitmapDrawable)?.bitmap?.asImageBitmap()
-            } catch (_: Exception) {
-                null
-            }
-        }
+    val notificationsIcons = packageNames.take(maxIcons).map {
+        it to icons[dummyAppModel(it).iconCacheKey.cacheKey]
     }
+
+    val showMoreNotificationsIcon = packageNames.size > maxIcons
+
 
     Row(
         horizontalArrangement = Arrangement.spacedBy(2.dp),
         verticalAlignment = Alignment.CenterVertically
     ) {
-        icons.forEach { (pkg, bitmap) ->
+        notificationsIcons.forEach { (pkg, bitmap) ->
             if (bitmap != null) {
                 Image(
                     bitmap = bitmap,
@@ -83,10 +79,17 @@ fun StatusBarNotifications(
                 Icon(
                     imageVector = Icons.Default.Notifications,
                     contentDescription = pkg,
-                    tint = textColor,
                     modifier = Modifier.size(14.dp)
                 )
             }
+        }
+
+        AnimatedVisibility(showMoreNotificationsIcon) {
+            Icon(
+                imageVector = Icons.Default.MoreHoriz,
+                contentDescription = "More notifications",
+                modifier = Modifier.size(14.dp)
+            )
         }
     }
 }

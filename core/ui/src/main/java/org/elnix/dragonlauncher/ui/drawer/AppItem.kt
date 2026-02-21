@@ -37,7 +37,6 @@ import org.elnix.dragonlauncher.ui.actions.appIcon
 import org.elnix.dragonlauncher.ui.components.resolveShape
 import org.elnix.dragonlauncher.ui.modifiers.conditional
 import org.elnix.dragonlauncher.ui.remembers.LocalIconShape
-import org.elnix.dragonlauncher.ui.remembers.LocalIcons
 
 @Composable
 fun AppItemHorizontal(
@@ -50,7 +49,6 @@ fun AppItemHorizontal(
     onClick: (AppModel) -> Unit
 ) {
     val iconShape = LocalIconShape.current
-    val icons = LocalIcons.current
 
     Row(
         modifier = Modifier
@@ -69,7 +67,7 @@ fun AppItemHorizontal(
         Box {
             if (showIcons) {
                 Image(
-                    painter = appIcon(app, icons),
+                    painter = appIcon(app),
                     contentDescription = app.name,
                     modifier = Modifier
                         .size(32.dp)
@@ -113,7 +111,6 @@ fun AppItemGrid(
     onClick: (AppModel) -> Unit
 ) {
     val iconShape = LocalIconShape.current
-    val icons = LocalIcons.current
 
     Column(
         horizontalAlignment = Alignment.CenterHorizontally,
@@ -136,7 +133,7 @@ fun AppItemGrid(
         Box {
             if (showIcons) {
                 Image(
-                    painter = appIcon(app, icons),
+                    painter = appIcon(app),
                     contentDescription = app.name,
                     modifier = Modifier
                         .sizeIn(maxWidth = maxIconSize.dp)

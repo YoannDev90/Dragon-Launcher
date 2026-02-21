@@ -44,6 +44,7 @@ import androidx.navigation.compose.composable
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.navigation
 import androidx.navigation.navArgument
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.filter
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
@@ -101,7 +102,7 @@ import org.elnix.dragonlauncher.ui.helpers.collapseDownAnimation
 import org.elnix.dragonlauncher.ui.helpers.findFragmentActivity
 import org.elnix.dragonlauncher.ui.helpers.noAnimComposable
 import org.elnix.dragonlauncher.ui.helpers.raiseUpAnimation
-import org.elnix.dragonlauncher.ui.remembers.LocalIcons
+import org.elnix.dragonlauncher.ui.remembers.LocalPoints
 import org.elnix.dragonlauncher.ui.settings.backup.BackupTab
 import org.elnix.dragonlauncher.ui.settings.customization.AppearanceTab
 import org.elnix.dragonlauncher.ui.settings.customization.BehaviorTab
@@ -120,7 +121,6 @@ import org.elnix.dragonlauncher.ui.settings.language.LanguageTab
 import org.elnix.dragonlauncher.ui.settings.wellbeing.WellbeingTab
 import org.elnix.dragonlauncher.ui.settings.workspace.WorkspaceDetailScreen
 import org.elnix.dragonlauncher.ui.settings.workspace.WorkspaceListScreen
-import org.elnix.dragonlauncher.ui.theme.LocalPoints
 import org.elnix.dragonlauncher.ui.welcome.WelcomeScreen
 import org.elnix.dragonlauncher.ui.wellbeing.AppTimerService
 import org.elnix.dragonlauncher.ui.wellbeing.DigitalPauseActivity
@@ -145,7 +145,6 @@ fun MainAppUi(
 ) {
     val ctx = LocalContext.current
     val points = LocalPoints.current
-    val icons = LocalIcons.current
 
 
     val scope = rememberCoroutineScope()
@@ -653,7 +652,6 @@ fun MainAppUi(
                     SettingsScreen(
                         appsViewModel = appsViewModel,
                         appLifecycleViewModel = appLifecycleViewModel,
-                        pointIcons = icons,
                         defaultPoint = defaultPoint,
                         onAdvSettings = ::goAdvSettingsRoot,
                         onNestEdit = ::goNestEdit,
@@ -724,7 +722,6 @@ fun MainAppUi(
                 noAnimComposable(SETTINGS.NESTS_EDIT) {
                     NestEditingScreen(
                         nestId = pendingNestToEdit,
-                        pointIcons = icons,
                         defaultPoint = defaultPoint,
                         onBack = ::goSettingsRoot
                     )
@@ -824,7 +821,7 @@ fun MainAppUi(
         val errorMessage = res.message
 
         // Reload the whole viewModel data after restore
-        scope.launch {
+        scope.launch(Dispatchers.IO) {
             appsViewModel.loadAll()
         }
 
