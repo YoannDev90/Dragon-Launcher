@@ -40,6 +40,7 @@ class DragonNotificationListenerService : NotificationListenerService() {
                 ?.distinct()
                 ?: emptyList()
         } catch (e: Exception) {
+            e.printStackTrace()
             emptyList()
         }
         _notifications.value = packages
@@ -55,9 +56,9 @@ class DragonNotificationListenerService : NotificationListenerService() {
          * Returns true if the notification listener permission has been granted for this app.
          */
         fun isPermissionGranted(context: Context): Boolean {
-            val flat = android.provider.Settings.Secure.getString(
+            val flat = Settings.Secure.getString(
                 context.contentResolver,
-                android.provider.Settings.Secure.ENABLED_NOTIFICATION_LISTENERS
+                "enabled_notification_listeners"
             ) ?: return false
             val cn = ComponentName(context, DragonNotificationListenerService::class.java)
             return flat.split(":").any { ComponentName.unflattenFromString(it) == cn }
