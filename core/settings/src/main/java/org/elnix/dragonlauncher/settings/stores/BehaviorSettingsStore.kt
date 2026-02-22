@@ -138,4 +138,10 @@ object BehaviorSettingsStore : MapSettingsStore() {
         default = 100,
         allowedRange = 0..100
     )
+
+    val useDifferentialLoadingForPrivateSpace = Settings.boolean(
+        key = "useDifferentialLoadingForPrivateSpace",
+        dataStoreName = dataStoreName,
+        default = false
+    )
 }

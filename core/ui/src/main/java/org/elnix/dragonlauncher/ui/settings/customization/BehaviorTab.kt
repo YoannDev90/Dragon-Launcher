@@ -102,6 +102,16 @@ fun BehaviorTab(
         }
 
         item {
+            SettingsSwitchRow(
+                setting = BehaviorSettingsStore.useDifferentialLoadingForPrivateSpace,
+                title = stringResource(R.string.use_differential_loading_private_space),
+                description = stringResource(R.string.use_differential_loading_private_space_desc)
+            ) {
+                scope.launch{ appsViewModel.reloadApps() }
+            }
+        }
+
+        item {
             CustomActionSelector(
                 appsViewModel = appsViewModel,
                 appLifecycleViewModel = appLifecycleViewModel,

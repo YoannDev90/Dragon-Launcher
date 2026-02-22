@@ -755,5 +755,7 @@
     <string name="show_bandwidth">Show live bandwidth</string>
     <string name="show_bandwidth_desc">Display live network upload and download speed next to the battery</string>
     <string name="need_to_be_default_launcher_to_use_private_space">Need to be default launcher to use private space</string>
+    <string name="use_differential_loading_private_space">Use Differential loading private space</string>
+    <string name="use_differential_loading_private_space_desc">Toggle this when private apps appear in the user workspace, otherwise keep it unchecked to performances</string>
 
 </resources>
