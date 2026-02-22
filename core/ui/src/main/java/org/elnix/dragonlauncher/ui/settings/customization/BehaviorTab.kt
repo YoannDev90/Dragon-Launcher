@@ -20,6 +20,7 @@ import androidx.compose.ui.res.stringResource
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import org.elnix.dragonlauncher.common.R
+import org.elnix.dragonlauncher.common.utils.showToast
 import org.elnix.dragonlauncher.enumsui.LockMethod
 import org.elnix.dragonlauncher.models.AppLifecycleViewModel
 import org.elnix.dragonlauncher.models.AppsViewModel
@@ -107,7 +108,10 @@ fun BehaviorTab(
                 title = stringResource(R.string.use_differential_loading_private_space),
                 description = stringResource(R.string.use_differential_loading_private_space_desc)
             ) {
-                scope.launch{ appsViewModel.reloadApps() }
+                scope.launch{
+                    ctx.showToast("Reloading apps")
+                    appLifecycleViewModel.onUnlockPrivateSpace()
+                }
             }
         }
 

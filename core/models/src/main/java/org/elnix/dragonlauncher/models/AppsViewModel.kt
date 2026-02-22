@@ -55,7 +55,6 @@ import org.elnix.dragonlauncher.common.serializables.defaultWorkspaces
 import org.elnix.dragonlauncher.common.serializables.dummySwipePoint
 import org.elnix.dragonlauncher.common.serializables.resolveApp
 import org.elnix.dragonlauncher.common.utils.Constants.Logging.APPS_TAG
-import org.elnix.dragonlauncher.common.utils.Constants.Logging.APP_LAUNCH_TAG
 import org.elnix.dragonlauncher.common.utils.Constants.Logging.ICONS_TAG
 import org.elnix.dragonlauncher.common.utils.Constants.Logging.PM_COMPAT_TAG
 import org.elnix.dragonlauncher.common.utils.ImageUtils.createUntintedBitmap
@@ -644,10 +643,10 @@ class AppsViewModel(
         if (useDifferentialLoadingForPrivateSpace) {
             captureMainProfileSnapshotBeforeUnlock()
             detectPrivateAppsDiffAndReload()
-            logI(APP_LAUNCH_TAG, "Available after full private space reload")
+            logI(APPS_TAG, "Available after full private space reload")
         } else {
             reloadApps()
-            logI(APP_LAUNCH_TAG, "Available after full apps reload (no differential reload)")
+            logI(APPS_TAG, "Available after full apps reload (no differential reload)")
         }
 
 
