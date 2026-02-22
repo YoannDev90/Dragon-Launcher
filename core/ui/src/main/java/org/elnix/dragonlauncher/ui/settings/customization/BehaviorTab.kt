@@ -108,9 +108,11 @@ fun BehaviorTab(
                 title = stringResource(R.string.use_differential_loading_private_space),
                 description = stringResource(R.string.use_differential_loading_private_space_desc)
             ) {
-                scope.launch{
-                    ctx.showToast("Reloading apps")
-                    appLifecycleViewModel.onUnlockPrivateSpace()
+                if (it) {
+                    scope.launch{
+                        ctx.showToast("Reloading apps")
+                        appLifecycleViewModel.onUnlockPrivateSpace()
+                    }
                 }
             }
         }

@@ -307,21 +307,23 @@ class AppsViewModel(
                 pmCompat.getAllApps()
             }
 
-            val useDifferentialLoadingForPrivateSpace = BehaviorSettingsStore.useDifferentialLoadingForPrivateSpace.get(ctx) ?: false
+            val useDifferentialLoadingForPrivateSpace =
+                BehaviorSettingsStore.useDifferentialLoadingForPrivateSpace.get(ctx) ?: false
 
             val privateCount = apps.count { it.isPrivateProfile }
             val workCount = apps.count { it.isWorkProfile }
             val userCount = apps.count { !it.isPrivateProfile && !it.isWorkProfile }
 
-            logI(PM_COMPAT_TAG, "Apps loaded: $userCount user, $workCount work, $privateCount private (total: ${apps.size})")
+            logI(
+                PM_COMPAT_TAG,
+                "Apps loaded: $userCount user, $workCount work, $privateCount private (total: ${apps.size})"
+            )
 
             // Apply differential private-package marking if present
             var finalApps = apps
             if (useDifferentialLoadingForPrivateSpace) {
                 if (!pendingPrivateAssignments.isNullOrEmpty()) {
-//                val assignments = pendingPrivateAssignments ?: emptyMap()
-
-                    val assignments: Map<String, Int?> = emptyMap()
+                    val assignments = pendingPrivateAssignments ?: emptyMap()
                     logI(
                         APPS_TAG,
                         "Applying differential Private Space detection: ${assignments.size} app identities"
@@ -330,7 +332,6 @@ class AppsViewModel(
                     // Persist assignments
                     try {
                         val existingJson = AppsSettingsStore.privateAssignedPackages.get(ctx)
-                        logI(APPS_TAG, "Persisted is empty : $existingJson")
 
                         val existingMap: MutableMap<String, Int?> =
                             if (existingJson.isNullOrEmpty() || existingJson == "{}") mutableMapOf()
@@ -374,6 +375,8 @@ class AppsViewModel(
                     }
                     // Clear pending after consumption
                     pendingPrivateAssignments = null
+                } else {
+                    logI(APPS_TAG, "Persisted is empty : $pendingPrivateAssignments")
                 }
 
                 // Apply persisted private assignments (survives reloads)
@@ -436,12 +439,12 @@ class AppsViewModel(
                 "User apps: ${finalApps.count { !it.isWorkProfile && !it.isPrivateProfile }}"
             )
 
-            if (finalApps.count { it.isPrivateProfile } > 0) {
-                logD(APPS_TAG, "Private apps list:")
-                finalApps.filter { it.isPrivateProfile }.forEach {
-                    logD(APPS_TAG, "  - ${it.name} (${it.packageName}, userId=${it.userId})")
-                }
-            }
+//            if (finalApps.count { it.isPrivateProfile } > 0) {
+//                logD(APPS_TAG, "Private apps list:")
+//                finalApps.filter { it.isPrivateProfile }.forEach {
+//                    logD(APPS_TAG, "  - ${it.name} (${it.packageName}, userId=${it.userId})")
+//                }
+//            }
 
             // Create new list to ensure StateFlow emission
             _apps.value = finalApps.toList()
@@ -557,10 +560,7 @@ class AppsViewModel(
             setPrivateSpaceLocked()
 
             // best-effort fallback: full reload
-            try {
-                reloadApps()
-            } catch (_: Exception) { /* ignore */
-            }
+            reloadApps()
         }
     }
 
@@ -638,7 +638,8 @@ class AppsViewModel(
             )
         }
 
-        val useDifferentialLoadingForPrivateSpace = BehaviorSettingsStore.useDifferentialLoadingForPrivateSpace.get(ctx) ?: false
+        val useDifferentialLoadingForPrivateSpace =
+            BehaviorSettingsStore.useDifferentialLoadingForPrivateSpace.get(ctx) ?: false
 
         if (useDifferentialLoadingForPrivateSpace) {
             captureMainProfileSnapshotBeforeUnlock()
