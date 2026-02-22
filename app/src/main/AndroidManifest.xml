@@ -184,6 +184,9 @@
                 <action android:name="android.intent.action.PACKAGE_ADDED" />
                 <action android:name="android.intent.action.PACKAGE_REMOVED" />
                 <action android:name="android.intent.action.PACKAGE_REPLACED" />
+                <action android:name="android.intent.action.PACKAGES_SUSPENDED" />
+                <action android:name="android.intent.action.PACKAGES_UNSUSPENDED" />
+                <action android:name="android.intent.action.PACKAGE_CHANGED" />
                 <data android:scheme="package" />
             </intent-filter>
         </receiver>

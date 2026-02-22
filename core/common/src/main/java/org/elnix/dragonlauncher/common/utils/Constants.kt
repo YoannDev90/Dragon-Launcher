@@ -182,6 +182,8 @@ object Constants {
         const val APP_LAUNCH_TAG = "AppLaunchDebug"
         const val PRIVATE_SPACE_TAG = "PrivateSpaceDebug"
         const val APPS_JSON_TAG = "AppsJsonDebug"
+        const val PM_COMPAT_TAG = "PmCompatDebug"
+        const val BROADCAST_TAG = "BroadcastDebug"
     }
 
     /*  ─────────────  Links  ─────────────  */

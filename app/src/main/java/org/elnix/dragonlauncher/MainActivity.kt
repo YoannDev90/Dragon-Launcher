@@ -295,6 +295,10 @@ class MainActivity : FragmentActivity(), WidgetHostProvider {
     private val filter = IntentFilter().apply {
         addAction(Intent.ACTION_PACKAGE_ADDED)
         addAction(Intent.ACTION_PACKAGE_REMOVED)
+        addAction(Intent.ACTION_PACKAGE_REPLACED)
+        addAction(Intent.ACTION_PACKAGES_SUSPENDED)
+        addAction(Intent.ACTION_PACKAGES_UNSUSPENDED)
+        addAction(Intent.ACTION_PACKAGE_CHANGED)
         addDataScheme("package")
     }
 
@@ -305,7 +309,7 @@ class MainActivity : FragmentActivity(), WidgetHostProvider {
 
 
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
-            registerReceiver(packageReceiver, filter, RECEIVER_NOT_EXPORTED)
+            registerReceiver(packageReceiver, filter, RECEIVER_EXPORTED)
         }
 
         // Use hardware acceleration
