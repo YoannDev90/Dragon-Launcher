@@ -11,6 +11,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.DragIndicator
 import androidx.compose.material.icons.filled.Lock
+import androidx.compose.material.icons.filled.Restore
 import androidx.compose.material.icons.filled.Settings
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
@@ -20,20 +21,27 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Switch
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.scale
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
+import kotlinx.coroutines.launch
 import org.burnoutcrew.reorderable.ReorderableLazyListState
 import org.burnoutcrew.reorderable.detectReorder
 import org.elnix.dragonlauncher.common.R
 import org.elnix.dragonlauncher.common.serializables.Workspace
 import org.elnix.dragonlauncher.common.serializables.WorkspaceType
+import org.elnix.dragonlauncher.common.utils.isNotBlankJson
 import org.elnix.dragonlauncher.enumsui.WorkspaceAction
+import org.elnix.dragonlauncher.settings.stores.AppsSettingsStore
 import org.elnix.dragonlauncher.ui.UiConstants.DragonShape
 import org.elnix.dragonlauncher.ui.colors.AppObjectsColors
 import org.elnix.dragonlauncher.ui.components.dragon.DragonIconButton
+import org.elnix.dragonlauncher.ui.components.settings.asState
 
 @Composable
 fun WorkspaceRow(
@@ -44,10 +52,13 @@ fun WorkspaceRow(
     onCheck: (Boolean) -> Unit,
     showSamsungSettingsIcon: Boolean = false,
     onSamsungSettingsClick: (() -> Unit)? = null,
-//    onPrivateVisibilityToggle: ((Boolean) -> Unit)? = null,
-//    isPrivateVisibleInDrawer: Boolean = true,
     onAction: (WorkspaceAction) -> Unit
 ) {
+    val ctx = LocalContext.current
+    val scope = rememberCoroutineScope()
+
+    val privateAssignedPackages by AppsSettingsStore.privateAssignedPackages.asState()
+
     val enabled = workspace.enabled
     val elevation = animateDpAsState(
         targetValue = if (isDragging) 8.dp else 0.dp
@@ -97,9 +108,26 @@ fun WorkspaceRow(
 
                     Switch(
                         checked = enabled,
-                        onCheckedChange = onCheck/*{ onPrivateVisibilityToggle?.invoke(it) }*/,
+                        onCheckedChange = onCheck,
                         colors = AppObjectsColors.switchColors()
                     )
+
+                    DragonIconButton(
+                        onClick = {
+                            scope.launch {
+                                AppsSettingsStore.privateAssignedPackages.reset(ctx)
+                            }
+                        },
+                        enabled = privateAssignedPackages.isNotBlankJson
+                    ) {
+                        Icon(
+                            imageVector = Icons.Default.Restore,
+                            contentDescription = stringResource(R.string.reset_workspace)
+                        )
+                    }
+
+                    Text(privateAssignedPackages)
+
 
                     if (showSamsungSettingsIcon && onSamsungSettingsClick != null) {
                         DragonIconButton(onClick = onSamsungSettingsClick) {

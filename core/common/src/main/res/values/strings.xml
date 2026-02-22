@@ -754,5 +754,6 @@
     <string name="grant_notification_access">Grant Notification Access</string>
     <string name="show_bandwidth">Show live bandwidth</string>
     <string name="show_bandwidth_desc">Display live network upload and download speed next to the battery</string>
+    <string name="need_to_be_default_launcher_to_use_private_space">Need to be default launcher to use private space</string>
 
 </resources>

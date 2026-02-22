@@ -37,10 +37,10 @@ import org.elnix.dragonlauncher.common.R
 import org.elnix.dragonlauncher.common.serializables.Workspace
 import org.elnix.dragonlauncher.common.serializables.WorkspaceType
 import org.elnix.dragonlauncher.common.utils.SamsungWorkspaceIntegration
+import org.elnix.dragonlauncher.common.utils.showToast
 import org.elnix.dragonlauncher.enumsui.WorkspaceAction
 import org.elnix.dragonlauncher.models.AppsViewModel
 import org.elnix.dragonlauncher.settings.stores.PrivateSettingsStore
-import org.elnix.dragonlauncher.common.utils.showToast
 import org.elnix.dragonlauncher.ui.components.settings.asState
 import org.elnix.dragonlauncher.ui.dialogs.CreateOrEditWorkspaceDialog
 import org.elnix.dragonlauncher.ui.dialogs.UserValidation
@@ -57,7 +57,6 @@ fun WorkspaceListScreen(
     val scope = rememberCoroutineScope()
     val ctx = LocalContext.current
     val state by appsViewModel.state.collectAsState()
-//    val showPrivateSpaceWorkspace by DrawerSettingsStore.showPrivateSpaceWorkspace.asState()
     val samsungPreference by PrivateSettingsStore.samsungPreferSecureFolder.asState()
     val isSamsung = remember { SamsungWorkspaceIntegration.isSamsungDevice() }
 
@@ -144,17 +143,6 @@ fun WorkspaceListScreen(
                             }
                         },
                         onCheck = { scope.launch { appsViewModel.setWorkspaceEnabled(ws.id, it) } },
-//                        onPrivateVisibilityToggle = if (ws.type == WorkspaceType.PRIVATE) {
-//                            { enabled ->
-//                                scope.launch {
-//                                    DrawerSettingsStore.showPrivateSpaceWorkspace.set(
-//                                        ctx,
-//                                        enabled
-//                                    )
-//                                }
-//                            }
-//                        } else null,
-//                        isPrivateVisibleInDrawer = showPrivateSpaceWorkspace,
                         onAction = { action ->
                             when (action) {
                                 WorkspaceAction.Rename -> {

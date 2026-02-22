@@ -21,6 +21,7 @@ import org.elnix.dragonlauncher.common.logging.logI
 import org.elnix.dragonlauncher.common.serializables.AppModel
 import org.elnix.dragonlauncher.common.serializables.mapAppToSection
 import org.elnix.dragonlauncher.common.utils.Constants.Logging.APPS_TAG
+import org.elnix.dragonlauncher.common.utils.Constants.Logging.PM_COMPAT_TAG
 import org.elnix.dragonlauncher.common.utils.Constants.Logging.TAG
 import org.elnix.dragonlauncher.common.utils.ImageUtils.loadDrawableAsBitmap
 
@@ -49,10 +50,12 @@ class PackageManagerCompat(private val pm: PackageManager, private val ctx: Cont
                         val userInfo = launcherApps?.getLauncherUserInfo(userHandle)
                         val userType = userInfo?.userType
 
+                        logD(PM_COMPAT_TAG, userType.toString())
+
                         isPrivateProfile = userType == "android.os.usertype.profile.PRIVATE"
                         isWorkProfile = !isPrivateProfile
                     } catch (e: Exception) {
-                        logE(APPS_TAG, e.toString())
+                        logE(PM_COMPAT_TAG, e.toString())
                         isWorkProfile = false
                         isPrivateProfile = false
                     }
@@ -65,7 +68,7 @@ class PackageManagerCompat(private val pm: PackageManager, private val ctx: Cont
                 ?.getActivityList(null, userHandle)
                 ?: emptyList()
 
-            logD(TAG, "Loading ${activities.size} apps for userId: $userId (Private: $isPrivateProfile)")
+            logD(PM_COMPAT_TAG, "Loading ${activities.size} apps for userId: $userId (Private: $isPrivateProfile)")
 
             activities.forEach { activity ->
                 val appInfo = activity.applicationInfo
@@ -85,6 +88,7 @@ class PackageManagerCompat(private val pm: PackageManager, private val ctx: Cont
                     isLaunchable = true,
                     category = category
                 )
+                logD(PM_COMPAT_TAG, if (result.isNotEmpty()) result.last().toString() else "")
             }
 
             if (isMainProfile) {
@@ -115,7 +119,7 @@ class PackageManagerCompat(private val pm: PackageManager, private val ctx: Cont
         val privateCount = result.count { it.isPrivateProfile }
         val workCount = result.count { it.isWorkProfile }
         val userCount = result.count { !it.isPrivateProfile && !it.isWorkProfile }
-        logI(TAG, "Apps loaded: $userCount user, $workCount work, $privateCount private (total: ${result.size})")
+        logI(PM_COMPAT_TAG, "Apps loaded: $userCount user, $workCount work, $privateCount private (total: ${result.size})")
 
         return result.distinctBy { "${it.packageName}_${it.userId}" }
     }
