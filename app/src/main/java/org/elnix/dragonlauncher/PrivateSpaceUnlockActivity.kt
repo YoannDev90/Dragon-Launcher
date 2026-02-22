@@ -33,7 +33,7 @@ class PrivateSpaceUnlockActivity : AppCompatActivity() {
                     onCancel = { finish() },
                     onStart = { scope ->
                         scope.launch {
-                            appsViewModel.unlockAndReload()
+                            appsViewModel.unlockAndReloadPrivateSpace()
                             finish()
                         }
                     }

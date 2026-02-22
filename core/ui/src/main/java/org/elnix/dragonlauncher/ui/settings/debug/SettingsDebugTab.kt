@@ -31,7 +31,6 @@ import androidx.compose.ui.unit.dp
 import kotlinx.coroutines.launch
 import org.elnix.dragonlauncher.common.utils.copyToClipboard
 import org.elnix.dragonlauncher.settings.allStores
-import org.elnix.dragonlauncher.settings.defaultDebugStores
 import org.elnix.dragonlauncher.ui.components.dragon.DragonIconButton
 import org.elnix.dragonlauncher.ui.dialogs.ExportSettingsDialog
 import org.elnix.dragonlauncher.ui.helpers.settings.SettingsLazyHeader
@@ -46,7 +45,7 @@ fun SettingsDebugTab(
 
     var settingsJson by remember { mutableStateOf<JSONObject?>(null) }
 
-    var selectedStores by remember { mutableStateOf(defaultDebugStores) }
+    var selectedStores by remember { mutableStateOf(allStores) }
     var showStoresDialog by remember { mutableStateOf(false) }
 
     fun loadSettings() {

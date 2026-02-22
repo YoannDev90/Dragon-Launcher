@@ -31,7 +31,7 @@ class PackageManagerCompat(private val pm: PackageManager, private val ctx: Cont
         return pm.getInstalledPackages(flags)
     }
 
-    fun getAllApps(): List<AppModel> {
+    fun getAllApps(skipAnyKnownPrivate: Boolean = false): List<AppModel> {
         val userManager = ctx.getSystemService(Context.USER_SERVICE) as UserManager
         val launcherApps = ctx.getSystemService(LauncherApps::class.java)
 
@@ -50,7 +50,7 @@ class PackageManagerCompat(private val pm: PackageManager, private val ctx: Cont
                         val userInfo = launcherApps?.getLauncherUserInfo(userHandle)
                         val userType = userInfo?.userType
 
-                        logD(PM_COMPAT_TAG, userType.toString())
+                        logD(PM_COMPAT_TAG, "UserTYpe: ${userType.toString()}")
 
                         isPrivateProfile = userType == "android.os.usertype.profile.PRIVATE"
                         isWorkProfile = !isPrivateProfile
@@ -67,6 +67,14 @@ class PackageManagerCompat(private val pm: PackageManager, private val ctx: Cont
             val activities = launcherApps
                 ?.getActivityList(null, userHandle)
                 ?: emptyList()
+
+
+            // It is used to simulate people's phone that have no private detection working
+            // Only called during the differential detection
+            if (isPrivateProfile && skipAnyKnownPrivate) {
+                logD(PM_COMPAT_TAG, "Skipping ${activities.size} apps for userId: $userId")
+                return@forEach
+            }
 
             logD(PM_COMPAT_TAG, "Loading ${activities.size} apps for userId: $userId (Private: $isPrivateProfile)")
 
@@ -88,7 +96,6 @@ class PackageManagerCompat(private val pm: PackageManager, private val ctx: Cont
                     isLaunchable = true,
                     category = category
                 )
-                logD(PM_COMPAT_TAG, if (result.isNotEmpty()) result.last().toString() else "")
             }
 
             if (isMainProfile) {
@@ -119,7 +126,10 @@ class PackageManagerCompat(private val pm: PackageManager, private val ctx: Cont
         val privateCount = result.count { it.isPrivateProfile }
         val workCount = result.count { it.isWorkProfile }
         val userCount = result.count { !it.isPrivateProfile && !it.isWorkProfile }
-        logI(PM_COMPAT_TAG, "Apps loaded: $userCount user, $workCount work, $privateCount private (total: ${result.size})")
+        logI(
+            PM_COMPAT_TAG,
+            "Apps loaded: $userCount user, $workCount work, $privateCount private (total: ${result.size})"
+        )
 
         return result.distinctBy { "${it.packageName}_${it.userId}" }
     }
@@ -153,7 +163,10 @@ class PackageManagerCompat(private val pm: PackageManager, private val ctx: Cont
             val activities = launcherApps?.getActivityList(null, userHandle) ?: emptyList()
             activities.forEach { act -> packages.add(act.applicationInfo.packageName) }
 
-            logD(TAG, "snapshotMainProfilePackageNames: found ${packages.size} launcher-visible packages")
+            logD(
+                TAG,
+                "snapshotMainProfilePackageNames: found ${packages.size} launcher-visible packages"
+            )
         } catch (e: Exception) {
             logE(TAG, "Error snapshotting main profile packages: ${e.message}")
         }
@@ -168,7 +181,8 @@ class PackageManagerCompat(private val pm: PackageManager, private val ctx: Cont
         try {
             val launcherApps = ctx.getSystemService(LauncherApps::class.java) ?: return false
             val userManager = ctx.getSystemService(UserManager::class.java) ?: return false
-            val userHandle = userManager.userProfiles.firstOrNull { it.hashCode() == userId } ?: return false
+            val userHandle =
+                userManager.userProfiles.firstOrNull { it.hashCode() == userId } ?: return false
             val activities = launcherApps.getActivityList(packageName, userHandle)
             return !activities.isNullOrEmpty()
         } catch (e: Exception) {

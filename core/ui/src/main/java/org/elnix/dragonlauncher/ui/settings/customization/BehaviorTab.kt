@@ -24,6 +24,7 @@ import org.elnix.dragonlauncher.common.utils.showToast
 import org.elnix.dragonlauncher.enumsui.LockMethod
 import org.elnix.dragonlauncher.models.AppLifecycleViewModel
 import org.elnix.dragonlauncher.models.AppsViewModel
+import org.elnix.dragonlauncher.settings.stores.PrivateAppsSettingsStore
 import org.elnix.dragonlauncher.settings.stores.BehaviorSettingsStore
 import org.elnix.dragonlauncher.settings.stores.PrivateSettingsStore
 import org.elnix.dragonlauncher.settings.stores.UiSettingsStore
@@ -112,6 +113,11 @@ fun BehaviorTab(
                     scope.launch{
                         ctx.showToast("Reloading apps")
                         appLifecycleViewModel.onUnlockPrivateSpace()
+                    }
+                } else {
+                    scope.launch {
+                        ctx.showToast("Removing cache")
+                        PrivateAppsSettingsStore.resetAll(ctx)
                     }
                 }
             }

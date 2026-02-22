@@ -361,7 +361,7 @@ class MainActivity : FragmentActivity(), WidgetHostProvider {
 //                            appsViewModel.setPrivateSpaceAvailable()
 
                             scope.launch(Dispatchers.IO) {
-                                appsViewModel.reloadPrivateSpace()
+                                appsViewModel.unlockAndReloadPrivateSpace()
                             }
                         }
                     }

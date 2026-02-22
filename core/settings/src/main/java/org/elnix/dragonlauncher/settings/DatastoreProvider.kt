@@ -4,7 +4,6 @@ import android.content.Context
 import androidx.datastore.core.DataStore
 import androidx.datastore.preferences.core.Preferences
 import androidx.datastore.preferences.preferencesDataStore
-import org.elnix.dragonlauncher.settings.DataStoreName.APPS
 import org.elnix.dragonlauncher.settings.DataStoreName.BACKUP
 import org.elnix.dragonlauncher.settings.DataStoreName.BEHAVIOR
 import org.elnix.dragonlauncher.settings.DataStoreName.COLOR
@@ -13,6 +12,7 @@ import org.elnix.dragonlauncher.settings.DataStoreName.DEBUG
 import org.elnix.dragonlauncher.settings.DataStoreName.DRAWER
 import org.elnix.dragonlauncher.settings.DataStoreName.FLOATING_APPS
 import org.elnix.dragonlauncher.settings.DataStoreName.LANGUAGE
+import org.elnix.dragonlauncher.settings.DataStoreName.PRIVATE_APPS
 import org.elnix.dragonlauncher.settings.DataStoreName.PRIVATE_SETTINGS
 import org.elnix.dragonlauncher.settings.DataStoreName.STATUS_BAR
 import org.elnix.dragonlauncher.settings.DataStoreName.SWIPE
@@ -21,7 +21,6 @@ import org.elnix.dragonlauncher.settings.DataStoreName.UI
 import org.elnix.dragonlauncher.settings.DataStoreName.WELLBEING
 import org.elnix.dragonlauncher.settings.DataStoreName.WORKSPACES
 import org.elnix.dragonlauncher.settings.bases.BaseSettingsStore
-import org.elnix.dragonlauncher.settings.stores.AppsSettingsStore
 import org.elnix.dragonlauncher.settings.stores.BackupSettingsStore
 import org.elnix.dragonlauncher.settings.stores.BehaviorSettingsStore
 import org.elnix.dragonlauncher.settings.stores.ColorModesSettingsStore
@@ -30,6 +29,7 @@ import org.elnix.dragonlauncher.settings.stores.DebugSettingsStore
 import org.elnix.dragonlauncher.settings.stores.DrawerSettingsStore
 import org.elnix.dragonlauncher.settings.stores.FloatingAppsSettingsStore
 import org.elnix.dragonlauncher.settings.stores.LanguageSettingsStore
+import org.elnix.dragonlauncher.settings.stores.PrivateAppsSettingsStore
 import org.elnix.dragonlauncher.settings.stores.PrivateSettingsStore
 import org.elnix.dragonlauncher.settings.stores.StatusBarSettingsStore
 import org.elnix.dragonlauncher.settings.stores.SwipeMapSettingsStore
@@ -52,7 +52,7 @@ enum class DataStoreName(
     DRAWER("drawerDatastore", "drawer"),
     DEBUG("debugDatastore", "debug"),
     WORKSPACES("workspacesDataStore", "workspaces"),
-    APPS("appsDatastore","apps", false),
+    PRIVATE_APPS("privateAppsDatastore","private_apps", false),
     BEHAVIOR("behaviorDatastore", "behavior"),
     BACKUP("backupDatastore", "backup"),
     STATUS_BAR("statusDatastore", "status_bar"),
@@ -64,22 +64,22 @@ enum class DataStoreName(
 
 object SettingsStoreRegistry {
     val byName: Map<DataStoreName, BaseSettingsStore<*>> = mapOf(
-        DataStoreName.UI to UiSettingsStore,
-        DataStoreName.COLOR_MODE to ColorModesSettingsStore,
-        DataStoreName.COLOR to ColorSettingsStore,
-        DataStoreName.PRIVATE_SETTINGS to PrivateSettingsStore,
-        DataStoreName.SWIPE to SwipeSettingsStore,
-        DataStoreName.LANGUAGE to LanguageSettingsStore,
-        DataStoreName.DRAWER to DrawerSettingsStore,
-        DataStoreName.DEBUG to DebugSettingsStore,
-        DataStoreName.WORKSPACES to WorkspaceSettingsStore,
-        DataStoreName.APPS to AppsSettingsStore,
-        DataStoreName.BEHAVIOR to BehaviorSettingsStore,
-        DataStoreName.BACKUP to BackupSettingsStore,
-        DataStoreName.STATUS_BAR to StatusBarSettingsStore,
-        DataStoreName.FLOATING_APPS to FloatingAppsSettingsStore,
-        DataStoreName.WELLBEING to WellbeingSettingsStore,
-        DataStoreName.SWIPE_MAP to SwipeMapSettingsStore
+        UI to UiSettingsStore,
+        COLOR_MODE to ColorModesSettingsStore,
+        COLOR to ColorSettingsStore,
+        PRIVATE_SETTINGS to PrivateSettingsStore,
+        SWIPE to SwipeSettingsStore,
+        LANGUAGE to LanguageSettingsStore,
+        DRAWER to DrawerSettingsStore,
+        DEBUG to DebugSettingsStore,
+        WORKSPACES to WorkspaceSettingsStore,
+        PRIVATE_APPS to PrivateAppsSettingsStore,
+        BEHAVIOR to BehaviorSettingsStore,
+        BACKUP to BackupSettingsStore,
+        STATUS_BAR to StatusBarSettingsStore,
+        FLOATING_APPS to FloatingAppsSettingsStore,
+        WELLBEING to WellbeingSettingsStore,
+        SWIPE_MAP to SwipeMapSettingsStore
     )
 }
 
@@ -92,32 +92,24 @@ val backupableStores =
 
 
 /**
- * All the stores, minus the one that hols big data (the app cache)
- */
-val defaultDebugStores =
-    SettingsStoreRegistry.byName
-        .filterValues { it != AppsSettingsStore }
-
-
-/**
  * Datastore, now handled by a conditional function to avoid errors, all private
  */
-private val Context.uiDatastore by preferencesDataStore(name = DataStoreName.UI.value)
-private val Context.colorModeDatastore by preferencesDataStore(name = DataStoreName.COLOR_MODE.value)
-private val Context.colorDatastore by preferencesDataStore(name = DataStoreName.COLOR.value)
-private val Context.privateSettingsStore by preferencesDataStore(name = DataStoreName.PRIVATE_SETTINGS.value)
-private val Context.swipeDataStore by preferencesDataStore(name = DataStoreName.SWIPE.value)
-private val Context.languageDatastore by preferencesDataStore(name = DataStoreName.LANGUAGE.value)
-private val Context.drawerDataStore by preferencesDataStore(name = DataStoreName.DRAWER.value)
-private val Context.debugDatastore by preferencesDataStore(name = DataStoreName.DEBUG.value)
-private val Context.workspaceDataStore by preferencesDataStore(name = DataStoreName.WORKSPACES.value)
-private val Context.appsDatastore by preferencesDataStore(name = DataStoreName.APPS.value)
-private val Context.behaviorDataStore by preferencesDataStore(name = DataStoreName.BEHAVIOR.value)
-private val Context.backupDatastore by preferencesDataStore(name = DataStoreName.BACKUP.value)
-private val Context.statusBarDatastore by preferencesDataStore(name = DataStoreName.STATUS_BAR.value)
-private val Context.floatingAppsDatastore by preferencesDataStore(name = DataStoreName.FLOATING_APPS.value)
-private val Context.wellbeingDatastore by preferencesDataStore(name = DataStoreName.WELLBEING.value)
-private val Context.swipeMapDatastore by preferencesDataStore(name = DataStoreName.SWIPE_MAP.value)
+private val Context.uiDatastore by preferencesDataStore(name = UI.value)
+private val Context.colorModeDatastore by preferencesDataStore(name = COLOR_MODE.value)
+private val Context.colorDatastore by preferencesDataStore(name = COLOR.value)
+private val Context.privateSettingsStore by preferencesDataStore(name = PRIVATE_SETTINGS.value)
+private val Context.swipeDataStore by preferencesDataStore(name = SWIPE.value)
+private val Context.languageDatastore by preferencesDataStore(name = LANGUAGE.value)
+private val Context.drawerDataStore by preferencesDataStore(name = DRAWER.value)
+private val Context.debugDatastore by preferencesDataStore(name = DEBUG.value)
+private val Context.workspaceDataStore by preferencesDataStore(name = WORKSPACES.value)
+private val Context.privateAppsDatastore by preferencesDataStore(name = PRIVATE_APPS.value)
+private val Context.behaviorDataStore by preferencesDataStore(name = BEHAVIOR.value)
+private val Context.backupDatastore by preferencesDataStore(name = BACKUP.value)
+private val Context.statusBarDatastore by preferencesDataStore(name = STATUS_BAR.value)
+private val Context.floatingAppsDatastore by preferencesDataStore(name = FLOATING_APPS.value)
+private val Context.wellbeingDatastore by preferencesDataStore(name = WELLBEING.value)
+private val Context.swipeMapDatastore by preferencesDataStore(name = SWIPE_MAP.value)
 
 
 
@@ -133,7 +125,7 @@ fun Context.resolveDataStore(name: DataStoreName): DataStore<Preferences> {
         DRAWER -> appCtx.drawerDataStore
         DEBUG -> appCtx.debugDatastore
         WORKSPACES -> appCtx.workspaceDataStore
-        APPS -> appCtx.appsDatastore
+        PRIVATE_APPS -> appCtx.privateAppsDatastore
         BEHAVIOR -> appCtx.behaviorDataStore
         BACKUP -> appCtx.backupDatastore
         STATUS_BAR -> appCtx.statusBarDatastore

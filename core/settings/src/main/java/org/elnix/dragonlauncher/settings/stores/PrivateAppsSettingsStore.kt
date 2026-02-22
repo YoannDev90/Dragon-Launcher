@@ -5,9 +5,9 @@ import org.elnix.dragonlauncher.settings.Settings
 import org.elnix.dragonlauncher.settings.bases.BaseSettingObject
 import org.elnix.dragonlauncher.settings.bases.JsonSettingsStore
 
-object AppsSettingsStore : JsonSettingsStore() {
+object PrivateAppsSettingsStore : JsonSettingsStore() {
     override val name: String = "Apps"
-    override val dataStoreName= DataStoreName.APPS
+    override val dataStoreName= DataStoreName.PRIVATE_APPS
 
     override val ALL: List<BaseSettingObject<*,*>>
         get() = listOf(

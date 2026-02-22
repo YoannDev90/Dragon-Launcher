@@ -439,8 +439,9 @@ fun <T> ((T) -> Unit)?.bind(value: T): (() -> Unit)? =
  * This is a lightweight structural check and does not validate
  * whether the string is well-formed JSON.
  */
-val String.isNotBlankJson: Boolean
+val String?.isNotBlankJson: Boolean
     get() {
+        if (this == null) return false
         val trimmed = trim()
         return trimmed.isNotEmpty() && trimmed != "{}"
     }

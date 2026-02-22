@@ -354,7 +354,7 @@ fun AppPickerDialog(
                             isMultiSelectMode = isMultiSelectMode,
                             onReload = {
                                 scope.launch {
-                                    if (workspace.type == WorkspaceType.PRIVATE) appsViewModel.reloadPrivateSpace()
+                                    if (workspace.type == WorkspaceType.PRIVATE) appsViewModel.unlockAndReloadPrivateSpace()
                                     else appsViewModel.reloadApps()
                                 }
                             },

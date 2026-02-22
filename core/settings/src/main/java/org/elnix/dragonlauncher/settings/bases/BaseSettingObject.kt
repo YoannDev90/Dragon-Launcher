@@ -68,14 +68,14 @@ class BaseSettingObject <T, R> (
      * @param ctx
      * @return decoded value of settings type [T]
      */
-    suspend fun get(ctx: Context): T? {
+    suspend fun get(ctx: Context): T {
 
         val raw = ctx.applicationContext
             .resolveDataStore(dataStoreName)
             .data
             .first()[preferenceKey]
 
-        return raw?.let { decode(it) }
+        return raw?.let { decode(it) } ?: default
     }
 
 
