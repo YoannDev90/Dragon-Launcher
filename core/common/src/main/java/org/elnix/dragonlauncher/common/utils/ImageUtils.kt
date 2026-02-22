@@ -78,7 +78,9 @@ object ImageUtils {
 
             if (fg != null) {
                 // Draw foreground with inset scaling
-                val scale = 1.15f
+
+                // THIS IS CRITICAL AND HANDLES HOW THE ICONS ARE DRAWN!
+                val scale = 2f
                 val inset = ((width - width / scale) / 2).toInt()
                 fg.setBounds(-inset, -inset, width + inset, height + inset)
                 fg.draw(canvas)
