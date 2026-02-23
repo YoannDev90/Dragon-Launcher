@@ -757,5 +757,6 @@
     <string name="need_to_be_default_launcher_to_use_private_space">Need to be default launcher to use private space</string>
     <string name="use_differential_loading_private_space">Use Differential loading private space</string>
     <string name="use_differential_loading_private_space_desc">Toggle this when private apps appear in the user workspace, otherwise keep it unchecked for performances</string>
+    <string name="edit_border_shape">Edit border shape</string>
 
 </resources>
