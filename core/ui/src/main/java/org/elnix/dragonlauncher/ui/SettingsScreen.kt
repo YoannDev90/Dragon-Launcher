@@ -237,7 +237,7 @@ fun SettingsScreen(
      * Reload all point icons on every change of the points, nestId, appIconOverlaySize, or default point
      * Set the size of the icons to the max size between the 2 overlays sizes preview to display them cleanly
      */
-    LaunchedEffect(points, nestId, appIconOverlaySize, defaultPoint.hashCode()) {
+    LaunchedEffect(points, nestId, appIconOverlaySize, defaultPoint) {
 
         appsViewModel.preloadPointIcons(
             points = points.filter { it.nestId == nestId },

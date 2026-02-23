@@ -3,7 +3,6 @@ package org.elnix.dragonlauncher.common.points
 import android.content.Context
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.ImageBitmap
-import androidx.compose.ui.unit.Density
 import org.elnix.dragonlauncher.base.theme.ExtraColors
 import org.elnix.dragonlauncher.common.serializables.CircleNest
 import org.elnix.dragonlauncher.common.serializables.IconShape
@@ -18,7 +17,6 @@ data class SwipeDrawParams(
     val surfaceColorDraw: Color,
     val extraColors: ExtraColors,
     val showCircle: Boolean,
-    val density: Density,
     val maxDepth: Int,
     val iconShape: IconShape,
     val subNestDefaultRadius: Int,

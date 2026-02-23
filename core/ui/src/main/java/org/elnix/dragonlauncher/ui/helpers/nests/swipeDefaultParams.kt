@@ -5,7 +5,6 @@ import androidx.compose.runtime.getValue
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.ImageBitmap
 import androidx.compose.ui.platform.LocalContext
-import androidx.compose.ui.platform.LocalDensity
 import org.elnix.dragonlauncher.base.theme.LocalExtraColors
 import org.elnix.dragonlauncher.common.points.SwipeDrawParams
 import org.elnix.dragonlauncher.common.serializables.CircleNest
@@ -36,7 +35,6 @@ fun swipeDefaultParams(
     val icons = icons ?: LocalIcons.current
     val iconShape = LocalIconShape.current
     val extraColors = LocalExtraColors.current
-    val density = LocalDensity.current
 
     val surfaceColorDraw = backgroundColor ?: Color.Unspecified
 
@@ -58,7 +56,6 @@ fun swipeDefaultParams(
         surfaceColorDraw = surfaceColorDraw,
         extraColors = extraColors,
         showCircle = showCircle,
-        density = density,
         maxDepth = maxNestsDepth,
         iconShape = iconShape,
         subNestDefaultRadius = subNestDefaultRadius,

@@ -12,6 +12,7 @@ import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.graphics.drawscope.translate
 import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.IntSize
+import androidx.compose.ui.unit.dp
 import org.elnix.dragonlauncher.common.R
 import org.elnix.dragonlauncher.common.points.SwipeDrawParams
 import org.elnix.dragonlauncher.common.serializables.IconShape
@@ -41,47 +42,49 @@ fun DrawScope.actionsInCircle(
     val icons = drawParams.icons
     val surfaceColorDraw = drawParams.surfaceColorDraw
     val extraColors = drawParams.extraColors
-    val density = drawParams.density
     val maxDepth = drawParams.maxDepth
     val iconShape = drawParams.iconShape
-
 
     val action = point.action
 
     val px = center.x
     val py = center.y
 
-    val size = (point.size ?: defaultPoint.size ?: defaultSwipePointsValues.size!!).coerceAtLeast(1)
-    val innerPadding =
-        point.innerPadding ?: defaultPoint.innerPadding ?: defaultSwipePointsValues.innerPadding!!
 
-    val iconSize = size / depth
-    val borderRadii = ((size / 2 + innerPadding).coerceAtLeast(0) / depth).toFloat()
+    // Now uses density pixels to display for consistent drawing across device
+    val sizePx = (point.size ?: defaultPoint.size ?: defaultSwipePointsValues.size!!)
+        .coerceAtLeast(1)
+        .dp
+        .toPx()
+        .toInt()
+
+    val innerPaddingPx = (point.innerPadding ?: defaultPoint.innerPadding ?: defaultSwipePointsValues.innerPadding!!)
+        .dp
+        .toPx()
+        .toInt()
+
+    val iconSize = sizePx / depth
+    val borderRadii = ((sizePx / 2 + innerPaddingPx).coerceAtLeast(0) / depth).toFloat()
 
     val dstOffset = IntOffset(px.toInt() - iconSize / 2, py.toInt() - iconSize / 2)
     val intSize = IntSize(iconSize, iconSize)
 
-    val borderColor = if (selected) {
-        point.borderColorSelected?.let { Color(it) }
-            ?: defaultPoint.borderColorSelected?.let { Color(it) }
-    } else {
-        point.borderColor?.let { Color(it) } ?: defaultPoint.borderColor?.let { Color(it) }
-    } ?: extraColors.circle
 
+
+    /*  ─────────────  Stroke computation  ─────────────  */
     val borderStroke = if (selected) {
         point.borderStrokeSelected ?: defaultPoint.borderStrokeSelected ?: 8f
     } else {
         point.borderStroke ?: defaultPoint.borderStroke ?: 4f
     }
 
-    val borderIconShape = if (selected) {
-        point.borderShapeSelected ?: defaultPoint.borderShapeSelected
+    /*  ─────────────  Foreground / background colors computation  ─────────────  */
+        val borderColor = if (selected) {
+        point.borderColorSelected?.let { Color(it) }
+            ?: defaultPoint.borderColorSelected?.let { Color(it) }
     } else {
-        point.borderShape ?: defaultPoint.borderShape
-    } ?: IconShape.Circle
-
-
-    val borderShape = borderIconShape.resolveShape()
+        point.borderColor?.let { Color(it) } ?: defaultPoint.borderColor?.let { Color(it) }
+    } ?: extraColors.circle
 
     val backgroundColor = if (selected) {
         point.backgroundColorSelected?.let { Color(it) }
@@ -94,9 +97,22 @@ fun DrawScope.actionsInCircle(
         Color.Transparent
     }
 
+    /*  ─────────────  Shapes computation  ─────────────  */
+    val borderIconShape = if (selected) {
+        point.borderShapeSelected ?: defaultPoint.borderShapeSelected
+    } else {
+        point.borderShape ?: defaultPoint.borderShape
+    } ?: IconShape.Circle
+
+    val borderShape = borderIconShape.resolveShape()
+
+
     val shape = (point.customIcon?.shape ?: iconShape).resolveShape()
 
 
+
+
+    // Prevent overloading since the drawing is recursive
     if (depth <= maxDepth) {
 
         if (action !is SwipeActionSerializable.OpenCircleNest) {
@@ -141,7 +157,7 @@ fun DrawScope.actionsInCircle(
                 is Outline.Generic -> outline.path
             }
 
-            // Move drawing to icon position
+            /* ───────────── Move drawing to icon position ───────────── */
             translate(
                 left = center.x - borderRadii,
                 top = center.y - borderRadii
@@ -170,8 +186,8 @@ fun DrawScope.actionsInCircle(
                 val clipped = ImageUtils.clipImageToShape(
                     image = icon,
                     shape = shape,
-                    sizePx = size,
-                    density = density
+                    sizePx = sizePx,
+                    density = this
                 )
 
                 drawImage(
@@ -183,7 +199,6 @@ fun DrawScope.actionsInCircle(
                         else null
                 )
             }
-
         } else {
             nests.find { it.id == action.nestId }?.let { nest ->
 

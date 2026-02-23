@@ -40,7 +40,6 @@ import androidx.compose.ui.layout.onSizeChanged
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.unit.Density
 import androidx.compose.ui.unit.DpOffset
 import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.IntSize
@@ -276,7 +275,6 @@ fun MainScreen(
                                 pos = pos,
                                 floatingAppObjects = filteredFloatingAppObjects,
                                 dm = dm,
-                                density = density,
                                 cellSizePx = cellSizePx
                             )
                         ) {
@@ -486,23 +484,21 @@ private fun isInsideForegroundWidget(
     pos: Offset,
     floatingAppObjects: List<FloatingAppObject>,
     dm: DisplayMetrics,
-    density: Density,
     cellSizePx: Float
 ): Boolean {
     return floatingAppObjects.any { widget ->
-        // Skip if not foreground
         if (widget.foreground == false) return@any false
 
-        val left = (widget.x * dm.widthPixels).toInt()
-        val top = (widget.y * dm.heightPixels).toInt()
-        val right =
-            left + (widget.spanX * cellSizePx).toDp(density).value.times(density.density)
-                .toInt()
-        val bottom =
-            top + (widget.spanY * cellSizePx).toDp(density).value.times(density.density)
-                .toInt()
+        val left = widget.x * dm.widthPixels
+        val top = widget.y * dm.heightPixels
 
-        pos.x >= left && pos.x <= right &&
-                pos.y >= top && pos.y <= bottom
+        val width = widget.spanX * cellSizePx
+        val height = widget.spanY * cellSizePx
+
+        val right = left + width
+        val bottom = top + height
+
+        pos.x in left..right &&
+                pos.y in top..bottom
     }
 }
