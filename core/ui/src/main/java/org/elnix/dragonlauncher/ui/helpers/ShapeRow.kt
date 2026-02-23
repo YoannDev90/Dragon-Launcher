@@ -32,6 +32,7 @@ import org.elnix.dragonlauncher.ui.components.dragon.DragonIconButton
 @Composable
 fun ShapeRow(
     selected: IconShape,
+    title: String = stringResource(R.string.edit_icons_shape),
     onReset:() -> Unit,
     onClick: () -> Unit
 ) {
@@ -65,7 +66,7 @@ fun ShapeRow(
                 modifier = Modifier.weight(1f)
             ) {
                 Text(
-                    text = stringResource(R.string.edit_icons_shape),
+                    text = title,
                     style = MaterialTheme.typography.bodyLarge,
                     color = MaterialTheme.colorScheme.onSurface
                 )

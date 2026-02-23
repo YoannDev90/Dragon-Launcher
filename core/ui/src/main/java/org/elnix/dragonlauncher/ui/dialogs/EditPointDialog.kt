@@ -149,8 +149,7 @@ fun EditPointDialog(
 
 
 
-    val appIconOverlaySize by UiSettingsStore.appIconOverlaySize.flow(ctx)
-        .collectAsState(initial = 22)
+    val appIconOverlaySize by UiSettingsStore.appIconOverlaySize.asState()
 
     val densityPixelsIconOverlaySize = appIconOverlaySize.dp.toPixels().toInt()
     val sizePx = max(densityPixelsIconOverlaySize, defaultPoint.size ?: 128)
@@ -508,6 +507,7 @@ fun EditPointDialog(
 
                             ShapeRow(
                                 selected = editPoint.borderShapeSelected ?: defaultSwipePointsValues.borderShapeSelected!!,
+                                title = stringResource(R.string.edit_border_shape),
                                 onReset = {
                                     editPoint = editPoint.copy(borderShapeSelected = null)
                                 }
