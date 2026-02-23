@@ -20,11 +20,10 @@ import org.elnix.dragonlauncher.common.serializables.SwipeActionSerializable
 import org.elnix.dragonlauncher.common.serializables.SwipePointSerializable
 import org.elnix.dragonlauncher.common.serializables.applyColorAction
 import org.elnix.dragonlauncher.common.serializables.defaultSwipePointsValues
-import org.elnix.dragonlauncher.common.utils.ImageUtils
 import org.elnix.dragonlauncher.common.utils.ImageUtils.loadDrawableResAsBitmap
 import org.elnix.dragonlauncher.common.utils.UiCircle
+import org.elnix.dragonlauncher.common.utils.resolveShape
 import org.elnix.dragonlauncher.ui.actions.actionColor
-import org.elnix.dragonlauncher.ui.components.resolveShape
 
 
 fun DrawScope.actionsInCircle(
@@ -43,7 +42,6 @@ fun DrawScope.actionsInCircle(
     val surfaceColorDraw = drawParams.surfaceColorDraw
     val extraColors = drawParams.extraColors
     val maxDepth = drawParams.maxDepth
-    val iconShape = drawParams.iconShape
 
     val action = point.action
 
@@ -105,11 +103,6 @@ fun DrawScope.actionsInCircle(
     } ?: IconShape.Circle
 
     val borderShape = borderIconShape.resolveShape()
-
-
-    val shape = (point.customIcon?.shape ?: iconShape).resolveShape()
-
-
 
 
     // Prevent overloading since the drawing is recursive
@@ -182,16 +175,8 @@ fun DrawScope.actionsInCircle(
 
 
             if (icon != null) {
-
-                val clipped = ImageUtils.clipImageToShape(
-                    image = icon,
-                    shape = shape,
-                    sizePx = sizePx,
-                    density = this
-                )
-
                 drawImage(
-                    image = clipped,
+                    image = icon,
                     dstOffset = dstOffset,
                     dstSize = intSize,
                     colorFilter =

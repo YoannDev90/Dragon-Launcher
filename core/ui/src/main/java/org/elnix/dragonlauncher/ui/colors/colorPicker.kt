@@ -55,7 +55,7 @@ import org.elnix.dragonlauncher.common.utils.showToast
 import org.elnix.dragonlauncher.enumsui.ColorPickerMode
 import org.elnix.dragonlauncher.enumsui.colorPickerText
 import org.elnix.dragonlauncher.settings.stores.ColorModesSettingsStore
-import org.elnix.dragonlauncher.ui.UiConstants.DragonShape
+import org.elnix.dragonlauncher.common.utils.UiConstants.DragonShape
 import org.elnix.dragonlauncher.ui.components.ValidateCancelButtons
 import org.elnix.dragonlauncher.ui.components.dragon.DragonIconButton
 import org.elnix.dragonlauncher.ui.components.dragon.DragonSurfaceRow

@@ -26,7 +26,6 @@ import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.ImageBitmap
 import androidx.compose.ui.graphics.Outline
-import androidx.compose.ui.graphics.Shape
 import androidx.compose.ui.graphics.asAndroidBitmap
 import androidx.compose.ui.graphics.asAndroidPath
 import androidx.compose.ui.graphics.asImageBitmap
@@ -40,6 +39,7 @@ import androidx.core.graphics.withSave
 import org.elnix.dragonlauncher.common.R
 import org.elnix.dragonlauncher.common.logging.logE
 import org.elnix.dragonlauncher.common.serializables.CustomIconSerializable
+import org.elnix.dragonlauncher.common.serializables.IconShape
 import org.elnix.dragonlauncher.common.serializables.IconType
 import org.elnix.dragonlauncher.common.serializables.SwipeActionSerializable
 import org.elnix.dragonlauncher.common.serializables.toAppModel
@@ -101,7 +101,7 @@ object ImageUtils {
         val imageBitmap = bitmap.asImageBitmap()
 
 //         If tint is not unspecified (transparent)
-        return tint?.takeIf { it != 0 }?.let{
+        return tint?.takeIf { it != 0 }?.let {
             tintBitmap(imageBitmap, tint)
         } ?: imageBitmap
     }
@@ -281,13 +281,16 @@ object ImageUtils {
                     userId = action.userId ?: 0,
                     isPrivateProfile = action.isPrivateSpace
                 )
-                icons[dummyAppModel.iconCacheKey.cacheKey] ?:
-                loadDrawableAsBitmap(drawable, width, height)
+                icons[dummyAppModel.iconCacheKey.cacheKey] ?: loadDrawableAsBitmap(drawable, width, height)
             }
 
             is SwipeActionSerializable.LaunchShortcut -> {
-                loadShortcutIcon(ctx, action.packageName, action.shortcutId) ?:
-                loadDrawableResAsBitmap(ctx, R.drawable.ic_action_pinned_shortcut, width, height)
+                loadShortcutIcon(ctx, action.packageName, action.shortcutId) ?: loadDrawableResAsBitmap(
+                    ctx,
+                    R.drawable.ic_action_pinned_shortcut,
+                    width,
+                    height
+                )
             }
 
             is SwipeActionSerializable.OpenUrl ->
@@ -306,12 +309,48 @@ object ImageUtils {
                 loadDrawableResAsBitmap(ctx, R.drawable.dragon_launcher_foreground, width, height)
 
             SwipeActionSerializable.Lock -> loadDrawableResAsBitmap(ctx, R.drawable.ic_action_lock, width, height)
-            is SwipeActionSerializable.OpenFile -> loadDrawableResAsBitmap(ctx, R.drawable.ic_action_open_file, width, height)
-            SwipeActionSerializable.ReloadApps -> loadDrawableResAsBitmap(ctx, R.drawable.ic_action_reload, width, height)
-            SwipeActionSerializable.OpenRecentApps -> loadDrawableResAsBitmap(ctx, R.drawable.ic_action_recent, width, height)
-            is SwipeActionSerializable.OpenCircleNest -> loadDrawableResAsBitmap(ctx, R.drawable.ic_action_target, width, height)
-            SwipeActionSerializable.GoParentNest -> loadDrawableResAsBitmap(ctx, R.drawable.ic_icon_go_parent_nest, width, height)
-            is SwipeActionSerializable.OpenWidget -> loadDrawableResAsBitmap(ctx, R.drawable.ic_action_widgets, width, height)
+            is SwipeActionSerializable.OpenFile -> loadDrawableResAsBitmap(
+                ctx,
+                R.drawable.ic_action_open_file,
+                width,
+                height
+            )
+
+            SwipeActionSerializable.ReloadApps -> loadDrawableResAsBitmap(
+                ctx,
+                R.drawable.ic_action_reload,
+                width,
+                height
+            )
+
+            SwipeActionSerializable.OpenRecentApps -> loadDrawableResAsBitmap(
+                ctx,
+                R.drawable.ic_action_recent,
+                width,
+                height
+            )
+
+            is SwipeActionSerializable.OpenCircleNest -> loadDrawableResAsBitmap(
+                ctx,
+                R.drawable.ic_action_target,
+                width,
+                height
+            )
+
+            SwipeActionSerializable.GoParentNest -> loadDrawableResAsBitmap(
+                ctx,
+                R.drawable.ic_icon_go_parent_nest,
+                width,
+                height
+            )
+
+            is SwipeActionSerializable.OpenWidget -> loadDrawableResAsBitmap(
+                ctx,
+                R.drawable.ic_action_widgets,
+                width,
+                height
+            )
+
             SwipeActionSerializable.None -> null
         } ?: loadDrawableResAsBitmap(ctx, R.drawable.ic_app_default, width, height)
     }
@@ -319,7 +358,9 @@ object ImageUtils {
     fun resolveCustomIconBitmap(
         base: ImageBitmap,
         icon: CustomIconSerializable,
-        sizePx: Int
+        sizePx: Int,
+        density: Density,
+        iconShape: IconShape
     ): ImageBitmap {
         // Step 1: choose source bitmap (override or base)
         val sourceBitmap: ImageBitmap = when (icon.type) {
@@ -348,6 +389,7 @@ object ImageUtils {
                     base
                 }
             } ?: base
+
             null -> base
         }
 
@@ -355,17 +397,19 @@ object ImageUtils {
         val outBitmap = createBitmap(sizePx, sizePx)
         val canvas = Canvas(outBitmap)
 
-        val paint = Paint(Paint.ANTI_ALIAS_FLAG)
+        // Step 3 & 4: opacity & color tint
+        val paint = Paint(
+            Paint.ANTI_ALIAS_FLAG
+        ).apply {
+            alpha = ((icon.opacity ?: 1f)
+                .coerceIn(0f, 1f) * 255).toInt()
 
-        // Step 3: opacity
-        paint.alpha = ((icon.opacity ?: 1f).coerceIn(0f, 1f) * 255).toInt()
-
-        // Step 4: color tint
-        icon.tint?.let {
-            paint.colorFilter = PorterDuffColorFilter(
-                it,
-                PorterDuff.Mode.SRC_IN
-            )
+            icon.tint?.let {
+                colorFilter = PorterDuffColorFilter(
+                    it,
+                    PorterDuff.Mode.SRC_IN
+                )
+            }
         }
 
 
@@ -391,120 +435,73 @@ object ImageUtils {
 //            )
 //        }
 
-        // Step 7: transform (scale + rotation)
         canvas.withSave {
-
+            // Step 7: transform (scale + rotation)
             val scaleX = icon.scaleX ?: 1f
             val scaleY = icon.scaleY ?: 1f
             val rotation = icon.rotationDeg ?: 0f
 
-            canvas.translate(sizePx / 2f, sizePx / 2f)
-            canvas.rotate(rotation)
-            canvas.scale(scaleX, scaleY)
-            canvas.translate(-sizePx / 2f, -sizePx / 2f)
+            val half = sizePx / 2f
 
-            // Step 8: draw bitmap
-            canvas.drawBitmap(
+            translate(half, half)
+            rotate(rotation)
+            scale(scaleX, scaleY)
+            translate(-half, -half)
+
+
+            // Step 8: CLip to shape
+            val shape = (icon.shape ?: iconShape).resolveShape()
+
+            val outline = shape.createOutline(
+                size = Size(sizePx.toFloat(), sizePx.toFloat()),
+                layoutDirection = LayoutDirection.Ltr,
+                density = density
+            )
+
+            when (outline) {
+
+                is Outline.Rectangle -> {
+                    clipRect(
+                        0f,
+                        0f,
+                        sizePx.toFloat(),
+                        sizePx.toFloat()
+                    )
+                }
+
+                is Outline.Rounded -> {
+                    val rr = outline.roundRect
+
+                    val path = Path().apply {
+                        addRoundRect(
+                            rr.left,
+                            rr.top,
+                            rr.right,
+                            rr.bottom,
+                            rr.topLeftCornerRadius.x,
+                            rr.topLeftCornerRadius.y,
+                            Path.Direction.CW
+                        )
+                    }
+
+                    clipPath(path)
+                }
+
+                is Outline.Generic -> {
+                    val path = outline.path.asAndroidPath()
+                    clipPath(path)
+                }
+            }
+
+            // Step 9: Save
+            drawBitmap(
                 sourceBitmap.asAndroidBitmap(),
                 null,
                 Rect(0, 0, sizePx, sizePx),
                 paint
             )
-
         }
-
-
-        // TODO unused for now
-        // Step 9: stroke (rectangular, corner clipping is UI-level)
-//        if (icon.strokeWidth != null && icon.strokeColor != null) {
-//            val strokePaint = Paint(Paint.ANTI_ALIAS_FLAG).apply {
-//                style = Paint.Style.STROKE
-//                strokeWidth = icon.strokeWidth
-//                color = icon.strokeColor.toInt()
-//            }
-//            canvas.drawRect(
-//                0f,
-//                0f,
-//                sizePx.toFloat(),
-//                sizePx.toFloat(),
-//                strokePaint
-//            )
-//        }
 
         return outBitmap.asImageBitmap()
     }
-
-
-    fun clipImageToShape(
-        image: ImageBitmap,
-        shape: Shape,
-        sizePx: Int,
-        density: Density
-    ): ImageBitmap {
-
-        val safeSize = sizePx.coerceAtLeast(0)
-        val bitmap = createBitmap(safeSize, safeSize)
-        val canvas = Canvas(bitmap)
-
-        canvas.drawColor(Color.Transparent.toArgb(), PorterDuff.Mode.CLEAR)
-
-        val outline = shape.createOutline(
-            size = Size(safeSize.toFloat(), safeSize.toFloat()),
-            layoutDirection = LayoutDirection.Ltr,
-            density = density
-        )
-
-        val path = Path()
-
-        when (outline) {
-            is Outline.Rectangle -> {
-                path.addRect(
-                    0f,
-                    0f,
-                    safeSize.toFloat(),
-                    safeSize.toFloat(),
-                    Path.Direction.CW
-                )
-            }
-
-            is Outline.Rounded -> {
-                val rr = outline.roundRect
-                path.addRoundRect(
-                    rr.left,
-                    rr.top,
-                    rr.right,
-                    rr.bottom,
-                    rr.topLeftCornerRadius.x,
-                    rr.topLeftCornerRadius.y,
-                    Path.Direction.CW
-                )
-            }
-
-
-            is Outline.Generic -> {
-                path.set(outline.path.asAndroidPath())
-            }
-        }
-
-        canvas.clipPath(path)
-
-        val src = Rect(
-            0,
-            0,
-            image.width,
-            image.height
-        )
-
-        val dst = Rect(
-            0,
-            0,
-            safeSize,
-            safeSize
-        )
-
-        canvas.drawBitmap(image.asAndroidBitmap(), src, dst, null)
-
-        return bitmap.asImageBitmap()
-    }
-
 }

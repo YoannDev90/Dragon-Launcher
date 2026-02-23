@@ -40,7 +40,7 @@ import org.elnix.dragonlauncher.common.logging.logD
 import org.elnix.dragonlauncher.common.logging.logE
 import org.elnix.dragonlauncher.common.serializables.SwipeActionSerializable
 import org.elnix.dragonlauncher.common.utils.ImageUtils.loadDrawableAsBitmap
-import org.elnix.dragonlauncher.ui.UiConstants.DragonShape
+import org.elnix.dragonlauncher.common.utils.UiConstants.DragonShape
 
 /**
  * Represents a pinned shortcut with extra metadata for display.
@@ -183,7 +183,7 @@ private fun ShortcutRow(
                     null
                 }
             }
-            
+
             if (bitmapPainter != null) {
                 Image(
                     painter = bitmapPainter,

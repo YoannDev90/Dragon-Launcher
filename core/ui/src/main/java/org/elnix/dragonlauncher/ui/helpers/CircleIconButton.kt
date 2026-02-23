@@ -26,7 +26,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
-import org.elnix.dragonlauncher.ui.UiConstants
+import org.elnix.dragonlauncher.common.utils.UiConstants
 
 @Composable
 fun CircleIconButton(

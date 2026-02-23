@@ -23,6 +23,7 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.platform.LocalDensity
 import androidx.core.view.WindowCompat
 import androidx.core.view.WindowInsetsCompat
 import androidx.core.view.WindowInsetsControllerCompat
@@ -328,12 +329,17 @@ class MainActivity : FragmentActivity(), WidgetHostProvider {
 
         setContent {
             val ctx = LocalContext.current
+            val density = LocalDensity.current
+
             val scope = rememberCoroutineScope()
             val lifecycleOwner = LocalLifecycleOwner.current
 
             val appsViewModel = remember(ctx) {
                 (ctx.applicationContext as MyApplication).appsViewModel
             }
+
+            // Used internally by the app view model
+            appsViewModel.cacheDensity(density)
 
             // Launch full viewmodel after first frame for performance
             LaunchedEffect(Unit) {

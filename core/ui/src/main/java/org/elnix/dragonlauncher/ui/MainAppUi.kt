@@ -579,6 +579,12 @@ fun MainAppUi(
     val points by SwipeSettingsStore.getPointsFlow(ctx).collectAsState(emptyList())
     val defaultPoint by SwipeSettingsStore.getDefaultPointFlow(ctx).collectAsState(defaultSwipePointsValues)
 
+
+    // Used internally by the app view model
+    LaunchedEffect(iconsShape) {
+        appsViewModel.cacheIconShape(iconsShape)
+    }
+
     CompositionLocalProvider(
         LocalDefaultPoint provides defaultPoint,
         LocalIcons provides icons,

@@ -1,4 +1,4 @@
-package org.elnix.dragonlauncher.ui.components
+package org.elnix.dragonlauncher.common.utils
 
 import android.graphics.Matrix
 import android.graphics.Path
@@ -17,7 +17,7 @@ import org.elnix.dragonlauncher.common.serializables.CustomIconShapeSerializable
 import org.elnix.dragonlauncher.common.serializables.IconCornerType
 import org.elnix.dragonlauncher.common.serializables.IconShape
 import org.elnix.dragonlauncher.common.serializables.allShapes
-import org.elnix.dragonlauncher.ui.UiConstants.DragonShape
+import org.elnix.dragonlauncher.common.utils.UiConstants.DragonShape
 import kotlin.math.abs
 import kotlin.math.cbrt
 import kotlin.math.pow

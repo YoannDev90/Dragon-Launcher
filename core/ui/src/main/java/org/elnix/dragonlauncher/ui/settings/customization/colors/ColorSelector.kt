@@ -69,7 +69,7 @@ import org.elnix.dragonlauncher.enumsui.defaultThemeName
 import org.elnix.dragonlauncher.settings.bases.BaseSettingObject
 import org.elnix.dragonlauncher.settings.stores.ColorModesSettingsStore
 import org.elnix.dragonlauncher.settings.stores.ColorSettingsStore
-import org.elnix.dragonlauncher.ui.UiConstants.DragonShape
+import org.elnix.dragonlauncher.common.utils.UiConstants.DragonShape
 import org.elnix.dragonlauncher.ui.colors.AppObjectsColors
 import org.elnix.dragonlauncher.ui.colors.ColorPickerRow
 import org.elnix.dragonlauncher.ui.components.ExpandableSection

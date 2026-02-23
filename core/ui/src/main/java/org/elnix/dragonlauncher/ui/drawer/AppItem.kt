@@ -32,9 +32,9 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import org.elnix.dragonlauncher.common.serializables.AppModel
 import org.elnix.dragonlauncher.common.utils.bind
-import org.elnix.dragonlauncher.ui.UiConstants.DragonShape
+import org.elnix.dragonlauncher.common.utils.UiConstants.DragonShape
 import org.elnix.dragonlauncher.ui.actions.appIcon
-import org.elnix.dragonlauncher.ui.components.resolveShape
+import org.elnix.dragonlauncher.common.utils.resolveShape
 import org.elnix.dragonlauncher.ui.modifiers.conditional
 import org.elnix.dragonlauncher.ui.remembers.LocalIconShape
 

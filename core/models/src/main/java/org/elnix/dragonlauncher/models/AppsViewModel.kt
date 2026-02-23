@@ -13,6 +13,7 @@ import androidx.annotation.RequiresApi
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.ImageBitmap
 import androidx.compose.ui.graphics.toArgb
+import androidx.compose.ui.unit.Density
 import androidx.core.content.res.ResourcesCompat
 import com.google.gson.Gson
 import com.google.gson.reflect.TypeToken
@@ -35,6 +36,7 @@ import kotlinx.coroutines.sync.withLock
 import kotlinx.coroutines.sync.withPermit
 import kotlinx.coroutines.withContext
 import kotlinx.coroutines.withTimeoutOrNull
+import org.elnix.dragonlauncher.common.R
 import org.elnix.dragonlauncher.common.logging.logD
 import org.elnix.dragonlauncher.common.logging.logE
 import org.elnix.dragonlauncher.common.logging.logI
@@ -44,6 +46,7 @@ import org.elnix.dragonlauncher.common.serializables.CacheKey
 import org.elnix.dragonlauncher.common.serializables.CustomIconSerializable
 import org.elnix.dragonlauncher.common.serializables.IconMapping
 import org.elnix.dragonlauncher.common.serializables.IconPackInfo
+import org.elnix.dragonlauncher.common.serializables.IconShape
 import org.elnix.dragonlauncher.common.serializables.IconType
 import org.elnix.dragonlauncher.common.serializables.SwipeActionSerializable
 import org.elnix.dragonlauncher.common.serializables.SwipePointSerializable
@@ -65,9 +68,9 @@ import org.elnix.dragonlauncher.common.utils.isDefaultLauncher
 import org.elnix.dragonlauncher.common.utils.isNotBlankJson
 import org.elnix.dragonlauncher.common.utils.showToast
 import org.elnix.dragonlauncher.enumsui.PrivateSpaceLoadingState
-import org.elnix.dragonlauncher.settings.stores.PrivateAppsSettingsStore
 import org.elnix.dragonlauncher.settings.stores.BehaviorSettingsStore
 import org.elnix.dragonlauncher.settings.stores.DrawerSettingsStore
+import org.elnix.dragonlauncher.settings.stores.PrivateAppsSettingsStore
 import org.elnix.dragonlauncher.settings.stores.SwipeSettingsStore
 import org.elnix.dragonlauncher.settings.stores.UiSettingsStore
 import org.elnix.dragonlauncher.settings.stores.WorkspaceSettingsStore
@@ -547,7 +550,7 @@ class AppsViewModel(
     private suspend fun unlockPrivateSpace(): Boolean {
 
         if (!ctx.isDefaultLauncher) {
-            ctx.showToast(ctx.getString(org.elnix.dragonlauncher.common.R.string.need_to_be_default_launcher_to_use_private_space))
+            ctx.showToast(ctx.getString(R.string.need_to_be_default_launcher_to_use_private_space))
         }
 
         val reallyLocked = withContext(Dispatchers.IO) {
@@ -631,6 +634,21 @@ class AppsViewModel(
     }
 
 
+
+
+    private val _density = MutableStateFlow<Density?>(null)
+
+    fun cacheDensity(density: Density) {
+        _density.value = density
+    }
+
+    private val _iconShape = MutableStateFlow<IconShape?>(null)
+
+    fun cacheIconShape(iconShape: IconShape) {
+        _iconShape.value = iconShape
+    }
+
+
     /**
      * Renders a [CustomIconSerializable] from a given orig [ImageBitmap]
      * @param orig the base [ImageBitmap] that will be edited
@@ -674,7 +692,9 @@ class AppsViewModel(
         return resolveCustomIconBitmap(
             base = base,
             icon = customIcon,
-            sizePx = sizePx
+            sizePx = sizePx,
+            density = _density.value!!,
+            iconShape = _iconShape.value!!,
         )
     }
 

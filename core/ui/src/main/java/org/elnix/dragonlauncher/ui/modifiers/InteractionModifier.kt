@@ -12,7 +12,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Shape
 import androidx.compose.ui.semantics.Role
-import org.elnix.dragonlauncher.ui.UiConstants
+import org.elnix.dragonlauncher.common.utils.UiConstants
 
 
 @Composable

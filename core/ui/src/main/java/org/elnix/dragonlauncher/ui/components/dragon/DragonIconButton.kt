@@ -10,7 +10,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
-import org.elnix.dragonlauncher.ui.UiConstants
+import org.elnix.dragonlauncher.common.utils.UiConstants
 import org.elnix.dragonlauncher.ui.colors.AppObjectsColors
 
 

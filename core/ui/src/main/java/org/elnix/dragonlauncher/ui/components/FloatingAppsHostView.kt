@@ -17,6 +17,7 @@ import androidx.compose.ui.viewinterop.AndroidView
 import org.elnix.dragonlauncher.common.FloatingAppObject
 import org.elnix.dragonlauncher.common.serializables.SwipeActionSerializable
 import org.elnix.dragonlauncher.common.utils.WidgetHostProvider
+import org.elnix.dragonlauncher.common.utils.resolveShape
 import org.elnix.dragonlauncher.ui.actions.ActionIcon
 import org.elnix.dragonlauncher.ui.remembers.LocalIconShape
 import kotlin.math.min

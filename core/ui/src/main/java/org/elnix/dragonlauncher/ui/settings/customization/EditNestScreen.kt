@@ -38,7 +38,7 @@ import org.elnix.dragonlauncher.enumsui.NestEditMode.DRAG
 import org.elnix.dragonlauncher.enumsui.NestEditMode.HAPTIC
 import org.elnix.dragonlauncher.enumsui.NestEditMode.MIN_ANGLE
 import org.elnix.dragonlauncher.settings.stores.SwipeSettingsStore
-import org.elnix.dragonlauncher.ui.UiConstants.DragonShape
+import org.elnix.dragonlauncher.common.utils.UiConstants.DragonShape
 import org.elnix.dragonlauncher.ui.components.generic.ActionRow
 import org.elnix.dragonlauncher.ui.defaultDragDistance
 import org.elnix.dragonlauncher.ui.defaultHapticFeedback

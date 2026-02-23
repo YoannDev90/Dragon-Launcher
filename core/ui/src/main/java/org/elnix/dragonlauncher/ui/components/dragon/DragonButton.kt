@@ -15,7 +15,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import org.elnix.dragonlauncher.common.R
-import org.elnix.dragonlauncher.ui.UiConstants
+import org.elnix.dragonlauncher.common.utils.UiConstants
 import org.elnix.dragonlauncher.ui.colors.AppObjectsColors
 import org.elnix.dragonlauncher.ui.dialogs.UserValidation
 

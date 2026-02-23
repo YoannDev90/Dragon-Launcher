@@ -72,7 +72,7 @@ import org.elnix.dragonlauncher.models.AppsViewModel
 import org.elnix.dragonlauncher.models.FloatingAppsViewModel
 import org.elnix.dragonlauncher.settings.stores.DebugSettingsStore
 import org.elnix.dragonlauncher.settings.stores.StatusBarSettingsStore
-import org.elnix.dragonlauncher.ui.UiConstants.DragonShape
+import org.elnix.dragonlauncher.common.utils.UiConstants.DragonShape
 import org.elnix.dragonlauncher.ui.components.FloatingAppsHostView
 import org.elnix.dragonlauncher.ui.dialogs.AddPointDialog
 import org.elnix.dragonlauncher.ui.dialogs.NestManagementDialog

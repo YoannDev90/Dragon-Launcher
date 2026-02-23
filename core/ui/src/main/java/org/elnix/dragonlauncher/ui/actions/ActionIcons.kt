@@ -16,7 +16,7 @@ import org.elnix.dragonlauncher.common.serializables.AppModel
 import org.elnix.dragonlauncher.common.serializables.SwipeActionSerializable
 import org.elnix.dragonlauncher.common.utils.ImageUtils.createUntintedBitmap
 import org.elnix.dragonlauncher.common.utils.ImageUtils.loadDrawableResAsBitmap
-import org.elnix.dragonlauncher.ui.components.PlatformShape
+import org.elnix.dragonlauncher.common.utils.PlatformShape
 import org.elnix.dragonlauncher.ui.remembers.LocalIcons
 
 @Composable

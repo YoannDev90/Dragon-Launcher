@@ -68,7 +68,7 @@ import org.elnix.dragonlauncher.common.serializables.allShapesWithoutRandom
 import org.elnix.dragonlauncher.common.utils.semiTransparentIfDisabled
 import org.elnix.dragonlauncher.common.utils.vibrate
 import org.elnix.dragonlauncher.settings.stores.BehaviorSettingsStore
-import org.elnix.dragonlauncher.ui.components.resolveShape
+import org.elnix.dragonlauncher.common.utils.resolveShape
 import org.elnix.dragonlauncher.ui.components.settings.asState
 import org.elnix.dragonlauncher.ui.modifiers.rememberPressedShape
 

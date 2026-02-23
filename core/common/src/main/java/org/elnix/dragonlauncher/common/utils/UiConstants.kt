@@ -1,4 +1,4 @@
-package org.elnix.dragonlauncher.ui
+package org.elnix.dragonlauncher.common.utils
 
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.ui.unit.dp

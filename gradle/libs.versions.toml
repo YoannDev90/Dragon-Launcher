@@ -41,6 +41,7 @@ androidx-compose-material3 = { group = "androidx.compose.material3", name = "mat
 androidx-ui = { group = "androidx.compose.ui", name = "ui", version.ref = "ui" }
 androidx-ui-graphics = { group = "androidx.compose.ui", name = "ui-graphics", version.ref = "uiGraphics" }
 androidx-compose-foundation-layout = { group = "androidx.compose.foundation", name = "foundation-layout", version.ref = "foundationLayout" }
+androidx-compose-foundation = { group = "androidx.compose.foundation", name = "foundation" }
 androidx-datastore-preferences = { module = "androidx.datastore:datastore-preferences", version.ref = "datastore" }
 androidx-material-icons-extended = { module = "androidx.compose.material:material-icons-extended" }
 material = { module = "com.google.android.material:material", version.ref = "material" }

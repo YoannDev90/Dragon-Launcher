@@ -55,7 +55,7 @@ import org.elnix.dragonlauncher.settings.SettingsBackupManager
 import org.elnix.dragonlauncher.settings.backupableStores
 import org.elnix.dragonlauncher.settings.stores.BackupSettingsStore
 import org.elnix.dragonlauncher.settings.stores.PrivateSettingsStore
-import org.elnix.dragonlauncher.ui.UiConstants.DragonShape
+import org.elnix.dragonlauncher.common.utils.UiConstants.DragonShape
 import org.elnix.dragonlauncher.ui.components.TextDivider
 import org.elnix.dragonlauncher.ui.components.generic.ActionRow
 import org.elnix.dragonlauncher.ui.dialogs.ExportSettingsDialog
