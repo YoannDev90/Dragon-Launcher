@@ -53,6 +53,7 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableFloatStateOf
@@ -152,6 +153,8 @@ fun SettingsScreen(
     val extraColors = LocalExtraColors.current
     val scope = rememberCoroutineScope()
 
+    val iconsVersion by appsViewModel.iconsVersion.collectAsState()
+
     val backgroundColor = MaterialTheme.colorScheme.background
 
     val snapPoints by UiSettingsStore.snapPoints.asState()
@@ -233,24 +236,30 @@ fun SettingsScreen(
     val densityPixelsIconOverlaySize = appIconOverlaySize.dp.toPixels().toInt()
     val sizePx = max(densityPixelsIconOverlaySize, defaultPoint.size ?: 128)
 
-    /**
-     * Reload all point icons on every change of the points, nestId, appIconOverlaySize, or default point
-     * Set the size of the icons to the max size between the 2 overlays sizes preview to display them cleanly
-     */
-    LaunchedEffect(points, nestId, appIconOverlaySize, defaultPoint) {
 
+    fun reloadIcons() {
         appsViewModel.preloadPointIcons(
             points = points.filter { it.nestId == nestId },
-            sizePx = sizePx
+            sizePx = sizePx,
+            override = true
         )
 
         /* Load asynchronously all the other points, to avoid lag */
         scope.launch(Dispatchers.IO) {
             appsViewModel.preloadPointIcons(
                 points = points,
-                sizePx = sizePx
+                sizePx = sizePx,
+                override = true
             )
         }
+    }
+
+    /**
+     * Reload all point icons on every change of the points, nestId, appIconOverlaySize, or default point
+     * Set the size of the icons to the max size between the 2 overlays sizes preview to display them cleanly
+     */
+    LaunchedEffect(points, nestId, appIconOverlaySize, defaultPoint) {
+        reloadIcons()
     }
 
     /**
@@ -437,6 +446,8 @@ fun SettingsScreen(
         else onBack()
     }
 
+
+
     // Shows all points, excepted the currently dragged one, if any
     val displayedFilteredPoints by remember(points, isDragging, selectedPoint?.id) {
         derivedStateOf {
@@ -454,6 +465,8 @@ fun SettingsScreen(
 
 
     val drawParams by remember(
+        iconsVersion,
+        points,
         displayedFilteredPoints,
         backgroundColor,
         extraColors
@@ -531,7 +544,7 @@ fun SettingsScreen(
                                     appsViewModel.preloadPointIcons(
                                         points = points,
                                         sizePx = sizePx,
-                                        reloadAll = true
+                                        override = true
                                     )
                                 }
                             ) {
@@ -1397,6 +1410,7 @@ fun SettingsScreen(
         ) {
             scope.launch {
                 SwipeSettingsStore.setDefaultPoint(ctx, it)
+                reloadIcons()
             }
             showEditDefaultPoint = false
         }

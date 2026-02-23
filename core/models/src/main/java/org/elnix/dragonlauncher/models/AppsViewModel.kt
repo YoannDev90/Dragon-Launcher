@@ -436,7 +436,7 @@ class AppsViewModel(
             preloadPointIcons(
                 points = points,
                 sizePx = 128,
-                reloadAll = true,
+                override = true,
             )
 
             logI(
@@ -794,6 +794,9 @@ class AppsViewModel(
 
     /* ──────────────────────────────────────────────────  */
 
+    private val _iconsVersion = MutableStateFlow(0)
+    val iconsVersion = _iconsVersion
+
 
     /* ───────────── Reload Functions ───────────── */
 
@@ -816,6 +819,7 @@ class AppsViewModel(
             )
 
             _icons.update { it + (id to bmp) }
+            _iconsVersion.value++
         }
     }
 
@@ -847,6 +851,7 @@ class AppsViewModel(
 
             updated
         }
+        _iconsVersion.value++
     }
 
 
@@ -858,17 +863,17 @@ class AppsViewModel(
      *
      * @param points which points to load
      * @param sizePx size of the [ImageBitmap]  loaded
-     * @param reloadAll whether to override the existing already loaded or skip them
+     * @param override whether to override the existing already loaded or skip them
      */
     fun preloadPointIcons(
         points: List<SwipePointSerializable>,
         sizePx: Int,
-        reloadAll: Boolean = false
+        override: Boolean = false
     ) {
         scope.launch(Dispatchers.Default) {
             points.forEach { p ->
                 val id = p.id
-                if (_icons.value.containsKey(id) && !reloadAll) return@forEach
+                if (_icons.value.containsKey(id) && !override) return@forEach
 
                 reloadPointIcon(p, sizePx)
             }
@@ -901,6 +906,7 @@ class AppsViewModel(
             updated[app.iconCacheKey.cacheKey] = bitmap
         }
         _icons.update { updated }
+        _iconsVersion.value++
     }
 
 
