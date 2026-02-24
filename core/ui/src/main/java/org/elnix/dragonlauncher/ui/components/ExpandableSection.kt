@@ -25,12 +25,11 @@ import androidx.compose.ui.unit.dp
 import org.elnix.dragonlauncher.common.R
 import org.elnix.dragonlauncher.ui.modifiers.conditional
 import org.elnix.dragonlauncher.ui.modifiers.settingsGroup
+import org.elnix.dragonlauncher.ui.remembers.ExpandableSectionState
 
 @Composable
 fun ExpandableSection(
-    expanded: () -> Boolean,
-    title: String,
-    onExpand: (Boolean) -> Unit,
+    state: ExpandableSectionState,
     content: @Composable ColumnScope.() -> Unit
 ) {
     val expandedColor = MaterialTheme.colorScheme.surfaceVariant
@@ -46,18 +45,20 @@ fun ExpandableSection(
         )
     }
 
-    LaunchedEffect(expanded()) {
-        rotationDegrees.animateTo(if (expanded()) 90f else 0f)
+    val expanded = state.isExpanded()
+
+    LaunchedEffect(expanded) {
+        rotationDegrees.animateTo(if (expanded) 90f else 0f)
     }
-    LaunchedEffect(expanded()) {
-        backgroundColor.animateTo(if (expanded()) expandedColor else collapsedColor)
+    LaunchedEffect(expanded) {
+        backgroundColor.animateTo(if (expanded) expandedColor else collapsedColor)
     }
 
     Column(
         modifier = Modifier.settingsGroup(
-            clickModifier = Modifier.conditional(!expanded()) {
+            clickModifier = Modifier.conditional(!expanded) {
                 clickable {
-                    onExpand(!expanded())
+                    state.toggle()
                 }
             },
             backgroundColor = backgroundColor.value
@@ -67,9 +68,9 @@ fun ExpandableSection(
         Row(
             modifier = Modifier
                 .settingsGroup(
-                    clickModifier = Modifier.conditional(expanded()) {
+                    clickModifier = Modifier.conditional(expanded) {
                         clickable {
-                            onExpand(!expanded())
+                            state.toggle()
                         }
                     },
                     backgroundColor = Color.Transparent,
@@ -79,7 +80,7 @@ fun ExpandableSection(
             verticalAlignment = Alignment.CenterVertically,
             horizontalArrangement = Arrangement.SpaceBetween
         ) {
-            Text(title)
+            Text(state.title)
 
             Icon(
                 imageVector = Icons.Default.ChevronRight,
@@ -90,7 +91,7 @@ fun ExpandableSection(
         }
 
         AnimatedVisibility(
-            visible = expanded()
+            visible = expanded
         ) {
             Column(
                 verticalArrangement = Arrangement.spacedBy(5.dp)

@@ -24,18 +24,18 @@ import org.elnix.dragonlauncher.common.utils.showToast
 import org.elnix.dragonlauncher.enumsui.LockMethod
 import org.elnix.dragonlauncher.models.AppLifecycleViewModel
 import org.elnix.dragonlauncher.models.AppsViewModel
-import org.elnix.dragonlauncher.settings.stores.PrivateAppsSettingsStore
 import org.elnix.dragonlauncher.settings.stores.BehaviorSettingsStore
+import org.elnix.dragonlauncher.settings.stores.PrivateAppsSettingsStore
 import org.elnix.dragonlauncher.settings.stores.PrivateSettingsStore
 import org.elnix.dragonlauncher.settings.stores.UiSettingsStore
 import org.elnix.dragonlauncher.ui.components.ExpandableSection
-import org.elnix.dragonlauncher.ui.components.dragon.DragonColumnGroup
 import org.elnix.dragonlauncher.ui.components.settings.SettingsSlider
 import org.elnix.dragonlauncher.ui.components.settings.SettingsSwitchRow
 import org.elnix.dragonlauncher.ui.components.settings.asState
 import org.elnix.dragonlauncher.ui.helpers.CustomActionSelector
 import org.elnix.dragonlauncher.ui.helpers.SliderWithLabel
 import org.elnix.dragonlauncher.ui.helpers.settings.SettingsLazyHeader
+import org.elnix.dragonlauncher.ui.remembers.rememberExpandableSection
 
 
 @Composable
@@ -58,9 +58,6 @@ fun BehaviorTab(
     val lockMethod by PrivateSettingsStore.lockMethod.asState()
     val superWarningModeEnabled = lockMethod != LockMethod.NONE
 
-    var isPaddingBlockExtended by remember { mutableStateOf(false) }
-    var superWarningModeSettingsExpanded by remember { mutableStateOf(false) }
-
     var isDragging by remember { mutableStateOf(false) }
 
     suspend fun brieflyShowIsDragging() {
@@ -68,6 +65,11 @@ fun BehaviorTab(
         delay(200)
         isDragging = false
     }
+
+    val paddingState = rememberExpandableSection(stringResource(R.string.drag_zone_padding))
+    val holdExpandableSectionState = rememberExpandableSection(stringResource(R.string.hold_settings))
+    val superWarningState = rememberExpandableSection(stringResource(R.string.drag_zone_padding))
+
 
     SettingsLazyHeader(
         title = stringResource(R.string.behavior),
@@ -178,7 +180,7 @@ fun BehaviorTab(
         }
 
         item {
-            DragonColumnGroup {
+            ExpandableSection(holdExpandableSectionState) {
                 SettingsSlider(
                     setting = BehaviorSettingsStore.longCLickSettingsDuration,
                     title = stringResource(R.string.long_click_settings_duration),
@@ -192,15 +194,25 @@ fun BehaviorTab(
                     description = stringResource(R.string.hold_delay_before_starting_long_click_settings_desc),
                     valueRange = 200..2000
                 )
+
+                SettingsSlider(
+                    setting = BehaviorSettingsStore.holdToActivateSettingsRadius,
+                    title = stringResource(R.string.hold_to_activate_radius),
+                    description = stringResource(R.string.hold_to_activate_radius_desc),
+                    valueRange = 10..300
+                )
+
+                SettingsSlider(
+                    setting = BehaviorSettingsStore.holdToActivateSettingsStroke,
+                    title = stringResource(R.string.hold_to_activate_stroke),
+                    description = stringResource(R.string.hold_to_activate_stroke_desc),
+                    valueRange = 1..50
+                )
             }
         }
 
         item {
-            ExpandableSection(
-                expanded = { isPaddingBlockExtended },
-                title = stringResource(R.string.drag_zone_padding),
-                onExpand = { isPaddingBlockExtended = !isPaddingBlockExtended }
-            ) {
+            ExpandableSection(paddingState) {
                 SliderWithLabel(
                     label = stringResource(R.string.left_padding),
                     value = leftPadding,
@@ -292,11 +304,7 @@ fun BehaviorTab(
         }
 
         item {
-            ExpandableSection(
-                expanded = { superWarningModeSettingsExpanded },
-                title = stringResource(R.string.drag_zone_padding),
-                onExpand = { superWarningModeSettingsExpanded = !superWarningModeSettingsExpanded }
-            ) {
+            ExpandableSection(superWarningState) {
                 SettingsSwitchRow(
                     setting = BehaviorSettingsStore.superWarningMode,
                     enabled = superWarningModeEnabled,

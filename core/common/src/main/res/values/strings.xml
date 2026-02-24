@@ -758,5 +758,10 @@
     <string name="use_differential_loading_private_space">Use Differential loading private space</string>
     <string name="use_differential_loading_private_space_desc">Toggle this when private apps appear in the user workspace, otherwise keep it unchecked for performances</string>
     <string name="edit_border_shape">Edit border shape</string>
+    <string name="hold_to_activate_radius">Hold to activate radius</string>
+    <string name="hold_to_activate_radius_desc">The radius of the loading circle progress</string>
+    <string name="hold_to_activate_stroke">Hold to activate stroke</string>
+    <string name="hold_to_activate_stroke_desc">The stroke of the arc</string>
+    <string name="hold_settings">Hold settings</string>
 
 </resources>

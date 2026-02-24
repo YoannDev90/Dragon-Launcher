@@ -44,6 +44,7 @@ import org.elnix.dragonlauncher.ui.components.settings.SettingsSwitchRow
 import org.elnix.dragonlauncher.ui.components.settings.asState
 import org.elnix.dragonlauncher.ui.helpers.CustomActionSelector
 import org.elnix.dragonlauncher.ui.helpers.settings.SettingsLazyHeader
+import org.elnix.dragonlauncher.ui.remembers.rememberExpandableSection
 import org.elnix.dragonlauncher.ui.statusbar.StatusBar
 
 @Composable
@@ -66,10 +67,10 @@ fun StatusBarTab(
     val clockAction by StatusBarSettingsStore.clockAction.asState()
     val dateAction by StatusBarSettingsStore.dateAction.asState()
 
-    var timeSectionExpanded by remember { mutableStateOf(false) }
-    var dateSectionExpanded by remember { mutableStateOf(false) }
-    var displaySectionExpanded by remember { mutableStateOf(false) }
-    var paddingsSectionExpanded by remember { mutableStateOf(false) }
+    val timeSectionState = rememberExpandableSection(stringResource(R.string.time_display_settings))
+    val dateSectionState = rememberExpandableSection(stringResource(R.string.date_display_settings))
+    val displaySectionState = rememberExpandableSection(stringResource(R.string.display_options_settings))
+    val paddingsSectionState = rememberExpandableSection(stringResource(R.string.padding))
 
     Column {
         AnimatedVisibility(showStatusBar && isRealFullscreen) {
@@ -106,11 +107,7 @@ fun StatusBarTab(
                     Column(
                         verticalArrangement = Arrangement.spacedBy(10.dp),
                     ) {
-                        ExpandableSection(
-                            expanded = { timeSectionExpanded },
-                            title = stringResource(R.string.time_display_settings),
-                            onExpand = { timeSectionExpanded = !timeSectionExpanded }
-                        ) {
+                        ExpandableSection(timeSectionState) {
                             SettingsSwitchRow(
                                 setting = StatusBarSettingsStore.showTime,
                                 title = stringResource(R.string.show_time),
@@ -175,11 +172,7 @@ fun StatusBarTab(
                             }
                         }
 
-                        ExpandableSection(
-                            expanded = { dateSectionExpanded },
-                            title = stringResource(R.string.date_display_settings),
-                            onExpand = { dateSectionExpanded = !dateSectionExpanded }
-                        ) {
+                        ExpandableSection(dateSectionState) {
                             SettingsSwitchRow(
                                 setting = StatusBarSettingsStore.showDate,
                                 title = stringResource(R.string.show_date),
@@ -247,11 +240,7 @@ fun StatusBarTab(
                         }
 
 
-                        ExpandableSection(
-                            expanded = { displaySectionExpanded },
-                            title = stringResource(R.string.display_options_settings),
-                            onExpand = { displaySectionExpanded = !displaySectionExpanded }
-                        ) {
+                        ExpandableSection(displaySectionState) {
                             SettingsColorPicker(
                                 settingObject = StatusBarSettingsStore.barBackgroundColor,
                                 label = stringResource(R.string.status_bar_background),
@@ -332,11 +321,7 @@ fun StatusBarTab(
                             )
                         }
 
-                        ExpandableSection(
-                            expanded = { paddingsSectionExpanded },
-                            title = stringResource(R.string.padding),
-                            onExpand = { paddingsSectionExpanded = !paddingsSectionExpanded }
-                        ) {
+                        ExpandableSection(paddingsSectionState) {
                             SettingsSlider(
                                 setting = StatusBarSettingsStore.leftPadding,
                                 title = stringResource(R.string.left_padding),

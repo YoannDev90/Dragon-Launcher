@@ -25,7 +25,14 @@ object BehaviorSettingsStore : MapSettingsStore() {
             holdDelayBeforeStartingLongClickSettings,
             longCLickSettingsDuration,
             disableHapticFeedbackGlobally,
-            pointsActionSnapsToOuterCircle
+            pointsActionSnapsToOuterCircle,
+            holdToActivateSettingsRadius,
+            holdToActivateSettingsStroke,
+            useDifferentialLoadingForPrivateSpace,
+            superWarningModeSound,
+            metalPipesSound,
+            alarmSound,
+            vibrateOnError
         )
 
     val backAction = Settings.swipeAction(
@@ -80,6 +87,9 @@ object BehaviorSettingsStore : MapSettingsStore() {
         allowedRange = 0..300
     )
 
+
+    /*  ───────────── Hold to settings  ─────────────  */
+
     val holdDelayBeforeStartingLongClickSettings = Settings.int(
         key = "holdDelayBeforeStartingLongClickSettings",
         dataStoreName = dataStoreName,
@@ -94,6 +104,23 @@ object BehaviorSettingsStore : MapSettingsStore() {
         allowedRange = 200..5000
     )
 
+    val holdToActivateSettingsRadius = Settings.int(
+        key = "holdToActivateSettingsRadius",
+        dataStoreName = dataStoreName,
+        default = 75,
+        allowedRange = 10..300
+    )
+
+    val holdToActivateSettingsStroke = Settings.int(
+        key = "holdToActivateSettingsStroke",
+        dataStoreName = dataStoreName,
+        default = 6,
+        allowedRange = 1..50
+    )
+
+
+    /*  ─────────────  Other Useful Settings  ─────────────  */
+
     val disableHapticFeedbackGlobally = Settings.boolean(
         key = "disableHapticFeedbackGlobally",
         dataStoreName = dataStoreName,
@@ -105,6 +132,9 @@ object BehaviorSettingsStore : MapSettingsStore() {
         dataStoreName = dataStoreName,
         default = true
     )
+
+
+    /*  ─────────────  Super Warning mode  ─────────────  */
 
     val superWarningMode = Settings.boolean(
         key = "superWarningMode",

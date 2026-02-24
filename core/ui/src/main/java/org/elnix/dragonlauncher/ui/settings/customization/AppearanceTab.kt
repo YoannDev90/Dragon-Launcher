@@ -44,6 +44,7 @@ import org.elnix.dragonlauncher.ui.components.settings.asState
 import org.elnix.dragonlauncher.ui.helpers.settings.SettingsItem
 import org.elnix.dragonlauncher.ui.helpers.settings.SettingsLazyHeader
 import org.elnix.dragonlauncher.ui.remembers.LocalIcons
+import org.elnix.dragonlauncher.ui.remembers.rememberExpandableSection
 
 
 @Composable
@@ -62,7 +63,8 @@ fun AppearanceTab(
     val appLabelOverlaySize by appLabelOverlaySize.asState()
     val appIconOverlaySize by appIconOverlaySize.asState()
 
-    var topOverlaySettingsExpanded by remember { mutableStateOf(false) }
+    val topOverlaySettingsState = rememberExpandableSection(stringResource(R.string.app_preview_settings))
+
 
     var isDraggingAppPreviewOverlays by remember { mutableStateOf(false) }
 
@@ -143,11 +145,7 @@ fun AppearanceTab(
 
 
         item {
-            ExpandableSection(
-                expanded = { topOverlaySettingsExpanded },
-                title = stringResource(R.string.app_preview_settings),
-                onExpand = { topOverlaySettingsExpanded = !topOverlaySettingsExpanded}
-            ) {
+            ExpandableSection(topOverlaySettingsState) {
 
                 SettingsSwitchRow(
                     setting = UiSettingsStore.showLaunchingAppLabel,

@@ -53,7 +53,9 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import kotlinx.coroutines.launch
+import org.elnix.dragonlauncher.base.theme.DefaultExtraColors
 import org.elnix.dragonlauncher.common.R
+import org.elnix.dragonlauncher.common.utils.UiConstants.DragonShape
 import org.elnix.dragonlauncher.common.utils.colors.adjustBrightness
 import org.elnix.dragonlauncher.common.utils.definedOrNull
 import org.elnix.dragonlauncher.enumsui.CustomColorModeEditing
@@ -69,7 +71,6 @@ import org.elnix.dragonlauncher.enumsui.defaultThemeName
 import org.elnix.dragonlauncher.settings.bases.BaseSettingObject
 import org.elnix.dragonlauncher.settings.stores.ColorModesSettingsStore
 import org.elnix.dragonlauncher.settings.stores.ColorSettingsStore
-import org.elnix.dragonlauncher.common.utils.UiConstants.DragonShape
 import org.elnix.dragonlauncher.ui.colors.AppObjectsColors
 import org.elnix.dragonlauncher.ui.colors.ColorPickerRow
 import org.elnix.dragonlauncher.ui.components.ExpandableSection
@@ -85,7 +86,8 @@ import org.elnix.dragonlauncher.ui.dialogs.UserValidation
 import org.elnix.dragonlauncher.ui.helpers.SwitchRow
 import org.elnix.dragonlauncher.ui.helpers.settings.SettingsLazyHeader
 import org.elnix.dragonlauncher.ui.modifiers.conditional
-import org.elnix.dragonlauncher.base.theme.DefaultExtraColors
+import org.elnix.dragonlauncher.ui.remembers.ExpandableSectionState
+import org.elnix.dragonlauncher.ui.remembers.rememberExpandableSection
 import org.elnix.dragonlauncher.ui.theme.getSystemColorScheme
 
 @Suppress("AssignedValueIsNeverRead")
@@ -104,42 +106,122 @@ fun ColorSelectorTab(
     // ───────────── PRIMARY COLORS ─────────────
     val primaryColors = listOf(
         ColorEdit(ColorSettingsStore.primaryColor, stringResource(R.string.primary_color), defaultColorScheme.primary),
-        ColorEdit(ColorSettingsStore.onPrimaryColor, stringResource(R.string.on_primary_color), defaultColorScheme.onPrimary),
-        ColorEdit(ColorSettingsStore.primaryContainerColor, stringResource(R.string.primary_container_color), defaultColorScheme.primaryContainer),
-        ColorEdit(ColorSettingsStore.onPrimaryContainerColor, stringResource(R.string.on_primary_container_color), defaultColorScheme.onPrimaryContainer),
-        ColorEdit(ColorSettingsStore.inversePrimaryColor, stringResource(R.string.inverse_primary_color), defaultColorScheme.inversePrimary)
+        ColorEdit(
+            ColorSettingsStore.onPrimaryColor,
+            stringResource(R.string.on_primary_color),
+            defaultColorScheme.onPrimary
+        ),
+        ColorEdit(
+            ColorSettingsStore.primaryContainerColor,
+            stringResource(R.string.primary_container_color),
+            defaultColorScheme.primaryContainer
+        ),
+        ColorEdit(
+            ColorSettingsStore.onPrimaryContainerColor,
+            stringResource(R.string.on_primary_container_color),
+            defaultColorScheme.onPrimaryContainer
+        ),
+        ColorEdit(
+            ColorSettingsStore.inversePrimaryColor,
+            stringResource(R.string.inverse_primary_color),
+            defaultColorScheme.inversePrimary
+        )
     )
     val primarySectionTitle = stringResource(R.string.primary_colors_section)
 
     // ───────────── SECONDARY COLORS ─────────────
     val secondaryColors = listOf(
-        ColorEdit(ColorSettingsStore.secondaryColor, stringResource(R.string.secondary_color), defaultColorScheme.secondary),
-        ColorEdit(ColorSettingsStore.onSecondaryColor, stringResource(R.string.on_secondary_color), defaultColorScheme.onSecondary),
-        ColorEdit(ColorSettingsStore.secondaryContainerColor, stringResource(R.string.secondary_container_color), defaultColorScheme.secondaryContainer),
-        ColorEdit(ColorSettingsStore.onSecondaryContainerColor, stringResource(R.string.on_secondary_container_color), defaultColorScheme.onSecondaryContainer)
+        ColorEdit(
+            ColorSettingsStore.secondaryColor,
+            stringResource(R.string.secondary_color),
+            defaultColorScheme.secondary
+        ),
+        ColorEdit(
+            ColorSettingsStore.onSecondaryColor,
+            stringResource(R.string.on_secondary_color),
+            defaultColorScheme.onSecondary
+        ),
+        ColorEdit(
+            ColorSettingsStore.secondaryContainerColor,
+            stringResource(R.string.secondary_container_color),
+            defaultColorScheme.secondaryContainer
+        ),
+        ColorEdit(
+            ColorSettingsStore.onSecondaryContainerColor,
+            stringResource(R.string.on_secondary_container_color),
+            defaultColorScheme.onSecondaryContainer
+        )
     )
     val secondarySectionTitle = stringResource(R.string.secondary_colors_section)
 
     // ───────────── TERTIARY COLORS ─────────────
     val tertiaryColors = listOf(
-        ColorEdit(ColorSettingsStore.tertiaryColor, stringResource(R.string.tertiary_color), defaultColorScheme.tertiary),
-        ColorEdit(ColorSettingsStore.onTertiaryColor, stringResource(R.string.on_tertiary_color), defaultColorScheme.onTertiary),
-        ColorEdit(ColorSettingsStore.tertiaryContainerColor, stringResource(R.string.tertiary_container_color), defaultColorScheme.tertiaryContainer),
-        ColorEdit(ColorSettingsStore.onTertiaryContainerColor, stringResource(R.string.on_tertiary_container_color), defaultColorScheme.onTertiaryContainer)
+        ColorEdit(
+            ColorSettingsStore.tertiaryColor,
+            stringResource(R.string.tertiary_color),
+            defaultColorScheme.tertiary
+        ),
+        ColorEdit(
+            ColorSettingsStore.onTertiaryColor,
+            stringResource(R.string.on_tertiary_color),
+            defaultColorScheme.onTertiary
+        ),
+        ColorEdit(
+            ColorSettingsStore.tertiaryContainerColor,
+            stringResource(R.string.tertiary_container_color),
+            defaultColorScheme.tertiaryContainer
+        ),
+        ColorEdit(
+            ColorSettingsStore.onTertiaryContainerColor,
+            stringResource(R.string.on_tertiary_container_color),
+            defaultColorScheme.onTertiaryContainer
+        )
     )
     val tertiarySectionTitle = stringResource(R.string.tertiary_colors_section)
 
     // ───────────── BACKGROUND / SURFACE ─────────────
     val backgroundColors = listOf(
-        ColorEdit(ColorSettingsStore.backgroundColor, stringResource(R.string.background_color), defaultColorScheme.background),
-        ColorEdit(ColorSettingsStore.onBackgroundColor, stringResource(R.string.on_background_color), defaultColorScheme.onBackground),
+        ColorEdit(
+            ColorSettingsStore.backgroundColor,
+            stringResource(R.string.background_color),
+            defaultColorScheme.background
+        ),
+        ColorEdit(
+            ColorSettingsStore.onBackgroundColor,
+            stringResource(R.string.on_background_color),
+            defaultColorScheme.onBackground
+        ),
         ColorEdit(ColorSettingsStore.surfaceColor, stringResource(R.string.surface_color), defaultColorScheme.surface),
-        ColorEdit(ColorSettingsStore.onSurfaceColor, stringResource(R.string.on_surface_color), defaultColorScheme.onSurface),
-        ColorEdit(ColorSettingsStore.surfaceVariantColor, stringResource(R.string.surface_variant_color), defaultColorScheme.surfaceVariant),
-        ColorEdit(ColorSettingsStore.onSurfaceVariantColor, stringResource(R.string.on_surface_variant_color), defaultColorScheme.onSurfaceVariant),
-        ColorEdit(ColorSettingsStore.surfaceTintColor, stringResource(R.string.surface_tint_color), defaultColorScheme.surfaceTint),
-        ColorEdit(ColorSettingsStore.inverseSurfaceColor, stringResource(R.string.inverse_surface_color), defaultColorScheme.inverseSurface),
-        ColorEdit(ColorSettingsStore.inverseOnSurfaceColor, stringResource(R.string.inverse_on_surface_color), defaultColorScheme.inverseOnSurface)
+        ColorEdit(
+            ColorSettingsStore.onSurfaceColor,
+            stringResource(R.string.on_surface_color),
+            defaultColorScheme.onSurface
+        ),
+        ColorEdit(
+            ColorSettingsStore.surfaceVariantColor,
+            stringResource(R.string.surface_variant_color),
+            defaultColorScheme.surfaceVariant
+        ),
+        ColorEdit(
+            ColorSettingsStore.onSurfaceVariantColor,
+            stringResource(R.string.on_surface_variant_color),
+            defaultColorScheme.onSurfaceVariant
+        ),
+        ColorEdit(
+            ColorSettingsStore.surfaceTintColor,
+            stringResource(R.string.surface_tint_color),
+            defaultColorScheme.surfaceTint
+        ),
+        ColorEdit(
+            ColorSettingsStore.inverseSurfaceColor,
+            stringResource(R.string.inverse_surface_color),
+            defaultColorScheme.inverseSurface
+        ),
+        ColorEdit(
+            ColorSettingsStore.inverseOnSurfaceColor,
+            stringResource(R.string.inverse_on_surface_color),
+            defaultColorScheme.inverseOnSurface
+        )
     )
     val backgroundSectionTitle = stringResource(R.string.background_surface_colors_section)
 
@@ -147,56 +229,160 @@ fun ColorSelectorTab(
     val errorColors = listOf(
         ColorEdit(ColorSettingsStore.errorColor, stringResource(R.string.error_color), defaultColorScheme.error),
         ColorEdit(ColorSettingsStore.onErrorColor, stringResource(R.string.on_error_color), defaultColorScheme.onError),
-        ColorEdit(ColorSettingsStore.errorContainerColor, stringResource(R.string.error_container_color), defaultColorScheme.errorContainer),
-        ColorEdit(ColorSettingsStore.onErrorContainerColor, stringResource(R.string.on_error_container_color), defaultColorScheme.onErrorContainer)
+        ColorEdit(
+            ColorSettingsStore.errorContainerColor,
+            stringResource(R.string.error_container_color),
+            defaultColorScheme.errorContainer
+        ),
+        ColorEdit(
+            ColorSettingsStore.onErrorContainerColor,
+            stringResource(R.string.on_error_container_color),
+            defaultColorScheme.onErrorContainer
+        )
     )
     val errorSectionTitle = stringResource(R.string.error_colors_section)
 
     // ───────────── OUTLINE / MISC ─────────────
     val outlineColors = listOf(
         ColorEdit(ColorSettingsStore.outlineColor, stringResource(R.string.outline_color), defaultColorScheme.outline),
-        ColorEdit(ColorSettingsStore.outlineVariantColor, stringResource(R.string.outline_variant_color), defaultColorScheme.outlineVariant),
+        ColorEdit(
+            ColorSettingsStore.outlineVariantColor,
+            stringResource(R.string.outline_variant_color),
+            defaultColorScheme.outlineVariant
+        ),
         ColorEdit(ColorSettingsStore.scrimColor, stringResource(R.string.scrim_color), defaultColorScheme.scrim)
     )
     val outlineSectionTitle = stringResource(R.string.outline_colors_section)
 
     // ───────────── SURFACE CONTAINERS ─────────────
     val surfaceContainerColors = listOf(
-        ColorEdit(ColorSettingsStore.surfaceBrightColor, stringResource(R.string.surface_bright_color), defaultColorScheme.surfaceBright),
-        ColorEdit(ColorSettingsStore.surfaceContainerColor, stringResource(R.string.surface_container_color), defaultColorScheme.surfaceContainer),
-        ColorEdit(ColorSettingsStore.surfaceContainerHighColor, stringResource(R.string.surface_container_high_color), defaultColorScheme.surfaceContainerHigh),
-        ColorEdit(ColorSettingsStore.surfaceContainerHighestColor, stringResource(R.string.surface_container_highest_color), defaultColorScheme.surfaceContainerHighest),
-        ColorEdit(ColorSettingsStore.surfaceContainerLowColor, stringResource(R.string.surface_container_low_color), defaultColorScheme.surfaceContainerLow),
-        ColorEdit(ColorSettingsStore.surfaceContainerLowestColor, stringResource(R.string.surface_container_lowest_color), defaultColorScheme.surfaceContainerLowest),
-        ColorEdit(ColorSettingsStore.surfaceDimColor, stringResource(R.string.surface_dim_color), defaultColorScheme.surfaceDim)
+        ColorEdit(
+            ColorSettingsStore.surfaceBrightColor,
+            stringResource(R.string.surface_bright_color),
+            defaultColorScheme.surfaceBright
+        ),
+        ColorEdit(
+            ColorSettingsStore.surfaceContainerColor,
+            stringResource(R.string.surface_container_color),
+            defaultColorScheme.surfaceContainer
+        ),
+        ColorEdit(
+            ColorSettingsStore.surfaceContainerHighColor,
+            stringResource(R.string.surface_container_high_color),
+            defaultColorScheme.surfaceContainerHigh
+        ),
+        ColorEdit(
+            ColorSettingsStore.surfaceContainerHighestColor,
+            stringResource(R.string.surface_container_highest_color),
+            defaultColorScheme.surfaceContainerHighest
+        ),
+        ColorEdit(
+            ColorSettingsStore.surfaceContainerLowColor,
+            stringResource(R.string.surface_container_low_color),
+            defaultColorScheme.surfaceContainerLow
+        ),
+        ColorEdit(
+            ColorSettingsStore.surfaceContainerLowestColor,
+            stringResource(R.string.surface_container_lowest_color),
+            defaultColorScheme.surfaceContainerLowest
+        ),
+        ColorEdit(
+            ColorSettingsStore.surfaceDimColor,
+            stringResource(R.string.surface_dim_color),
+            defaultColorScheme.surfaceDim
+        )
     )
     val surfaceContainerSectionTitle = stringResource(R.string.surface_container_colors_section)
 
     // ───────────── PRIMARY / SECONDARY / TERTIARY FIXED ─────────────
     val fixedColors = listOf(
-        ColorEdit(ColorSettingsStore.primaryFixedColor, stringResource(R.string.primary_fixed_color), defaultColorScheme.primaryFixed),
-        ColorEdit(ColorSettingsStore.primaryFixedDimColor, stringResource(R.string.primary_fixed_dim_color), defaultColorScheme.primaryFixedDim),
-        ColorEdit(ColorSettingsStore.onPrimaryFixedColor, stringResource(R.string.on_primary_fixed_color), defaultColorScheme.onPrimaryFixed),
-        ColorEdit(ColorSettingsStore.onPrimaryFixedVariantColor, stringResource(R.string.on_primary_fixed_variant_color), defaultColorScheme.onPrimaryFixedVariant),
-        ColorEdit(ColorSettingsStore.secondaryFixedColor, stringResource(R.string.secondary_fixed_color), defaultColorScheme.secondaryFixed),
-        ColorEdit(ColorSettingsStore.secondaryFixedDimColor, stringResource(R.string.secondary_fixed_dim_color), defaultColorScheme.secondaryFixedDim),
-        ColorEdit(ColorSettingsStore.onSecondaryFixedColor, stringResource(R.string.on_secondary_fixed_color), defaultColorScheme.onSecondaryFixed),
-        ColorEdit(ColorSettingsStore.onSecondaryFixedVariantColor, stringResource(R.string.on_secondary_fixed_variant_color), defaultColorScheme.onSecondaryFixedVariant),
-        ColorEdit(ColorSettingsStore.tertiaryFixedColor, stringResource(R.string.tertiary_fixed_color), defaultColorScheme.tertiaryFixed),
-        ColorEdit(ColorSettingsStore.tertiaryFixedDimColor, stringResource(R.string.tertiary_fixed_dim_color), defaultColorScheme.tertiaryFixedDim),
-        ColorEdit(ColorSettingsStore.onTertiaryFixedColor, stringResource(R.string.on_tertiary_fixed_color), defaultColorScheme.onTertiaryFixed),
-        ColorEdit(ColorSettingsStore.onTertiaryFixedVariantColor, stringResource(R.string.on_tertiary_fixed_variant_color), defaultColorScheme.onTertiaryFixedVariant)
+        ColorEdit(
+            ColorSettingsStore.primaryFixedColor,
+            stringResource(R.string.primary_fixed_color),
+            defaultColorScheme.primaryFixed
+        ),
+        ColorEdit(
+            ColorSettingsStore.primaryFixedDimColor,
+            stringResource(R.string.primary_fixed_dim_color),
+            defaultColorScheme.primaryFixedDim
+        ),
+        ColorEdit(
+            ColorSettingsStore.onPrimaryFixedColor,
+            stringResource(R.string.on_primary_fixed_color),
+            defaultColorScheme.onPrimaryFixed
+        ),
+        ColorEdit(
+            ColorSettingsStore.onPrimaryFixedVariantColor,
+            stringResource(R.string.on_primary_fixed_variant_color),
+            defaultColorScheme.onPrimaryFixedVariant
+        ),
+        ColorEdit(
+            ColorSettingsStore.secondaryFixedColor,
+            stringResource(R.string.secondary_fixed_color),
+            defaultColorScheme.secondaryFixed
+        ),
+        ColorEdit(
+            ColorSettingsStore.secondaryFixedDimColor,
+            stringResource(R.string.secondary_fixed_dim_color),
+            defaultColorScheme.secondaryFixedDim
+        ),
+        ColorEdit(
+            ColorSettingsStore.onSecondaryFixedColor,
+            stringResource(R.string.on_secondary_fixed_color),
+            defaultColorScheme.onSecondaryFixed
+        ),
+        ColorEdit(
+            ColorSettingsStore.onSecondaryFixedVariantColor,
+            stringResource(R.string.on_secondary_fixed_variant_color),
+            defaultColorScheme.onSecondaryFixedVariant
+        ),
+        ColorEdit(
+            ColorSettingsStore.tertiaryFixedColor,
+            stringResource(R.string.tertiary_fixed_color),
+            defaultColorScheme.tertiaryFixed
+        ),
+        ColorEdit(
+            ColorSettingsStore.tertiaryFixedDimColor,
+            stringResource(R.string.tertiary_fixed_dim_color),
+            defaultColorScheme.tertiaryFixedDim
+        ),
+        ColorEdit(
+            ColorSettingsStore.onTertiaryFixedColor,
+            stringResource(R.string.on_tertiary_fixed_color),
+            defaultColorScheme.onTertiaryFixed
+        ),
+        ColorEdit(
+            ColorSettingsStore.onTertiaryFixedVariantColor,
+            stringResource(R.string.on_tertiary_fixed_variant_color),
+            defaultColorScheme.onTertiaryFixedVariant
+        )
     )
     val fixedSectionTitle = stringResource(R.string.fixed_colors_section)
 
-    val primaryExpanded = remember { mutableStateOf(false) }
-    val secondaryExpanded = remember { mutableStateOf(false) }
-    val tertiaryExpanded = remember { mutableStateOf(false) }
-    val backgroundExpanded = remember { mutableStateOf(false) }
-    val errorExpanded = remember { mutableStateOf(false) }
-    val outlineExpanded = remember { mutableStateOf(false) }
-    val surfaceContainerExpanded = remember { mutableStateOf(false) }
-    val fixedExpanded = remember { mutableStateOf(false) }
+
+    val primarySectionState =
+        rememberExpandableSection(primarySectionTitle)
+
+    val secondarySectionState =
+        rememberExpandableSection(secondarySectionTitle)
+
+    val tertiarySectionState =
+        rememberExpandableSection(tertiarySectionTitle)
+
+    val backgroundSectionState =
+        rememberExpandableSection(backgroundSectionTitle)
+
+    val errorSectionState =
+        rememberExpandableSection(errorSectionTitle)
+
+    val outlineSectionState =
+        rememberExpandableSection(outlineSectionTitle)
+
+    val surfaceContainerSectionState =
+        rememberExpandableSection(surfaceContainerSectionTitle)
+
+    val fixedSectionState =
+        rememberExpandableSection(fixedSectionTitle)
 
 
     val angleLineColor by ColorSettingsStore.angleLineColor.asStateNull()
@@ -273,8 +459,8 @@ fun ColorSelectorTab(
                         val background = when (it) {
                             AMOLED -> null
 
-                            DARK   -> Color.DarkGray
-                            LIGHT  -> Color.White
+                            DARK -> Color.DarkGray
+                            LIGHT -> Color.White
                             SYSTEM -> Brush.horizontalGradient(
                                 colors = listOf(
                                     Color.White,
@@ -444,59 +630,43 @@ fun ColorSelectorTab(
 
             if (selectedCustomView == CustomColorModeEditing.NORMAL) {
                 colorsGroup(
-                    expanded = { primaryExpanded.value },
-                    onExpand = { primaryExpanded.value = it },
-                    colors = primaryColors,
-                    sectionLabel = primarySectionTitle
+                    expandableSectionState = primarySectionState,
+                    colors = primaryColors
                 )
 
                 colorsGroup(
-                    expanded = { secondaryExpanded.value },
-                    onExpand = { secondaryExpanded.value = it },
-                    colors = secondaryColors,
-                    sectionLabel = secondarySectionTitle
+                    expandableSectionState = secondarySectionState,
+                    colors = secondaryColors
                 )
 
                 colorsGroup(
-                    expanded = { tertiaryExpanded.value },
-                    onExpand = { tertiaryExpanded.value = it },
-                    colors = tertiaryColors,
-                    sectionLabel = tertiarySectionTitle
+                    expandableSectionState = tertiarySectionState,
+                    colors = tertiaryColors
                 )
 
                 colorsGroup(
-                    expanded = { backgroundExpanded.value },
-                    onExpand = { backgroundExpanded.value = it },
-                    colors = backgroundColors,
-                    sectionLabel = backgroundSectionTitle
+                    expandableSectionState = backgroundSectionState,
+                    colors = backgroundColors
                 )
 
                 colorsGroup(
-                    expanded = { errorExpanded.value },
-                    onExpand = { errorExpanded.value = it },
-                    colors = errorColors,
-                    sectionLabel = errorSectionTitle
+                    expandableSectionState = errorSectionState,
+                    colors = errorColors
                 )
 
                 colorsGroup(
-                    expanded = { outlineExpanded.value },
-                    onExpand = { outlineExpanded.value = it },
-                    colors = outlineColors,
-                    sectionLabel = outlineSectionTitle
+                    expandableSectionState = outlineSectionState,
+                    colors = outlineColors
                 )
 
                 colorsGroup(
-                    expanded = { surfaceContainerExpanded.value },
-                    onExpand = { surfaceContainerExpanded.value = it },
-                    colors = surfaceContainerColors,
-                    sectionLabel = surfaceContainerSectionTitle
+                    expandableSectionState = surfaceContainerSectionState,
+                    colors = surfaceContainerColors
                 )
 
                 colorsGroup(
-                    expanded = { fixedExpanded.value },
-                    onExpand = { fixedExpanded.value = it },
-                    colors = fixedColors,
-                    sectionLabel = fixedSectionTitle
+                    expandableSectionState = fixedSectionState,
+                    colors = fixedColors
                 )
             } else {
 
@@ -727,19 +897,13 @@ private data class ColorEdit(
 
 
 private fun LazyListScope.colorsGroup(
-    expanded: () -> Boolean,
-    onExpand: (Boolean) -> Unit,
+    expandableSectionState: ExpandableSectionState,
     colors: List<ColorEdit>,
-    sectionLabel: String,
     examples: @Composable (ColumnScope.() -> Unit)? = null
 ) {
     item {
 
-        ExpandableSection(
-            expanded = expanded,
-            title = sectionLabel,
-            onExpand = onExpand
-        ) {
+        ExpandableSection(expandableSectionState) {
 
             examples?.let { it() }
 

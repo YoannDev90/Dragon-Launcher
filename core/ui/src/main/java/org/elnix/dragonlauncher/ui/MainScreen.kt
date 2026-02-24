@@ -108,6 +108,8 @@ fun MainScreen(
 
     val holdDelayBeforeStartingLongClickSettings by BehaviorSettingsStore.holdDelayBeforeStartingLongClickSettings.asState()
     val longCLickSettingsDuration by BehaviorSettingsStore.longCLickSettingsDuration.asState()
+    val holdToActivateSettingsRadius by BehaviorSettingsStore.holdToActivateSettingsRadius.asState()
+    val holdToActivateSettingsStroke by BehaviorSettingsStore.holdToActivateSettingsStroke.asState()
 
 
 
@@ -378,7 +380,9 @@ fun MainScreen(
             center = hold.centerProvider(),
             progress = hold.progressProvider(),
             defaultColor = defaultColor,
-            rgbLoading = rgbLoading
+            rgbLoading = rgbLoading,
+            radius = holdToActivateSettingsRadius,
+            stroke = holdToActivateSettingsStroke
         )
 
         if (tempStartPos != null) {

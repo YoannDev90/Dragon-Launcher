@@ -9,6 +9,7 @@ import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.StrokeCap
 import androidx.compose.ui.graphics.drawscope.Stroke
+import androidx.compose.ui.unit.dp
 
 /**
  * Hold to activate arc
@@ -21,6 +22,7 @@ import androidx.compose.ui.graphics.drawscope.Stroke
  * @param center where to draw it
  * @param progress from 0f to 1f, how much it has loading
  * @param radius
+ * @param stroke
  * @param rgbLoading whether to display it as rbg HSV gradient during progress or just using the default color
  * @param defaultColor default color that draws if [rgbLoading] is disabled
  */
@@ -28,7 +30,8 @@ import androidx.compose.ui.graphics.drawscope.Stroke
 fun HoldToActivateArc(
     center: Offset?,
     progress: Float,     // 0f..1f
-    radius: Float = 200f,
+    radius: Int,
+    stroke: Int,
     rgbLoading: Boolean,
     defaultColor: Color
 ) {
@@ -39,6 +42,7 @@ fun HoldToActivateArc(
          else defaultColor
 
     Canvas(modifier = Modifier.fillMaxSize()) {
+        val radius = radius.dp.toPx()
         drawArc(
             color = color,
             startAngle = -90f,
@@ -46,7 +50,7 @@ fun HoldToActivateArc(
             useCenter = false,
             topLeft = Offset(center.x - radius, center.y - radius),
             size = Size(radius * 2, radius * 2),
-            style = Stroke(width = 6f, cap = StrokeCap.Round)
+            style = Stroke(width = stroke.dp.toPx(), cap = StrokeCap.Round)
         )
     }
 }

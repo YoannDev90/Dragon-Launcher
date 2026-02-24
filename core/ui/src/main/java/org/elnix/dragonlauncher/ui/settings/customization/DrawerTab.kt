@@ -55,6 +55,7 @@ import org.elnix.dragonlauncher.ui.dialogs.ShapePickerDialog
 import org.elnix.dragonlauncher.ui.helpers.GridSizeSlider
 import org.elnix.dragonlauncher.ui.helpers.ShapeRow
 import org.elnix.dragonlauncher.ui.helpers.settings.SettingsLazyHeader
+import org.elnix.dragonlauncher.ui.remembers.rememberExpandableSection
 
 
 @Composable
@@ -76,11 +77,11 @@ fun DrawerTab(
 
     val iconsShape by DrawerSettingsStore.iconsShape.asState()
 
-    var drawerBehaviorSettingsExpanded by remember { mutableStateOf(false) }
-    var drawerCategorySettingsExpanded by remember { mutableStateOf(false) }
-    var drawerNormalSettingsExpanded by remember { mutableStateOf(false) }
-    var drawerPullDownSettingsExpanded by remember { mutableStateOf(false) }
-    var actionsSettingsExpanded by remember { mutableStateOf(false) }
+    val drawerBehaviorSettingsState = rememberExpandableSection(stringResource(R.string.behavior))
+    val drawerCategorySettingsState = rememberExpandableSection(stringResource(R.string.category_settings))
+    val drawerNormalSettingsState = rememberExpandableSection(stringResource(R.string.grid_settings))
+    val drawerPullDownSettingsState = rememberExpandableSection(stringResource(R.string.drawer_pull_down_settings))
+    val actionsSettingsState = rememberExpandableSection(stringResource(R.string.action_settings))
 
     val showRecentlyUsed by DrawerSettingsStore.showRecentlyUsedApps.asState()
     val useCategory by DrawerSettingsStore.useCategory.asState()
@@ -116,11 +117,7 @@ fun DrawerTab(
 
 
         item {
-            ExpandableSection(
-                expanded = { drawerBehaviorSettingsExpanded },
-                title = stringResource(R.string.behavior),
-                onExpand = { drawerBehaviorSettingsExpanded = !drawerBehaviorSettingsExpanded },
-            ) {
+            ExpandableSection(drawerBehaviorSettingsState) {
                 SettingsSwitchRow(
                     setting = DrawerSettingsStore.autoOpenSingleMatch,
                     title = stringResource(R.string.auto_launch_single_match),
@@ -148,11 +145,7 @@ fun DrawerTab(
         }
 
         item {
-            ExpandableSection(
-                expanded = { drawerPullDownSettingsExpanded },
-                title = stringResource(R.string.drawer_pull_down_settings),
-                onExpand = { drawerPullDownSettingsExpanded = !drawerPullDownSettingsExpanded },
-            ) {
+            ExpandableSection(drawerPullDownSettingsState) {
                 SettingsSwitchRow(
                     setting = DrawerSettingsStore.pullDownAnimations,
                     title = stringResource(R.string.pull_down_animations),
@@ -222,11 +215,7 @@ fun DrawerTab(
         }
 
         item {
-            ExpandableSection(
-                expanded = { drawerCategorySettingsExpanded },
-                title = stringResource(R.string.category_settings),
-                onExpand = { drawerCategorySettingsExpanded = !drawerCategorySettingsExpanded },
-            ) {
+            ExpandableSection(drawerCategorySettingsState) {
                 SettingsSwitchRow(
                     setting = DrawerSettingsStore.useCategory,
                     title = stringResource(R.string.use_categories),
@@ -256,11 +245,7 @@ fun DrawerTab(
         }
 
         item {
-            ExpandableSection(
-                expanded = { drawerNormalSettingsExpanded },
-                title = stringResource(R.string.grid_settings),
-                onExpand = { drawerNormalSettingsExpanded = !drawerNormalSettingsExpanded },
-            ) {
+            ExpandableSection(drawerNormalSettingsState) {
                 SettingsSlider(
                     setting = DrawerSettingsStore.maxIconSize,
                     description = stringResource(R.string.max_icon_size_desc),
@@ -409,11 +394,7 @@ fun DrawerTab(
         }
 
         item {
-            ExpandableSection(
-                expanded = { actionsSettingsExpanded },
-                title = stringResource(R.string.action_settings),
-                onExpand = { actionsSettingsExpanded = !actionsSettingsExpanded },
-            ) {
+            ExpandableSection(actionsSettingsState) {
                 DrawerActionSelector(
                     settingObject = DrawerSettingsStore.leftDrawerAction,
                     label = stringResource(R.string.left_drawer_action),

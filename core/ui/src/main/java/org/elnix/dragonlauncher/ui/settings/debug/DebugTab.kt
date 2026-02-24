@@ -61,6 +61,7 @@ import org.elnix.dragonlauncher.ui.components.settings.asState
 import org.elnix.dragonlauncher.ui.dialogs.IconEditorDialog
 import org.elnix.dragonlauncher.ui.helpers.settings.SettingsItem
 import org.elnix.dragonlauncher.ui.helpers.settings.SettingsLazyHeader
+import org.elnix.dragonlauncher.ui.remembers.rememberExpandableSection
 import org.elnix.dragonlauncher.ui.wellbeing.OverlayReminderService
 
 @Composable
@@ -77,8 +78,10 @@ fun DebugTab(
 
     var pendingSystemLauncher by remember { mutableStateOf<String?>(null) }
     var showEditAppOverrides by remember { mutableStateOf(false) }
-    var debugInfosSectionExpanded by remember { mutableStateOf(false) }
-    var storeResetSectionExpanded by remember { mutableStateOf(false) }
+
+    val debugInfosSectionState = rememberExpandableSection(stringResource(R.string.debug_infos))
+    val storeResetSectionState = rememberExpandableSection(stringResource(R.string.store_reset))
+
 
     LaunchedEffect(Unit) {
         pendingSystemLauncher = detectSystemLauncher(ctx)
@@ -150,11 +153,7 @@ fun DebugTab(
         }
 
         item {
-            ExpandableSection(
-                expanded = { debugInfosSectionExpanded },
-                title = stringResource(R.string.debug_infos),
-                onExpand = { debugInfosSectionExpanded = !debugInfosSectionExpanded }
-            ) {
+            ExpandableSection(debugInfosSectionState) {
                 SettingsSwitchRow(
                     setting = DebugSettingsStore.debugInfos,
                     title = stringResource(R.string.show_debug_infos),
@@ -314,11 +313,7 @@ fun DebugTab(
         }
 
         item {
-            ExpandableSection(
-                expanded = { storeResetSectionExpanded },
-                title = stringResource(R.string.store_reset),
-                onExpand = { storeResetSectionExpanded = !storeResetSectionExpanded }
-            ) {
+            ExpandableSection(storeResetSectionState) {
                 allStores.entries.forEach { entry ->
                     val settingsStore = entry.value
 
