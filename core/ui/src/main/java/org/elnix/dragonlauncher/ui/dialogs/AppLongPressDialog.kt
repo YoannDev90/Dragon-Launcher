@@ -2,6 +2,7 @@
 
 package org.elnix.dragonlauncher.ui.dialogs
 
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
@@ -41,7 +42,10 @@ import androidx.compose.ui.unit.dp
 import org.elnix.dragonlauncher.common.R
 import org.elnix.dragonlauncher.common.serializables.AppModel
 import org.elnix.dragonlauncher.common.utils.UiConstants.DragonShape
+import org.elnix.dragonlauncher.common.utils.resolveShape
+import org.elnix.dragonlauncher.ui.actions.appIcon
 import org.elnix.dragonlauncher.ui.components.dragon.DragonIconButton
+import org.elnix.dragonlauncher.ui.remembers.LocalIconShape
 
 private data class DialogEntry(
     val label: String,
@@ -66,6 +70,8 @@ fun AppLongPressDialog(
     onAliases: (() -> Unit)? = null,
     onDismiss: () -> Unit
 ) {
+
+    val iconsShape = LocalIconShape.current
 
     var showDetailedAppInfoDialog by remember { mutableStateOf(false) }
 
@@ -172,9 +178,19 @@ fun AppLongPressDialog(
             Row(
                 modifier = Modifier.fillMaxWidth(),
                 verticalAlignment = Alignment.CenterVertically,
-                horizontalArrangement = Arrangement.SpaceBetween
+                horizontalArrangement = Arrangement.spacedBy(5.dp)
             ) {
                 Text(app.name)
+
+                Image(
+                    painter = appIcon(app),
+                    contentDescription = "App icon",
+                    modifier = Modifier
+                        .size(32.dp)
+                        .clip(iconsShape.resolveShape())
+                )
+                Spacer(Modifier.weight(1f))
+
                 DragonIconButton(
                     onClick = { showDetailedAppInfoDialog = true }
                 ) {
