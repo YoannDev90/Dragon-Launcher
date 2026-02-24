@@ -18,6 +18,8 @@ import androidx.compose.ui.graphics.Color
 import androidx.core.net.toUri
 import org.elnix.dragonlauncher.common.R
 import org.elnix.dragonlauncher.common.logging.logD
+import org.elnix.dragonlauncher.common.logging.logE
+import org.elnix.dragonlauncher.common.utils.Constants.Logging.TAG
 import java.text.SimpleDateFormat
 import java.util.Date
 import java.util.Locale
@@ -37,24 +39,24 @@ fun Context.showToast(
     message: Any?,
     duration: Int = Toast.LENGTH_SHORT
 ) {
-    when (message) {
-        is String -> {
-            if (message.isNotBlank()) {
+    try {
+        when (message) {
+            is String -> {
+                if (message.isNotBlank()) {
+                    Toast.makeText(this, message, duration).show()
+                }
+            }
+
+            is Int -> {
                 Toast.makeText(this, message, duration).show()
             }
-        }
 
-        is Int -> {
-            try {
-                Toast.makeText(this, message, duration).show()
-            } catch (_: Exception) {
-                // Invalid resource ID, ignore
+            else -> {
+                // Null or unsupported type, do nothing
             }
         }
-
-        else -> {
-            // Null or unsupported type, do nothing
-        }
+    } catch (e: Exception) {
+        logE(TAG, "Error while show ing toast", e)
     }
 }
 
@@ -239,7 +241,7 @@ fun openAlarmApp2(ctx: Context): Boolean {
         pkg in knownClockPackages ||
                 pkg
                     .contains("clock", ignoreCase = true) || it.loadLabel(pm).toString()
-                    .contains("clock", ignoreCase = true)
+            .contains("clock", ignoreCase = true)
     }
 
     if (fallback != null) {
