@@ -25,7 +25,10 @@ fun AppModelInfoDialog(
     AlertDialog(
         text = {
             Column {
-                Text(text = stringResource(R.string.app_info_name, app.name))
+                Text(
+                    text = stringResource(R.string.app_info_name, app.name),
+                    modifier = Modifier.clickable { ctx.copyToClipboard(app.name) }
+                )
                 Text(
                     text = stringResource(R.string.app_info_package_name, app.packageName),
                     modifier = Modifier.clickable { ctx.copyToClipboard(app.packageName) }
