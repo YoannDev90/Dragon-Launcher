@@ -689,22 +689,26 @@ fun AppDrawerScreen(
             app = app,
             onDismiss = { dialogApp = null },
             onOpen = { onLaunchAction(app.action) },
-            onSettings = {
-                ctx.startActivity(
-                    Intent(Settings.ACTION_APPLICATION_DETAILS_SETTINGS).apply {
-                        data = "package:${app.packageName}".toUri()
-                    }
-                )
-                onClose()
-            },
-            onUninstall = {
-                ctx.startActivity(
-                    Intent(Intent.ACTION_DELETE).apply {
-                        data = "package:${app.packageName}".toUri()
-                    }
-                )
-                onClose()
-            },
+            onSettings = if (!app.isPrivateProfile && !app.isWorkProfile) {
+                {
+                    ctx.startActivity(
+                        Intent(Settings.ACTION_APPLICATION_DETAILS_SETTINGS).apply {
+                            data = "package:${app.packageName}".toUri()
+                        }
+                    )
+                    onClose()
+                }
+            } else null,
+            onUninstall = if (!app.isPrivateProfile && !app.isWorkProfile) {
+                {
+                    ctx.startActivity(
+                        Intent(Intent.ACTION_DELETE).apply {
+                            data = "package:${app.packageName}".toUri()
+                        }
+                    )
+                    onClose()
+                }
+            } else null,
             onRemoveFromWorkspace = {
                 workspaceId?.let { wsId ->
                     scope.launch {

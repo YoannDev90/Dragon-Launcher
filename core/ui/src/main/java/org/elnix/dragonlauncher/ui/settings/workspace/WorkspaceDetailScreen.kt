@@ -159,7 +159,7 @@ fun WorkspaceDetailScreen(
             appsViewModel = appsViewModel,
             appLifecycleViewModel = appLifecycleViewModel,
             gridSize = gridSize,
-             showIcons = showIcons,
+            showIcons = showIcons,
             showLabels = showLabels,
             onDismiss = { showAppPicker = false },
             onAppSelected = { app ->
@@ -178,22 +178,29 @@ fun WorkspaceDetailScreen(
         AppLongPressDialog(
             app = app,
             onOpen = { onLaunchAction(app.action) },
-            onSettings = {
-                ctx.startActivity(
-                    Intent(Settings.ACTION_APPLICATION_DETAILS_SETTINGS).apply {
-                        data = "package:${app.packageName}".toUri()
-                    }
-                )
-            },
-            onUninstall = {
-                ctx.startActivity(
-                    Intent(Intent.ACTION_DELETE).apply {
-                        data = "package:${app.packageName}".toUri()
-                    }
-                )
-            },
-            onRemoveFromWorkspace = if (cacheKeyString !in (workspace.removedAppIds
-                    ?: emptyList())
+            onSettings = if (!app.isPrivateProfile && !app.isWorkProfile) {
+                {
+                    ctx.startActivity(
+                        Intent(Settings.ACTION_APPLICATION_DETAILS_SETTINGS).apply {
+                            data = "package:${app.packageName}".toUri()
+                        }
+                    )
+                }
+            } else null,
+            onUninstall = if (!app.isPrivateProfile && !app.isWorkProfile) {
+                {
+                    ctx.startActivity(
+                        Intent(Intent.ACTION_DELETE).apply {
+                            data = "package:${app.packageName}".toUri()
+                        }
+                    )
+                }
+            } else null,
+            onRemoveFromWorkspace = if (
+                (cacheKeyString !in (workspace.removedAppIds ?: emptyList())) &&
+                !app.isPrivateProfile
+            // Can't remove private apps from private workspace somehow cause its too
+            // annoying to handle
             ) {
                 {
                     workspaceId.let {
