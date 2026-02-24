@@ -65,6 +65,7 @@ import org.elnix.dragonlauncher.ui.MainAppUi
 import org.elnix.dragonlauncher.ui.components.settings.asState
 import org.elnix.dragonlauncher.ui.components.settings.asStateNull
 import org.elnix.dragonlauncher.ui.theme.DragonLauncherTheme
+import org.woheller69.freeDroidWarn.FreeDroidWarn
 import java.util.UUID
 
 class MainActivity : FragmentActivity(), WidgetHostProvider {
@@ -326,6 +327,8 @@ class MainActivity : FragmentActivity(), WidgetHostProvider {
         requestedOrientation = ActivityInfo.SCREEN_ORIENTATION_PORTRAIT
 
         WindowCompat.setDecorFitsSystemWindows(window, false)
+
+        FreeDroidWarn.showWarningOnUpgrade(this, BuildConfig.VERSION_CODE)
 
         setContent {
             val ctx = LocalContext.current

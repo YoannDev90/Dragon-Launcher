@@ -133,6 +133,7 @@ android {
 
     buildFeatures {
         compose = true
+        buildConfig = true
     }
 
     tasks.register("printVersionName") {
@@ -169,6 +170,8 @@ dependencies {
     implementation(libs.android.image.cropper)
     implementation(libs.material)
     implementation(libs.material3)
+
+    implementation("com.github.woheller69:FreeDroidWarn:V1.+")
 
     implementation(project(":core:ui"))
     implementation(project(":core:base"))
