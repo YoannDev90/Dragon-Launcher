@@ -757,9 +757,9 @@ class AppsViewModel(
 
         val drawable =
             if (selectedPack != null) {
-                isIconPack = true
 
                 packIconName?.let { packName ->
+                    isIconPack = true
                     loadIconFromPack(
                         packPkg = selectedPack.packageName,
                         iconName = packName,
@@ -768,7 +768,10 @@ class AppsViewModel(
                 }
             } else {
                 null
-            } ?: pmCompat.getAppIcon(packageName, userId ?: 0, isPrivateProfile)
+            } ?: run {
+                isIconPack = false
+                pmCompat.getAppIcon(packageName, userId ?: 0, isPrivateProfile)
+            }
 
 
         val orig = loadDrawableAsBitmap(

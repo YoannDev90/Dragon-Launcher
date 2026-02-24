@@ -100,7 +100,7 @@ object ImageUtils {
 
         val imageBitmap = bitmap.asImageBitmap()
 
-//         If tint is not unspecified (transparent)
+        // If tint is not unspecified (transparent)
         return tint?.takeIf { it != 0 }?.let {
             tintBitmap(imageBitmap, tint)
         } ?: imageBitmap
