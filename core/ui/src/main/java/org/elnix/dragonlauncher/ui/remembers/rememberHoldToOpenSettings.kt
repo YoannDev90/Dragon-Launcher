@@ -1,10 +1,12 @@
 package org.elnix.dragonlauncher.ui.remembers
 
+import androidx.compose.animation.core.Animatable
+import androidx.compose.animation.core.LinearEasing
+import androidx.compose.animation.core.tween
 import androidx.compose.foundation.gestures.awaitEachGesture
 import androidx.compose.foundation.gestures.awaitFirstDown
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableFloatStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
@@ -32,20 +34,25 @@ fun rememberHoldToOpenSettings(
     onSettings: () -> Unit,
     holdDelay: Long,     // ms before arc appears
     loadDuration: Long, // ms to fill arc
-    tolerance: Float = 24f      // max movement allowed
+    tolerance: Float     // max movement allowed
 ): HoldGestureState {
 
     val scope = rememberCoroutineScope()
 
-    var fingerDown by remember { mutableStateOf(false) }
     var anchor by remember { mutableStateOf<Offset?>(null) }
-    var progress by remember { mutableFloatStateOf(0f) }
+    val progress = remember {
+        Animatable(0f)
+    }
+
 
     fun reset() {
-        fingerDown = false
         anchor = null
-        progress = 0f
+        scope.launch {
+            progress.snapTo(0f)
+        }
     }
+
+
 
     return remember(holdDelay, loadDuration, tolerance, onSettings) {
         HoldGestureState(
@@ -54,25 +61,24 @@ fun rememberHoldToOpenSettings(
                 awaitEachGesture {
 
                     val down = awaitFirstDown()
-                    fingerDown = true
                     anchor = down.position
-                    progress = 0f
 
                     val holdJob = scope.launch {
+                        progress.snapTo(0f)
+
                         delay(holdDelay)
 
-                        val startTime = System.currentTimeMillis()
-                        while (fingerDown) {
-                            val elapsed = System.currentTimeMillis() - startTime
-                            progress = (elapsed.toFloat() / loadDuration).coerceIn(0f, 1f)
 
-                            if (progress >= 1f) {
-                                onSettings()
-                                reset()
-                                break
-                            }
-                            delay(16)
-                        }
+                        progress.animateTo(
+                            targetValue = 1f,
+                            animationSpec = tween(
+                                durationMillis = loadDuration.toInt(),
+                                easing = LinearEasing
+                            )
+                        )
+
+                        onSettings()
+                        reset()
                     }
 
                     while (true) {
@@ -100,7 +106,7 @@ fun rememberHoldToOpenSettings(
                     }
                 }
             },
-            progressProvider = { progress },
+            progressProvider = { progress.value },
             centerProvider = { anchor }
         )
     }

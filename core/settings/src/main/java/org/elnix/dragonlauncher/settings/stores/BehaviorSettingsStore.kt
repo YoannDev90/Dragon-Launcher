@@ -28,6 +28,7 @@ object BehaviorSettingsStore : MapSettingsStore() {
             pointsActionSnapsToOuterCircle,
             holdToActivateSettingsRadius,
             holdToActivateSettingsStroke,
+            holdToActivateSettingsTolerance,
             useDifferentialLoadingForPrivateSpace,
             superWarningModeSound,
             metalPipesSound,
@@ -116,6 +117,19 @@ object BehaviorSettingsStore : MapSettingsStore() {
         dataStoreName = dataStoreName,
         default = 6,
         allowedRange = 1..50
+    )
+
+    val holdToActivateSettingsTolerance = Settings.float(
+        key = "holdToActivateSettingsTolerance",
+        dataStoreName = dataStoreName,
+        default = 24f,
+        allowedRange = 1f..200f
+    )
+
+    val showToleranceOnMainScreen = Settings.boolean(
+        key = "showToleranceOnMainScreen",
+        dataStoreName = dataStoreName,
+        default = false,
     )
 
 

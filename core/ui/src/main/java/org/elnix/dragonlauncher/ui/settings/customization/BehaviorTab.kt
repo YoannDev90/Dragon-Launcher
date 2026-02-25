@@ -7,17 +7,13 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
-import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import org.elnix.dragonlauncher.common.R
 import org.elnix.dragonlauncher.common.utils.showToast
@@ -58,17 +54,10 @@ fun BehaviorTab(
     val lockMethod by PrivateSettingsStore.lockMethod.asState()
     val superWarningModeEnabled = lockMethod != LockMethod.NONE
 
-    var isDragging by remember { mutableStateOf(false) }
-
-    suspend fun brieflyShowIsDragging() {
-        isDragging = true
-        delay(200)
-        isDragging = false
-    }
-
     val paddingState = rememberExpandableSection(stringResource(R.string.drag_zone_padding))
-    val holdExpandableSectionState = rememberExpandableSection(stringResource(R.string.hold_settings))
-    val superWarningState = rememberExpandableSection(stringResource(R.string.drag_zone_padding))
+    val superWarningState = rememberExpandableSection(stringResource(R.string.super_warning_mode))
+
+    val showAppPreviewOverlay = paddingState.isExpanded()
 
 
     SettingsLazyHeader(
@@ -180,38 +169,6 @@ fun BehaviorTab(
         }
 
         item {
-            ExpandableSection(holdExpandableSectionState) {
-                SettingsSlider(
-                    setting = BehaviorSettingsStore.longCLickSettingsDuration,
-                    title = stringResource(R.string.long_click_settings_duration),
-                    description = stringResource(R.string.long_click_settings_duration_desc),
-                    valueRange = 200..5000
-                )
-
-                SettingsSlider(
-                    setting = BehaviorSettingsStore.holdDelayBeforeStartingLongClickSettings,
-                    title = stringResource(R.string.hold_delay_before_starting_long_click_settings),
-                    description = stringResource(R.string.hold_delay_before_starting_long_click_settings_desc),
-                    valueRange = 200..2000
-                )
-
-                SettingsSlider(
-                    setting = BehaviorSettingsStore.holdToActivateSettingsRadius,
-                    title = stringResource(R.string.hold_to_activate_radius),
-                    description = stringResource(R.string.hold_to_activate_radius_desc),
-                    valueRange = 10..300
-                )
-
-                SettingsSlider(
-                    setting = BehaviorSettingsStore.holdToActivateSettingsStroke,
-                    title = stringResource(R.string.hold_to_activate_stroke),
-                    description = stringResource(R.string.hold_to_activate_stroke_desc),
-                    valueRange = 1..50
-                )
-            }
-        }
-
-        item {
             ExpandableSection(paddingState) {
                 SliderWithLabel(
                     label = stringResource(R.string.left_padding),
@@ -222,16 +179,12 @@ fun BehaviorTab(
                     onReset = {
                         scope.launch {
                             BehaviorSettingsStore.leftPadding.reset(ctx)
-                            brieflyShowIsDragging()
                         }
                     },
                     onChange = {
                         scope.launch {
                             BehaviorSettingsStore.leftPadding.set(ctx, it)
                         }
-                    },
-                    onDragStateChange = { dragging ->
-                        isDragging = dragging
                     }
                 )
 
@@ -244,16 +197,12 @@ fun BehaviorTab(
                     onReset = {
                         scope.launch {
                             BehaviorSettingsStore.rightPadding.reset(ctx)
-                            brieflyShowIsDragging()
                         }
                     },
                     onChange = {
                         scope.launch {
                             BehaviorSettingsStore.rightPadding.set(ctx, it)
                         }
-                    },
-                    onDragStateChange = { dragging ->
-                        isDragging = dragging
                     }
                 )
 
@@ -266,16 +215,12 @@ fun BehaviorTab(
                     onReset = {
                         scope.launch {
                             BehaviorSettingsStore.topPadding.reset(ctx)
-                            brieflyShowIsDragging()
                         }
                     },
                     onChange = {
                         scope.launch {
                             BehaviorSettingsStore.topPadding.set(ctx, it)
                         }
-                    },
-                    onDragStateChange = { dragging ->
-                        isDragging = dragging
                     }
                 )
 
@@ -288,16 +233,12 @@ fun BehaviorTab(
                     onReset = {
                         scope.launch {
                             BehaviorSettingsStore.bottomPadding.reset(ctx)
-                            brieflyShowIsDragging()
                         }
                     },
                     onChange = {
                         scope.launch {
                             BehaviorSettingsStore.bottomPadding.set(ctx, it)
                         }
-                    },
-                    onDragStateChange = { dragging ->
-                        isDragging = dragging
                     }
                 )
             }
@@ -345,7 +286,7 @@ fun BehaviorTab(
     }
 
 
-    if (isDragging) {
+    if (showAppPreviewOverlay) {
         Canvas(Modifier.fillMaxSize()) {
             drawRect(
                 color = Color(0x55FF0000),

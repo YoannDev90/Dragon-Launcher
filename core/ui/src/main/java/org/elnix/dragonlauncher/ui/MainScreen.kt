@@ -110,6 +110,10 @@ fun MainScreen(
     val longCLickSettingsDuration by BehaviorSettingsStore.longCLickSettingsDuration.asState()
     val holdToActivateSettingsRadius by BehaviorSettingsStore.holdToActivateSettingsRadius.asState()
     val holdToActivateSettingsStroke by BehaviorSettingsStore.holdToActivateSettingsStroke.asState()
+    val holdToActivateSettingsTolerance by BehaviorSettingsStore.holdToActivateSettingsTolerance.asState()
+    val showToleranceOnMainScreen by BehaviorSettingsStore.showToleranceOnMainScreen.asState()
+    val rgbLoading by UiSettingsStore.rgbLoading.asState()
+    val defaultColor = Color.Red
 
 
 
@@ -129,10 +133,8 @@ fun MainScreen(
         },
         holdDelay = holdDelayBeforeStartingLongClickSettings.toLong(),
         loadDuration = longCLickSettingsDuration.toLong(),
+        tolerance = holdToActivateSettingsTolerance
     )
-
-    val defaultColor = Color.Red
-    val rgbLoading by UiSettingsStore.rgbLoading.asState()
 
 
     /* ───────────── status bar things ───────────── */
@@ -382,7 +384,10 @@ fun MainScreen(
             defaultColor = defaultColor,
             rgbLoading = rgbLoading,
             radius = holdToActivateSettingsRadius,
-            stroke = holdToActivateSettingsStroke
+            stroke = holdToActivateSettingsStroke,
+            showHoldTolerance = if (showToleranceOnMainScreen) {
+                { holdToActivateSettingsTolerance }
+            } else null
         )
 
         if (tempStartPos != null) {
