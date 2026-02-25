@@ -41,8 +41,6 @@ val defaultSwipePointsValues = dummySwipePoint(null).copy(
 )
 
 
-
-
 /**
  * Swipe Actions Serializable, the core of the main gesture idea
  * Holds all the different actions the user can do
@@ -53,7 +51,8 @@ sealed class SwipeActionSerializable {
         val isPrivateSpace: Boolean,
         val userId: Int?
     ) : SwipeActionSerializable()
-        data class LaunchShortcut(
+
+    data class LaunchShortcut(
         val packageName: String,
         val shortcutId: String
     ) : SwipeActionSerializable()
@@ -63,20 +62,21 @@ sealed class SwipeActionSerializable {
         val uri: String,
         val mimeType: String? = null
     ) : SwipeActionSerializable()
+
     object NotificationShade : SwipeActionSerializable()
     object ControlPanel : SwipeActionSerializable()
     data class OpenAppDrawer(val workspaceId: String? = null) : SwipeActionSerializable()
-    data class  OpenDragonLauncherSettings(val route: String = SETTINGS.ROOT): SwipeActionSerializable()
-    object Lock: SwipeActionSerializable()
-    object ReloadApps: SwipeActionSerializable()
+    data class OpenDragonLauncherSettings(val route: String = SETTINGS.ROOT) : SwipeActionSerializable()
+    object Lock : SwipeActionSerializable()
+    object ReloadApps : SwipeActionSerializable()
 
-    object OpenRecentApps: SwipeActionSerializable()
-    data class OpenCircleNest(val nestId: Int): SwipeActionSerializable()
-    object GoParentNest: SwipeActionSerializable()
+    object OpenRecentApps : SwipeActionSerializable()
+    data class OpenCircleNest(val nestId: Int) : SwipeActionSerializable()
+    object GoParentNest : SwipeActionSerializable()
     data class OpenWidget(
         val widgetId: Int,
         val provider: ComponentName
-    ): SwipeActionSerializable()
+    ) : SwipeActionSerializable()
 
     object None : SwipeActionSerializable()
 }
@@ -131,23 +131,42 @@ class SwipeActionAdapter : JsonSerializer<SwipeActionSerializable>, JsonDeserial
             }
 
             // Those with only the name as param
-            is SwipeActionSerializable.NotificationShade -> { obj.addProperty("type", "NotificationShade") }
-            is SwipeActionSerializable.ControlPanel -> { obj.addProperty("type", "ControlPanel") }
+            is SwipeActionSerializable.NotificationShade -> {
+                obj.addProperty("type", "NotificationShade")
+            }
+
+            is SwipeActionSerializable.ControlPanel -> {
+                obj.addProperty("type", "ControlPanel")
+            }
+
             is SwipeActionSerializable.OpenAppDrawer -> {
                 obj.addProperty("type", "OpenAppDrawer")
                 if (src.workspaceId != null) {
                     obj.addProperty("workspaceId", src.workspaceId)
                 }
             }
+
             is SwipeActionSerializable.OpenDragonLauncherSettings -> {
                 obj.addProperty("type", "OpenDragonLauncherSettings")
                 obj.addProperty("route", src.route)
             }
 
-            is SwipeActionSerializable.Lock -> { obj.addProperty("type", "Lock") }
-            is SwipeActionSerializable.ReloadApps -> { obj.addProperty("type", "ReloadApps") }
-            is SwipeActionSerializable.OpenRecentApps -> { obj.addProperty("type", "OpenRecentApps") }
-            is SwipeActionSerializable.GoParentNest -> { obj.addProperty("type", "GoParentNest") }
+            is SwipeActionSerializable.Lock -> {
+                obj.addProperty("type", "Lock")
+            }
+
+            is SwipeActionSerializable.ReloadApps -> {
+                obj.addProperty("type", "ReloadApps")
+            }
+
+            is SwipeActionSerializable.OpenRecentApps -> {
+                obj.addProperty("type", "OpenRecentApps")
+            }
+
+            is SwipeActionSerializable.GoParentNest -> {
+                obj.addProperty("type", "GoParentNest")
+            }
+
             SwipeActionSerializable.None -> null
         }
         return obj
@@ -167,17 +186,23 @@ class SwipeActionAdapter : JsonSerializer<SwipeActionSerializable>, JsonDeserial
                     isPrivateSpace = obj.get("isPrivateSpace")?.asBoolean ?: false,
                     userId = obj.get("userId")?.asInt ?: 0
                 )
+
                 "OpenUrl" -> SwipeActionSerializable.OpenUrl(obj.get("url").asString)
                 "OpenFile" -> SwipeActionSerializable.OpenFile(
                     uri = obj.get("uri").asString,
                     mimeType = obj.get("mimeType")?.asString
                 )
+
                 "NotificationShade" -> SwipeActionSerializable.NotificationShade
                 "ControlPanel" -> SwipeActionSerializable.ControlPanel
                 "OpenAppDrawer" -> SwipeActionSerializable.OpenAppDrawer(
                     obj.get("workspaceId")?.asString
                 )
-                "OpenDragonLauncherSettings" -> SwipeActionSerializable.OpenDragonLauncherSettings(obj.get("route")?.asString ?: SETTINGS.ROOT)
+
+                "OpenDragonLauncherSettings" -> SwipeActionSerializable.OpenDragonLauncherSettings(
+                    obj.get("route")?.asString ?: SETTINGS.ROOT
+                )
+
                 "Lock" -> SwipeActionSerializable.Lock
                 "ReloadApps" -> SwipeActionSerializable.ReloadApps
                 "OpenRecentApps" -> SwipeActionSerializable.OpenRecentApps
@@ -185,9 +210,11 @@ class SwipeActionAdapter : JsonSerializer<SwipeActionSerializable>, JsonDeserial
                     packageName = obj.get("packageName").asString,
                     shortcutId = obj.get("shortcutId").asString
                 )
+
                 "OpenCircleNest" -> SwipeActionSerializable.OpenCircleNest(
                     obj.get("nestId").asInt
                 )
+
                 "GoParentNest" -> SwipeActionSerializable.GoParentNest
                 "OpenWidget" -> {
                     val providerStr = obj.get("provider")?.asString ?: ""
@@ -198,6 +225,7 @@ class SwipeActionAdapter : JsonSerializer<SwipeActionSerializable>, JsonDeserial
                     val widgetId = obj.get("widgetId")?.asInt ?: 0
                     SwipeActionSerializable.OpenWidget(widgetId, provider)
                 }
+
                 else -> null
             }
         } catch (e: Exception) {
