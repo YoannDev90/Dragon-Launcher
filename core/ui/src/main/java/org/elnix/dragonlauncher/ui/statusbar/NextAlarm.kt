@@ -13,19 +13,33 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.platform.LocalContext
 import kotlinx.coroutines.delay
 import org.elnix.dragonlauncher.common.R
+import org.elnix.dragonlauncher.common.serializables.StatusBarSerializable
 import java.time.Instant
 import java.time.ZoneId
 import java.time.format.DateTimeFormatter
 
 
 @Composable
-fun StatusBarNextAlarm() {
+fun StatusBarNextAlarm(
+    element: StatusBarSerializable.NextAlarm
+) {
     val ctx = LocalContext.current
     var nextAlarm by remember { mutableStateOf<NextAlarmInfo?>(null) }
 
+
+    val formatter = element.formatter
+    val dateFormat = remember(formatter) {
+        try {
+            DateTimeFormatter.ofPattern(formatter)
+        } catch (e: Exception) {
+            println("⚠️ Invalid time format '$formatter': ${e.message}")
+            DateTimeFormatter.ofPattern("HH:mm")
+        }
+    }
+
     LaunchedEffect(Unit) {
         while (true) {
-            nextAlarm = getNextAlarm(ctx)
+            nextAlarm = getNextAlarm(ctx, dateFormat)
             delay(60_000L)
         }
     }
@@ -43,7 +57,7 @@ data class NextAlarmInfo(
     val label: String
 )
 
-private fun getNextAlarm(ctx: Context): NextAlarmInfo? {
+private fun getNextAlarm(ctx: Context, formatter: DateTimeFormatter): NextAlarmInfo? {
     return try {
         val alarmManager = ctx.getSystemService(Context.ALARM_SERVICE) as AlarmManager
         val nextAlarm = alarmManager.nextAlarmClock?.triggerTime ?: return null
@@ -52,7 +66,6 @@ private fun getNextAlarm(ctx: Context): NextAlarmInfo? {
             .atZone(ZoneId.systemDefault())
             .toLocalTime()
 
-        val formatter = DateTimeFormatter.ofPattern("HH:mm")
         val formatted = time.format(formatter)
 
         NextAlarmInfo(

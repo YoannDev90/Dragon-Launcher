@@ -1,7 +1,6 @@
 package org.elnix.dragonlauncher.settings.stores
 
 import androidx.compose.ui.graphics.Color
-import org.elnix.dragonlauncher.common.serializables.SwipeActionSerializable
 import org.elnix.dragonlauncher.settings.DataStoreName
 import org.elnix.dragonlauncher.settings.Settings
 import org.elnix.dragonlauncher.settings.bases.BaseSettingObject
@@ -15,7 +14,7 @@ object StatusBarSettingsStore : MapSettingsStore() {
     val showStatusBar = Settings.boolean(
         key = "showStatusBar",
         dataStoreName = dataStoreName,
-        default = true
+        default = false
     )
 
     val barBackgroundColor = Settings.color(
@@ -28,67 +27,6 @@ object StatusBarSettingsStore : MapSettingsStore() {
         key = "barTextColor",
         dataStoreName = dataStoreName,
         default = Color.White
-    )
-
-    val showTime = Settings.boolean(
-        key = "showTime",
-        dataStoreName = dataStoreName,
-        default = true
-    )
-
-    val showDate = Settings.boolean(
-        key = "showDate",
-        dataStoreName = dataStoreName,
-        default = false
-    )
-
-    val timeFormatter = Settings.string(
-        key = "timeFormatter",
-        dataStoreName = dataStoreName,
-        default = "HH:mm:ss | "
-    )
-
-    val dateFormater = Settings.string(
-        key = "dateFormatter",
-        dataStoreName = dataStoreName,
-        default = "MMM dd"
-    )
-
-    val showNotifications = Settings.boolean(
-        key = "showNotifications",
-        dataStoreName = dataStoreName,
-        default = false
-    )
-
-    val maxNotificationIcons = Settings.int(
-        key = "maxNotificationIcons",
-        dataStoreName = dataStoreName,
-        default = 3,
-        allowedRange = 1..10
-    )
-
-    val showBattery = Settings.boolean(
-        key = "showBattery",
-        dataStoreName = dataStoreName,
-        default = true
-    )
-
-    val showConnectivity = Settings.boolean(
-        key = "showConnectivity",
-        dataStoreName = dataStoreName,
-        default = false
-    )
-
-    val showBandwidth = Settings.boolean(
-        key = "showBandwidth",
-        dataStoreName = dataStoreName,
-        default = false
-    )
-
-    val showNextAlarm = Settings.boolean(
-        key = "showNextAlarm",
-        dataStoreName = dataStoreName,
-        default = true
     )
 
     val leftPadding = Settings.int(
@@ -119,37 +57,14 @@ object StatusBarSettingsStore : MapSettingsStore() {
         allowedRange = 0..300
     )
 
-    val clockAction = Settings.swipeAction(
-        key = "clockAction",
-        dataStoreName = dataStoreName,
-        default = SwipeActionSerializable.None
-    )
-
-    val dateAction = Settings.swipeAction(
-        key = "dateAction",
-        dataStoreName = dataStoreName,
-        default = SwipeActionSerializable.None
-    )
 
     override val ALL: List<BaseSettingObject<*,*>> = listOf(
         showStatusBar,
         barBackgroundColor,
         barTextColor,
-        showTime,
-        showDate,
-        timeFormatter,
-        dateFormater,
-        showNotifications,
-        maxNotificationIcons,
-        showBattery,
-        showConnectivity,
-        showBandwidth,
-        showNextAlarm,
         leftPadding,
         rightPadding,
         topPadding,
-        bottomPadding,
-        clockAction,
-        dateAction
+        bottomPadding
     )
 }

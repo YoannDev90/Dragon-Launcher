@@ -5,18 +5,24 @@ import android.content.Context
 import android.content.Intent
 import android.content.IntentFilter
 import android.os.BatteryManager
+import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.platform.LocalContext
+import org.elnix.dragonlauncher.common.serializables.StatusBarSerializable
+import org.elnix.dragonlauncher.common.utils.showToast
 
 @Composable
-fun StatusBarBattery() {
+fun StatusBarBattery(
+    element: StatusBarSerializable.Battery
+) {
     val ctx = LocalContext.current
     var level by remember { mutableIntStateOf(100) }
 
@@ -41,8 +47,16 @@ fun StatusBarBattery() {
         }
     }
 
-    Text(
-        text = "$level%",
-        style = MaterialTheme.typography.bodyMedium
-    )
+    AnimatedVisibility(element.showPercentage) {
+        Text(
+            text = "$level%",
+            style = MaterialTheme.typography.bodyMedium
+        )
+    }
+
+    LaunchedEffect(element.showIcon) {
+        if (element.showIcon) {
+            ctx.showToast("Not implemented yet") // TODO
+        }
+    }
 }

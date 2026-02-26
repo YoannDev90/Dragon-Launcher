@@ -770,5 +770,7 @@
     <string name="color">Color</string>
     <string name="width">Width</string>
     <string name="spacer">Spacer</string>
+    <string name="show_percentage">Show percentage</string>
+    <string name="show_percentage_desc">Display the battery percentage in plain text</string>
 
 </resources>

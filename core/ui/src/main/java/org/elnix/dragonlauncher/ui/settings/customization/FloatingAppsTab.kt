@@ -4,6 +4,7 @@ package org.elnix.dragonlauncher.ui.settings.customization
 
 import android.annotation.SuppressLint
 import android.content.ComponentName
+import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
@@ -70,7 +71,6 @@ import org.elnix.dragonlauncher.common.utils.UiConstants.DragonShape
 import org.elnix.dragonlauncher.common.utils.WidgetHostProvider
 import org.elnix.dragonlauncher.models.FloatingAppsViewModel
 import org.elnix.dragonlauncher.settings.stores.DebugSettingsStore
-import org.elnix.dragonlauncher.settings.stores.StatusBarSettingsStore
 import org.elnix.dragonlauncher.ui.components.FloatingAppsHostView
 import org.elnix.dragonlauncher.ui.dialogs.AddPointDialog
 import org.elnix.dragonlauncher.ui.dialogs.NestManagementDialog
@@ -78,6 +78,7 @@ import org.elnix.dragonlauncher.ui.helpers.CircleIconButton
 import org.elnix.dragonlauncher.ui.helpers.UpDownButton
 import org.elnix.dragonlauncher.ui.helpers.settings.SettingsLazyHeader
 import org.elnix.dragonlauncher.ui.remembers.LocalFloatingAppsViewModel
+import org.elnix.dragonlauncher.ui.remembers.LocalShowStatusBar
 import org.elnix.dragonlauncher.ui.statusbar.StatusBar
 
 @Composable
@@ -89,6 +90,7 @@ fun FloatingAppsTab(
     onRemoveWidget: (FloatingAppObject) -> Unit
 ) {
     val ctx = LocalContext.current
+    val showStatusBar = LocalShowStatusBar.current
 
     val floatingAppsViewModel = LocalFloatingAppsViewModel.current
     val scope = rememberCoroutineScope()
@@ -127,15 +129,14 @@ fun FloatingAppsTab(
 
     val isRealFullscreen = systemInsets.calculateTopPadding() == 0.dp
 
-    val showStatusBar by StatusBarSettingsStore.showStatusBar.flow(ctx)
-        .collectAsState(initial = false)
+
 
     /** ───────────────────────────────────────────────────────────────── */
 
 
     Column {
 
-        if (showStatusBar && isRealFullscreen) {
+        AnimatedVisibility (showStatusBar && isRealFullscreen) {
             StatusBar(null)
         }
 

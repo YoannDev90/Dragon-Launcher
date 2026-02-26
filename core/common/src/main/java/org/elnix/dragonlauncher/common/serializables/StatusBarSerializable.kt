@@ -39,6 +39,15 @@ sealed class StatusBarSerializable {
     data class Spacer(
         val width: Int = -1
     ) : StatusBarSerializable()
+
+    data class Battery(
+        val showIcon: Boolean = false,
+        val showPercentage: Boolean = true
+    ) : StatusBarSerializable()
+
+    data class NextAlarm(
+        val formatter: String = "HH:mm"
+    ) : StatusBarSerializable()
 }
 
 
@@ -47,6 +56,9 @@ val allStatusBarSerializable = listOf(
     StatusBarSerializable.Date(),
     StatusBarSerializable.Bandwidth,
     StatusBarSerializable.Notifications(),
+    StatusBarSerializable.Connectivity,
+    StatusBarSerializable.Battery(),
+    StatusBarSerializable.NextAlarm(),
     StatusBarSerializable.Spacer()
 )
 
@@ -90,6 +102,17 @@ class StatusBarAdapter : JsonSerializer<StatusBarSerializable>, JsonDeserializer
                 obj.addProperty("type", "Spacer")
                 obj.addProperty("width", src.width)
             }
+
+            is StatusBarSerializable.Battery -> {
+                obj.addProperty("type", "Battery")
+                obj.addProperty("showIcon", src.showIcon)
+                obj.addProperty("showPercentage", src.showPercentage)
+            }
+
+            is StatusBarSerializable.NextAlarm -> {
+                obj.addProperty("type", "NextAlarm")
+                obj.addProperty("formatter", src.formatter)
+            }
         }
         return obj
     }
@@ -124,6 +147,13 @@ class StatusBarAdapter : JsonSerializer<StatusBarSerializable>, JsonDeserializer
 
                 "Spacer" -> StatusBarSerializable.Spacer(
                     width = obj.get("width")?.asInt ?: -1,
+                )
+                "Battery" -> StatusBarSerializable.Battery(
+                    showIcon = obj.get("showIcon")?.asBoolean ?: true,
+                    showPercentage =obj.get("showPercentage")?.asBoolean ?: true,
+                )
+                "NextAlarm" -> StatusBarSerializable.NextAlarm(
+                    formatter = obj.get("formatter")?.asString ?: "HH:mm"
                 )
                 else -> null
             }

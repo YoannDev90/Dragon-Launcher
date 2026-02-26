@@ -44,7 +44,7 @@ object UiSettingsStore : MapSettingsStore() {
     val fullScreen = Settings.boolean(
         key = "fullscreen",
         dataStoreName = dataStoreName,
-        default = true
+        default = false
     )
 
     val showCirclePreview = Settings.boolean(

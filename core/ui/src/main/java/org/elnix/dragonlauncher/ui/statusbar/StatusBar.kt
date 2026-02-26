@@ -5,6 +5,7 @@ import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.combinedClickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -19,8 +20,10 @@ import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Close
+import androidx.compose.material.icons.filled.ContentCopy
 import androidx.compose.material.icons.filled.Restore
 import androidx.compose.material3.Button
+import androidx.compose.material3.DropdownMenu
 import androidx.compose.material3.Icon
 import androidx.compose.material3.LocalContentColor
 import androidx.compose.material3.MaterialTheme
@@ -40,6 +43,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.scale
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.hapticfeedback.HapticFeedbackType
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalHapticFeedback
@@ -63,9 +67,11 @@ import org.elnix.dragonlauncher.settings.stores.StatusBarJsonSettingsStore
 import org.elnix.dragonlauncher.settings.stores.StatusBarSettingsStore
 import org.elnix.dragonlauncher.ui.colors.AppObjectsColors
 import org.elnix.dragonlauncher.ui.components.dragon.DragonColumnGroup
+import org.elnix.dragonlauncher.ui.components.dragon.DragonIconButton
 import org.elnix.dragonlauncher.ui.components.settings.asState
 import org.elnix.dragonlauncher.ui.helpers.CustomActionSelector
 import org.elnix.dragonlauncher.ui.helpers.SliderWithLabel
+import org.elnix.dragonlauncher.ui.helpers.SwitchRow
 import org.elnix.dragonlauncher.ui.modifiers.conditional
 import org.elnix.dragonlauncher.ui.remembers.LocalStatusBarElements
 
@@ -170,15 +176,44 @@ fun EditStatusBar() {
     }
 
     fun addElement(element: StatusBarSerializable) {
+        val newId = (elements.maxOfOrNull { it.id } ?: 0) + 1
+
         elements.add(
             StatusBarElement(
-                id = elements.size,
+                id = newId,
                 item = element
             )
         )
         save()
     }
 
+    fun duplicateElement(element: StatusBarElement) {
+        val index = elements.indexOfFirst { it.id == element.id }
+        if (index == -1) return
+
+        val newId = (elements.maxOfOrNull { it.id } ?: 0) + 1
+
+        val copiedItem = when (val item = element.item) {
+            is StatusBarSerializable.Time -> item.copy()
+            is StatusBarSerializable.Date -> item.copy()
+            StatusBarSerializable.Bandwidth -> item
+            is StatusBarSerializable.Notifications -> item.copy()
+            StatusBarSerializable.Connectivity -> item
+            is StatusBarSerializable.Spacer -> item.copy()
+            is StatusBarSerializable.Battery -> item.copy()
+            is StatusBarSerializable.NextAlarm -> item.copy()
+        }
+
+        elements.add(
+            index + 1,
+            StatusBarElement(
+                id = newId,
+                item = copiedItem
+            )
+        )
+
+        save()
+    }
 
     fun removeElement(element: StatusBarElement) {
         elements -= element
@@ -281,7 +316,9 @@ fun EditStatusBar() {
                 ) {
 
                     when (val item = element.item) {
+                        /* no-op */
                         is StatusBarSerializable.Bandwidth, is StatusBarSerializable.Connectivity -> {}
+
                         is StatusBarSerializable.Date -> {
 
                             Column(verticalArrangement = Arrangement.spacedBy(5.dp)) {
@@ -384,16 +421,79 @@ fun EditStatusBar() {
                                 updateElement(item.copy(width = it))
                             }
                         }
+
+                        is StatusBarSerializable.Battery -> {
+                            SwitchRow(
+                                text = stringResource(R.string.show_percentage),
+                                subText = stringResource(R.string.show_percentage_desc),
+                                state = item.showPercentage,
+                            ) {
+                                updateElement(item.copy(showPercentage = it))
+                            }
+                        }
+
+                        is StatusBarSerializable.NextAlarm -> {
+                            Column(verticalArrangement = Arrangement.spacedBy(5.dp)) {
+                                Text(
+                                    text = stringResource(R.string.time_format_examples),
+                                    style = MaterialTheme.typography.bodySmall,
+                                    color = MaterialTheme.colorScheme.onBackground
+                                )
+
+                                OutlinedTextField(
+                                    label = { Text(stringResource(R.string.time_format_title)) },
+                                    value = item.formatter,
+                                    onValueChange = { newValue ->
+                                        updateElement(item.copy(formatter = newValue))
+                                    },
+                                    singleLine = true,
+                                    isError = !isValidTimeFormat(item.formatter),
+                                    supportingText = if (!isValidTimeFormat(item.formatter)) {
+                                        { Text(stringResource(R.string.invalid_format)) }
+                                    } else null,
+                                    placeholder = { Text("HH:mm") },
+                                    trailingIcon = {
+                                        Icon(
+                                            imageVector = Icons.Default.Restore,
+                                            contentDescription = stringResource(R.string.reset),
+                                            tint = MaterialTheme.colorScheme.primary,
+                                            modifier = Modifier.clickable {
+                                                updateElement(item.copy(formatter = "HH:mm"))
+                                            }
+                                        )
+                                    },
+                                    modifier = Modifier.fillMaxWidth(),
+                                    colors = AppObjectsColors.outlinedTextFieldColors()
+                                )
+                            }
+                        }
                     }
-                    Button(
-                        onClick = { removeElement(element) },
-                        colors = AppObjectsColors.cancelButtonColors()
+                    Row(
+                        modifier = Modifier.fillMaxWidth(),
+                        horizontalArrangement = Arrangement.SpaceBetween,
+                        verticalAlignment = Alignment.CenterVertically
                     ) {
-                        Icon(
-                            imageVector = Icons.Default.Close,
-                            contentDescription = stringResource(R.string.remove)
-                        )
-                        Text(stringResource(R.string.remove))
+                        Button(
+                            onClick = { removeElement(element) },
+                            colors = AppObjectsColors.cancelButtonColors()
+                        ) {
+                            Icon(
+                                imageVector = Icons.Default.Close,
+                                contentDescription = stringResource(R.string.remove)
+                            )
+                            Text(stringResource(R.string.remove))
+                        }
+
+                        DragonIconButton(
+                            onClick = {
+                                duplicateElement(element)
+                            }
+                        ) {
+                            Icon(
+                                imageVector = Icons.Default.ContentCopy,
+                                contentDescription = stringResource(R.string.copy)
+                            )
+                        }
                     }
                 }
             }
@@ -402,13 +502,43 @@ fun EditStatusBar() {
 
 
         FlowRow(
-            horizontalArrangement = Arrangement.spacedBy(5.dp)
+            horizontalArrangement = Arrangement.spacedBy(5.dp),
+            verticalArrangement = Arrangement.spacedBy(5.dp)
         ) {
             allStatusBarSerializable.forEach {
-                Button({
-                    addElement(it)
-                }) {
-                    StatusBarItem(it)
+
+                var showHelp by remember { mutableStateOf(false) }
+                Box(contentAlignment = Alignment.Center) {
+                    Box(
+                        modifier = Modifier
+                            .border(1.dp, MaterialTheme.colorScheme.primary, DragonShape)
+                            .clip(DragonShape)
+                            .background(MaterialTheme.colorScheme.surfaceVariant)
+                            .combinedClickable(
+                                onLongClick = { showHelp = true },
+                                onClick = { addElement(it) }
+                            )
+                            .padding(15.dp),
+                        contentAlignment = Alignment.Center
+                    ) {
+                        StatusBarItem(it)
+                    }
+
+                    DropdownMenu(
+                        expanded = showHelp,
+                        onDismissRequest = { showHelp = false },
+                        containerColor = Color.Transparent,
+                        shadowElevation = 0.dp,
+                        tonalElevation = 0.dp
+                    ) {
+                        Text(
+                            text = it::class.simpleName.toString(),
+                            modifier = Modifier
+                                .clip(DragonShape)
+                                .background(MaterialTheme.colorScheme.background)
+                                .padding(5.dp)
+                        )
+                    }
                 }
             }
         }
@@ -450,6 +580,14 @@ fun StatusBarItem(
 
         is StatusBarSerializable.Spacer -> {
             Text(stringResource(R.string.spacer))
+        }
+
+        is StatusBarSerializable.Battery -> {
+            StatusBarBattery(element)
+        }
+
+        is StatusBarSerializable.NextAlarm-> {
+            StatusBarNextAlarm(element)
         }
     }
 }

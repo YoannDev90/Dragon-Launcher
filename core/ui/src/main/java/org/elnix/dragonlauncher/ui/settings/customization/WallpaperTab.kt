@@ -22,7 +22,6 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -43,7 +42,6 @@ import org.elnix.dragonlauncher.enumsui.WallpaperEditMode
 import org.elnix.dragonlauncher.enumsui.WallpaperTarget
 import org.elnix.dragonlauncher.enumsui.wallpaperEditModeIcon
 import org.elnix.dragonlauncher.enumsui.wallpaperEditModeLabel
-import org.elnix.dragonlauncher.settings.stores.StatusBarSettingsStore
 import org.elnix.dragonlauncher.settings.stores.UiSettingsStore
 import org.elnix.dragonlauncher.ui.colors.AppObjectsColors
 import org.elnix.dragonlauncher.ui.colors.ColorPickerRow
@@ -55,13 +53,17 @@ import org.elnix.dragonlauncher.ui.components.settings.asState
 import org.elnix.dragonlauncher.ui.helpers.SliderWithLabel
 import org.elnix.dragonlauncher.ui.helpers.WallpaperDim
 import org.elnix.dragonlauncher.ui.helpers.settings.SettingsLazyHeader
+import org.elnix.dragonlauncher.ui.remembers.LocalShowStatusBar
 import org.elnix.dragonlauncher.ui.statusbar.StatusBar
 
-@SuppressLint("LocalContextResourcesRead")
+@SuppressLint("LocalContextResourcesRead", "LocalContextGetResourceValueCall")
 @Composable
 fun WallpaperTab(onBack: () -> Unit) {
     val ctx = LocalContext.current
+    val showStatusBar = LocalShowStatusBar.current
+
     val scope = rememberCoroutineScope()
+
     val wallpaperHelper = remember { WallpaperHelper(ctx) }
 
     var originalBitmap by remember { mutableStateOf<Bitmap?>(null) }
@@ -105,9 +107,6 @@ fun WallpaperTab(onBack: () -> Unit) {
     val systemInsets = WindowInsets.systemBars.asPaddingValues()
 
     val isRealFullscreen = systemInsets.calculateTopPadding() == 0.dp
-
-    val showStatusBar by StatusBarSettingsStore.showStatusBar.flow(ctx)
-        .collectAsState(initial = false)
 
     /** ───────────────────────────────────────────────────────────────── */
 

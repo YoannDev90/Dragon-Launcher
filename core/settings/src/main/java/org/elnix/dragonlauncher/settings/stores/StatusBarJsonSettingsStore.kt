@@ -17,7 +17,7 @@ object StatusBarJsonSettingsStore : JsonSettingsStore() {
     val statusBarJson = Settings.string(
         key = "statusBarJson",
         dataStoreName = dataStoreName,
-        default = "{}"
+        default = ""
     )
 
     override val jsonSetting: BaseSettingObject<String, String>

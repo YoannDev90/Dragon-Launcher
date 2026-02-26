@@ -15,6 +15,7 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import kotlinx.coroutines.launch
 import org.elnix.dragonlauncher.common.R
+import org.elnix.dragonlauncher.settings.stores.StatusBarJsonSettingsStore
 import org.elnix.dragonlauncher.settings.stores.StatusBarSettingsStore
 import org.elnix.dragonlauncher.ui.components.ExpandableSection
 import org.elnix.dragonlauncher.ui.components.settings.SettingsColorPicker
@@ -51,6 +52,7 @@ fun StatusBarTab(
             onReset = {
                 scope.launch {
                     StatusBarSettingsStore.resetAll(ctx)
+                    StatusBarJsonSettingsStore.resetAll(ctx)
                 }
             },
             content = {
