@@ -39,21 +39,18 @@ import org.elnix.dragonlauncher.common.serializables.SwipeActionSerializable
 import org.elnix.dragonlauncher.common.utils.Constants
 import org.elnix.dragonlauncher.common.utils.Constants.Actions.defaultChoosableActions
 import org.elnix.dragonlauncher.common.utils.PackageManagerCompat
-import org.elnix.dragonlauncher.models.AppLifecycleViewModel
-import org.elnix.dragonlauncher.models.AppsViewModel
+import org.elnix.dragonlauncher.common.utils.UiConstants.DragonShape
 import org.elnix.dragonlauncher.settings.stores.DrawerSettingsStore
 import org.elnix.dragonlauncher.settings.stores.UiSettingsStore
-import org.elnix.dragonlauncher.common.utils.UiConstants.DragonShape
 import org.elnix.dragonlauncher.ui.actions.ActionIcon
 import org.elnix.dragonlauncher.ui.actions.actionColor
 import org.elnix.dragonlauncher.ui.actions.actionLabel
 import org.elnix.dragonlauncher.ui.components.settings.asState
+import org.elnix.dragonlauncher.ui.remembers.LocalAppsViewModel
 
 @Suppress("AssignedValueIsNeverRead")
 @Composable
 fun AddPointDialog(
-    appsViewModel: AppsViewModel,
-    appLifecycleViewModel: AppLifecycleViewModel,
     actions: List<SwipeActionSerializable> = defaultChoosableActions,
     onNewNest: (() -> Unit)? = null,
     onDismiss: () -> Unit,
@@ -61,6 +58,8 @@ fun AddPointDialog(
     onMultipleActionsSelected: ((List<SwipeActionSerializable>, Boolean) -> Unit)? = null
 ) {
     val ctx = LocalContext.current
+
+    val appsViewModel = LocalAppsViewModel.current
 
     val pm = ctx.packageManager
     val packageManagerCompat = PackageManagerCompat(pm, ctx)
@@ -187,8 +186,6 @@ fun AddPointDialog(
 
     if (showAppPicker) {
         AppPickerDialog(
-            appsViewModel = appsViewModel,
-            appLifecycleViewModel = appLifecycleViewModel,
             gridSize = gridSize,
             showIcons = showIcons,
             showLabels = showLabels,

@@ -61,8 +61,6 @@ import org.elnix.dragonlauncher.common.serializables.AppModel
 import org.elnix.dragonlauncher.common.serializables.WorkspaceType
 import org.elnix.dragonlauncher.common.utils.Constants
 import org.elnix.dragonlauncher.common.utils.PrivateSpaceUtils
-import org.elnix.dragonlauncher.models.AppLifecycleViewModel
-import org.elnix.dragonlauncher.models.AppsViewModel
 import org.elnix.dragonlauncher.common.utils.UiConstants.DragonShape
 import org.elnix.dragonlauncher.ui.colors.AppObjectsColors
 import org.elnix.dragonlauncher.ui.components.dragon.DragonIconButton
@@ -70,13 +68,13 @@ import org.elnix.dragonlauncher.ui.helpers.AppDrawerSearch
 import org.elnix.dragonlauncher.ui.helpers.AppGrid
 import org.elnix.dragonlauncher.ui.modifiers.rememberPressedShape
 import org.elnix.dragonlauncher.ui.modifiers.settingsGroup
+import org.elnix.dragonlauncher.ui.remembers.LocalAppLifecycleViewModel
+import org.elnix.dragonlauncher.ui.remembers.LocalAppsViewModel
 
 @Suppress("AssignedValueIsNeverRead")
 @OptIn(ExperimentalFoundationApi::class)
 @Composable
 fun AppPickerDialog(
-    appsViewModel: AppsViewModel,
-    appLifecycleViewModel: AppLifecycleViewModel,
     gridSize: Int,
     showIcons: Boolean,
     showLabels: Boolean,
@@ -85,6 +83,10 @@ fun AppPickerDialog(
     onAppSelected: (AppModel) -> Unit,
     onMultipleAppsSelected: ((List<AppModel>, Boolean) -> Unit)? = null
 ) {
+
+    val appsViewModel = LocalAppsViewModel.current
+    val appLifecycleViewModel = LocalAppLifecycleViewModel.current
+
     val privateSpaceState by appsViewModel.privateSpaceState.collectAsState()
 
     // Auto Show keyboard logic

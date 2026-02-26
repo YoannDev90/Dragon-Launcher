@@ -104,8 +104,6 @@ import org.elnix.dragonlauncher.common.utils.circles.normalizeAngle
 import org.elnix.dragonlauncher.common.utils.circles.randomFreeAngle
 import org.elnix.dragonlauncher.common.utils.circles.rememberNestNavigation
 import org.elnix.dragonlauncher.common.utils.showToast
-import org.elnix.dragonlauncher.models.AppLifecycleViewModel
-import org.elnix.dragonlauncher.models.AppsViewModel
 import org.elnix.dragonlauncher.settings.stores.DebugSettingsStore
 import org.elnix.dragonlauncher.settings.stores.SwipeSettingsStore
 import org.elnix.dragonlauncher.settings.stores.UiSettingsStore
@@ -123,6 +121,7 @@ import org.elnix.dragonlauncher.ui.helpers.RepeatingPressButton
 import org.elnix.dragonlauncher.ui.helpers.nests.actionsInCircle
 import org.elnix.dragonlauncher.ui.helpers.nests.circlesSettingsOverlay
 import org.elnix.dragonlauncher.ui.helpers.nests.swipeDefaultParams
+import org.elnix.dragonlauncher.ui.remembers.LocalAppsViewModel
 import org.elnix.dragonlauncher.ui.remembers.LocalDefaultPoint
 import org.elnix.dragonlauncher.ui.remembers.LocalNests
 import java.math.RoundingMode
@@ -140,8 +139,6 @@ import kotlin.math.sin
 @Suppress("AssignedValueIsNeverRead")
 @Composable
 fun SettingsScreen(
-    appsViewModel: AppsViewModel,
-    appLifecycleViewModel: AppLifecycleViewModel,
     onAdvSettings: () -> Unit,
     onNestEdit: (nest: Int) -> Unit,
     onBack: () -> Unit
@@ -149,8 +146,10 @@ fun SettingsScreen(
     val ctx = LocalContext.current
     val nests = LocalNests.current
     val defaultPoint = LocalDefaultPoint.current
-
     val extraColors = LocalExtraColors.current
+
+    val appsViewModel = LocalAppsViewModel.current
+
     val scope = rememberCoroutineScope()
 
     val iconsVersion by appsViewModel.iconsVersion.collectAsState()
@@ -1202,8 +1201,6 @@ fun SettingsScreen(
 
     if (showAddDialog) {
         AddPointDialog(
-            appsViewModel = appsViewModel,
-            appLifecycleViewModel = appLifecycleViewModel,
             onNewNest = ::addNewNest,
             onDismiss = {
                 showAddDialog = false
@@ -1287,8 +1284,6 @@ fun SettingsScreen(
         val editPoint = showEditDialog!!
 
         EditPointDialog(
-            appsViewModel = appsViewModel,
-            appLifecycleViewModel = appLifecycleViewModel,
             point = editPoint,
             onDismiss = {
                 showEditDialog = null
@@ -1400,8 +1395,6 @@ fun SettingsScreen(
 
     if (showEditDefaultPoint) {
         EditPointDialog(
-            appsViewModel = appsViewModel,
-            appLifecycleViewModel = appLifecycleViewModel,
             point = defaultPoint,
             isDefaultEditing = true,
             onDismiss = {

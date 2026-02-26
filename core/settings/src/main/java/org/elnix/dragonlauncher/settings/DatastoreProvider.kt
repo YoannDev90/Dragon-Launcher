@@ -15,6 +15,7 @@ import org.elnix.dragonlauncher.settings.DataStoreName.LANGUAGE
 import org.elnix.dragonlauncher.settings.DataStoreName.PRIVATE_APPS
 import org.elnix.dragonlauncher.settings.DataStoreName.PRIVATE_SETTINGS
 import org.elnix.dragonlauncher.settings.DataStoreName.STATUS_BAR
+import org.elnix.dragonlauncher.settings.DataStoreName.STATUS_BAR_JSON
 import org.elnix.dragonlauncher.settings.DataStoreName.SWIPE
 import org.elnix.dragonlauncher.settings.DataStoreName.SWIPE_MAP
 import org.elnix.dragonlauncher.settings.DataStoreName.UI
@@ -31,6 +32,7 @@ import org.elnix.dragonlauncher.settings.stores.FloatingAppsSettingsStore
 import org.elnix.dragonlauncher.settings.stores.LanguageSettingsStore
 import org.elnix.dragonlauncher.settings.stores.PrivateAppsSettingsStore
 import org.elnix.dragonlauncher.settings.stores.PrivateSettingsStore
+import org.elnix.dragonlauncher.settings.stores.StatusBarJsonSettingsStore
 import org.elnix.dragonlauncher.settings.stores.StatusBarSettingsStore
 import org.elnix.dragonlauncher.settings.stores.SwipeMapSettingsStore
 import org.elnix.dragonlauncher.settings.stores.SwipeSettingsStore
@@ -58,7 +60,8 @@ enum class DataStoreName(
     STATUS_BAR("statusDatastore", "status_bar"),
     FLOATING_APPS("floatingAppsDatastore", "floating_apps"),
     WELLBEING("wellbeingDatastore", "wellbeing"),
-    SWIPE_MAP("swipeMapDataStore", "swipe_map")
+    SWIPE_MAP("swipeMapDataStore", "swipe_map"),
+    STATUS_BAR_JSON("statusBarJsonDataStore", "status_bar_json")
 }
 
 
@@ -79,7 +82,8 @@ object SettingsStoreRegistry {
         STATUS_BAR to StatusBarSettingsStore,
         FLOATING_APPS to FloatingAppsSettingsStore,
         WELLBEING to WellbeingSettingsStore,
-        SWIPE_MAP to SwipeMapSettingsStore
+        SWIPE_MAP to SwipeMapSettingsStore,
+        STATUS_BAR_JSON to StatusBarJsonSettingsStore
     )
 }
 
@@ -110,6 +114,7 @@ private val Context.statusBarDatastore by preferencesDataStore(name = STATUS_BAR
 private val Context.floatingAppsDatastore by preferencesDataStore(name = FLOATING_APPS.value)
 private val Context.wellbeingDatastore by preferencesDataStore(name = WELLBEING.value)
 private val Context.swipeMapDatastore by preferencesDataStore(name = SWIPE_MAP.value)
+private val Context.statusBarJsonDataStore by preferencesDataStore(name = STATUS_BAR_JSON.value)
 
 
 
@@ -132,5 +137,6 @@ fun Context.resolveDataStore(name: DataStoreName): DataStore<Preferences> {
         FLOATING_APPS -> appCtx.floatingAppsDatastore
         WELLBEING -> appCtx.wellbeingDatastore
         SWIPE_MAP -> appCtx.swipeMapDatastore
+        STATUS_BAR_JSON -> appCtx.statusBarJsonDataStore
     }
 }

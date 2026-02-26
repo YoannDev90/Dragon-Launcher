@@ -18,8 +18,6 @@ import kotlinx.coroutines.launch
 import org.elnix.dragonlauncher.common.R
 import org.elnix.dragonlauncher.common.utils.showToast
 import org.elnix.dragonlauncher.enumsui.LockMethod
-import org.elnix.dragonlauncher.models.AppLifecycleViewModel
-import org.elnix.dragonlauncher.models.AppsViewModel
 import org.elnix.dragonlauncher.settings.stores.BehaviorSettingsStore
 import org.elnix.dragonlauncher.settings.stores.PrivateAppsSettingsStore
 import org.elnix.dragonlauncher.settings.stores.PrivateSettingsStore
@@ -31,16 +29,15 @@ import org.elnix.dragonlauncher.ui.components.settings.asState
 import org.elnix.dragonlauncher.ui.helpers.CustomActionSelector
 import org.elnix.dragonlauncher.ui.helpers.SliderWithLabel
 import org.elnix.dragonlauncher.ui.helpers.settings.SettingsLazyHeader
+import org.elnix.dragonlauncher.ui.remembers.LocalAppLifecycleViewModel
 import org.elnix.dragonlauncher.ui.remembers.rememberExpandableSection
 
 
 @Composable
-fun BehaviorTab(
-    appsViewModel: AppsViewModel,
-    appLifecycleViewModel: AppLifecycleViewModel,
-    onBack: () -> Unit
-) {
+fun BehaviorTab(onBack: () -> Unit) {
     val ctx = LocalContext.current
+    val appLifecycleViewModel = LocalAppLifecycleViewModel.current
+
     val scope = rememberCoroutineScope()
 
     val backAction by BehaviorSettingsStore.backAction.asState()
@@ -116,8 +113,6 @@ fun BehaviorTab(
 
         item {
             CustomActionSelector(
-                appsViewModel = appsViewModel,
-                appLifecycleViewModel = appLifecycleViewModel,
                 currentAction = backAction,
                 label = stringResource(R.string.back_action),
                 onToggle = {
@@ -134,8 +129,6 @@ fun BehaviorTab(
 
         item {
             CustomActionSelector(
-                appsViewModel = appsViewModel,
-                appLifecycleViewModel = appLifecycleViewModel,
                 currentAction = doubleClickAction,
                 label = stringResource(R.string.double_click_action),
                 onToggle = {
@@ -152,8 +145,6 @@ fun BehaviorTab(
 
         item {
             CustomActionSelector(
-                appsViewModel = appsViewModel,
-                appLifecycleViewModel = appLifecycleViewModel,
                 currentAction = homeAction,
                 label = stringResource(R.string.home_action),
                 onToggle = {

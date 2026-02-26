@@ -16,6 +16,7 @@ import android.view.WindowManager
 import androidx.activity.compose.setContent
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.activity.viewModels
+import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
@@ -64,6 +65,10 @@ import org.elnix.dragonlauncher.settings.stores.UiSettingsStore
 import org.elnix.dragonlauncher.ui.MainAppUi
 import org.elnix.dragonlauncher.ui.components.settings.asState
 import org.elnix.dragonlauncher.ui.components.settings.asStateNull
+import org.elnix.dragonlauncher.ui.remembers.LocalAppLifecycleViewModel
+import org.elnix.dragonlauncher.ui.remembers.LocalAppsViewModel
+import org.elnix.dragonlauncher.ui.remembers.LocalBackupViewModel
+import org.elnix.dragonlauncher.ui.remembers.LocalFloatingAppsViewModel
 import org.elnix.dragonlauncher.ui.theme.DragonLauncherTheme
 import org.woheller69.freeDroidWarn.FreeDroidWarn
 import java.util.UUID
@@ -488,31 +493,34 @@ class MainActivity : FragmentActivity(), WidgetHostProvider {
                 navControllerHolder.value = navController
 
 
-                MainAppUi(
-                    backupViewModel = backupViewModel,
-                    appsViewModel = appsViewModel,
-                    floatingAppsViewModel = floatingAppsViewModel,
-                    appLifecycleViewModel = appLifecycleViewModel,
-                    widgetHostProvider = this,
-                    navController = navController,
-                    onBindCustomWidget = { widgetId, provider, nestId ->
-                        pendingAddNestId = nestId
-                        (ctx as MainActivity).bindWidgetFromCustomPicker(widgetId, provider)
-                    },
-                    onLaunchSystemWidgetPicker = { nestId ->
-                        pendingAddNestId = nestId
-                        (ctx as MainActivity).launchWidgetPicker()
-                    },
-                    onResetWidgetSize = { id, widgetId ->
-                        val info = appWidgetManager.getAppWidgetInfo(widgetId)
-                        floatingAppsViewModel.resetFloatingAppSize(id, info)
-                    },
-                    onRemoveFloatingApp = { floatingAppObject ->
-                        floatingAppsViewModel.removeFloatingApp(floatingAppObject.id) {
-                            (ctx as MainActivity).deleteWidget(it)
+                CompositionLocalProvider(
+                    LocalAppsViewModel provides appsViewModel,
+                    LocalAppLifecycleViewModel provides appLifecycleViewModel,
+                    LocalBackupViewModel provides backupViewModel,
+                    LocalFloatingAppsViewModel provides floatingAppsViewModel
+                ) {
+                    MainAppUi(
+                        widgetHostProvider = this,
+                        navController = navController,
+                        onBindCustomWidget = { widgetId, provider, nestId ->
+                            pendingAddNestId = nestId
+                            (ctx as MainActivity).bindWidgetFromCustomPicker(widgetId, provider)
+                        },
+                        onLaunchSystemWidgetPicker = { nestId ->
+                            pendingAddNestId = nestId
+                            (ctx as MainActivity).launchWidgetPicker()
+                        },
+                        onResetWidgetSize = { id, widgetId ->
+                            val info = appWidgetManager.getAppWidgetInfo(widgetId)
+                            floatingAppsViewModel.resetFloatingAppSize(id, info)
+                        },
+                        onRemoveFloatingApp = { floatingAppObject ->
+                            floatingAppsViewModel.removeFloatingApp(floatingAppObject.id) {
+                                (ctx as MainActivity).deleteWidget(it)
+                            }
                         }
-                    }
-                )
+                    )
+                }
             }
         }
     }

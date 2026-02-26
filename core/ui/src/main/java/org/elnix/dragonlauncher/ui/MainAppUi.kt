@@ -22,6 +22,7 @@ import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateListOf
@@ -56,6 +57,7 @@ import org.elnix.dragonlauncher.common.logging.logD
 import org.elnix.dragonlauncher.common.logging.logE
 import org.elnix.dragonlauncher.common.logging.logW
 import org.elnix.dragonlauncher.common.serializables.IconShape
+import org.elnix.dragonlauncher.common.serializables.StatusBarJson
 import org.elnix.dragonlauncher.common.serializables.SwipeActionSerializable
 import org.elnix.dragonlauncher.common.serializables.SwipePointSerializable
 import org.elnix.dragonlauncher.common.serializables.allShapesWithoutRandom
@@ -74,15 +76,13 @@ import org.elnix.dragonlauncher.common.utils.isDefaultLauncher
 import org.elnix.dragonlauncher.common.utils.loadChangelogs
 import org.elnix.dragonlauncher.common.utils.showToast
 import org.elnix.dragonlauncher.enumsui.LockMethod
-import org.elnix.dragonlauncher.models.AppLifecycleViewModel
-import org.elnix.dragonlauncher.models.AppsViewModel
-import org.elnix.dragonlauncher.models.BackupViewModel
-import org.elnix.dragonlauncher.models.FloatingAppsViewModel
 import org.elnix.dragonlauncher.settings.stores.BackupSettingsStore
 import org.elnix.dragonlauncher.settings.stores.BehaviorSettingsStore
 import org.elnix.dragonlauncher.settings.stores.DebugSettingsStore
 import org.elnix.dragonlauncher.settings.stores.DrawerSettingsStore
 import org.elnix.dragonlauncher.settings.stores.PrivateSettingsStore
+import org.elnix.dragonlauncher.settings.stores.StatusBarJsonSettingsStore
+import org.elnix.dragonlauncher.settings.stores.StatusBarSettingsStore
 import org.elnix.dragonlauncher.settings.stores.SwipeSettingsStore
 import org.elnix.dragonlauncher.settings.stores.WellbeingSettingsStore
 import org.elnix.dragonlauncher.ui.actions.AppLaunchException
@@ -103,11 +103,16 @@ import org.elnix.dragonlauncher.ui.helpers.collapseDownAnimation
 import org.elnix.dragonlauncher.ui.helpers.findFragmentActivity
 import org.elnix.dragonlauncher.ui.helpers.noAnimComposable
 import org.elnix.dragonlauncher.ui.helpers.raiseUpAnimation
+import org.elnix.dragonlauncher.ui.remembers.LocalAppLifecycleViewModel
+import org.elnix.dragonlauncher.ui.remembers.LocalAppsViewModel
+import org.elnix.dragonlauncher.ui.remembers.LocalBackupViewModel
 import org.elnix.dragonlauncher.ui.remembers.LocalDefaultPoint
 import org.elnix.dragonlauncher.ui.remembers.LocalIconShape
 import org.elnix.dragonlauncher.ui.remembers.LocalIcons
 import org.elnix.dragonlauncher.ui.remembers.LocalNests
 import org.elnix.dragonlauncher.ui.remembers.LocalPoints
+import org.elnix.dragonlauncher.ui.remembers.LocalShowStatusBar
+import org.elnix.dragonlauncher.ui.remembers.LocalStatusBarElements
 import org.elnix.dragonlauncher.ui.settings.backup.BackupTab
 import org.elnix.dragonlauncher.ui.settings.customization.AppearanceTab
 import org.elnix.dragonlauncher.ui.settings.customization.BehaviorTab
@@ -137,10 +142,6 @@ import org.elnix.dragonlauncher.ui.whatsnew.WhatsNewBottomSheet
 @Suppress("AssignedValueIsNeverRead")
 @Composable
 fun MainAppUi(
-    backupViewModel: BackupViewModel,
-    appsViewModel: AppsViewModel,
-    floatingAppsViewModel: FloatingAppsViewModel,
-    appLifecycleViewModel: AppLifecycleViewModel,
     navController: NavHostController,
     widgetHostProvider: WidgetHostProvider,
     onBindCustomWidget: (Int, ComponentName, nestId: Int) -> Unit,
@@ -150,6 +151,9 @@ fun MainAppUi(
 ) {
     val ctx = LocalContext.current
     val scope = rememberCoroutineScope()
+    val appsViewModel = LocalAppsViewModel.current
+    val appLifecycleViewModel = LocalAppLifecycleViewModel.current
+    val backupViewModel = LocalBackupViewModel.current
 
     val result by backupViewModel.result.collectAsState()
 
@@ -580,6 +584,14 @@ fun MainAppUi(
     val defaultPoint by SwipeSettingsStore.getDefaultPointFlow(ctx).collectAsState(defaultSwipePointsValues)
 
 
+    val showStatusBar by StatusBarSettingsStore.showStatusBar.asState()
+
+    val elementsJson by StatusBarJsonSettingsStore.statusBarJson.asState()
+
+    val elements by remember(elementsJson) {
+        derivedStateOf { StatusBarJson.decodeStatusBarElements(elementsJson) }
+    }
+
     // Used internally by the app view model
     LaunchedEffect(iconsShape) {
         appsViewModel.cacheIconShape(iconsShape)
@@ -590,7 +602,9 @@ fun MainAppUi(
         LocalIcons provides icons,
         LocalIconShape provides iconsShape,
         LocalPoints provides points,
-        LocalNests provides nests
+        LocalNests provides nests,
+        LocalStatusBarElements provides elements,
+        LocalShowStatusBar provides showStatusBar
     ) {
         Scaffold(
             topBar = {
@@ -616,8 +630,6 @@ fun MainAppUi(
                 // Main App (LauncherScreen)
                 noAnimComposable(ROUTES.MAIN) {
                     MainScreen(
-                        appsViewModel = appsViewModel,
-                        floatingAppsViewModel = floatingAppsViewModel,
                         widgetHostProvider = widgetHostProvider,
                         onLaunchAction = ::launchAction
                     )
@@ -631,8 +643,6 @@ fun MainAppUi(
                     popExitTransition = { if (drawerEnterExitAnimations) collapseDownAnimation() else ExitTransition.None },
                 ) {
                     AppDrawerScreen(
-                        appsViewModel = appsViewModel,
-                        appLifecycleViewModel = appLifecycleViewModel,
                         showIcons = showAppIconsInDrawer,
                         showLabels = showAppLabelsInDrawer,
                         autoShowKeyboard = autoShowKeyboardOnDrawer,
@@ -652,7 +662,6 @@ fun MainAppUi(
                 // Welcome screen
                 noAnimComposable(ROUTES.WELCOME) {
                     WelcomeScreen(
-                        backupVm = backupViewModel,
                         onEnterSettings = ::goSettingsRoot,
                         onEnterApp = ::goMainScreen
                     )
@@ -666,8 +675,6 @@ fun MainAppUi(
                 ) {
                     noAnimComposable(SETTINGS.ROOT) {
                         SettingsScreen(
-                            appsViewModel = appsViewModel,
-                            appLifecycleViewModel = appLifecycleViewModel,
                             onAdvSettings = ::goAdvSettingsRoot,
                             onNestEdit = ::goNestEdit,
                             onBack = ::goMainScreen
@@ -675,7 +682,6 @@ fun MainAppUi(
                     }
                     noAnimComposable(SETTINGS.ADVANCED_ROOT) {
                         AdvancedSettingsScreen(
-                            appViewModel = appsViewModel,
                             navController = navController,
                             onLaunchAction = ::launchApp,
                         ) { goSettingsRoot() }
@@ -689,28 +695,15 @@ fun MainAppUi(
                     }
                     noAnimComposable(SETTINGS.WALLPAPER) { WallpaperTab(::goAppearance) }
                     noAnimComposable(SETTINGS.ICON_PACK) { IconPackTab(appsViewModel, ::goAppearance) }
-                    noAnimComposable(SETTINGS.STATUS_BAR) {
-                        StatusBarTab(
-                            appsViewModel = appsViewModel,
-                            appLifecycleViewModel = appLifecycleViewModel,
-                            onBack = ::goAppearance
-                        )
-                    }
+                    noAnimComposable(SETTINGS.STATUS_BAR) { StatusBarTab(::goAppearance) }
                     noAnimComposable(SETTINGS.THEME) { ThemesTab(::goAppearance) }
 
-                    noAnimComposable(SETTINGS.BEHAVIOR) {
-                        BehaviorTab(
-                            appsViewModel = appsViewModel,
-                            appLifecycleViewModel = appLifecycleViewModel,
-                            onBack = ::goAdvSettingsRoot
-                        )
-                    }
+                    noAnimComposable(SETTINGS.BEHAVIOR) { BehaviorTab(::goAdvSettingsRoot) }
                     noAnimComposable(SETTINGS.DRAWER) { DrawerTab(appsViewModel, ::goAdvSettingsRoot) }
                     noAnimComposable(SETTINGS.COLORS) { ColorSelectorTab(::goAppearance) }
                     noAnimComposable(SETTINGS.DEBUG) {
                         DebugTab(
                             navController = navController,
-                            appsViewModel = appsViewModel,
                             onShowWelcome = ::goWelcome,
                             onBack = ::goAdvSettingsRoot
                         )
@@ -718,21 +711,10 @@ fun MainAppUi(
                     noAnimComposable(SETTINGS.LOGS) { LogsTab(::goDebug) }
                     noAnimComposable(SETTINGS.SETTINGS_JSON) { SettingsDebugTab(::goDebug) }
                     noAnimComposable(SETTINGS.LANGUAGE) { LanguageTab(::goAdvSettingsRoot) }
-                    noAnimComposable(SETTINGS.BACKUP) {
-                        BackupTab(
-                            backupViewModel = backupViewModel,
-                            onBack = ::goAdvSettingsRoot
-                        )
-                    }
+                    noAnimComposable(SETTINGS.BACKUP) { BackupTab(::goAdvSettingsRoot) }
                     noAnimComposable(SETTINGS.CHANGELOGS) { ChangelogsScreen(::goAdvSettingsRoot) }
 
-                    noAnimComposable(SETTINGS.WELLBEING) {
-                        WellbeingTab(
-                            appsViewModel = appsViewModel,
-                            appLifecycleViewModel = appLifecycleViewModel,
-                            onBack = ::goAdvSettingsRoot
-                        )
-                    }
+                    noAnimComposable(SETTINGS.WELLBEING) { WellbeingTab(::goAdvSettingsRoot) }
 
                     noAnimComposable(SETTINGS.NESTS_EDIT) {
                         NestEditingScreen(
@@ -743,9 +725,6 @@ fun MainAppUi(
 
                     noAnimComposable(SETTINGS.FLOATING_APPS) {
                         FloatingAppsTab(
-                            appsViewModel = appsViewModel,
-                            appLifecycleViewModel = appLifecycleViewModel,
-                            floatingAppsViewModel = floatingAppsViewModel,
                             widgetHostProvider = widgetHostProvider,
                             onBack = ::goAppearance,
                             onLaunchSystemWidgetPicker = ::launchWidgetsPicker,
@@ -756,7 +735,6 @@ fun MainAppUi(
 
                     noAnimComposable(SETTINGS.WORKSPACE) {
                         WorkspaceListScreen(
-                            appsViewModel = appsViewModel,
                             onOpenWorkspace = { id ->
                                 navController.navigate(
                                     SETTINGS.WORKSPACE_DETAIL.replace("{id}", id)
@@ -771,8 +749,6 @@ fun MainAppUi(
                         arguments = listOf(navArgument("id") { type = NavType.StringType }),
                     ) { backStack ->
                         WorkspaceDetailScreen(
-                            appsViewModel = appsViewModel,
-                            appLifecycleViewModel = appLifecycleViewModel,
                             showLabels = showAppLabelsInDrawer,
                             showIcons = showAppIconsInDrawer,
                             gridSize = gridSize,

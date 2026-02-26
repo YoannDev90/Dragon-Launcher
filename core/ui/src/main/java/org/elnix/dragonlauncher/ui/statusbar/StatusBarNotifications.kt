@@ -24,18 +24,21 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.isActive
+import org.elnix.dragonlauncher.common.serializables.StatusBarSerializable
 import org.elnix.dragonlauncher.common.serializables.dummyAppModel
 import org.elnix.dragonlauncher.services.DragonNotificationListenerService
 import org.elnix.dragonlauncher.ui.remembers.LocalIcons
 
 @Composable
 fun StatusBarNotifications(
-    maxIcons: Int
+    element: StatusBarSerializable.Notifications
 ) {
     val ctx = LocalContext.current
     val icons = LocalIcons.current
     val packageNames by DragonNotificationListenerService.notifications.collectAsState()
     var hasPermission by remember { mutableStateOf(DragonNotificationListenerService.isPermissionGranted(ctx)) }
+
+    val maxIcons = element.maxIcons
 
     LaunchedEffect(Unit) {
         while (isActive) {

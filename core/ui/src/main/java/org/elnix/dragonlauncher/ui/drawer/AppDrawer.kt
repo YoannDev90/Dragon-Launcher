@@ -94,8 +94,6 @@ import org.elnix.dragonlauncher.enumsui.DrawerActions.OPEN_KB
 import org.elnix.dragonlauncher.enumsui.DrawerActions.SEARCH_WEB
 import org.elnix.dragonlauncher.enumsui.DrawerActions.TOGGLE_KB
 import org.elnix.dragonlauncher.enumsui.isUsed
-import org.elnix.dragonlauncher.models.AppLifecycleViewModel
-import org.elnix.dragonlauncher.models.AppsViewModel
 import org.elnix.dragonlauncher.settings.stores.DrawerSettingsStore
 import org.elnix.dragonlauncher.settings.stores.UiSettingsStore
 import org.elnix.dragonlauncher.ui.components.burger.BurgerAction
@@ -113,6 +111,8 @@ import org.elnix.dragonlauncher.ui.helpers.WallpaperDim
 import org.elnix.dragonlauncher.ui.modifiers.conditional
 import org.elnix.dragonlauncher.ui.modifiers.settingsGroup
 import org.elnix.dragonlauncher.ui.modifiers.shapedClickable
+import org.elnix.dragonlauncher.ui.remembers.LocalAppLifecycleViewModel
+import org.elnix.dragonlauncher.ui.remembers.LocalAppsViewModel
 import kotlin.math.abs
 import kotlin.math.pow
 
@@ -121,8 +121,6 @@ import kotlin.math.pow
 @OptIn(ExperimentalComposeUiApi::class)
 @Composable
 fun AppDrawerScreen(
-    appsViewModel: AppsViewModel,
-    appLifecycleViewModel: AppLifecycleViewModel,
     showIcons: Boolean,
     showLabels: Boolean,
     autoShowKeyboard: Boolean,
@@ -138,6 +136,9 @@ fun AppDrawerScreen(
 ) {
     val ctx = LocalContext.current
     val scope = rememberCoroutineScope()
+
+    val appsViewModel = LocalAppsViewModel.current
+    val appLifecycleViewModel = LocalAppLifecycleViewModel.current
 
     val privateSpaceState by appsViewModel.privateSpaceState.collectAsState()
 
@@ -782,7 +783,6 @@ fun AppDrawerScreen(
 
         IconEditorDialog(
             point = tempPoint,
-            appsViewModel = appsViewModel,
             onReset = {
                 appsViewModel.reloadAppIcon(app, false)
             },

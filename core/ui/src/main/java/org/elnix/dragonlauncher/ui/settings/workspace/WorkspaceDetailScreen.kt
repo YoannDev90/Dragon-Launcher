@@ -39,11 +39,10 @@ import org.elnix.dragonlauncher.common.serializables.defaultSwipePointsValues
 import org.elnix.dragonlauncher.common.serializables.dummySwipePoint
 import org.elnix.dragonlauncher.enumsui.WorkspaceViewMode
 import org.elnix.dragonlauncher.enumsui.workspaceViewMode
-import org.elnix.dragonlauncher.models.AppLifecycleViewModel
-import org.elnix.dragonlauncher.models.AppsViewModel
 import org.elnix.dragonlauncher.settings.stores.DebugSettingsStore
 import org.elnix.dragonlauncher.settings.stores.UiSettingsStore
 import org.elnix.dragonlauncher.ui.components.generic.ActionRow
+import org.elnix.dragonlauncher.ui.components.settings.asState
 import org.elnix.dragonlauncher.ui.dialogs.AppAliasesDialog
 import org.elnix.dragonlauncher.ui.dialogs.AppLongPressDialog
 import org.elnix.dragonlauncher.ui.dialogs.AppPickerDialog
@@ -51,12 +50,11 @@ import org.elnix.dragonlauncher.ui.dialogs.IconEditorDialog
 import org.elnix.dragonlauncher.ui.dialogs.RenameAppDialog
 import org.elnix.dragonlauncher.ui.helpers.AppGrid
 import org.elnix.dragonlauncher.ui.helpers.settings.SettingsLazyHeader
+import org.elnix.dragonlauncher.ui.remembers.LocalAppsViewModel
 import kotlin.math.max
 
 @Composable
 fun WorkspaceDetailScreen(
-    appsViewModel: AppsViewModel,
-    appLifecycleViewModel: AppLifecycleViewModel,
     showLabels: Boolean,
     showIcons: Boolean,
     gridSize: Int,
@@ -65,14 +63,15 @@ fun WorkspaceDetailScreen(
     onLaunchAction: (SwipeActionSerializable) -> Unit
 ) {
     val ctx = LocalContext.current
+    val appsViewModel = LocalAppsViewModel.current
+
     val scope = rememberCoroutineScope()
 
     val workspaceState by appsViewModel.state.collectAsState()
     val workspace = workspaceState.workspaces.first { it.id == workspaceId }
     val overrides = workspaceState.appOverrides
 
-    val workspaceDebugInfos by DebugSettingsStore.workspacesDebugInfo.flow(ctx)
-        .collectAsState(initial = false)
+    val workspaceDebugInfos by DebugSettingsStore.workspacesDebugInfo.asState()
 
 
     var selectedView by remember { mutableStateOf(WorkspaceViewMode.DEFAULTS) }
@@ -95,8 +94,7 @@ fun WorkspaceDetailScreen(
 
     var iconTargetApp by remember { mutableStateOf<AppModel?>(null) }
 
-    val appIconOverlaySize by UiSettingsStore.appIconOverlaySize.flow(ctx)
-        .collectAsState(initial = 22)
+    val appIconOverlaySize by UiSettingsStore.appIconOverlaySize.asState()
 
 
     val defaultPoint by appsViewModel.defaultPoint.collectAsState(defaultSwipePointsValues)
@@ -156,8 +154,6 @@ fun WorkspaceDetailScreen(
 
     if (showAppPicker) {
         AppPickerDialog(
-            appsViewModel = appsViewModel,
-            appLifecycleViewModel = appLifecycleViewModel,
             gridSize = gridSize,
             showIcons = showIcons,
             showLabels = showLabels,
@@ -301,7 +297,6 @@ fun WorkspaceDetailScreen(
 
         IconEditorDialog(
             point = tempPoint,
-            appsViewModel = appsViewModel,
             onDismiss = { iconTargetApp = null }
         ) {
             scope.launch {

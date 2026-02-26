@@ -68,14 +68,12 @@ import kotlinx.coroutines.launch
 import org.elnix.dragonlauncher.common.R
 import org.elnix.dragonlauncher.common.serializables.IconShape
 import org.elnix.dragonlauncher.common.utils.Constants.PackageNameLists.knownSocialMediaApps
+import org.elnix.dragonlauncher.common.utils.UiConstants.DragonShape
 import org.elnix.dragonlauncher.common.utils.hasUsageStatsPermission
-import org.elnix.dragonlauncher.models.AppLifecycleViewModel
-import org.elnix.dragonlauncher.models.AppsViewModel
+import org.elnix.dragonlauncher.common.utils.resolveShape
 import org.elnix.dragonlauncher.settings.stores.DrawerSettingsStore
 import org.elnix.dragonlauncher.settings.stores.WellbeingSettingsStore
-import org.elnix.dragonlauncher.common.utils.UiConstants.DragonShape
 import org.elnix.dragonlauncher.ui.components.dragon.DragonIconButton
-import org.elnix.dragonlauncher.common.utils.resolveShape
 import org.elnix.dragonlauncher.ui.components.settings.SettingsSlider
 import org.elnix.dragonlauncher.ui.components.settings.SettingsSwitchRow
 import org.elnix.dragonlauncher.ui.components.settings.asState
@@ -84,16 +82,15 @@ import org.elnix.dragonlauncher.ui.helpers.SwitchRow
 import org.elnix.dragonlauncher.ui.helpers.settings.SettingsItem
 import org.elnix.dragonlauncher.ui.helpers.settings.SettingsLazyHeader
 import org.elnix.dragonlauncher.ui.modifiers.settingsGroup
+import org.elnix.dragonlauncher.ui.remembers.LocalAppsViewModel
 import org.elnix.dragonlauncher.ui.remembers.LocalIcons
 
 @Composable
-fun WellbeingTab(
-    appsViewModel: AppsViewModel,
-    appLifecycleViewModel: AppLifecycleViewModel,
-    onBack: () -> Unit
-) {
+fun WellbeingTab(onBack: () -> Unit) {
     val ctx = LocalContext.current
     val icons = LocalIcons.current
+    val appsViewModel = LocalAppsViewModel.current
+
     val scope = rememberCoroutineScope()
 
     val socialMediaPauseEnabled by WellbeingSettingsStore.socialMediaPauseEnabled.asState()
@@ -464,8 +461,6 @@ fun WellbeingTab(
 
     if (showAppPicker) {
         AppPickerDialog(
-            appsViewModel = appsViewModel,
-            appLifecycleViewModel = appLifecycleViewModel,
             gridSize = gridSize,
             showIcons = showIcons,
             showLabels = showLabels,

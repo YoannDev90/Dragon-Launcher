@@ -66,26 +66,22 @@ import org.elnix.dragonlauncher.common.R
 import org.elnix.dragonlauncher.common.logging.logD
 import org.elnix.dragonlauncher.common.serializables.SwipeActionSerializable
 import org.elnix.dragonlauncher.common.utils.Constants.Logging.WIDGET_TAG
+import org.elnix.dragonlauncher.common.utils.UiConstants.DragonShape
 import org.elnix.dragonlauncher.common.utils.WidgetHostProvider
-import org.elnix.dragonlauncher.models.AppLifecycleViewModel
-import org.elnix.dragonlauncher.models.AppsViewModel
 import org.elnix.dragonlauncher.models.FloatingAppsViewModel
 import org.elnix.dragonlauncher.settings.stores.DebugSettingsStore
 import org.elnix.dragonlauncher.settings.stores.StatusBarSettingsStore
-import org.elnix.dragonlauncher.common.utils.UiConstants.DragonShape
 import org.elnix.dragonlauncher.ui.components.FloatingAppsHostView
 import org.elnix.dragonlauncher.ui.dialogs.AddPointDialog
 import org.elnix.dragonlauncher.ui.dialogs.NestManagementDialog
 import org.elnix.dragonlauncher.ui.helpers.CircleIconButton
 import org.elnix.dragonlauncher.ui.helpers.UpDownButton
 import org.elnix.dragonlauncher.ui.helpers.settings.SettingsLazyHeader
+import org.elnix.dragonlauncher.ui.remembers.LocalFloatingAppsViewModel
 import org.elnix.dragonlauncher.ui.statusbar.StatusBar
 
 @Composable
 fun FloatingAppsTab(
-    appsViewModel: AppsViewModel,
-    appLifecycleViewModel: AppLifecycleViewModel,
-    floatingAppsViewModel: FloatingAppsViewModel,
     widgetHostProvider: WidgetHostProvider,
     onBack: () -> Unit,
     onLaunchSystemWidgetPicker: (nestId: Int) -> Unit,
@@ -93,6 +89,8 @@ fun FloatingAppsTab(
     onRemoveWidget: (FloatingAppObject) -> Unit
 ) {
     val ctx = LocalContext.current
+
+    val floatingAppsViewModel = LocalFloatingAppsViewModel.current
     val scope = rememberCoroutineScope()
 
     val widgetsDebugInfos by DebugSettingsStore.widgetsDebugInfo.flow(ctx)
@@ -138,10 +136,7 @@ fun FloatingAppsTab(
     Column {
 
         if (showStatusBar && isRealFullscreen) {
-            StatusBar(
-                onDateAction = null,
-                onClockAction = null
-            )
+            StatusBar(null)
         }
 
         SettingsLazyHeader(
@@ -365,8 +360,6 @@ fun FloatingAppsTab(
 
     if (showAddDialog) {
         AddPointDialog(
-            appsViewModel = appsViewModel,
-            appLifecycleViewModel = appLifecycleViewModel,
             onDismiss = { showAddDialog = false },
             actions = listOf(
                 SwipeActionSerializable.OpenWidget(0, ComponentName("", "")),

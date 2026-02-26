@@ -21,9 +21,11 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
 import kotlinx.coroutines.delay
+import org.elnix.dragonlauncher.common.serializables.StatusBarSerializable
 
 @Composable
 fun StatusBarConnectivity(
+    element: StatusBarSerializable.Connectivity,
     modifier: Modifier = Modifier
 ) {
     val ctx = LocalContext.current

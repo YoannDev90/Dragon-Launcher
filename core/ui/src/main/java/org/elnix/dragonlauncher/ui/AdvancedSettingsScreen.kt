@@ -75,17 +75,16 @@ import org.elnix.dragonlauncher.common.serializables.SwipeActionSerializable
 import org.elnix.dragonlauncher.common.serializables.allShapesWithoutRandom
 import org.elnix.dragonlauncher.common.utils.Constants.Links.discordInviteLink
 import org.elnix.dragonlauncher.common.utils.SETTINGS
+import org.elnix.dragonlauncher.common.utils.UiConstants.DragonShape
 import org.elnix.dragonlauncher.common.utils.copyToClipboard
 import org.elnix.dragonlauncher.common.utils.getVersionCode
 import org.elnix.dragonlauncher.common.utils.obtainiumPackageName
 import org.elnix.dragonlauncher.common.utils.openUrl
 import org.elnix.dragonlauncher.common.utils.showToast
 import org.elnix.dragonlauncher.enumsui.LockMethod
-import org.elnix.dragonlauncher.models.AppsViewModel
 import org.elnix.dragonlauncher.settings.SettingsStoreRegistry
 import org.elnix.dragonlauncher.settings.stores.DebugSettingsStore
 import org.elnix.dragonlauncher.settings.stores.PrivateSettingsStore
-import org.elnix.dragonlauncher.common.utils.UiConstants.DragonShape
 import org.elnix.dragonlauncher.ui.components.TextDivider
 import org.elnix.dragonlauncher.ui.components.settings.asState
 import org.elnix.dragonlauncher.ui.dialogs.CustomAlertDialog
@@ -97,18 +96,20 @@ import org.elnix.dragonlauncher.ui.helpers.settings.ContributorItem
 import org.elnix.dragonlauncher.ui.helpers.settings.SettingItemWithExternalOpen
 import org.elnix.dragonlauncher.ui.helpers.settings.SettingsItem
 import org.elnix.dragonlauncher.ui.helpers.settings.SettingsLazyHeader
+import org.elnix.dragonlauncher.ui.remembers.LocalAppsViewModel
 
 
 @SuppressLint("LocalContextGetResourceValueCall")
 @Suppress("AssignedValueIsNeverRead", "VariableNeverRead")
 @Composable
 fun AdvancedSettingsScreen(
-    appViewModel: AppsViewModel,
     navController: NavController,
     onLaunchAction: (SwipeActionSerializable) -> Unit,
     onBack: () -> Unit
 ) {
     val ctx = LocalContext.current
+    val appsViewModel = LocalAppsViewModel.current
+
     val scope = rememberCoroutineScope()
 
     val versionCode = getVersionCode(ctx)
@@ -117,7 +118,7 @@ fun AdvancedSettingsScreen(
     val forceAppLanguageSelector by DebugSettingsStore.forceAppLanguageSelector.asState()
 
 
-    val allApps by appViewModel.allApps.collectAsState()
+    val allApps by appsViewModel.allApps.collectAsState()
     val isObtainiumInstalled = allApps.filter { it.packageName == obtainiumPackageName }.size == 1
 
     var toast by remember { mutableStateOf<Toast?>(null) }
@@ -591,7 +592,7 @@ fun AdvancedSettingsScreen(
                     }
                 } else {
                     repeat(pinShapes.size - newValue.length) {
-                        pinShapes.removeLast()
+                        pinShapes.removeAt(pinShapes.lastIndex)
                     }
                 }
             }

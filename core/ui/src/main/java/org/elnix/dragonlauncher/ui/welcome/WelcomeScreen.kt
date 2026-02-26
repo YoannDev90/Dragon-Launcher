@@ -37,24 +37,25 @@ import androidx.compose.ui.unit.dp
 import kotlinx.coroutines.launch
 import org.elnix.dragonlauncher.common.R
 import org.elnix.dragonlauncher.models.BackupResult
-import org.elnix.dragonlauncher.models.BackupViewModel
 import org.elnix.dragonlauncher.settings.DataStoreName
 import org.elnix.dragonlauncher.settings.SettingsBackupManager
 import org.elnix.dragonlauncher.settings.stores.PrivateSettingsStore
 import org.elnix.dragonlauncher.ui.dialogs.ImportSettingsDialog
+import org.elnix.dragonlauncher.ui.remembers.LocalBackupViewModel
 import org.elnix.dragonlauncher.ui.remembers.rememberSettingsImportLauncher
 import org.json.JSONObject
 
 @SuppressLint("LocalContextGetResourceValueCall")
 @Composable
 fun WelcomeScreen(
-    backupVm: BackupViewModel,
     onEnterSettings: () -> Unit,
     onEnterApp: () -> Unit
 ) {
     val pagerState = rememberPagerState(pageCount = { 6 })
     val scope = rememberCoroutineScope()
     val ctx = LocalContext.current
+
+    val backupViewModel = LocalBackupViewModel.current
 
 
     var selectedStoresForImport by remember { mutableStateOf(setOf<DataStoreName>()) }
@@ -65,7 +66,7 @@ fun WelcomeScreen(
         ctx = ctx,
         scope = scope,
         onCancel = {
-            backupVm.setResult(
+            backupViewModel.setResult(
                 BackupResult(
                     export = false,
                     error = true,
@@ -74,7 +75,7 @@ fun WelcomeScreen(
             )
         },
         onError = { msg ->
-            backupVm.setResult(
+            backupViewModel.setResult(
                 BackupResult(
                     export = false,
                     error = true,
@@ -191,7 +192,7 @@ fun WelcomeScreen(
                     scope.launch {
                         try {
                             SettingsBackupManager.importSettingsFromJson(ctx, json , selectedStoresForImport)
-                            backupVm.setResult(
+                            backupViewModel.setResult(
                                 BackupResult(
                                     export = false,
                                     error = false,
@@ -200,7 +201,7 @@ fun WelcomeScreen(
                             )
                             importJson = null
                         } catch (e: Exception) {
-                            backupVm.setResult(
+                            backupViewModel.setResult(
                                 BackupResult(
                                     export = false,
                                     error = true,

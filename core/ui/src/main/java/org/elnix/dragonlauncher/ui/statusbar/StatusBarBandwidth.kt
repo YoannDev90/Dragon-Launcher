@@ -1,5 +1,6 @@
 package org.elnix.dragonlauncher.ui.statusbar
 
+import android.annotation.SuppressLint
 import android.net.TrafficStats
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Row
@@ -16,9 +17,11 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.isActive
+import org.elnix.dragonlauncher.common.serializables.StatusBarSerializable
 
 @Composable
 fun StatusBarBandwidth(
+    element: StatusBarSerializable.Bandwidth,
     modifier: Modifier = Modifier
 ) {
     var rxSpeed by remember { mutableLongStateOf(0L) }
@@ -50,6 +53,7 @@ fun StatusBarBandwidth(
     }
 }
 
+@SuppressLint("DefaultLocale")
 private fun formatSpeed(bytesPerSecond: Long): String {
     return when {
         bytesPerSecond >= 1_048_576L -> String.format("%.1fM", bytesPerSecond / 1_048_576.0)

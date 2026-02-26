@@ -13,55 +13,94 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import kotlinx.coroutines.delay
+import org.elnix.dragonlauncher.common.serializables.StatusBarSerializable
 import org.elnix.dragonlauncher.common.serializables.SwipeActionSerializable
 import org.elnix.dragonlauncher.common.utils.openAlarmApp
 import org.elnix.dragonlauncher.common.utils.openCalendar
+import org.elnix.dragonlauncher.ui.modifiers.conditional
 import java.time.LocalDate
 import java.time.LocalTime
 import java.time.format.DateTimeFormatter
 
 @Composable
-fun StatusBarClock(
-    showTime: Boolean,
-    showDate: Boolean,
-    timeFormatter: String,
-    dateFormatter: String,
-    clockAction: SwipeActionSerializable?,
-    dateAction: SwipeActionSerializable?,
-    onClockAction: ((SwipeActionSerializable) -> Unit)?,
-    onDateAction: ((SwipeActionSerializable) -> Unit)?
+fun StatusBarDate(
+    element: StatusBarSerializable.Date,
+    onAction: ((SwipeActionSerializable) -> Unit)?
 ) {
     val ctx = LocalContext.current
 
 
-    val timeFormat = remember(timeFormatter) {
-        try {
-            DateTimeFormatter.ofPattern(timeFormatter)
-        } catch (e: Exception) {
-            println("⚠️ Invalid time format '$timeFormatter': ${e.message}")
-            DateTimeFormatter.ofPattern("HH:mm:ss")
-        }
-    }
+    val formatter = element.formatter
+    val action = element.action
 
-    val dateFormat = remember(dateFormatter) {
+    val dateFormat = remember(formatter) {
         try {
-            DateTimeFormatter.ofPattern(dateFormatter)
+            DateTimeFormatter.ofPattern(formatter)
         } catch (e: Exception) {
-            println("⚠️ Invalid date format '$dateFormatter': ${e.message}")
+            println("⚠️ Invalid date format '$formatter': ${e.message}")
             DateTimeFormatter.ofPattern("MMM dd")
         }
     }
 
-    var time by remember { mutableStateOf(LocalTime.now()) }
     var date by remember { mutableStateOf(LocalDate.now()) }
 
-    // Update every second if timeFormatter contains 'ss', else every minute
-    val updateInterval = if ("ss" in timeFormatter) 1_000L else 60_000L
+    LaunchedEffect(formatter) {
+        while (true) {
+            date = LocalDate.now()
+            delay(60_000L)
+        }
+    }
 
-    LaunchedEffect(timeFormatter, dateFormatter) {
+
+    val dateText = try {
+        date.format(dateFormat)
+    } catch (e: Exception) {
+        println("⚠️ Date formatting failed: ${e.message}")
+        date.format(DateTimeFormatter.ofPattern("MMM dd"))
+    }
+
+    Row {
+        Text(
+            text = dateText,
+            style = MaterialTheme.typography.bodyMedium,
+            modifier = Modifier.conditional(onAction != null) {
+                clickable {
+                    action?.let { onAction!!(it) } ?: openCalendar(ctx)
+                }
+            }
+        )
+    }
+}
+
+
+@Composable
+fun StatusBarTime(
+    element: StatusBarSerializable.Time,
+    onAction: ((SwipeActionSerializable) -> Unit)?
+) {
+    val ctx = LocalContext.current
+
+    val formatter = element.formatter
+    val action = element.action
+
+    val timeFormat = remember(formatter) {
+        try {
+            DateTimeFormatter.ofPattern(formatter)
+        } catch (e: Exception) {
+            println("⚠️ Invalid time format '$formatter': ${e.message}")
+            DateTimeFormatter.ofPattern("HH:mm:ss")
+        }
+    }
+
+
+    var time by remember { mutableStateOf(LocalTime.now()) }
+
+    // Update every second if formatter contains 'ss', else every minute
+    val updateInterval = if ("ss" in formatter) 1_000L else 60_000L
+
+    LaunchedEffect(formatter) {
         while (true) {
             time = LocalTime.now()
-            date = LocalDate.now()
             delay(updateInterval)
         }
     }
@@ -73,32 +112,15 @@ fun StatusBarClock(
         time.format(DateTimeFormatter.ofPattern("HH:mm"))
     }
 
-    val dateText = try {
-        date.format(dateFormat)
-    } catch (e: Exception) {
-        println("⚠️ Date formatting failed: ${e.message}")
-        date.format(DateTimeFormatter.ofPattern("MMM dd"))
-    }
-
     Row {
-        if (showTime) {
-            Text(
-                text = timeText,
-                style = MaterialTheme.typography.bodyMedium,
-                modifier = Modifier.clickable(onClockAction != null) {
-                    clockAction?.let { onClockAction!!(it) } ?: openAlarmApp(ctx)
+        Text(
+            text = timeText,
+            style = MaterialTheme.typography.bodyMedium,
+            modifier = Modifier.conditional(onAction != null) {
+                clickable {
+                    action?.let { onAction!!(it) } ?: openAlarmApp(ctx)
                 }
-            )
-        }
-
-        if (showDate) {
-            Text(
-                text = dateText,
-                style = MaterialTheme.typography.bodyMedium,
-                modifier = Modifier.clickable(onDateAction != null) {
-                    dateAction?.let { onDateAction!!(it) } ?: openCalendar(ctx)
-                }
-            )
-        }
+            }
+        )
     }
 }

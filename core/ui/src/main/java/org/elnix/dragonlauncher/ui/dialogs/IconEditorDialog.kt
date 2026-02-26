@@ -53,11 +53,9 @@ import org.elnix.dragonlauncher.common.serializables.IconType
 import org.elnix.dragonlauncher.common.serializables.SwipePointSerializable
 import org.elnix.dragonlauncher.common.serializables.defaultSwipePointsValues
 import org.elnix.dragonlauncher.common.utils.ImageUtils.uriToBase64
+import org.elnix.dragonlauncher.common.utils.UiConstants.DragonShape
 import org.elnix.dragonlauncher.common.utils.colors.adjustBrightness
 import org.elnix.dragonlauncher.common.utils.definedOrNull
-import org.elnix.dragonlauncher.models.AppsViewModel
-import org.elnix.dragonlauncher.settings.stores.DrawerSettingsStore.iconsShape
-import org.elnix.dragonlauncher.common.utils.UiConstants.DragonShape
 import org.elnix.dragonlauncher.ui.colors.AppObjectsColors
 import org.elnix.dragonlauncher.ui.colors.ColorPickerRow
 import org.elnix.dragonlauncher.ui.components.PointPreviewCanvas
@@ -66,18 +64,19 @@ import org.elnix.dragonlauncher.ui.components.ValidateCancelButtons
 import org.elnix.dragonlauncher.ui.components.dragon.DragonIconButton
 import org.elnix.dragonlauncher.ui.helpers.ShapeRow
 import org.elnix.dragonlauncher.ui.helpers.SliderWithLabel
+import org.elnix.dragonlauncher.ui.remembers.LocalAppsViewModel
 import org.elnix.dragonlauncher.ui.remembers.LocalIconShape
 
 @Composable
 fun IconEditorDialog(
     point: SwipePointSerializable,
-    appsViewModel: AppsViewModel,
     onReset: (() -> Unit)? = null,
     onDismiss: () -> Unit,
     onPicked: (CustomIconSerializable?) -> Unit
 ) {
     val ctx = LocalContext.current
     val iconShapes = LocalIconShape.current
+    val appsViewModel = LocalAppsViewModel.current
 
     val scope = rememberCoroutineScope()
 
@@ -446,7 +445,6 @@ fun IconEditorDialog(
 
     if (showIconPackPicker) {
         IconPackPickerDialog(
-            appsViewModel = appsViewModel,
             onDismiss = { showIconPackPicker = false },
             onIconPicked = { name, packName ->
                 // Now stores the name of the drawable, to avoid storing big bitmaps,

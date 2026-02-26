@@ -57,8 +57,6 @@ import org.elnix.dragonlauncher.common.serializables.dummySwipePoint
 import org.elnix.dragonlauncher.common.utils.SETTINGS
 import org.elnix.dragonlauncher.common.utils.WidgetHostProvider
 import org.elnix.dragonlauncher.common.utils.circles.rememberNestNavigation
-import org.elnix.dragonlauncher.models.AppsViewModel
-import org.elnix.dragonlauncher.models.FloatingAppsViewModel
 import org.elnix.dragonlauncher.settings.stores.BehaviorSettingsStore
 import org.elnix.dragonlauncher.settings.stores.StatusBarSettingsStore
 import org.elnix.dragonlauncher.settings.stores.UiSettingsStore
@@ -69,6 +67,8 @@ import org.elnix.dragonlauncher.ui.components.settings.asState
 import org.elnix.dragonlauncher.ui.components.settings.asStateNull
 import org.elnix.dragonlauncher.ui.helpers.HoldToActivateArc
 import org.elnix.dragonlauncher.ui.helpers.WallpaperDim
+import org.elnix.dragonlauncher.ui.remembers.LocalAppsViewModel
+import org.elnix.dragonlauncher.ui.remembers.LocalFloatingAppsViewModel
 import org.elnix.dragonlauncher.ui.remembers.LocalNests
 import org.elnix.dragonlauncher.ui.remembers.LocalPoints
 import org.elnix.dragonlauncher.ui.remembers.rememberHoldToOpenSettings
@@ -79,14 +79,15 @@ import kotlin.math.max
 @SuppressLint("LocalContextResourcesRead")
 @Composable
 fun MainScreen(
-    appsViewModel: AppsViewModel,
-    floatingAppsViewModel: FloatingAppsViewModel,
     widgetHostProvider: WidgetHostProvider,
     onLaunchAction: (SwipePointSerializable) -> Unit
 ) {
     val ctx = LocalContext.current
     val points = LocalPoints.current
     val nests = LocalNests.current
+
+    val appsViewModel = LocalAppsViewModel.current
+    val floatingAppsViewModel = LocalFloatingAppsViewModel.current
 
     val scope = rememberCoroutineScope()
 
@@ -364,8 +365,7 @@ fun MainScreen(
 
         if (showStatusBar && isRealFullscreen) {
             StatusBar(
-                onClockAction = { launchAction(dummySwipePoint(it)) },
-                onDateAction = { launchAction(dummySwipePoint(it)) }
+                launchAction = { launchAction(dummySwipePoint(it)) },
             )
         }
 

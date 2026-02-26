@@ -38,19 +38,20 @@ import kotlinx.coroutines.withContext
 import org.elnix.dragonlauncher.common.R
 import org.elnix.dragonlauncher.common.serializables.IconPackInfo
 import org.elnix.dragonlauncher.common.utils.ImageUtils.loadDrawableAsBitmap
-import org.elnix.dragonlauncher.models.AppsViewModel
 import org.elnix.dragonlauncher.common.utils.UiConstants.DragonShape
 import org.elnix.dragonlauncher.ui.helpers.AppDrawerSearch
 import org.elnix.dragonlauncher.ui.modifiers.shapedClickable
+import org.elnix.dragonlauncher.ui.remembers.LocalAppsViewModel
 
 @OptIn(ExperimentalFoundationApi::class)
 @Composable
 fun IconPickerListDialog(
-    appsViewModel: AppsViewModel,
     pack: IconPackInfo,
     onDismiss: () -> Unit,
     onIconSelected: (iconName: String) -> Unit
 ) {
+    val appsViewModel = LocalAppsViewModel.current
+
     var searchQuery by remember { mutableStateOf("") }
 
     val drawableNames by appsViewModel.packIcons.collectAsState()
@@ -107,7 +108,6 @@ fun IconPickerListDialog(
                 ) {
                     items(filteredDrawables) { filteredDrawable ->
                         IconCell(
-                            appsViewModel = appsViewModel,
                             pack = pack,
                             drawableName = filteredDrawable,
                             packTint = iconPackTint,
@@ -145,12 +145,13 @@ fun IconPickerListDialog(
 
 @Composable
 private fun IconCell(
-    appsViewModel: AppsViewModel,
     pack: IconPackInfo,
     drawableName: String,
     packTint: Int?,
     onClick: () -> Unit
 ) {
+
+    val appsViewModel = LocalAppsViewModel.current
 
     val bitmap by produceState<ImageBitmap?>(null, drawableName) {
         value = withContext(Dispatchers.IO) {

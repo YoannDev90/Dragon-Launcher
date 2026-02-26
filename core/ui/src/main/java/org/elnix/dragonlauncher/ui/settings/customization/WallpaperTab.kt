@@ -114,10 +114,7 @@ fun WallpaperTab(onBack: () -> Unit) {
 
     Column {
         AnimatedVisibility(showStatusBar && isRealFullscreen) {
-            StatusBar(
-                onDateAction = null,
-                onClockAction = null
-            )
+            StatusBar(null)
         }
 
         SettingsLazyHeader(

@@ -44,7 +44,6 @@ import org.elnix.dragonlauncher.common.serializables.dummySwipePoint
 import org.elnix.dragonlauncher.common.utils.SETTINGS
 import org.elnix.dragonlauncher.common.utils.detectSystemLauncher
 import org.elnix.dragonlauncher.common.utils.showToast
-import org.elnix.dragonlauncher.models.AppsViewModel
 import org.elnix.dragonlauncher.services.SystemControl
 import org.elnix.dragonlauncher.services.SystemControl.activateDeviceAdmin
 import org.elnix.dragonlauncher.services.SystemControl.isDeviceAdminActive
@@ -61,18 +60,20 @@ import org.elnix.dragonlauncher.ui.components.settings.asState
 import org.elnix.dragonlauncher.ui.dialogs.IconEditorDialog
 import org.elnix.dragonlauncher.ui.helpers.settings.SettingsItem
 import org.elnix.dragonlauncher.ui.helpers.settings.SettingsLazyHeader
+import org.elnix.dragonlauncher.ui.remembers.LocalAppsViewModel
 import org.elnix.dragonlauncher.ui.remembers.rememberExpandableSection
 import org.elnix.dragonlauncher.ui.wellbeing.OverlayReminderService
 
 @Composable
 fun DebugTab(
     navController: NavController,
-    appsViewModel: AppsViewModel,
     onShowWelcome: () -> Unit,
     onBack: () -> Unit
 ) {
-    val scope = rememberCoroutineScope()
     val ctx = LocalContext.current
+    val appsViewModel = LocalAppsViewModel.current
+
+    val scope = rememberCoroutineScope()
 
     val systemLauncherPackageName by DebugSettingsStore.systemLauncherPackageName.asState()
 
@@ -441,7 +442,6 @@ fun DebugTab(
     }
     if (showEditAppOverrides) {
         IconEditorDialog(
-            appsViewModel = appsViewModel,
             point = dummySwipePoint(),
             onDismiss = { showEditAppOverrides = false }
         ) { newIcon ->

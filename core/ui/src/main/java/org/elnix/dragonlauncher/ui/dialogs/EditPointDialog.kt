@@ -42,15 +42,13 @@ import org.elnix.dragonlauncher.common.R
 import org.elnix.dragonlauncher.common.serializables.SwipeActionSerializable
 import org.elnix.dragonlauncher.common.serializables.SwipePointSerializable
 import org.elnix.dragonlauncher.common.serializables.defaultSwipePointsValues
+import org.elnix.dragonlauncher.common.utils.UiConstants.DragonShape
 import org.elnix.dragonlauncher.common.utils.colors.adjustBrightness
 import org.elnix.dragonlauncher.common.utils.definedOrNull
 import org.elnix.dragonlauncher.enumsui.SelectedUnselectedViewMode
 import org.elnix.dragonlauncher.enumsui.selectedUnselectedViewName
-import org.elnix.dragonlauncher.models.AppLifecycleViewModel
-import org.elnix.dragonlauncher.models.AppsViewModel
 import org.elnix.dragonlauncher.settings.stores.ColorSettingsStore
 import org.elnix.dragonlauncher.settings.stores.UiSettingsStore
-import org.elnix.dragonlauncher.common.utils.UiConstants.DragonShape
 import org.elnix.dragonlauncher.ui.actions.actionColor
 import org.elnix.dragonlauncher.ui.actions.actionLabel
 import org.elnix.dragonlauncher.ui.colors.AppObjectsColors
@@ -63,13 +61,12 @@ import org.elnix.dragonlauncher.ui.components.generic.ActionRow
 import org.elnix.dragonlauncher.ui.components.settings.asState
 import org.elnix.dragonlauncher.ui.helpers.ShapeRow
 import org.elnix.dragonlauncher.ui.helpers.SliderWithLabel
+import org.elnix.dragonlauncher.ui.remembers.LocalAppsViewModel
 import kotlin.math.max
 
 
 @Composable
 fun EditPointDialog(
-    appsViewModel: AppsViewModel,
-    appLifecycleViewModel: AppLifecycleViewModel,
     point: SwipePointSerializable,
     isDefaultEditing: Boolean = false,
     onDismiss: () -> Unit,
@@ -77,6 +74,8 @@ fun EditPointDialog(
 ) {
     val ctx = LocalContext.current
     val extraColors = LocalExtraColors.current
+
+    val appsViewModel = LocalAppsViewModel.current
 
 
     var editPoint by remember { mutableStateOf(point) }
@@ -550,7 +549,6 @@ fun EditPointDialog(
     if (showEditIconDialog) {
         IconEditorDialog(
             point = editPoint,
-            appsViewModel = appsViewModel,
             onDismiss = { showEditIconDialog = false }
         ) { newIcon ->
 
@@ -567,8 +565,6 @@ fun EditPointDialog(
     }
     if (showEditActionDialog) {
         AddPointDialog(
-            appsViewModel = appsViewModel,
-            appLifecycleViewModel = appLifecycleViewModel,
             onDismiss = { showEditActionDialog = false },
             onActionSelected = { selectedAction ->
                 editPoint = editPoint.copy(action = selectedAction)

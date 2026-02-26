@@ -185,6 +185,7 @@ object Constants {
         const val PM_COMPAT_TAG = "PmCompatDebug"
         const val BROADCAST_TAG = "BroadcastDebug"
         const val POINTS_TAG = "PointsDebug"
+        const val STATUS_BAR_TAG = "StatusBarDebug"
     }
 
     /*  ─────────────  Links  ─────────────  */

@@ -6,8 +6,6 @@ import android.content.Context
 import android.media.AudioAttributes
 import android.media.AudioManager
 import android.media.SoundPool
-import android.os.Build
-import androidx.annotation.RequiresApi
 import androidx.compose.animation.Animatable
 import androidx.compose.animation.AnimatedContent
 import androidx.compose.animation.AnimatedVisibility
@@ -65,10 +63,10 @@ import androidx.compose.ui.window.DialogProperties
 import org.elnix.dragonlauncher.common.R
 import org.elnix.dragonlauncher.common.serializables.IconShape
 import org.elnix.dragonlauncher.common.serializables.allShapesWithoutRandom
+import org.elnix.dragonlauncher.common.utils.resolveShape
 import org.elnix.dragonlauncher.common.utils.semiTransparentIfDisabled
 import org.elnix.dragonlauncher.common.utils.vibrate
 import org.elnix.dragonlauncher.settings.stores.BehaviorSettingsStore
-import org.elnix.dragonlauncher.common.utils.resolveShape
 import org.elnix.dragonlauncher.ui.components.settings.asState
 import org.elnix.dragonlauncher.ui.modifiers.rememberPressedShape
 
@@ -102,7 +100,6 @@ fun PinUnlockDialog(
 /**
  * Dialog for setting up a new PIN (enter + confirm).
  */
-@RequiresApi(Build.VERSION_CODES.VANILLA_ICE_CREAM)
 @Composable
 fun PinSetupDialog(
     onDismiss: () -> Unit,

@@ -1,46 +1,87 @@
 package org.elnix.dragonlauncher.ui.statusbar
 
+import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.foundation.background
+import androidx.compose.foundation.border
+import androidx.compose.foundation.clickable
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.FlowRow
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.lazy.LazyRow
+import androidx.compose.foundation.lazy.items
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Close
+import androidx.compose.material.icons.filled.Restore
+import androidx.compose.material3.Button
+import androidx.compose.material3.Icon
 import androidx.compose.material3.LocalContentColor
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.OutlinedTextField
+import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateListOf
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.runtime.setValue
+import androidx.compose.runtime.snapshots.SnapshotStateList
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
+import androidx.compose.ui.draw.scale
+import androidx.compose.ui.hapticfeedback.HapticFeedbackType
+import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.platform.LocalHapticFeedback
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
+import kotlinx.coroutines.launch
+import org.burnoutcrew.reorderable.ReorderableItem
+import org.burnoutcrew.reorderable.detectReorderAfterLongPress
+import org.burnoutcrew.reorderable.rememberReorderableLazyListState
+import org.burnoutcrew.reorderable.reorderable
+import org.elnix.dragonlauncher.common.R
+import org.elnix.dragonlauncher.common.logging.logD
+import org.elnix.dragonlauncher.common.serializables.StatusBarJson
+import org.elnix.dragonlauncher.common.serializables.StatusBarSerializable
 import org.elnix.dragonlauncher.common.serializables.SwipeActionSerializable
+import org.elnix.dragonlauncher.common.serializables.allStatusBarSerializable
+import org.elnix.dragonlauncher.common.utils.UiConstants.DragonShape
+import org.elnix.dragonlauncher.common.utils.isValidDateFormat
+import org.elnix.dragonlauncher.common.utils.isValidTimeFormat
+import org.elnix.dragonlauncher.settings.stores.StatusBarJsonSettingsStore
 import org.elnix.dragonlauncher.settings.stores.StatusBarSettingsStore
+import org.elnix.dragonlauncher.ui.colors.AppObjectsColors
+import org.elnix.dragonlauncher.ui.components.dragon.DragonColumnGroup
 import org.elnix.dragonlauncher.ui.components.settings.asState
+import org.elnix.dragonlauncher.ui.helpers.CustomActionSelector
+import org.elnix.dragonlauncher.ui.helpers.SliderWithLabel
+import org.elnix.dragonlauncher.ui.modifiers.conditional
+import org.elnix.dragonlauncher.ui.remembers.LocalStatusBarElements
 
 @Composable
 fun StatusBar(
-    onClockAction: ((SwipeActionSerializable) -> Unit)?,
-    onDateAction: ((SwipeActionSerializable) -> Unit)?
+    launchAction: ((SwipeActionSerializable) -> Unit)?,
 ) {
     val statusBarBackground by StatusBarSettingsStore.barBackgroundColor.asState()
     val statusBarText by StatusBarSettingsStore.barTextColor.asState()
 
-    val showTime by StatusBarSettingsStore.showTime.asState()
-    val showDate by StatusBarSettingsStore.showDate.asState()
-    val timeFormatter by StatusBarSettingsStore.timeFormatter.asState()
-    val dateFormatter by StatusBarSettingsStore.dateFormater.asState()
-    val showNotifications by StatusBarSettingsStore.showNotifications.asState()
-    val maxNotificationIcons by StatusBarSettingsStore.maxNotificationIcons.asState()
-    val showBattery by StatusBarSettingsStore.showBattery.asState()
-    val showConnectivity by StatusBarSettingsStore.showConnectivity.asState()
-    val showBandwidth by StatusBarSettingsStore.showBandwidth.asState()
-    val showNextAlarm by StatusBarSettingsStore.showNextAlarm.asState()
     val leftStatusBarPadding by StatusBarSettingsStore.leftPadding.asState()
     val rightStatusBarPadding by StatusBarSettingsStore.rightPadding.asState()
     val topStatusBarPadding by StatusBarSettingsStore.topPadding.asState()
     val bottomStatusBarPadding by StatusBarSettingsStore.bottomPadding.asState()
-    val clockAction by StatusBarSettingsStore.clockAction.asState()
-    val dateAction by StatusBarSettingsStore.dateAction.asState()
+
+    val elements = LocalStatusBarElements.current
 
     CompositionLocalProvider(
         LocalContentColor provides statusBarText
@@ -57,45 +98,358 @@ fun StatusBar(
                 ),
             verticalAlignment = Alignment.CenterVertically,
         ) {
+            elements.forEach { element ->
 
-            StatusBarClock(
-                showTime = showTime,
-                showDate = showDate,
-                timeFormatter = timeFormatter,
-                dateFormatter = dateFormatter,
-                clockAction = clockAction,
-                dateAction = dateAction,
-                onClockAction = onClockAction,
-                onDateAction = onDateAction
-            )
+                if (element !is StatusBarSerializable.Spacer) {
+                    StatusBarItem(element, launchAction)
+                } else {
+                    val modifier = Modifier.conditional(
+                        condition = element.width == -1,
+                        block = { Modifier.weight(1f) },
+                        fallback = { width(element.width.dp) }
+                    )
 
-            Spacer(modifier = Modifier.weight(1f))
-
-            if (showNextAlarm) {
-                StatusBarNextAlarm()
-                Spacer(modifier = Modifier.width(6.dp))
+                    Spacer(modifier)
+                }
             }
+        }
+    }
+}
 
-            if (showNotifications) {
-                StatusBarNotifications(
-                    maxIcons = maxNotificationIcons
+
+private data class StatusBarElement(
+    val id: Int,
+    val item: StatusBarSerializable
+)
+
+@Composable
+fun EditStatusBar() {
+    val ctx = LocalContext.current
+    val haptic = LocalHapticFeedback.current
+
+    val scope = rememberCoroutineScope()
+
+    val statusBarBackground by StatusBarSettingsStore.barBackgroundColor.asState()
+    val statusBarText by StatusBarSettingsStore.barTextColor.asState()
+
+    val leftStatusBarPadding by StatusBarSettingsStore.leftPadding.asState()
+    val rightStatusBarPadding by StatusBarSettingsStore.rightPadding.asState()
+    val topStatusBarPadding by StatusBarSettingsStore.topPadding.asState()
+    val bottomStatusBarPadding by StatusBarSettingsStore.bottomPadding.asState()
+
+    val elements: SnapshotStateList<StatusBarElement> = remember { mutableStateListOf() }
+    var selectedElementId by remember { mutableStateOf<Int?>(null) }
+
+    // Load the elements of the status bar on first composition
+    LaunchedEffect(Unit) {
+        elements.clear()
+
+        val loadedElements = StatusBarJsonSettingsStore.statusBarJson.get(ctx)
+        logD(message = loadedElements)
+
+        val elementsJson = StatusBarJson.decodeStatusBarElements(loadedElements)
+
+        logD(message = elementsJson.toString())
+
+
+        elementsJson.forEachIndexed { index, item ->
+            elements.add(
+                StatusBarElement(
+                    id = index,
+                    item = item
                 )
-                Spacer(modifier = Modifier.width(6.dp))
-            }
+            )
+        }
+    }
 
-            if (showConnectivity) {
-                StatusBarConnectivity()
-                Spacer(modifier = Modifier.width(6.dp))
-            }
+    fun save() {
+        val elementsJson = StatusBarJson.encodeStatusBarElements(elements.map { it.item })
+        scope.launch {
+            StatusBarJsonSettingsStore.statusBarJson.set(ctx, elementsJson)
+        }
+    }
 
-            if (showBandwidth) {
-                StatusBarBandwidth()
-                Spacer(modifier = Modifier.width(6.dp))
-            }
+    fun addElement(element: StatusBarSerializable) {
+        elements.add(
+            StatusBarElement(
+                id = elements.size,
+                item = element
+            )
+        )
+        save()
+    }
 
-            if (showBattery) {
-                StatusBarBattery()
+
+    fun removeElement(element: StatusBarElement) {
+        elements -= element
+        selectedElementId = null
+        save()
+    }
+
+    fun updateElement(updated: StatusBarSerializable) {
+        val index = elements.indexOfFirst { it.id == selectedElementId }
+        if (index == -1) return
+
+        elements[index] = elements[index].copy(item = updated)
+        save()
+    }
+
+    val reorderState = rememberReorderableLazyListState(
+        onMove = { from, to ->
+            if (from.index in elements.indices && to.index in 0..elements.size) {
+                val tmp = elements.toMutableList()
+                val item = tmp.removeAt(from.index)
+                tmp.add(to.index, item)
+                elements.clear()
+                elements.addAll(tmp)
             }
+        },
+        onDragEnd = { _, _ ->
+            // Persist changes
+            save()
+        }
+    )
+
+    CompositionLocalProvider(
+        LocalContentColor provides statusBarText
+    ) {
+        LazyRow(
+            modifier = Modifier
+                .fillMaxWidth()
+                .height(100.dp)
+                .background(MaterialTheme.colorScheme.surface, DragonShape)
+                .reorderable(reorderState)
+                .detectReorderAfterLongPress(reorderState)
+                .background(statusBarBackground)
+                .padding(
+                    start = leftStatusBarPadding.dp,
+                    top = topStatusBarPadding.dp,
+                    end = rightStatusBarPadding.dp,
+                    bottom = bottomStatusBarPadding.dp
+                ),
+            verticalAlignment = Alignment.CenterVertically,
+            horizontalArrangement = Arrangement.spacedBy(3.dp),
+            state = reorderState.listState
+        ) {
+
+            items(elements, key = { it.id }) { statusBarElement ->
+                ReorderableItem(
+                    state = reorderState,
+                    key = statusBarElement.id
+                ) { isDragging ->
+
+                    val element = statusBarElement.item
+                    val selected = statusBarElement.id == selectedElementId
+
+                    val scale = animateFloatAsState(
+                        targetValue = when {
+                            isDragging && selected -> 1.2f
+                            isDragging -> 1.3f
+                            selected -> 0.9f
+                            else -> 1f
+                        }
+                    )
+
+                    LaunchedEffect(isDragging) {
+                        if (isDragging) haptic.performHapticFeedback(HapticFeedbackType.LongPress)
+                    }
+
+                    Box(
+                        modifier = Modifier
+                            .scale(scale.value)
+                            .border(1.dp, MaterialTheme.colorScheme.primary, DragonShape)
+                            .clip(DragonShape)
+                            .background(MaterialTheme.colorScheme.surfaceVariant)
+                            .clickable {
+                                selectedElementId =
+                                    if (selectedElementId == statusBarElement.id) null
+                                    else statusBarElement.id
+                            }
+                            .padding(10.dp),
+                        contentAlignment = Alignment.Center
+                    ) {
+                        StatusBarItem(element)
+                    }
+                }
+            }
+        }
+
+        AnimatedVisibility(selectedElementId != null) {
+            elements.firstOrNull { it.id == selectedElementId }?.let { element ->
+                DragonColumnGroup(
+                    Modifier.fillMaxWidth()
+                ) {
+
+                    when (val item = element.item) {
+                        is StatusBarSerializable.Bandwidth, is StatusBarSerializable.Connectivity -> {}
+                        is StatusBarSerializable.Date -> {
+
+                            Column(verticalArrangement = Arrangement.spacedBy(5.dp)) {
+                                Text(
+                                    text = stringResource(R.string.date_format_examples),
+                                    style = MaterialTheme.typography.bodySmall,
+                                    color = MaterialTheme.colorScheme.onBackground
+                                )
+                                OutlinedTextField(
+                                    label = {
+                                        Text(stringResource(R.string.date_format_title))
+                                    },
+                                    value = item.formatter,
+                                    onValueChange = { newValue ->
+                                        updateElement(item.copy(formatter = newValue))
+                                    },
+                                    singleLine = true,
+                                    isError = !isValidDateFormat(item.formatter),
+                                    supportingText = if (!isValidDateFormat(item.formatter)) {
+                                        { Text(stringResource(R.string.invalid_format)) }
+                                    } else null,
+                                    placeholder = { Text("MMM dd") },
+                                    trailingIcon = {
+                                        Icon(
+                                            imageVector = Icons.Default.Restore,
+                                            contentDescription = stringResource(R.string.reset),
+                                            tint = MaterialTheme.colorScheme.primary,
+                                            modifier = Modifier.clickable {
+                                                updateElement(item.copy(formatter = "MMM dd"))
+                                            }
+                                        )
+                                    },
+                                    modifier = Modifier.fillMaxWidth(),
+                                    colors = AppObjectsColors.outlinedTextFieldColors()
+                                )
+
+                                CustomActionSelector(
+                                    currentAction = item.action,
+                                    label = stringResource(R.string.clock_action),
+                                    nullText = stringResource(R.string.opens_alarm_clock_app),
+                                    onToggle = { updateElement(item.copy(action = null)) }
+                                ) { updateElement(item.copy(action = it)) }
+                            }
+                        }
+
+                        is StatusBarSerializable.Time -> {
+                            Column(verticalArrangement = Arrangement.spacedBy(5.dp)) {
+                                Text(
+                                    text = stringResource(R.string.time_format_examples),
+                                    style = MaterialTheme.typography.bodySmall,
+                                    color = MaterialTheme.colorScheme.onBackground
+                                )
+
+                                OutlinedTextField(
+                                    label = { Text(stringResource(R.string.time_format_title)) },
+                                    value = item.formatter,
+                                    onValueChange = { newValue ->
+                                        updateElement(item.copy(formatter = newValue))
+                                    },
+                                    singleLine = true,
+                                    isError = !isValidTimeFormat(item.formatter),
+                                    supportingText = if (!isValidTimeFormat(item.formatter)) {
+                                        { Text(stringResource(R.string.invalid_format)) }
+                                    } else null,
+                                    placeholder = { Text("HH:mm:ss") },
+                                    trailingIcon = {
+                                        Icon(
+                                            imageVector = Icons.Default.Restore,
+                                            contentDescription = stringResource(R.string.reset),
+                                            tint = MaterialTheme.colorScheme.primary,
+                                            modifier = Modifier.clickable {
+                                                updateElement(item.copy(formatter = "HH:mm:ss"))
+                                            }
+                                        )
+                                    },
+                                    modifier = Modifier.fillMaxWidth(),
+                                    colors = AppObjectsColors.outlinedTextFieldColors()
+                                )
+                            }
+                        }
+
+                        is StatusBarSerializable.Notifications -> {
+                            SliderWithLabel(
+                                label = stringResource(R.string.max_notification_icons),
+                                value = item.maxIcons,
+                                valueRange = 1..15,
+                                onReset = { updateElement(item.copy(maxIcons = 5)) }
+                            ) {
+                                updateElement(item.copy(maxIcons = it))
+                            }
+                        }
+
+                        is StatusBarSerializable.Spacer -> {
+                            SliderWithLabel(
+                                label = stringResource(R.string.width),
+                                value = item.width,
+                                valueRange = -1..30,
+                                onReset = { updateElement(item.copy(width = -1)) }
+                            ) {
+                                updateElement(item.copy(width = it))
+                            }
+                        }
+                    }
+                    Button(
+                        onClick = { removeElement(element) },
+                        colors = AppObjectsColors.cancelButtonColors()
+                    ) {
+                        Icon(
+                            imageVector = Icons.Default.Close,
+                            contentDescription = stringResource(R.string.remove)
+                        )
+                        Text(stringResource(R.string.remove))
+                    }
+                }
+            }
+        }
+
+
+
+        FlowRow(
+            horizontalArrangement = Arrangement.spacedBy(5.dp)
+        ) {
+            allStatusBarSerializable.forEach {
+                Button({
+                    addElement(it)
+                }) {
+                    StatusBarItem(it)
+                }
+            }
+        }
+    }
+}
+
+
+@Composable
+fun StatusBarItem(
+    element: StatusBarSerializable,
+    launchAction: ((SwipeActionSerializable) -> Unit)? = null,
+) {
+    when (element) {
+        is StatusBarSerializable.Bandwidth -> {
+            StatusBarBandwidth(element)
+        }
+
+        is StatusBarSerializable.Connectivity -> {
+            StatusBarConnectivity(element)
+        }
+
+        is StatusBarSerializable.Date -> {
+            StatusBarDate(
+                element = element,
+                onAction = launchAction,
+            )
+        }
+
+        is StatusBarSerializable.Time -> {
+            StatusBarTime(
+                element = element,
+                onAction = launchAction,
+            )
+        }
+
+        is StatusBarSerializable.Notifications -> {
+            StatusBarNotifications(element)
+        }
+
+        is StatusBarSerializable.Spacer -> {
+            Text(stringResource(R.string.spacer))
         }
     }
 }

@@ -9,9 +9,12 @@ import androidx.compose.ui.unit.dp
 import org.elnix.dragonlauncher.ui.modifiers.settingsGroup
 
 @Composable
-fun DragonColumnGroup(content: @Composable ColumnScope.() -> Unit) {
+fun DragonColumnGroup(
+    modifier: Modifier = Modifier,
+    content: @Composable ColumnScope.() -> Unit
+) {
     Column(
-        modifier = Modifier.settingsGroup(),
+        modifier = modifier.settingsGroup(),
         verticalArrangement = Arrangement.spacedBy(10.dp),
         content = content
     )

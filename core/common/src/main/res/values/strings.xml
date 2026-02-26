@@ -767,5 +767,8 @@
     <string name="hold_to_activate_tolerance_desc">How far you can drag while holding without canceling the progress</string>
     <string name="show_tolerance_on_main_screen">Show tolerance on main screen</string>
     <string name="show_tolerance_on_main_screen_desc">Display the circle indicating how far you can drag before progress cancel</string>
+    <string name="color">Color</string>
+    <string name="width">Width</string>
+    <string name="spacer">Spacer</string>
 
 </resources>
