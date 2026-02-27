@@ -27,7 +27,6 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import org.elnix.dragonlauncher.common.R
-import org.elnix.dragonlauncher.common.logging.logD
 import org.elnix.dragonlauncher.common.serializables.AppModel
 import org.elnix.dragonlauncher.common.serializables.WorkspaceState
 import org.elnix.dragonlauncher.common.utils.UiConstants.DragonShape
@@ -53,8 +52,6 @@ fun AppAliasesDialog(
     @Suppress("UselessCallOnNotNull")
     val aliases = state.appAliases.orEmpty()
 
-    ctx.logD("Aliases", state.toString())
-    ctx.logD("Aliases", aliases.toString())
 
     AlertDialog(
         title = {
