@@ -39,6 +39,7 @@ import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateOf
@@ -106,6 +107,7 @@ fun AppPickerDialog(
     val workspaceState by appsViewModel.enabledState.collectAsState()
     val workspaces = workspaceState.workspaces
     val overrides = workspaceState.appOverrides
+    val aliases = workspaceState.appAliases
 
 
     val selectedWorkspaceId by appsViewModel.selectedWorkspaceId.collectAsState()
@@ -308,14 +310,25 @@ fun AppPickerDialog(
                         .appsForWorkspace(workspace, overrides)
                         .collectAsState(initial = emptyList())
 
-                    val filteredApps = if (isSearchBarEnabled)
-                        apps.filter {
-                            it.name.contains(
-                                searchQuery,
-                                ignoreCase = true
-                            ) || it.packageName.contains(searchQuery, ignoreCase = true)
+                    val filteredApps by remember(searchQuery, apps) {
+                        derivedStateOf {
+                            val base = if (searchQuery.isBlank()) apps
+                            else apps.filter { app ->
+                                app.name.contains(searchQuery, ignoreCase = true) ||
+
+                                        // Also search for aliases
+                                        aliases[app.iconCacheKey.cacheKey]?.any {
+                                            it.contains(
+                                                searchQuery,
+                                                ignoreCase = true
+                                            )
+                                        } ?: false
+                            }
+
+                            base.sortedBy { it.name.lowercase() }
                         }
-                    else apps
+                    }
+
 
                     val showLock =
                         privateSpaceState.isLocked || privateSpaceState.isAuthenticating

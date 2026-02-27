@@ -23,23 +23,27 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import org.elnix.dragonlauncher.common.R
+import org.elnix.dragonlauncher.common.logging.logD
 import org.elnix.dragonlauncher.common.serializables.AppModel
 import org.elnix.dragonlauncher.common.serializables.WorkspaceState
-import org.elnix.dragonlauncher.models.AppsViewModel
 import org.elnix.dragonlauncher.common.utils.UiConstants.DragonShape
 import org.elnix.dragonlauncher.ui.components.ValidateCancelButtons
 import org.elnix.dragonlauncher.ui.components.dragon.DragonIconButton
 import org.elnix.dragonlauncher.ui.helpers.Bubble
+import org.elnix.dragonlauncher.ui.remembers.LocalAppsViewModel
 
 @Composable
 fun AppAliasesDialog(
-    appsViewModel: AppsViewModel,
     app: AppModel,
     onDismiss: () -> Unit
 ) {
+    val ctx = LocalContext.current
+    val appsViewModel = LocalAppsViewModel.current
+
     var showAliasEditScreen by remember { mutableStateOf<String?>(null) }
     val cacheKey = app.iconCacheKey
 
@@ -48,6 +52,9 @@ fun AppAliasesDialog(
 
     @Suppress("UselessCallOnNotNull")
     val aliases = state.appAliases.orEmpty()
+
+    ctx.logD("Aliases", state.toString())
+    ctx.logD("Aliases", aliases.toString())
 
     AlertDialog(
         title = {
@@ -100,7 +107,7 @@ fun AppAliasesDialog(
                         )
                     }
 
-                    aliases[app.packageName]?.forEach { alias ->
+                    aliases[cacheKey.cacheKey]?.forEach { alias ->
 
                         Bubble(
                             onClick = { showAliasEditScreen = alias },

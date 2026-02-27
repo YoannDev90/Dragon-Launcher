@@ -44,6 +44,11 @@ data class AppModel(
 }
 
 
+fun String.splitCacheKey(): Pair<String, Int> {
+        val split = split("#", limit = 2)
+        return Pair(split.first(), split.last().toInt())
+    }
+
 data class CacheKey (
     val cacheKey: String
 )
@@ -157,7 +162,7 @@ fun resolveApp(
     app: AppModel,
     overrides: Map<String, AppOverride>
 ): AppModel {
-    val o = overrides[app.packageName] ?: return app
+    val o = overrides[app.iconCacheKey.cacheKey] ?: return app
     return app.copy(name = o.customLabel ?: app.name)
 }
 

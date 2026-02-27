@@ -222,7 +222,7 @@ fun WorkspaceDetailScreen(
                 }
             } else null,
             onRenameApp = {
-                renameText = app.name
+                renameText = overrides[app.iconCacheKey.cacheKey]?.customLabel ?: app.name
                 renameTarget = app
             },
             onChangeAppIcon = {
@@ -238,7 +238,7 @@ fun WorkspaceDetailScreen(
         val cacheKey = app.iconCacheKey
         RenameAppDialog(
             title = stringResource(R.string.rename_app),
-            name = renameText,
+            name = { renameText },
             onNameChange = { renameText = it },
             onConfirm = {
 
@@ -270,7 +270,7 @@ fun WorkspaceDetailScreen(
         val cacheKey = app.iconCacheKey
 
         val iconOverride =
-            overrides[pkg]?.customIcon
+            overrides[cacheKey.cacheKey]?.customIcon
 
 
         val tempPoint =
@@ -317,7 +317,6 @@ fun WorkspaceDetailScreen(
         val app = showAliasDialog!!
 
         AppAliasesDialog(
-            appsViewModel = appsViewModel,
             app = app,
             onDismiss = { showAliasDialog = null }
         )

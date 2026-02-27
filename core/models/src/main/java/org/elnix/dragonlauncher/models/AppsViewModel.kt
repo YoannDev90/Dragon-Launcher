@@ -57,6 +57,7 @@ import org.elnix.dragonlauncher.common.serializables.defaultSwipePointsValues
 import org.elnix.dragonlauncher.common.serializables.defaultWorkspaces
 import org.elnix.dragonlauncher.common.serializables.dummySwipePoint
 import org.elnix.dragonlauncher.common.serializables.resolveApp
+import org.elnix.dragonlauncher.common.serializables.splitCacheKey
 import org.elnix.dragonlauncher.common.utils.Constants.Logging.APPS_TAG
 import org.elnix.dragonlauncher.common.utils.Constants.Logging.ICONS_TAG
 import org.elnix.dragonlauncher.common.utils.ImageUtils.createUntintedBitmap
@@ -634,8 +635,6 @@ class AppsViewModel(
     }
 
 
-
-
     private val _density = MutableStateFlow<Density?>(null)
 
     fun cacheDensity(density: Density) {
@@ -1161,14 +1160,16 @@ class AppsViewModel(
         }
 
         // Load the appOverrides in the pointsIcons too
-        _workspacesState.value.appOverrides.forEach { (packageName, override) ->
+        _workspacesState.value.appOverrides.forEach { (iconCacheKey, override) ->
+            val (packageName, userId) = iconCacheKey.splitCacheKey()
+
             override.customIcon?.let { customIcon ->
                 reloadPointIcon(
                     point = dummySwipePoint(
                         SwipeActionSerializable.LaunchApp(
                             packageName,
                             false,
-                            0
+                            userId
                         )
                     ).copy(
                         customIcon = customIcon,

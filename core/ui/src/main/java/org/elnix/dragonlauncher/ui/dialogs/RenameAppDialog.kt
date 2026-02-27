@@ -17,7 +17,7 @@ import org.elnix.dragonlauncher.ui.colors.AppObjectsColors
 @Composable
 fun RenameAppDialog(
     title: String,
-    name: String,
+    name: () -> String,
     onNameChange: (String) -> Unit,
     onConfirm: () -> Unit,
     onReset: () -> Unit,
@@ -53,7 +53,7 @@ fun RenameAppDialog(
         text = {
             Column{
                 TextField(
-                    value = name,
+                    value = name(),
                     onValueChange = onNameChange,
                     singleLine = true,
                     colors = AppObjectsColors.outlinedTextFieldColors(

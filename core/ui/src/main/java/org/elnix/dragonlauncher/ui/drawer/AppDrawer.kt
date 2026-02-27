@@ -532,18 +532,20 @@ fun AppDrawerScreen(
 
                         val filteredApps by remember(searchQuery, apps) {
                             derivedStateOf {
-                                if (searchQuery.isBlank()) apps
-                                else apps.filter { app ->
-                                    app.name.contains(searchQuery, ignoreCase = true) ||
+                                val base = if (searchQuery.isBlank()) apps
+                                    else apps.filter { app ->
+                                        app.name.contains(searchQuery, ignoreCase = true) ||
 
-                                            // Also search for aliases
-                                            aliases[app.packageName]?.any {
-                                                it.contains(
-                                                    searchQuery,
-                                                    ignoreCase = true
-                                                )
-                                            } ?: false
-                                }
+                                        // Also search for aliases
+                                        aliases[app.iconCacheKey.cacheKey]?.any {
+                                            it.contains(
+                                                searchQuery,
+                                                ignoreCase = true
+                                            )
+                                        } ?: false
+                                    }
+
+                                base.sortedBy { it.name.lowercase() }
                             }
                         }
 
@@ -735,7 +737,7 @@ fun AppDrawerScreen(
 
         RenameAppDialog(
             title = stringResource(R.string.rename_app),
-            name = app.name,
+            name = { renameText },
             onNameChange = { renameText = it },
             onConfirm = {
 
@@ -815,7 +817,6 @@ fun AppDrawerScreen(
         val app = showAliasDialog!!
 
         AppAliasesDialog(
-            appsViewModel = appsViewModel,
             app = app,
             onDismiss = { showAliasDialog = null }
         )
