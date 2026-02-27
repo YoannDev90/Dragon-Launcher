@@ -47,19 +47,6 @@
     <string name="reset">Reinicio</string>
     <string name="reset_to_default_colors">Restablecer a los colores predeterminados</string>
     <string name="make_every_colors_random">Aleatorizar todos los colores</string>
-    <string name="primary_color">Color primario</string>
-    <string name="on_primary_color">Sobre el color primario</string>
-    <string name="secondary_color">Color secundario</string>
-    <string name="on_secondary_color">Sobre el color secundario</string>
-    <string name="tertiary_color">Color terciario</string>
-    <string name="on_tertiary_color">Sobre el color terciario</string>
-    <string name="background_color">Color de fondo</string>
-    <string name="on_background_color">Sobre el color de fondo</string>
-    <string name="surface_color">Color de la superficie</string>
-    <string name="on_surface_color">En el color de la superficie</string>
-    <string name="error_color">Error Color</string>
-    <string name="on_error_color">En el color de error</string>
-    <string name="outline_color">Color del contorno</string>
     <string name="angle_line_color">Color de la línea de ángulo</string>
     <string name="circle_color">Color del círculo</string>
     <string name="launch_app_color">Lanzamiento de App Color</string>
@@ -350,6 +337,221 @@
     <string name="fast_minimal_powerful_gestures">Rápido. Mínimo. Gestos poderosos.</string>
     <string name="customize_apps">Personalizar aplicaciones</string>
     <string name="dont_customize">No personalices y comienza a usar directamente Dragon Launcher</string>
+    <string name="app_aliases">Alias ​​de aplicaciones</string>
+    <string name="edit_alias">Editar alias</string>
+    <string name="alias">Alias</string>
+    <string name="add_alias">Agregar alias</string>
+    <string name="create_alias">Crear alias</string>
+    <string name="scroll_up_action">Acción de desplazamiento hacia arriba</string>
+    <string name="scroll_down_action">Acción de desplazamiento hacia abajo</string>
+    <string name="auto_launch_single_match">Lanzamiento automático de partida única</string>
+    <string name="auto_launch_single_match_desc">Cuando solo hay una aplicación visible en el cajón, se iniciará automáticamente</string>
+    <string name="auto_show_keyboard">Teclado de presentación automática</string>
+    <string name="auto_show_keyboard_desc">Abre el teclado al entrar al cajón.</string>
+    <string name="tap_empty_space_action">Toca la acción del espacio vacío</string>
+    <string name="close_kb">Cerrar teclado</string>
+    <string name="open_kb">Abrir teclado</string>
+    <string name="open_settings">Abrir configuración</string>
+    <string name="clear_all">Borrar todo</string>
+
+    <!--  ─────────────  Wellbeing Section  ─────────────  -->
+    <string name="wellbeing">Bienestar digital</string>
+    <string name="wellbeing_help">Toma el control de tus hábitos digitales. Haga una pausa antes de abrir aplicaciones que le distraigan y reflexione sobre su uso.</string>
+    <string name="social_media_pause">Pausa en las redes sociales</string>
+    <string name="social_media_pause_description">Muestra una pantalla de atención plena antes de abrir aplicaciones que puedan distraer tu atención (TikTok, Instagram, Snapchat…)</string>
+    <string name="guilt_mode">Modo de reconocimiento de tiempo</string>
+    <string name="guilt_mode_description">Muestra estadísticas de uso reales para ayudarte a reflexionar sobre el tiempo dedicado a las aplicaciones.</string>
+    <string name="pause_duration">Duración de la pausa</string>
+    <string name="pause_duration_description">Cuánto tiempo respirar antes de poder continuar (%d segundos)</string>
+    <string name="paused_apps">Aplicaciones pausadas</string>
+    <string name="add_app">Agregar aplicación</string>
+    <string name="add_social_media">Agregar todas las redes sociales</string>
+    <string name="no_paused_apps">Ninguna aplicación está pausada todavía. Agrega aplicaciones que te distraigan.</string>
+    <string name="usage_permission_required">Permiso de acceso de uso</string>
+    <string name="usage_permission_description">Para mostrar sus estadísticas de uso reales, Dragon Launcher necesita acceso a los datos de uso de la aplicación. Esto le ayuda a ser más consciente del tiempo que dedica a las aplicaciones.</string>
+
+    <!--  ─────────────  Digital Pause Screen  ─────────────  -->
+    <string name="digital_pause_title">Pausa Digital</string>
+    <string name="pause_breathe_1">Tómate un momento para respirar...</string>
+    <string name="pause_breathe_2">Estar presente en este momento...</string>
+    <string name="pause_breathe_3">¿Es esto lo que realmente necesitas ahora\?</string>
+    <string name="pause_breathe_4">Tu atención es preciosa...</string>
+    <string name="pause_breathe_5">Reconectate con el presente...</string>
+    <string name="pause_question">¿Realmente necesitas abrir esta aplicación\?</string>
+    <string name="pause_no_thanks">No, pasaré</string>
+    <string name="pause_yes_open">Sí, abre de todos modos...</string>
+    <string name="usage_yesterday">Usaste esta aplicación durante %s ayer</string>
+    <string name="usage_today">Ya has gastado %s hoy en esta aplicación</string>
+    <string name="usage_guilt_yearly">¡Eso es alrededor de %s por año si continúas así!</string>
+    <string name="usage_hours">%1$d horas</string>
+    <string name="usage_minutes">%1$d mínimo</string>
+    <string name="usage_hours_minutes">%1$dh %2$dm</string>
+    <string name="not_used_yet">Aún no has usado esta aplicación, ¿tal vez sea bueno continuar\?</string>
+    <string name="usage_permission_needed">Se necesita permiso de acceso de uso</string>
+    <string name="grant_usage_permission">Conceder permiso</string>
+
+    <!--  ─────────────  Wellbeing: Reminder Mode  ─────────────  -->
+    <string name="reminder_mode_title">Recordatorio de uso</string>
+    <string name="reminder_mode_description">Reciba recordatorios periódicos cuando permanezca demasiado tiempo en una aplicación en pausa</string>
+    <string name="reminder_interval">Intervalo de recordatorio</string>
+    <string name="reminder_interval_description">Recordármelo cada %d minutos</string>
+    <string name="reminder_delivery_mode">Estilo de recordatorio</string>
+    <string name="reminder_mode_notification">Notificación</string>
+    <string name="reminder_mode_overlay">Ventana emergente en pantalla</string>
+    <string name="overlay_permission_required">Permiso de superposición</string>
+    <string name="overlay_permission_description">Para mostrar recordatorios sobre otras aplicaciones, Dragon Launcher necesita el permiso \"Mostrar sobre otras aplicaciones\".</string>
+
+    <!--  Popup Display Options  -->
+    <string name="popup_display_title">Contenido emergente</string>
+    <string name="popup_display_description">Elija qué información mostrar en la ventana emergente de recordatorio</string>
+    <string name="popup_show_session_time">Mostrar tiempo de sesión</string>
+    <string name="popup_show_session_time_desc">Tiempo desde que abriste la aplicación</string>
+    <string name="popup_show_today_time">Mostrar el total de hoy</string>
+    <string name="popup_show_today_time_desc">Tiempo total dedicado a esta aplicación hoy</string>
+    <string name="popup_show_remaining_time">Mostrar tiempo restante</string>
+    <string name="popup_show_remaining_time_desc">Tiempo restante antes del retorno automático (si está habilitado)</string>
+
+    <!--  Popup Display Labels  -->
+    <string name="popup_session_label">Sesión</string>
+    <string name="popup_today_label">Hoy</string>
+    <string name="popup_remaining_label">Restante</string>
+    <string name="popup_no_limit">Sin límite</string>
+
+    <string name="reminder_notification_title">Todavía en %s</string>
+    <string name="reminder_notification_text">Has estado usando %1$s durante %2$s. ¿Quizás es hora de un descanso\?</string>
+    <string name="reminder_overlay_text">Has estado en %1$s durante %2$s</string>
+    <string name="reminder_overlay_subtext">Tómate un descanso, tus ojos te lo agradecerán 🌿</string>
+
+    <!--  ─────────────  Wellbeing: Return to Launcher  ─────────────  -->
+    <string name="return_to_launcher_title">Retorno automático al iniciador</string>
+    <string name="return_to_launcher_description">Establece un límite de tiempo antes de abrir una aplicación en pausa. Dragon te trae de vuelta cuando se acabe el tiempo.</string>
+    <string name="time_limit_picker_title">¿Cuánto tiempo quieres usar esta aplicación\?</string>
+    <string name="time_limit_picker_subtitle">Establece un límite para mantenerte consciente</string>
+    <string name="time_limit_minutes">%dmin</string>
+    <string name="time_limit_encourage_short">¡Gran elección! Las sesiones más cortas te ayudan a mantenerte concentrado 🎯</string>
+    <string name="time_limit_encourage_medium">Eso es razonable. ¡Manténgase atento! 🧘</string>
+    <string name="time_limit_encourage_long">Eso es bastante tiempo... ¿Estás seguro de que necesitas tanto tiempo\? 🤔</string>
+    <string name="time_limit_encourage_very_long">Eso es mucho tiempo frente a la pantalla. ¿Quizás probar primero con una sesión más corta\? 😅</string>
+    <string name="time_limit_start">Comenzar</string>
+    <string name="time_limit_cancel">Cancelar</string>
+    <string name="timer_notification_title">Dragón está mirando 🐉</string>
+    <string name="timer_notification_text">%1$s restantes en %2$s</string>
+    <string name="time_warning_title">Quedan %1$s en %2$s</string>
+    <string name="time_warning_subtitle">Tu sesión casi termina ⚡</string>
+    <string name="time_exceeded_title">¡Se acabó el tiempo!</string>
+    <string name="time_exceeded_message">Has estado en %s durante demasiado tiempo.</string>
+    <string name="time_exceeded_subtitle">Es hora de tomar un descanso y hacer algo que disfrutes sin conexión 🌱</string>
+    <string name="time_exceeded_ok">Entendido, gracias Dragón.</string>
+    <string name="time_exceeded_header">Sesión finalizada</string>
+    <string name="encouragement_walk">Sal a caminar 🚶</string>
+    <string name="encouragement_water">Bebe un poco de agua 💧</string>
+    <string name="encouragement_stretch">Estira tu cuerpo 🧘</string>
+    <string name="encouragement_window">Mira por la ventana 🪟</string>
+    <string name="encouragement_text_someone">Envíale un mensaje a alguien que amas 💬</string>
+
+    <!--  ─────────────  Appearance ?  ─────────────  -->
+    <string name="edit_icons_shape">Editar forma de iconos</string>
+    <string name="edit_icons_shape_desc">Personaliza la forma de los iconos del cajón y del resto de la aplicación.</string>
+    <string name="random_shape">Forma aleatoria</string>
+    <string name="grid_size">Tamaño de cuadrícula</string>
+    <string name="max_icon_size">Tamaño máximo del icono</string>
+    <string name="icons_spacing_vertical">iconos Espaciado vertical</string>
+    <string name="icons_spacing_horizontal">iconos Espaciado horizontal</string>
+    <string name="depth">Profundidad</string>
+    <string name="depth_desc">¿Cuántos subnidos se dibujan al máximo\?</string>
+    <string name="warning_large_values_can_lag_your_phone">Advertencia, los valores grandes pueden retrasar su teléfono si tiene muchas acciones y subnidos</string>
+    <string name="custom_theme">Tema personalizado</string>
+    <string name="dynamic_colors">Colores dinámicos</string>
+    <string name="dynamic_colors_desc">Utilice colores dinámicos de Android para proporcionarle una combinación de colores dinámicos</string>
+    <string name="use_pure_black_background">Utilice fondo negro puro</string>
+
+
+    <!--  ───────────── Colors  ─────────────  -->
+    <string name="primary_colors_section">Colores primarios</string>
+    <string name="primary_color">Color primario</string>
+    <string name="on_primary_color">Sobre el color primario</string>
+    <string name="primary_container_color">Contenedor primario</string>
+    <string name="on_primary_container_color">En contenedor primario</string>
+    <string name="inverse_primary_color">Primaria inversa</string>
+
+    <string name="secondary_colors_section">Colores secundarios</string>
+    <string name="secondary_color">Color secundario</string>
+    <string name="on_secondary_color">Sobre el color secundario</string>
+    <string name="secondary_container_color">Contenedor secundario</string>
+    <string name="on_secondary_container_color">En contenedor secundario</string>
+
+    <string name="tertiary_colors_section">Colores terciarios</string>
+    <string name="tertiary_color">Color terciario</string>
+    <string name="on_tertiary_color">Sobre el color terciario</string>
+    <string name="tertiary_container_color">Contenedor Terciario</string>
+    <string name="on_tertiary_container_color">En contenedor terciario</string>
+
+    <string name="background_surface_colors_section">Colores de fondo/superficie</string>
+    <string name="background_color">Color de fondo</string>
+    <string name="on_background_color">Sobre el color de fondo</string>
+    <string name="surface_color">Color de la superficie</string>
+    <string name="on_surface_color">En el color de la superficie</string>
+    <string name="surface_variant_color">Variante de superficie</string>
+    <string name="on_surface_variant_color">Variante en superficie</string>
+    <string name="surface_tint_color">Tinte de superficie</string>
+    <string name="inverse_surface_color">Superficie inversa</string>
+    <string name="inverse_on_surface_color">Inversa en superficie</string>
+
+    <string name="error_colors_section">Colores de error</string>
+    <string name="error_color">Error Color</string>
+    <string name="on_error_color">En el color de error</string>
+    <string name="error_container_color">Contenedor de errores</string>
+    <string name="on_error_container_color">En contenedor de error</string>
+
+    <string name="outline_colors_section">Contorno/colores varios</string>
+    <string name="outline_color">Color del contorno</string>
+    <string name="outline_variant_color">Variante de esquema</string>
+    <string name="scrim_color">malla</string>
+
+    <string name="surface_container_colors_section">Colores de contenedores de superficie</string>
+    <string name="surface_bright_color">Superficie brillante</string>
+    <string name="surface_container_color">Contenedor de superficie</string>
+    <string name="surface_container_high_color">Contenedor de superficie alto</string>
+    <string name="surface_container_highest_color">Contenedor de superficie más alto</string>
+    <string name="surface_container_low_color">Contenedor de superficie bajo</string>
+    <string name="surface_container_lowest_color">Contenedor de superficie más bajo</string>
+    <string name="surface_dim_color">Superficie tenue</string>
+
+    <string name="fixed_colors_section">Colores fijos</string>
+    <string name="primary_fixed_color">Fijo primario</string>
+    <string name="primary_fixed_dim_color">Atenuación fija primaria</string>
+    <string name="on_primary_fixed_color">En primario fijo</string>
+    <string name="on_primary_fixed_variant_color">En la variante fija primaria</string>
+    <string name="secondary_fixed_color">Fijo Secundario</string>
+    <string name="secondary_fixed_dim_color">Atenuación fija secundaria</string>
+    <string name="on_secondary_fixed_color">En secundaria fija</string>
+    <string name="on_secondary_fixed_variant_color">En variante fija secundaria</string>
+    <string name="tertiary_fixed_color">Terciario Fijo</string>
+    <string name="tertiary_fixed_dim_color">Terciario fijo tenue</string>
+    <string name="on_tertiary_fixed_color">En Terciario Fijo</string>
+    <string name="on_tertiary_fixed_variant_color">Sobre la variante fija terciaria</string>
+    <string name="custom_colors">Colores personalizados</string>
+    <string name="normal_colors">Colores normales</string>
+    <string name="help_wanted">Se busca ayudante</string>
+    <string name="help_wanted_on_colors">Busco gente buena que pueda crear una combinación de colores limpia, ya que ésta es bastante vacía y mala, así que si alguien tiene la determinación, podría enviarme los colores para cada campo y, si encaja bien, lo configuraré como predeterminado.</string>
+    <string name="source">Fuente</string>
+    <string name="reset_all_points">Restablecer todos los puntos</string>
+    <string name="reset_all_points_desc">Todas tus acciones se restablecerán, ¡esto no se puede deshacer!</string>
+    <string name="use_categories">Usar categorías</string>
+    <string name="use_categories_desc">Agrupar aplicaciones en el cajón por sus categorías definidas</string>
+    <string name="show_app_icons_in_drawer">Mostrar íconos de aplicaciones en el cajón</string>
+    <string name="show_app_icons_in_drawer_desc">Mostrar los íconos de la aplicación o no en la cuadrícula</string>
+    <string name="show_app_labels_in_drawer">Mostrar etiquetas de aplicaciones en el cajón</string>
+    <string name="show_app_labels_in_drawer_desc">Mostrar o no los nombres de las aplicaciones junto con sus íconos</string>
+    <string name="max_icon_size_desc">El tamaño máximo que pueden alcanzar los iconos, juega con otras configuraciones para lograr algo que te guste</string>
+    <string name="icons_spacing_vertical_desc">Relleno de iconos verticales</string>
+    <string name="icons_spacing_horizontal_desc">Relleno de iconos horizontales</string>
+    <string name="category_settings">Configuración de categoría</string>
+    <string name="expanded_chevron_indicator">Indicador de chevron ampliado</string>
+    <string name="category_grid_width">Ancho de cuadrícula de categoría</string>
+    <string name="grid_settings">Configuración de cuadrícula</string>
+    <string name="category_cells">Celdas de categoría</string>
+    <string name="category_cells_desc">El número de filas y columnas en el cuadro de categoría.</string>
 
     <!--  ─────────────  Multi Select  ─────────────  -->
     <string name="multi_select_hint">Mantén presionada una app para iniciar la selección múltiple</string>
@@ -362,6 +564,11 @@
     <string name="apps_added_successfully">%d apps añadidas correctamente</string>
     <string name="multi_select_drawer_hint">💡 Mantén presionada una app para seleccionar varias a la vez</string>
     <string name="deselect_all">Deseleccionar todo</string>
+
+    <!--  ─────────────  Shortcuts Settings  ─────────────  -->
+    <string name="shortcuts_settings">Atajos</string>
+    <string name="prompt_shortcuts_when_adding_app">Solicitar accesos directos al agregar una aplicación</string>
+    <string name="prompt_shortcuts_when_adding_app_desc">Cuando esté habilitado, se te pedirá que elijas entre la aplicación o sus accesos directos. Cuando está deshabilitada, la aplicación se agrega directamente.</string>
 
     <!--  ─────────────  Lock Settings  ─────────────  -->
     <string name="lock_settings">Bloquear ajustes</string>
@@ -409,6 +616,35 @@
     <string name="show_recently_used_apps">Mostrar apps recientes</string>
     <string name="show_recently_used_apps_desc">Mostrar las apps usadas recientemente en la parte superior del cajón de apps</string>
     <string name="recently_used_apps_count">Número de apps recientes</string>
+    <string name="show_category_name">Mostrar nombre de categoría</string>
+    <string name="show_category_name_desc">Mostrar el nombre de la categoría debajo</string>
+    <string name="search_bar_bottom">Barra de búsqueda inferior</string>
+    <string name="search_bar_bottom_desc">Mostrar la barra de búsqueda en la parte inferior del cajón.</string>
+    <string name="long_click_settings_duration">Duración de la configuración de clic largo (ms)</string>
+    <string name="long_click_settings_duration_desc">Configura cuánto tiempo tienes que hacer clic largo para acceder a la configuración</string>
+    <string name="hold_delay_before_starting_long_click_settings">Mantener el retraso antes de iniciar la configuración de clic largo (ms)</string>
+    <string name="hold_delay_before_starting_long_click_settings_desc">¿Cuánto tiempo se debe esperar antes de que la configuración de carga comience a cargarse\?</string>
+    <string name="keep_screen_on_desc">No apagues ni bloquees la pantalla, mantenla siempre encendida cuando Dragon esté enfocado</string>
+    <string name="drag_zone_padding">Relleno de zona de arrastre</string>
+    <string name="points_settings">Configuración de puntos (predeterminada)</string>
+    <string name="logs">Registros</string>
+    <string name="settings_json">Configuración JSON</string>
+    <string name="pick_a_settings_screen">Elige una pantalla de configuración</string>
+    <string name="app_preview_settings">Superposición de vista previa de la aplicación</string>
+    <string name="time_display_settings">Configuración de visualización de la hora</string>
+    <string name="date_display_settings">Configuración de visualización de fecha</string>
+    <string name="not_implemented">No implementado</string>
+    <string name="show_next_alarm_desc">Mostrar la hora de la próxima alarma próxima</string>
+    <string name="show_battery_desc">Mostrar el % de batería del teléfono</string>
+    <string name="show_connectivity_desc">No funciona bien. Espere una publicación hipotética sobre esto algún día.</string>
+    <string name="show_time_desc">Mostrar la hora usando el formateador personalizado</string>
+    <string name="show_date_desc">Mostrar la fecha junto a la hora usando el formateador personalizado</string>
+    <string name="show_status_bar_desc">Mostrar la barra de estado, si está deshabilitada no se muestra nada</string>
+    <string name="display_options_settings">Configuración de opciones de visualización</string>
+    <string name="disable_haptic_globally">Deshabilitar la retroalimentación háptica globalmente</string>
+    <string name="disable_haptic_globally_desc">Evite que Dragon produzca retroalimentación háptica en la selección de puntos en caso de que lo odie</string>
+    <string name="point_action_snaps_to_outer_circle">La acción del punto se ajusta al círculo exterior.</string>
+    <string name="point_action_snaps_to_outer_circle_desc">Elige si la acción se activa en el círculo interior o exterior</string>
     <string name="error_with_message">Error: %1$s</string>
     <string name="drag_handle">Controlador de arrastre</string>
     <string name="private_space_title">Espacio privado</string>
@@ -419,6 +655,10 @@
     <string name="private_space_loading_description">Tu espacio privado se está cargando…</string>
     <string name="private_space_managed_by_android">Este perfil es administrado por el sistema Android.</string>
     <string name="private_space_manage_instructions">Para añadir o quitar apps, o eliminar este perfil, usa Ajustes de Android.</string>
+    <string name="samsung_secure_folder_settings">Carpeta segura de Samsung</string>
+    <string name="secure_folder_prefer_enabled">Se utilizará Carpeta segura en lugar de Espacio privado.</string>
+    <string name="secure_folder_prefer_disabled">Usando el espacio privado estándar de Android.</string>
+    <string name="secure_folder_unavailable">Carpeta segura no disponible en este dispositivo</string>
     <string name="app_info_name">name = %1$s</string>
     <string name="app_info_package_name">packageName = %1$s</string>
     <string name="app_info_is_enabled">isEnabled = %1$s</string>
@@ -428,4 +668,110 @@
     <string name="app_info_is_launchable">isLaunchable = %1$s</string>
     <string name="app_info_settings">settings = %1$s</string>
     <string name="app_info_user_id">userId = %1$s</string>
+    <string name="app_info_cacheKey">clave de caché = %1$s</string>
+    <string name="no_apps">No hay aplicaciones</string>
+    <string name="unlock">Desbloquear</string>
+
+    <string name="activate_debug_mode">Activar el modo de depuración</string>
+    <string name="activate_debug_mode_desc">Activar las funciones de depuración en toda la aplicación</string>
+
+    <string name="show_debug_infos">Información de depuración de mostrar</string>
+    <string name="show_debug_infos_desc">Mostrar la información de depuración globalmente</string>
+
+    <string name="show_debug_infos_settings">Mostrar la información de depuración en la página de configuración</string>
+    <string name="show_debug_infos_settings_desc">Información de depuración de visualización dentro de la configuración</string>
+
+    <string name="show_debug_infos_widgets">Mostrar información de depuración en la página de widgets</string>
+    <string name="show_debug_infos_widgets_desc">Mostrar información de depuración dentro de los widgets</string>
+
+    <string name="show_debug_infos_workspace">Mostrar información de depuración en la página del espacio de trabajo</string>
+    <string name="show_debug_infos_workspace_desc">Mostrar información de depuración en el espacio de trabajo</string>
+
+    <string name="has_initialized">Se ha inicializado</string>
+    <string name="has_initialized_desc">Si la aplicación ha completado la inicialización</string>
+
+    <string name="show_default_launcher_banner">Mostrar banner del lanzador predeterminado</string>
+    <string name="show_default_launcher_banner_desc">Muestra el banner que indica configurar el lanzador predeterminado</string>
+
+    <string name="force_app_language_selector">Forzar selector de idioma de la app</string>
+    <string name="force_app_language_selector_desc">Utiliza el selector de idioma de la app en lugar del selector de sistema de Android</string>
+
+    <string name="force_app_widgets_selector">Forzar el selector de widgets de la app</string>
+    <string name="force_app_widgets_selector_desc">Obliga a la app a usar su propio selector de widgets</string>
+
+    <string name="use_accessibility_instead_of_context">Utiliza accesibilidad en lugar de contexto</string>
+    <string name="use_accessibility_instead_of_context_desc">Expande el panel de acciones usando accesibilidad en lugar de contexto</string>
+
+    <string name="ask_notifications_behavior">Comportamiento de Ask Notifications</string>
+    <string name="ask_notifications_behavior_desc">Solicita cada vez notificaciones / comportamiento de ajustes rápidos</string>
+
+    <string name="auto_raise_dragon_on_system_launcher">Lanzamiento automático de Dragon en el lanzador del sistema</string>
+    <string name="auto_raise_dragon_on_system_launcher_desc">Activar automáticamente Dragon cuando estás en el lanzador del sistema (requiere accesibilidad)</string>
+    <string name="are_you_sure">¿Estás seguro\?</string>
+    <string name="store_reset">Reinicio de las tiendas</string>
+    <string name="debug_infos">Información de depuración</string>
+
+    <string name="private_space_debug_info">Información de depuración en espacio privado</string>
+    <string name="private_space_debug_info_desc">Muestra la información de depuración del estado del espacio privado encima de todo</string>
+    <string name="backspace">Retroceso</string>
+    <string name="super_warning_mode">Modo Súper Advertencia</string>
+    <string name="super_warning_mode_desc">Haz algo gracioso cuando escribes un pin equivocado</string>
+
+    <string name="super_warning_mode_sound">Modo de Súper Advertencia + sonido</string>
+    <string name="super_warning_mode_sound_desc">Añade el sonido</string>
+    <string name="alarm_sound">Sonido de alarma</string>
+    <string name="alarm_sound_desc">Pon un sonido de alarma cuando se introduce el pin incorrecto</string>
+    <string name="metal_pipes_sound">Sonido de tubos metálicos</string>
+    <string name="metal_pipes_sound_desc">Toca el sonido de las tuberías metálicas cuando se introduce un pin incorrecto</string>
+    <string name="vibrate_on_error">Vibrar en caso de error</string>
+    <string name="vibrate_on_error_desc">Lanza una vibración infinita al detectar error de pin</string>
+
+
+    <string name="drawer_pull_down_settings">Ajustes de Pull Down</string>
+
+    <string name="pull_down_animations">Animaciones de arrastre hacia abajo</string>
+    <string name="pull_down_animations_desc">Activa o desactiva las animaciones al abrir el cajón</string>
+
+    <string name="pull_down_wallpaper_dim">Fondo de pantalla abatible tenue</string>
+    <string name="pull_down_wallpaper_dim_desc">Atenua el papel pintado cuando bajes el cajón</string>
+
+    <string name="pull_down_icon_fade">Icono desplegable Fundido</string>
+    <string name="pull_down_icon_fade_desc">Iconos de fundido dentro y fuera durante la animación del cajón desplegable</string>
+
+    <string name="pull_down_scale_in">Escala Descendente</string>
+    <string name="pull_down_scale_in_desc">Escala iconos cuando el cajón se baja</string>
+    <string name="drawer_enter_exit_animations">Animaciones de entrada/salida en cajones</string>
+    <string name="drawer_enter_exit_animations_desc">Reproduce animaciones al entrar o salir del cajón si está configurado en falso, esto es instantáneo</string>
+    <string name="action_settings">Configuración de acción</string>
+    <string name="drawer_settings">Configuración de cajones</string>
+    <string name="more">Más</string>
+    <string name="reload">Recarga</string>
+    <string name="select_icon">Seleccionar icono</string>
+
+    <string name="show_notifications_desc">Mostrar iconos de aplicaciones con notificaciones activas (requiere permiso de acceso a notificaciones)</string>
+    <string name="max_notification_icons">Iconos de notificación al máximo</string>
+    <string name="max_notification_icons_desc">Número máximo de iconos de notificación de la app para mostrar en la barra de estado</string>
+    <string name="grant_notification_access">Acceso a la notificación de subvenciones</string>
+    <string name="show_bandwidth">Mostrar ancho de banda en directo</string>
+    <string name="show_bandwidth_desc">Mostrar la velocidad de subida y descarga de red en directo junto a la batería</string>
+    <string name="need_to_be_default_launcher_to_use_private_space">Debe ser el launcher por defecto para usar espacio privado</string>
+    <string name="use_differential_loading_private_space">Uso del espacio privado de carga diferencial</string>
+    <string name="use_differential_loading_private_space_desc">Desactiva esto cuando aparezcan aplicaciones privadas en el espacio de trabajo del usuario; de lo contrario, déjalo desmarcado para el rendimiento</string>
+    <string name="edit_border_shape">Editar la forma del borde</string>
+    <string name="hold_to_activate_radius">Mantén pulsado para activar radio</string>
+    <string name="hold_to_activate_radius_desc">El radio del avance del círculo de carga</string>
+    <string name="hold_to_activate_stroke">Mantén pulsado para activar el golpe</string>
+    <string name="hold_to_activate_stroke_desc">El trazo del arco</string>
+    <string name="hold_settings">Ajustes de mantener</string>
+    <string name="hold_to_activate_tolerance">Mantener la resistencia para activar la tolerancia</string>
+    <string name="hold_to_activate_tolerance_desc">Hasta dónde puedes arrastrar manteniendo pulsado sin cancelar el progreso</string>
+    <string name="show_tolerance_on_main_screen">Mostrar tolerancia en la pantalla principal</string>
+    <string name="show_tolerance_on_main_screen_desc">Muestra el círculo que indica hasta dónde puedes arrastrar antes de cancelar el progreso</string>
+    <string name="color">Color</string>
+    <string name="width">Anchura</string>
+    <string name="spacer">Camina</string>
+    <string name="show_percentage">Porcentaje de espectáculo</string>
+    <string name="show_percentage_desc">Mostrar el porcentaje de batería en texto plano</string>
+    <string name="set_status_bar_template">¡Aviso de configurar plantilla de barra de sattus (mía). ¡Al hacer clic aquí borra tu configuración actual!</string>
+
 </resources>

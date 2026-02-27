@@ -754,5 +754,24 @@
     <string name="grant_notification_access">Zuschussbenachrichtigungszugang</string>
     <string name="show_bandwidth">Live-Bandbreite anzeigen</string>
     <string name="show_bandwidth_desc">Anzeige der Live-Netzwerk-Upload- und Download-Geschwindigkeit neben der Batterie</string>
+    <string name="need_to_be_default_launcher_to_use_private_space">Um privaten Speicherplatz nutzen zu können, muss der Standard-Launcher aktiviert sein</string>
+    <string name="use_differential_loading_private_space">Nutzen Sie den privaten Raum mit differenzieller Beladung</string>
+    <string name="use_differential_loading_private_space_desc">Schalten Sie dies um, wenn private Apps im Benutzerarbeitsbereich angezeigt werden, andernfalls lassen Sie die Option für die Leistung deaktiviert</string>
+    <string name="edit_border_shape">Randform bearbeiten</string>
+    <string name="hold_to_activate_radius">Halten Sie gedrückt, um den Radius zu aktivieren</string>
+    <string name="hold_to_activate_radius_desc">Der Radius des Ladekreisfortschritts</string>
+    <string name="hold_to_activate_stroke">Halten Sie gedrückt, um den Strich zu aktivieren</string>
+    <string name="hold_to_activate_stroke_desc">Der Strich des Bogens</string>
+    <string name="hold_settings">Halten Sie die Einstellungen fest</string>
+    <string name="hold_to_activate_tolerance">Halten Sie gedrückt, um die Toleranz zu aktivieren</string>
+    <string name="hold_to_activate_tolerance_desc">Wie weit Sie ziehen können, während Sie gedrückt halten, ohne den Fortschritt abzubrechen</string>
+    <string name="show_tolerance_on_main_screen">Toleranz auf dem Hauptbildschirm anzeigen</string>
+    <string name="show_tolerance_on_main_screen_desc">Zeigen Sie den Kreis an, der angibt, wie weit Sie ziehen können, bevor der Fortschritt abgebrochen wird</string>
+    <string name="color">Farbe</string>
+    <string name="width">Breite</string>
+    <string name="spacer">Abstandshalter</string>
+    <string name="show_percentage">Prozentsatz anzeigen</string>
+    <string name="show_percentage_desc">Zeigt den Batterieprozentsatz im Klartext an</string>
+    <string name="set_status_bar_template">Statusleistenvorlage festlegen (meine) Warnung: Wenn Sie darauf klicken, wird Ihr aktuelles Setup gelöscht!</string>
 
 </resources>

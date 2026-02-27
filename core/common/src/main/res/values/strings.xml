@@ -772,6 +772,6 @@
     <string name="spacer">Spacer</string>
     <string name="show_percentage">Show percentage</string>
     <string name="show_percentage_desc">Display the battery percentage in plain text</string>
-    <string name="set_status_bar_template">Set sattus bar template (mine) warning clicking this erases your current setup!</string>
+    <string name="set_status_bar_template">Set status bar template (mine) warning clicking this erases your current setup!</string>
 
 </resources>
