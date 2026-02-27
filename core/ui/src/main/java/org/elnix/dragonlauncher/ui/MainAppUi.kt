@@ -65,6 +65,7 @@ import org.elnix.dragonlauncher.common.serializables.defaultSwipePointsValues
 import org.elnix.dragonlauncher.common.serializables.dummySwipePoint
 import org.elnix.dragonlauncher.common.utils.Constants
 import org.elnix.dragonlauncher.common.utils.Constants.Logging.APP_LAUNCH_TAG
+import org.elnix.dragonlauncher.common.utils.Constants.Logging.STATUS_BAR_TAG
 import org.elnix.dragonlauncher.common.utils.Constants.Logging.TAG
 import org.elnix.dragonlauncher.common.utils.Constants.Navigation.transparentScreens
 import org.elnix.dragonlauncher.common.utils.ROUTES
@@ -586,9 +587,11 @@ fun MainAppUi(
 
     val showStatusBar by StatusBarSettingsStore.showStatusBar.asState()
 
-    val elementsJson by StatusBarJsonSettingsStore.statusBarJson.asState()
+    val elementsJson by StatusBarJsonSettingsStore.jsonSetting.asState()
 
     val elements by remember(elementsJson) {
+        ctx.logW(STATUS_BAR_TAG, "Element: $elementsJson, decoded: ${StatusBarJson.decodeStatusBarElements(elementsJson)}")
+
         derivedStateOf { StatusBarJson.decodeStatusBarElements(elementsJson) }
     }
 

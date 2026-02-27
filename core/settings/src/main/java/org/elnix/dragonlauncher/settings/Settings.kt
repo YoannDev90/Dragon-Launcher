@@ -216,14 +216,14 @@ object Settings {
             preferenceKey = stringPreferencesKey(key),
             encode = { raw ->
 
-                val a = SwipeJson.encodeAction(raw)
+                val encoded = SwipeJson.encodeAction(raw)
 //                logD(SETTINGS_TAG, "Encoded $raw -> $a")
-                a
+                encoded
              },
             decode = { raw ->
-                val a = getSwipeActionSerializableStrict(raw, default)
+                val decoded = getSwipeActionSerializableStrict(raw, default)
 //                logD(SETTINGS_TAG, "Decoded $raw -> $a")
-                a
+                decoded
             }
         )
 

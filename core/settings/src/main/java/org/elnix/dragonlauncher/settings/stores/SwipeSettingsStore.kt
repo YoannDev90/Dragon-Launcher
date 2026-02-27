@@ -12,12 +12,12 @@ import org.elnix.dragonlauncher.common.serializables.SwipePointSerializable
 import org.elnix.dragonlauncher.common.serializables.defaultSwipePointsValues
 import org.elnix.dragonlauncher.settings.DataStoreName
 import org.elnix.dragonlauncher.settings.bases.BaseSettingObject
-import org.elnix.dragonlauncher.settings.bases.JsonSettingsStore
+import org.elnix.dragonlauncher.settings.bases.JsonObjectSettingsStore
 import org.elnix.dragonlauncher.settings.resolveDataStore
 import org.json.JSONArray
 import org.json.JSONObject
 
-object SwipeSettingsStore : JsonSettingsStore() {
+object SwipeSettingsStore : JsonObjectSettingsStore() {
 
     override val name: String = "Swipe"
     override val dataStoreName = DataStoreName.SWIPE

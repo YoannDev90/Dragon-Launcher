@@ -10,12 +10,12 @@ import org.elnix.dragonlauncher.common.utils.Constants.Logging.FLOATING_APPS_TAG
 import org.elnix.dragonlauncher.settings.DataStoreName
 import org.elnix.dragonlauncher.settings.Settings
 import org.elnix.dragonlauncher.settings.bases.BaseSettingObject
-import org.elnix.dragonlauncher.settings.bases.JsonSettingsStore
+import org.elnix.dragonlauncher.settings.bases.JsonObjectSettingsStore
 import org.json.JSONArray
 import org.json.JSONObject
 import java.util.Collections.emptyList
 
-object FloatingAppsSettingsStore : JsonSettingsStore() {
+object FloatingAppsSettingsStore : JsonObjectSettingsStore() {
 
     override val name: String = "Floating Apps"
     override val dataStoreName: DataStoreName

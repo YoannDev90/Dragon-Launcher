@@ -3,27 +3,19 @@ package org.elnix.dragonlauncher.settings.stores
 import org.elnix.dragonlauncher.settings.DataStoreName
 import org.elnix.dragonlauncher.settings.Settings
 import org.elnix.dragonlauncher.settings.bases.BaseSettingObject
-import org.elnix.dragonlauncher.settings.bases.JsonSettingsStore
+import org.elnix.dragonlauncher.settings.bases.JsonArraySettingsStore
 
-object PrivateAppsSettingsStore : JsonSettingsStore() {
+object PrivateAppsSettingsStore : JsonArraySettingsStore() {
     override val name: String = "Apps"
     override val dataStoreName= DataStoreName.PRIVATE_APPS
 
     override val ALL: List<BaseSettingObject<*,*>>
-        get() = listOf(
-            privateAssignedPackages
-        )
+        get() = listOf(jsonSetting)
 
-    /**
-     * JSON map of packageName -> userId (nullable). Stores packages detected as Private Space.
-     * Example: { "com.grindrapp.android": 10, "com.example.private": null }
-     */
-    val privateAssignedPackages = Settings.string(
+
+    override val jsonSetting =  Settings.string(
         key = "private_assigned_packages_json",
         dataStoreName = dataStoreName,
-        default = "{}"
+        default = ""
     )
-
-    override val jsonSetting: BaseSettingObject<String, String>
-        get() = privateAssignedPackages
 }

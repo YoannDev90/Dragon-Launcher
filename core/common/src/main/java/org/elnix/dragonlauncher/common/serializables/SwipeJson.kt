@@ -287,8 +287,10 @@ object SwipeJson {
         decodeSafe(json, nestsType)
 
 
-    fun encodeAction(action: SwipeActionSerializable?): String =
-        gson.toJson(action, SwipeActionSerializable::class.java)
+    fun encodeAction(action: SwipeActionSerializable?): String? =
+        action?.let {
+            gson.toJson(action, SwipeActionSerializable::class.java)
+        }
 
 
     fun decodeAction(jsonString: String): SwipeActionSerializable? {

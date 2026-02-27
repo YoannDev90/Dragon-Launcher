@@ -1,6 +1,7 @@
 package org.elnix.dragonlauncher.ui.statusbar
 
 import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.animation.animateColorAsState
 import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
@@ -60,12 +61,15 @@ import org.elnix.dragonlauncher.common.serializables.StatusBarJson
 import org.elnix.dragonlauncher.common.serializables.StatusBarSerializable
 import org.elnix.dragonlauncher.common.serializables.SwipeActionSerializable
 import org.elnix.dragonlauncher.common.serializables.allStatusBarSerializable
+import org.elnix.dragonlauncher.common.utils.Constants
+import org.elnix.dragonlauncher.common.utils.Constants.Logging.STATUS_BAR_TAG
 import org.elnix.dragonlauncher.common.utils.UiConstants.DragonShape
 import org.elnix.dragonlauncher.common.utils.isValidDateFormat
 import org.elnix.dragonlauncher.common.utils.isValidTimeFormat
 import org.elnix.dragonlauncher.settings.stores.StatusBarJsonSettingsStore
 import org.elnix.dragonlauncher.settings.stores.StatusBarSettingsStore
 import org.elnix.dragonlauncher.ui.colors.AppObjectsColors
+import org.elnix.dragonlauncher.ui.components.dragon.DragonButton
 import org.elnix.dragonlauncher.ui.components.dragon.DragonColumnGroup
 import org.elnix.dragonlauncher.ui.components.dragon.DragonIconButton
 import org.elnix.dragonlauncher.ui.components.settings.asState
@@ -106,6 +110,7 @@ fun StatusBar(
         ) {
             elements.forEach { element ->
 
+                logD(STATUS_BAR_TAG, "Element: $element")
                 if (element !is StatusBarSerializable.Spacer) {
                     StatusBarItem(element, launchAction)
                 } else {
@@ -146,17 +151,12 @@ fun EditStatusBar() {
     val elements: SnapshotStateList<StatusBarElement> = remember { mutableStateListOf() }
     var selectedElementId by remember { mutableStateOf<Int?>(null) }
 
-    // Load the elements of the status bar on first composition
-    LaunchedEffect(Unit) {
+
+    suspend fun load() {
         elements.clear()
 
-        val loadedElements = StatusBarJsonSettingsStore.statusBarJson.get(ctx)
-        logD(message = loadedElements)
-
+        val loadedElements = StatusBarJsonSettingsStore.jsonSetting.get(ctx)
         val elementsJson = StatusBarJson.decodeStatusBarElements(loadedElements)
-
-        logD(message = elementsJson.toString())
-
 
         elementsJson.forEachIndexed { index, item ->
             elements.add(
@@ -168,10 +168,15 @@ fun EditStatusBar() {
         }
     }
 
+    // Load the elements of the status bar on first composition
+    LaunchedEffect(Unit) {
+        load()
+    }
+
     fun save() {
         val elementsJson = StatusBarJson.encodeStatusBarElements(elements.map { it.item })
         scope.launch {
-            StatusBarJsonSettingsStore.statusBarJson.set(ctx, elementsJson)
+            StatusBarJsonSettingsStore.jsonSetting.set(ctx, elementsJson)
         }
     }
 
@@ -284,6 +289,22 @@ fun EditStatusBar() {
                             else -> 1f
                         }
                     )
+                    val backgroundColor = animateColorAsState(
+                        targetValue = if (selected) {
+                            MaterialTheme.colorScheme.primary
+                        } else {
+                            MaterialTheme.colorScheme.surfaceVariant
+                        }
+                    )
+
+
+                    val borderColor = animateColorAsState(
+                        targetValue = if (selected) {
+                            MaterialTheme.colorScheme.onPrimary
+                        } else {
+                            MaterialTheme.colorScheme.primary
+                        }
+                    )
 
                     LaunchedEffect(isDragging) {
                         if (isDragging) haptic.performHapticFeedback(HapticFeedbackType.LongPress)
@@ -292,9 +313,9 @@ fun EditStatusBar() {
                     Box(
                         modifier = Modifier
                             .scale(scale.value)
-                            .border(1.dp, MaterialTheme.colorScheme.primary, DragonShape)
+                            .border(1.dp, borderColor.value, DragonShape)
                             .clip(DragonShape)
-                            .background(MaterialTheme.colorScheme.surfaceVariant)
+                            .background(backgroundColor.value)
                             .clickable {
                                 selectedElementId =
                                     if (selectedElementId == statusBarElement.id) null
@@ -543,6 +564,17 @@ fun EditStatusBar() {
             }
         }
     }
+
+    DragonButton(
+        onClick = {
+            scope.launch {
+                StatusBarJsonSettingsStore.jsonSetting.set(ctx, Constants.Settings.STATUS_BAR_TEMPLATE)
+                load()
+            }
+        }
+    ) {
+        Text(stringResource(R.string.set_status_bar_template))
+    }
 }
 
 
@@ -586,7 +618,7 @@ fun StatusBarItem(
             StatusBarBattery(element)
         }
 
-        is StatusBarSerializable.NextAlarm-> {
+        is StatusBarSerializable.NextAlarm -> {
             StatusBarNextAlarm(element)
         }
     }

@@ -3,9 +3,9 @@ package org.elnix.dragonlauncher.settings.stores
 import org.elnix.dragonlauncher.settings.DataStoreName
 import org.elnix.dragonlauncher.settings.Settings
 import org.elnix.dragonlauncher.settings.bases.BaseSettingObject
-import org.elnix.dragonlauncher.settings.bases.JsonSettingsStore
+import org.elnix.dragonlauncher.settings.bases.JsonObjectSettingsStore
 
-object WorkspaceSettingsStore : JsonSettingsStore() {
+object WorkspaceSettingsStore : JsonObjectSettingsStore() {
 
     override val name: String = "Workspaces"
     override val dataStoreName= DataStoreName.WORKSPACES

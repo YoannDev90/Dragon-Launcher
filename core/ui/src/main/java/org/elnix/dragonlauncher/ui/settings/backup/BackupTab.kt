@@ -367,11 +367,7 @@ fun BackupTab(onBack: () -> Unit) {
                                         } else {
                                             backupStores + dataStoreName.value
                                         }
-                                        BackupSettingsStore.backupStores.set(
-                                            ctx,
-                                            backupableStores.filter { updated.contains(it.key.backupKey) }
-                                                .map { it.value.dataStoreName.backupKey }.toSet()
-                                        )
+                                        BackupSettingsStore.backupStores.set(ctx, updated)
                                     }
                                 }
                                 .padding(12.dp),

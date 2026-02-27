@@ -2,7 +2,6 @@ package org.elnix.dragonlauncher.settings.bases
 
 import android.content.Context
 import org.elnix.dragonlauncher.common.logging.logI
-import org.elnix.dragonlauncher.common.logging.logW
 import org.elnix.dragonlauncher.common.utils.Constants.Logging.SETTINGS_TAG
 import org.elnix.dragonlauncher.settings.putIfNonDefault
 import org.json.JSONObject
@@ -27,7 +26,7 @@ import org.json.JSONObject
  * - safe type coercion during restore via `BaseSettingObject.decode`
  */
 abstract class MapSettingsStore :
-    BaseSettingsStore<Map<String, Any?>>() {
+    BaseSettingsStore<Map<String, Any?>, JSONObject>() {
 
     /**
      * Reads all settings from DataStore and returns them as a map.
@@ -83,7 +82,7 @@ abstract class MapSettingsStore :
                 val raw = json.opt(key)
                 val typedValue = setting.decode(raw)
 
-                logW(SETTINGS_TAG, "[IMPORT FROM BACKUP] Raw : $raw; Typed value : $typedValue")
+//                logW(SETTINGS_TAG, "[IMPORT FROM BACKUP] Raw : $raw; Typed value : $typedValue")
                 setting.setAny(ctx, typedValue)
             }
         }

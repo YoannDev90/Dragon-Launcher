@@ -15,7 +15,7 @@ class BaseSettingObject <T, R> (
     val dataStoreName: DataStoreName,
     val default: T,
     private val preferenceKey: Preferences.Key<R>,
-    val encode: (T) -> R,
+    val encode: (T) -> R?,
     val decode: (Any?) -> T
 ) : AnySettingObject {
 
@@ -55,7 +55,7 @@ class BaseSettingObject <T, R> (
      */
     override suspend fun setAny(ctx: Context, value: Any?) {
         @Suppress("UNCHECKED_CAST")
-        set(ctx, value as T)
+        set(ctx, value as? T)
     }
 
 
@@ -130,8 +130,12 @@ class BaseSettingObject <T, R> (
 
         ctx.applicationContext
             .resolveDataStore(dataStoreName).edit {
+
             if (value != null) {
-                it[preferenceKey] = encode(value)
+                val encoded = encode(value)
+                encoded?.let { encodedNotNull ->
+                    it[preferenceKey] = encodedNotNull
+                } ?: it.remove(preferenceKey)
             } else {
                 it.remove(preferenceKey)
             }

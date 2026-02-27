@@ -18,18 +18,18 @@ import androidx.compose.runtime.mutableStateMapOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
+import org.elnix.dragonlauncher.common.utils.UiConstants.DragonShape
 import org.elnix.dragonlauncher.settings.DataStoreName
 import org.elnix.dragonlauncher.settings.backupableStores
 import org.elnix.dragonlauncher.settings.bases.BaseSettingsStore
-import org.elnix.dragonlauncher.common.utils.UiConstants.DragonShape
 import org.elnix.dragonlauncher.ui.colors.AppObjectsColors
 
 @Composable
 fun ExportSettingsDialog(
     onDismiss: () -> Unit,
-    availableStores: Map<DataStoreName, BaseSettingsStore<*>> = backupableStores,
-    defaultStores:  Map<DataStoreName, BaseSettingsStore<*>> = backupableStores,
-    onConfirm: (selectedStores: Map<DataStoreName, BaseSettingsStore<*>>) -> Unit
+    availableStores: Map<DataStoreName, BaseSettingsStore<*,*>> = backupableStores,
+    defaultStores:  Map<DataStoreName, BaseSettingsStore<*,*>> = backupableStores,
+    onConfirm: (selectedStores: Map<DataStoreName, BaseSettingsStore<*,*>>) -> Unit
 ) {
 
     val selected = remember(availableStores) {

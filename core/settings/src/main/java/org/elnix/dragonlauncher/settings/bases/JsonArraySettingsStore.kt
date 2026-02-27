@@ -1,8 +1,10 @@
 package org.elnix.dragonlauncher.settings.bases
 
 import android.content.Context
+import org.elnix.dragonlauncher.common.logging.logE
+import org.elnix.dragonlauncher.common.utils.Constants.Logging.BACKUP_TAG
+import org.json.JSONArray
 import org.json.JSONException
-import org.json.JSONObject
 
 /**
  * Settings store backed by a single JSON value.
@@ -14,7 +16,7 @@ import org.json.JSONObject
  *
  * Characteristics:
  * - All data is stored under a single `SettingObject<String>` ([jsonSetting]).
- * - The persisted value is a JSON string, decoded to/from a [JSONObject].
+ * - The persisted value is a JSON string, decoded to/from a [JSONArray].
  * - Updates are atomic: the whole JSON payload is written at once.
  * - Import/export is a direct pass-through of the JSON structure.
  *
@@ -22,8 +24,8 @@ import org.json.JSONObject
  * - simplifies persistence of nested or schema-flexible data
  * - trades fine-grained updates for easier serialization
  */
-abstract class JsonSettingsStore :
-    BaseSettingsStore<JSONObject?>() {
+abstract class JsonArraySettingsStore :
+    BaseSettingsStore<JSONArray?, JSONArray>() {
 
     /**
      * Underlying setting that stores the JSON payload as a raw string.
@@ -32,16 +34,16 @@ abstract class JsonSettingsStore :
 
 
     /**
-     * Reads the JSON string from DataStore and parses it into a [JSONObject].
+     * Reads the JSON string from DataStore and parses it into a [JSONArray].
      */
-    override suspend fun getAll(ctx: Context): JSONObject? {
+    override suspend fun getAll(ctx: Context): JSONArray? {
         // Skips if default value provided (no changes made), keep the backup lighter
         val raw = jsonSetting.getEncoded(ctx)?.trim() ?: return null
 
         return try {
-            if (raw.isEmpty()) null else JSONObject(raw)
+            if (raw.isEmpty()) null else JSONArray(raw)
         } catch (e: JSONException) {
-            e.printStackTrace()
+            logE(BACKUP_TAG, "Error while creating json object of backup", e)
             null
         }
     }
@@ -49,9 +51,9 @@ abstract class JsonSettingsStore :
 
 
     /**
-     * Serializes and writes the provided [JSONObject] into DataStore.
+     * Serializes and writes the provided [JSONArray] into DataStore.
      */
-    override suspend fun setAll(ctx: Context, value: JSONObject?) {
+    override suspend fun setAll(ctx: Context, value: JSONArray?) {
         jsonSetting.set(ctx, value.toString())
     }
 
@@ -60,15 +62,15 @@ abstract class JsonSettingsStore :
      *
      * Since the store is already JSON-backed, this is a direct passthrough.
      */
-    override suspend fun exportForBackup(ctx: Context): JSONObject? =
+    override suspend fun exportForBackup(ctx: Context): JSONArray? =
         getAll(ctx)
 
     /**
      * Restores the store from a JSON backup.
      *
-     * The provided [JSONObject] fully replaces the current stored value.
+     * The provided [JSONArray] fully replaces the current stored value.
      */
-    override suspend fun importFromBackup(ctx: Context, json: JSONObject?) {
+    override suspend fun importFromBackup(ctx: Context, json: JSONArray?) {
         setAll(ctx, json)
     }
 }

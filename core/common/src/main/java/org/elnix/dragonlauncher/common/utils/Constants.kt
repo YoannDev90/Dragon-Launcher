@@ -201,6 +201,8 @@ object Constants {
 
         const val SNAP_STEP_DEG = 15.0
         const val HOME_REENTER_WINDOW_MS = 80L
+
+        const val STATUS_BAR_TEMPLATE = "[{\"type\":\"Time\",\"action\":\"null\",\"formatter\":\"HH:mm:ss\"},{\"type\":\"Date\",\"action\":\"null\",\"formatter\":\" | MMM dd\"},{\"type\":\"Spacer\",\"width\":-1},{\"type\":\"Notifications\",\"maxIcons\":8},{\"type\":\"Spacer\",\"width\":6},{\"type\":\"Connectivity\"},{\"type\":\"Spacer\",\"width\":9},{\"type\":\"Bandwidth\"},{\"type\":\"Spacer\",\"width\":11},{\"type\":\"Battery\",\"showIcon\":false,\"showPercentage\":true}]"
     }
 
     object Drawer {

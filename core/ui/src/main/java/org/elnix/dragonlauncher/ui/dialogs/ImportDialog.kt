@@ -29,7 +29,7 @@ import org.json.JSONObject
 fun ImportSettingsDialog(
     backupJson: JSONObject,
     onDismiss: () -> Unit,
-    onConfirm: (selectedStores: Map<DataStoreName, BaseSettingsStore<*>>) -> Unit
+    onConfirm: (selectedStores: Map<DataStoreName, BaseSettingsStore<*,*>>) -> Unit
 ) {
 
     // Filter stores that exist in backup JSON

@@ -14,9 +14,13 @@ import org.elnix.dragonlauncher.common.utils.Constants.Logging.BACKUP_TAG
 import org.elnix.dragonlauncher.common.utils.getFilePathFromUri
 import org.elnix.dragonlauncher.common.utils.hasUriReadWritePermission
 import org.elnix.dragonlauncher.common.utils.showToast
+import org.elnix.dragonlauncher.settings.bases.JsonArraySettingsStore
+import org.elnix.dragonlauncher.settings.bases.JsonObjectSettingsStore
+import org.elnix.dragonlauncher.settings.bases.MapSettingsStore
 import org.elnix.dragonlauncher.settings.stores.BackupSettingsStore
 import org.elnix.dragonlauncher.settings.stores.PrivateSettingsStore
 import org.elnix.dragonlauncher.settings.stores.SwipeSettingsStore
+import org.json.JSONArray
 import org.json.JSONObject
 import java.io.FileOutputStream
 
@@ -26,14 +30,14 @@ object SettingsBackupManager {
      * Automatic backup to pre-selected file
      */
     suspend fun triggerBackup(ctx: Context) {
-        if (BackupSettingsStore.autoBackupEnabled.get(ctx) != true) {
+        if (!BackupSettingsStore.autoBackupEnabled.get(ctx)) {
             logW(BACKUP_TAG, "Auto-backup disabled")
             return
         }
 
         try {
             val uriString = BackupSettingsStore.autoBackupUri.get(ctx)
-            if (uriString.isNullOrBlank()) {
+            if (uriString.isBlank()) {
                 logW(BACKUP_TAG, "No backup URI set")
                 return
             }
@@ -48,11 +52,10 @@ object SettingsBackupManager {
             }
 
             val selectedStores = BackupSettingsStore.backupStores.get(ctx)
-                ?.mapNotNull {
-                    storeValue -> DataStoreName.entries.find { it.value == storeValue }
+                .mapNotNull { storeValue ->
+                    DataStoreName.entries.find { it.value == storeValue }
                 }
-                ?.toSet()
-                ?: backupableStores.keys
+                .toSet()
 
 
             exportSettings(ctx, uri, selectedStores)
@@ -103,7 +106,11 @@ object SettingsBackupManager {
             val dataStoreName = entry.key
             val settingsStore = entry.value
 
+//            logD(BACKUP_TAG, "RequestedStores: $requestedStores \n allStores: $allStores \n entry: $entry")
+
+
             if (dataStoreName.backupKey in requestedStores.map { it.backupKey }) {
+                logW(BACKUP_TAG, "$dataStoreName ,backup : ${settingsStore.exportForBackup(ctx)}")
                 settingsStore.exportForBackup(ctx)?.let {
                     json.put(dataStoreName.backupKey, it)
                 }
@@ -137,19 +144,39 @@ object SettingsBackupManager {
 
             val key = dataStoreName.backupKey
             if (key in requestedStores.map { it.backupKey }) {
-                json.optJSONObject(key)?.let {
-                    settingsStore.importFromBackup(ctx, it)
+
+                val raw = json.opt(key) ?: return@forEach
+
+                when (settingsStore) {
+                    is JsonArraySettingsStore -> {
+                        if (raw is JSONArray) {
+                            settingsStore.importFromBackup(ctx, raw)
+                        }
+                    }
+
+                    is MapSettingsStore -> {
+                        if (raw is JSONObject) {
+                            settingsStore.importFromBackup(ctx, raw)
+                        }
+                    }
+
+                    is JsonObjectSettingsStore -> {
+                        if (raw is JSONObject) {
+                            settingsStore.importFromBackup(ctx, raw)
+                        }
+                    }
+                    else -> { /* no-op */ }
                 }
             }
         }
 
-        logE(BACKUP_TAG,json.optJSONArray("actions")?.toString() ?: "No actions")
+        logE(BACKUP_TAG, json.optJSONArray("actions")?.toString() ?: "No actions")
 
         // LEGACY format: fallback for "actions" array
         json.optJSONArray("actions")?.let { actionsArray ->
             logD(BACKUP_TAG, "Fallback to legacy system")
             val legacyPoints = SwipeJson.decodeLegacy(actionsArray.toString())
-            logE(BACKUP_TAG,legacyPoints.toString())
+            logE(BACKUP_TAG, legacyPoints.toString())
             SwipeSettingsStore.savePoints(ctx, legacyPoints)
         }
     }

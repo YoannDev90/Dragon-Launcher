@@ -51,7 +51,7 @@ import org.json.JSONObject
  * - The type [T] allows a store to represent the **combined state** of all settings, useful for
  *   loading, saving, and backup in one operation.
  */
-abstract class BaseSettingsStore<T> {
+abstract class BaseSettingsStore<T, B> {
 
     /** Human-readable name for this settings store, e.g., "ColorSettings". */
     abstract val name: String
@@ -99,7 +99,7 @@ abstract class BaseSettingsStore<T> {
      * @param ctx The Android [Context] required to access the underlying DataStore.
      * @return A [JSONObject] representing all settings, or `null` if nothing to export.
      */
-    abstract suspend fun exportForBackup(ctx: Context): JSONObject?
+    abstract suspend fun exportForBackup(ctx: Context): B?
 
     /**
      * Imports settings from a [JSONObject] backup.
@@ -107,5 +107,5 @@ abstract class BaseSettingsStore<T> {
      * @param ctx The Android [Context] required to access the underlying DataStore.
      * @param json The [JSONObject] containing backup values.
      */
-    abstract suspend fun importFromBackup(ctx: Context, json: JSONObject?)
+    abstract suspend fun importFromBackup(ctx: Context, json: B?)
 }

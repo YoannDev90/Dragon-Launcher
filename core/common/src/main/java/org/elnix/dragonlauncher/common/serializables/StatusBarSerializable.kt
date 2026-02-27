@@ -7,12 +7,14 @@ import com.google.gson.JsonDeserializer
 import com.google.gson.JsonElement
 import com.google.gson.JsonNull
 import com.google.gson.JsonObject
+import com.google.gson.JsonParser
 import com.google.gson.JsonSerializationContext
 import com.google.gson.JsonSerializer
 import com.google.gson.reflect.TypeToken
 import org.elnix.dragonlauncher.common.logging.logD
 import org.elnix.dragonlauncher.common.logging.logE
 import org.elnix.dragonlauncher.common.utils.Constants.Logging.STATUS_BAR_TAG
+import org.elnix.dragonlauncher.common.utils.isBlankJson
 import java.lang.reflect.Type
 
 
@@ -75,13 +77,19 @@ class StatusBarAdapter : JsonSerializer<StatusBarSerializable>, JsonDeserializer
 
             is StatusBarSerializable.Time -> {
                 obj.addProperty("type", "Time")
-                obj.addProperty("action", SwipeJson.encodeAction(src.action))
+                val actionJson = SwipeJson.encodeAction(src.action)
+                if (actionJson != null) {
+                    obj.add("action", JsonParser.parseString(actionJson))
+                }
                 obj.addProperty("formatter", src.formatter)
             }
 
             is StatusBarSerializable.Date -> {
                 obj.addProperty("type", "Date")
-                obj.addProperty("action", SwipeJson.encodeAction(src.action))
+                val actionJson = SwipeJson.encodeAction(src.action)
+                if (actionJson != null) {
+                    obj.add("action", JsonParser.parseString(actionJson))
+                }
                 obj.addProperty("formatter", src.formatter)
             }
 
@@ -128,33 +136,40 @@ class StatusBarAdapter : JsonSerializer<StatusBarSerializable>, JsonDeserializer
             when (obj.get("type").asString) {
                 "Time" -> StatusBarSerializable.Time(
                     formatter = obj.get("formatter").asString,
-                    action = SwipeJson.decodeAction(obj.get("action").asString)
+                    action = if (obj.has("action") && !obj.get("action").isJsonNull) {
+                        SwipeJson.decodeAction(obj.get("action").toString())
+                    } else null
                 )
 
                 "Date" -> StatusBarSerializable.Date(
                     formatter = obj.get("formatter").asString,
-                    action = SwipeJson.decodeAction(obj.get("action").asString)
+                    action = if (obj.has("action") && !obj.get("action").isJsonNull) {
+                        SwipeJson.decodeAction(obj.get("action").toString())
+                    } else null
                 )
 
                 "Bandwidth" -> StatusBarSerializable.Bandwidth
 
 
                 "Notifications" -> StatusBarSerializable.Notifications(
-                    maxIcons = obj.get("maxIcons")?.asInt ?: 0
+                    maxIcons = if (obj.has("maxIcons")) obj.get("maxIcons").asInt else 8
                 )
 
                 "Connectivity" -> StatusBarSerializable.Connectivity
 
                 "Spacer" -> StatusBarSerializable.Spacer(
-                    width = obj.get("width")?.asInt ?: -1,
+                    width = if (obj.has("width")) obj.get("width").asInt else -1
                 )
+
                 "Battery" -> StatusBarSerializable.Battery(
                     showIcon = obj.get("showIcon")?.asBoolean ?: true,
-                    showPercentage =obj.get("showPercentage")?.asBoolean ?: true,
+                    showPercentage = obj.get("showPercentage")?.asBoolean ?: true,
                 )
+
                 "NextAlarm" -> StatusBarSerializable.NextAlarm(
                     formatter = obj.get("formatter")?.asString ?: "HH:mm"
                 )
+
                 else -> null
             }
         } catch (e: Exception) {
@@ -173,7 +188,6 @@ object StatusBarJson {
     private val type = object : TypeToken<List<StatusBarSerializable>>() {}.type
 
 
-
     /* ───────────── List encoders / decoders ───────────── */
 
     fun encodeStatusBarElements(elements: List<StatusBarSerializable>): String =
@@ -181,7 +195,7 @@ object StatusBarJson {
 
 
     fun decodeStatusBarElements(json: String): List<StatusBarSerializable> {
-        if (json.isBlank() || json == "{}") return emptyList()
+        if (json.isBlankJson) return emptyList()
 
         logD(STATUS_BAR_TAG, json)
         return try {
@@ -191,20 +205,4 @@ object StatusBarJson {
             emptyList()
         }
     }
-
-
-//    /* ───────────── Individuals encoders / decoders ───────────── */
-//
-//    fun encodeStatusBarAction(obj: StatusBarSerializable): String =
-//        gson.toJson(obj, StatusBarSerializable::class.java)
-//
-//
-//    fun decodeStatusBarAction(jsonString: String): StatusBarSerializable? {
-//        if (!jsonString.isNotBlankJson) return null
-//        return try {
-//            gson.fromJson(jsonString, StatusBarSerializable::class.java)
-//        } catch (_: Exception) {
-//            null
-//        }
-//    }
 }

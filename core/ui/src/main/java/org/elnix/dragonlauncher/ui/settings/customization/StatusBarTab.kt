@@ -6,9 +6,13 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.asPaddingValues
 import androidx.compose.foundation.layout.systemBars
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.verticalScroll
+import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
@@ -55,6 +59,7 @@ fun StatusBarTab(
                     StatusBarJsonSettingsStore.resetAll(ctx)
                 }
             },
+            modifier = Modifier.verticalScroll(rememberScrollState()),
             content = {
                 SettingsSwitchRow(
                     setting = StatusBarSettingsStore.showStatusBar,
@@ -86,118 +91,7 @@ fun StatusBarTab(
 
                         EditStatusBar()
 
-//                        ExpandableSection(timeSectionState) {
-//                            SettingsSwitchRow(
-//                                setting = StatusBarSettingsStore.showTime,
-//                                title = stringResource(R.string.show_time),
-//                                description = stringResource(R.string.show_time_desc)
-//                            )
-//
-
-//
-
-//                        }
-//
-//                        ExpandableSection(dateSectionState) {
-//                            SettingsSwitchRow(
-//                                setting = StatusBarSettingsStore.showDate,
-//                                title = stringResource(R.string.show_date),
-//                                description = stringResource(R.string.show_date_desc)
-//                            )
-//
-//                            CustomActionSelector(
-//                                appsViewModel = appsViewModel,
-//                                appLifecycleViewModel = appLifecycleViewModel,
-//                                currentAction = dateAction,
-//                                label = stringResource(R.string.date_action),
-//                                nullText = stringResource(R.string.opens_calendar_app),
-//                                enabled = showDate,
-//                                switchEnabled = showDate,
-//                                onToggle = {
-//                                    scope.launch {
-//                                        StatusBarSettingsStore.dateAction.reset(ctx)
-//                                    }
-//                                }
-//                            ) {
-//                                scope.launch {
-//                                    StatusBarSettingsStore.dateAction.set(ctx, it)
-//                                }
-//                            }
-//
-
-//                        }
-
-
-//                        ExpandableSection(displaySectionState) {
-
-//
-//                            SettingsSwitchRow(
-//                                setting = StatusBarSettingsStore.showNextAlarm,
-//                                title = stringResource(R.string.show_next_alarm),
-//                                description = stringResource(R.string.show_next_alarm_desc)
-//                            )
-//
-//                            SettingsSwitchRow(
-//                                setting = StatusBarSettingsStore.showNotifications,
-//                                title = stringResource(R.string.show_notifications),
-//                                description = stringResource(R.string.show_notifications_desc)
-//                            ) { enabled ->
-//                                if (enabled && !DragonNotificationListenerService.isPermissionGranted(ctx)) {
-//                                    DragonNotificationListenerService.openNotificationSettings(ctx)
-//                                }
-//                            }
-//
-//                            val showNotifications by StatusBarSettingsStore.showNotifications.asState()
-//                            var hasNotificationPermission by remember {
-//                                mutableStateOf(DragonNotificationListenerService.isPermissionGranted(ctx))
-//                            }
-//                            LaunchedEffect(showNotifications) {
-//                                if (!showNotifications) return@LaunchedEffect
-//                                while (isActive) {
-//                                    hasNotificationPermission =
-//                                        DragonNotificationListenerService.isPermissionGranted(ctx)
-//                                    if (hasNotificationPermission) break
-//                                    delay(2_000L)
-//                                }
-//                            }
-//                            AnimatedVisibility(showNotifications && !hasNotificationPermission) {
-//                                Text(
-//                                    text = stringResource(R.string.grant_notification_access),
-//                                    color = MaterialTheme.colorScheme.primary,
-//                                    style = MaterialTheme.typography.labelMedium,
-//                                    modifier = Modifier
-//                                        .fillMaxWidth()
-//                                        .clickable {
-//                                            DragonNotificationListenerService.openNotificationSettings(ctx)
-//                                        }
-//                                )
-//                            }
-//                            AnimatedVisibility(showNotifications) {
-//                                SettingsSlider(
-//                                    setting = StatusBarSettingsStore.maxNotificationIcons,
-//                                    title = stringResource(R.string.max_notification_icons),
-//                                    valueRange = 1..10,
-//                                )
-//                            }
-//
-//                            SettingsSwitchRow(
-//                                setting = StatusBarSettingsStore.showBattery,
-//                                title = stringResource(R.string.show_battery),
-//                                description = stringResource(R.string.show_battery_desc)
-//                            )
-//
-//                            SettingsSwitchRow(
-//                                setting = StatusBarSettingsStore.showConnectivity,
-//                                title = stringResource(R.string.show_connectivity),
-//                                description = stringResource(R.string.show_connectivity_desc)
-//                            )
-//
-//                            SettingsSwitchRow(
-//                                setting = StatusBarSettingsStore.showBandwidth,
-//                                title = stringResource(R.string.show_bandwidth),
-//                                description = stringResource(R.string.show_bandwidth_desc)
-//                            )
-//                        }
+                        HorizontalDivider()
 
                         ExpandableSection(paddingsSectionState) {
                             SettingsSlider(

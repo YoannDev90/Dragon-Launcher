@@ -324,7 +324,7 @@ class AppsViewModel(
 
                     // Persist assignments
                     try {
-                        val existingJson = PrivateAppsSettingsStore.privateAssignedPackages.get(ctx)
+                        val existingJson = PrivateAppsSettingsStore.jsonSetting.get(ctx)
 
                         val existingMap: MutableMap<String, Int?> =
                             if (existingJson.isNotBlankJson) mutableMapOf()
@@ -337,7 +337,7 @@ class AppsViewModel(
                             existingMap[identity] = userId
                         }
 
-                        PrivateAppsSettingsStore.privateAssignedPackages.set(ctx, gson.toJson(existingMap))
+                        PrivateAppsSettingsStore.jsonSetting.set(ctx, gson.toJson(existingMap))
                         logI(APPS_TAG, "Persisted ${assignments.size} private app assignments")
                     } catch (e: Exception) {
                         logE(

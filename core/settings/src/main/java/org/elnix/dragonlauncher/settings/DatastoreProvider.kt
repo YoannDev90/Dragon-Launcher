@@ -66,7 +66,7 @@ enum class DataStoreName(
 
 
 object SettingsStoreRegistry {
-    val byName: Map<DataStoreName, BaseSettingsStore<*>> = mapOf(
+    val byName: Map<DataStoreName, BaseSettingsStore<*,*>> = mapOf(
         UI to UiSettingsStore,
         COLOR_MODE to ColorModesSettingsStore,
         COLOR to ColorSettingsStore,
