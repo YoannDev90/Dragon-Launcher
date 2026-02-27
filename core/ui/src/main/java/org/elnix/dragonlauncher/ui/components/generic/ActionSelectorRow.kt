@@ -31,9 +31,9 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
+import org.elnix.dragonlauncher.common.utils.UiConstants.DragonShape
 import org.elnix.dragonlauncher.common.utils.colors.adjustBrightness
 import org.elnix.dragonlauncher.common.utils.semiTransparentIfDisabled
-import org.elnix.dragonlauncher.common.utils.UiConstants.DragonShape
 import org.elnix.dragonlauncher.ui.colors.AppObjectsColors
 import org.elnix.dragonlauncher.ui.dialogs.CustomAlertDialog
 import org.elnix.dragonlauncher.ui.modifiers.conditional
@@ -66,7 +66,7 @@ fun <T> ActionSelectorRow(
             .clip(DragonShape)
             .height(IntrinsicSize.Max)
             .background(MaterialTheme.colorScheme.surface.semiTransparentIfDisabled(enabled))
-            .conditional(enabled && toggled == false) {
+            .conditional(enabled && toggled != true) {
                 clickable(
                     interactionSource = switchInteractionSource
                 ) { showDialog = true }
