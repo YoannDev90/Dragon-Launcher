@@ -296,13 +296,19 @@ fun IconEditorDialog(
 
                         ColorPickerRow(
                             label = stringResource(R.string.plain_color),
-//                        defaultColor = Color.Black,
                             currentColor = currentColor
-                        ) {
-                            selectedIcon = (selectedIcon ?: CustomIconSerializable()).copy(
-                                type = IconType.PLAIN_COLOR,
-                                source = it?.toArgb().toString()
-                            )
+                        ) { newColor ->
+                            newColor?.let {
+                                selectedIcon = (selectedIcon ?: CustomIconSerializable()).copy(
+                                    type = IconType.PLAIN_COLOR,
+                                    source = it.toArgb().toString()
+                                )
+                            } ?: run {
+                                selectedIcon = (selectedIcon ?: CustomIconSerializable()).copy(
+                                    type = null,
+                                    source = null
+                                )
+                            }
                         }
                     }
 

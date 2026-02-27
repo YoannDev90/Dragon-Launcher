@@ -317,7 +317,7 @@ fun AppPickerDialog(
                                 app.name.contains(searchQuery, ignoreCase = true) ||
 
                                         // Also search for aliases
-                                        aliases[app.iconCacheKey.cacheKey]?.any {
+                                        aliases[app.iconCacheKey]?.any {
                                             it.contains(
                                                 searchQuery,
                                                 ignoreCase = true

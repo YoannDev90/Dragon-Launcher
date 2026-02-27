@@ -15,7 +15,7 @@ import androidx.compose.ui.graphics.ImageBitmap
 import androidx.compose.ui.graphics.toArgb
 import androidx.compose.ui.unit.Density
 import androidx.core.content.res.ResourcesCompat
-import com.google.gson.Gson
+import com.google.gson.GsonBuilder
 import com.google.gson.reflect.TypeToken
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -40,9 +40,11 @@ import org.elnix.dragonlauncher.common.R
 import org.elnix.dragonlauncher.common.logging.logD
 import org.elnix.dragonlauncher.common.logging.logE
 import org.elnix.dragonlauncher.common.logging.logI
+import org.elnix.dragonlauncher.common.logging.logW
 import org.elnix.dragonlauncher.common.serializables.AppModel
 import org.elnix.dragonlauncher.common.serializables.AppOverride
 import org.elnix.dragonlauncher.common.serializables.CacheKey
+import org.elnix.dragonlauncher.common.serializables.CacheKeyAdapter
 import org.elnix.dragonlauncher.common.serializables.CustomIconSerializable
 import org.elnix.dragonlauncher.common.serializables.IconMapping
 import org.elnix.dragonlauncher.common.serializables.IconPackInfo
@@ -60,6 +62,7 @@ import org.elnix.dragonlauncher.common.serializables.resolveApp
 import org.elnix.dragonlauncher.common.serializables.splitCacheKey
 import org.elnix.dragonlauncher.common.utils.Constants.Logging.APPS_TAG
 import org.elnix.dragonlauncher.common.utils.Constants.Logging.ICONS_TAG
+import org.elnix.dragonlauncher.common.utils.Constants.Logging.WORKSPACES_TAG
 import org.elnix.dragonlauncher.common.utils.ImageUtils.createUntintedBitmap
 import org.elnix.dragonlauncher.common.utils.ImageUtils.loadDrawableAsBitmap
 import org.elnix.dragonlauncher.common.utils.ImageUtils.resolveCustomIconBitmap
@@ -139,7 +142,10 @@ class AppsViewModel(
     private val iconSemaphore = Semaphore(4)
 
 
-    private val gson = Gson()
+    private val gson = GsonBuilder()
+        .registerTypeAdapter(CacheKey::class.java, CacheKeyAdapter())
+        .enableComplexMapKeySerialization()
+        .create()
 
 
     /* ───────────── Workspace things ───────────── */
@@ -208,7 +214,7 @@ class AppsViewModel(
      */
     fun appsForWorkspace(
         workspace: Workspace,
-        overrides: Map<String, AppOverride>,
+        overrides: Map<CacheKey, AppOverride>,
         getOnlyAdded: Boolean = false,
         getOnlyRemoved: Boolean = false
     ): StateFlow<List<AppModel>> {
@@ -220,8 +226,8 @@ class AppsViewModel(
 
         return _apps.map { list ->
             when {
-                getOnlyAdded -> list.filter { it.packageName in workspace.appIds }
-                getOnlyRemoved -> list.filter { it.packageName in removed }
+                getOnlyAdded -> list.filter { it.iconCacheKey in workspace.appIds }
+                getOnlyRemoved -> list.filter { it.iconCacheKey in removed }
                 else -> {
                     val base = when (workspace.type) {
                         WorkspaceType.ALL, WorkspaceType.CUSTOM -> list
@@ -245,13 +251,13 @@ class AppsViewModel(
                         }
                     }
 
-                    val added = list.filter { it.packageName in workspace.appIds }
+                    val added = list.filter { it.iconCacheKey in workspace.appIds }
 
 
                     // Use the base list, and add the filtered manually-added apps, then remove explicitly removed ones
                     (base + added)
-                        .distinctBy { "${it.packageName}_${it.userId}" }
-                        .filter { it.packageName !in removed }
+                        .distinctBy { it.iconCacheKey }
+                        .filter { it.iconCacheKey !in removed }
                         .sortedBy { it.name.lowercase() }
                         .map { resolveApp(it, overrides) }
                 }
@@ -498,10 +504,9 @@ class AppsViewModel(
                     _workspacesState.value.workspaces.filter { it.type == WorkspaceType.USER }
                 diffApps.distinct().forEach { app ->
                     val cacheKey = app.iconCacheKey
-                    val cacheKeyString = cacheKey.cacheKey
 
                     userWorkspaces.forEach { ws ->
-                        if (cacheKeyString in ws.appIds) {
+                        if (cacheKey in ws.appIds) {
                             logI(
                                 APPS_TAG,
                                 "Removing $cacheKey from USER workspace (${ws.id}) because it's Private"
@@ -748,7 +753,7 @@ class AppsViewModel(
         val packageName = app.packageName
         val userId = app.userId
         val isPrivateProfile = app.isPrivateProfile
-        val cacheKeyString = app.iconCacheKey.cacheKey
+        val cacheKey = app.iconCacheKey
 
         var isIconPack = false
         val packIconName = getCachedIconMapping(packageName)
@@ -781,7 +786,7 @@ class AppsViewModel(
         )
 
         if (useOverrides) {
-            _workspacesState.value.appOverrides[cacheKeyString]?.customIcon?.let { customIcon ->
+            _workspacesState.value.appOverrides[cacheKey]?.customIcon?.let { customIcon ->
                 return renderCustomIcon(
                     orig = orig,
                     customIcon = customIcon,
@@ -1145,6 +1150,8 @@ class AppsViewModel(
         try {
             val json = WorkspaceSettingsStore.getAll(ctx).toString()
 
+            logD(WORKSPACES_TAG, "Loading Workspaces...")
+            logD(WORKSPACES_TAG, json)
             // Correct generic type: WorkspaceState with List<Workspace>
             val type = object : TypeToken<WorkspaceState>() {}.type
             val loadedState: WorkspaceState? = gson.fromJson(json, type)
@@ -1155,7 +1162,7 @@ class AppsViewModel(
                 appAliases = loadedState.appAliases
             ) ?: WorkspaceState()
         } catch (e: Exception) {
-            e.printStackTrace()
+            logE(WORKSPACES_TAG, "Error while loading the workspaces state", e)
             _workspacesState.value = WorkspaceState()
         }
 
@@ -1174,8 +1181,7 @@ class AppsViewModel(
                     ).copy(
                         customIcon = customIcon,
                         id = packageName
-                    ),
-                    128 // Dummy value, will be loaded later with the good one
+                    )
                 )
             }
         }
@@ -1183,9 +1189,15 @@ class AppsViewModel(
 
 
     private fun persist() = scope.launch(Dispatchers.IO) {
+
+        logW(WORKSPACES_TAG, "Persisting the state: ${_workspacesState.value}")
+
+        val json = gson.toJson(_workspacesState.value)
+
+        logW(WORKSPACES_TAG, json)
         WorkspaceSettingsStore.setAll(
             ctx,
-            JSONObject(gson.toJson(_workspacesState.value))
+            JSONObject(json)
         )
     }
 
@@ -1262,8 +1274,8 @@ class AppsViewModel(
                         name = name,
                         type = type,
                         enabled = true,
-                        removedAppIds = emptyList(),
-                        appIds = emptyList()
+                        removedAppIds = emptySet(),
+                        appIds = emptySet()
                     )
         )
         persist()
@@ -1297,7 +1309,7 @@ class AppsViewModel(
     fun resetWorkspace(id: String) {
         _workspacesState.value = _workspacesState.value.copy(
             workspaces = _workspacesState.value.workspaces.map {
-                if (it.id == id) it.copy(removedAppIds = emptyList(), appIds = emptyList()) else it
+                if (it.id == id) it.copy(removedAppIds = emptySet(), appIds = emptySet()) else it
             }
         )
         persist()
@@ -1306,8 +1318,6 @@ class AppsViewModel(
 
     // Apps operations
     fun addAppToWorkspace(workspaceId: String, cacheKey: CacheKey) {
-        val cacheKey = cacheKey.cacheKey
-
 
         val target = _workspacesState.value.workspaces.find { it.id == workspaceId } ?: return
         if (target.type == WorkspaceType.PRIVATE) return
@@ -1332,7 +1342,6 @@ class AppsViewModel(
 
 
     fun removeAppFromWorkspace(workspaceId: String, cacheKey: CacheKey) {
-        val cacheKey = cacheKey.cacheKey
 
         val target = _workspacesState.value.workspaces.find { it.id == workspaceId } ?: return
         if (target.type == WorkspaceType.PRIVATE) return
@@ -1341,10 +1350,10 @@ class AppsViewModel(
             workspaces = _workspacesState.value.workspaces.map { ws ->
                 if (ws.id != workspaceId) return@map ws
 
-                // remove the app packageName from appsIds, and add it to removedAppIDs
+                // remove the app cacheKey from appsIds, and add it to removedAppIDs
                 ws.copy(
                     appIds = ws.appIds - cacheKey,
-                    removedAppIds = (ws.removedAppIds ?: emptyList()) + cacheKey
+                    removedAppIds = (ws.removedAppIds ?: emptySet()) + cacheKey
                 )
             }
         )
@@ -1352,8 +1361,6 @@ class AppsViewModel(
     }
 
     fun addAliasToApp(alias: String, cacheKey: CacheKey) {
-        val cacheKey = cacheKey.cacheKey
-
         _workspacesState.value = _workspacesState.value.copy(
             appAliases = _workspacesState.value.appAliases +
                     (cacheKey to (_workspacesState.value.appAliases[cacheKey]
@@ -1370,9 +1377,6 @@ class AppsViewModel(
 //    }
 
     fun removeAliasFromWorkspace(aliasToRemove: String, cacheKey: CacheKey) {
-        val cacheKey = cacheKey.cacheKey
-
-
         val current = _workspacesState.value.appAliases
 
         val updated = current[cacheKey]
@@ -1388,24 +1392,26 @@ class AppsViewModel(
         persist()
     }
 
-    fun renameApp(cacheKey: CacheKey, name: String) {
-        val cacheKey = cacheKey.cacheKey
-
+    fun renameApp(cacheKey: CacheKey, customName: String) {
         _workspacesState.value = _workspacesState.value.copy(
             appOverrides = _workspacesState.value.appOverrides +
-                    (cacheKey to AppOverride(cacheKey, name))
+                    (cacheKey to AppOverride(customName))
         )
         persist()
     }
 
     fun setAppIcon(cacheKey: CacheKey, customIcon: CustomIconSerializable?) {
-        val cacheKey = cacheKey.cacheKey
+        logD(WORKSPACES_TAG, "CacheKey: $cacheKey, customIcon: $customIcon")
 
         val prev = _workspacesState.value.appOverrides[cacheKey]
+
+        logD(WORKSPACES_TAG, "prev: $prev")
+        logD(WORKSPACES_TAG, _workspacesState.value.toString())
+
         _workspacesState.value = _workspacesState.value.copy(
             appOverrides = _workspacesState.value.appOverrides +
                     (cacheKey to (prev?.copy(customIcon = customIcon)
-                        ?: AppOverride(cacheKey, customIcon = customIcon)))
+                        ?: AppOverride(customIcon = customIcon)))
         )
         persist()
     }
@@ -1427,7 +1433,7 @@ class AppsViewModel(
 
                 _workspacesState.value = _workspacesState.value.copy(
                     appOverrides = _apps.value.associate {
-                        (it.packageName to AppOverride(it.packageName, customIcon = sharedIcon))
+                        (it.iconCacheKey to AppOverride(customIcon = sharedIcon))
                     }
                 )
             }
@@ -1437,11 +1443,9 @@ class AppsViewModel(
 
 
     fun resetAppName(cacheKey: CacheKey) {
-        val cacheKey = cacheKey.cacheKey
-
         val prev = _workspacesState.value.appOverrides[cacheKey] ?: return
 
-        val updated = prev.copy(customLabel = null)
+        val updated = prev.copy(customName = null)
 
         _workspacesState.value = _workspacesState.value.copy(
             appOverrides =
@@ -1457,15 +1461,13 @@ class AppsViewModel(
     }
 
     fun resetAppIcon(cacheKey: CacheKey) {
-        val cacheKey = cacheKey.cacheKey
-
         val prev = _workspacesState.value.appOverrides[cacheKey] ?: return
 
         val updated = prev.copy(customIcon = null)
 
         _workspacesState.value = _workspacesState.value.copy(
             appOverrides =
-                if (updated.customLabel == null)
+                if (updated.customName == null)
                     _workspacesState.value.appOverrides - cacheKey
                 else
                     _workspacesState.value.appOverrides + (cacheKey to updated)

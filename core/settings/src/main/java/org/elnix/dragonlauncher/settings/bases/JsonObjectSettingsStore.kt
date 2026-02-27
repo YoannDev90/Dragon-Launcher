@@ -2,7 +2,9 @@ package org.elnix.dragonlauncher.settings.bases
 
 import android.content.Context
 import org.elnix.dragonlauncher.common.logging.logE
+import org.elnix.dragonlauncher.common.logging.logI
 import org.elnix.dragonlauncher.common.utils.Constants.Logging.BACKUP_TAG
+import org.elnix.dragonlauncher.common.utils.Constants.Logging.WORKSPACES_TAG
 import org.json.JSONException
 import org.json.JSONObject
 
@@ -40,6 +42,7 @@ abstract class JsonObjectSettingsStore :
         // Skips if default value provided (no changes made), keeps the backup lighter
         val raw = jsonSetting.getEncoded(ctx)?.trim() ?: return null
 
+        logI(WORKSPACES_TAG, raw)
         return try {
             if (raw.isEmpty()) null else JSONObject(raw)
         } catch (e: JSONException) {
@@ -54,6 +57,7 @@ abstract class JsonObjectSettingsStore :
      * Serializes and writes the provided [JSONObject] into DataStore.
      */
     override suspend fun setAll(ctx: Context, value: JSONObject?) {
+        logI(WORKSPACES_TAG, value?.toString() ?: "null")
         jsonSetting.set(ctx, value?.toString())
     }
 

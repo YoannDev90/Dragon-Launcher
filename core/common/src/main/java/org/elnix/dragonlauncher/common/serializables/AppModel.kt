@@ -44,13 +44,13 @@ data class AppModel(
 }
 
 
-fun String.splitCacheKey(): Pair<String, Int> {
-        val split = split("#", limit = 2)
+fun CacheKey.splitCacheKey(): Pair<String, Int> {
+        val split = cacheKey.split("#", limit = 2)
         return Pair(split.first(), split.last().toInt())
     }
 
 data class CacheKey (
-    val cacheKey: String
+    @SerializedName("cacheKey") val cacheKey: String
 )
 
 fun SwipeActionSerializable.LaunchApp.toAppModel() =
@@ -137,15 +137,14 @@ data class Workspace(
     val id: String,
     val name: String,
     val type: WorkspaceType,
-    val appIds: List<String>,
-    val removedAppIds: List<String>?, // Nullable cause I added it in 1.2.2, so if you were on previous versions, it'll cause crash
+    val appIds: Set<CacheKey>,
+    val removedAppIds: Set<CacheKey>?, // Nullable cause I added it in 1.2.2, so if you were on previous versions, it'll cause crash
     val enabled: Boolean
 )
 
 
 data class AppOverride(
-    val packageName: String,
-    val customLabel: String? = null,
+    val customName: String? = null,
     val customIcon: CustomIconSerializable? = null,
     val customCategory: String? = null
 )
@@ -154,26 +153,26 @@ data class AppOverride(
 
 data class WorkspaceState(
     val workspaces: List<Workspace> = defaultWorkspaces,
-    val appOverrides: Map<String, AppOverride> = emptyMap(),
-    val appAliases: Map<String, Set<String>> = emptyMap()
+    val appOverrides: Map<CacheKey, AppOverride> = emptyMap(),
+    val appAliases: Map<CacheKey, Set<String>> = emptyMap()
 )
 
 fun resolveApp(
     app: AppModel,
-    overrides: Map<String, AppOverride>
+    overrides: Map<CacheKey, AppOverride>
 ): AppModel {
-    val o = overrides[app.iconCacheKey.cacheKey] ?: return app
-    return app.copy(name = o.customLabel ?: app.name)
+    val o = overrides[app.iconCacheKey] ?: return app
+    return app.copy(name = o.customName ?: app.name)
 }
 
 
 // I disable non-user workspaces by default, enable it if you need it (only used for nerds) (those who download my app are btw :) )
 val defaultWorkspaces = listOf(
-    Workspace("user", "User", WorkspaceType.USER, emptyList(), listOf("org.elnix.dragonlauncher"), true),
-    Workspace("system", "System", WorkspaceType.SYSTEM, emptyList(), emptyList(), false),
-    Workspace("all", "All", WorkspaceType.ALL, emptyList(), emptyList(),  false),
-    Workspace("work", "Work", WorkspaceType.WORK, emptyList(), emptyList(),  false),
-    Workspace("private", "Private Space", WorkspaceType.PRIVATE, emptyList(), emptyList(), false) // Android 15+ only
+    Workspace("user", "User", WorkspaceType.USER, emptySet(), setOf(CacheKey("org.elnix.dragonLauncher")), true),
+    Workspace("system", "System", WorkspaceType.SYSTEM, emptySet(), emptySet(), false),
+    Workspace("all", "All", WorkspaceType.ALL, emptySet(), emptySet(),  false),
+    Workspace("work", "Work", WorkspaceType.WORK, emptySet(), emptySet(),  false),
+    Workspace("private", "Private Space", WorkspaceType.PRIVATE, emptySet(), emptySet(), false) // Android 15+ only
 )
 
 

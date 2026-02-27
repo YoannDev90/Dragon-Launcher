@@ -537,7 +537,7 @@ fun AppDrawerScreen(
                                         app.name.contains(searchQuery, ignoreCase = true) ||
 
                                         // Also search for aliases
-                                        aliases[app.iconCacheKey.cacheKey]?.any {
+                                        aliases[app.iconCacheKey]?.any {
                                             it.contains(
                                                 searchQuery,
                                                 ignoreCase = true
@@ -744,7 +744,7 @@ fun AppDrawerScreen(
                 scope.launch {
                     appsViewModel.renameApp(
                         cacheKey = cacheKey,
-                        name = renameText
+                        customName = renameText
                     )
                 }
 
@@ -768,7 +768,7 @@ fun AppDrawerScreen(
         val cacheKey = app.iconCacheKey
 
         val iconOverride =
-            overrides[cacheKey.cacheKey]?.customIcon
+            overrides[cacheKey]?.customIcon
 
 
         val tempPoint =

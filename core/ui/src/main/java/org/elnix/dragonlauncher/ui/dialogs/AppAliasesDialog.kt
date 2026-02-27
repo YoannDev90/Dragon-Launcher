@@ -23,7 +23,6 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import org.elnix.dragonlauncher.common.R
@@ -40,7 +39,6 @@ fun AppAliasesDialog(
     app: AppModel,
     onDismiss: () -> Unit
 ) {
-    val ctx = LocalContext.current
     val appsViewModel = LocalAppsViewModel.current
 
     var showAliasEditScreen by remember { mutableStateOf<String?>(null) }
@@ -104,7 +102,7 @@ fun AppAliasesDialog(
                         )
                     }
 
-                    aliases[cacheKey.cacheKey]?.forEach { alias ->
+                    aliases[cacheKey]?.forEach { alias ->
 
                         Bubble(
                             onClick = { showAliasEditScreen = alias },

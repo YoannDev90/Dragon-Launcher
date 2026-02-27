@@ -122,7 +122,7 @@ fun WorkspaceDetailScreen(
                 ) { selectedView = it }
 
                 AppGrid(
-                    apps = apps,
+                    apps = apps.sortedBy { it.name },
                     gridSize = gridSize,
                     txtColor = Color.White,
                     showIcons = showIcons,
@@ -169,7 +169,6 @@ fun WorkspaceDetailScreen(
     if (showDetailScreen != null) {
         val app = showDetailScreen!!
         val cacheKey = app.iconCacheKey
-        val cacheKeyString = cacheKey.cacheKey
 
         AppLongPressDialog(
             app = app,
@@ -193,7 +192,7 @@ fun WorkspaceDetailScreen(
                 }
             } else null,
             onRemoveFromWorkspace = if (
-                (cacheKeyString !in (workspace.removedAppIds ?: emptyList())) &&
+                (cacheKey !in (workspace.removedAppIds ?: emptyList())) &&
                 !app.isPrivateProfile
             // Can't remove private apps from private workspace somehow cause its too
             // annoying to handle
@@ -209,7 +208,7 @@ fun WorkspaceDetailScreen(
                     }
                 }
             } else null,
-            onAddToWorkspace = if (app.packageName in (workspace.removedAppIds ?: emptyList())) {
+            onAddToWorkspace = if (cacheKey in (workspace.removedAppIds ?: emptyList())) {
                 {
                     workspaceId.let {
                         scope.launch {
@@ -222,7 +221,7 @@ fun WorkspaceDetailScreen(
                 }
             } else null,
             onRenameApp = {
-                renameText = overrides[app.iconCacheKey.cacheKey]?.customLabel ?: app.name
+                renameText = overrides[cacheKey]?.customName ?: app.name
                 renameTarget = app
             },
             onChangeAppIcon = {
@@ -245,7 +244,7 @@ fun WorkspaceDetailScreen(
                 scope.launch {
                     appsViewModel.renameApp(
                         cacheKey = cacheKey,
-                        name = renameText
+                        customName = renameText
                     )
                 }
 
@@ -270,7 +269,7 @@ fun WorkspaceDetailScreen(
         val cacheKey = app.iconCacheKey
 
         val iconOverride =
-            overrides[cacheKey.cacheKey]?.customIcon
+            overrides[cacheKey]?.customIcon
 
 
         val tempPoint =

@@ -12,15 +12,12 @@ object WorkspaceSettingsStore : JsonObjectSettingsStore() {
 
 
     override val ALL: List<BaseSettingObject<*,*>>
-        get() = listOf(
-            RAW_JSON
-        )
+        get() = listOf(jsonSetting)
 
-    private val RAW_JSON = Settings.string(
+
+    override val jsonSetting = Settings.string(
         key = "workspace_state",
         dataStoreName = dataStoreName,
         default = ""
     )
-
-    override val jsonSetting = RAW_JSON
 }
