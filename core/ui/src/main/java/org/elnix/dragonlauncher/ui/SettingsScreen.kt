@@ -1108,20 +1108,8 @@ fun SettingsScreen(
                 padding = 20.dp
             ) {
                 selectedPoint?.let { oldPoint ->
-                    val circleNumber = oldPoint.circleNumber
-                    val newAngle =
-                        randomFreeAngle(circles.find { it.id == oldPoint.circleNumber }, points)
-                            ?: run {
-                                ctx.showToast("Error: no circle belonging to this point found")
-                                return@CircleIconButton
-                            }
-
-                    val newPoint = SwipePointSerializable(
+                    val newPoint = oldPoint.copy(
                         id = UUID.randomUUID().toString(),
-                        angleDeg = newAngle,
-                        action = oldPoint.action,
-                        circleNumber = circleNumber,
-                        nestId = nestId
                     )
 
                     appsViewModel.reloadPointIcon(newPoint, sizePx)
