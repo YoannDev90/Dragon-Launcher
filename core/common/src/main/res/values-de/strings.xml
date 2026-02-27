@@ -330,11 +330,10 @@
     <string name="app_label_overlay_size">Größe des App-Label-Overlays</string>
     <string name="app_icon_overlay_size">Größe des App-Symbol-Overlays</string>
     <string name="next">Nächste</string>
-    <string name="loading_themes">Themen werden geladen...</string>
+    <string name="loading_themes">Themen werden geladen…</string>
     <string name="already_default_launcher">Bereits Standard-Launcher</string>
     <string name="open_default_launcher_settings">Öffnen Sie die Standard-Launcher-Einstellungen</string>
     <string name="welcome_to_dragon_launcher">Willkommen bei Dragon Launcher</string>
-    <string name="fast_minimal_powerful_gestures">Schnell. Minimal. Kraftvolle Gesten.</string>
     <string name="customize_apps">Passen Sie Anwendungen an</string>
     <string name="dont_customize">Passen Sie Dragon Launcher nicht an und verwenden Sie es direkt</string>
     <string name="app_aliases">App-Aliase</string>
@@ -373,9 +372,9 @@
     <!--  ─────────────  Digital Pause Screen  ─────────────  -->
     <string name="digital_pause_title">Digitale Pause</string>
     <string name="pause_breathe_1">Nehmen Sie sich einen Moment Zeit zum Durchatmen …</string>
-    <string name="pause_breathe_2">Seien Sie in diesem Moment präsent ...</string>
+    <string name="pause_breathe_2">Seien Sie in diesem Moment präsent …</string>
     <string name="pause_breathe_3">Ist es das, was Sie gerade wirklich brauchen\?</string>
-    <string name="pause_breathe_4">Ihre Aufmerksamkeit ist kostbar ...</string>
+    <string name="pause_breathe_4">Ihre Aufmerksamkeit ist kostbar …</string>
     <string name="pause_breathe_5">Verbinde dich wieder mit der Gegenwart…</string>
     <string name="pause_question">Muss man diese App wirklich öffnen\?</string>
     <string name="pause_no_thanks">Nein, ich werde bestehen</string>
@@ -430,7 +429,7 @@
     <string name="time_limit_minutes">%dmin</string>
     <string name="time_limit_encourage_short">Tolle Wahl! Kürzere Sitzungen helfen Ihnen, konzentriert zu bleiben 🎯</string>
     <string name="time_limit_encourage_medium">Das ist vernünftig. Bleiben Sie aufmerksam! 🧘</string>
-    <string name="time_limit_encourage_long">Das ist ziemlich lang... Sind Sie sicher, dass Sie so viel Zeit brauchen\? 🤔</string>
+    <string name="time_limit_encourage_long">Das ist ziemlich lang… Sind Sie sicher, dass Sie so viel Zeit brauchen\? 🤔</string>
     <string name="time_limit_encourage_very_long">Das ist viel Bildschirmzeit. Vielleicht versuchen Sie es zuerst mit einer kürzeren Sitzung\? 😅</string>
     <string name="time_limit_start">Start</string>
     <string name="time_limit_cancel">Stornieren</string>

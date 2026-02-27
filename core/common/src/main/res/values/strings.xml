@@ -334,7 +334,7 @@
     <string name="already_default_launcher">Already Default Launcher</string>
     <string name="open_default_launcher_settings">Open Default Launcher Settings</string>
     <string name="welcome_to_dragon_launcher">Welcome to Dragon Launcher</string>
-    <string name="fast_minimal_powerful_gestures">Fast. Minimal. Powerful gestures.</string>
+    <string name="fast_minimal_powerful_gestures_infinite_custom">Fast. Minimal. Powerful gestures. Infinite customization</string>
     <string name="customize_apps">Customize applications</string>
     <string name="dont_customize">Don\'t customize and start using directly Dragon Launcher</string>
     <string name="app_aliases">App aliases</string>

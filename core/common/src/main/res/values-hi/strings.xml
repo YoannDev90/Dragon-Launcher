@@ -343,11 +343,10 @@
     <string name="app_label_overlay_size">ऐप लेबल ओवरले आकार</string>
     <string name="app_icon_overlay_size">ऐप आइकन ओवरले आकार</string>
     <string name="next">अगला</string>
-    <string name="loading_themes">थीम लोड हो रही हैं...</string>
+    <string name="loading_themes">थीम लोड हो रही हैं…</string>
     <string name="already_default_launcher">पहले से ही डिफ़ॉल्ट लॉन्चर</string>
     <string name="open_default_launcher_settings">डिफ़ॉल्ट लॉन्चर सेटिंग्स खोलें</string>
     <string name="welcome_to_dragon_launcher">ड्रैगन लॉन्चर में आपका स्वागत है</string>
-    <string name="fast_minimal_powerful_gestures">तेज़। न्यूनतम. शक्तिशाली इशारे.</string>
     <string name="customize_apps">अनुप्रयोगों को अनुकूलित करें</string>
     <string name="dont_customize">अनुकूलित न करें और सीधे ड्रैगन लॉन्चर का उपयोग प्रारंभ न करें</string>
 

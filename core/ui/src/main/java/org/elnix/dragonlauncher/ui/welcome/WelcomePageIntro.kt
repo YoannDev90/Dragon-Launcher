@@ -62,7 +62,7 @@ fun WelcomePageIntro(onImport: () -> Unit) {
         Spacer(Modifier.height(12.dp))
 
         Text(
-            stringResource(R.string.fast_minimal_powerful_gestures),
+            stringResource(R.string.fast_minimal_powerful_gestures_infinite_custom),
             color = MaterialTheme.colorScheme.secondary,
             fontSize = 18.sp
         )

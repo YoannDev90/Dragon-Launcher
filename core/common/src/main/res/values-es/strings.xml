@@ -330,11 +330,10 @@
     <string name="app_label_overlay_size">Tamaño de superposición de etiquetas de aplicaciones</string>
     <string name="app_icon_overlay_size">Tamaño de superposición del icono de la aplicación</string>
     <string name="next">Próximo</string>
-    <string name="loading_themes">Cargando temas...</string>
+    <string name="loading_themes">Cargando temas…</string>
     <string name="already_default_launcher">Lanzador ya predeterminado</string>
     <string name="open_default_launcher_settings">Abrir la configuración predeterminada del iniciador</string>
     <string name="welcome_to_dragon_launcher">Bienvenido a Dragón Lanzador</string>
-    <string name="fast_minimal_powerful_gestures">Rápido. Mínimo. Gestos poderosos.</string>
     <string name="customize_apps">Personalizar aplicaciones</string>
     <string name="dont_customize">No personalices y comienza a usar directamente Dragon Launcher</string>
     <string name="app_aliases">Alias ​​de aplicaciones</string>
@@ -372,14 +371,14 @@
 
     <!--  ─────────────  Digital Pause Screen  ─────────────  -->
     <string name="digital_pause_title">Pausa Digital</string>
-    <string name="pause_breathe_1">Tómate un momento para respirar...</string>
-    <string name="pause_breathe_2">Estar presente en este momento...</string>
+    <string name="pause_breathe_1">Tómate un momento para respirar…</string>
+    <string name="pause_breathe_2">Estar presente en este momento…</string>
     <string name="pause_breathe_3">¿Es esto lo que realmente necesitas ahora\?</string>
-    <string name="pause_breathe_4">Tu atención es preciosa...</string>
-    <string name="pause_breathe_5">Reconectate con el presente...</string>
+    <string name="pause_breathe_4">Tu atención es preciosa…</string>
+    <string name="pause_breathe_5">Reconectate con el presente…</string>
     <string name="pause_question">¿Realmente necesitas abrir esta aplicación\?</string>
     <string name="pause_no_thanks">No, pasaré</string>
-    <string name="pause_yes_open">Sí, abre de todos modos...</string>
+    <string name="pause_yes_open">Sí, abre de todos modos…</string>
     <string name="usage_yesterday">Usaste esta aplicación durante %s ayer</string>
     <string name="usage_today">Ya has gastado %s hoy en esta aplicación</string>
     <string name="usage_guilt_yearly">¡Eso es alrededor de %s por año si continúas así!</string>
@@ -430,7 +429,7 @@
     <string name="time_limit_minutes">%dmin</string>
     <string name="time_limit_encourage_short">¡Gran elección! Las sesiones más cortas te ayudan a mantenerte concentrado 🎯</string>
     <string name="time_limit_encourage_medium">Eso es razonable. ¡Manténgase atento! 🧘</string>
-    <string name="time_limit_encourage_long">Eso es bastante tiempo... ¿Estás seguro de que necesitas tanto tiempo\? 🤔</string>
+    <string name="time_limit_encourage_long">Eso es bastante tiempo… ¿Estás seguro de que necesitas tanto tiempo\? 🤔</string>
     <string name="time_limit_encourage_very_long">Eso es mucho tiempo frente a la pantalla. ¿Quizás probar primero con una sesión más corta\? 😅</string>
     <string name="time_limit_start">Comenzar</string>
     <string name="time_limit_cancel">Cancelar</string>
