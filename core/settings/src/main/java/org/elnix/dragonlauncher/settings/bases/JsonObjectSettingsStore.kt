@@ -37,7 +37,7 @@ abstract class JsonObjectSettingsStore :
      * Reads the JSON string from DataStore and parses it into a [JSONObject].
      */
     override suspend fun getAll(ctx: Context): JSONObject? {
-        // Skips if default value provided (no changes made), keep the backup lighter
+        // Skips if default value provided (no changes made), keeps the backup lighter
         val raw = jsonSetting.getEncoded(ctx)?.trim() ?: return null
 
         return try {
