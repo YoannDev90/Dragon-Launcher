@@ -13,10 +13,14 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.FlowRow
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.WindowInsets
+import androidx.compose.foundation.layout.asPaddingValues
+import androidx.compose.foundation.layout.displayCutout
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.layout.windowInsetsPadding
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material.icons.Icons
@@ -47,9 +51,12 @@ import androidx.compose.ui.draw.scale
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.hapticfeedback.HapticFeedbackType
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.LocalHapticFeedback
+import androidx.compose.ui.platform.LocalView
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
+import androidx.core.view.ViewCompat
 import kotlinx.coroutines.launch
 import org.burnoutcrew.reorderable.ReorderableItem
 import org.burnoutcrew.reorderable.detectReorderAfterLongPress
@@ -103,6 +110,10 @@ enum class TimeFormat(val pattern: String, val displayName: String) {
 fun StatusBar(
     launchAction: ((SwipeActionSerializable) -> Unit)?,
 ) {
+    val ctx = LocalContext.current
+    val view = LocalView.current
+    val density = LocalDensity.current
+
     val statusBarBackground by StatusBarSettingsStore.barBackgroundColor.asState()
     val statusBarText by StatusBarSettingsStore.barTextColor.asState()
 
@@ -112,6 +123,15 @@ fun StatusBar(
     val bottomStatusBarPadding by StatusBarSettingsStore.bottomPadding.asState()
 
     val elements = LocalStatusBarElements.current
+
+    // Detect exact cutout bounding rects (geometric notch detection)
+    val totalCutoutWidth = remember(view) {
+        val insets = ViewCompat.getRootWindowInsets(view)
+        val rects = insets?.displayCutout?.boundingRects ?: emptyList()
+        // We focus on the top cutout for the status bar
+        val topCutout = rects.find { it.top == 0 }
+        if (topCutout != null) topCutout.width() else 0
+    }
 
     CompositionLocalProvider(
         LocalContentColor provides statusBarText
@@ -135,10 +155,18 @@ fun StatusBar(
                     val modifier = Modifier.conditional(
                         condition = element.width == -1,
                         block = { Modifier.weight(1f) },
-                        fallback = { width(element.width.dp) }
+                        fallback = { 
+                            // If this is the "Auto" spacer and we have a cutout, we use cutout width
+                            // Otherwise use the defined width
+                            width(element.width.dp) 
+                        }
                     )
 
-                    Spacer(modifier)
+                    if (element.width == -2) { // Special ID for Notch Spacer
+                         Spacer(Modifier.width(with(density) { totalCutoutWidth.toDp() }))
+                    } else {
+                         Spacer(modifier)
+                    }
                 }
             }
         }
@@ -250,12 +278,8 @@ fun EditStatusBar() {
 
     val reorderState = rememberReorderableLazyListState(
         onMove = { from, to ->
-            if (from.index in elements.indices && to.index in 0..elements.size) {
-                val tmp = elements.toMutableList()
-                val item = tmp.removeAt(from.index)
-                tmp.add(to.index, item)
-                elements.clear()
-                elements.addAll(tmp)
+            if (from.index != to.index && from.index in elements.indices && to.index in elements.indices) {
+                elements.apply { add(to.index, removeAt(from.index)) }
             }
         },
         onDragEnd = { _, _ ->
@@ -273,7 +297,6 @@ fun EditStatusBar() {
                 .height(100.dp)
                 .background(MaterialTheme.colorScheme.surface, DragonShape)
                 .reorderable(reorderState)
-                .detectReorderAfterLongPress(reorderState)
                 .background(statusBarBackground)
                 .padding(
                     start = leftStatusBarPadding.dp,
@@ -327,6 +350,7 @@ fun EditStatusBar() {
                     Box(
                         modifier = Modifier
                             .scale(scale.value)
+                            .detectReorderAfterLongPress(reorderState)
                             .border(1.dp, borderColor.value, DragonShape)
                             .clip(DragonShape)
                             .background(backgroundColor.value)
@@ -338,7 +362,7 @@ fun EditStatusBar() {
                             .padding(10.dp),
                         contentAlignment = Alignment.Center
                     ) {
-                        StatusBarItem(element)
+                        StatusBarItem(element, previewMode = true)
                     }
                 }
             }
@@ -528,10 +552,19 @@ fun EditStatusBar() {
                             SliderWithLabel(
                                 label = stringResource(R.string.width),
                                 value = item.width,
-                                valueRange = -1..30,
+                                valueRange = -2..30,
                                 onReset = { updateElement(item.copy(width = -1)) }
                             ) {
                                 updateElement(item.copy(width = it))
+                            }
+
+                            if (item.width == -2) {
+                                Text(
+                                    text = "Mode: Notch (Fixe un spacer sur l'encoche)",
+                                    style = MaterialTheme.typography.bodySmall,
+                                    color = MaterialTheme.colorScheme.primary,
+                                    modifier = Modifier.padding(top = 4.dp)
+                                )
                             }
                         }
 
@@ -634,7 +667,7 @@ fun EditStatusBar() {
                             .padding(15.dp),
                         contentAlignment = Alignment.Center
                     ) {
-                        StatusBarItem(it)
+                        StatusBarItem(it, previewMode = true)
                     }
 
                     DropdownMenu(
@@ -674,6 +707,7 @@ fun EditStatusBar() {
 fun StatusBarItem(
     element: StatusBarSerializable,
     launchAction: ((SwipeActionSerializable) -> Unit)? = null,
+    previewMode: Boolean = false
 ) {
     when (element) {
         is StatusBarSerializable.Bandwidth -> {
@@ -711,7 +745,11 @@ fun StatusBarItem(
         }
 
         is StatusBarSerializable.NextAlarm -> {
-            StatusBarNextAlarm(element)
+            StatusBarNextAlarm(element, forceShowIcon = previewMode)
+        }
+
+        is StatusBarSerializable.Spacer -> {
+            // No-op here, spacers are handled mapping elements in Row
         }
     }
 }

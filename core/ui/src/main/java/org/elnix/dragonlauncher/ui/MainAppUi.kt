@@ -196,7 +196,7 @@ fun MainAppUi(
 
     val forceAppWidgetsSelector by DebugSettingsStore.forceAppWidgetsSelector.asState()
 
-    val showSetDefaultLauncherBanner by PrivateSettingsStore.showSetDefaultLauncherBanner.asState()
+    val showSetDefaultLauncherBanner by PrivateSettingsStore.showSetDefaultLauncherBanner.asStateNull()
 
     val hasSeenWelcome by PrivateSettingsStore.hasSeenWelcome.asStateNull()
 
@@ -531,7 +531,7 @@ fun MainAppUi(
         }
     }
 
-    val showSetAsDefaultBanner = showSetDefaultLauncherBanner &&
+    val showSetAsDefaultBanner = (showSetDefaultLauncherBanner == true) &&
             !isDefaultLauncher &&
             currentRoute != ROUTES.WELCOME
 

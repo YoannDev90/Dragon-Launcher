@@ -30,7 +30,8 @@ import java.time.format.DateTimeFormatter
 
 @Composable
 fun StatusBarNextAlarm(
-    element: StatusBarSerializable.NextAlarm
+    element: StatusBarSerializable.NextAlarm,
+    forceShowIcon: Boolean = false
 ) {
     val ctx = LocalContext.current
     var nextAlarm by remember { mutableStateOf<NextAlarmInfo?>(null) }
@@ -53,7 +54,7 @@ fun StatusBarNextAlarm(
         }
     }
 
-    nextAlarm?.let { alarm ->
+    if (nextAlarm != null || forceShowIcon) {
         Row(
             verticalAlignment = Alignment.CenterVertically,
             horizontalArrangement = Arrangement.spacedBy(4.dp)
@@ -63,10 +64,12 @@ fun StatusBarNextAlarm(
                 contentDescription = null,
                 modifier = Modifier.size(14.dp)
             )
-            Text(
-                text = alarm.formattedTime,
-                style = MaterialTheme.typography.bodyMedium,
-            )
+            nextAlarm?.let { alarm ->
+                Text(
+                    text = alarm.formattedTime,
+                    style = MaterialTheme.typography.bodyMedium,
+                )
+            }
         }
     }
 }

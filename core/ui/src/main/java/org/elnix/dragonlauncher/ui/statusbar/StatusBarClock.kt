@@ -31,29 +31,34 @@ fun StatusBarDate(
     onAction: ((SwipeActionSerializable) -> Unit)? = null
 ) {
     val ctx = LocalContext.current
+    val formatterPattern = element.formatter
 
-    val action = element.action
-    val formatter = element.formatter
-
-    val dateFormat = remember(formatter) {
+    val dateFormat = remember(formatterPattern) {
         try {
-            DateTimeFormatter.ofPattern(formatter)
+            DateTimeFormatter.ofPattern(formatterPattern)
         } catch (e: Exception) {
-            ctx.logW(STATUS_BAR_TAG, "Invalid date format '$formatter': ${e.message}")
+            ctx.logW(STATUS_BAR_TAG, "Invalid date format '$formatterPattern': ${e.message}")
             DateTimeFormatter.ofPattern("MMM dd")
         }
     }
 
     var date by remember { mutableStateOf(LocalDate.now()) }
 
+    // Update only at midnight or when the component is first composed
     LaunchedEffect(Unit) {
         while (true) {
-            date = LocalDate.now()
-            delay(1000L * 60) // Update every minute
+            val now = LocalDate.now()
+            if (date != now) {
+                date = now
+            }
+            // Wait until the next day starts
+            val nextDay = now.plusDays(1).atStartOfDay()
+            val delayMillis = java.time.Duration.between(java.time.LocalDateTime.now(), nextDay).toMillis()
+            delay(delayMillis.coerceAtLeast(60_000L)) // Check at least every minute to be safe
         }
     }
 
-    val dateText by remember {
+    val dateText by remember(date, dateFormat) {
         derivedStateOf {
             try {
                 date.format(dateFormat)
@@ -70,7 +75,7 @@ fun StatusBarDate(
             style = MaterialTheme.typography.bodyMedium,
             modifier = Modifier.conditional(onAction != null) {
                 this.clickable {
-                    action?.let { onAction!!(it) } ?: openCalendar(ctx)
+                    element.action?.let { onAction!!(it) } ?: openCalendar(ctx)
                 }
             }
         )
@@ -111,7 +116,7 @@ fun StatusBarTime(
         }
     }
 
-    val timeText by remember {
+    val timeText by remember(time, timeFormat) {
         derivedStateOf {
             try {
                 time.format(timeFormat)
