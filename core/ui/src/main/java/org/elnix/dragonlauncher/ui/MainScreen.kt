@@ -47,7 +47,6 @@ import androidx.compose.ui.unit.dp
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import org.elnix.dragonlauncher.base.ktx.toDp
-import org.elnix.dragonlauncher.base.ktx.toPixels
 import org.elnix.dragonlauncher.common.FloatingAppObject
 import org.elnix.dragonlauncher.common.R
 import org.elnix.dragonlauncher.common.serializables.SwipeActionSerializable
@@ -73,7 +72,6 @@ import org.elnix.dragonlauncher.ui.remembers.LocalNests
 import org.elnix.dragonlauncher.ui.remembers.LocalPoints
 import org.elnix.dragonlauncher.ui.remembers.rememberHoldToOpenSettings
 import org.elnix.dragonlauncher.ui.statusbar.StatusBar
-import kotlin.math.max
 
 
 @SuppressLint("LocalContextResourcesRead")
@@ -173,26 +171,17 @@ fun MainScreen(
 
     val appIconOverlaySize by UiSettingsStore.appIconOverlaySize.asState()
 
-    val densityPixelsIconOverlaySize = appIconOverlaySize.dp.toPixels().toInt()
     /**
      * Reload all point icons on every change of the points, nestId, appIconOverlaySize, or default point
      * Set the size of the icons to the max size between the 2 overlays sizes preview to display them cleanly
      */
     LaunchedEffect(points, nestId, appIconOverlaySize, defaultPoint.hashCode()) {
 
-        val sizePx = max(densityPixelsIconOverlaySize, defaultPoint.size ?: 128)
-
-        appsViewModel.preloadPointIcons(
-            points = points.filter { it.nestId == nestId },
-            sizePx = sizePx
-        )
+        appsViewModel.preloadPointIcons(points.filter { it.nestId == nestId })
 
         /* Load asynchronously all the other points, to avoid lag */
         scope.launch(Dispatchers.IO) {
-            appsViewModel.preloadPointIcons(
-                points = points,
-                sizePx = sizePx
-            )
+            appsViewModel.preloadPointIcons(points)
         }
     }
 

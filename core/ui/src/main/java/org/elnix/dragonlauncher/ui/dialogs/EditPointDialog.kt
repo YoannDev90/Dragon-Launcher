@@ -36,7 +36,6 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import org.elnix.dragonlauncher.base.ktx.toPixels
 import org.elnix.dragonlauncher.base.theme.LocalExtraColors
 import org.elnix.dragonlauncher.common.R
 import org.elnix.dragonlauncher.common.serializables.SwipeActionSerializable
@@ -48,7 +47,6 @@ import org.elnix.dragonlauncher.common.utils.definedOrNull
 import org.elnix.dragonlauncher.enumsui.SelectedUnselectedViewMode
 import org.elnix.dragonlauncher.enumsui.selectedUnselectedViewName
 import org.elnix.dragonlauncher.settings.stores.ColorSettingsStore
-import org.elnix.dragonlauncher.settings.stores.UiSettingsStore
 import org.elnix.dragonlauncher.ui.actions.actionColor
 import org.elnix.dragonlauncher.ui.actions.actionLabel
 import org.elnix.dragonlauncher.ui.colors.AppObjectsColors
@@ -62,7 +60,6 @@ import org.elnix.dragonlauncher.ui.components.settings.asState
 import org.elnix.dragonlauncher.ui.helpers.ShapeRow
 import org.elnix.dragonlauncher.ui.helpers.SliderWithLabel
 import org.elnix.dragonlauncher.ui.remembers.LocalAppsViewModel
-import kotlin.math.max
 
 
 @Composable
@@ -147,22 +144,13 @@ fun EditPointDialog(
             ?: defaultSwipePointsValues.innerPadding!!
 
 
-
-    val appIconOverlaySize by UiSettingsStore.appIconOverlaySize.asState()
-
-    val densityPixelsIconOverlaySize = appIconOverlaySize.dp.toPixels().toInt()
-    val sizePx = max(densityPixelsIconOverlaySize, defaultPoint.size ?: 128)
-
-
     LaunchedEffect(
         editPoint.action,
         editPoint.customIcon,
-        editPoint.customActionColor
+        editPoint.customActionColor,
+        editPoint.size
     ) {
-        appsViewModel.reloadPointIcon(
-            point = editPoint,
-            sizePx = sizePx
-        )
+        appsViewModel.reloadPointIcon(editPoint)
     }
 
 
@@ -554,10 +542,7 @@ fun EditPointDialog(
 
             val previewPoint = point.copy(customIcon = newIcon)
 
-            appsViewModel.reloadPointIcon(
-                point = previewPoint,
-                sizePx = sizePx
-            )
+            appsViewModel.reloadPointIcon(previewPoint)
 
             showEditIconDialog = false
             editPoint = editPoint.copy(customIcon = newIcon)

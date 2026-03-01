@@ -1,6 +1,8 @@
 package org.elnix.dragonlauncher.common.utils.circles
 
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.derivedStateOf
+import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.remember
 import org.elnix.dragonlauncher.common.serializables.CircleNest
@@ -14,33 +16,91 @@ data class NestNavigationState(
 
 
 /**
- * Holds and manages CircleNest navigation state.
+ * Remembers and manages navigation state between [CircleNest]s.
+ *
+ * Navigation is modeled as a simple stack of nest ids:
+ *
+ * - The last element in the stack represents the currently visible nest.
+ * - If the stack is empty, the root nest (id = 0) is used.
+ *
+ * The state is fully reactive:
+ * - When the navigation stack changes, the current nest id updates.
+ * - When either the current nest id or the [nests] list changes,
+ *   the resolved [CircleNest] updates.
+ *
+ * @param nests A reactive list of available nests. Must be a state-backed list
+ *              (e.g., SnapshotStateList) for proper recomposition.
+ *
+ * @return A [NestNavigationState] exposing the current nest and navigation actions.
  */
 @Composable
 fun rememberNestNavigation(
     nests: List<CircleNest>,
 ): NestNavigationState {
-    val nestsStack = remember { mutableStateListOf<Int>() }
-    val nestId = nestsStack.lastOrNull() ?: 0
 
-    val currentNest = remember(nestId, nests) {
-        nests.find { it.id ==  nestId}
-            ?: CircleNest(nestId)
+    /**
+     *  Navigation stack holding visited nest ids.
+     *  The last element represents the current position.
+     */
+    val nestsStack = remember { mutableStateListOf<Int>() }
+
+    /**
+     * Current nest id derived from the navigation stack.
+     *
+     * Falls back to root (0) when the stack is empty.
+     */
+    val nestId by remember {
+        derivedStateOf {
+            nestsStack.lastOrNull() ?: 0
+        }
+    }
+
+    /**
+     * Currently active [CircleNest].
+     *
+     * Recomputes when:
+     * - The navigation stack changes (via [nestId])
+     * - The [nests] list content changes
+     *
+     * If no matching nest is found, a fallback instance is created.
+     */
+    val currentNest by remember {
+        derivedStateOf {
+            nests.find { it.id == nestId }
+                ?: CircleNest(nestId)
+        }
     }
 
     return NestNavigationState(
         currentNest = currentNest,
+
+        /**
+         * Navigates one level up in the stack.
+         * Does nothing if already at root.
+         */
         goBack = {
-            // Remove last element of the navigation and use it as the new nest
             if (nestsStack.isNotEmpty()) {
                 nestsStack.removeAt(nestsStack.lastIndex)
             }
         },
+
+        /**
+         * Navigates to the given nest id.
+         * Adds it to the top of the navigation stack
+         * if it differs from the current id.
+         */
         goToNest = { newNestId ->
             if (newNestId != nestId) {
                 nestsStack.add(newNestId)
             }
         },
-        clearStack = { nestsStack.clear() }
+
+        /**
+         * Clears the entire navigation stack,
+         * returning to the root nest.
+         */
+        clearStack = {
+            nestsStack.clear()
+        }
     )
 }

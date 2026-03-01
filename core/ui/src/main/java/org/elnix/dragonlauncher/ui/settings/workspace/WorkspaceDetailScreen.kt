@@ -31,16 +31,13 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.core.net.toUri
 import kotlinx.coroutines.launch
-import org.elnix.dragonlauncher.base.ktx.toPixels
 import org.elnix.dragonlauncher.common.R
 import org.elnix.dragonlauncher.common.serializables.AppModel
 import org.elnix.dragonlauncher.common.serializables.SwipeActionSerializable
-import org.elnix.dragonlauncher.common.serializables.defaultSwipePointsValues
 import org.elnix.dragonlauncher.common.serializables.dummySwipePoint
 import org.elnix.dragonlauncher.enumsui.WorkspaceViewMode
 import org.elnix.dragonlauncher.enumsui.workspaceViewMode
 import org.elnix.dragonlauncher.settings.stores.DebugSettingsStore
-import org.elnix.dragonlauncher.settings.stores.UiSettingsStore
 import org.elnix.dragonlauncher.ui.components.generic.ActionRow
 import org.elnix.dragonlauncher.ui.components.settings.asState
 import org.elnix.dragonlauncher.ui.dialogs.AppAliasesDialog
@@ -51,7 +48,6 @@ import org.elnix.dragonlauncher.ui.dialogs.RenameAppDialog
 import org.elnix.dragonlauncher.ui.helpers.AppGrid
 import org.elnix.dragonlauncher.ui.helpers.settings.SettingsLazyHeader
 import org.elnix.dragonlauncher.ui.remembers.LocalAppsViewModel
-import kotlin.math.max
 
 @Composable
 fun WorkspaceDetailScreen(
@@ -93,16 +89,6 @@ fun WorkspaceDetailScreen(
     var showAliasDialog by remember { mutableStateOf<AppModel?>(null) }
 
     var iconTargetApp by remember { mutableStateOf<AppModel?>(null) }
-
-    val appIconOverlaySize by UiSettingsStore.appIconOverlaySize.asState()
-
-
-    val defaultPoint by appsViewModel.defaultPoint.collectAsState(defaultSwipePointsValues)
-
-    val densityPixelsIconOverlaySize = appIconOverlaySize.dp.toPixels().toInt()
-    val sizePx = max(densityPixelsIconOverlaySize, defaultPoint.size ?: 128)
-
-
 
     Box(Modifier.fillMaxSize()) {
         SettingsLazyHeader(
@@ -286,10 +272,7 @@ fun WorkspaceDetailScreen(
         LaunchedEffect(iconOverride) {
             if (iconOverride == null) {
                 scope.launch {
-                    appsViewModel.reloadPointIcon(
-                        point = tempPoint,
-                        sizePx = sizePx
-                    )
+                    appsViewModel.reloadPointIcon(tempPoint)
                 }
             }
         }

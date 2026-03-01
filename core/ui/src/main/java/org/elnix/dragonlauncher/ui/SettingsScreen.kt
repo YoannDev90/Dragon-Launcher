@@ -7,6 +7,7 @@ import androidx.compose.animation.core.FastOutSlowInEasing
 import androidx.compose.animation.core.VectorConverter
 import androidx.compose.animation.core.animateDpAsState
 import androidx.compose.animation.core.animateFloatAsState
+import androidx.compose.animation.core.animateIntAsState
 import androidx.compose.animation.core.tween
 import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.background
@@ -59,6 +60,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableFloatStateOf
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateListOf
+import androidx.compose.runtime.mutableStateMapOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
@@ -79,8 +81,8 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
-import org.elnix.dragonlauncher.base.ktx.toPixels
 import org.elnix.dragonlauncher.base.theme.LocalExtraColors
 import org.elnix.dragonlauncher.base.theme.addRemoveCirclesColor
 import org.elnix.dragonlauncher.base.theme.copyColor
@@ -91,15 +93,15 @@ import org.elnix.dragonlauncher.common.logging.logE
 import org.elnix.dragonlauncher.common.serializables.CircleNest
 import org.elnix.dragonlauncher.common.serializables.SwipeActionSerializable
 import org.elnix.dragonlauncher.common.serializables.SwipePointSerializable
+import org.elnix.dragonlauncher.common.utils.Constants
+import org.elnix.dragonlauncher.common.utils.Constants.Logging.NESTS_TAG
 import org.elnix.dragonlauncher.common.utils.Constants.Logging.SWIPE_TAG
-import org.elnix.dragonlauncher.common.utils.Constants.Logging.TAG
 import org.elnix.dragonlauncher.common.utils.Constants.Settings.POINT_RADIUS_PX
 import org.elnix.dragonlauncher.common.utils.Constants.Settings.SNAP_STEP_DEG
 import org.elnix.dragonlauncher.common.utils.Constants.Settings.TOUCH_THRESHOLD_PX
 import org.elnix.dragonlauncher.common.utils.UiCircle
 import org.elnix.dragonlauncher.common.utils.circles.autoSeparate
 import org.elnix.dragonlauncher.common.utils.circles.computePointPosition
-import org.elnix.dragonlauncher.common.utils.circles.minAngleGapForCircle
 import org.elnix.dragonlauncher.common.utils.circles.normalizeAngle
 import org.elnix.dragonlauncher.common.utils.circles.randomFreeAngle
 import org.elnix.dragonlauncher.common.utils.circles.rememberNestNavigation
@@ -110,6 +112,7 @@ import org.elnix.dragonlauncher.settings.stores.UiSettingsStore
 import org.elnix.dragonlauncher.ui.components.AppPreviewTitle
 import org.elnix.dragonlauncher.ui.components.burger.BurgerAction
 import org.elnix.dragonlauncher.ui.components.burger.BurgerListAction
+import org.elnix.dragonlauncher.ui.components.dragon.DragonColumnGroup
 import org.elnix.dragonlauncher.ui.components.dragon.DragonIconButton
 import org.elnix.dragonlauncher.ui.components.settings.asState
 import org.elnix.dragonlauncher.ui.dialogs.AddPointDialog
@@ -120,17 +123,16 @@ import org.elnix.dragonlauncher.ui.helpers.CircleIconButton
 import org.elnix.dragonlauncher.ui.helpers.RepeatingPressButton
 import org.elnix.dragonlauncher.ui.helpers.nests.actionsInCircle
 import org.elnix.dragonlauncher.ui.helpers.nests.circlesSettingsOverlay
+import org.elnix.dragonlauncher.ui.helpers.nests.glowOverlay
 import org.elnix.dragonlauncher.ui.helpers.nests.swipeDefaultParams
 import org.elnix.dragonlauncher.ui.remembers.LocalAppsViewModel
 import org.elnix.dragonlauncher.ui.remembers.LocalDefaultPoint
-import org.elnix.dragonlauncher.ui.remembers.LocalNests
 import java.math.RoundingMode
 import java.util.UUID
 import kotlin.math.abs
 import kotlin.math.atan2
 import kotlin.math.cos
 import kotlin.math.hypot
-import kotlin.math.max
 import kotlin.math.min
 import kotlin.math.round
 import kotlin.math.sin
@@ -144,7 +146,6 @@ fun SettingsScreen(
     onBack: () -> Unit
 ) {
     val ctx = LocalContext.current
-    val nests = LocalNests.current
     val defaultPoint = LocalDefaultPoint.current
     val extraColors = LocalExtraColors.current
 
@@ -155,6 +156,7 @@ fun SettingsScreen(
     val iconsVersion by appsViewModel.iconsVersion.collectAsState()
 
     val backgroundColor = MaterialTheme.colorScheme.background
+    val primaryColor = MaterialTheme.colorScheme.primary
 
     val snapPoints by UiSettingsStore.snapPoints.asState()
     val autoSeparatePoints by UiSettingsStore.autoSeparatePoints.asState()
@@ -164,15 +166,27 @@ fun SettingsScreen(
     val settingsDebugInfos by DebugSettingsStore.settingsDebugInfo.asState()
 
     var center by remember { mutableStateOf(Offset.Zero) }
+    var availableWidth by remember { mutableFloatStateOf(0f) }
 
     val points: SnapshotStateList<SwipePointSerializable> = remember { mutableStateListOf() }
+    val nests: SnapshotStateList<CircleNest> = remember { mutableStateListOf() }
 
+    var recomposeTrigger by remember { mutableIntStateOf(0) }
 
     val circles: SnapshotStateList<UiCircle> = remember { mutableStateListOf() }
 
     var selectedPoint by remember { mutableStateOf<SwipePointSerializable?>(null) }
     val selectedPointTempOffset = remember { Animatable(Offset.Zero, Offset.VectorConverter) }
     var isDragging by remember { mutableStateOf(false) }
+
+    var closestHoveredPoint by remember { mutableStateOf<SwipePointSerializable?>(null) }
+    var closestHoveredTempOffset by remember { mutableStateOf<Offset?>(null) }
+    var ableToLaunchHoverAction by remember { mutableStateOf(false) }
+
+    val hoveredPointRadialGradientProgress by animateIntAsState(
+        targetValue = if (ableToLaunchHoverAction) Constants.Settings.HOVER_GRADIENT_RADIUS else 1
+    )
+
 
     var lastSelectedCircle by remember { mutableIntStateOf(0) }
     val aPointIsSelected = selectedPoint != null
@@ -200,14 +214,6 @@ fun SettingsScreen(
     val currentNest = nestNavigation.currentNest
     val nestId = currentNest.id
 
-    val filteredPoints by remember(points, nestId) {
-        derivedStateOf {
-            points.filter { it.nestId == nestId }
-        }
-    }
-
-    val currentFilteredPoints by rememberUpdatedState(filteredPoints)
-
 
     /**
      * The number of circles; it's the size of the current nest, minus one, cause it ignores the
@@ -220,26 +226,20 @@ fun SettingsScreen(
      */
     val circlesWidthIncrement = (1f / circleNumber).takeIf { it != 0f } ?: 1f
 
-    var pendingNestUpdate by remember { mutableStateOf<List<CircleNest>?>(null) }
-
     /**
      * Used to ensure that there is always a 0-id nest, the default one, the most important
      */
     LaunchedEffect(nestId, nests.size) {
         if (nests.isNotEmpty() && nests.none { it.id == nestId }) {
-            logD(TAG, "Creating missing nest $nestId")
-            pendingNestUpdate = nests + CircleNest(id = nestId)
+            logD(NESTS_TAG, "Creating missing nest $nestId")
+            nests.add(CircleNest(id = nestId))
         }
     }
-
-    val densityPixelsIconOverlaySize = appIconOverlaySize.dp.toPixels().toInt()
-    val sizePx = max(densityPixelsIconOverlaySize, defaultPoint.size ?: 128)
 
 
     fun reloadIcons() {
         appsViewModel.preloadPointIcons(
             points = points.filter { it.nestId == nestId },
-            sizePx = sizePx,
             override = true
         )
 
@@ -247,7 +247,6 @@ fun SettingsScreen(
         scope.launch(Dispatchers.IO) {
             appsViewModel.preloadPointIcons(
                 points = points,
-                sizePx = sizePx,
                 override = true
             )
         }
@@ -261,17 +260,6 @@ fun SettingsScreen(
         reloadIcons()
     }
 
-    /**
-     * Saving system, the nests are immutable, they are saved using a pending value, that
-     * asynchronously saves the nests in the datastore
-     */
-    LaunchedEffect(pendingNestUpdate) {
-        pendingNestUpdate?.let { nests ->
-            logE(TAG, "Saving: ${nests.size} nests")
-            SwipeSettingsStore.saveNests(ctx, nests)
-            pendingNestUpdate = null
-        }
-    }
 
     var bannerVisible by remember { mutableStateOf(false) }
     val alpha by animateFloatAsState(
@@ -282,8 +270,6 @@ fun SettingsScreen(
         targetValue = if (bannerVisible) 0.dp else (-20).dp,
         animationSpec = tween(150)
     )
-
-    var availableWidth by remember { mutableFloatStateOf(0f) }
 
 
     var undoStack by remember { mutableStateOf<List<List<SwipePointSerializable>>>(emptyList()) }
@@ -313,6 +299,7 @@ fun SettingsScreen(
         nestsRedoStack = emptyList()
         // Now apply the change
         mutator()
+        recomposeTrigger++
         save()
     }
 
@@ -333,9 +320,12 @@ fun SettingsScreen(
         points.clear()
         points.addAll(last.map { it.copy() })
 
-        pendingNestUpdate = lastNests
+        nests.clear()
+        nests.addAll(lastNests)
 
         selectedPoint = points.find { it.id == (selectedPoint?.id ?: "") }
+
+        save()
     }
 
     fun redo() {
@@ -354,27 +344,124 @@ fun SettingsScreen(
         points.clear()
         points.addAll(last.map { it.copy() })
 
-        pendingNestUpdate = lastNests
+        nests.clear()
+        nests.addAll(lastNests)
 
         selectedPoint = points.find { it.id == (selectedPoint?.id ?: "") }
+
+        save()
     }
 
-    fun addNewNest() {
-        // Used to ensure that the new id won't be already in the list, but also to
-        // keep it human readable, unlike previously where they were random numbers
+    /**
+     * Adds a new nest to the current list of nests.
+     *
+     * This function generates a unique, human-readable ID for the new nest,
+     * ensures it does not conflict with existing nest IDs, and initializes
+     * its drag distances for all circles in the range [-1, circleNumber + 1].
+     *
+     * The new nest is then added to the `nests` list and the state is saved.
+     *
+     * @param circleNumber The number of circles for which to initialize drag distances.
+     *                     Default is 3.
+     * @return The unique ID of the newly created nest.
+     */
+    fun addNewNest(circleNumber: Int = 3): Int {
+        // Generate a new, unique nest ID
+        val existingIds = nests.map { it.id }.toSet()
         var newNestId = nests.size
-        while (newNestId in nests.map { it.id }) {
+        while (newNestId in existingIds) {
             newNestId++
         }
 
-        // Launch the nests update with the new one and the good open / parent ids
-        pendingNestUpdate = nests + CircleNest(newNestId)
+        val dragDistances = mutableStateMapOf<Int, Int>().apply {
+            for (id in -1..<circleNumber) {
+                this[id] = defaultDragDistance(id)
+            }
+        }
+
+        // Add the new nest
+        nests += CircleNest(
+            id = newNestId,
+            dragDistances = dragDistances
+        )
+
+        // Persist changes
+        save()
+
+        return newNestId
+    }
+
+    /**
+     * Adds a new circle to the specified nest (or the currently selected nest by default).
+     *
+     * The new circle ID is computed as the next integer after the current maximum circle number
+     * in the nest (ignoring the special -1 key). The drag distance for the new circle is
+     * initialized using [defaultDragDistance]. The nest list is updated immutably, and the
+     * change is recorded via `applyChange` for undo/redo support.
+     *
+     * @param nestToTouch Optional nest ID to target. If null, the currently selected nest is used.
+     */
+    fun addCircle(nestToTouch: Int? = null) {
+
+        val nestIdRequested = nestToTouch ?: nestId
+
+        val index = nests.indexOfFirst { it.id == nestIdRequested }
+        if (index != -1) {
+            val nest = nests[index]
+
+            val newCircleNumber =
+                nest.dragDistances
+                    .keys
+                    .filter { it >= 0 }
+                    .maxOrNull()
+                    ?.plus(1) ?: 0
+
+            applyChange {
+                val updatedNest = nest.copy(
+                    dragDistances = nest.dragDistances +
+                            (newCircleNumber to defaultDragDistance(newCircleNumber))
+                )
+
+                nests[index] = updatedNest
+            }
+        }
     }
 
 
+    /**
+     * Removes the last added circle from the specified nest (or the currently selected nest by default).
+     *
+     * The last circle is determined as the one with the highest circle number greater than 0.
+     * The nest list is updated immutably, and the change is recorded via `applyChange` for
+     * undo/redo support.
+     *
+     * Safely checks if there is mor than 1 circle to avoid deleting the last one
+     *
+     * @param nestToTouch Optional nest ID to target. If null, the currently selected nest is used.
+     */
+    fun removeLastCircle(nestToTouch: Int? = null) {
+
+        val nestIdRequested = nestToTouch ?: nestId
+        // Remove last circle
+        val index = nests.indexOfFirst { it.id == nestIdRequested }
+        if (index != -1) {
+            val nest = nests[index]
+
+            val maxCircle =
+                nest.dragDistances.keys.filter { k -> k > 0 }
+                    .maxOrNull()
+                    ?: return
+
+            val updatedDistances = nest.dragDistances - maxCircle
+            applyChange {
+                nests[index] = nest.copy(dragDistances = updatedDistances)
+            }
+        }
+    }
+
     fun updatePointPosition(
         point: SwipePointSerializable,
-        circles: SnapshotStateList<UiCircle>,
+        circles: List<UiCircle>,
         center: Offset,
         pos: Offset,
         snap: Boolean
@@ -410,19 +497,19 @@ fun SettingsScreen(
         }
     }
 
-    // Load points
+    // Load points & nests
     LaunchedEffect(Unit, showResetPointsAndNestsDialog) {
-        val saved = SwipeSettingsStore.getPoints(ctx)
+        val savedPoints = SwipeSettingsStore.getPoints(ctx)
         points.clear()
         try {
-            points.addAll(saved)
+            points.addAll(savedPoints)
         } catch (e: NullPointerException) {
-            logE(SWIPE_TAG, "Error loading swipe points: $e")
-            ctx.showToast("Error loading swipe points: $e")
+            logE(SWIPE_TAG, "NullPointerException loading swipe points: $e")
+            ctx.showToast("NullPointerException loading swipe points: $e")
 
             // Fallback load them the old way
             try {
-                saved.map {
+                savedPoints.forEach {
                     @Suppress("USELESS_ELVIS")
                     points.add(
                         it.copy(
@@ -434,6 +521,18 @@ fun SettingsScreen(
             } catch (e: Exception) {
                 logE(SWIPE_TAG, "Fallback loading also failed, clearing all points: $e")
             }
+        } catch (e: Exception) {
+            logE(SWIPE_TAG, "Error loading swipe points: $e")
+            ctx.showToast("Error loading swipe points: $e")
+        }
+
+        val savedNests = SwipeSettingsStore.getNests(ctx)
+        nests.clear()
+        try {
+            nests.addAll(savedNests)
+        } catch (e: Exception) {
+            logE(SWIPE_TAG, "Error loading nests: $e")
+            ctx.showToast("Error loading swipe points: $e")
         }
     }
 
@@ -445,6 +544,74 @@ fun SettingsScreen(
         else onBack()
     }
 
+    /**
+     * Computes and updates the radii for all circles in the current nest whenever
+     * the nest, available width, or center changes.
+     *
+     * Each circle's radius is proportional to the available width of the container,
+     * scaled by circlesWidthIncrement, and distributed evenly so that the largest
+     * circle nearly fits the box.
+     *
+     * This updates the mutable list circles, which is used both for rendering
+     * and for hit detection of points on the circles.
+     *
+     * - `currentNest`: The currently selected nest containing the drag distances for each circle.
+     * - `availableWidth`: The width available for drawing the circles, used to scale the radii proportionally.
+     * - `center`: The center of the container, used to compute offsets and positions for points.
+     */
+    LaunchedEffect(currentNest, availableWidth, center) {
+        // Base radius scaled to 95% of half the available width
+        val baseRadius = availableWidth / 2 * 0.95f
+
+        // Clear previous circles before recomputing
+        circles.clear()
+
+        // Iterate over all circle numbers, excluding the special -1 key
+        currentNest.dragDistances
+            .filter { it.key != -1 }
+            .forEach { (circleNumber, _) ->
+
+                // Compute radius proportionally for this circle
+                val radius = circlesWidthIncrement * (circleNumber + 1) * baseRadius
+
+                // Add a new UiCircle with computed radius
+                circles.add(
+                    UiCircle(
+                        id = circleNumber,
+                        radius = radius,
+                    )
+                )
+            }
+    }
+
+    LaunchedEffect(closestHoveredPoint) {
+        ableToLaunchHoverAction = false
+        closestHoveredPoint?.let {
+
+            val finalOffset = computePointPosition(
+                it,
+                circles,
+                center
+            )
+
+            closestHoveredTempOffset = finalOffset
+
+            val startDuration = System.currentTimeMillis()
+            while (System.currentTimeMillis() - startDuration < Constants.Settings.HOVER_POINT_DURATION) {
+                delay(50L)
+            }
+            ableToLaunchHoverAction = true
+        }
+    }
+
+
+    val filteredPoints by remember(points, nestId) {
+        derivedStateOf {
+            points.filter { it.nestId == nestId }
+        }
+    }
+
+    val currentFilteredPoints by rememberUpdatedState(filteredPoints)
 
 
     // Shows all points, excepted the currently dragged one, if any
@@ -458,6 +625,7 @@ fun SettingsScreen(
 
     val baseDrawParams = swipeDefaultParams(
         points = points,
+        nests = nests,
         backgroundColor = MaterialTheme.colorScheme.background,
         showCircle = true
     )
@@ -466,6 +634,7 @@ fun SettingsScreen(
     val drawParams by remember(
         iconsVersion,
         points,
+        nests,
         displayedFilteredPoints,
         backgroundColor,
         extraColors
@@ -542,7 +711,6 @@ fun SettingsScreen(
                                     showBurgerMenu = false
                                     appsViewModel.preloadPointIcons(
                                         points = points,
-                                        sizePx = sizePx,
                                         override = true
                                     )
                                 }
@@ -599,6 +767,14 @@ fun SettingsScreen(
                 .fillMaxSize()
                 .weight(1f)
                 .onSizeChanged { size ->
+                    /**
+                     * Updates the center and available width variables, that depends on the phone size and orientation.
+                     * Computes the larger size between width and height to ensure all points belongs to the hittable zone
+                     * The visual points and hitboxes are separated due to the need of a precise pointer input and
+                     * should be synchronized using the clever [computePointPosition] function that relies on common
+                     * center and circles to output the points position on screen
+                     */
+
                     val w = size.width.toFloat()
                     val h = size.height.toFloat()
                     center = Offset(w / 2f, h / 2f)
@@ -606,30 +782,17 @@ fun SettingsScreen(
                     // Use the minimum size between height and width, to prevent the box being untouchable on large displays
                     val usedSize = min(w, h)
 
-                    availableWidth =
-                        usedSize - (POINT_RADIUS_PX * 2)  // Safe space for points + padding
-
-                    // Proportional radii: largest fits screen, others reduce evenly
-                    val baseRadius = availableWidth / 2 * 0.95f // almost half of screen width
-                    circles.clear()
-
-                    currentNest.dragDistances.filter { it.key != -1 }
-                        .forEach { (circleNumber, _) ->
-
-                            // Computes the radius from the base radius and increase it evenly depending on the circle number
-                            val radius = circlesWidthIncrement * (circleNumber + 1) * baseRadius
-
-                            circles.add(
-                                UiCircle(
-                                    id = circleNumber,
-                                    radius = radius,
-                                )
-                            )
-                        }
+                    availableWidth = usedSize - (POINT_RADIUS_PX * 2)  // Safe space for points + padding
                 }
         ) {
 
-
+            /**
+             * Main Canva, draws the circles, and sub nests by recursivity
+             *
+             * if the user is dragging a point, I draw it in the offset of where the finger is.
+             * if the user has hovered a point for more than 500ms, a radial circle overlay spawns and indicates that
+             * it can release to merge the 2 points
+             */
             Canvas(Modifier.fillMaxSize()) {
                 circlesSettingsOverlay(
                     drawParams = drawParams,
@@ -641,7 +804,6 @@ fun SettingsScreen(
                     preventBgErasing = true
                 )
 
-
                 if (isDragging && selectedPoint != null) {
                     actionsInCircle(
                         drawParams = drawParams,
@@ -650,6 +812,14 @@ fun SettingsScreen(
                         point = selectedPoint!!,
                         selected = true,
                         preventBgErasing = true
+                    )
+                }
+
+                if (isDragging && closestHoveredTempOffset != null && ableToLaunchHoverAction) {
+                    glowOverlay(
+                        center = closestHoveredTempOffset!!,
+                        color = primaryColor,
+                        radius = hoveredPointRadialGradientProgress
                     )
                 }
             }
@@ -672,13 +842,12 @@ fun SettingsScreen(
 
                                 // Can only select points on the same nest
                                 currentFilteredPoints.forEach { p ->
-                                    val circle =
-                                        circles.getOrNull(p.circleNumber) ?: return@forEach
-                                    val px =
-                                        center.x + circle.radius * sin(Math.toRadians(p.angleDeg)).toFloat()
-                                    val py =
-                                        center.y - circle.radius * cos(Math.toRadians(p.angleDeg)).toFloat()
-                                    val dist = hypot(offset.x - px, offset.y - py)
+                                    val pointOffset = computePointPosition(
+                                        point = p,
+                                        circles = circles,
+                                        center = center
+                                    )
+                                    val dist = hypot(offset.x - pointOffset.x, offset.y - pointOffset.y)
 
                                     if (dist < best) {
                                         best = dist
@@ -701,47 +870,165 @@ fun SettingsScreen(
                             },
                             onDrag = { change, _ ->
                                 change.consume()
+
+                                val position = change.position
+
+                                // Update the selected point offset in real time (the dragging thing)
                                 selectedPoint?.let {
                                     scope.launch {
-                                        selectedPointTempOffset.snapTo(change.position)
+                                        selectedPointTempOffset.snapTo(position)
                                     }
                                 }
+
+
+                                var closest: SwipePointSerializable? = null
+                                var best = Float.MAX_VALUE
+
+                                // Can only see points on the same nest
+                                currentFilteredPoints.filter { it.id != selectedPoint?.id }.forEach { p ->
+
+                                    val pointOffset = computePointPosition(
+                                        point = p,
+                                        circles = circles,
+                                        center = center
+                                    )
+                                    val dist = hypot(position.x - pointOffset.x, position.y - pointOffset.y)
+
+                                    if (dist < best) {
+                                        best = dist
+                                        closest = p
+                                    }
+                                }
+
+                                closestHoveredPoint =
+                                    if (best <= TOUCH_THRESHOLD_PX) closest else null
+
                             },
                             onDragEnd = {
                                 selectedPoint?.let { p ->
                                     val position = selectedPointTempOffset.value
 
-                                    updatePointPosition(
-                                        p,
-                                        circles,
-                                        center,
-                                        position,
-                                        snapPoints
-                                    )
+                                    if (ableToLaunchHoverAction && closestHoveredPoint != null) {
 
-                                    if (autoSeparatePoints) autoSeparate(
-                                        points,
-                                        nestId,
-                                        circles.find { it.id == p.circleNumber },
-                                        p
-                                    )
+                                        // The hovered point
+                                        val closest = closestHoveredPoint!!
 
-                                    // Compute final snapped position
-                                    val finalOffset = computePointPosition(
-                                        p,
-                                        circles,
-                                        center
-                                    )
+                                        if (closest.action is SwipeActionSerializable.OpenCircleNest) {
+                                            // Put the hovered point in the hovered nest
 
-                                    scope.launch {
-                                        selectedPointTempOffset.animateTo(
-                                            finalOffset,
-                                            animationSpec = tween(300, easing = FastOutSlowInEasing)
+                                            val targetNestId =
+                                                (closest.action as SwipeActionSerializable.OpenCircleNest).nestId
+
+                                            // Adjust the merged nest circle size if the point belongs to higher circles and the nest has less
+                                            nests.find { it.id == targetNestId }?.let { targetNest ->
+
+                                                // I remove 1 because the dragDistances counts the cancel zone
+                                                val targetNestCircleNumbers = targetNest.dragDistances.size -1
+
+                                                // Add 1 because the circle number starts at 0
+                                                val selectedPointCircleNumber = p.circleNumber + 1
+
+                                                if (selectedPointCircleNumber > targetNestCircleNumbers) {
+                                                    repeat(selectedPointCircleNumber - targetNestCircleNumbers) {
+                                                        logD(
+                                                            NESTS_TAG,
+                                                            "Adding a circle to nest n°$targetNestId "
+                                                        )
+                                                        addCircle(targetNestId)
+                                                    }
+                                                }
+                                            }
+
+                                            applyChange {
+                                                p.nestId = targetNestId
+                                            }
+
+                                        } else {
+                                            // Create new nest and put both points in it at 90° and 270° (left and right)
+                                            // Tee new nest has only one circle and a Go parent nest in the top, for easier access
+
+                                            applyChange {
+                                                val newNestId = addNewNest(1)
+
+                                                val newNestPoint = SwipePointSerializable(
+                                                    circleNumber = closest.circleNumber,
+                                                    angleDeg = closest.angleDeg,
+                                                    nestId = closest.nestId,
+                                                    action = SwipeActionSerializable.OpenCircleNest(newNestId),
+                                                    id = UUID.randomUUID().toString()
+                                                )
+
+                                                // Creates a new go parent nest that'll be put on top of the nest, to easily exit this nest
+                                                val newGoParentNestPoint = SwipePointSerializable(
+                                                    circleNumber = 0,
+                                                    angleDeg = 0.0,
+                                                    nestId = newNestId,
+                                                    action = SwipeActionSerializable.GoParentNest,
+                                                    id = UUID.randomUUID().toString()
+                                                )
+
+                                                points.add(newGoParentNestPoint)
+
+                                                appsViewModel.reloadPointIcon(newGoParentNestPoint)
+
+                                                points.add(newNestPoint)
+
+
+                                                // Move the 2 points to the new nest and change their position
+                                                p.nestId = newNestId
+                                                p.circleNumber = 0
+                                                p.angleDeg = 270.0
+
+
+                                                closest.nestId = newNestId
+                                                closest.circleNumber = 0
+                                                closest.angleDeg = 90.0
+                                            }
+                                        }
+
+                                        scope.launch {
+                                            // Stop dragging, don't animate point as it was merged
+                                            isDragging = false
+                                            selectedPoint = null
+                                            closestHoveredPoint = null
+                                        }
+
+                                    } else {
+                                        // No merging, just normal dragging
+
+                                        updatePointPosition(
+                                            p,
+                                            circles,
+                                            center,
+                                            position,
+                                            snapPoints
                                         )
 
-                                        // Stop dragging
-                                        isDragging = false
-                                        selectedPoint = null
+                                        if (autoSeparatePoints) autoSeparate(
+                                            points,
+                                            nestId,
+                                            circles.find { it.id == p.circleNumber },
+                                            p
+                                        )
+
+                                        // Compute final snapped position
+                                        val finalOffset = computePointPosition(
+                                            p,
+                                            circles,
+                                            center
+                                        )
+
+                                        scope.launch {
+                                            selectedPointTempOffset.animateTo(
+                                                finalOffset,
+                                                animationSpec = tween(300, easing = FastOutSlowInEasing)
+                                            )
+
+                                            // Stop dragging
+                                            isDragging = false
+                                            selectedPoint = null
+                                            closestHoveredPoint = null
+                                        }
                                     }
                                 }
                             }
@@ -780,13 +1067,15 @@ fun SettingsScreen(
                                         nestId = nestId
                                     )
 
-                                    appsViewModel.reloadPointIcon(point = point, sizePx = sizePx)
+                                    appsViewModel.reloadPointIcon(point)
 
                                     applyChange {
                                         points.add(point)
                                         if (autoSeparatePoints) autoSeparate(
-                                            points, nestId,
-                                            circles.find { it.id == circleId }, point
+                                            points = points,
+                                            nestId = nestId,
+                                            circle = circles.find { it.id == circleId },
+                                            draggedPoint = point
                                         )
                                     }
 
@@ -802,9 +1091,7 @@ fun SettingsScreen(
                                 var tapped: SwipePointSerializable? = null
                                 var best = Float.MAX_VALUE
 
-//                                    logD(TAG, currentFilteredPoints.toString())
                                 currentFilteredPoints.forEach { p ->
-//                                        logW(TAG, p.toString())
                                     val circle =
                                         circles.getOrNull(p.circleNumber) ?: return@forEach
                                     val px =
@@ -818,7 +1105,6 @@ fun SettingsScreen(
                                         tapped = p
                                     }
                                 }
-//                                    logW(TAG, "Tapped: $tapped")
 
                                 selectedPoint =
                                     if (best <= TOUCH_THRESHOLD_PX)
@@ -1112,7 +1398,7 @@ fun SettingsScreen(
                         id = UUID.randomUUID().toString(),
                     )
 
-                    appsViewModel.reloadPointIcon(newPoint, sizePx)
+                    appsViewModel.reloadPointIcon(newPoint)
 
                     applyChange {
                         points.add(newPoint)
@@ -1138,22 +1424,7 @@ fun SettingsScreen(
                     padding = 7.dp,
                     tint = addRemoveCirclesColor,
                     modifier = Modifier.size(40.dp)
-                ) {
-                    // The new circle id is the size minus one, cause circleIndexes
-                    // starts at 0 and the cancel zone is always in the list
-                    val newCircleNumber = currentNest.dragDistances.size - 1
-
-                    // Add a new circle
-                    pendingNestUpdate = nests.map {
-                        if (it.id == nestId) {
-                            it.copy(
-                                dragDistances = it.dragDistances + (newCircleNumber to defaultDragDistance(
-                                    newCircleNumber
-                                ))
-                            )
-                        } else it
-                    }
-                }
+                ) { addCircle() }
 
 
                 val canRemoveCircle = circleNumber > 1
@@ -1166,23 +1437,7 @@ fun SettingsScreen(
                     enabled = canRemoveCircle,
                     tint = addRemoveCirclesColor,
                     modifier = Modifier.size(40.dp)
-                ) {
-                    // Remove last circle
-                    pendingNestUpdate = nests.map {
-                        if (it.id == nestId) {
-
-                            // Filters keys that are above zero (cannot remove if only one circle, it's a safe guard
-                            val maxCircle =
-                                it.dragDistances.keys.filter { k -> k > 0 }.maxOrNull()
-                            val updatedDistances = if (maxCircle != null) {
-                                it.dragDistances - maxCircle
-                            } else {
-                                it.dragDistances
-                            }
-                            it.copy(dragDistances = updatedDistances)
-                        } else it
-                    }
-                }
+                ) { removeLastCircle() }
             }
         }
     }
@@ -1212,10 +1467,7 @@ fun SettingsScreen(
                     nestId = nestId
                 )
 
-                appsViewModel.reloadPointIcon(
-                    point = newPoint,
-                    sizePx = sizePx
-                )
+                appsViewModel.reloadPointIcon(newPoint)
 
                 applyChange {
                     points.add(newPoint)
@@ -1248,10 +1500,7 @@ fun SettingsScreen(
                                 nestId = nestId
                             )
 
-                            appsViewModel.reloadPointIcon(
-                                point = point,
-                                sizePx = sizePx
-                            )
+                            appsViewModel.reloadPointIcon(point)
 
                             points.add(point)
                             autoSeparate(points, nestId, circle, point)
@@ -1275,9 +1524,10 @@ fun SettingsScreen(
             point = editPoint,
             onDismiss = {
                 showEditDialog = null
+                appsViewModel.reloadPointIcon(editPoint)
             },
         ) { newPoint ->
-//            ctx.logE(ICONS_TAG, "Received edit of point id: ${editPoint.id} (new: ${newPoint.id}")
+            appsViewModel.reloadPointIcon(newPoint)
 
             applyChange {
                 val index = points.indexOfFirst { it.id == editPoint.id }
@@ -1293,8 +1543,8 @@ fun SettingsScreen(
 
     if (showNestManagementDialog) {
         NestManagementDialog(
-            onDismissRequest = { showNestManagementDialog = false },
-            onNewNest = ::addNewNest,
+            onDismissRequest = { showNestManagementDialog = false }, onNewNest = ::addNewNest,
+            nests = nests,
             onNameChange = null /*{ id, newName ->
                 applyChange {
                     pendingNestUpdate = nests.map {
@@ -1306,7 +1556,11 @@ fun SettingsScreen(
             onDelete = { nestToDelete ->
                 applyChange {
                     // Delete nest, leave points on it for now
-                    pendingNestUpdate = nests.filter { it.id != nestToDelete }
+                    val index = nests.indexOfFirst { it.id == nestToDelete }
+
+                    if (index != -1) {
+                        nests -= nests[index]
+                    }
                 }
             },
             onSelect = {
@@ -1417,45 +1671,24 @@ fun SettingsScreen(
      * Shows various information about the current settings state, may be unreadable when lots of points
      */
     if (settingsDebugInfos) {
-        Box(
-            modifier = Modifier
-                .background(Color.DarkGray.copy(0.5f))
-                .padding(5.dp)
-        ) {
-            Column {
-                Text("nests id: $nestId")
-                Text("current nests id: ${currentNest.id}")
-                Text("nests number: ${nests.size}")
-                Text("circle number: $circleNumber")
-                Text("currentNest size: ${currentNest.dragDistances.size}")
-                Text("circle width incr: $circlesWidthIncrement")
-                Text("current dragDistances: ${currentNest.dragDistances}")
-                selectedPoint?.let {
-                    Text(it.toString())
-                }
-                Column(
-                    verticalArrangement = Arrangement.spacedBy(5.dp)
-                ) {
-                    nests.forEach { Text(it.toString()) }
-                }
+        DragonColumnGroup {
+            Text("nests id: $nestId")
+            Text("current nests id: ${currentNest.id}")
+            Text("nests number: ${nests.size}")
+            Text("circle number: $circleNumber")
+            Text("currentNest size: ${currentNest.dragDistances.size}")
+            Text("circle width incr: $circlesWidthIncrement")
+            Text("current dragDistances: ${currentNest.dragDistances}")
+            Text("closest hovered point: $closestHoveredTempOffset")
+            Text("current nest: $currentNest")
 
-                Column(
-                    verticalArrangement = Arrangement.spacedBy(5.dp)
-                ) {
-
-                    circles.forEach {
-                        Text(
-                            "${it.id} ${minAngleGapForCircle(it.radius)}"
-                        )
-                    }
-                }
-            }
+            selectedPoint?.let { Text(it.toString()) }
         }
     }
 }
 
 fun defaultDragDistance(id: Int): Int = when (id) {
-    -1 -> 150 // Cancel Zone (below no actions activation)
+    -1 -> 150 // Cancel Zone (below no action activation)
     0 -> 300  // First circle 300
     else -> 300 + 150 * id // others: add 150 each, don't be dumb and go to 10 circles
 }

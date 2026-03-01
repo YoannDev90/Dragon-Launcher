@@ -31,7 +31,7 @@ data class SwipePointSerializable(
 
     /** Optional nesting/group identifier for hierarchical or contextual swipe layouts. */
     @SerializedName("e")
-    val nestId: Int? = 0,
+    var nestId: Int? = 0,
 
     /** Fully customizable icon definition overriding default visuals. */
     @SerializedName("f")
@@ -100,7 +100,11 @@ data class SwipePointSerializable(
      */
     @SerializedName("borderShapeSelected")
     val borderShapeSelected: IconShape? = IconShape.Circle
-)
+) {
+    override fun toString(): String {
+        return "action: $action | nestId: $nestId | angle: $angleDeg | circleNumber: $circleNumber"
+    }
+}
 
 
 fun SwipePointSerializable.applyColorAction(): Boolean = (

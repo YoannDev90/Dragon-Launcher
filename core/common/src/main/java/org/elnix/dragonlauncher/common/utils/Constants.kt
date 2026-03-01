@@ -187,6 +187,7 @@ object Constants {
         const val POINTS_TAG = "PointsDebug"
         const val STATUS_BAR_TAG = "StatusBarDebug"
         const val WORKSPACES_TAG = "WorkspacesDebug"
+        const val NESTS_TAG = "NestsDebug"
     }
 
     /*  ─────────────  Links  ─────────────  */
@@ -199,6 +200,8 @@ object Constants {
         /*  ─────────────  Settings Screen Constants  ─────────────  */
         const val POINT_RADIUS_PX = 40f
         const val TOUCH_THRESHOLD_PX = 100f
+        const val HOVER_POINT_DURATION = 500L
+        const val HOVER_GRADIENT_RADIUS = 75
 
         const val SNAP_STEP_DEG = 15.0
         const val HOME_REENTER_WINDOW_MS = 80L

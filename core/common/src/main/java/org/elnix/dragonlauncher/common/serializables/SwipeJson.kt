@@ -167,7 +167,7 @@ class SwipeActionAdapter : JsonSerializer<SwipeActionSerializable>, JsonDeserial
                 obj.addProperty("type", "GoParentNest")
             }
 
-            SwipeActionSerializable.None -> null
+            SwipeActionSerializable.None -> {}
         }
         return obj
     }
@@ -312,15 +312,4 @@ object SwipeJson {
             emptyList()
         }
     }
-}
-
-
-/**
- * Used to reach the same package name, just since they are different instances, the compiler
- * complains about accessing directly .packageName
- */
-fun SwipeActionSerializable.targetPackage(): String? = when (this) {
-    is SwipeActionSerializable.LaunchApp -> packageName
-    is SwipeActionSerializable.LaunchShortcut -> packageName
-    else -> null
 }

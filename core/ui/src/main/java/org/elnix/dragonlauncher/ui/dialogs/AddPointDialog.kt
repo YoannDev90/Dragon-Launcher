@@ -266,9 +266,9 @@ fun AddPointDialog(
 
     if (showNestPicker) {
         NestManagementDialog(
+            onDismissRequest = { showNestPicker = false },
             title = stringResource(R.string.pick_a_nest),
             onNewNest = onNewNest,
-            onDismissRequest = { showNestPicker = false },
             onNameChange = null,
             onDelete = null,
             onSelect = {
