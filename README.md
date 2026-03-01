@@ -120,15 +120,14 @@ The reason is likely that Dragon asks for _sensitive permissions_ - normal, that
 ## Screenshots
 
 <p align="center">
-    <img src="assets/images/demo.gif" alt="App demo animation" width="40%">
-    <img src="assets/images/demo2.gif" alt="App demo animation" width="40%">
+    <img src="assets/images/demo1.gif" alt="App demo animation 1" width="40%">
+    <img src="assets/images/demo2.gif" alt="App demo animation 2" width="40%">
 </p>
 
 <p align="center">
   <img src="https://raw.githubusercontent.com/Elnix90/Dragon-Launcher/main/fastlane/metadata/android/en-US/images/phoneScreenshots/1.jpg" width="22%" alt="App Screenshot 1"/>
   <img src="https://raw.githubusercontent.com/Elnix90/Dragon-Launcher/main/fastlane/metadata/android/en-US/images/phoneScreenshots/2.jpg" width="22%" alt="App Screenshot 2"/>
   <img src="https://raw.githubusercontent.com/Elnix90/Dragon-Launcher/main/fastlane/metadata/android/en-US/images/phoneScreenshots/3.jpg" width="22%" alt="App Screenshot 3"/>
-  <img src="https://raw.githubusercontent.com/Elnix90/Dragon-Launcher/main/fastlane/metadata/android/en-US/images/phoneScreenshots/16.jpg" width="22%" alt="App Screenshot 16"/>
   <img src="https://raw.githubusercontent.com/Elnix90/Dragon-Launcher/main/fastlane/metadata/android/en-US/images/phoneScreenshots/4.jpg" width="22%" alt="App Screenshot 4"/>
   <img src="https://raw.githubusercontent.com/Elnix90/Dragon-Launcher/main/fastlane/metadata/android/en-US/images/phoneScreenshots/5.jpg" width="22%" alt="App Screenshot 5"/>
   <img src="https://raw.githubusercontent.com/Elnix90/Dragon-Launcher/main/fastlane/metadata/android/en-US/images/phoneScreenshots/6.jpg" width="22%" alt="App Screenshot 6"/>
@@ -136,10 +135,6 @@ The reason is likely that Dragon asks for _sensitive permissions_ - normal, that
   <img src="https://raw.githubusercontent.com/Elnix90/Dragon-Launcher/main/fastlane/metadata/android/en-US/images/phoneScreenshots/8.jpg" width="22%" alt="App Screenshot 8"/>
   <img src="https://raw.githubusercontent.com/Elnix90/Dragon-Launcher/main/fastlane/metadata/android/en-US/images/phoneScreenshots/9.jpg" width="22%" alt="App Screenshot 9"/>
   <img src="https://raw.githubusercontent.com/Elnix90/Dragon-Launcher/main/fastlane/metadata/android/en-US/images/phoneScreenshots/10.jpg" width="22%" alt="App Screenshot 10"/>
-  <img src="https://raw.githubusercontent.com/Elnix90/Dragon-Launcher/main/fastlane/metadata/android/en-US/images/phoneScreenshots/11.jpg" width="22%" alt="App Screenshot 11"/>
-  <img src="https://raw.githubusercontent.com/Elnix90/Dragon-Launcher/main/fastlane/metadata/android/en-US/images/phoneScreenshots/13.jpg" width="22%" alt="App Screenshot 13"/>
-  <img src="https://raw.githubusercontent.com/Elnix90/Dragon-Launcher/main/fastlane/metadata/android/en-US/images/phoneScreenshots/14.jpg" width="22%" alt="App Screenshot 14"/>
-  <img src="https://raw.githubusercontent.com/Elnix90/Dragon-Launcher/main/fastlane/metadata/android/en-US/images/phoneScreenshots/15.jpg" width="22%" alt="App Screenshot 15"/>
 </p>
 
 
