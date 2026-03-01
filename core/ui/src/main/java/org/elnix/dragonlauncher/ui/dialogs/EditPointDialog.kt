@@ -21,7 +21,6 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TextField
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -38,7 +37,6 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import org.elnix.dragonlauncher.base.theme.LocalExtraColors
 import org.elnix.dragonlauncher.common.R
-import org.elnix.dragonlauncher.common.serializables.SwipeActionSerializable
 import org.elnix.dragonlauncher.common.serializables.SwipePointSerializable
 import org.elnix.dragonlauncher.common.serializables.defaultSwipePointsValues
 import org.elnix.dragonlauncher.common.utils.UiConstants.DragonShape
@@ -60,6 +58,7 @@ import org.elnix.dragonlauncher.ui.components.settings.asState
 import org.elnix.dragonlauncher.ui.helpers.ShapeRow
 import org.elnix.dragonlauncher.ui.helpers.SliderWithLabel
 import org.elnix.dragonlauncher.ui.remembers.LocalAppsViewModel
+import org.elnix.dragonlauncher.ui.remembers.LocalDefaultPoint
 
 
 @Composable
@@ -71,6 +70,7 @@ fun EditPointDialog(
 ) {
     val ctx = LocalContext.current
     val extraColors = LocalExtraColors.current
+    val defaultPoint = LocalDefaultPoint.current
 
     val appsViewModel = LocalAppsViewModel.current
 
@@ -82,8 +82,6 @@ fun EditPointDialog(
     var showSelectedShapePickerDialog by remember { mutableStateOf(false) }
 
     val circleColor by ColorSettingsStore.circleColor.asState()
-
-    val defaultPoint by appsViewModel.defaultPoint.collectAsState(defaultSwipePointsValues)
 
 
     val backgroundSurfaceColor = MaterialTheme.colorScheme.surface.adjustBrightness(0.7f)
@@ -283,14 +281,13 @@ fun EditPointDialog(
                                 )
                             }
 
-                            val editIconEnabled =
-                                editPoint.action !is SwipeActionSerializable.OpenCircleNest
+
                             Row(
                                 modifier = Modifier
                                     .weight(1f)
                                     .clip(DragonShape)
                                     .background(backgroundSurfaceColor)
-                                    .clickable(editIconEnabled) {
+                                    .clickable {
                                         showEditIconDialog = true
                                     }
                                     .padding(12.dp),
@@ -299,14 +296,14 @@ fun EditPointDialog(
                             ) {
                                 Text(
                                     text = stringResource(R.string.edit_icon),
-                                    color = MaterialTheme.colorScheme.onSurface.copy(if (editIconEnabled) 1f else 0.5f)
+                                    color = MaterialTheme.colorScheme.onSurface
                                 )
                                 Spacer(Modifier.weight(1f))
 
                                 Icon(
                                     imageVector = Icons.Default.Edit,
                                     contentDescription = stringResource(R.string.edit_action),
-                                    tint = MaterialTheme.colorScheme.primary.copy(if (editIconEnabled) 1f else 0.5f),
+                                    tint = MaterialTheme.colorScheme.primary,
                                 )
                             }
                         }
