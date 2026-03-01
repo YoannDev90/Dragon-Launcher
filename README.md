@@ -124,45 +124,46 @@ The reason is likely that dragon asks for _sensitive permissions_ - normal, that
 </p>
 
 <p align="center">
-  <img src="https://github.com/Elnix90/Dragon-Launcher/blob/main/fastlane/metadata/android/en-US/images/phoneScreenshots/1.jpg" width="22%" alt="App Screenshot 1"/>
-  <img src="https://github.com/Elnix90/Dragon-Launcher/blob/main/fastlane/metadata/android/en-US/images/phoneScreenshots/16.jpg" width="22%" alt="App Screenshot 16"/>
-  <img src="https://github.com/Elnix90/Dragon-Launcher/blob/main/fastlane/metadata/android/en-US/images/phoneScreenshots/2.jpg" width="22%" alt="App Screenshot 2"/>
-  <img src="https://github.com/Elnix90/Dragon-Launcher/blob/main/fastlane/metadata/android/en-US/images/phoneScreenshots/3.jpg" width="22%" alt="App Screenshot 3"/>
-  <img src="https://github.com/Elnix90/Dragon-Launcher/blob/main/fastlane/metadata/android/en-US/images/phoneScreenshots/16.jpg" width="22%" alt="App Screenshot 16"/>
-  <img src="https://github.com/Elnix90/Dragon-Launcher/blob/main/fastlane/metadata/android/en-US/images/phoneScreenshots/4.jpg" width="22%" alt="App Screenshot 4"/>
-  <img src="https://github.com/Elnix90/Dragon-Launcher/blob/main/fastlane/metadata/android/en-US/images/phoneScreenshots/5.jpg" width="22%" alt="App Screenshot 5"/>
-  <img src="https://github.com/Elnix90/Dragon-Launcher/blob/main/fastlane/metadata/android/en-US/images/phoneScreenshots/6.jpg" width="22%" alt="App Screenshot 6"/>
-  <img src="https://github.com/Elnix90/Dragon-Launcher/blob/main/fastlane/metadata/android/en-US/images/phoneScreenshots/7.jpg" width="22%" alt="App Screenshot 7"/>
-  <img src="https://github.com/Elnix90/Dragon-Launcher/blob/main/fastlane/metadata/android/en-US/images/phoneScreenshots/8.jpg" width="22%" alt="App Screenshot 8"/>
-  <img src="https://github.com/Elnix90/Dragon-Launcher/blob/main/fastlane/metadata/android/en-US/images/phoneScreenshots/9.jpg" width="22%" alt="App Screenshot 9"/>
-  <img src="https://github.com/Elnix90/Dragon-Launcher/blob/main/fastlane/metadata/android/en-US/images/phoneScreenshots/10.jpg" width="22%" alt="App Screenshot 10"/>
-  <img src="https://github.com/Elnix90/Dragon-Launcher/blob/main/fastlane/metadata/android/en-US/images/phoneScreenshots/11.jpg" width="22%" alt="App Screenshot 11"/>
-  <img src="https://github.com/Elnix90/Dragon-Launcher/blob/main/fastlane/metadata/android/en-US/images/phoneScreenshots/13.jpg" width="22%" alt="App Screenshot 13"/>
-  <img src="https://github.com/Elnix90/Dragon-Launcher/blob/main/fastlane/metadata/android/en-US/images/phoneScreenshots/14.jpg" width="22%" alt="App Screenshot 14"/>
-  <img src="https://github.com/Elnix90/Dragon-Launcher/blob/main/fastlane/metadata/android/en-US/images/phoneScreenshots/15.jpg" width="22%" alt="App Screenshot 15"/>
+  <img src="https://raw.githubusercontent.com/Elnix90/Dragon-Launcher/main/fastlane/metadata/android/en-US/images/phoneScreenshots/1.jpg" width="22%" alt="App Screenshot 1"/>
+  <img src="https://raw.githubusercontent.com/Elnix90/Dragon-Launcher/main/fastlane/metadata/android/en-US/images/phoneScreenshots/2.jpg" width="22%" alt="App Screenshot 2"/>
+  <img src="https://raw.githubusercontent.com/Elnix90/Dragon-Launcher/main/fastlane/metadata/android/en-US/images/phoneScreenshots/3.jpg" width="22%" alt="App Screenshot 3"/>
+  <img src="https://raw.githubusercontent.com/Elnix90/Dragon-Launcher/main/fastlane/metadata/android/en-US/images/phoneScreenshots/16.jpg" width="22%" alt="App Screenshot 16"/>
+  <img src="https://raw.githubusercontent.com/Elnix90/Dragon-Launcher/main/fastlane/metadata/android/en-US/images/phoneScreenshots/4.jpg" width="22%" alt="App Screenshot 4"/>
+  <img src="https://raw.githubusercontent.com/Elnix90/Dragon-Launcher/main/fastlane/metadata/android/en-US/images/phoneScreenshots/5.jpg" width="22%" alt="App Screenshot 5"/>
+  <img src="https://raw.githubusercontent.com/Elnix90/Dragon-Launcher/main/fastlane/metadata/android/en-US/images/phoneScreenshots/6.jpg" width="22%" alt="App Screenshot 6"/>
+  <img src="https://raw.githubusercontent.com/Elnix90/Dragon-Launcher/main/fastlane/metadata/android/en-US/images/phoneScreenshots/7.jpg" width="22%" alt="App Screenshot 7"/>
+  <img src="https://raw.githubusercontent.com/Elnix90/Dragon-Launcher/main/fastlane/metadata/android/en-US/images/phoneScreenshots/8.jpg" width="22%" alt="App Screenshot 8"/>
+  <img src="https://raw.githubusercontent.com/Elnix90/Dragon-Launcher/main/fastlane/metadata/android/en-US/images/phoneScreenshots/9.jpg" width="22%" alt="App Screenshot 9"/>
+  <img src="https://raw.githubusercontent.com/Elnix90/Dragon-Launcher/main/fastlane/metadata/android/en-US/images/phoneScreenshots/10.jpg" width="22%" alt="App Screenshot 10"/>
+  <img src="https://raw.githubusercontent.com/Elnix90/Dragon-Launcher/main/fastlane/metadata/android/en-US/images/phoneScreenshots/11.jpg" width="22%" alt="App Screenshot 11"/>
+  <img src="https://raw.githubusercontent.com/Elnix90/Dragon-Launcher/main/fastlane/metadata/android/en-US/images/phoneScreenshots/13.jpg" width="22%" alt="App Screenshot 13"/>
+  <img src="https://raw.githubusercontent.com/Elnix90/Dragon-Launcher/main/fastlane/metadata/android/en-US/images/phoneScreenshots/14.jpg" width="22%" alt="App Screenshot 14"/>
+  <img src="https://raw.githubusercontent.com/Elnix90/Dragon-Launcher/main/fastlane/metadata/android/en-US/images/phoneScreenshots/15.jpg" width="22%" alt="App Screenshot 15"/>
 </p>
+
 
 ## User Screenshots
 
 <p align="center">
-    <img src="https://github.com/Elnix90/Dragon-Launcher/blob/main/assets/user-screenshots/elnix.webp" width="22%" alt="Elnix Screenshot"/>
-    <img src="https://github.com/Elnix90/Dragon-Launcher/blob/main/assets/user-screenshots/elnix2.jpg" width="22%" alt="Elnix Screenshot 2"/>
-    <img src="https://github.com/Elnix90/Dragon-Launcher/blob/main/assets/user-screenshots/speedhog.jpg" width="22%" alt="speedhog Screenshot"/>
-    <img src="https://github.com/Elnix90/Dragon-Launcher/blob/main/assets/user-screenshots/oniyon.jpg" width="22%" alt="oniyon Screenshot"/>
-    <img src="https://github.com/Elnix90/Dragon-Launcher/blob/main/assets/user-screenshots/alyon.jpg" width="22%" alt="alyon Screenshot"/>
-    <img src="https://github.com/Elnix90/Dragon-Launcher/blob/main/assets/user-screenshots/infamous.webp" width="22%" alt="infamous Screenshot"/>
-    <img src="https://github.com/Elnix90/Dragon-Launcher/blob/main/assets/user-screenshots/m0n0lith.webp" width="22%" alt="m0n0lith Screenshot"/>
-    <img src="https://github.com/Elnix90/Dragon-Launcher/blob/main/assets/user-screenshots/prizewhisper.webp" width="22%" alt="prizewhisper Screenshot"/>
+    <img src="https://raw.githubusercontent.com/Elnix90/Dragon-Launcher/main/assets/user-screenshots/elnix.webp" width="22%" alt="Elnix Screenshot"/>
+    <img src="https://raw.githubusercontent.com/Elnix90/Dragon-Launcher/main/assets/user-screenshots/elnix2.jpg" width="22%" alt="Elnix Screenshot 2"/>
+    <img src="https://raw.githubusercontent.com/Elnix90/Dragon-Launcher/main/assets/user-screenshots/speedhog.jpg" width="22%" alt="speedhog Screenshot"/>
+    <img src="https://raw.githubusercontent.com/Elnix90/Dragon-Launcher/main/assets/user-screenshots/oniyon.jpg" width="22%" alt="oniyon Screenshot"/>
+    <img src="https://raw.githubusercontent.com/Elnix90/Dragon-Launcher/main/assets/user-screenshots/alyon.jpg" width="22%" alt="alyon Screenshot"/>
+    <img src="https://raw.githubusercontent.com/Elnix90/Dragon-Launcher/main/assets/user-screenshots/infamous.webp" width="22%" alt="infamous Screenshot"/>
+    <img src="https://raw.githubusercontent.com/Elnix90/Dragon-Launcher/main/assets/user-screenshots/m0n0lith.webp" width="22%" alt="m0n0lith Screenshot"/>
+    <img src="https://raw.githubusercontent.com/Elnix90/Dragon-Launcher/main/assets/user-screenshots/prizewhisper.webp" width="22%" alt="prizewhisper Screenshot"/>
 
     <details><summary>More</summary>
-        <img src="https://github.com/Elnix90/Dragon-Launcher/blob/main/assets/user-screenshots/sandsalamand.webp" width="22%" alt="sandsalamand Screenshot"/>
-        <img src="https://github.com/Elnix90/Dragon-Launcher/blob/main/assets/user-screenshots/buck_fpv.jpg" width="22%" alt="buck_fpv Screenshot"/>
-        <img src="https://github.com/Elnix90/Dragon-Launcher/blob/main/assets/user-screenshots/drBrigth.jpg" width="22%" alt="drBrigth Screenshot"/>
-        <img src="https://github.com/Elnix90/Dragon-Launcher/blob/main/assets/user-screenshots/acress1.webp" width="22%" alt="acress1 &Screenshot"/>
-        <img src="https://github.com/Elnix90/Dragon-Launcher/blob/main/assets/user-screenshots/yerminator.webp" width="22%" alt="yerminator Screenshot"/>
-        <img src="https://github.com/Elnix90/Dragon-Launcher/blob/main/assets/user-screenshots/yprum.webp" width="22%" alt="yprum Screenshot"/>
+        <img src="https://raw.githubusercontent.com/Elnix90/Dragon-Launcher/main/assets/user-screenshots/sandsalamand.webp" width="22%" alt="sandsalamand Screenshot"/>
+        <img src="https://raw.githubusercontent.com/Elnix90/Dragon-Launcher/main/assets/user-screenshots/buck_fpv.jpg" width="22%" alt="buck_fpv Screenshot"/>
+        <img src="https://raw.githubusercontent.com/Elnix90/Dragon-Launcher/main/assets/user-screenshots/drBrigth.jpg" width="22%" alt="drBrigth Screenshot"/>
+        <img src="https://raw.githubusercontent.com/Elnix90/Dragon-Launcher/main/assets/user-screenshots/acress1.webp" width="22%" alt="acress1 Screenshot"/>
+        <img src="https://raw.githubusercontent.com/Elnix90/Dragon-Launcher/main/assets/user-screenshots/yerminator.webp" width="22%" alt="yerminator Screenshot"/>
+        <img src="https://raw.githubusercontent.com/Elnix90/Dragon-Launcher/main/assets/user-screenshots/yprum.webp" width="22%" alt="yprum Screenshot"/>
     </details>
 </p>
+
 
 ## Usage
 
