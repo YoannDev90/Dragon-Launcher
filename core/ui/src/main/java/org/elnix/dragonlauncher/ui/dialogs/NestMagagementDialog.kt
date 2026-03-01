@@ -41,9 +41,9 @@ import org.elnix.dragonlauncher.common.R
 import org.elnix.dragonlauncher.common.serializables.CircleNest
 import org.elnix.dragonlauncher.common.serializables.SwipeActionSerializable
 import org.elnix.dragonlauncher.common.serializables.SwipePointSerializable
+import org.elnix.dragonlauncher.common.utils.UiConstants.DragonShape
 import org.elnix.dragonlauncher.common.utils.colors.adjustBrightness
 import org.elnix.dragonlauncher.common.utils.copyToClipboard
-import org.elnix.dragonlauncher.common.utils.UiConstants.DragonShape
 import org.elnix.dragonlauncher.ui.colors.AppObjectsColors
 import org.elnix.dragonlauncher.ui.components.dragon.DragonIconButton
 import org.elnix.dragonlauncher.ui.helpers.nests.actionsInCircle
@@ -52,15 +52,16 @@ import org.elnix.dragonlauncher.ui.remembers.LocalNests
 
 @Composable
 fun NestManagementDialog(
+    onDismissRequest: () -> Unit,
     title: String? = null,
     canCopyId: Boolean = true,
-    onDismissRequest: () -> Unit,
+    nests:  List<CircleNest>? = null,
     onNewNest: (() -> Unit)? = null,
     onNameChange: ((id: Int, name: String) -> Unit)?,
     onDelete: ((id: Int) -> Unit)?,
     onSelect: ((CircleNest) -> Unit)? = null
 ) {
-    val nests = LocalNests.current
+    val nests = nests ?: LocalNests.current
 
     CustomAlertDialog(
         modifier = Modifier.padding(15.dp),
@@ -109,6 +110,7 @@ fun NestManagementDialog(
                 items(nests) { nest ->
                     NestManagementItem(
                         nest = nest,
+                        nests = nests,
                         canCopyId = canCopyId,
                         onNameChange = onNameChange,
                         onDelete = onDelete,
@@ -125,13 +127,14 @@ fun NestManagementDialog(
 @Composable
 private fun NestManagementItem(
     nest: CircleNest,
+    nests: List<CircleNest>?,
     canCopyId: Boolean,
     onNameChange: ((id: Int, name: String) -> Unit)?,
     onDelete: ((id: Int) -> Unit)?,
     onSelect: (() -> Unit)? = null
 ) {
     val ctx = LocalContext.current
-    val drawParams = swipeDefaultParams()
+    val drawParams = swipeDefaultParams(nests = nests)
 
     var tempCustomName by remember { mutableStateOf(nest.name ?: "") }
 

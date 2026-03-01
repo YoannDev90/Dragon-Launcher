@@ -34,7 +34,7 @@ fun DrawScope.circlesSettingsOverlay(
 
     // if no background color provided, erases the background
     val eraseBg = surfaceColorDraw == Color.Transparent && !preventBgErasing
-    val maxCircleSize = circles.maxBy { it.radius }
+    val maxCircleSize: UiCircle = circles.maxByOrNull { it.radius } ?: return
 
     // Erases the color, instead of putting it, that lets the wallpaper pass trough
     drawCircle(

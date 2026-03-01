@@ -187,6 +187,7 @@ object Constants {
         const val POINTS_TAG = "PointsDebug"
         const val STATUS_BAR_TAG = "StatusBarDebug"
         const val WORKSPACES_TAG = "WorkspacesDebug"
+        const val NESTS_TAG = "NestsDebug"
     }
 
     /*  ─────────────  Links  ─────────────  */

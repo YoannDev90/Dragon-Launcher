@@ -91,7 +91,7 @@ fun IconEditorDialog(
 
     val previewPoint = point.copy(customIcon = selectedIcon)
     val previewIcon = remember(selectedIcon) {
-        mapOf(point.id to appsViewModel.loadPointIcon(previewPoint, 64))
+        mapOf(point.id to appsViewModel.loadPointIcon(previewPoint))
     }
     val source = selectedIcon?.source
 

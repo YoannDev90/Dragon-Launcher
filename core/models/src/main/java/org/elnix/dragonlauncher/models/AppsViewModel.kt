@@ -80,6 +80,7 @@ import org.elnix.dragonlauncher.settings.stores.UiSettingsStore
 import org.elnix.dragonlauncher.settings.stores.WorkspaceSettingsStore
 import org.json.JSONObject
 import org.xmlpull.v1.XmlPullParser
+import kotlin.math.max
 
 
 class AppsViewModel(
@@ -442,7 +443,6 @@ class AppsViewModel(
 
             preloadPointIcons(
                 points = points,
-                sizePx = 128,
                 override = true,
             )
 
@@ -709,13 +709,12 @@ class AppsViewModel(
      * Load point icon
      *
      * @param point a [SwipePointSerializable] Object, that can contain a custom icon to render
-     * @param sizePx size of the output [ImageBitmap]
      * @return [ImageBitmap]
      */
-    fun loadPointIcon(
-        point: SwipePointSerializable,
-        sizePx: Int
-    ): ImageBitmap {
+    fun loadPointIcon(point: SwipePointSerializable, ): ImageBitmap {
+
+        val sizePx = max(_defaultPoint.value.size ?: defaultSwipePointsValues.size!!, point.size ?: 0)
+            .times(_density.value!!.density).toInt().coerceAtLeast(48)
 
         // Create the default bitmap, uses the app icons for default value if action is an app
         val orig = createUntintedBitmap(
@@ -811,19 +810,12 @@ class AppsViewModel(
      * Reload a single point icon to the icons list, override if already existing
      *
      * @param point which point's icon to load
-     * @param sizePx the size of the [ImageBitmap] loaded
      */
-    fun reloadPointIcon(
-        point: SwipePointSerializable,
-        sizePx: Int = 128
-    ) {
+    fun reloadPointIcon(point: SwipePointSerializable) {
         val id = point.id
 
         scope.launch(Dispatchers.IO) {
-            val bmp = loadPointIcon(
-                point = point,
-                sizePx = sizePx
-            )
+            val bmp = loadPointIcon(point)
 
             _icons.update { it + (id to bmp) }
             _iconsVersion.value++
@@ -833,7 +825,6 @@ class AppsViewModel(
     /**
      * Update single icon (for app)
      * Basically the same thing as [reloadPointIcon] but for an AppModel instead of the [SwipePointSerializable] you input an [AppModel]
-     *
      *
      * @param app
      * @param useOverride
@@ -874,7 +865,6 @@ class AppsViewModel(
      */
     fun preloadPointIcons(
         points: List<SwipePointSerializable>,
-        sizePx: Int,
         override: Boolean = false
     ) {
         scope.launch(Dispatchers.Default) {
@@ -882,7 +872,7 @@ class AppsViewModel(
                 val id = p.id
                 if (_icons.value.containsKey(id) && !override) return@forEach
 
-                reloadPointIcon(p, sizePx)
+                reloadPointIcon(p)
             }
         }
     }
