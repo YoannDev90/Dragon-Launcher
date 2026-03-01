@@ -14,6 +14,7 @@ import android.provider.AlarmClock
 import android.provider.CalendarContract
 import android.provider.Settings
 import android.widget.Toast
+import androidx.compose.runtime.snapshots.SnapshotStateList
 import androidx.compose.ui.graphics.Color
 import androidx.core.net.toUri
 import org.elnix.dragonlauncher.common.R
@@ -461,3 +462,11 @@ val String?.isBlankJson: Boolean
  */
 val String?.isNotBlankJson: Boolean
     get() = !isBlankJson
+
+
+fun <T> SnapshotStateList<T>.move(from: Int, to: Int) {
+    if (from == to) return
+    if (from in 0 until size && to in 0 until size) {
+        add(to, removeAt(from))
+    }
+}
