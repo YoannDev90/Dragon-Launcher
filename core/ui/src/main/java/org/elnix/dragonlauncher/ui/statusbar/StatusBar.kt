@@ -278,8 +278,17 @@ fun EditStatusBar() {
 
     val reorderState = rememberReorderableLazyListState(
         onMove = { from, to ->
-            if (from.index != to.index && from.index in elements.indices && to.index in elements.indices) {
-                elements.apply { add(to.index, removeAt(from.index)) }
+            try {
+                if (from.index != to.index) {
+                    val fromIdx = elements.indexOfFirst { it.id == from.key }
+                    val toIdx = elements.indexOfFirst { it.id == to.key }
+
+                    if (fromIdx != -1 && toIdx != -1) {
+                        elements.add(toIdx, elements.removeAt(fromIdx))
+                    }
+                }
+            } catch (e: Exception) {
+                // Ignore concurrent modification during rapid drag
             }
         },
         onDragEnd = { _, _ ->
@@ -351,6 +360,7 @@ fun EditStatusBar() {
                         modifier = Modifier
                             .scale(scale.value)
                             .detectReorderAfterLongPress(reorderState)
+                            .sizeIn(minWidth = 50.dp, minHeight = 50.dp)
                             .border(1.dp, borderColor.value, DragonShape)
                             .clip(DragonShape)
                             .background(backgroundColor.value)
@@ -660,6 +670,7 @@ fun EditStatusBar() {
                             .border(1.dp, MaterialTheme.colorScheme.primary, DragonShape)
                             .clip(DragonShape)
                             .background(MaterialTheme.colorScheme.surfaceVariant)
+                            .sizeIn(minWidth = 50.dp, minHeight = 50.dp)
                             .combinedClickable(
                                 onLongClick = { showHelp = true },
                                 onClick = { addElement(it) }
