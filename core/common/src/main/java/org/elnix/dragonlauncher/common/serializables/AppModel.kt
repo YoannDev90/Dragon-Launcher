@@ -168,7 +168,7 @@ fun resolveApp(
 
 // I disable non-user workspaces by default, enable it if you need it (only used for nerds) (those who download my app are btw :) )
 val defaultWorkspaces = listOf(
-    Workspace("user", "User", WorkspaceType.USER, emptySet(), setOf(CacheKey("org.elnix.dragonLauncher")), true),
+    Workspace("user", "User", WorkspaceType.USER, emptySet(), setOf(CacheKey("org.elnix.dragonLauncher#0")), true),
     Workspace("system", "System", WorkspaceType.SYSTEM, emptySet(), emptySet(), false),
     Workspace("all", "All", WorkspaceType.ALL, emptySet(), emptySet(),  false),
     Workspace("work", "Work", WorkspaceType.WORK, emptySet(), emptySet(),  false),
