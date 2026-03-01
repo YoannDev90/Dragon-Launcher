@@ -31,6 +31,8 @@ import java.time.format.DateTimeFormatter
 @Composable
 fun StatusBarNextAlarm(
     element: StatusBarSerializable.NextAlarm,
+
+    // used only for preview in settings, so I don't use the element property
     forceShowIcon: Boolean = false
 ) {
     val ctx = LocalContext.current
