@@ -759,9 +759,5 @@ fun StatusBarItem(
         is StatusBarSerializable.NextAlarm -> {
             StatusBarNextAlarm(element, forceShowIcon = previewMode)
         }
-
-        is StatusBarSerializable.Spacer -> {
-            // No-op here, spacers are handled mapping elements in Row
-        }
     }
 }
