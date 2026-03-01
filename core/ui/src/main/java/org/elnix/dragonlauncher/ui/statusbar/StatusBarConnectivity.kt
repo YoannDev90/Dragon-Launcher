@@ -1,6 +1,8 @@
 package org.elnix.dragonlauncher.ui.statusbar
 
 import android.content.Context
+import android.net.ConnectivityManager
+import android.net.NetworkCapabilities
 import android.provider.Settings
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Row
@@ -8,9 +10,11 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.AirplanemodeActive
 import androidx.compose.material.icons.filled.Bluetooth
+import androidx.compose.material.icons.filled.SignalCellularAlt
 import androidx.compose.material.icons.filled.Wifi
 import androidx.compose.material3.Icon
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -31,10 +35,11 @@ fun StatusBarConnectivity(
     val ctx = LocalContext.current
     var connectivityState by remember { mutableStateOf(ConnectivityState()) }
 
+    // Periodic updates every 5 seconds
     LaunchedEffect(Unit) {
         while (true) {
             connectivityState = readConnectivityState(ctx)
-            delay(2_000)
+            delay(5_000)
         }
     }
 
@@ -58,21 +63,30 @@ fun StatusBarConnectivity(
                 contentDescription = "Airplane",
                 modifier = Modifier.size(14.dp)
             )
-        }
-        if (connectivityState.isWifiEnabled) {
-            Icon(
-                imageVector = Icons.Default.Wifi,
-                contentDescription = "WiFi on",
-                modifier = Modifier.size(14.dp)
-            )
-        }
+        } else {
+            if (connectivityState.isWifiEnabled) {
+                Icon(
+                    imageVector = Icons.Default.Wifi,
+                    contentDescription = "WiFi on",
+                    modifier = Modifier.size(14.dp)
+                )
+            }
 
-        if (connectivityState.isBluetoothEnabled) {
-            Icon(
-                imageVector = Icons.Default.Bluetooth,
-                contentDescription = "Bluetooth",
-                modifier = Modifier.size(14.dp)
-            )
+            if (connectivityState.isBluetoothEnabled) {
+                Icon(
+                    imageVector = Icons.Default.Bluetooth,
+                    contentDescription = "Bluetooth",
+                    modifier = Modifier.size(14.dp)
+                )
+            }
+
+            if (connectivityState.mobileDataStatus.isNotEmpty()) {
+                Icon(
+                    imageVector = Icons.Default.SignalCellularAlt,
+                    contentDescription = connectivityState.mobileDataStatus,
+                    modifier = Modifier.size(14.dp)
+                )
+            }
         }
     }
 }
@@ -81,16 +95,15 @@ data class ConnectivityState(
     val isAirplaneMode: Boolean = false,
     val isWifiEnabled: Boolean = false,
     val isVpnEnabled: Boolean = false,
-    val isBluetoothEnabled: Boolean = false
+    val isBluetoothEnabled: Boolean = false,
+    val mobileDataStatus: String = ""
 )
 
 private fun readConnectivityState(ctx: Context): ConnectivityState {
     val resolver = ctx.contentResolver
+    val connectivityManager = ctx.getSystemService(Context.CONNECTIVITY_SERVICE) as ConnectivityManager
 
-//    ctx.logD("StatusBar", "AIRPLANE: ${Settings.Global.getInt(resolver, Settings.Global.AIRPLANE_MODE_ON, 0)}")
-//    ctx.logD("StatusBar", "WIFI_ON: ${Settings.Global.getInt(resolver, Settings.Global.WIFI_ON, 0)}")
-//    ctx.logD("StatusBar", "VPN_ALWAYS_ON: ${Settings.Global.getInt(resolver, Settings.Global.VPN_ALWAYS_ON_GENERIC, 0)}")
-//    ctx.logD("StatusBar", "BLUETOOTH_ON: ${Settings.Global.getInt(resolver, Settings.Global.BLUETOOTH_ON, 0)}")
+    val mobileDataStatus = getMobileDataStatus(ctx, connectivityManager, resolver)
 
     return ConnectivityState(
         isAirplaneMode = Settings.Global.getInt(resolver, Settings.Global.AIRPLANE_MODE_ON, 0) == 1,
@@ -112,6 +125,51 @@ private fun readConnectivityState(ctx: Context): ConnectivityState {
 //                    0
 //                ) == 1,
 
-        isBluetoothEnabled = Settings.Global.getInt(resolver, Settings.Global.BLUETOOTH_ON, 0) == 1
+        isBluetoothEnabled = Settings.Global.getInt(resolver, Settings.Global.BLUETOOTH_ON, 0) == 1,
+        mobileDataStatus = mobileDataStatus
     )
+}
+
+private fun getMobileDataStatus(
+    ctx: Context,
+    connectivityManager: ConnectivityManager,
+    resolver: android.content.ContentResolver
+): String {
+    /*  ─────────────  Mobile data status  ─────────────  */
+    // 1. Check if mobile data is enabled (check multiple SIMs)
+    val mobileDataEnabled = try {
+        Settings.Global.getInt(resolver, "mobile_data", 0) == 1 ||
+                Settings.Global.getInt(resolver, "mobile_data1", 0) == 1 ||
+                Settings.Global.getInt(resolver, "mobile_data2", 0) == 1
+    } catch (e: Exception) {
+        true // Default to enabled if unable to access
+    }
+
+    if (!mobileDataEnabled) return "Data OFF"
+
+    // 2. Get active cellular network + signal
+    val activeNetwork = connectivityManager.activeNetwork
+    val capabilities = connectivityManager.getNetworkCapabilities(activeNetwork)
+
+    if (capabilities?.hasTransport(NetworkCapabilities.TRANSPORT_CELLULAR) == true) {
+        // For now, just return network type without signal strength
+        // Signal strength access might require additional permissions
+        val telephonyManager = ctx.getSystemService(Context.TELEPHONY_SERVICE) as android.telephony.TelephonyManager
+        val networkType = try {
+            telephonyManager.dataNetworkType
+        } catch (e: Exception) {
+            android.telephony.TelephonyManager.NETWORK_TYPE_UNKNOWN
+        }
+
+        val typeStr = when (networkType) {
+            android.telephony.TelephonyManager.NETWORK_TYPE_LTE -> "LTE"
+            20 -> "5G" // TelephonyManager.NETWORK_TYPE_NR = 20
+            android.telephony.TelephonyManager.NETWORK_TYPE_HSDPA, android.telephony.TelephonyManager.NETWORK_TYPE_HSUPA -> "3G"
+            else -> "2G"
+        }
+
+        return typeStr
+    }
+
+    return "Data ON"
 }
