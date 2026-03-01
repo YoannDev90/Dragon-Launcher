@@ -1,6 +1,9 @@
 <div align="center">
 
-# [![Keep Android Open](https://keepandroidopen.org)](https://keepandroidopen.org/)
+# [![Keep Android Open](https://external-content.duckduckgo.com/iu/?u=https%3A%2F%2Fmedia.cybernews.com%2Fimages%2Ffeatured-big%2F2025%2F10%2Fkeep-android-open.jpg&f=1&nofb=1&ipt=6735a2941b603358cc56f61e6fc5996b512212d6b43a4b4b3004f95e2a6e7315)](https://keepandroidopen.org/)
+
+# [KEEP ANDROID OPEN](https://keepandroidopen.org/)
+
 ---
 
 <img src="https://github.com/Elnix90/Dragon-Launcher/blob/60e6a8a50312d18eb9342fcd9a1e9fd12eead6a1/core/common/src/main/res/drawable/dragon_launcher_foreground.png" width="22%" alt="App Icon"/>
@@ -34,11 +37,9 @@
 ---
 </div>
 
-## **⚠️⚠️⚠️Due to Android restrictions, you have to disable Android Play protect during installation, to avoid Dragon being
+## ⚠️ Due to Android restrictions, you have to disable Android Play protect during installation, to avoid Dragon being blocked by Google
 
-blocked by google**
-
-The reason is likely that dragon asks for _sensitive permissions_ - normal, that's a launcher
+The reason is likely that Dragon asks for _sensitive permissions_ - normal, that's a launcher
 
 
 ---
@@ -152,18 +153,21 @@ The reason is likely that dragon asks for _sensitive permissions_ - normal, that
     <img src="https://raw.githubusercontent.com/Elnix90/Dragon-Launcher/main/assets/user-screenshots/alyon.jpg" width="22%" alt="alyon Screenshot"/>
     <img src="https://raw.githubusercontent.com/Elnix90/Dragon-Launcher/main/assets/user-screenshots/infamous.webp" width="22%" alt="infamous Screenshot"/>
     <img src="https://raw.githubusercontent.com/Elnix90/Dragon-Launcher/main/assets/user-screenshots/m0n0lith.webp" width="22%" alt="m0n0lith Screenshot"/>
-    <img src="https://raw.githubusercontent.com/Elnix90/Dragon-Launcher/main/assets/user-screenshots/prizewhisper.webp" width="22%" alt="prizewhisper Screenshot"/>
+    <img src="https://raw.githubusercontent.com/Elnix90/Dragon-Launcher/main/assets/user-screenshots/prizewhisper.webp" width="22%" alt="prizewhisper Screenshot"/> 
+</p>
 
-    <details>
-        <summary>More</summary>
+ <details>
+    <summary>More</summary>
+    <p align="center">
         <img src="https://raw.githubusercontent.com/Elnix90/Dragon-Launcher/main/assets/user-screenshots/sandsalamand.webp" width="22%" alt="sandsalamand Screenshot"/>
         <img src="https://raw.githubusercontent.com/Elnix90/Dragon-Launcher/main/assets/user-screenshots/buck_fpv.jpg" width="22%" alt="buck_fpv Screenshot"/>
         <img src="https://raw.githubusercontent.com/Elnix90/Dragon-Launcher/main/assets/user-screenshots/drBrigth.jpg" width="22%" alt="drBrigth Screenshot"/>
         <img src="https://raw.githubusercontent.com/Elnix90/Dragon-Launcher/main/assets/user-screenshots/acress1.webp" width="22%" alt="acress1 Screenshot"/>
         <img src="https://raw.githubusercontent.com/Elnix90/Dragon-Launcher/main/assets/user-screenshots/yerminator.webp" width="22%" alt="yerminator Screenshot"/>
         <img src="https://raw.githubusercontent.com/Elnix90/Dragon-Launcher/main/assets/user-screenshots/yprum.webp" width="22%" alt="yprum Screenshot"/>
-    </details>
-</p>
+    </p>
+</details>
+
 
 
 ## Usage
