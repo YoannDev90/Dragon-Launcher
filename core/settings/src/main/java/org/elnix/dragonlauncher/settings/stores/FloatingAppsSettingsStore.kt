@@ -52,7 +52,7 @@ object FloatingAppsSettingsStore : JsonObjectSettingsStore() {
                         spanY = obj.optDouble("spanY", 1.0).toFloat(),
                         x = obj.optDouble("x", 0.0).toFloat(),
                         y = obj.optDouble("y", 0.0).toFloat(),
-                        angle = obj.optDouble("angle", 0.0),
+                        angle = obj.optDouble("angle", 0.0).toFloat(),
                         ghosted = obj.optBoolean("ghosted", false),
                         foreground = obj.optBoolean("foreground", true)
                     )

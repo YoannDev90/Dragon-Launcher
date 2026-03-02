@@ -11,7 +11,7 @@ data class FloatingAppObject(
     val spanY: Float = 1f,
     val x: Float = 0f,
     val y: Float = 0f,
-    val angle: Double = 0.0,
+    val angle: Float = 0f,
     val ghosted: Boolean? = false,
     val foreground: Boolean? = true
 )
