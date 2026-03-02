@@ -47,15 +47,16 @@ import androidx.compose.ui.unit.dp
 import androidx.core.graphics.toColorInt
 import kotlinx.coroutines.launch
 import org.elnix.dragonlauncher.common.R
+import org.elnix.dragonlauncher.common.utils.UiConstants.DragonShape
 import org.elnix.dragonlauncher.common.utils.colors.blendWith
 import org.elnix.dragonlauncher.common.utils.colors.toHexWithAlpha
 import org.elnix.dragonlauncher.common.utils.copyToClipboard
 import org.elnix.dragonlauncher.common.utils.pasteClipboard
+import org.elnix.dragonlauncher.common.utils.semiTransparentIfDisabled
 import org.elnix.dragonlauncher.common.utils.showToast
 import org.elnix.dragonlauncher.enumsui.ColorPickerMode
 import org.elnix.dragonlauncher.enumsui.colorPickerText
 import org.elnix.dragonlauncher.settings.stores.ColorModesSettingsStore
-import org.elnix.dragonlauncher.common.utils.UiConstants.DragonShape
 import org.elnix.dragonlauncher.ui.components.ValidateCancelButtons
 import org.elnix.dragonlauncher.ui.components.dragon.DragonIconButton
 import org.elnix.dragonlauncher.ui.components.dragon.DragonSurfaceRow
@@ -87,7 +88,7 @@ fun ColorPickerRow(
         if (showLabel) {
             Text(
                 text = label,
-                color = MaterialTheme.colorScheme.onSurface.copy(if (enabled) 1f else 0.5f),
+                color = MaterialTheme.colorScheme.onSurface.semiTransparentIfDisabled(enabled),
                 modifier = Modifier.weight(1f),
                 maxLines = Int.MAX_VALUE,
                 softWrap = true

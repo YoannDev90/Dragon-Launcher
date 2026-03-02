@@ -51,7 +51,7 @@ fun <T> ActionRow(
             val textColor = (
                     if (isSelected) MaterialTheme.colorScheme.onPrimary
                     else MaterialTheme.colorScheme.onSurface
-                    ).copy(if (enabled) 1f else 0.5f)
+                    ).semiTransparentIfDisabled(enabled)
 
             Row(
                 horizontalArrangement = Arrangement.Center,

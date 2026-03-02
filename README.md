@@ -1,6 +1,9 @@
 <div align="center">
 
-# [![Keep Android Open](https://keepandroidopen.org)](https://keepandroidopen.org/)
+# [![Keep Android Open](https://external-content.duckduckgo.com/iu/?u=https%3A%2F%2Fmedia.cybernews.com%2Fimages%2Ffeatured-big%2F2025%2F10%2Fkeep-android-open.jpg&f=1&nofb=1&ipt=6735a2941b603358cc56f61e6fc5996b512212d6b43a4b4b3004f95e2a6e7315)](https://keepandroidopen.org/)
+
+# [KEEP ANDROID OPEN](https://keepandroidopen.org/)
+
 ---
 
 <img src="https://github.com/Elnix90/Dragon-Launcher/blob/60e6a8a50312d18eb9342fcd9a1e9fd12eead6a1/core/common/src/main/res/drawable/dragon_launcher_foreground.png" width="22%" alt="App Icon"/>
@@ -34,8 +37,9 @@
 ---
 </div>
 
-## **⚠️⚠️⚠️Due to Android restrictions, you have disable Android Play protect during installation, to avoid Dragon being blocked by google**
-The reason is likely that dragon asks for _sensitive permissions_ - normal, that's a launcher
+## ⚠️ Due to Android restrictions, you have to disable Android Play protect during installation, to avoid Dragon being blocked by Google
+
+The reason is likely that Dragon asks for _sensitive permissions_ - normal, that's a launcher
 
 
 ---
@@ -80,9 +84,9 @@ The reason is likely that dragon asks for _sensitive permissions_ - normal, that
 * Widgets support, arrange freely your widgets as well as floating apps / actions from Dragon
 
 ### Backup
+
 * Manual backups to phone's storage
 * Auto backup feature : auto backups on every app focus change
-
 
 ## Privacy & security
 
@@ -90,60 +94,76 @@ The reason is likely that dragon asks for _sensitive permissions_ - normal, that
 * Dragon Launcher has not even access to internet -> it cannot steal your data
 * No intrusive permissions requested for the app to work
 * Uses Accessibility permissions (optionally) to:
-  1. Expand notifications panel (needed by android)
-     - Uses accessibility to expand the notifications panel
-     - Expanding the quick actions / notifications isn't required on some Android version, there is a hidden settings in the debug tab, to change the way it opens the quick actions, cause on my phone, the notifications action opens the quick actions
-  2. Lock screen (needed by android)
-     - It uses accessibility to lock the screen, as you pressed the lock button
-  3. Open recent apps (needed by Android)
-     - You can choose to open the recent apps, just like when you click on the Square button, or do the recent apps gesture
-  4. Auto launch Dragon on system launcher detected (used by some Xiaomi users that cannot set another default launcher without loosing the gesture navigation)
-     - It will launch Dragon Launcher when the accessibility detects that you entered your system launcher, for a default launcher-like experience when it cannot be set as android default (configurable in debug settings)
+    1. Expand notifications panel (needed by android)
+        - Uses accessibility to expand the notifications panel
+        - Expanding the quick actions / notifications isn't required on some Android version, there is a hidden settings
+          in the debug tab, to change the way it opens the quick actions, cause on my phone, the notifications action
+          opens the quick actions
+    2. Lock screen (needed by android)
+        - It uses accessibility to lock the screen, as you pressed the lock button
+    3. Open recent apps (needed by Android)
+        - You can choose to open the recent apps, just like when you click on the Square button, or do the recent apps
+          gesture
+    4. Auto launch Dragon on system launcher detected (used by some Xiaomi users that cannot set another default
+       launcher without loosing the gesture navigation)
+        - It will launch Dragon Launcher when the accessibility detects that you entered your system launcher, for a
+          default launcher-like experience when it cannot be set as android default (configurable in debug settings)
 * Can set the Launcher as device admin
-  * used for some OEMs to prevent it from killing the app, especially on Xiaomi/HyperOS devices that have really strong battery optimization features
-  * used also for users that need the previous auto launch on system launcher, to prevent the accessibility services to be killed
+    * used for some OEMs to prevent it from killing the app, especially on Xiaomi/HyperOS devices that have really
+      strong battery optimization features
+    * used also for users that need the previous auto launch on system launcher, to prevent the accessibility services
+      to be killed
 * All data stored locally (you can backup manually or use the auto backup feature)
 
 ---
+
 ## Screenshots
+
 <p align="center">
-    <img src="assets/images/demo.gif" alt="App demo animation" width="40%">
-    <img src="assets/images/demo2.gif" alt="App demo animation" width="40%">
+    <img src="assets/images/demo1.gif" alt="App demo animation 1" width="40%">
+    <img src="assets/images/demo2.gif" alt="App demo animation 2" width="40%">
 </p>
 
 <p align="center">
-  <img src="https://github.com/Elnix90/Dragon-Launcher/blob/main/fastlane/metadata/android/en-US/images/phoneScreenshots/1.jpg" width="22%" alt="App ScreenShot 1"/>
-  <img src="https://github.com/Elnix90/Dragon-Launcher/blob/main/fastlane/metadata/android/en-US/images/phoneScreenshots/16.jpg" width="22%" alt="App ScreenShot 16"/>
-  <img src="https://github.com/Elnix90/Dragon-Launcher/blob/main/fastlane/metadata/android/en-US/images/phoneScreenshots/2.jpg" width="22%" alt="App ScreenShot 2"/>
-  <img src="https://github.com/Elnix90/Dragon-Launcher/blob/main/fastlane/metadata/android/en-US/images/phoneScreenshots/3.jpg" width="22%" alt="App ScreenShot 3"/>
-  <img src="https://github.com/Elnix90/Dragon-Launcher/blob/main/fastlane/metadata/android/en-US/images/phoneScreenshots/16.jpg" width="22%" alt="App ScreenShot 16"/>
-  <img src="https://github.com/Elnix90/Dragon-Launcher/blob/main/fastlane/metadata/android/en-US/images/phoneScreenshots/4.jpg" width="22%" alt="App ScreenShot 4"/>
-  <img src="https://github.com/Elnix90/Dragon-Launcher/blob/main/fastlane/metadata/android/en-US/images/phoneScreenshots/5.jpg" width="22%" alt="App ScreenShot 5"/>
-  <img src="https://github.com/Elnix90/Dragon-Launcher/blob/main/fastlane/metadata/android/en-US/images/phoneScreenshots/6.jpg" width="22%" alt="App ScreenShot 6"/>
-  <img src="https://github.com/Elnix90/Dragon-Launcher/blob/main/fastlane/metadata/android/en-US/images/phoneScreenshots/7.jpg" width="22%" alt="App ScreenShot 7"/>
-  <img src="https://github.com/Elnix90/Dragon-Launcher/blob/main/fastlane/metadata/android/en-US/images/phoneScreenshots/8.jpg" width="22%" alt="App ScreenShot 8"/>
-  <img src="https://github.com/Elnix90/Dragon-Launcher/blob/main/fastlane/metadata/android/en-US/images/phoneScreenshots/9.jpg" width="22%" alt="App ScreenShot 9"/>
-  <img src="https://github.com/Elnix90/Dragon-Launcher/blob/main/fastlane/metadata/android/en-US/images/phoneScreenshots/10.jpg" width="22%" alt="App ScreenShot 10"/>
-  <img src="https://github.com/Elnix90/Dragon-Launcher/blob/main/fastlane/metadata/android/en-US/images/phoneScreenshots/11.jpg" width="22%" alt="App ScreenShot 11"/>
-  <img src="https://github.com/Elnix90/Dragon-Launcher/blob/main/fastlane/metadata/android/en-US/images/phoneScreenshots/13.jpg" width="22%" alt="App ScreenShot 13"/>
-  <img src="https://github.com/Elnix90/Dragon-Launcher/blob/main/fastlane/metadata/android/en-US/images/phoneScreenshots/14.jpg" width="22%" alt="App ScreenShot 14"/>
-  <img src="https://github.com/Elnix90/Dragon-Launcher/blob/main/fastlane/metadata/android/en-US/images/phoneScreenshots/15.jpg" width="22%" alt="App ScreenShot 15"/>
+  <img src="https://raw.githubusercontent.com/Elnix90/Dragon-Launcher/main/fastlane/metadata/android/en-US/images/phoneScreenshots/1.jpg" width="22%" alt="App Screenshot 1"/>
+  <img src="https://raw.githubusercontent.com/Elnix90/Dragon-Launcher/main/fastlane/metadata/android/en-US/images/phoneScreenshots/2.jpg" width="22%" alt="App Screenshot 2"/>
+  <img src="https://raw.githubusercontent.com/Elnix90/Dragon-Launcher/main/fastlane/metadata/android/en-US/images/phoneScreenshots/3.jpg" width="22%" alt="App Screenshot 3"/>
+  <img src="https://raw.githubusercontent.com/Elnix90/Dragon-Launcher/main/fastlane/metadata/android/en-US/images/phoneScreenshots/4.jpg" width="22%" alt="App Screenshot 4"/>
+  <img src="https://raw.githubusercontent.com/Elnix90/Dragon-Launcher/main/fastlane/metadata/android/en-US/images/phoneScreenshots/5.jpg" width="22%" alt="App Screenshot 5"/>
+  <img src="https://raw.githubusercontent.com/Elnix90/Dragon-Launcher/main/fastlane/metadata/android/en-US/images/phoneScreenshots/6.jpg" width="22%" alt="App Screenshot 6"/>
+  <img src="https://raw.githubusercontent.com/Elnix90/Dragon-Launcher/main/fastlane/metadata/android/en-US/images/phoneScreenshots/7.jpg" width="22%" alt="App Screenshot 7"/>
+  <img src="https://raw.githubusercontent.com/Elnix90/Dragon-Launcher/main/fastlane/metadata/android/en-US/images/phoneScreenshots/8.jpg" width="22%" alt="App Screenshot 8"/>
+  <img src="https://raw.githubusercontent.com/Elnix90/Dragon-Launcher/main/fastlane/metadata/android/en-US/images/phoneScreenshots/9.jpg" width="22%" alt="App Screenshot 9"/>
+  <img src="https://raw.githubusercontent.com/Elnix90/Dragon-Launcher/main/fastlane/metadata/android/en-US/images/phoneScreenshots/10.jpg" width="22%" alt="App Screenshot 10"/>
 </p>
+
 
 ## User Screenshots
 
 <p align="center">
-  <img src="https://github.com/Elnix90/Dragon-Launcher/blob/main/assets/user-screenshots/elnix.webp" width="22%" alt="Elnix ScreenShot"/>
-  <img src="https://github.com/Elnix90/Dragon-Launcher/blob/main/assets/user-screenshots/acress1.webp" width="22%" alt="acress1 ScreenShot"/>
-  <img src="https://github.com/Elnix90/Dragon-Launcher/blob/main/assets/user-screenshots/infamous.webp" width="22%" alt="infamous ScreenShot"/>
-  <img src="https://github.com/Elnix90/Dragon-Launcher/blob/main/assets/user-screenshots/m0n0lith.webp" width="22%" alt="m0n0lith ScreenShot"/>
-  <img src="https://github.com/Elnix90/Dragon-Launcher/blob/main/assets/user-screenshots/prizewhisper.webp" width="22%" alt="prizewhisper ScreenShot"/>
-  <img src="https://github.com/Elnix90/Dragon-Launcher/blob/main/assets/user-screenshots/sandsalamand.webp" width="22%" alt="sandsalamand ScreenShot"/>
-  <img src="https://github.com/Elnix90/Dragon-Launcher/blob/main/assets/user-screenshots/drBrigth.jpg" width="22%" alt="drBrigth ScreenShot"/>
-  <img src="https://github.com/Elnix90/Dragon-Launcher/blob/main/assets/user-screenshots/speedhog.jpg" width="22%" alt="speedhog ScreenShot"/>
-  <img src="https://github.com/Elnix90/Dragon-Launcher/blob/main/assets/user-screenshots/oniyon.jpg" width="22%" alt="oniyon ScreenShot"/>
-  <img src="https://github.com/Elnix90/Dragon-Launcher/blob/main/assets/user-screenshots/yerminator.webp" width="22%" alt="yerminator ScreenShot"/>
+    <img src="https://raw.githubusercontent.com/Elnix90/Dragon-Launcher/main/assets/user-screenshots/elnix.webp" width="22%" alt="Elnix Screenshot"/>
+    <img src="https://raw.githubusercontent.com/Elnix90/Dragon-Launcher/main/assets/user-screenshots/elnix2.jpg" width="22%" alt="Elnix Screenshot 2"/>
+    <img src="https://raw.githubusercontent.com/Elnix90/Dragon-Launcher/main/assets/user-screenshots/speedhog.jpg" width="22%" alt="speedhog Screenshot"/>
+    <img src="https://raw.githubusercontent.com/Elnix90/Dragon-Launcher/main/assets/user-screenshots/oniyon.jpg" width="22%" alt="oniyon Screenshot"/>
+    <img src="https://raw.githubusercontent.com/Elnix90/Dragon-Launcher/main/assets/user-screenshots/alyon.jpg" width="22%" alt="alyon Screenshot"/>
+    <img src="https://raw.githubusercontent.com/Elnix90/Dragon-Launcher/main/assets/user-screenshots/infamous.webp" width="22%" alt="infamous Screenshot"/>
+    <img src="https://raw.githubusercontent.com/Elnix90/Dragon-Launcher/main/assets/user-screenshots/m0n0lith.webp" width="22%" alt="m0n0lith Screenshot"/>
+    <img src="https://raw.githubusercontent.com/Elnix90/Dragon-Launcher/main/assets/user-screenshots/prizewhisper.webp" width="22%" alt="prizewhisper Screenshot"/> 
 </p>
+
+ <details>
+    <summary>More</summary>
+    <p align="center">
+        <img src="https://raw.githubusercontent.com/Elnix90/Dragon-Launcher/main/assets/user-screenshots/sandsalamand.webp" width="22%" alt="sandsalamand Screenshot"/>
+        <img src="https://raw.githubusercontent.com/Elnix90/Dragon-Launcher/main/assets/user-screenshots/buck_fpv.jpg" width="22%" alt="buck_fpv Screenshot"/>
+        <img src="https://raw.githubusercontent.com/Elnix90/Dragon-Launcher/main/assets/user-screenshots/drBrigth.jpg" width="22%" alt="drBrigth Screenshot"/>
+        <img src="https://raw.githubusercontent.com/Elnix90/Dragon-Launcher/main/assets/user-screenshots/acress1.webp" width="22%" alt="acress1 Screenshot"/>
+        <img src="https://raw.githubusercontent.com/Elnix90/Dragon-Launcher/main/assets/user-screenshots/yerminator.webp" width="22%" alt="yerminator Screenshot"/>
+        <img src="https://raw.githubusercontent.com/Elnix90/Dragon-Launcher/main/assets/user-screenshots/yprum.png" width="22%" alt="yprum Screenshot"/>
+    </p>
+</details>
+
+
 
 ## Usage
 
@@ -163,7 +183,6 @@ The reason is likely that dragon asks for _sensitive permissions_ - normal, that
 | <img src="/assets/2.png" height="60"/> | Toggle auto-separate points when you drag them                                                                    |
 | <img src="/assets/4.png" height="60"/> | Enter the nest management dialog, where you can view, add and remove the nests                                    |
 
-
 ## Signing
 
 Releases / F-Droid signing key (SHA-256):
@@ -172,7 +191,8 @@ Releases / F-Droid signing key (SHA-256):
 63068d94e01eeae50efcb2a0c43dfa8ac503a421cdeaf353d45b69ab933c0a06
 ```
 
-Verify: 
+Verify:
+
 ```bash 
 apksigner verify --print-certs DragonLauncher-*.apk
 ```
@@ -180,11 +200,13 @@ apksigner verify --print-certs DragonLauncher-*.apk
 ## Contributing
 
 * Contributions are welcome! Feel free to submit pull requests or open issues.
-* Check [CONTRIBUTING.md](https://github.com/Elnix90/Dragon-Launcher/blob/main/CONTRIBUTING.MD) for contributions guidelines
+* Check [CONTRIBUTING.md](https://github.com/Elnix90/Dragon-Launcher/blob/main/CONTRIBUTING.MD) for contributions
+  guidelines
 
 * You may join the [Discord server](https://discord.gg/6UyuP8EBWS) to discuss more easily about changes in the project.
 
 ---
+
 ## License
 
 * This project is open-source under the **GPL 3 Licence**.

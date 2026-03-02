@@ -53,7 +53,7 @@ fun CustomActionSelector(
     var showDialog by remember { mutableStateOf(false) }
 
     val toggled = currentAction != null && currentAction != SwipeActionSerializable.None
-    val actionColor = actionColor(currentAction, extraColors).copy(if (enabled) 1f else 0.5f)
+    val actionColor = actionColor(currentAction, extraColors).semiTransparentIfDisabled(enabled)
 
     DragonSurfaceRow(
         onClick = { showDialog = true },

@@ -16,6 +16,7 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
+import org.elnix.dragonlauncher.common.utils.semiTransparentIfDisabled
 
 @Composable
 fun TextDivider(
@@ -36,18 +37,18 @@ fun TextDivider(
     ) {
         HorizontalDivider(
             modifier = Modifier.weight(1f).clip(CircleShape),
-            color = lineColor.copy(if (enabled) 1f else 0.5f),
+            color = lineColor.semiTransparentIfDisabled(enabled),
             thickness = thickness
         )
         Text(
             text = text,
-            color = textColor.copy(if (enabled) 1f else 0.5f),
+            color = textColor.semiTransparentIfDisabled(enabled),
             style = MaterialTheme.typography.labelMedium,
             modifier = Modifier.padding(horizontal = padding)
         )
         HorizontalDivider(
             modifier = Modifier.weight(1f).clip(CircleShape),
-            color = lineColor.copy(if (enabled) 1f else 0.5f),
+            color = lineColor.semiTransparentIfDisabled(enabled),
             thickness = thickness
         )
     }

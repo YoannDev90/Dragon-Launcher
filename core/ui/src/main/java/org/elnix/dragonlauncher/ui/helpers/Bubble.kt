@@ -8,7 +8,6 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
-import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
@@ -17,6 +16,7 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 import org.elnix.dragonlauncher.common.utils.UiConstants.DragonShape
+import org.elnix.dragonlauncher.common.utils.semiTransparentIfDisabled
 
 @Composable
 fun Bubble(
@@ -30,8 +30,6 @@ fun Bubble(
     trailingIcon: (@Composable () -> Unit)? = null,
     content: @Composable () -> Unit
 ) {
-    val alpha = if (enabled) 1f else 0.5f
-
     val clickableModifier =
         if (onClick != null || onLongClick != null) {
             Modifier.combinedClickable(
@@ -48,10 +46,10 @@ fun Bubble(
             .then(clickableModifier)
             .border(
                 width = 1.dp,
-                color = borderColor.copy(alpha),
+                color = borderColor.semiTransparentIfDisabled(enabled),
                 shape = DragonShape
             )
-            .background(backgroundColor.copy(alpha))
+            .background(backgroundColor.semiTransparentIfDisabled(enabled))
             .padding(horizontal = 12.dp, vertical = 6.dp),
         verticalAlignment = Alignment.CenterVertically,
         horizontalArrangement = Arrangement.Center

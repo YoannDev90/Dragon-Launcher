@@ -42,6 +42,7 @@ fun DrawScope.actionsInCircle(
     val surfaceColorDraw = drawParams.surfaceColorDraw
     val extraColors = drawParams.extraColors
     val maxDepth = drawParams.maxDepth
+    val subNestDefaultRadius = drawParams.subNestDefaultRadius
 
     val action = point.action
 
@@ -108,14 +109,14 @@ fun DrawScope.actionsInCircle(
     // Prevent overloading since the drawing is recursive
     if (depth <= maxDepth) {
 
-        if (action !is SwipeActionSerializable.OpenCircleNest) {
+        if (action !is SwipeActionSerializable.OpenCircleNest || point.customIcon != null) {
 
             /* ───────────── Erases the circle in the point ───────────── */
 
             // if no background color provided, erases the background
             val eraseBg = backgroundColor == Color.Transparent && !preventBgErasing
 
-            // Erases the color, instead of putting it, that lets the wallpaper pass trough
+            // Erases the color, instead of putting it, that lets the wallpaper pass through
             drawCircle(
                 color = Color.Transparent,
                 radius = borderRadii,
@@ -192,7 +193,7 @@ fun DrawScope.actionsInCircle(
                 val newCircles = mutableListOf<UiCircle>()
 
                 nest.dragDistances.filter { it.key != -1 }.forEach { (index, _) ->
-                    val radius = (100f / depth) * circlesWidthIncrement * (index + 1)
+                    val radius = (subNestDefaultRadius / depth) * circlesWidthIncrement * (index + 1)
                     newCircles.add(
                         UiCircle(index, radius)
                     )

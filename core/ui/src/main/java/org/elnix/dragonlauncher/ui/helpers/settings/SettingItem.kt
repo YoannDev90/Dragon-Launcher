@@ -17,6 +17,7 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import org.elnix.dragonlauncher.common.R
 import org.elnix.dragonlauncher.common.utils.colors.adjustBrightness
+import org.elnix.dragonlauncher.common.utils.semiTransparentIfDisabled
 import org.elnix.dragonlauncher.ui.colors.AppObjectsColors
 import org.elnix.dragonlauncher.ui.components.dragon.DragonIconButton
 import org.elnix.dragonlauncher.ui.components.dragon.DragonSurfaceRow
@@ -54,7 +55,7 @@ fun SettingsItem(
                 IconC(
                     icon = icon,
                     contentDescription = null,
-                    tint = MaterialTheme.colorScheme.primary.adjustBrightness(if (enabled) 1f else 0.5f)
+                    tint = MaterialTheme.colorScheme.primary.semiTransparentIfDisabled(enabled)
                 )
             }
 
@@ -65,7 +66,7 @@ fun SettingsItem(
                 Text(
                     text = title,
                     style = MaterialTheme.typography.bodyLarge,
-                    color = MaterialTheme.colorScheme.onSurface.adjustBrightness(if (enabled) 1f else 0.5f)
+                    color = MaterialTheme.colorScheme.onSurface.semiTransparentIfDisabled(enabled)
                 )
 
                 if (description != null) {
@@ -81,7 +82,7 @@ fun SettingsItem(
                 IconC(
                     icon = leadIcon,
                     contentDescription = null,
-                    tint = MaterialTheme.colorScheme.primary.adjustBrightness(if (enabled) 1f else 0.5f),
+                    tint = MaterialTheme.colorScheme.primary.semiTransparentIfDisabled(enabled),
                     modifier = Modifier.sizeIn(maxHeight = 25.dp)
                 )
             }

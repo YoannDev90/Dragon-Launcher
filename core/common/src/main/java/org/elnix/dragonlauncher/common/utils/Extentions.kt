@@ -380,19 +380,6 @@ fun Color?.orDefault(default: Color = Color.Unspecified): Color =
     this ?: default
 
 /**
- * Returns this [Color], reducing its alpha by half when [enabled] is false.
- *
- * If [enabled] is true, the color is returned unchanged.
- * If false, the resulting color keeps the same RGB components and
- * multiplies the current alpha by `0.5f`.
- *
- * @param enabled whether the color should remain fully effective
- * @return this color, or a version with its alpha halved when disabled
- */
-fun Color.semiTransparentIfDisabled(enabled: Boolean): Color =
-    if (enabled) this else copy(alpha = alpha * 0.5f)
-
-/**
  * Returns a copy of this [Color] with its alpha multiplied by [multiplier].
  *
  * The RGB components remain unchanged. The resulting alpha is computed as:
@@ -406,6 +393,21 @@ fun Color.semiTransparentIfDisabled(enabled: Boolean): Color =
  */
 fun Color.alphaMultiplier(multiplier: Float): Color =
     copy(alpha = alpha * multiplier)
+
+/**
+ * Returns this [Color], reducing its alpha by half when [enabled] is false.
+ *
+ * If [enabled] is true, the color is returned unchanged.
+ * If false, the resulting color keeps the same RGB components and
+ * multiplies the current alpha by `0.5f`.
+ *
+ * @param enabled whether the color should remain fully effective
+ * @return this color, or a version with its alpha halved when disabled
+ */
+fun Color.semiTransparentIfDisabled(enabled: Boolean): Color =
+    alphaMultiplier(if (enabled) 1f else 0.5f)
+
+
 
 /**
  * Binds a value to a nullable single-argument lambda, returning a parameterless lambda.

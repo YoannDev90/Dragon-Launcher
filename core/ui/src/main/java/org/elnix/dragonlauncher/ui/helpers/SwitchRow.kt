@@ -12,6 +12,8 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
+import org.elnix.dragonlauncher.common.utils.alphaMultiplier
+import org.elnix.dragonlauncher.common.utils.semiTransparentIfDisabled
 import org.elnix.dragonlauncher.ui.colors.AppObjectsColors
 import org.elnix.dragonlauncher.ui.components.dragon.DragonSurfaceRow
 
@@ -36,13 +38,13 @@ fun SwitchRow(
         ){
             Text(
                 text = text,
-                color = MaterialTheme.colorScheme.onSurface.copy(alpha = if (enabled) 1f else 0.5f)
+                color = MaterialTheme.colorScheme.onSurface.semiTransparentIfDisabled(enabled)
             )
 
             if (subText != null) {
                 Text(
                     text = subText,
-                    color = MaterialTheme.colorScheme.onSurface.copy(alpha = if (enabled) 0.7f else 0.3f),
+                    color = MaterialTheme.colorScheme.onSurface.alphaMultiplier(if (enabled) 0.7f else 0.3f),
                     style = MaterialTheme.typography.labelSmall
                 )
             }

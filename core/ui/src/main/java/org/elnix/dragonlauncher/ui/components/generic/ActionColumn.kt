@@ -22,6 +22,7 @@ import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import org.elnix.dragonlauncher.common.utils.UiConstants.DragonShape
+import org.elnix.dragonlauncher.common.utils.semiTransparentIfDisabled
 
 @Composable
 fun <T> ActionColumn(
@@ -54,7 +55,7 @@ fun <T> ActionColumn(
                         (
                                 if (isSelected) selectedBackgroundColor
                                 else backgroundColor
-                                ).copy(if (enabled) 1f else 0.5f)
+                                ).semiTransparentIfDisabled(enabled)
                     )
             ) {
                 actionIcon?.let {
@@ -70,7 +71,7 @@ fun <T> ActionColumn(
                     text = actionName(mode),
                     modifier = Modifier
                         .padding(12.dp),
-                    color = if (isSelected) MaterialTheme.colorScheme.onSecondary.copy(if (enabled) 1f else 0.5f)
+                    color = if (isSelected) MaterialTheme.colorScheme.onSecondary.semiTransparentIfDisabled(enabled)
                     else MaterialTheme.colorScheme.onSurface,
                     style = MaterialTheme.typography.bodyMedium,
                     textAlign = TextAlign.Center

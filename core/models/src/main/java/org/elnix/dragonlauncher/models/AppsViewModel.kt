@@ -706,18 +706,45 @@ class AppsViewModel(
     /*  ────── THE MOST IMPORTANT FUNCTIONS BELOW, LOAD ALL ICONS ──────  */
 
     /**
-     * Load point icon
+     * Loads and renders the visual icon for a given swipe point.
      *
-     * @param point a [SwipePointSerializable] Object, that can contain a custom icon to render
-     * @return [ImageBitmap]
+     * The final icon is computed in three steps:
+     *
+     * 1. Resolve the effective size in pixels, based on:
+     *    - The global default point size
+     *    - The point-specific size override (if any)
+     *    - The current screen density
+     *
+     * 2. Create the base (untinted) bitmap for the point's action.
+     *    If the action represents an app, the corresponding app icon is used.
+     *
+     * 3. Apply custom icon styling (shape, tint, etc.) and render
+     *    the final [ImageBitmap].
+     *
+     * If the point does not define a custom shape, the current global
+     * icon shape setting is applied.
+     *
+     * @param point The [SwipePointSerializable] containing action and optional
+     *              custom icon configuration.
+     *
+     * @return The fully rendered [ImageBitmap] ready for drawing.
      */
-    fun loadPointIcon(point: SwipePointSerializable, ): ImageBitmap {
+    fun loadPointIcon(point: SwipePointSerializable): ImageBitmap {
 
-        val sizePx = max(_defaultPoint.value.size ?: defaultSwipePointsValues.size!!, point.size ?: 0)
-            .times(_density.value!!.density).toInt().coerceAtLeast(48)
+        // Resolve the effective size in dp:
+        // - Use the larger between default size and point override.
+        val resolvedSizeDp = max(
+            _defaultPoint.value.size ?: defaultSwipePointsValues.size!!,
+            point.size ?: 0
+        )
 
-        // Create the default bitmap, uses the app icons for default value if action is an app
-        val orig = createUntintedBitmap(
+        // Convert dp to pixels and enforce a minimum touch-safe size.
+        val sizePx = (resolvedSizeDp * _density.value!!.density)
+            .toInt()
+            .coerceAtLeast(48)
+
+        // Create the base untinted bitmap from the action.
+        val baseBitmap = createUntintedBitmap(
             action = point.action,
             ctx = ctx,
             icons = _icons.value,
@@ -725,19 +752,24 @@ class AppsViewModel(
             height = sizePx
         )
 
-        // Returns either the icon rendered using the custom icon renderer, or the base icon if no render provided
-        val rendered = point.customIcon?.let { customIcon ->
+        // Resolve custom icon configuration:
+        // - If the point defines a shape, use it as-is.
+        // - Otherwise apply the current global icon shape.
+        val effectiveCustomIcon =
+            if (point.customIcon?.shape != null) {
+                point.customIcon!!
+            } else {
+                (point.customIcon ?: CustomIconSerializable()).copy(
+                    shape = _iconShape.value
+                )
+            }
 
-            logD(ICONS_TAG, point.toString())
-            renderCustomIcon(
-                orig = orig,
-                customIcon = customIcon,
-                sizePx = sizePx
-            )
-        } ?: orig
-
-
-        return rendered
+        // Render and return the final styled bitmap.
+        return renderCustomIcon(
+            orig = baseBitmap,
+            customIcon = effectiveCustomIcon,
+            sizePx = sizePx
+        )
     }
 
 
@@ -860,7 +892,6 @@ class AppsViewModel(
      * Preload a given list of point icons asynchronously and per icon updates the icons list
      *
      * @param points which points to load
-     * @param sizePx size of the [ImageBitmap]  loaded
      * @param override whether to override the existing already loaded or skip them
      */
     fun preloadPointIcons(
@@ -1407,7 +1438,7 @@ class AppsViewModel(
     }
 
     /**
-     * Mainly debug funny thing, its like customizing all app icons at once
+     * Mainly debug funny thing, it's like customizing all app icons at once
      * for each app installed, it applies to it the custom icon
      *
      * @param icon

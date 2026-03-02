@@ -32,7 +32,6 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import org.elnix.dragonlauncher.common.utils.UiConstants.DragonShape
-import org.elnix.dragonlauncher.common.utils.colors.adjustBrightness
 import org.elnix.dragonlauncher.common.utils.semiTransparentIfDisabled
 import org.elnix.dragonlauncher.ui.colors.AppObjectsColors
 import org.elnix.dragonlauncher.ui.dialogs.CustomAlertDialog
@@ -87,13 +86,13 @@ fun <T> ActionSelectorRow(
         ) {
             Text(
                 text = label,
-                color = textColor.copy(if (enabled) 1f else 0.5f),
+                color = textColor.semiTransparentIfDisabled(enabled),
                 style = MaterialTheme.typography.bodyLarge
             )
 
             Text(
                 text = optionLabel(selected),
-                color = textColor.adjustBrightness(if (enabled) 1f else 0.5f),
+                color = textColor.semiTransparentIfDisabled(enabled),
                 style = MaterialTheme.typography.labelLarge
             )
         }

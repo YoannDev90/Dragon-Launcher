@@ -25,6 +25,8 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
+import org.elnix.dragonlauncher.common.utils.alphaMultiplier
+import org.elnix.dragonlauncher.common.utils.semiTransparentIfDisabled
 import org.elnix.dragonlauncher.ui.components.dragon.DragonDropDownMenu
 
 @Composable
@@ -40,11 +42,11 @@ fun UpDownButton(
     onClickUp: (() -> Unit)?,
     onClickDown: (() -> Unit)?
 ) {
-    val upTint = color.copy(alpha = if (upEnabled) 1f else 0.5f)
-    val downTint = color.copy(alpha = if (downEnabled) 1f else 0.5f)
+    val upTint = color.semiTransparentIfDisabled(upEnabled)
+    val downTint = color.semiTransparentIfDisabled(downEnabled)
 
-    val upBackground = color.copy(alpha = if (upEnabled) 0.2f else 0f)
-    val downBackground = color.copy(alpha = if (downEnabled) 0.2f else 0f)
+    val upBackground = color.alphaMultiplier(if (upEnabled) 0.2f else 0f)
+    val downBackground = color.alphaMultiplier(if (downEnabled) 0.2f else 0f)
 
     var showHelpUp by remember { mutableStateOf(false) }
     var showHelpDown by remember { mutableStateOf(false) }

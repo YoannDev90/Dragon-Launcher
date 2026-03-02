@@ -41,6 +41,7 @@ import kotlinx.coroutines.launch
 import org.elnix.dragonlauncher.common.R
 import org.elnix.dragonlauncher.common.logging.logD
 import org.elnix.dragonlauncher.common.utils.Constants.Logging.SHAPES_TAG
+import org.elnix.dragonlauncher.common.utils.semiTransparentIfDisabled
 import org.elnix.dragonlauncher.enumsui.DrawerActions
 import org.elnix.dragonlauncher.enumsui.drawerActionIcon
 import org.elnix.dragonlauncher.models.AppsViewModel
@@ -329,7 +330,7 @@ fun DrawerTab(
                         modifier = Modifier
                             .fillMaxHeight()
                             .weight(leftWeight.coerceIn(0.001f, 1f))
-                            .background(MaterialTheme.colorScheme.primary.copy(if (leftActionNotNone) 1f else 0.5f)),
+                            .background(MaterialTheme.colorScheme.primary.semiTransparentIfDisabled(leftActionNotNone)),
                         contentAlignment = Alignment.Center
                     ) {
                         if (leftActionNotNone) {
@@ -378,7 +379,7 @@ fun DrawerTab(
                         modifier = Modifier
                             .fillMaxHeight()
                             .weight(rightWeight.coerceIn(0.001f, 1f))
-                            .background(MaterialTheme.colorScheme.primary.copy(if (rightActionNotNone) 1f else 0.5f)),
+                            .background(MaterialTheme.colorScheme.primary.semiTransparentIfDisabled(rightActionNotNone)),
                         contentAlignment = Alignment.Center
                     ) {
                         if (rightActionNotNone) {

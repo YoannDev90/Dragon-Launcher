@@ -449,49 +449,7 @@ object ImageUtils {
             translate(-half, -half)
 
 
-            // Step 8: CLip to shape
-            val shape = (icon.shape ?: iconShape).resolveShape()
-
-            val outline = shape.createOutline(
-                size = Size(sizePx.toFloat(), sizePx.toFloat()),
-                layoutDirection = LayoutDirection.Ltr,
-                density = density
-            )
-
-            when (outline) {
-
-                is Outline.Rectangle -> {
-                    clipRect(
-                        0f,
-                        0f,
-                        sizePx.toFloat(),
-                        sizePx.toFloat()
-                    )
-                }
-
-                is Outline.Rounded -> {
-                    val rr = outline.roundRect
-
-                    val path = Path().apply {
-                        addRoundRect(
-                            rr.left,
-                            rr.top,
-                            rr.right,
-                            rr.bottom,
-                            rr.topLeftCornerRadius.x,
-                            rr.topLeftCornerRadius.y,
-                            Path.Direction.CW
-                        )
-                    }
-
-                    clipPath(path)
-                }
-
-                is Outline.Generic -> {
-                    val path = outline.path.asAndroidPath()
-                    clipPath(path)
-                }
-            }
+            clipToShape(icon, iconShape, sizePx, density)
 
             // Step 9: Save
             drawBitmap(
@@ -503,5 +461,56 @@ object ImageUtils {
         }
 
         return outBitmap.asImageBitmap()
+    }
+
+    private fun Canvas.clipToShape(
+        icon: CustomIconSerializable,
+        iconShape: IconShape,
+        sizePx: Int,
+        density: Density
+    ) {
+        // Step 8: CLip to shape
+        val shape = (icon.shape ?: iconShape).resolveShape()
+
+        val outline = shape.createOutline(
+            size = Size(sizePx.toFloat(), sizePx.toFloat()),
+            layoutDirection = LayoutDirection.Ltr,
+            density = density
+        )
+
+        when (outline) {
+
+            is Outline.Rectangle -> {
+                clipRect(
+                    0f,
+                    0f,
+                    sizePx.toFloat(),
+                    sizePx.toFloat()
+                )
+            }
+
+            is Outline.Rounded -> {
+                val rr = outline.roundRect
+
+                val path = Path().apply {
+                    addRoundRect(
+                        rr.left,
+                        rr.top,
+                        rr.right,
+                        rr.bottom,
+                        rr.topLeftCornerRadius.x,
+                        rr.topLeftCornerRadius.y,
+                        Path.Direction.CW
+                    )
+                }
+
+                clipPath(path)
+            }
+
+            is Outline.Generic -> {
+                val path = outline.path.asAndroidPath()
+                clipPath(path)
+            }
+        }
     }
 }

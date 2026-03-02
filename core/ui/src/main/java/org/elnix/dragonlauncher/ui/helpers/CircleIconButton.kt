@@ -27,6 +27,8 @@ import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import org.elnix.dragonlauncher.common.utils.UiConstants
+import org.elnix.dragonlauncher.common.utils.alphaMultiplier
+import org.elnix.dragonlauncher.common.utils.semiTransparentIfDisabled
 
 @Composable
 fun CircleIconButton(
@@ -39,9 +41,9 @@ fun CircleIconButton(
     padding: Dp = 20.dp,
     onClick: (() -> Unit)?
 ) {
-    val displayColor = tint.copy(if (enabled) 1f else 0.5f)
-    val backgroundColor = tint.copy(if (enabled) 0.2f else 0f)
-    val borderColor = tint.copy(if (enabled) 1f else 0.5f)
+    val displayColor = tint.semiTransparentIfDisabled(enabled)
+    val backgroundColor = tint.alphaMultiplier(if (enabled) 0.2f else 0f)
+    val borderColor = tint.semiTransparentIfDisabled(enabled)
 
     var showHelp by remember { mutableStateOf(false) }
 
@@ -93,9 +95,9 @@ fun CircleIconButton(
     padding: Dp = 20.dp,
     onClick: (() -> Unit)?
 ) {
-    val displayColor = tint.copy(if (enabled) 1f else 0.5f)
+    val displayColor = tint.semiTransparentIfDisabled(enabled)
     val backgroundColor = tint.copy(if (enabled) 0.2f else 0f)
-    val borderColor = tint.copy(if (enabled) 1f else 0.5f)
+    val borderColor = tint.semiTransparentIfDisabled(enabled)
 
     var showHelp by remember { mutableStateOf(false) }
 
