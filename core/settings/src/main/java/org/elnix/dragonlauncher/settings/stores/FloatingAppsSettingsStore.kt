@@ -44,6 +44,7 @@ object FloatingAppsSettingsStore : JsonObjectSettingsStore() {
                 floatingApps.add(
                     FloatingAppObject(
                         id = obj.getInt("id"),
+                        appWidgetId = if (obj.has("appWidgetId")) obj.getInt("appWidgetId") else null,
                         nestId = obj.getInt("nestId"),
                         action = SwipeJson.decodeAction(obj.getString("action"))
                             ?: SwipeActionSerializable.LaunchApp(ctx.packageName, false, 0),
@@ -51,7 +52,7 @@ object FloatingAppsSettingsStore : JsonObjectSettingsStore() {
                         spanY = obj.optDouble("spanY", 1.0).toFloat(),
                         x = obj.optDouble("x", 0.0).toFloat(),
                         y = obj.optDouble("y", 0.0).toFloat(),
-                        angle = obj.optDouble("angle", 0.0),
+                        angle = obj.optDouble("angle", 0.0).toFloat(),
                         ghosted = obj.optBoolean("ghosted", false),
                         foreground = obj.optBoolean("foreground", true)
                     )
@@ -77,6 +78,7 @@ object FloatingAppsSettingsStore : JsonObjectSettingsStore() {
             floatingApps.forEach { floatingApp ->
                 put(JSONObject().apply {
                     put("id", floatingApp.id)
+                    put("appWidgetId", floatingApp.appWidgetId)
                     put("nestId", floatingApp.nestId)
                     put("action", SwipeJson.encodeAction(floatingApp.action))
                     put("spanX", floatingApp.spanX)

@@ -44,6 +44,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.key
+import androidx.compose.runtime.mutableFloatStateOf
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -54,7 +55,12 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.TransformOrigin
+import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.input.pointer.pointerInput
+import androidx.compose.ui.layout.LayoutCoordinates
+import androidx.compose.ui.layout.boundsInRoot
+import androidx.compose.ui.layout.onGloballyPositioned
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.IntOffset
@@ -80,6 +86,7 @@ import org.elnix.dragonlauncher.ui.helpers.settings.SettingsLazyHeader
 import org.elnix.dragonlauncher.ui.remembers.LocalFloatingAppsViewModel
 import org.elnix.dragonlauncher.ui.remembers.LocalShowStatusBar
 import org.elnix.dragonlauncher.ui.statusbar.StatusBar
+import kotlin.math.atan2
 
 @Composable
 fun FloatingAppsTab(
@@ -106,8 +113,8 @@ fun FloatingAppsTab(
 
     val isSelected = selected != null
 
-    var snapMove by remember { mutableStateOf(false) }
-    var snapResize by remember { mutableStateOf(false) }
+    var snapMove by remember { mutableStateOf(true) }
+    var snapResize by remember { mutableStateOf(true) }
 
     fun removeWidget(floatingApp: FloatingAppObject) {
         onRemoveWidget(floatingApp)
@@ -163,6 +170,10 @@ fun FloatingAppsTab(
         )
     }
 
+
+    /**
+     * Draw the grid of snapping that fills the entire screen
+     */
     Box(Modifier.fillMaxSize()) {
 
         if (snapMove) {
@@ -202,7 +213,10 @@ fun FloatingAppsTab(
 
         /* ---------------- Widget canvas ---------------- */
 
-        floatingApps.filter { it.nestId == nestId }.forEach { floatingApp ->
+        floatingApps
+            .filter { it.nestId == nestId }
+            .sortedBy { it.id == selected?.id } // Selected is always displayed first for easier click access
+            .forEach { floatingApp ->
                 key(floatingApp.id, nestId) {
                 DraggableFloatingApp(
                     floatingAppsViewModel = floatingAppsViewModel,
@@ -212,6 +226,9 @@ fun FloatingAppsTab(
                     onSelect = { selected = floatingApp },
                     onMove = { dx, dy ->
                         floatingAppsViewModel.moveFloatingApp(floatingApp.id, dx, dy, false)
+                    },
+                    onRotateEnd = {
+                        floatingAppsViewModel.rotateFloatingApp(floatingApp.id, it, true)
                     },
                     onMoveEnd = {
                         floatingAppsViewModel.moveFloatingApp(floatingApp.id, 0f, 0f, snapMove)
@@ -433,6 +450,7 @@ private fun DraggableFloatingApp(
     widgetHostProvider: WidgetHostProvider,
     onSelect: () -> Unit,
     onMove: (Float, Float) -> Unit,
+    onRotateEnd: (Float) -> Unit,
     onMoveEnd: () -> Unit,
     onResize: (FloatingAppsViewModel.ResizeCorner, Float, Float) -> Unit,
     onResizeEnd: (FloatingAppsViewModel.ResizeCorner) -> Unit,
@@ -455,6 +473,11 @@ private fun DraggableFloatingApp(
     val width =  app.spanX * cellSizePx
     val height = app.spanY * cellSizePx
 
+
+    var widgetCenter by remember { mutableStateOf(Offset.Zero) }
+    var handleCoordinates by remember { mutableStateOf<LayoutCoordinates?>(null) }
+    var widgetAngle by remember(app.angle) { mutableFloatStateOf(app.angle) }
+
     Box(
         modifier = Modifier
             .offset {
@@ -467,6 +490,18 @@ private fun DraggableFloatingApp(
                 width = width.toDp,
                 height = height.toDp
             )
+            // Used to compute the widget position for rotation computing
+            .onGloballyPositioned { coordinates ->
+                val rect = coordinates.boundsInRoot()
+                widgetCenter = Offset(
+                    rect.left + rect.width / 2f,
+                    rect.top + rect.height / 2f
+                )
+            }
+            .graphicsLayer {
+                rotationZ = widgetAngle
+                transformOrigin = TransformOrigin.Center
+            }
             .border(
                 width = if (selected) 2.dp else 0.dp,
                 color = borderColor,
@@ -497,17 +532,97 @@ private fun DraggableFloatingApp(
                     detectDragGestures(
                         onDragStart = { onSelect() },
                         onDrag = { change, dragAmount ->
+
+                            val angleRad = Math.toRadians(widgetAngle.toDouble())
+
+                            val cos = kotlin.math.cos(angleRad)
+                            val sin = kotlin.math.sin(angleRad)
+
+                            val worldDx = (dragAmount.x * cos - dragAmount.y * sin).toFloat()
+                            val worldDy = (dragAmount.x * sin + dragAmount.y * cos).toFloat()
+
                             change.consume()
-                            onMove(dragAmount.x, dragAmount.y)
+                            onMove(worldDx, worldDy)
                         },
-                        onDragEnd = {
-                            onMoveEnd()
-                        }
+                        onDragEnd = { onMoveEnd() }
                     )
                 }
         )
 
         if (selected) {
+
+            // Rotate drag handle
+            Box(
+                modifier = Modifier
+                    .align(Alignment.TopCenter)
+                    .offset(y = (-40).dp)
+                    .size(32.dp)
+                    .clip(CircleShape)
+                    .background(MaterialTheme.colorScheme.secondary)
+                    .onGloballyPositioned {
+                        handleCoordinates = it
+                    }
+                    .pointerInput(app.id) {
+
+                        var dragStartFingerAngle: Float? = null
+                        var dragStartWidgetAngle = 0f
+
+                        detectDragGestures(
+
+                            onDragStart = { offset ->
+
+                                val rootPos = handleCoordinates
+                                    ?.localToRoot(offset)
+                                    ?: return@detectDragGestures
+
+                                dragStartFingerAngle = Math.toDegrees(
+                                    atan2(
+                                        (rootPos.y - widgetCenter.y).toDouble(),
+                                        (rootPos.x - widgetCenter.x).toDouble()
+                                    )
+                                ).toFloat()
+
+                                dragStartWidgetAngle = widgetAngle
+                            },
+
+                            onDragEnd = {
+                                dragStartFingerAngle = null
+                                onRotateEnd(widgetAngle)
+                            },
+
+                            onDragCancel = {
+                                dragStartFingerAngle = null
+                            }
+
+                        ) { change, _ ->
+
+                            val rootPos = handleCoordinates
+                                ?.localToRoot(change.position)
+                                ?: return@detectDragGestures
+
+                            val currentFingerAngle = Math.toDegrees(
+                                atan2(
+                                    (rootPos.y - widgetCenter.y).toDouble(),
+                                    (rootPos.x - widgetCenter.x).toDouble()
+                                )
+                            ).toFloat()
+
+                            dragStartFingerAngle?.let { startAngle ->
+
+                                var delta = currentFingerAngle - startAngle
+
+                                if (delta > 180f) delta -= 360f
+                                if (delta < -180f) delta += 360f
+
+                                widgetAngle = dragStartWidgetAngle + delta
+                            }
+
+                            change.consume()
+                        }
+                    }
+            )
+
+
 
             // ------------------------------------------
             // Resize handles - only visible when selected

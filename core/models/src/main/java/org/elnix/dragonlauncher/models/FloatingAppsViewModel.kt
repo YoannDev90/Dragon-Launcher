@@ -3,6 +3,7 @@ package org.elnix.dragonlauncher.models
 import android.annotation.SuppressLint
 import android.app.Application
 import android.appwidget.AppWidgetProviderInfo
+import androidx.compose.ui.unit.dp
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.viewModelScope
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -24,7 +25,13 @@ class FloatingAppsViewModel(
     private val _floatingApps = MutableStateFlow<List<FloatingAppObject>>(emptyList())
     val floatingApps = _floatingApps.asStateFlow()
 
-    val cellSizePx = 100f
+
+
+    val cellSizePx = (30.dp * ctx.resources.displayMetrics.density).value
+
+    private val screenWidth = ctx.resources.displayMetrics.widthPixels.toFloat()
+    private val screenHeight = ctx.resources.displayMetrics.heightPixels.toFloat()
+
 
     init {
         loadFloatingApps()
@@ -35,8 +42,10 @@ class FloatingAppsViewModel(
     fun addFloatingApp(action: SwipeActionSerializable, info: AppWidgetProviderInfo? = null, nestId: Int) {
 
         viewModelScope.launch {
+            val appWidgetId = if (action is SwipeActionSerializable.OpenWidget) action.widgetId else null
             val app = FloatingAppObject(
                 id = Random.nextInt(),
+                appWidgetId = appWidgetId,
                 nestId = nestId,
                 action = action
             )
@@ -60,7 +69,6 @@ class FloatingAppsViewModel(
     }
 
 
-
     fun moveFloatingApp(
         appId: Int,
         dxPx: Float,
@@ -68,38 +76,36 @@ class FloatingAppsViewModel(
         snap: Boolean,
         snapScale: Float = cellSizePx
     ) {
-        val screenWidth = ctx.resources.displayMetrics.widthPixels.toFloat()
-        val screenHeight = ctx.resources.displayMetrics.heightPixels.toFloat()
 
-        val updated = _floatingApps.value.map { app ->
-            if (app.id == appId) {
-                var newX = app.x + dxPx / screenWidth
-                var newY = app.y + dyPx / screenHeight
+        updateApp(appId) { app ->
+            var newX = app.x + dxPx / screenWidth
+            var newY = app.y + dyPx / screenHeight
 
-                if (snap) {
-                    val snapX = snapScale / screenWidth
-                    val snapY = snapScale / screenHeight
-                    newX = (newX / snapX).roundToInt() * snapX
-                    newY = (newY / snapY).roundToInt() * snapY
-                }
-
-                app.copy(
-                    x = newX,
-                    y = newY
-                )
-            } else app
-        }
-
-        _floatingApps.value = updated
-
-        viewModelScope.launch {
-            updated.find { it.id == appId }?.let {
-                FloatingAppsSettingsStore.saveFloatingApp(ctx, it)
+            if (snap) {
+                val snapX = snapScale / screenWidth
+                val snapY = snapScale / screenHeight
+                newX = (newX / snapX).roundToInt() * snapX
+                newY = (newY / snapY).roundToInt() * snapY
             }
+
+            app.copy(
+                x = newX,
+                y = newY
+            )
         }
     }
 
 
+    fun rotateFloatingApp(id: Int, newAngle: Float, snap: Boolean) {
+        updateApp(id) { app ->
+
+            val snapped = if (snap) {
+                (newAngle / 15f).roundToInt() * 15f
+            } else newAngle
+
+            app.copy(angle = snapped)
+        }
+    }
 
     fun moveFloatingAppUp(appId: Int) {
         val current = _floatingApps.value
@@ -135,51 +141,29 @@ class FloatingAppsViewModel(
 
 
     fun centerFloatingApp(appId: Int) {
-        val screenWidth = ctx.resources.displayMetrics.widthPixels.toFloat()
-        val screenHeight = ctx.resources.displayMetrics.heightPixels.toFloat()
 
-        val updated = _floatingApps.value.map { floatingApp ->
-            if (floatingApp.id == appId) {
-                val floatingAppWidthPx = floatingApp.spanX * cellSizePx
-                val floatingAppHeightPx = floatingApp.spanY * cellSizePx
+        updateApp(appId) { app ->
+            val floatingAppWidthPx = app.spanX * cellSizePx
+            val floatingAppHeightPx = app.spanY * cellSizePx
 
-                val centerXPx = (screenWidth - floatingAppWidthPx) / 2f
-                val centerYPx = (screenHeight - floatingAppHeightPx) / 2f
+            val centerXPx = (screenWidth - floatingAppWidthPx) / 2f
+            val centerYPx = (screenHeight - floatingAppHeightPx) / 2f
 
-                floatingApp.copy(
-                    x = centerXPx / screenWidth,
-                    y = centerYPx / screenHeight
-                )
-            } else floatingApp
-        }
-
-        _floatingApps.value = updated
-
-        viewModelScope.launch {
-            updated.find { it.id == appId }?.let {
-                FloatingAppsSettingsStore.saveFloatingApp(ctx, it)
-            }
+            app.copy(
+                x = centerXPx / screenWidth,
+                y = centerYPx / screenHeight
+            )
         }
     }
 
 
     fun resetFloatingAppSize(appId: Int, info: AppWidgetProviderInfo? = null) {
-        val updated = _floatingApps.value.map { floatingApp ->
-            if (floatingApp.id == appId) {
-
-                floatingApp.copy(
-                    spanX = calculateSpanX(info?.minWidth?.toFloat() ?: 1.5f),
-                    spanY = calculateSpanY(info?.minHeight?.toFloat() ?: 1.5f),
-                )
-            } else floatingApp
-        }
-
-        _floatingApps.value = updated
-
-        viewModelScope.launch {
-            updated.find { it.id == appId }?.let {
-                FloatingAppsSettingsStore.saveFloatingApp(ctx, it)
-            }
+        updateApp(appId) { app ->
+            app.copy(
+                spanX = calculateSpanX(info?.minWidth?.toFloat() ?: 1.5f),
+                spanY = calculateSpanY(info?.minHeight?.toFloat() ?: 1.5f),
+                angle = 0f
+            )
         }
     }
 
@@ -203,62 +187,53 @@ class FloatingAppsViewModel(
         snap: Boolean,
         snapScale: Float = cellSizePx
     ) {
-        val screenWidth = ctx.resources.displayMetrics.widthPixels.toFloat()
-        val screenHeight = ctx.resources.displayMetrics.heightPixels.toFloat()
+        updateApp(appId) { app ->
 
-        val updated = _floatingApps.value.map { floatingApp ->
-            if (floatingApp.id == appId) {
-                val deltaSpanX = dxPx / cellSizePx
-                val deltaSpanY = dyPx / cellSizePx
-                val deltaPosX = dxPx / screenWidth
-                val deltaPosY = dyPx / screenHeight
+            val deltaSpanX = dxPx / cellSizePx
+            val deltaSpanY = dyPx / cellSizePx
+            val deltaPosX = dxPx / screenWidth
+            val deltaPosY = dyPx / screenHeight
 
-                var newSpanX = floatingApp.spanX
-                var newSpanY = floatingApp.spanY
-                var posDeltaX = 0f
-                var posDeltaY = 0f
+            var newSpanX = app.spanX
+            var newSpanY = app.spanY
+            var posDeltaX = 0f
+            var posDeltaY = 0f
 
-                when (corner) {
-                    ResizeCorner.Left -> {
-                        newSpanX = (floatingApp.spanX - deltaSpanX).coerceAtLeast(1.5f)
-                        posDeltaX = deltaPosX  // Compensate position to keep left edge fixed
-                    }
-                    ResizeCorner.Right -> {
-                        newSpanX = (floatingApp.spanX + deltaSpanX).coerceAtLeast(1.5f)
-                        // Right edge extends naturally
-                    }
-                    ResizeCorner.Top -> {
-                        newSpanY = (floatingApp.spanY - deltaSpanY).coerceAtLeast(1.5f)
-                        posDeltaY = deltaPosY  // Compensate position to keep top edge fixed
-                    }
-                    ResizeCorner.Bottom -> {
-                        newSpanY = (floatingApp.spanY + deltaSpanY).coerceAtLeast(1.5f)
-                        // Bottom edge extends naturally
-                    }
+            when (corner) {
+                ResizeCorner.Left -> {
+                    newSpanX = (app.spanX - deltaSpanX).coerceAtLeast(1.5f)
+                    posDeltaX = deltaPosX  // Compensate position to keep left edge fixed
                 }
 
-                if (snap) {
-                    val snapX = snapScale / cellSizePx
-                    val snapY = snapScale / cellSizePx
-                    newSpanX = (newSpanX / snapX).roundToInt() * snapX
-                    newSpanY = (newSpanY / snapY).roundToInt() * snapY
+                ResizeCorner.Right -> {
+                    newSpanX = (app.spanX + deltaSpanX).coerceAtLeast(1.5f)
+                    // Right edge extends naturally
                 }
 
-                floatingApp.copy(
-                    spanX = newSpanX,
-                    spanY = newSpanY,
-                    x = floatingApp.x + posDeltaX,
-                    y = floatingApp.y + posDeltaY
-                )
-            } else floatingApp
-        }
+                ResizeCorner.Top -> {
+                    newSpanY = (app.spanY - deltaSpanY).coerceAtLeast(1.5f)
+                    posDeltaY = deltaPosY  // Compensate position to keep top edge fixed
+                }
 
-        _floatingApps.value = updated
-
-        viewModelScope.launch {
-            updated.find { it.id == appId }?.let {
-                FloatingAppsSettingsStore.saveFloatingApp(ctx, it)
+                ResizeCorner.Bottom -> {
+                    newSpanY = (app.spanY + deltaSpanY).coerceAtLeast(1.5f)
+                    // Bottom edge extends naturally
+                }
             }
+
+            if (snap) {
+                val snapX = snapScale / cellSizePx
+                val snapY = snapScale / cellSizePx
+                newSpanX = (newSpanX / snapX).roundToInt() * snapX
+                newSpanY = (newSpanY / snapY).roundToInt() * snapY
+            }
+
+            app.copy(
+                spanX = newSpanX,
+                spanY = newSpanY,
+                x = app.x + posDeltaX,
+                y = app.y + posDeltaY
+            )
         }
     }
 
@@ -292,8 +267,29 @@ class FloatingAppsViewModel(
     }
 
 
-
     /* ----------------------------- Internal ----------------------------- */
+    private fun updateApp(
+        appId: Int,
+        block: (FloatingAppObject) -> FloatingAppObject
+    ) {
+        val current = _floatingApps.value
+
+        val updatedList = current.map { app ->
+            if (app.id == appId) {
+                block(app)
+            } else {
+                app
+            }
+        }
+
+        _floatingApps.value = updatedList
+
+        viewModelScope.launch {
+            updatedList.find { it.id == appId }?.let { updatedApp ->
+                FloatingAppsSettingsStore.saveFloatingApp(ctx, updatedApp)
+            }
+        }
+    }
 
     private fun loadFloatingApps() {
         viewModelScope.launch {
