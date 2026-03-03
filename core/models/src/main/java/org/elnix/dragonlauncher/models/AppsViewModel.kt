@@ -555,8 +555,10 @@ class AppsViewModel(
     @RequiresApi(Build.VERSION_CODES.VANILLA_ICE_CREAM)
     private suspend fun unlockPrivateSpace(): Boolean {
 
-        if (!ctx.isDefaultLauncher) {
+        // Search for at leat one private workspace to avoid shouting the toast to new users
+        if (!ctx.isDefaultLauncher && _workspacesState.value.workspaces.find { it.type == WorkspaceType.PRIVATE } != null) {
             ctx.showToast(ctx.getString(R.string.need_to_be_default_launcher_to_use_private_space))
+            return false
         }
 
         val reallyLocked = withContext(Dispatchers.IO) {

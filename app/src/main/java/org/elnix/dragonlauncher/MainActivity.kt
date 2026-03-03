@@ -370,7 +370,6 @@ class MainActivity : FragmentActivity(), WidgetHostProvider {
 
         setContent {
             val ctx = LocalContext.current
-            val density = LocalDensity.current
 
             val scope = rememberCoroutineScope()
             val lifecycleOwner = LocalLifecycleOwner.current
@@ -379,8 +378,9 @@ class MainActivity : FragmentActivity(), WidgetHostProvider {
                 (ctx.applicationContext as MyApplication).appsViewModel
             }
 
+
             // Used internally by the app view model
-            appsViewModel.cacheDensity(density)
+            appsViewModel.cacheDensity(LocalDensity.current)
 
             // Launch full viewmodel after first frame for performance
             LaunchedEffect(Unit) {
@@ -391,7 +391,7 @@ class MainActivity : FragmentActivity(), WidgetHostProvider {
             // May be used in the future for some quit action / operation
 //            DoubleBackToExit()
 
-            // Used to visually block private space content on windows quit, and if user locks his phone,
+            // Used to visually block private space content on window quit, and if user locks his phone,
             // the apps are also visually blocked, since they can't be launched
             DisposableEffect(lifecycleOwner) {
                 val observer = LifecycleEventObserver { _, event ->
