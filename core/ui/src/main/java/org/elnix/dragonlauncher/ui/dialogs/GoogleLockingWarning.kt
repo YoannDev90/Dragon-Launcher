@@ -36,6 +36,7 @@ fun GoogleLockingWarning(
         confirmButton = {
             ValidateCancelButtons(
                 validateText = stringResource(R.string.solution),
+                cancelText = stringResource(R.string.dismiss),
                 onCancel = onDismiss,
                 onValidate = onSolution
             )
