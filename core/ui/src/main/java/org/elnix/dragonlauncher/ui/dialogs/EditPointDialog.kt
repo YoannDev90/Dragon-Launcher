@@ -44,7 +44,6 @@ import org.elnix.dragonlauncher.common.utils.colors.adjustBrightness
 import org.elnix.dragonlauncher.common.utils.definedOrNull
 import org.elnix.dragonlauncher.enumsui.SelectedUnselectedViewMode
 import org.elnix.dragonlauncher.enumsui.selectedUnselectedViewName
-import org.elnix.dragonlauncher.settings.stores.ColorSettingsStore
 import org.elnix.dragonlauncher.ui.actions.actionColor
 import org.elnix.dragonlauncher.ui.actions.actionLabel
 import org.elnix.dragonlauncher.ui.colors.AppObjectsColors
@@ -54,7 +53,6 @@ import org.elnix.dragonlauncher.ui.components.TextDivider
 import org.elnix.dragonlauncher.ui.components.ValidateCancelButtons
 import org.elnix.dragonlauncher.ui.components.dragon.DragonIconButton
 import org.elnix.dragonlauncher.ui.components.generic.ActionRow
-import org.elnix.dragonlauncher.ui.components.settings.asState
 import org.elnix.dragonlauncher.ui.helpers.ShapeRow
 import org.elnix.dragonlauncher.ui.helpers.SliderWithLabel
 import org.elnix.dragonlauncher.ui.remembers.LocalAppsViewModel
@@ -81,7 +79,6 @@ fun EditPointDialog(
     var showShapePickerDialog by remember { mutableStateOf(false) }
     var showSelectedShapePickerDialog by remember { mutableStateOf(false) }
 
-    val circleColor by ColorSettingsStore.circleColor.asState()
 
 
     val backgroundSurfaceColor = MaterialTheme.colorScheme.surface.adjustBrightness(0.7f)
@@ -105,7 +102,7 @@ fun EditPointDialog(
         defaultPoint.borderColor
             ?.takeIf { !isDefaultEditing }
             ?.let(::Color)
-            ?: circleColor
+            ?: extraColors.circle
 
     val defaultBackgroundColor =
         defaultPoint.backgroundColor
@@ -122,7 +119,7 @@ fun EditPointDialog(
         defaultPoint.borderColorSelected
             ?.takeIf { !isDefaultEditing }
             ?.let(::Color)
-            ?: circleColor
+            ?: extraColors.circle
 
     val defaultBackgroundColorSelected =
         defaultPoint.backgroundColorSelected
