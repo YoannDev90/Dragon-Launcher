@@ -23,6 +23,7 @@ import org.elnix.dragonlauncher.settings.stores.PrivateAppsSettingsStore
 import org.elnix.dragonlauncher.settings.stores.PrivateSettingsStore
 import org.elnix.dragonlauncher.settings.stores.UiSettingsStore
 import org.elnix.dragonlauncher.ui.components.ExpandableSection
+import org.elnix.dragonlauncher.ui.components.dragon.DragonColumnGroup
 import org.elnix.dragonlauncher.ui.components.settings.SettingsSlider
 import org.elnix.dragonlauncher.ui.components.settings.SettingsSwitchRow
 import org.elnix.dragonlauncher.ui.components.settings.asState
@@ -68,27 +69,31 @@ fun BehaviorTab(onBack: () -> Unit) {
         }
     ) {
         item {
-            SettingsSwitchRow(
-                setting = BehaviorSettingsStore.keepScreenOn,
-                title = stringResource(R.string.keep_screen_on),
-                description = stringResource(R.string.keep_screen_on_desc)
-            )
-        }
+            DragonColumnGroup {
+                SettingsSwitchRow(
+                    setting = BehaviorSettingsStore.keepScreenOn,
+                    title = stringResource(R.string.keep_screen_on),
+                    description = stringResource(R.string.keep_screen_on_desc)
+                )
 
-        item {
-            SettingsSwitchRow(
-                setting = BehaviorSettingsStore.disableHapticFeedbackGlobally,
-                title = stringResource(R.string.disable_haptic_globally),
-                description = stringResource(R.string.disable_haptic_globally_desc)
-            )
-        }
+                SettingsSwitchRow(
+                    setting = BehaviorSettingsStore.disableHapticFeedbackGlobally,
+                    title = stringResource(R.string.disable_haptic_globally),
+                    description = stringResource(R.string.disable_haptic_globally_desc)
+                )
 
-        item {
-            SettingsSwitchRow(
-                setting = BehaviorSettingsStore.pointsActionSnapsToOuterCircle,
-                title = stringResource(R.string.point_action_snaps_to_outer_circle),
-                description = stringResource(R.string.point_action_snaps_to_outer_circle_desc)
-            )
+                SettingsSwitchRow(
+                    setting = BehaviorSettingsStore.pointsActionSnapsToOuterCircle,
+                    title = stringResource(R.string.point_action_snaps_to_outer_circle),
+                    description = stringResource(R.string.point_action_snaps_to_outer_circle_desc)
+                )
+
+                SettingsSwitchRow(
+                    setting = BehaviorSettingsStore.promptForShortcutsWhenAddingApp,
+                    title = stringResource(R.string.prompt_shortcuts_when_adding_app),
+                    description = stringResource(R.string.prompt_shortcuts_when_adding_app_desc)
+                )
+            }
         }
 
         item {

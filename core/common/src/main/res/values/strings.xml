@@ -800,5 +800,22 @@
     <string name="edit_nest">Edit nest</string>
     <string name="angle_line">Angle Line</string>
     <string name="angle_line_help">Customize the appearance of the line that appear when you drag on the main screen</string>
+    <string name="show_start_object_preview">Show start object preview</string>
+    <string name="show_start_object_preview_desc">Whether to display the (by default) circle on the start of the dragging position</string>
+    <string name="show_end_object_preview">Show end object preview</string>
+    <string name="show_end_object_preview_desc">Whether to display the (by default) small circle on the end start of the dragging position</string>
+    <string name="stroke">Stroke</string>
+    <string name="edit_shape">Edit shape</string>
+    <string name="erase_background">Erase background</string>
+    <string name="glow_radius">Glow Radius</string>
+    <string name="glow_color">Glow color</string>
+    <string name="enable_glow">Enable glow</string>
+    <string name="line_object">Line object</string>
+    <string name="angle_object">Angle object</string>
+    <string name="start_object">Start Object</string>
+    <string name="end_object">End Object</string>
+    <string name="show_all_actions_on_current_nest">Show all action on current nest</string>
+    <string name="show_all_actions_on_current_nest_desc">Diasplay all circles and points of the current  nest while dragging</string>
+
 
 </resources>

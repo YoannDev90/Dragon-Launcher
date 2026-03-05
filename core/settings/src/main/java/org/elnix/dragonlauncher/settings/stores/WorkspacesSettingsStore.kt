@@ -12,7 +12,7 @@ object WorkspaceSettingsStore : JsonObjectSettingsStore() {
 
 
     override val ALL: List<BaseSettingObject<*,*>>
-        get() = listOf(jsonSetting)
+        get() = listOf(this.jsonSetting)
 
 
     override val jsonSetting = Settings.string(

@@ -11,6 +11,7 @@ object UiSettingsStore : MapSettingsStore() {
     override val name: String = "Ui"
     override val dataStoreName: DataStoreName = DataStoreName.UI
 
+    /*  ─────────────  Use the computing of HSV color to produce a color that depends on the angle / progress  ─────────────  */
     val rgbLoading = Settings.boolean(
         key = "rgbLoading",
         dataStoreName = dataStoreName,
@@ -23,90 +24,19 @@ object UiSettingsStore : MapSettingsStore() {
         default = true
     )
 
+
+    /*  ─────────────  Overlay on top of the screen  ─────────────  */
     val showLaunchingAppLabel = Settings.boolean(
         key = "showLaunchingAppLabel",
         dataStoreName = dataStoreName,
         default = true,
-        )
+    )
 
     val showLaunchingAppIcon = Settings.boolean(
         key = "showLaunchingAppIcon",
         dataStoreName = dataStoreName,
         default = true
     )
-
-    val showAppLaunchingPreview = Settings.boolean(
-        key = "showAppLaunchPreview",
-        dataStoreName = dataStoreName,
-        default = true
-    )
-
-    val fullScreen = Settings.boolean(
-        key = "fullscreen",
-        dataStoreName = dataStoreName,
-        default = false
-    )
-
-    val showCirclePreview = Settings.boolean(
-        key = "showCirclePreview",
-        dataStoreName = dataStoreName,
-        default = true
-    )
-
-    val showLinePreview = Settings.boolean(
-        key = "showLinePreview",
-        dataStoreName = dataStoreName,
-        default = true
-    )
-
-    val showAnglePreview = Settings.boolean(
-        key = "showAnglePreview",
-        dataStoreName = dataStoreName,
-        default = true
-    )
-
-    val snapPoints = Settings.boolean(
-        key = "snapPoints",
-        dataStoreName = dataStoreName,
-        default = true
-    )
-
-    val autoSeparatePoints = Settings.boolean(
-        key = "autoSeparatePoints",
-        dataStoreName = dataStoreName,
-        default = true
-    )
-
-    val showAppPreviewIconCenterStartPosition = Settings.boolean(
-        key = "showAppPreviewIconCenterStartPosition",
-        dataStoreName = dataStoreName,
-        default = false
-    )
-
-    val linePreviewSnapToAction = Settings.boolean(
-        key = "linePreviewSnapToAction",
-        dataStoreName = dataStoreName,
-        default = false
-    )
-
-    val showAllActionsOnCurrentCircle = Settings.boolean(
-        key = "showAllActionsOnCurrentCircle",
-        dataStoreName = dataStoreName,
-        default = false
-    )
-
-    val selectedIconPack = Settings.string(
-        key = "selected_icon_pack",
-        dataStoreName = dataStoreName,
-        default = ""
-    )
-
-    val iconPackTint = Settings.color(
-        key = "icon_pack_tint",
-        dataStoreName = dataStoreName,
-        default = Color.Unspecified
-    )
-
     val appLabelIconOverlayTopPadding = Settings.int(
         key = "appLabelIconOverlayTopPadding",
         dataStoreName = dataStoreName,
@@ -127,7 +57,79 @@ object UiSettingsStore : MapSettingsStore() {
         default = 22,
         allowedRange = 0..400
     )
+    /*  ──────────────────────────  */
 
+
+    val fullScreen = Settings.boolean(
+        key = "fullscreen",
+        dataStoreName = dataStoreName,
+        default = false
+    )
+
+
+    /* Used in settings screen internally to remember the 2 toggleable button */
+    val autoSeparatePoints = Settings.boolean(
+        key = "autoSeparatePoints",
+        dataStoreName = dataStoreName,
+        default = true
+    )
+    val snapPoints = Settings.boolean(
+        key = "snapPoints",
+        dataStoreName = dataStoreName,
+        default = true
+    )
+
+
+    /*  ───────────── Advanced line preview customization  ─────────────  */
+    val showCirclePreview = Settings.boolean(
+        key = "showCirclePreview",
+        dataStoreName = dataStoreName,
+        default = true
+    )
+    val showAppPreviewIconCenterStartPosition = Settings.boolean(
+        key = "showAppPreviewIconCenterStartPosition",
+        dataStoreName = dataStoreName,
+        default = false
+    )
+    val linePreviewSnapToAction = Settings.boolean(
+        key = "linePreviewSnapToAction",
+        dataStoreName = dataStoreName,
+        default = false
+    )
+
+
+    /* Show the current selected app on drag in the main screen / show them all on the circle */
+    val showAppLaunchingPreview = Settings.boolean(
+        key = "showAppLaunchPreview",
+        dataStoreName = dataStoreName,
+        default = true
+    )
+    val showAllActionsOnCurrentCircle = Settings.boolean(
+        key = "showAllActionsOnCurrentCircle",
+        dataStoreName = dataStoreName,
+        default = true
+    )
+    val showAllActionsOnCurrentNest = Settings.boolean(
+        key = "showAllActionsOnCurrentNest",
+        dataStoreName = dataStoreName,
+        default = false
+    )
+
+
+    /*  ───────────── Internal icon packs values ─────────────  */
+    val selectedIconPack = Settings.string(
+        key = "selected_icon_pack",
+        dataStoreName = dataStoreName,
+        default = ""
+    )
+    val iconPackTint = Settings.color(
+        key = "icon_pack_tint",
+        dataStoreName = dataStoreName,
+        default = Color.Unspecified
+    )
+
+
+    /*  ───────────── Wallpaper Things ─────────────  */
     val wallpaperDimMainScreen = Settings.float(
         key = "wallpaperDimMainScreen",
         dataStoreName = dataStoreName,
@@ -142,12 +144,8 @@ object UiSettingsStore : MapSettingsStore() {
         allowedRange = 0f..1f
     )
 
-    val promptForShortcutsWhenAddingApp = Settings.boolean(
-        key = "promptForShortcutsWhenAddingApp",
-        dataStoreName = dataStoreName,
-        default = false
-    )
 
+    /** How far the points drawing system `actionsInCircle` draws the points */
     val maxNestsDepth = Settings.int(
         key = "maxNestsDepth",
         dataStoreName = dataStoreName,
@@ -155,55 +153,28 @@ object UiSettingsStore : MapSettingsStore() {
         allowedRange = 1..10
     )
 
-    val lineJson = Settings.string(
-        key = "lineJson",
-        dataStoreName = dataStoreName,
-        default = ""
-    )
-
-    val angleLineJson = Settings.string(
-        key = "angleLineJson",
-        dataStoreName = dataStoreName,
-        default = ""
-    )
-
-    val startLineJson = Settings.string(
-        key = "startLineJson",
-        dataStoreName = dataStoreName,
-        default = ""
-    )
-
-    val endLineJson = Settings.string(
-        key = "endLineJson",
-        dataStoreName = dataStoreName,
-        default = ""
-    )
-
-    override val ALL: List<BaseSettingObject<*,*>> = listOf(
-        rgbLoading,
-        rgbLine,
-        showLaunchingAppLabel,
-        showLaunchingAppIcon,
-        showAppLaunchingPreview,
-        fullScreen,
-        showCirclePreview,
-        showLinePreview,
-        showAnglePreview,
-        snapPoints,
-        autoSeparatePoints,
-        showAppPreviewIconCenterStartPosition,
-        linePreviewSnapToAction,
-        showAllActionsOnCurrentCircle,
-        selectedIconPack,
-        iconPackTint,
-        appLabelIconOverlayTopPadding,
-        appLabelOverlaySize,
-        appIconOverlaySize,
-        wallpaperDimMainScreen,
-        wallpaperDimDrawerScreen,
-        promptForShortcutsWhenAddingApp,
-        maxNestsDepth,
-        angleLineJson,
-        lineJson, angleLineJson, startLineJson, endLineJson
+    // unsing explicit this to avoid other stores that have the same name keys to be imported by mistake
+    override val ALL: List<BaseSettingObject<*, *>> = listOf(
+        this.rgbLoading,
+        this.rgbLine,
+        this.showLaunchingAppLabel,
+        this.showLaunchingAppIcon,
+        this.showAppLaunchingPreview,
+        this.fullScreen,
+        this.showCirclePreview,
+        this.snapPoints,
+        this.autoSeparatePoints,
+        this.showAppPreviewIconCenterStartPosition,
+        this.linePreviewSnapToAction,
+        this.showAllActionsOnCurrentCircle,
+        this.showAllActionsOnCurrentNest,
+        this.selectedIconPack,
+        this.iconPackTint,
+        this.appLabelIconOverlayTopPadding,
+        this.appLabelOverlaySize,
+        this.appIconOverlaySize,
+        this.wallpaperDimMainScreen,
+        this.wallpaperDimDrawerScreen,
+        this.maxNestsDepth
     )
 }

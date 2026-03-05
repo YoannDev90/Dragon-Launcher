@@ -3,10 +3,12 @@
 package org.elnix.dragonlauncher.ui.settings.customization
 
 import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.foundation.Canvas
+import androidx.compose.foundation.gestures.detectDragGestures
 import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.aspectRatio
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -15,36 +17,106 @@ import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.Offset
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.CompositingStrategy
+import androidx.compose.ui.graphics.graphicsLayer
+import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.layout.boundsInRoot
 import androidx.compose.ui.layout.onGloballyPositioned
-import androidx.compose.ui.layout.onSizeChanged
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.unit.IntSize
-import androidx.compose.ui.unit.dp
 import kotlinx.coroutines.launch
+import kotlinx.serialization.json.Json
+import kotlinx.serialization.modules.SerializersModule
+import org.elnix.dragonlauncher.base.theme.LocalExtraColors
 import org.elnix.dragonlauncher.common.R
+import org.elnix.dragonlauncher.common.logging.logE
+import org.elnix.dragonlauncher.common.serializables.ColorSerializer
+import org.elnix.dragonlauncher.common.serializables.CustomObjectBlockProperties
+import org.elnix.dragonlauncher.common.serializables.CustomObjectSerializable
+import org.elnix.dragonlauncher.common.utils.Constants.Logging.ANGLE_LINE_TAG
+import org.elnix.dragonlauncher.common.utils.UiConstants
+import org.elnix.dragonlauncher.settings.stores.AngleLineSettingsStore
 import org.elnix.dragonlauncher.settings.stores.UiSettingsStore
-import org.elnix.dragonlauncher.ui.MainScreenOverlay
-import org.elnix.dragonlauncher.ui.components.dragon.DragonColumnGroup
+import org.elnix.dragonlauncher.ui.actionLine
+import org.elnix.dragonlauncher.ui.components.ExpandableSection
 import org.elnix.dragonlauncher.ui.components.settings.SettingsSwitchRow
 import org.elnix.dragonlauncher.ui.components.settings.asState
+import org.elnix.dragonlauncher.ui.helpers.customobjects.EditCustomObjectBlock
 import org.elnix.dragonlauncher.ui.helpers.settings.SettingsLazyHeader
 import org.elnix.dragonlauncher.ui.modifiers.settingsGroup
+import org.elnix.dragonlauncher.ui.remembers.rememberDecodedObject
+import org.elnix.dragonlauncher.ui.remembers.rememberExpandableSection
+import kotlin.math.atan2
 
 
 @Composable
 fun AngleLineTab(onBack: () -> Unit) {
     val ctx = LocalContext.current
+    val density = LocalDensity.current
+    val extraColors = LocalExtraColors.current
     val scope = rememberCoroutineScope()
 
-    val showAppAnglePreview by UiSettingsStore.showAnglePreview.asState()
-    val showLinePreview by UiSettingsStore.showLinePreview.asState()
+    val showLineObjectPreview by AngleLineSettingsStore.showLineObjectPreview.asState()
+    val showAngleLineObjectPreview by AngleLineSettingsStore.showAngleLineObjectPreview.asState()
+    val showStartObjectPreview by AngleLineSettingsStore.showStartObjectPreview.asState()
+    val showEndObjectPreview by AngleLineSettingsStore.showEndObjectPreview.asState()
 
-    var dummyStart by remember { mutableStateOf(Offset.Zero) }
+
+    val lineObjectExpandableSectionState = rememberExpandableSection(stringResource(R.string.line_object))
+    val angleObjectExpandableSectionState = rememberExpandableSection(stringResource(R.string.angle_object))
+    val startObjectExpandableSectionState = rememberExpandableSection(stringResource(R.string.start_object))
+    val endObjectExpandableSectionState = rememberExpandableSection(stringResource(R.string.end_object))
+
+    val json = Json {
+        prettyPrint = true
+        serializersModule = SerializersModule {
+            contextual(Color::class, ColorSerializer)
+        }
+    }
+
+    val lineJson by AngleLineSettingsStore.lineJson.asState()
+    val lineObject = rememberDecodedObject(
+        jsonString = lineJson,
+        default = UiConstants.defaultLineCustomObject,
+        json = json
+    ) {
+        ctx.logE(ANGLE_LINE_TAG, "Error decoding lineObject", it)
+    }
+
+    val angleLineJson by AngleLineSettingsStore.angleLineJson.asState()
+    val angleLineObject = rememberDecodedObject(
+        jsonString = angleLineJson,
+        default = UiConstants.defaultAngleCustomObject,
+        json = json
+    ) {
+        ctx.logE(ANGLE_LINE_TAG, "Error decoding angleLineObject", it)
+    }
+
+    val startLineJson by AngleLineSettingsStore.startLineJson.asState()
+    val startLineObject = rememberDecodedObject(
+        jsonString = startLineJson,
+        default = UiConstants.defaultStartCustomObject,
+        json = json
+    ) {
+        ctx.logE(ANGLE_LINE_TAG, "Error decoding startLineObject", it)
+    }
+
+    val endLineJson by AngleLineSettingsStore.endLineJson.asState()
+    val endLineObject = rememberDecodedObject(
+        jsonString = endLineJson,
+        default = UiConstants.defaultEndCustomObject,
+        json = json
+    ) {
+        ctx.logE(ANGLE_LINE_TAG, "Error decoding endLineObject", it)
+    }
+
+    val rgbLine by UiSettingsStore.rgbLine.asState()
+
+
     var dummyEnd by remember { mutableStateOf(Offset.Infinite) }
-    var size by remember { mutableStateOf(IntSize.Zero) }
-
+    var hasAlreadyBeenPlaced by remember { mutableStateOf(false) }
 
     SettingsLazyHeader(
         title = stringResource(R.string.angle_line),
@@ -52,102 +124,175 @@ fun AngleLineTab(onBack: () -> Unit) {
         helpText = stringResource(R.string.angle_line_help),
         onReset = {
             scope.launch {
-                UiSettingsStore.resetAll(ctx)
+                AngleLineSettingsStore.resetAll(ctx)
             }
-        }, content = {
-            SettingsSwitchRow(
-                setting = UiSettingsStore.showLinePreview,
-                title = stringResource(R.string.show_app_line_preview),
-                description = stringResource(R.string.show_app_line_preview_description)
-            )
+        },
+        scrollableContent = true,
+        content = {
 
-            AnimatedVisibility(showLinePreview) {
+            /**
+             * Preview of the line
+             */
+            Box(
+                modifier = Modifier
+                    .settingsGroup()
+                    .aspectRatio(1f)
+                    .fillMaxWidth()
+                    .onGloballyPositioned { coordinates ->
+                        if (!hasAlreadyBeenPlaced) {
+                            val rect = coordinates.boundsInRoot()
+                            val rectSize = (rect.height * density.density).toInt() / 2
 
-
-                Column {
-                    // Preview of the line
-                    Box(
-                        modifier = Modifier
-                            .settingsGroup()
-                            .height(200.dp)
-                            .fillMaxWidth()
-                            .onGloballyPositioned { coordinates ->
-                                val rect = coordinates.boundsInRoot()
-                                dummyStart = Offset(
-                                    rect.left + rect.width / 2f,
-                                    rect.top + rect.height / 2f
-                                )
-
-                                dummyEnd = Offset(
-                                    rect.left + rect.width / 2f,
-                                    rect.top + rect.height / 2f
-                                )
-                            }
-                            .onSizeChanged { size = it }
-                    ) {
-                        MainScreenOverlay(
-                            start = dummyStart,
-                            current = dummyEnd,
-                            nestId = 0,
-                            isDragging = true,
-                            surface = size,
-                            onLaunch = null
-                        )
+                            dummyEnd = Offset(
+                                rect.left + (0..rectSize).random(),
+                                rect.top + (0..rectSize).random()
+                            )
+                            // Prevent the thing to move after first placement
+                            hasAlreadyBeenPlaced = true
+                        }
                     }
+                    .pointerInput(Unit) {
+                        detectDragGestures { change, _ ->
+                            // Allow the user to move the end for cleaner preview
+                            dummyEnd = change.position
+                        }
+                    }
+            ) {
+
+                Canvas(
+                    modifier = Modifier
+                        .fillMaxSize()
+                        .graphicsLayer {
+                            compositingStrategy = CompositingStrategy.Offscreen
+                        }
+                ) {
+
+                    val start = Offset(size.width / 2f, size.height / 2f)
+
+                    val dx = dummyEnd.x - start.x
+                    val dy = dummyEnd.y - start.y
+
+                    // angle relative to UP = 0°
+                    val angleRad = atan2(dx.toDouble(), -dy.toDouble())
+                    val angleDeg = Math.toDegrees(angleRad)
+                    val angle0to360 = if (angleDeg < 0) angleDeg + 360 else angleDeg
 
 
-                    DragonColumnGroup {
-                        SettingsSwitchRow(
-                            setting = UiSettingsStore.rgbLoading,
-                            title = stringResource(R.string.rgb_loading_settings),
-                            description = stringResource(R.string.rgb_loading_description)
+                    val lineColor =
+                        if (rgbLine) Color.hsv(angle0to360.toFloat(), 1f, 1f)
+                        else extraColors.angleLine
+
+                    actionLine(
+                        start = start,
+                        end = dummyEnd,
+
+                        showLineObjectPreview = showLineObjectPreview,
+                        showAngleLineObjectPreview = showAngleLineObjectPreview,
+                        showStartObjectPreview = showStartObjectPreview,
+                        showEndObjectPreview = showEndObjectPreview,
+
+                        lineCustomObject = lineObject,
+                        angleLineCustomObject = angleLineObject,
+                        startCustomObject = startLineObject,
+                        endCustomObject = endLineObject,
+                        sweepAngle = angle0to360.toFloat(),
+
+                        lineColor = lineColor
+                    )
+                }
+            }
+
+            /** Line object setting */
+            ExpandableSection(lineObjectExpandableSectionState) {
+                SettingsSwitchRow(
+                    setting = AngleLineSettingsStore.showLineObjectPreview,
+                    title = stringResource(R.string.show_app_line_preview),
+                    description = stringResource(R.string.show_app_line_preview_description)
+                )
+                AnimatedVisibility(showLineObjectPreview) {
+                    EditCustomObjectBlock(
+                        editObject = lineObject,
+                        default = UiConstants.defaultLineCustomObject,
+                        properties = CustomObjectBlockProperties(
+                            allowSizeCustomization = false,
+                            allowShapeCustomization = false,
+                            allowEraseBackgroundCustomization = false
                         )
+                    ) {
+                        val newLineJson = json.encodeToString(CustomObjectSerializable.serializer(), it)
+                        scope.launch {
+                            AngleLineSettingsStore.lineJson.set(ctx, newLineJson)
+                        }
+                    }
+                }
+            }
 
-                        SettingsSwitchRow(
-                            setting = UiSettingsStore.rgbLine,
-                            title = stringResource(R.string.rgb_line_selector),
-                            description = stringResource(R.string.rgb_line_selector_description)
+            /** Angle Line object setting */
+            ExpandableSection(angleObjectExpandableSectionState) {
+                SettingsSwitchRow(
+                    setting = AngleLineSettingsStore.showAngleLineObjectPreview,
+                    title = stringResource(
+                        R.string.show_app_angle_preview,
+                        if (!showAngleLineObjectPreview) stringResource(R.string.do_you_hate_it) else ""
+                    ),
+                    description = stringResource(R.string.show_app_angle_preview_description)
+                )
+
+                AnimatedVisibility(showAngleLineObjectPreview) {
+                    EditCustomObjectBlock(
+                        editObject = angleLineObject,
+                        default = UiConstants.defaultAngleCustomObject,
+                        properties = CustomObjectBlockProperties(
+                            allowGlowCustomization = false,
+                            allowShapeCustomization = false
                         )
+                    ) {
+                        val newAngleJson = json.encodeToString(CustomObjectSerializable.serializer(), it)
+                        scope.launch {
+                            AngleLineSettingsStore.angleLineJson.set(ctx, newAngleJson)
+                        }
+                    }
+                }
+            }
 
-                        SettingsSwitchRow(
-                            setting = UiSettingsStore.showAppLaunchingPreview,
-                            title = stringResource(R.string.show_app_launch_preview),
-                            description = stringResource(R.string.show_app_launch_preview_description)
-                        )
+            /** Start object setting */
+            ExpandableSection(startObjectExpandableSectionState) {
+                SettingsSwitchRow(
+                    setting = AngleLineSettingsStore.showStartObjectPreview,
+                    title = stringResource(R.string.show_start_object_preview),
+                    description = stringResource(R.string.show_start_object_preview_desc)
+                )
 
-                        SettingsSwitchRow(
-                            setting = UiSettingsStore.showCirclePreview,
-                            title = stringResource(R.string.show_app_circle_preview),
-                            description = stringResource(R.string.show_app_circle_preview_description)
-                        )
+                AnimatedVisibility(showStartObjectPreview) {
+                    EditCustomObjectBlock(
+                        editObject = startLineObject,
+                        default = UiConstants.defaultStartCustomObject
+                    ) {
+                        val newStarJson = json.encodeToString(CustomObjectSerializable.serializer(), it)
+                        scope.launch {
+                            AngleLineSettingsStore.startLineJson.set(ctx, newStarJson)
+                        }
+                    }
+                }
+            }
 
+            /** End object setting */
+            ExpandableSection(endObjectExpandableSectionState) {
+                SettingsSwitchRow(
+                    setting = AngleLineSettingsStore.showEndObjectPreview,
+                    title = stringResource(R.string.show_end_object_preview),
+                    description = stringResource(R.string.show_end_object_preview_desc)
+                )
 
-                        SettingsSwitchRow(
-                            setting = UiSettingsStore.showAnglePreview,
-                            title = stringResource(
-                                R.string.show_app_angle_preview,
-                                if (!showAppAnglePreview) stringResource(R.string.do_you_hate_it) else ""
-                            ),
-                            description = stringResource(R.string.show_app_angle_preview_description)
-                        )
-
-                        SettingsSwitchRow(
-                            setting = UiSettingsStore.showAppPreviewIconCenterStartPosition,
-                            title = stringResource(R.string.show_app_icon_start_drag_position),
-                            description = stringResource(R.string.show_app_icon_start_drag_position_description)
-                        )
-
-                        SettingsSwitchRow(
-                            setting = UiSettingsStore.linePreviewSnapToAction,
-                            title = stringResource(R.string.line_preview_snap_to_action),
-                            description = stringResource(R.string.line_preview_snap_to_action_description)
-                        )
-
-                        SettingsSwitchRow(
-                            setting = UiSettingsStore.showAllActionsOnCurrentCircle,
-                            title = stringResource(R.string.show_all_actions_on_current_circle),
-                            description = stringResource(R.string.show_all_actions_on_current_circle_description)
-                        )
+                AnimatedVisibility(showEndObjectPreview) {
+                    EditCustomObjectBlock(
+                        editObject = endLineObject,
+                        default = UiConstants.defaultEndCustomObject
+                    ) {
+                        val newEndJson = json.encodeToString(CustomObjectSerializable.serializer(), it)
+                        scope.launch {
+                            AngleLineSettingsStore.endLineJson.set(ctx, newEndJson)
+                        }
                     }
                 }
             }

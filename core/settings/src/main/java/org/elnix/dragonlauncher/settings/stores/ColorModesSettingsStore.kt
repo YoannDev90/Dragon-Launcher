@@ -16,12 +16,12 @@ object ColorModesSettingsStore : MapSettingsStore() {
 
     override val ALL: List<BaseSettingObject <*, *> >
         get() = listOf(
-            colorPickerMode,
-            defaultTheme,
-            colorPickerButtonOne,
-            colorPickerButtonTwo,
-            dynamicColor,
-            colorTestMode
+            this.colorPickerMode,
+            this.defaultTheme,
+            this.colorPickerButtonOne,
+            this.colorPickerButtonTwo,
+            this.dynamicColor,
+            this.colorTestMode
         )
 
 

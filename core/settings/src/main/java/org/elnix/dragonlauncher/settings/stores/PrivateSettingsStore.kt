@@ -71,13 +71,13 @@ object PrivateSettingsStore : MapSettingsStore() {
     )
 
     override val ALL: List<BaseSettingObject<*,*>> = listOf(
-        hasSeenWelcome,
-        hasInitialized,
-        showSetDefaultLauncherBanner,
-        lastSeenVersionCodeWhatsNew,
-        lockPinHash,
-        lockMethod,
-        samsungPreferSecureFolder,
-        lastBackupTime
+        this.hasSeenWelcome,
+        this.hasInitialized,
+        this.showSetDefaultLauncherBanner,
+        this.lastSeenVersionCodeWhatsNew,
+        this.lockPinHash,
+        this.lockMethod,
+        this.samsungPreferSecureFolder,
+        this.lastBackupTime
     )
 }

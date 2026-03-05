@@ -120,7 +120,6 @@ fun MainScreen(
 
     var start by remember { mutableStateOf<Offset?>(null) }
     var current by remember { mutableStateOf<Offset?>(null) }
-    var isDragging by remember { mutableStateOf(false) }
     var size by remember { mutableStateOf(IntSize.Zero) }
 
 
@@ -189,7 +188,6 @@ fun MainScreen(
 
 
     fun launchAction(point: SwipePointSerializable) {
-        isDragging = false
         start = null
         current = null
         lastClickTime = 0
@@ -280,7 +278,6 @@ fun MainScreen(
 
                         start = down.position
                         current = down.position
-                        isDragging = true
 
                         val pointerId = down.id
 
@@ -291,7 +288,6 @@ fun MainScreen(
                                 launchAction(
                                     dummySwipePoint(action)
                                 )
-                                isDragging = false
                                 continue
                             }
                         }
@@ -306,13 +302,11 @@ fun MainScreen(
                                     change.consume()
                                     current = change.position
                                 } else {
-                                    isDragging = false
                                     start = null
                                     current = null
                                     break
                                 }
                             } else {
-                                isDragging = false
                                 start = null
                                 current = null
                                 break
@@ -368,8 +362,6 @@ fun MainScreen(
             start = start,
             current = current,
             nestId = nestId,
-            isDragging = isDragging,
-            surface = size,
             onLaunch = { launchAction(it) }
         )
 

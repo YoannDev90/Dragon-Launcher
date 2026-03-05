@@ -3,6 +3,7 @@ import com.android.build.api.dsl.LibraryExtension
 plugins {
     alias(libs.plugins.android.library)
     alias(libs.plugins.kotlin.compose)
+    alias(libs.plugins.kotlin.serialization)
 }
 
 kotlin {
@@ -63,6 +64,9 @@ dependencies {
 
     /* Image Bitmap*/
     implementation(libs.androidx.ui.graphics)
+
+
+    implementation(libs.kotlinx.serialization.json)
 
     implementation(project(":core:base"))
 }

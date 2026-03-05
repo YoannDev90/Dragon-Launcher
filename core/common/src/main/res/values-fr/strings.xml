@@ -793,5 +793,23 @@
     <string name="show_percentage_desc">Afficher le pourcentage de batterie en texte clair</string>
     <string name="set_status_bar_template">Définir le modèle de barre de statut (le mien) avertissement en cliquant dessus efface votre configuration actuelle !</string>
     <string name="notch_mode">Mode: Notch (Fixe un spacer sur l\'encoche)</string>
+    <string name="google_lockdown_warning">\"Google a annoncé qu\'à partir de 2026/2027, toutes les applications sur les appareils Android certifiés nécessiteront que le développeur soumette des informations d\'identité personnelles directement à Google. Étant donné que les développeurs de cette application n\'acceptent pas cette exigence, cette application ne fonctionnera plus sur les appareils Android certifiés après cette date. \"</string>
+    <string name="solution">Solution</string>
+    <string name="dismiss">Rejeter</string>
+    <string name="nest_radius">Rayon du nid</string>
+    <string name="edit_nest">Modifier le nid</string>
+    <string name="angle_line">Ligne d\'angle</string>
+    <string name="angle_line_help">Personnalisez l\'apparence de la ligne qui apparaît lorsque vous faites glisser sur l\'écran principal</string>
+    <string name="show_start_object_preview">Afficher l\'aperçu de l\'objet de départ</string>
+    <string name="show_start_object_preview_desc">S\'il faut afficher le cercle (par défaut) au début de la position de glissement</string>
+    <string name="show_end_object_preview">Afficher l\'aperçu de l\'objet final</string>
+    <string name="show_end_object_preview_desc">S\'il faut afficher le petit cercle (par défaut) à la fin du début de la position de déplacement</string>
+    <string name="stroke">Accident vasculaire cérébral</string>
+    <string name="edit_shape">Modifier la forme</string>
+    <string name="erase_background">Effacer le fond</string>
+    <string name="glow_radius">Rayon de lueur</string>
+    <string name="glow_color">Couleur lumineuse</string>
+    <string name="enable_glow">Activer la lueur</string>
+
 
 </resources>

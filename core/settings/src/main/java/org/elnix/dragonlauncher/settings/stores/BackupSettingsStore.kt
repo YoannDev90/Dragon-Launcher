@@ -12,9 +12,9 @@ object BackupSettingsStore : MapSettingsStore() {
 
     override val ALL: List<BaseSettingObject <*, *> >
         get() = listOf(
-            autoBackupEnabled,
-            autoBackupUri,
-            backupStores
+            this.autoBackupEnabled,
+            this.autoBackupUri,
+            this.backupStores
         )
 
 

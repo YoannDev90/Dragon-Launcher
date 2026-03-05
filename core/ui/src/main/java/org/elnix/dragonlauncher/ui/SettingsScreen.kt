@@ -7,7 +7,6 @@ import androidx.compose.animation.core.FastOutSlowInEasing
 import androidx.compose.animation.core.VectorConverter
 import androidx.compose.animation.core.animateDpAsState
 import androidx.compose.animation.core.animateFloatAsState
-import androidx.compose.animation.core.animateIntAsState
 import androidx.compose.animation.core.tween
 import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.background
@@ -188,8 +187,8 @@ fun SettingsScreen(
     var closestHoveredTempOffset by remember { mutableStateOf<Offset?>(null) }
     var ableToLaunchHoverAction by remember { mutableStateOf(false) }
 
-    val hoveredPointRadialGradientProgress by animateIntAsState(
-        targetValue = if (ableToLaunchHoverAction) Constants.Settings.HOVER_GRADIENT_RADIUS else 1
+    val hoveredPointRadialGradientProgress by animateFloatAsState(
+        targetValue = if (ableToLaunchHoverAction) Constants.Settings.HOVER_GRADIENT_RADIUS else 1f
     )
 
 

@@ -3,6 +3,7 @@ package org.elnix.dragonlauncher.ui.remembers
 import androidx.compose.runtime.compositionLocalOf
 import androidx.compose.ui.graphics.ImageBitmap
 import org.elnix.dragonlauncher.common.serializables.CircleNest
+import org.elnix.dragonlauncher.common.serializables.CustomObjectSerializable
 import org.elnix.dragonlauncher.common.serializables.IconShape
 import org.elnix.dragonlauncher.common.serializables.StatusBarSerializable
 import org.elnix.dragonlauncher.common.serializables.SwipePointSerializable
@@ -40,4 +41,20 @@ val LocalBackupViewModel = compositionLocalOf<BackupViewModel> {
 
 val LocalFloatingAppsViewModel = compositionLocalOf<FloatingAppsViewModel> {
     error("No FloatingAppsViewModel bar provided")
+}
+
+val LocalLineObject = compositionLocalOf<CustomObjectSerializable> {
+    error("No LocalLine provided")
+}
+
+val LocalAngleLineObject = compositionLocalOf<CustomObjectSerializable> {
+    error("No LocalAngleLine provided")
+}
+
+val LocalStartLineObject = compositionLocalOf<CustomObjectSerializable> {
+    error("No LocalStartLine provided")
+}
+
+val LocalEndLineObject = compositionLocalOf<CustomObjectSerializable> {
+    error("No LocalEndLine provided")
 }

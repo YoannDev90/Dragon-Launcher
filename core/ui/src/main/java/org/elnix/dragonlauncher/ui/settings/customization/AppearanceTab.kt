@@ -72,12 +72,13 @@ fun AppearanceTab(
     val icons = LocalIcons.current
     val scope = rememberCoroutineScope()
 
+    // Top overlay things
     val showLaunchingAppLabel by showLaunchingAppLabel.asState()
     val showLaunchingAppIcon by showLaunchingAppIcon.asState()
-    val showAppAnglePreview by UiSettingsStore.showAnglePreview.asState()
     val appLabelIconOverlayTopPadding by appLabelIconOverlayTopPadding.asState()
     val appLabelOverlaySize by appLabelOverlaySize.asState()
     val appIconOverlaySize by appIconOverlaySize.asState()
+    val showAllActionsOnCurrentCircle by UiSettingsStore.showAllActionsOnCurrentCircle.asState()
 
     val topOverlaySettingsState = rememberExpandableSection(stringResource(R.string.app_preview_settings))
     val holdExpandableSectionState = rememberExpandableSection(stringResource(R.string.hold_settings))
@@ -209,7 +210,7 @@ fun AppearanceTab(
                 Box(
                     modifier = Modifier
                         .fillMaxWidth()
-                        .height((holdToActivateSettingsRadius * 2 ).dp)
+                        .height((holdToActivateSettingsRadius * 2).dp)
                         .onSizeChanged { boxSize = it },
                     contentAlignment = Alignment.Center
                 ) {
@@ -322,31 +323,9 @@ fun AppearanceTab(
             }
         }
 
-        item {
-            SettingsSwitchRow(
-                setting = UiSettingsStore.promptForShortcutsWhenAddingApp,
-                title = stringResource(R.string.prompt_shortcuts_when_adding_app),
-                description = stringResource(R.string.prompt_shortcuts_when_adding_app_desc)
-            )
-        }
-
-        item {
-            SettingsSlider(
-                setting = UiSettingsStore.maxNestsDepth,
-                title = stringResource(R.string.depth),
-                description = stringResource(R.string.depth_desc),
-                valueRange = 1..10
-            )
-        }
 
         item {
             DragonColumnGroup {
-                SettingsSwitchRow(
-                    setting = UiSettingsStore.rgbLine,
-                    title = stringResource(R.string.rgb_line_selector),
-                    description = stringResource(R.string.rgb_line_selector_description)
-                )
-
                 SettingsSwitchRow(
                     setting = UiSettingsStore.showAppLaunchingPreview,
                     title = stringResource(R.string.show_app_launch_preview),
@@ -360,18 +339,34 @@ fun AppearanceTab(
                 )
 
                 SettingsSwitchRow(
-                    setting = UiSettingsStore.showLinePreview,
-                    title = stringResource(R.string.show_app_line_preview),
-                    description = stringResource(R.string.show_app_line_preview_description)
-                )
+                    setting = UiSettingsStore.showAllActionsOnCurrentCircle,
+                    title = stringResource(R.string.show_all_actions_on_current_circle),
+                    description = stringResource(R.string.show_all_actions_on_current_circle_description)
+                ) {
+                    if (!it) {
+                        scope.launch {
+                            UiSettingsStore.showAllActionsOnCurrentNest.set(ctx, false)
+                        }
+                    }
+                }
 
                 SettingsSwitchRow(
-                    setting = UiSettingsStore.showAnglePreview,
-                    title = stringResource(
-                        R.string.show_app_angle_preview,
-                        if (!showAppAnglePreview) stringResource(R.string.do_you_hate_it) else ""
-                    ),
-                    description = stringResource(R.string.show_app_angle_preview_description)
+                    setting = UiSettingsStore.showAllActionsOnCurrentNest,
+                    enabled = showAllActionsOnCurrentCircle,
+                    title = stringResource(R.string.show_all_actions_on_current_nest),
+                    description = stringResource(R.string.show_all_actions_on_current_nest_desc)
+                )
+            }
+        }
+
+        item {
+            DragonColumnGroup {
+
+                /* If the line is rgb (computed via the angle) or uses the line color from settings */
+                SettingsSwitchRow(
+                    setting = UiSettingsStore.rgbLine,
+                    title = stringResource(R.string.rgb_line_selector),
+                    description = stringResource(R.string.rgb_line_selector_description)
                 )
 
                 SettingsSwitchRow(
@@ -385,13 +380,16 @@ fun AppearanceTab(
                     title = stringResource(R.string.line_preview_snap_to_action),
                     description = stringResource(R.string.line_preview_snap_to_action_description)
                 )
-
-                SettingsSwitchRow(
-                    setting = UiSettingsStore.showAllActionsOnCurrentCircle,
-                    title = stringResource(R.string.show_all_actions_on_current_circle),
-                    description = stringResource(R.string.show_all_actions_on_current_circle_description)
-                )
             }
+        }
+
+        item {
+            SettingsSlider(
+                setting = UiSettingsStore.maxNestsDepth,
+                title = stringResource(R.string.depth),
+                description = stringResource(R.string.depth_desc),
+                valueRange = 1..10
+            )
         }
     }
 

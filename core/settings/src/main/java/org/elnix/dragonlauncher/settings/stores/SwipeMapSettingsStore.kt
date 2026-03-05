@@ -12,7 +12,7 @@ object SwipeMapSettingsStore : MapSettingsStore() {
 
     override val ALL: List<BaseSettingObject <*, *> >
         get() = listOf(
-            subNestDefaultRadius
+            this.subNestDefaultRadius
         )
 
 

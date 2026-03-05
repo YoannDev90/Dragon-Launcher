@@ -1,12 +1,14 @@
 package org.elnix.dragonlauncher.common.serializables
 
 import com.google.gson.annotations.SerializedName
+import kotlinx.serialization.Serializable
 
 /**
  * Defines independent corner radii for a rectangular shape.
  *
  * Any null value falls back to renderer defaults or global radius.
  */
+@Serializable
 data class CustomIconShapeSerializable(
     @SerializedName("topLeft") val topLeft: CornerRadiusSerializable? = null,
     @SerializedName("topRight") val topRight: CornerRadiusSerializable? = null,
@@ -28,6 +30,7 @@ enum class IconCornerType { FILLET, CHAMFER }
  * @property corner from 0f to 1f, float that defines how much the corner
  * @property type
  */
+@Serializable
 data class CornerRadiusSerializable(
     @SerializedName("corner") val corner: Float? = null,
     @SerializedName("type") val type: IconCornerType? = null
