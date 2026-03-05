@@ -20,6 +20,8 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyListScope
 import androidx.compose.foundation.lazy.LazyListState
 import androidx.compose.foundation.lazy.rememberLazyListState
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.Help
 import androidx.compose.material3.MaterialTheme
@@ -37,6 +39,7 @@ import org.burnoutcrew.reorderable.detectReorderAfterLongPress
 import org.burnoutcrew.reorderable.reorderable
 import org.elnix.dragonlauncher.common.R
 import org.elnix.dragonlauncher.ui.dialogs.UserValidation
+import org.elnix.dragonlauncher.ui.modifiers.conditional
 
 @Suppress("AssignedValueIsNeverRead")
 @Composable
@@ -54,6 +57,7 @@ fun SettingsLazyHeader(
     titleContent: (LazyListScope.() -> Unit)? = null,
     bottomContent: (LazyListScope.() -> Unit)? = null,
     content: @Composable (ColumnScope.() -> Unit)? = null,
+    scrollableContent: Boolean = false,
     lazyContent: (LazyListScope.() -> Unit)? = null
 ) {
 
@@ -121,9 +125,15 @@ fun SettingsLazyHeader(
                     horizontalAlignment = Alignment.CenterHorizontally,
                     modifier = if (reorderState != null) {
                         modifier
+                            .conditional(scrollableContent) {
+                                verticalScroll(rememberScrollState())
+                            }
                             .reorderable(reorderState)
                             .detectReorderAfterLongPress(reorderState)
-                    } else modifier,
+                    } else modifier
+                        .conditional(scrollableContent) {
+                            verticalScroll(rememberScrollState())
+                        },
                 ) {
                     content!!()
                 }

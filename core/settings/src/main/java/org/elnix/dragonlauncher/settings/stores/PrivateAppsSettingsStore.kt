@@ -10,7 +10,7 @@ object PrivateAppsSettingsStore : JsonArraySettingsStore() {
     override val dataStoreName= DataStoreName.PRIVATE_APPS
 
     override val ALL: List<BaseSettingObject<*,*>>
-        get() = listOf(jsonSetting)
+        get() = listOf(this.jsonSetting)
 
 
     override val jsonSetting =  Settings.string(

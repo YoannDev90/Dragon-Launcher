@@ -4,8 +4,6 @@ package org.elnix.dragonlauncher.ui.settings.customization
 
 import androidx.compose.animation.core.Animatable
 import androidx.compose.animation.core.LinearEasing
-import androidx.compose.animation.core.animateDpAsState
-import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.animation.core.tween
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -13,6 +11,7 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ColorLens
 import androidx.compose.material.icons.filled.Palette
+import androidx.compose.material.icons.filled.Polyline
 import androidx.compose.material.icons.filled.SignalCellular4Bar
 import androidx.compose.material.icons.filled.Style
 import androidx.compose.material.icons.filled.Wallpaper
@@ -71,27 +70,25 @@ fun AppearanceTab(
     val icons = LocalIcons.current
     val scope = rememberCoroutineScope()
 
+    // Top overlay things
     val showLaunchingAppLabel by showLaunchingAppLabel.asState()
     val showLaunchingAppIcon by showLaunchingAppIcon.asState()
-    val showAppAnglePreview by UiSettingsStore.showAnglePreview.asState()
     val appLabelIconOverlayTopPadding by appLabelIconOverlayTopPadding.asState()
     val appLabelOverlaySize by appLabelOverlaySize.asState()
     val appIconOverlaySize by appIconOverlaySize.asState()
+    val showAllActionsOnCurrentCircle by UiSettingsStore.showAllActionsOnCurrentCircle.asState()
 
     val topOverlaySettingsState = rememberExpandableSection(stringResource(R.string.app_preview_settings))
     val holdExpandableSectionState = rememberExpandableSection(stringResource(R.string.hold_settings))
 
 
     var isDraggingAppPreviewOverlays by remember { mutableStateOf(false) }
+    var demoIcon by remember { mutableStateOf(icons.keys.random()) }
 
-    val alpha by animateFloatAsState(
-        targetValue = if (isDraggingAppPreviewOverlays) 1f else 0f,
-        animationSpec = tween(150)
-    )
-    val offsetY by animateDpAsState(
-        targetValue = if (isDraggingAppPreviewOverlays) 0.dp else (-20).dp,
-        animationSpec = tween(150)
-    )
+    LaunchedEffect(isDraggingAppPreviewOverlays) {
+        // Changed the icon only when the user stops dragging, to prevent UI animations overhead
+        demoIcon = icons.keys.random()
+    }
 
 
     SettingsLazyHeader(
@@ -148,6 +145,13 @@ fun AppearanceTab(
             ) { navController.navigate(SETTINGS.FLOATING_APPS) }
         }
 
+        item {
+            SettingsItem(
+                title = stringResource(R.string.angle_line),
+                icon = Icons.Default.Polyline
+            ) { navController.navigate(SETTINGS.ANGLE_LINE_EDIT) }
+        }
+
         item { TextDivider(stringResource(R.string.app_display)) }
 
 
@@ -201,7 +205,7 @@ fun AppearanceTab(
                 Box(
                     modifier = Modifier
                         .fillMaxWidth()
-                        .height((holdToActivateSettingsRadius * 2 ).dp)
+                        .height((holdToActivateSettingsRadius * 2).dp)
                         .onSizeChanged { boxSize = it },
                     contentAlignment = Alignment.Center
                 ) {
@@ -263,6 +267,12 @@ fun AppearanceTab(
                     title = stringResource(R.string.show_tolerance_on_main_screen),
                     description = stringResource(R.string.show_tolerance_on_main_screen_desc),
                 )
+
+                SettingsSwitchRow(
+                    setting = UiSettingsStore.rgbLoading,
+                    title = stringResource(R.string.rgb_loading_settings),
+                    description = stringResource(R.string.rgb_loading_description)
+                )
             }
         }
 
@@ -308,37 +318,9 @@ fun AppearanceTab(
             }
         }
 
-        item {
-            SettingsSwitchRow(
-                setting = UiSettingsStore.promptForShortcutsWhenAddingApp,
-                title = stringResource(R.string.prompt_shortcuts_when_adding_app),
-                description = stringResource(R.string.prompt_shortcuts_when_adding_app_desc)
-            )
-        }
-
-        item {
-            SettingsSlider(
-                setting = UiSettingsStore.maxNestsDepth,
-                title = stringResource(R.string.depth),
-                description = stringResource(R.string.depth_desc),
-                valueRange = 1..10
-            )
-        }
 
         item {
             DragonColumnGroup {
-                SettingsSwitchRow(
-                    setting = UiSettingsStore.rgbLoading,
-                    title = stringResource(R.string.rgb_loading_settings),
-                    description = stringResource(R.string.rgb_loading_description)
-                )
-
-                SettingsSwitchRow(
-                    setting = UiSettingsStore.rgbLine,
-                    title = stringResource(R.string.rgb_line_selector),
-                    description = stringResource(R.string.rgb_line_selector_description)
-                )
-
                 SettingsSwitchRow(
                     setting = UiSettingsStore.showAppLaunchingPreview,
                     title = stringResource(R.string.show_app_launch_preview),
@@ -352,18 +334,34 @@ fun AppearanceTab(
                 )
 
                 SettingsSwitchRow(
-                    setting = UiSettingsStore.showLinePreview,
-                    title = stringResource(R.string.show_app_line_preview),
-                    description = stringResource(R.string.show_app_line_preview_description)
-                )
+                    setting = UiSettingsStore.showAllActionsOnCurrentCircle,
+                    title = stringResource(R.string.show_all_actions_on_current_circle),
+                    description = stringResource(R.string.show_all_actions_on_current_circle_description)
+                ) {
+                    if (!it) {
+                        scope.launch {
+                            UiSettingsStore.showAllActionsOnCurrentNest.set(ctx, false)
+                        }
+                    }
+                }
 
                 SettingsSwitchRow(
-                    setting = UiSettingsStore.showAnglePreview,
-                    title = stringResource(
-                        R.string.show_app_angle_preview,
-                        if (!showAppAnglePreview) stringResource(R.string.do_you_hate_it) else ""
-                    ),
-                    description = stringResource(R.string.show_app_angle_preview_description)
+                    setting = UiSettingsStore.showAllActionsOnCurrentNest,
+                    enabled = showAllActionsOnCurrentCircle,
+                    title = stringResource(R.string.show_all_actions_on_current_nest),
+                    description = stringResource(R.string.show_all_actions_on_current_nest_desc)
+                )
+            }
+        }
+
+        item {
+            DragonColumnGroup {
+
+                /* If the line is rgb (computed via the angle) or uses the line color from settings */
+                SettingsSwitchRow(
+                    setting = UiSettingsStore.rgbLine,
+                    title = stringResource(R.string.rgb_line_selector),
+                    description = stringResource(R.string.rgb_line_selector_description)
                 )
 
                 SettingsSwitchRow(
@@ -377,23 +375,24 @@ fun AppearanceTab(
                     title = stringResource(R.string.line_preview_snap_to_action),
                     description = stringResource(R.string.line_preview_snap_to_action_description)
                 )
-
-                SettingsSwitchRow(
-                    setting = UiSettingsStore.showAllActionsOnCurrentCircle,
-                    title = stringResource(R.string.show_all_actions_on_current_circle),
-                    description = stringResource(R.string.show_all_actions_on_current_circle_description)
-                )
             }
+        }
+
+        item {
+            SettingsSlider(
+                setting = UiSettingsStore.maxNestsDepth,
+                title = stringResource(R.string.depth),
+                description = stringResource(R.string.depth_desc),
+                valueRange = 1..10
+            )
         }
     }
 
     if (isDraggingAppPreviewOverlays) {
         AppPreviewTitle(
-            offsetY = offsetY,
-            alpha = alpha,
             point = dummySwipePoint(SwipeActionSerializable.OpenRecentApps).copy(
                 customName = "Preview",
-                id = icons.keys.random() // Kinda funny so I'll keep it :)
+                id = demoIcon
             ),
             topPadding = appLabelIconOverlayTopPadding.dp,
             labelSize = appLabelOverlaySize,

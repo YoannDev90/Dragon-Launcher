@@ -59,12 +59,12 @@ object StatusBarSettingsStore : MapSettingsStore() {
 
 
     override val ALL: List<BaseSettingObject<*,*>> = listOf(
-        showStatusBar,
-        barBackgroundColor,
-        barTextColor,
-        leftPadding,
-        rightPadding,
-        topPadding,
-        bottomPadding
+        this.showStatusBar,
+        this.barBackgroundColor,
+        this.barTextColor,
+        this.leftPadding,
+        this.rightPadding,
+        this.topPadding,
+        this.bottomPadding
     )
 }

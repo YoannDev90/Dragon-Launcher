@@ -794,6 +794,23 @@
     <string name="set_status_bar_template">स्टेटस बार टेम्प्लेट (मेरा) चेतावनी सेट करें, इस पर क्लिक करने से आपका वर्तमान सेटअप मिट जाता है!</string>
     <string name="notch_mode">मोड: नॉच (नॉच पर स्पेसर लगाता है)</string>
     <string name="google_lockdown_warning">\"Google ने घोषणा की है कि, 2026/2027 से शुरू होकर, प्रमाणित एंड्रॉइड डिवाइसों पर सभी ऐप्स के लिए डेवलपर को व्यक्तिगत पहचान विवरण सीधे Google को सबमिट करना होगा। चूंकि इस ऐप के डेवलपर्स इस आवश्यकता से सहमत नहीं हैं, इसलिए यह ऐप उस समय के बाद प्रमाणित एंड्रॉइड डिवाइसों पर काम नहीं करेगा।\"</string>
+    <string name="solution">समाधान</string>
+    <string name="dismiss">नकार देना</string>
+    <string name="nest_radius">घोंसला त्रिज्या</string>
+    <string name="edit_nest">घोंसला संपादित करें</string>
+    <string name="angle_line">कोण रेखा</string>
+    <string name="angle_line_help">जब आप मुख्य स्क्रीन पर खींचते हैं तो दिखाई देने वाली रेखा के स्वरूप को अनुकूलित करें</string>
+    <string name="show_start_object_preview">प्रारंभ ऑब्जेक्ट पूर्वावलोकन दिखाएँ</string>
+    <string name="show_start_object_preview_desc">क्या खींचने की स्थिति के आरंभ में (डिफ़ॉल्ट रूप से) वृत्त प्रदर्शित करना है</string>
+    <string name="show_end_object_preview">अंतिम वस्तु पूर्वावलोकन दिखाएँ</string>
+    <string name="show_end_object_preview_desc">क्या खींचने की स्थिति के अंतिम प्रारंभ पर (डिफ़ॉल्ट रूप से) छोटा वृत्त प्रदर्शित करना है</string>
+    <string name="stroke">आघात</string>
+    <string name="edit_shape">आकृति संपादित करें</string>
+    <string name="erase_background">पृष्ठभूमि मिटाएं</string>
+    <string name="glow_radius">चमक त्रिज्या</string>
+    <string name="glow_color">चमक रंग</string>
+    <string name="enable_glow">चमक सक्षम करें</string>
+
     <string name="solution">विलयन</string>
     <string name="dismiss">खारिज करें</string>
     <string name="nest_radius">नेस्ट त्रिज्या</string>

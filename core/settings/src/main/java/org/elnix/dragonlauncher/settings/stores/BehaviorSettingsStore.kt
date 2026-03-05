@@ -14,26 +14,26 @@ object BehaviorSettingsStore : MapSettingsStore() {
 
     override val ALL: List<BaseSettingObject <*, *> >
         get() = listOf(
-            backAction,
-            doubleClickAction,
-            homeAction,
-            keepScreenOn,
-            leftPadding,
-            rightPadding,
-            topPadding,
-            bottomPadding,
-            holdDelayBeforeStartingLongClickSettings,
-            longCLickSettingsDuration,
-            disableHapticFeedbackGlobally,
-            pointsActionSnapsToOuterCircle,
-            holdToActivateSettingsRadius,
-            holdToActivateSettingsStroke,
-            holdToActivateSettingsTolerance,
-            useDifferentialLoadingForPrivateSpace,
-            superWarningModeSound,
-            metalPipesSound,
-            alarmSound,
-            vibrateOnError
+            this.backAction,
+            this.doubleClickAction,
+            this.homeAction,
+            this.keepScreenOn,
+            this.leftPadding,
+            this.rightPadding,
+            this.topPadding,
+            this.bottomPadding,
+            this.holdDelayBeforeStartingLongClickSettings,
+            this.longCLickSettingsDuration,
+            this.disableHapticFeedbackGlobally,
+            this.pointsActionSnapsToOuterCircle,
+            this.holdToActivateSettingsRadius,
+            this.holdToActivateSettingsStroke,
+            this.holdToActivateSettingsTolerance,
+            this.useDifferentialLoadingForPrivateSpace,
+            this.superWarningModeSound,
+            this.metalPipesSound,
+            this.alarmSound,
+            this.vibrateOnError
         )
 
     val backAction = Settings.swipeAction(
@@ -183,8 +183,16 @@ object BehaviorSettingsStore : MapSettingsStore() {
         allowedRange = 0..100
     )
 
+
+    /*  ─────────────  Internal used settings concerning apps loading ───────────── */
     val useDifferentialLoadingForPrivateSpace = Settings.boolean(
         key = "useDifferentialLoadingForPrivateSpace",
+        dataStoreName = dataStoreName,
+        default = false
+    )
+
+    val promptForShortcutsWhenAddingApp = Settings.boolean(
+        key = "promptForShortcutsWhenAddingApp",
         dataStoreName = dataStoreName,
         default = false
     )

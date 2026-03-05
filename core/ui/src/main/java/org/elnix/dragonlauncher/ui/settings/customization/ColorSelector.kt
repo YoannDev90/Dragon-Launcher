@@ -1,4 +1,4 @@
-package org.elnix.dragonlauncher.ui.settings.customization.colors
+package org.elnix.dragonlauncher.ui.settings.customization
 
 
 import androidx.compose.animation.core.Ease

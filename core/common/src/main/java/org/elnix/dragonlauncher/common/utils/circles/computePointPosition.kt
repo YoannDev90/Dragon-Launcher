@@ -11,6 +11,20 @@ import kotlin.math.sin
 // TODO With that, I'll be able to perform on hoover operations, such as moving points to a nest
 
 
+private fun computePointPositionInternal(
+    angleDeg: Double,
+    radius: Float,
+    center: Offset,
+): Offset {
+
+    // Convert angleDeg to radians and compute the Offset
+    val angleRad = Math.toRadians(angleDeg)
+    return Offset(
+        x = center.x + radius * sin(angleRad).toFloat(),
+        y = center.y - radius * cos(angleRad).toFloat()
+    )
+}
+
 fun computePointPosition(
     point: SwipePointSerializable,
     circles: List<UiCircle>,
@@ -19,10 +33,23 @@ fun computePointPosition(
     // Find the circle this point belongs to
     val circle = circles.find { it.id == point.circleNumber } ?: return center
 
-    // Convert angleDeg to radians and compute the Offset
-    val angleRad = Math.toRadians(point.angleDeg)
-    return Offset(
-        x = center.x + circle.radius * sin(angleRad).toFloat(),
-        y = center.y - circle.radius * cos(angleRad).toFloat()
+    return computePointPositionInternal(
+        angleDeg = point.angleDeg,
+        radius = circle.radius,
+        center = center
+    )
+}
+
+
+fun computePointPosition(
+    point: SwipePointSerializable,
+    radius: Float,
+    center: Offset
+): Offset {
+
+    return computePointPositionInternal(
+        angleDeg = point.angleDeg,
+        radius = radius,
+        center = center
     )
 }

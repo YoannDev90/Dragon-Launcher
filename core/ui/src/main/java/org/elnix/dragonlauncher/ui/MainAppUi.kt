@@ -54,11 +54,14 @@ import kotlinx.coroutines.flow.filter
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withTimeoutOrNull
+import kotlinx.serialization.json.Json
+import kotlinx.serialization.modules.SerializersModule
 import org.elnix.dragonlauncher.common.FloatingAppObject
 import org.elnix.dragonlauncher.common.R
 import org.elnix.dragonlauncher.common.logging.logD
 import org.elnix.dragonlauncher.common.logging.logE
 import org.elnix.dragonlauncher.common.logging.logW
+import org.elnix.dragonlauncher.common.serializables.ColorSerializer
 import org.elnix.dragonlauncher.common.serializables.IconShape
 import org.elnix.dragonlauncher.common.serializables.StatusBarJson
 import org.elnix.dragonlauncher.common.serializables.SwipeActionSerializable
@@ -67,12 +70,14 @@ import org.elnix.dragonlauncher.common.serializables.allShapesWithoutRandom
 import org.elnix.dragonlauncher.common.serializables.defaultSwipePointsValues
 import org.elnix.dragonlauncher.common.serializables.dummySwipePoint
 import org.elnix.dragonlauncher.common.utils.Constants
+import org.elnix.dragonlauncher.common.utils.Constants.Logging.ANGLE_LINE_TAG
 import org.elnix.dragonlauncher.common.utils.Constants.Logging.APP_LAUNCH_TAG
 import org.elnix.dragonlauncher.common.utils.Constants.Logging.STATUS_BAR_TAG
 import org.elnix.dragonlauncher.common.utils.Constants.Logging.TAG
 import org.elnix.dragonlauncher.common.utils.Constants.Navigation.transparentScreens
 import org.elnix.dragonlauncher.common.utils.ROUTES
 import org.elnix.dragonlauncher.common.utils.SETTINGS
+import org.elnix.dragonlauncher.common.utils.UiConstants
 import org.elnix.dragonlauncher.common.utils.WidgetHostProvider
 import org.elnix.dragonlauncher.common.utils.getVersionCode
 import org.elnix.dragonlauncher.common.utils.hasUriReadWritePermission
@@ -81,6 +86,7 @@ import org.elnix.dragonlauncher.common.utils.loadChangelogs
 import org.elnix.dragonlauncher.common.utils.openUrl
 import org.elnix.dragonlauncher.common.utils.showToast
 import org.elnix.dragonlauncher.enumsui.LockMethod
+import org.elnix.dragonlauncher.settings.stores.AngleLineSettingsStore
 import org.elnix.dragonlauncher.settings.stores.BackupSettingsStore
 import org.elnix.dragonlauncher.settings.stores.BehaviorSettingsStore
 import org.elnix.dragonlauncher.settings.stores.ColorModesSettingsStore
@@ -110,19 +116,26 @@ import org.elnix.dragonlauncher.ui.helpers.collapseDownAnimation
 import org.elnix.dragonlauncher.ui.helpers.findFragmentActivity
 import org.elnix.dragonlauncher.ui.helpers.noAnimComposable
 import org.elnix.dragonlauncher.ui.helpers.raiseUpAnimation
+import org.elnix.dragonlauncher.ui.remembers.LocalAngleLineObject
 import org.elnix.dragonlauncher.ui.remembers.LocalAppLifecycleViewModel
 import org.elnix.dragonlauncher.ui.remembers.LocalAppsViewModel
 import org.elnix.dragonlauncher.ui.remembers.LocalBackupViewModel
 import org.elnix.dragonlauncher.ui.remembers.LocalDefaultPoint
+import org.elnix.dragonlauncher.ui.remembers.LocalEndLineObject
 import org.elnix.dragonlauncher.ui.remembers.LocalIconShape
 import org.elnix.dragonlauncher.ui.remembers.LocalIcons
+import org.elnix.dragonlauncher.ui.remembers.LocalLineObject
 import org.elnix.dragonlauncher.ui.remembers.LocalNests
 import org.elnix.dragonlauncher.ui.remembers.LocalPoints
 import org.elnix.dragonlauncher.ui.remembers.LocalShowStatusBar
+import org.elnix.dragonlauncher.ui.remembers.LocalStartLineObject
 import org.elnix.dragonlauncher.ui.remembers.LocalStatusBarElements
+import org.elnix.dragonlauncher.ui.remembers.rememberDecodedObject
 import org.elnix.dragonlauncher.ui.settings.backup.BackupTab
+import org.elnix.dragonlauncher.ui.settings.customization.AngleLineTab
 import org.elnix.dragonlauncher.ui.settings.customization.AppearanceTab
 import org.elnix.dragonlauncher.ui.settings.customization.BehaviorTab
+import org.elnix.dragonlauncher.ui.settings.customization.ColorSelectorTab
 import org.elnix.dragonlauncher.ui.settings.customization.DrawerTab
 import org.elnix.dragonlauncher.ui.settings.customization.FloatingAppsTab
 import org.elnix.dragonlauncher.ui.settings.customization.IconPackTab
@@ -130,7 +143,6 @@ import org.elnix.dragonlauncher.ui.settings.customization.NestEditingScreen
 import org.elnix.dragonlauncher.ui.settings.customization.StatusBarTab
 import org.elnix.dragonlauncher.ui.settings.customization.ThemesTab
 import org.elnix.dragonlauncher.ui.settings.customization.WallpaperTab
-import org.elnix.dragonlauncher.ui.settings.customization.colors.ColorSelectorTab
 import org.elnix.dragonlauncher.ui.settings.debug.DebugTab
 import org.elnix.dragonlauncher.ui.settings.debug.LogsTab
 import org.elnix.dragonlauncher.ui.settings.debug.SettingsDebugTab
@@ -508,8 +520,6 @@ fun MainAppUi(
     }
 
 
-
-
     // Drawer home action receiver
     var drawerHomeHandler by remember { mutableStateOf<(() -> Unit)?>(null) }
 
@@ -521,9 +531,11 @@ fun MainAppUi(
                 ROUTES.DRAWER -> {
                     drawerHomeHandler?.invoke()
                 }
+
                 ROUTES.MAIN -> {
                     launchApp(homeAction)
                 }
+
                 else -> {
                     isUnlocked = false
                     goMainScreen()
@@ -583,8 +595,17 @@ fun MainAppUi(
         }
 
 
+    /* ───────────── Start Composition locals getters ───────────── */
+
     val icons by appsViewModel.icons.collectAsState()
     val iconsShape by DrawerSettingsStore.iconsShape.asState()
+
+    // Used internally by the app view model
+    // Caches the icon shape inside to avoid having to pass the shape through each call of a reload icon
+    // Crashes if shape not defined, but as it is passed soon enough, this should be ok (never saw any crash tough)
+    LaunchedEffect(iconsShape) {
+        appsViewModel.cacheIconShape(iconsShape)
+    }
 
     val nests by SwipeSettingsStore.getNestsFlow(ctx).collectAsState(initial = emptyList())
     val points by SwipeSettingsStore.getPointsFlow(ctx).collectAsState(emptyList())
@@ -604,11 +625,55 @@ fun MainAppUi(
         derivedStateOf { decoded }
     }
 
-    // Used internally by the app view model
-    LaunchedEffect(iconsShape) {
-        appsViewModel.cacheIconShape(iconsShape)
+    /* ───────────── Decodes the angle lines things ───────────── */
+
+    val json = Json {
+        prettyPrint = true
+        serializersModule = SerializersModule {
+            contextual(Color::class, ColorSerializer)
+        }
     }
 
+    val lineJson by AngleLineSettingsStore.lineJson.asState()
+    val lineObject = rememberDecodedObject(
+        jsonString = lineJson,
+        default = UiConstants.defaultLineCustomObject,
+        json = json
+    ) {
+        ctx.logE(ANGLE_LINE_TAG, "Error decoding lineObject", it)
+    }
+
+    val angleLineJson by AngleLineSettingsStore.angleLineJson.asState()
+    val angleLineObject = rememberDecodedObject(
+        jsonString = angleLineJson,
+        default = UiConstants.defaultAngleCustomObject,
+        json = json
+    ) {
+        ctx.logE(ANGLE_LINE_TAG, "Error decoding angleLineObject", it)
+    }
+
+    val startLineJson by AngleLineSettingsStore.startLineJson.asState()
+    val startLineObject = rememberDecodedObject(
+        jsonString = startLineJson,
+        default = UiConstants.defaultStartCustomObject,
+        json = json
+    ) {
+        ctx.logE(ANGLE_LINE_TAG, "Error decoding startLineObject", it)
+    }
+
+    val endLineJson by AngleLineSettingsStore.endLineJson.asState()
+    val endLineObject = rememberDecodedObject(
+        jsonString = endLineJson,
+        default = UiConstants.defaultEndCustomObject,
+        json = json
+    ) {
+        ctx.logE(ANGLE_LINE_TAG, "Error decoding endLineObject", it)
+    }
+
+    /**
+     * Main Composition local provider, I just for everything I can here to avoid having to import them everywhere
+     * I know that I should carefully review what global locals I add, but until now it worked to I'll keep it that way until I notice lag
+     */
     CompositionLocalProvider(
         LocalDefaultPoint provides defaultPoint,
         LocalIcons provides icons,
@@ -616,7 +681,12 @@ fun MainAppUi(
         LocalPoints provides points,
         LocalNests provides nests,
         LocalStatusBarElements provides elements,
-        LocalShowStatusBar provides showStatusBar
+        LocalShowStatusBar provides showStatusBar,
+
+        LocalLineObject provides lineObject,
+        LocalAngleLineObject provides angleLineObject,
+        LocalStartLineObject provides startLineObject,
+        LocalEndLineObject provides endLineObject,
     ) {
         Scaffold(
             topBar = {
@@ -733,6 +803,7 @@ fun MainAppUi(
                     noAnimComposable(SETTINGS.LOGS) { LogsTab(::goDebug) }
                     noAnimComposable(SETTINGS.SETTINGS_JSON) { SettingsDebugTab(::goDebug) }
                     noAnimComposable(SETTINGS.LANGUAGE) { LanguageTab(::goAdvSettingsRoot) }
+                    noAnimComposable(SETTINGS.ANGLE_LINE_EDIT) { AngleLineTab(::goAppearance) }
                     noAnimComposable(SETTINGS.BACKUP) { BackupTab(::goAdvSettingsRoot) }
                     noAnimComposable(SETTINGS.CHANGELOGS) { ChangelogsScreen(::goAdvSettingsRoot) }
 

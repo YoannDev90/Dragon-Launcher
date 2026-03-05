@@ -2,9 +2,6 @@
 
 package org.elnix.dragonlauncher.ui
 
-import androidx.compose.animation.core.animateDpAsState
-import androidx.compose.animation.core.animateFloatAsState
-import androidx.compose.animation.core.tween
 import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -16,45 +13,60 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableDoubleStateOf
+import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
+import androidx.compose.runtime.snapshots.SnapshotStateList
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.geometry.Rect
 import androidx.compose.ui.geometry.Size
-import androidx.compose.ui.graphics.BlendMode
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.CompositingStrategy
+import androidx.compose.ui.graphics.Paint
 import androidx.compose.ui.graphics.StrokeCap
 import androidx.compose.ui.graphics.drawscope.DrawScope
-import androidx.compose.ui.graphics.drawscope.Fill
 import androidx.compose.ui.graphics.drawscope.Stroke
+import androidx.compose.ui.graphics.drawscope.drawIntoCanvas
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.unit.IntSize
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import org.elnix.dragonlauncher.base.theme.LocalExtraColors
+import org.elnix.dragonlauncher.common.logging.logD
+import org.elnix.dragonlauncher.common.logging.logI
 import org.elnix.dragonlauncher.common.serializables.CircleNest
+import org.elnix.dragonlauncher.common.serializables.CustomObjectSerializable
 import org.elnix.dragonlauncher.common.serializables.SwipePointSerializable
+import org.elnix.dragonlauncher.common.utils.Constants.Logging.ANGLE_LINE_TAG
+import org.elnix.dragonlauncher.common.utils.Constants.Logging.NESTS_TAG
+import org.elnix.dragonlauncher.common.utils.UiCircle
+import org.elnix.dragonlauncher.common.utils.UiConstants
+import org.elnix.dragonlauncher.common.utils.circles.computePointPosition
 import org.elnix.dragonlauncher.common.utils.vibrate
+import org.elnix.dragonlauncher.settings.stores.AngleLineSettingsStore
 import org.elnix.dragonlauncher.settings.stores.BehaviorSettingsStore
 import org.elnix.dragonlauncher.settings.stores.DebugSettingsStore
 import org.elnix.dragonlauncher.settings.stores.UiSettingsStore
 import org.elnix.dragonlauncher.ui.components.AppPreviewTitle
 import org.elnix.dragonlauncher.ui.components.settings.asState
+import org.elnix.dragonlauncher.ui.helpers.customobjects.customObject
 import org.elnix.dragonlauncher.ui.helpers.nests.actionsInCircle
+import org.elnix.dragonlauncher.ui.helpers.nests.circlesSettingsOverlay
+import org.elnix.dragonlauncher.ui.helpers.nests.drawNeonGlowLine
 import org.elnix.dragonlauncher.ui.helpers.nests.swipeDefaultParams
+import org.elnix.dragonlauncher.ui.remembers.LocalAngleLineObject
+import org.elnix.dragonlauncher.ui.remembers.LocalEndLineObject
+import org.elnix.dragonlauncher.ui.remembers.LocalLineObject
 import org.elnix.dragonlauncher.ui.remembers.LocalNests
 import org.elnix.dragonlauncher.ui.remembers.LocalPoints
+import org.elnix.dragonlauncher.ui.remembers.LocalStartLineObject
 import kotlin.math.abs
 import kotlin.math.atan2
-import kotlin.math.cos
 import kotlin.math.hypot
-import kotlin.math.sin
 
 
 @Composable
@@ -62,14 +74,17 @@ fun MainScreenOverlay(
     start: Offset?,
     current: Offset?,
     nestId: Int,
-    isDragging: Boolean,
-    surface: IntSize,
-    onLaunch: (SwipePointSerializable) -> Unit
+    onLaunch: ((SwipePointSerializable) -> Unit)?
 ) {
     val ctx = LocalContext.current
     val nests = LocalNests.current
     val points = LocalPoints.current
     val extraColors = LocalExtraColors.current
+
+    val lineObject = LocalLineObject.current
+    val angleLineObject = LocalAngleLineObject.current
+    val startObject = LocalStartLineObject.current
+    val endObject = LocalEndLineObject.current
 
     val rgbLine by UiSettingsStore.rgbLine.asState()
     val debugInfos by DebugSettingsStore.debugInfos.asState()
@@ -79,17 +94,26 @@ fun MainScreenOverlay(
 
     val showAppLaunchPreview by UiSettingsStore.showAppLaunchingPreview.asState()
     val showAppCirclePreview by UiSettingsStore.showCirclePreview.asState()
-    val showAppLinePreview by UiSettingsStore.showLinePreview.asState()
-    val showAppAnglePreview by UiSettingsStore.showAnglePreview.asState()
+
+    val showLineObjectPreview by AngleLineSettingsStore.showLineObjectPreview.asState()
+    val showAngleLineObjectPreview by AngleLineSettingsStore.showAngleLineObjectPreview.asState()
+    val showStartObjectPreview by AngleLineSettingsStore.showLineObjectPreview.asState()
+    val showEndObjectPreview by AngleLineSettingsStore.showAngleLineObjectPreview.asState()
+
     val showAppPreviewIconCenterStartPosition by UiSettingsStore.showAppPreviewIconCenterStartPosition.asState()
     val linePreviewSnapToAction by UiSettingsStore.linePreviewSnapToAction.asState()
     val showAllActionsOnCurrentCircle by UiSettingsStore.showAllActionsOnCurrentCircle.asState()
+    val showAllActionsOnCurrentNest by UiSettingsStore.showAllActionsOnCurrentNest.asState()
     val appLabelIconOverlayTopPadding by UiSettingsStore.appLabelIconOverlayTopPadding.asState()
     val appLabelOverlaySize by UiSettingsStore.appLabelOverlaySize.asState()
     val appIconOverlaySize by UiSettingsStore.appIconOverlaySize.asState()
     val disableHapticFeedback by BehaviorSettingsStore.disableHapticFeedbackGlobally.asState()
     val pointsActionSnapsToOuterCircle by BehaviorSettingsStore.pointsActionSnapsToOuterCircle.asState()
 
+
+    val isDragging = start != null && current != null
+
+    val currentNest = nests.find { it.id == nestId } ?: CircleNest()
 
     var lastAngle by remember { mutableStateOf<Double?>(null) }
     var cumulativeAngle by remember { mutableDoubleStateOf(0.0) }   // continuous rotation without jumps
@@ -108,9 +132,8 @@ fun MainScreenOverlay(
     val angle0to360: Double
 
     val lineColor: Color
-    val circleRadius = 48f
 
-    if (start != null && current != null) {
+    if (isDragging) {
         dx = current.x - start.x
         dy = current.y - start.y
         dist = hypot(dx, dy)
@@ -156,7 +179,6 @@ fun MainScreenOverlay(
 
     // ───────────── For displaying the banner ─────────────
     var hoveredPoint by remember { mutableStateOf<SwipePointSerializable?>(null) }
-    var bannerVisible by remember { mutableStateOf(false) }
 
 
     // The chosen swipe action
@@ -192,7 +214,7 @@ fun MainScreenOverlay(
 
 
 
-    if (start != null && current != null && isDragging) {
+    if (isDragging) {
 
         val closestPoint =
             points.filter { it.nestId == nestId && it.circleNumber == targetCircle }
@@ -222,23 +244,12 @@ fun MainScreenOverlay(
         }
 
         currentAction = selectedPoint
-//        currentAction = if (dist > dragRadii[0]) selectedPoint else null
 
         hoveredPoint = currentAction
-        bannerVisible = currentAction != null
-    } else if (!isDragging) {
-        bannerVisible = false
+    } else {
         exposedClosest = null
     }
 
-    val alpha by animateFloatAsState(
-        targetValue = if (bannerVisible) 1f else 0f,
-        animationSpec = tween(150)
-    )
-    val offsetY by animateDpAsState(
-        targetValue = if (bannerVisible) 0.dp else (-20).dp,
-        animationSpec = tween(150)
-    )
 
     LaunchedEffect(hoveredPoint?.id) {
         hoveredPoint?.let { point ->
@@ -254,12 +265,38 @@ fun MainScreenOverlay(
     LaunchedEffect(isDragging) {
         if (!isDragging) {
             if (currentAction != null) {
-                onLaunch(currentAction!!)
+                onLaunch?.invoke(currentAction!!)
             }
             hoveredPoint = null
             currentAction = null
-            bannerVisible = false
         }
+    }
+
+
+    val circles: SnapshotStateList<UiCircle> = remember { mutableStateListOf() }
+
+    LaunchedEffect(nestId) {
+        // Clear previous circles before recomputing
+        circles.clear()
+
+        // Iterate over all circle numbers, excluding the special -1 key
+        currentNest.dragDistances
+            .filter { it.key != -1 }
+            .forEach { (circleNumber, radius) ->
+
+                // Add a new UiCircle with computed radius
+                circles.add(
+                    UiCircle(
+                        id = circleNumber,
+                        radius = radius.toFloat(),
+                    )
+                )
+            }
+    }
+
+    val filteredCircles = circles.filter {
+        showAllActionsOnCurrentNest ||
+        (showAllActionsOnCurrentCircle && it.id == targetCircle)
     }
 
 
@@ -304,7 +341,7 @@ fun MainScreenOverlay(
                     color = Color.White, fontSize = 12.sp
                 )
                 Text(
-                    text = "drag = $isDragging, size = ${surface.width}×${surface.height}",
+                    text = "drag = $isDragging",
                     color = Color.White, fontSize = 12.sp
                 )
                 Text(
@@ -321,7 +358,20 @@ fun MainScreenOverlay(
 //        val colorAction = if (hoveredPoint != null) actionColor(hoveredPoint!!.action, extraColors) else Color.Unspecified
 
 
-        val drawParams = swipeDefaultParams()
+//        val filteredPoints = points.filter {
+//            it.nestId == nestId && (
+//                when {
+//                    showAllActionsOnCurrentNest -> true
+//                    showAllActionsOnCurrentCircle -> it.circleNumber == targetCircle
+//                    showAppLaunchPreview -> it.id == hoveredPoint?.id
+//                    else -> false
+//                }
+//            )
+//        }
+
+        val drawParams = swipeDefaultParams(points = points)
+
+
         // Main drawing canva (the lines, circles and selected actions
         Canvas(
             modifier = Modifier
@@ -332,85 +382,117 @@ fun MainScreenOverlay(
         ) {
 
             // Draw only if the user is dragging (has a start pos and a end (current) Offsets
-            if (start != null && current != null) {
+            if (isDragging) {
 
+                // If the line doesn't snap, I draw it here; first, when the user is dragging
+                if (!linePreviewSnapToAction) {
+                    actionLine(
+                        start = start,
+                        end = current,
 
-                // The line that goes from start dragging pos to the user's finger
-                if (showAppLinePreview) {
-                    drawCircle(
-                        color = lineColor,
-                        radius = circleRadius,
-                        center = start,
-                        style = Stroke(width = 3f)
+                        showLineObjectPreview = showLineObjectPreview,
+                        showAngleLineObjectPreview = showAngleLineObjectPreview,
+                        showStartObjectPreview = showStartObjectPreview,
+                        showEndObjectPreview = showEndObjectPreview,
+
+                        lineCustomObject = lineObject,
+                        angleLineCustomObject = angleLineObject,
+                        startCustomObject = startObject,
+                        endCustomObject = endObject,
+                        sweepAngle = sweepAngle,
+
+                        lineColor = lineColor
                     )
-
-                    if (!(linePreviewSnapToAction && hoveredPoint != null)) {
-                        actionLine(
-                            drawScope = this,
-                            start = start,
-                            end = current,
-                            radius = circleRadius,
-                            color = lineColor
-                        )
-                    }
                 }
 
-                if (showAppCirclePreview || showAppLinePreview || showAppLaunchPreview) {
-                    hoveredPoint?.let { point ->
+                hoveredPoint?.let { point ->
 
-                        // same circle radii as SettingsScreen
-                        val radius = dragRadii[targetCircle]!!.toFloat()
-                        // Main circle (the selected) drawn before any apps to be behind
-                        if (showAppCirclePreview) {
-                            drawCircle(
-                                color = extraColors.circle,
-                                radius = radius,
-                                center = start,
-                                style = Stroke(4f)
-                            )
-                        }
+                    // same circle radii as SettingsScreen
+                    val radius = dragRadii[targetCircle]!!.toFloat()
+
+                    // if you choose to draw every action, they are drawn here, excepted for
+                    // the selected one, that is always drawn last to prevent overlapping issues,
+                    // even though it shouldn't happen due to my separatePoints functions
+//                    if (showAllActionsOnCurrentCircle) {
+//                        points.filter { it.nestId == nestId && it.circleNumber == targetCircle && it != point }
+//                            .forEach { p ->
+//                                val localCenter = computePointPosition(
+//                                    point = p,
+//                                    radius = radius,
+//                                    center = start
+//                                )
+//                                actionsInCircle(
+//                                    selected = false,
+//                                    point = p,
+//                                    drawParams = drawParams,
+//                                    center = localCenter,
+//                                    depth = 1
+//                                )
+//                            }
+//                    }
 
 
-                        // compute point position relative to origin
-                        val end = Offset(
-                            x = start.x + radius * sin(Math.toRadians(point.angleDeg)).toFloat(),
-                            y = start.y - radius * cos(Math.toRadians(point.angleDeg)).toFloat()
+                    // compute point position relative to origin
+                    // Depends on whether the line snaps or not to the closest point
+                    val end = computePointPosition(
+                        point = point,
+                        radius = radius,
+                        center = start
+                    )
+
+                    // If the line snaps, I draw it here once
+                    if (linePreviewSnapToAction) {
+                        actionLine(
+                            start = start,
+                            end = end,
+
+                            showLineObjectPreview = showLineObjectPreview,
+                            showAngleLineObjectPreview = showAngleLineObjectPreview,
+                            showStartObjectPreview = showStartObjectPreview,
+                            showEndObjectPreview = showEndObjectPreview,
+
+                            lineCustomObject = lineObject,
+                            angleLineCustomObject = angleLineObject,
+                            startCustomObject = startObject,
+                            endCustomObject = endObject,
+                            sweepAngle = sweepAngle,
+
+                            lineColor = lineColor
                         )
+                    }
 
-                        // If the user selected that the line has to snap to action, it is drawn here and not above
-                        if (linePreviewSnapToAction) {
-                            actionLine(
-                                drawScope = this,
-                                start = start,
-                                end = end,
-                                radius = circleRadius,
-                                color = lineColor
+                    drawIntoCanvas { canvas ->
+
+                        val bounds = Rect(0f, 0f, size.width, size.height)
+
+                        canvas.saveLayer(bounds, Paint())
+
+                        if (showAllActionsOnCurrentCircle || showAllActionsOnCurrentNest) {
+                            logI(NESTS_TAG, "Got circle settings\ncircles: $circles\nfiltered: $filteredCircles")
+                            // If you selected to draw the selected circle / nest
+                            circlesSettingsOverlay(
+                                drawParams = drawParams,
+                                center = start,
+                                depth = 1,
+                                circles = filteredCircles,
+                                selectedPoint = point,
+                                nestId = nestId
                             )
-                        }
+                        } else if (showAppLaunchPreview) {
+                            logI(NESTS_TAG, "Got action in settings")
 
 
-                        // if you choose to draw every actions, they are drawn here, excepted for
-                        // the selected one, that is always drawn last to prevent overlapping issues,
-                        // even though it shouldn't happened due to my separatePoints functions
-                        if (showAllActionsOnCurrentCircle) {
-                            points.filter { it.nestId == nestId && it.circleNumber == targetCircle && it != point }
-                                .forEach { p ->
-                                    val localCenter = Offset(
-                                        x = start.x + radius * sin(Math.toRadians(p.angleDeg)).toFloat(),
-                                        y = start.y - radius * cos(Math.toRadians(p.angleDeg)).toFloat()
-                                    )
-                                    actionsInCircle(
-                                        selected = false,
-                                        point = p,
-                                        drawParams = drawParams,
-                                        center = localCenter,
-                                        depth = 1
-                                    )
-                                }
-                        }
+                            // Main circle (the selected) drawn before any apps to be behind
+                            if (showAppCirclePreview) {
+                                drawCircle(
+                                    color = extraColors.circle,
+                                    radius = radius,
+                                    center = start,
+                                    style = Stroke(4f)
+                                )
+                            }
 
-                        // Draw here the actual selected action (if requested)
-                        if (showAppLaunchPreview) {
+                            // Only draw here the point both show
                             actionsInCircle(
                                 selected = true,
                                 point = point,
@@ -418,46 +500,24 @@ fun MainScreenOverlay(
                                 center = end,
                                 depth = 1
                             )
+                        } else {
+                            logI(NESTS_TAG, "Got else")
                         }
+
+
+                        // Show the current selected app in the center of the circle (start pos)
+                        if (showAppPreviewIconCenterStartPosition) {
+                            actionsInCircle(
+                                selected = true,
+                                point = point,
+                                drawParams = drawParams,
+                                center = start,
+                                depth = 1
+                            )
+                        }
+
+                        canvas.restore()
                     }
-                }
-
-
-                // Show the current selected app in the center of the circle (start pos)
-                if (showAppPreviewIconCenterStartPosition && hoveredPoint != null) {
-                    val currentPoint = hoveredPoint!!
-
-                    actionsInCircle(
-                        selected = true,
-                        point = currentPoint,
-                        drawParams = drawParams,
-                        center = start,
-                        depth = 1
-                    )
-                }
-
-
-                // The angle rotating around the start point (have to fix that and allow more customization) TODO
-                // Draws last to display over the sub nests
-                // The "do you hate it" thing in settings
-                if (showAppAnglePreview) {
-                    val arcRadius = 72f
-                    val rect = Rect(
-                        start.x - arcRadius,
-                        start.y - arcRadius,
-                        start.x + arcRadius,
-                        start.y + arcRadius
-                    )
-
-                    drawArc(
-                        color = lineColor,
-                        startAngle = -90f,
-                        sweepAngle = sweepAngle,
-                        useCenter = false,
-                        topLeft = rect.topLeft,
-                        size = Size(rect.width, rect.height),
-                        style = Stroke(width = 3f)
-                    )
                 }
             }
         }
@@ -465,12 +525,9 @@ fun MainScreenOverlay(
 
 
     // Label on top of the screen to indicate the launching app
-    if (hoveredPoint != null && (showLaunchingAppLabel || showLaunchingAppIcon)) {
-        val currentPoint = hoveredPoint!!
+    if (showLaunchingAppLabel || showLaunchingAppIcon) {
         AppPreviewTitle(
-            offsetY = offsetY,
-            alpha = alpha,
-            point = currentPoint,
+            point = hoveredPoint,
             topPadding = appLabelIconOverlayTopPadding.dp,
             labelSize = appLabelOverlaySize,
             iconSize = appIconOverlaySize,
@@ -481,37 +538,104 @@ fun MainScreenOverlay(
 }
 
 
-private fun actionLine(
-    drawScope: DrawScope,
+fun DrawScope.actionLine(
     start: Offset,
     end: Offset,
-    radius: Float,
-    color: Color,
+
+    showLineObjectPreview: Boolean,
+    showAngleLineObjectPreview: Boolean,
+    showStartObjectPreview: Boolean,
+    showEndObjectPreview: Boolean,
+
+    lineCustomObject: CustomObjectSerializable,
+    angleLineCustomObject: CustomObjectSerializable,
+    startCustomObject: CustomObjectSerializable,
+    endCustomObject: CustomObjectSerializable,
+    sweepAngle: Float,
+    lineColor: Color
 ) {
-    // Draw the main line from start to end
-    drawScope.drawLine(
-        color = color,
-        start = start,
-        end = end,
-        strokeWidth = 4f,
-        cap = StrokeCap.Round
-    )
+    logD(ANGLE_LINE_TAG, lineCustomObject.toString())
+    if (showLineObjectPreview) {
+        val lineGlow = lineCustomObject.glow
+        val lineStrokeWidth = (lineCustomObject.stroke ?: UiConstants.defaultLineCustomObject.stroke!!).dp.toPx()
 
-    // Erases the color, instead of putting it, that lets the wallpaper pass trough
-    drawScope.drawCircle(
-        color = Color.Transparent,
-        radius = radius - 2,
-        center = start,
-        blendMode = BlendMode.Clear
-    )
+        if (lineGlow != null) {
+            val glowRadius = (lineGlow.radius ?: UiConstants.defaultLineCustomObject.glow!!.radius!!).dp.toPx()
+            if (glowRadius > 0f) {
+                drawNeonGlowLine(
+                    start = start,
+                    end = end,
+                    color = lineCustomObject.color ?: lineColor,
+                    lineStrokeWidth = lineStrokeWidth,
+                    glowRadius = glowRadius,
+                    glowColor = lineGlow.color ?: lineColor,
+                    erase = lineCustomObject.eraseBackground ?: UiConstants.defaultLineCustomObject.eraseBackground!!
+                )
+            }
+        } else if (lineStrokeWidth > 0f) {
+            // Draw the main line from `start` to `end`
+            drawLine(
+                color = lineColor,
+                start = start,
+                end = end,
+                strokeWidth = lineStrokeWidth,
+                cap = StrokeCap.Round
+            )
+        }
+    }
 
-    // Small circle at the end of the trail
-    drawScope.drawCircle(
-        color = color,
-        radius = 8f,
-        center = end,
-        style = Fill
-    )
+    if (showStartObjectPreview) {
+        customObject(
+            customObject = startCustomObject,
+            default = UiConstants.defaultStartCustomObject,
+            angleColor = lineColor,
+            center = start
+        )
+    }
+
+
+    if (showEndObjectPreview) {
+        customObject(
+            customObject = endCustomObject,
+            default = UiConstants.defaultEndCustomObject,
+            angleColor = lineColor,
+            center = end
+        )
+    }
+
+
+    // The angle rotating around the start point (have to fix that and allow more customization) TODO
+    // The "do you hate it?" thing in settings
+    if (showAngleLineObjectPreview) {
+
+        val arcStroke = (angleLineCustomObject.stroke ?: UiConstants.defaultAngleCustomObject.stroke!!).dp.toPx()
+
+        if (arcStroke > 0f) {
+            val arcRadius =
+                (angleLineCustomObject.size ?: UiConstants.defaultAngleCustomObject.size!!)
+                    .dp.toPx()
+
+            val rect = Rect(
+                start.x - arcRadius,
+                start.y - arcRadius,
+                start.x + arcRadius,
+                start.y + arcRadius
+            )
+
+            drawArc(
+                color = angleLineCustomObject.color ?: lineColor,
+                startAngle = -90f,
+                sweepAngle = sweepAngle,
+                useCenter = false,
+                topLeft = rect.topLeft,
+                size = Size(rect.width, rect.height),
+                style = Stroke(
+                    width = arcStroke,
+                    cap = StrokeCap.Round
+                )
+            )
+        }
+    }
 }
 
 

@@ -798,5 +798,18 @@
     <string name="dismiss">Despedir</string>
     <string name="nest_radius">Radio del nido</string>
     <string name="edit_nest">Editar nido</string>
+    <string name="angle_line">Línea de ángulo</string>
+    <string name="angle_line_help">Personaliza la apariencia de la línea que aparece al arrastrar en la pantalla principal</string>
+    <string name="show_start_object_preview">Mostrar vista previa del objeto inicial</string>
+    <string name="show_start_object_preview_desc">Si se muestra el círculo (por defecto) al inicio de la posición de arrastre</string>
+    <string name="show_end_object_preview">Mostrar vista previa del objeto final</string>
+    <string name="show_end_object_preview_desc">Si se debe mostrar el círculo pequeño (por defecto) al final de la posición de arrastre</string>
+    <string name="stroke">Ataque</string>
+    <string name="edit_shape">Editar la forma</string>
+    <string name="erase_background">Borrar antecedentes</string>
+    <string name="glow_radius">Radio de resplandor</string>
+    <string name="glow_color">Color de resplandor</string>
+    <string name="enable_glow">Activar el resplandor</string>
+
 
 </resources>

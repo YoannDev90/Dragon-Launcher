@@ -798,5 +798,18 @@
     <string name="dismiss">Zurückweisen</string>
     <string name="nest_radius">Nestradius</string>
     <string name="edit_nest">Verschachtelung bearbeiten</string>
+    <string name="angle_line">Winkellinie</string>
+    <string name="angle_line_help">Passen Sie das Erscheinungsbild der Linie an, die beim Ziehen auf dem Hauptbildschirm angezeigt wird</string>
+    <string name="show_start_object_preview">Vorschau des Startobjekts anzeigen</string>
+    <string name="show_start_object_preview_desc">Ob der Kreis (standardmäßig) am Anfang der Ziehposition angezeigt werden soll</string>
+    <string name="show_end_object_preview">Vorschau des Endobjekts anzeigen</string>
+    <string name="show_end_object_preview_desc">Ob der (standardmäßig) kleine Kreis am Ende der Ziehposition angezeigt werden soll</string>
+    <string name="stroke">Schlaganfall</string>
+    <string name="edit_shape">Form bearbeiten</string>
+    <string name="erase_background">Hintergrund löschen</string>
+    <string name="glow_radius">Leuchtradius</string>
+    <string name="glow_color">Leuchtfarbe</string>
+    <string name="enable_glow">Aktivieren Sie das Leuchten</string>
+
 
 </resources>

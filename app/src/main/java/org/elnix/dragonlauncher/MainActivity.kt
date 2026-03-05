@@ -282,7 +282,7 @@ class MainActivity : FragmentActivity(), WidgetHostProvider {
                 floatingAppsViewModel.addFloatingApp(
                     SwipeActionSerializable.OpenWidget(widgetId, info.provider),
                     info,
-                    0
+                    pendingAddNestId ?: 0
                 )
             }
         } else {
@@ -290,9 +290,11 @@ class MainActivity : FragmentActivity(), WidgetHostProvider {
             floatingAppsViewModel.addFloatingApp(
                 SwipeActionSerializable.OpenWidget(widgetId, info.provider),
                 info,
-                0
+                pendingAddNestId ?: 0
             )
         }
+
+        pendingAddNestId =  null
     }
 
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {

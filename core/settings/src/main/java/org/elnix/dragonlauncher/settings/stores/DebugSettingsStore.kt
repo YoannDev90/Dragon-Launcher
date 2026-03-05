@@ -88,18 +88,17 @@ object DebugSettingsStore : MapSettingsStore() {
 
     override val ALL: List<BaseSettingObject<*,*>>
         get() = listOf(
-            debugEnabled,
-            debugInfos,
-            settingsDebugInfo,
-            widgetsDebugInfo,
-            workspacesDebugInfo,
-            forceAppLanguageSelector,
-            forceAppWidgetsSelector,
-//            forceAppWidgetsBinding,
-            autoRaiseDragonOnSystemLauncher,
-            systemLauncherPackageName,
-            useAccessibilityInsteadOfContextToExpandActionPanel,
-            enableLogging,
-            privateSpaceDebugInfo
+            this.debugEnabled,
+            this.debugInfos,
+            this.settingsDebugInfo,
+            this.widgetsDebugInfo,
+            this.workspacesDebugInfo,
+            this.forceAppLanguageSelector,
+            this.forceAppWidgetsSelector,
+            this.autoRaiseDragonOnSystemLauncher,
+            this.systemLauncherPackageName,
+            this.useAccessibilityInsteadOfContextToExpandActionPanel,
+            this.enableLogging,
+            this.privateSpaceDebugInfo
         )
     }

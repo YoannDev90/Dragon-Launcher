@@ -10,7 +10,7 @@ object StatusBarJsonSettingsStore : JsonArraySettingsStore() {
     override val dataStoreName= DataStoreName.STATUS_BAR_JSON
 
     override val ALL: List<BaseSettingObject<*,*>>
-        get() = listOf(jsonSetting)
+        get() = listOf(this.jsonSetting)
 
     override val jsonSetting = Settings.string(
         key = "statusBarJson",

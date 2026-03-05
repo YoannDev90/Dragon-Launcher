@@ -29,7 +29,7 @@ object FloatingAppsSettingsStore : JsonObjectSettingsStore() {
     )
 
     override val ALL: List<BaseSettingObject<*,*>>
-        get() = listOf(jsonSetting)
+        get() = listOf(this.jsonSetting)
 
     suspend fun loadFloatingApps(ctx: Context): List<FloatingAppObject> {
         return try {

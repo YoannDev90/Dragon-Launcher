@@ -2,12 +2,11 @@ package org.elnix.dragonlauncher.ui
 
 import android.annotation.SuppressLint
 import androidx.activity.compose.BackHandler
+import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.core.Animatable
 import androidx.compose.animation.core.FastOutSlowInEasing
 import androidx.compose.animation.core.VectorConverter
-import androidx.compose.animation.core.animateDpAsState
 import androidx.compose.animation.core.animateFloatAsState
-import androidx.compose.animation.core.animateIntAsState
 import androidx.compose.animation.core.tween
 import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.background
@@ -188,8 +187,8 @@ fun SettingsScreen(
     var closestHoveredTempOffset by remember { mutableStateOf<Offset?>(null) }
     var ableToLaunchHoverAction by remember { mutableStateOf(false) }
 
-    val hoveredPointRadialGradientProgress by animateIntAsState(
-        targetValue = if (ableToLaunchHoverAction) Constants.Settings.HOVER_GRADIENT_RADIUS else 1
+    val hoveredPointRadialGradientProgress by animateFloatAsState(
+        targetValue = if (ableToLaunchHoverAction) Constants.Settings.HOVER_GRADIENT_RADIUS else 1f
     )
 
 
@@ -264,17 +263,6 @@ fun SettingsScreen(
     LaunchedEffect(points, nestId, appIconOverlaySize, defaultPoint) {
         reloadIcons()
     }
-
-
-    var bannerVisible by remember { mutableStateOf(false) }
-    val alpha by animateFloatAsState(
-        targetValue = if (bannerVisible) 1f else 0f,
-        animationSpec = tween(150)
-    )
-    val offsetY by animateDpAsState(
-        targetValue = if (bannerVisible) 0.dp else (-20).dp,
-        animationSpec = tween(150)
-    )
 
 
     var undoStack by remember { mutableStateOf<List<List<SwipePointSerializable>>>(emptyList()) }
@@ -663,8 +651,8 @@ fun SettingsScreen(
 
     Box(
         Modifier
-        .fillMaxSize()
-        .windowInsetsPadding(WindowInsets.safeDrawing.exclude(WindowInsets.ime))
+            .fillMaxSize()
+            .windowInsetsPadding(WindowInsets.safeDrawing.exclude(WindowInsets.ime))
     ) {
         Column {
             Row(
@@ -878,8 +866,6 @@ fun SettingsScreen(
                                             selectedPointTempOffset.snapTo(offset)
                                         }
                                     }
-
-                                    bannerVisible = selectedPoint != null
                                 },
                                 onDrag = { change, _ ->
                                     change.consume()
@@ -936,7 +922,7 @@ fun SettingsScreen(
                                                 nests.find { it.id == targetNestId }?.let { targetNest ->
 
                                                     // I remove 1 because the dragDistances counts the cancel zone
-                                                    val targetNestCircleNumbers = targetNest.dragDistances.size -1
+                                                    val targetNestCircleNumbers = targetNest.dragDistances.size - 1
 
                                                     // Add 1 because the circle number starts at 0
                                                     val selectedPointCircleNumber = p.circleNumber + 1
@@ -1093,7 +1079,6 @@ fun SettingsScreen(
                                         }
 
                                         selectedPoint = point
-                                        bannerVisible = true
 
                                         // Dequeue: move to the next app
                                         manualPlacementQueue = manualPlacementQueue.drop(1)
@@ -1135,8 +1120,6 @@ fun SettingsScreen(
                                         else null
 
                                     selectedPoint?.let { lastSelectedCircle = it.circleNumber }
-
-                                    bannerVisible = selectedPoint != null
                                 }
                             )
                         }
@@ -1455,15 +1438,20 @@ fun SettingsScreen(
             }
         }
 
-        SettingsSlider(
-            setting = SwipeMapSettingsStore.subNestDefaultRadius,
-            title = "",
-            valueRange = 0..50,
-            modifier = Modifier
-                .height(50.dp)
-                .width(150.dp)
-                .offset(x = 20.dp, y = 50.dp)
-        )
+        // Only show the toggler if user has a point that opens a nest, otherwise it may be confusing
+        AnimatedVisibility(
+            visible = points.any { it.action is SwipeActionSerializable.OpenCircleNest }
+        ) {
+            SettingsSlider(
+                setting = SwipeMapSettingsStore.subNestDefaultRadius,
+                title = "",
+                valueRange = 0..50,
+                modifier = Modifier
+                    .height(50.dp)
+                    .width(150.dp)
+                    .offset(x = 20.dp, y = 50.dp)
+            )
+        }
     }
 
     if (showAddDialog) {
@@ -1594,19 +1582,14 @@ fun SettingsScreen(
         )
     }
 
-    if (selectedPoint != null) {
-        val currentPoint = selectedPoint!!
-        AppPreviewTitle(
-            offsetY = offsetY,
-            alpha = alpha,
-            point = currentPoint,
-            topPadding = 80.dp,
-            labelSize = appLabelOverlaySize,
-            iconSize = appIconOverlaySize,
-            showLabel = true,
-            showIcon = true
-        )
-    }
+    AppPreviewTitle(
+        point = selectedPoint,
+        topPadding = 80.dp,
+        labelSize = appLabelOverlaySize,
+        iconSize = appIconOverlaySize,
+        showLabel = true,
+        showIcon = true
+    )
 
     // Manual placement mode banner
     if (isInManualPlacementMode) {

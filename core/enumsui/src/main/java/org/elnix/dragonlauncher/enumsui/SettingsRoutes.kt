@@ -2,6 +2,7 @@ package org.elnix.dragonlauncher.enumsui
 
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.stringResource
 import org.elnix.dragonlauncher.common.R
 import org.elnix.dragonlauncher.common.utils.SETTINGS
 
@@ -24,7 +25,8 @@ val settingsRoutes = listOf(
     SETTINGS.LOGS,
     SETTINGS.SETTINGS_JSON,
     SETTINGS.LANGUAGE,
-    SETTINGS.CHANGELOGS
+    SETTINGS.CHANGELOGS,
+    SETTINGS.ANGLE_LINE_EDIT
 )
 
 
@@ -71,6 +73,8 @@ fun routeName(route: String): String {
             ctx.getString(R.string.settings_language_title)
         SETTINGS.CHANGELOGS ->
             ctx.getString(R.string.changelogs)
+        SETTINGS.ANGLE_LINE_EDIT ->
+            stringResource(R.string.angle_line)
         else -> ""
     }
 }

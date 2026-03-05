@@ -25,6 +25,7 @@ object SETTINGS {
     const val LANGUAGE = "settings/advanced/language"
     const val CHANGELOGS = "settings/advanced/changelogs"
     const val NESTS_EDIT = "settings/nest"
+    const val ANGLE_LINE_EDIT = "settings/advanced/angleLineEdit"
 }
 
 object ROUTES {

@@ -23,17 +23,17 @@ object WellbeingSettingsStore : MapSettingsStore() {
 
     override val ALL: List<BaseSettingObject<*, *>>
         get() = listOf(
-            socialMediaPauseEnabled,
-            guiltModeEnabled,
-            pauseDurationSeconds,
-            showUsageStats,
-            reminderEnabled,
-            reminderIntervalMinutes,
-            reminderMode,
-            popupShowSessionTime,
-            popupShowTodayTime,
-            popupShowRemainingTime,
-            returnToLauncherEnabled
+            this.socialMediaPauseEnabled,
+            this.guiltModeEnabled,
+            this.pauseDurationSeconds,
+            this.showUsageStats,
+            this.reminderEnabled,
+            this.reminderIntervalMinutes,
+            this.reminderMode,
+            this.popupShowSessionTime,
+            this.popupShowTodayTime,
+            this.popupShowRemainingTime,
+            this.returnToLauncherEnabled
         )
 
     /*  ─────────────  Main toggles  ─────────────  */
