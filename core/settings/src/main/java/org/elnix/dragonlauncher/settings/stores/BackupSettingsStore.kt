@@ -21,6 +21,7 @@ object BackupSettingsStore : MapSettingsStore() {
     // Because it caused crash at runtime due to early .entries initialization
     private val defaultBackupStores: Set<String>
         get() = DataStoreName.entries
+            .filter { it.userBackup }
             .map { it.value }
             .toSet()
 
