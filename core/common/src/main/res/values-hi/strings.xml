@@ -811,5 +811,9 @@
     <string name="glow_color">चमक रंग</string>
     <string name="enable_glow">चमक सक्षम करें</string>
 
+    <string name="solution">विलयन</string>
+    <string name="dismiss">खारिज करें</string>
+    <string name="nest_radius">नेस्ट त्रिज्या</string>
+    <string name="edit_nest">नेस्ट संपादित करें</string>
 
 </resources>

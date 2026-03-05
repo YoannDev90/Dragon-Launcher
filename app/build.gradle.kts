@@ -33,8 +33,8 @@ extensions.configure<ApplicationExtension> {
         applicationId = "org.elnix.dragonlauncher"
         minSdk = 26
         targetSdk = 36
-        versionCode = 43
-        versionName = "2.6.1"
+        versionCode = 44
+        versionName = "2.6.2"
     }
 
 
