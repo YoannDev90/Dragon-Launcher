@@ -16,6 +16,12 @@ object DrawerSettingsStore : MapSettingsStore() {
         dataStoreName = dataStoreName,
         default = true
     )
+    val disableAutoLaunchOnSpaceFirstChar = Settings.boolean(
+        key = "disableAutoLaunchOnSpaceFirstChar",
+        dataStoreName = dataStoreName,
+        default = true
+    )
+
 
     val showAppIconsInDrawer = Settings.boolean(
         key = "showAppIconsInDrawer",
@@ -238,6 +244,7 @@ object DrawerSettingsStore : MapSettingsStore() {
     override val ALL: List<BaseSettingObject<*,*>>
         get() = listOf(
             this.autoOpenSingleMatch,
+            this.disableAutoLaunchOnSpaceFirstChar,
             this.showAppIconsInDrawer,
             this.showAppLabelInDrawer,
             this.searchBarBottom,

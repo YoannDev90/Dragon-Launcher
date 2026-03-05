@@ -5,6 +5,7 @@ import android.content.Intent
 import android.provider.Settings
 import androidx.activity.compose.BackHandler
 import androidx.compose.animation.AnimatedContent
+import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.core.animateDpAsState
 import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.foundation.clickable
@@ -73,7 +74,6 @@ import kotlinx.coroutines.withContext
 import kotlinx.coroutines.yield
 import org.elnix.dragonlauncher.base.ktx.px
 import org.elnix.dragonlauncher.base.ktx.toDp
-import org.elnix.dragonlauncher.base.ktx.toPixels
 import org.elnix.dragonlauncher.common.R
 import org.elnix.dragonlauncher.common.logging.logE
 import org.elnix.dragonlauncher.common.serializables.AppModel
@@ -157,6 +157,7 @@ fun AppDrawerScreen(
     )
 
     val autoLaunchSingleMatch by DrawerSettingsStore.autoOpenSingleMatch.asState()
+    val disableAutoLaunchOnSpaceFirstChar by DrawerSettingsStore.disableAutoLaunchOnSpaceFirstChar.asState()
     val useCategory by DrawerSettingsStore.useCategory.asState()
 
     /* ───────────── Actions ───────────── */
@@ -486,7 +487,7 @@ fun AppDrawerScreen(
 
                 Column(modifier = Modifier.weight(1f)) {
                     /* ───────────── Recently Used Apps section ───────────── */
-                    if (showRecentlyUsedApps && searchQuery.isBlank() && recentApps.isNotEmpty()) {
+                    AnimatedVisibility (showRecentlyUsedApps && searchQuery.isBlank() && recentApps.isNotEmpty()) {
 
                         Box(
                             modifier = Modifier
@@ -533,25 +534,34 @@ fun AppDrawerScreen(
 
                         val filteredApps by remember(searchQuery, apps) {
                             derivedStateOf {
-                                val base = if (searchQuery.isBlank()) apps
-                                    else apps.filter { app ->
-                                        app.name.contains(searchQuery, ignoreCase = true) ||
+                                val trimmedSearchQuery = searchQuery.trim()
 
-                                        // Also search for aliases
-                                        aliases[app.iconCacheKey]?.any {
-                                            it.contains(
-                                                searchQuery,
-                                                ignoreCase = true
-                                            )
-                                        } ?: false
-                                    }
+                                val base = if (trimmedSearchQuery.isBlank()) apps
+                                else apps.filter { app ->
+                                    app.name.contains(trimmedSearchQuery, ignoreCase = true) ||
+
+                                            // Also search for aliases
+                                            aliases[app.iconCacheKey]?.any {
+                                                it.contains(
+                                                    trimmedSearchQuery,
+                                                    ignoreCase = true
+                                                )
+                                            } ?: false
+                                }
 
                                 base.sortedBy { it.name.lowercase() }
                             }
                         }
 
                         LaunchedEffect(haveToLaunchFirstApp, filteredApps) {
-                            if ((autoLaunchSingleMatch && filteredApps.size == 1 && searchQuery.isNotEmpty()) || haveToLaunchFirstApp) {
+
+                            val autoLaunch =
+                                autoLaunchSingleMatch &&
+                                filteredApps.size == 1 &&
+                                searchQuery.isNotEmpty() &&
+                                !(disableAutoLaunchOnSpaceFirstChar && searchQuery.first() == ' ')
+
+                            if (haveToLaunchFirstApp || autoLaunch) {
                                 onLaunchAction(filteredApps.first().action)
                             }
                         }

@@ -84,6 +84,8 @@ fun DrawerTab(
     val drawerPullDownSettingsState = rememberExpandableSection(stringResource(R.string.drawer_pull_down_settings))
     val actionsSettingsState = rememberExpandableSection(stringResource(R.string.action_settings))
 
+
+    val autoLaunchSingleMatch by DrawerSettingsStore.autoOpenSingleMatch.asState()
     val showRecentlyUsed by DrawerSettingsStore.showRecentlyUsedApps.asState()
     val useCategory by DrawerSettingsStore.useCategory.asState()
 
@@ -124,6 +126,14 @@ fun DrawerTab(
                     title = stringResource(R.string.auto_launch_single_match),
                     description = stringResource(R.string.auto_launch_single_match_desc),
                 )
+
+                AnimatedVisibility(autoLaunchSingleMatch) {
+                    SettingsSwitchRow(
+                        setting = DrawerSettingsStore.disableAutoLaunchOnSpaceFirstChar,
+                        title = stringResource(R.string.disable_auto_launch_on_space_first_char),
+                        description = stringResource(R.string.disable_auto_launch_on_space_first_char_desc),
+                    )
+                }
 
                 SettingsSwitchRow(
                     setting = DrawerSettingsStore.autoShowKeyboardOnDrawer,
