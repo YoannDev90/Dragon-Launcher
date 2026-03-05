@@ -14,7 +14,6 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableDoubleStateOf
 import androidx.compose.runtime.mutableStateListOf
@@ -29,9 +28,11 @@ import androidx.compose.ui.geometry.Rect
 import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.CompositingStrategy
+import androidx.compose.ui.graphics.Paint
 import androidx.compose.ui.graphics.StrokeCap
 import androidx.compose.ui.graphics.drawscope.DrawScope
 import androidx.compose.ui.graphics.drawscope.Stroke
+import androidx.compose.ui.graphics.drawscope.drawIntoCanvas
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
@@ -39,10 +40,12 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import org.elnix.dragonlauncher.base.theme.LocalExtraColors
 import org.elnix.dragonlauncher.common.logging.logD
+import org.elnix.dragonlauncher.common.logging.logI
 import org.elnix.dragonlauncher.common.serializables.CircleNest
 import org.elnix.dragonlauncher.common.serializables.CustomObjectSerializable
 import org.elnix.dragonlauncher.common.serializables.SwipePointSerializable
 import org.elnix.dragonlauncher.common.utils.Constants.Logging.ANGLE_LINE_TAG
+import org.elnix.dragonlauncher.common.utils.Constants.Logging.NESTS_TAG
 import org.elnix.dragonlauncher.common.utils.UiCircle
 import org.elnix.dragonlauncher.common.utils.UiConstants
 import org.elnix.dragonlauncher.common.utils.circles.computePointPosition
@@ -245,7 +248,6 @@ fun MainScreenOverlay(
         }
 
         currentAction = selectedPoint
-//        currentAction = if (dist > dragRadii[0]) selectedPoint else null
 
         hoveredPoint = currentAction
         bannerVisible = currentAction != null
@@ -307,10 +309,9 @@ fun MainScreenOverlay(
             }
     }
 
-    val filteredCircles by remember {
-        derivedStateOf {
-            circles.filter { it.id == targetCircle }
-        }
+    val filteredCircles = circles.filter {
+        showAllActionsOnCurrentNest ||
+        (showAllActionsOnCurrentCircle && it.id == targetCircle)
     }
 
 
@@ -383,7 +384,7 @@ fun MainScreenOverlay(
 //            )
 //        }
 
-        val drawParams = swipeDefaultParams()
+        val drawParams = swipeDefaultParams(points = points)
 
 
         // Main drawing canva (the lines, circles and selected actions
@@ -475,48 +476,62 @@ fun MainScreenOverlay(
                         )
                     }
 
+                    drawIntoCanvas { canvas ->
 
-                    // Main circle (the selected) drawn before any apps to be behind
-                    if (showAppCirclePreview) {
-                        drawCircle(
-                            color = extraColors.circle,
-                            radius = radius,
-                            center = start,
-                            style = Stroke(4f)
-                        )
-                    }
+                        val bounds = Rect(0f, 0f, size.width, size.height)
+
+                        canvas.saveLayer(bounds, Paint())
+
+                        if (showAllActionsOnCurrentCircle || showAllActionsOnCurrentNest) {
+                            logI(NESTS_TAG, "Got circle settings\ncircles: $circles\nfiltered: $filteredCircles")
+                            // If you selected to draw the selected circle / nest
+                            circlesSettingsOverlay(
+                                drawParams = drawParams,
+                                center = start,
+                                depth = 1,
+                                circles = filteredCircles,
+                                selectedPoint = point,
+                                nestId = nestId
+                            )
+                        } else if (showAppLaunchPreview) {
+                            logI(NESTS_TAG, "Got action in settings")
 
 
-                    if (showAllActionsOnCurrentCircle && showAllActionsOnCurrentNest) {
-                        // If you selected to draw the selected circle / nest
-                        circlesSettingsOverlay(
-                            drawParams = drawParams,
-                            center = start,
-                            depth = 1,
-                            circles = filteredCircles,
-                            selectedPoint = point,
-                            nestId = nestId
-                        )
-                    } else if (showAppLaunchPreview) {
-                        // Only draw here the point both show
-                        actionsInCircle(
-                            selected = true,
-                            point = point,
-                            drawParams = drawParams,
-                            center = end,
-                            depth = 1
-                        )
-                    }
+                            // Main circle (the selected) drawn before any apps to be behind
+                            if (showAppCirclePreview) {
+                                drawCircle(
+                                    color = extraColors.circle,
+                                    radius = radius,
+                                    center = start,
+                                    style = Stroke(4f)
+                                )
+                            }
 
-                    // Show the current selected app in the center of the circle (start pos)
-                    if (showAppPreviewIconCenterStartPosition) {
-                        actionsInCircle(
-                            selected = true,
-                            point = point,
-                            drawParams = drawParams,
-                            center = start,
-                            depth = 1
-                        )
+                            // Only draw here the point both show
+                            actionsInCircle(
+                                selected = true,
+                                point = point,
+                                drawParams = drawParams,
+                                center = end,
+                                depth = 1
+                            )
+                        } else {
+                            logI(NESTS_TAG, "Got else")
+                        }
+
+
+                        // Show the current selected app in the center of the circle (start pos)
+                        if (showAppPreviewIconCenterStartPosition) {
+                            actionsInCircle(
+                                selected = true,
+                                point = point,
+                                drawParams = drawParams,
+                                center = start,
+                                depth = 1
+                            )
+                        }
+
+                        canvas.restore()
                     }
                 }
             }
