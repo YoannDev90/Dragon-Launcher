@@ -51,7 +51,7 @@ fun EditCustomObjectBlock(
             SliderWithLabel(
                 label = stringResource(R.string.size),
                 value = tempSize ?: default.size!!,
-                valueRange = 0f..200f,
+                valueRange = 0f..500f,
                 backgroundColor = MaterialTheme.colorScheme.surfaceVariant,
                 decimals = 1,
                 onReset = {
@@ -66,7 +66,7 @@ fun EditCustomObjectBlock(
             SliderWithLabel(
                 label = stringResource(R.string.stroke),
                 value = tempStroke ?: default.stroke!!,
-                valueRange = 0f..20f,
+                valueRange = 0f..50f,
                 backgroundColor = MaterialTheme.colorScheme.surfaceVariant,
                 decimals = 1,
                 onReset = {
@@ -128,7 +128,7 @@ fun EditCustomObjectBlock(
                     SliderWithLabel(
                         label = stringResource(R.string.glow_radius),
                         value = tempGlowRadius ?: default.glow?.radius!!,
-                        valueRange = 0f..50f,
+                        valueRange = 0f..200f,
                         backgroundColor = MaterialTheme.colorScheme.surfaceVariant,
                         decimals = 1,
                         onReset = {
