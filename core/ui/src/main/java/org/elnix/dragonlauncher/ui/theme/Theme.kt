@@ -11,9 +11,6 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.platform.LocalContext
-import androidx.compose.ui.text.font.Font
-import androidx.compose.ui.text.font.FontFamily
-import org.elnix.dragonlauncher.common.R
 import org.elnix.dragonlauncher.base.theme.AmoledDragonColorScheme
 import org.elnix.dragonlauncher.base.theme.DarkDragonColorScheme
 import org.elnix.dragonlauncher.base.theme.LightDragonColorScheme
@@ -27,6 +24,7 @@ import org.elnix.dragonlauncher.enumsui.DefaultThemes.SYSTEM
 import org.elnix.dragonlauncher.settings.stores.ColorModesSettingsStore
 import org.elnix.dragonlauncher.settings.stores.UiSettingsStore
 import org.elnix.dragonlauncher.ui.components.settings.asState
+import org.elnix.dragonlauncher.ui.dialogs.fontNameToFont
 import org.elnix.dragonlauncher.ui.remembers.rememberCustomColorScheme
 import org.elnix.dragonlauncher.ui.remembers.rememberExtraColors
 
@@ -81,22 +79,7 @@ fun DragonLauncherTheme(
     val colorScheme = getDefaultColorScheme(defaultTheme, dynamicColor)
     val extraColors = rememberExtraColors()
 
-    val fontFamily = when (globalFontName) {
-        "Serif" -> FontFamily.Serif
-        "SansSerif" -> FontFamily.SansSerif
-        "Monospace" -> FontFamily.Monospace
-        "Cursive" -> FontFamily.Cursive
-        "Inter" -> FontFamily(Font(R.font.inter))
-        "Montserrat" -> FontFamily(Font(R.font.montserrat))
-        "Outfit" -> FontFamily(Font(R.font.outfit))
-        "PoiretOne" -> FontFamily(Font(R.font.poiretone))
-        "Quicksand" -> FontFamily(Font(R.font.quicksand))
-        "Raleway" -> FontFamily(Font(R.font.raleway))
-        "RobotoCondensed" -> FontFamily(Font(R.font.robotocondensed))
-        "SpaceGrotesk" -> FontFamily(Font(R.font.spacegrotesk))
-        "Urbanist" -> FontFamily(Font(R.font.urbanist))
-        else -> FontFamily.Default
-    }
+    val fontFamily = fontNameToFont(globalFontName)
 
     val themeTypography = Typography.copy(
         displayLarge = Typography.displayLarge.copy(fontFamily = fontFamily),
