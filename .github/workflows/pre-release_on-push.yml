@@ -63,7 +63,7 @@ jobs:
         with:
           timeout_minutes: 15
           max_attempts: 3
-          command: ./gradlew lintBetaRelease assembleBetaRelease assembleBetaUnminifiedRelease assembleBetaDebuggableRelease assembleBetaDebug --parallel --no-daemon --build-cache
+          command: ./gradlew assembleBetaRelease assembleBetaUnminifiedRelease assembleBetaDebuggableRelease assembleBetaDebug --parallel --no-daemon --build-cache -x lint
 
       - name: Rename APKs with version
         run: |

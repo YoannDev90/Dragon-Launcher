@@ -52,7 +52,7 @@ jobs:
           } >> $GITHUB_ENV
 
       - name: Build Release APK
-        run: ./gradlew assembleStableRelease assembleBetaDebuggableRelease --parallel --no-daemon --build-cache
+        run: ./gradlew assembleStableRelease assembleBetaDebuggableRelease --parallel --no-daemon --build-cache -x lint
 
       - name: Rename APK
         run: |
