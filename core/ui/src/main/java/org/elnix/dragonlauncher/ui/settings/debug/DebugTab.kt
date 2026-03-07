@@ -12,7 +12,6 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.automirrored.filled.Notes
 import androidx.compose.material.icons.filled.Settings
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedButton
@@ -296,22 +295,6 @@ fun DebugTab(
                 enabled = enabled
             )
         }
-
-        item {
-            SettingsSwitchRow(
-                setting = DebugSettingsStore.forceAppWidgetsSelector,
-                title = stringResource(R.string.force_app_widgets_selector),
-                description = stringResource(R.string.force_app_widgets_selector_desc)
-            )
-        }
-
-//        item {
-//            SettingsSwitchRow(
-//                setting = DebugSettingsStore.forceAppWidgetsBinding,
-//                title = "Force App Widget Binding Consent",
-//                description = "Forces the system bind dialog to appear every time you add a widget (Useful for debugging/MIUI fixes)"
-//            )
-//        }
 
         item {
             SettingsSwitchRow(

@@ -1,7 +1,7 @@
 package org.elnix.dragonlauncher.ui
 
-import android.R.attr.versionCode
 import android.Manifest
+import android.R.attr.versionCode
 import android.annotation.SuppressLint
 import android.content.ComponentName
 import android.content.Intent
@@ -166,7 +166,6 @@ fun MainAppUi(
     navController: NavHostController,
     widgetHostProvider: WidgetHostProvider,
     onBindCustomWidget: (Int, ComponentName, nestId: Int) -> Unit,
-    onLaunchSystemWidgetPicker: (nestId: Int) -> Unit,
     onResetWidgetSize: (id: Int, widgetId: Int) -> Unit,
     onRemoveFloatingApp: (FloatingAppObject) -> Unit
 ) {
@@ -223,8 +222,6 @@ fun MainAppUi(
 
     val leftDrawerWidth by DrawerSettingsStore.leftDrawerWidth.asState()
     val rightDrawerWidth by DrawerSettingsStore.rightDrawerWidth.asState()
-
-    val forceAppWidgetsSelector by DebugSettingsStore.forceAppWidgetsSelector.asState()
 
     val showSetDefaultLauncherBanner by PrivateSettingsStore.showSetDefaultLauncherBanner.asStateNull()
 

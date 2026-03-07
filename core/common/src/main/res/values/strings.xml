@@ -718,7 +718,6 @@
     <string name="force_app_language_selector_desc">Use the app\'s language selector instead of Android\'s system selector</string>
 
     <string name="force_app_widgets_selector">Force app widgets selector</string>
-    <string name="force_app_widgets_selector_desc">Force the app to use its own widget selector</string>
 
     <string name="use_accessibility_instead_of_context">Use accessibility instead of context</string>
     <string name="use_accessibility_instead_of_context_desc">Expand action panel using accessibility instead of context</string>

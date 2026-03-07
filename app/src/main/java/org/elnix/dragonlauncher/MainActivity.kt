@@ -40,7 +40,6 @@ import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.yield
 import org.elnix.dragonlauncher.common.R
-import org.elnix.dragonlauncher.common.logging.DragonLogManager
 import org.elnix.dragonlauncher.common.logging.logD
 import org.elnix.dragonlauncher.common.logging.logE
 import org.elnix.dragonlauncher.common.logging.logI
@@ -116,78 +115,12 @@ class MainActivity : FragmentActivity(), WidgetHostProvider {
     private var pendingConfigWidgetId: Int = -1
 
 
-    private val widgetPickerLauncher =
-        registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { result ->
-            logD(WIDGET_TAG) { "widgetPickerLauncher resultCode=${result.resultCode}" }
-            val widgetId = result.data?.getIntExtra(AppWidgetManager.EXTRA_APPWIDGET_ID, -1)
-                ?: return@registerForActivityResult
-
-            addWidgetsWithId(widgetId)
-
-        }
-
-
-    private fun addWidgetsWithId(widgetId: Int) {
-        logD(WIDGET_TAG) { "Picked widgetId=$widgetId" }
-        val info = widgetHolder.getAppWidgetInfo(widgetId)
-        if (info == null) {
-            logW(WIDGET_TAG) { "No AppWidgetInfo for widgetId=$widgetId, deleting..." }
-            widgetHolder.deleteAppWidgetId(widgetId)
-            return
-        }
-
-        // Try to bind silently
-        if (appWidgetManager.bindAppWidgetIdIfAllowed(widgetId, info.provider)) {
-            logD(WIDGET_TAG) { "bindAppWidgetIdIfAllowed=true, proceeding" }
-            proceedAfterBind(widgetId, info)
-        } else {
-            logD(WIDGET_TAG) { "bindAppWidgetIdIfAllowed=false, launching bind consent" }
-            pendingBindWidgetId = widgetId
-            pendingBindProvider = info.provider
-
-            val bindIntent = Intent(AppWidgetManager.ACTION_APPWIDGET_BIND).apply {
-                putExtra(AppWidgetManager.EXTRA_APPWIDGET_ID, widgetId)
-                putExtra(AppWidgetManager.EXTRA_APPWIDGET_PROVIDER, info.provider)
-                putExtra(AppWidgetManager.EXTRA_APPWIDGET_OPTIONS, Bundle())
-            }
-            widgetBindLauncher.launch(bindIntent)
-        }
-    }
-
     fun bindWidgetFromCustomPicker(
         widgetId: Int,
         provider: ComponentName
     ) {
         logD(WIDGET_TAG) { "DRAGON_FLOW: Starting bind process from picker for ID $widgetId" }
         lifecycleScope.launch {
-//            val forceBinding = DebugSettingsStore.forceAppWidgetsBinding.get(this@MainActivity)
-//            logD(WIDGET_TAG, "DRAGON_FLOW: Force binding setting=$forceBinding")
-
-            // First try to bind the widget to the ID
-//            val bound =
-//                if (forceBinding) {
-//                    logD(WIDGET_TAG, "DRAGON_FLOW: Skipping direct bind due to forceBinding=true")
-//                    false
-//                } else {
-//                    widgetHolder.bindWidget(widgetId, provider)
-//                }
-
-            // Testing feature, since GH widget work only with this feature enabled it may require it so I'll keep it as default
-
-//            if (bound) {
-//                // Retrieve full info only AFTER successful bind
-//                val info = widgetHolder.getAppWidgetInfo(widgetId)
-//
-//                if (info != null) {
-//                    logD(WIDGET_TAG, "DRAGON_FLOW: Widget $widgetId bound successfully. Proceeding...")
-//                    proceedAfterBind(widgetId, info)
-//                } else {
-//                   logW(WIDGET_TAG, "DRAGON_FLOW: Bound OK but info is NULL for ID $widgetId, deleting")
-//                    widgetHolder.deleteAppWidgetId(widgetId)
-//                }
-//            } else {
-            // Need user consent to bind
-//                logD(WIDGET_TAG, "DRAGON_FLOW: Binding REJECTED (Wait for consent). Launching ACTION_APPWIDGET_BIND for $widgetId")
             pendingBindWidgetId = widgetId
             pendingBindProvider = provider
             val intent = Intent(AppWidgetManager.ACTION_APPWIDGET_BIND).apply {
@@ -195,7 +128,6 @@ class MainActivity : FragmentActivity(), WidgetHostProvider {
                 putExtra(AppWidgetManager.EXTRA_APPWIDGET_PROVIDER, provider)
             }
             widgetBindLauncher.launch(intent)
-//            }
         }
     }
 
@@ -318,14 +250,6 @@ class MainActivity : FragmentActivity(), WidgetHostProvider {
             }
             pendingConfigWidgetId = -1
         }
-    }
-
-    fun launchWidgetPicker() {
-        val widgetId = widgetHolder.allocateAppWidgetId()
-        val pickIntent = Intent(AppWidgetManager.ACTION_APPWIDGET_PICK).apply {
-            putExtra(AppWidgetManager.EXTRA_APPWIDGET_ID, widgetId)
-        }
-        widgetPickerLauncher.launch(pickIntent)
     }
 
     /**
@@ -555,10 +479,6 @@ class MainActivity : FragmentActivity(), WidgetHostProvider {
                         onBindCustomWidget = { widgetId, provider, nestId ->
                             pendingAddNestId = nestId
                             (ctx as MainActivity).bindWidgetFromCustomPicker(widgetId, provider)
-                        },
-                        onLaunchSystemWidgetPicker = { nestId ->
-                            pendingAddNestId = nestId
-                            (ctx as MainActivity).launchWidgetPicker()
                         },
                         onResetWidgetSize = { id, widgetId ->
                             val info = appWidgetManager.getAppWidgetInfo(widgetId)

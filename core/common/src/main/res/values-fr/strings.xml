@@ -718,7 +718,6 @@
     <string name="force_app_language_selector_desc">Utilisez le sélecteur de langue de l’application au lieu du sélecteur système d’Android</string>
 
     <string name="force_app_widgets_selector">Forcer le sélecteur de widgets de l’application</string>
-    <string name="force_app_widgets_selector_desc">Forcez l’application à utiliser son propre sélecteur de widgets</string>
 
     <string name="use_accessibility_instead_of_context">Utilisez l’accessibilité plutôt que le contexte</string>
     <string name="use_accessibility_instead_of_context_desc">Élargir le panneau d’actions en utilisant l’accessibilité plutôt que le contexte</string>
