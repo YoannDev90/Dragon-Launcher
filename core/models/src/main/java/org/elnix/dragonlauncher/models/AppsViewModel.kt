@@ -556,7 +556,7 @@ class AppsViewModel(
     private suspend fun unlockPrivateSpace(): Boolean {
 
         // Search for at leat one private workspace to avoid shouting the toast to new users
-        if (!ctx.isDefaultLauncher && _workspacesState.value.workspaces.find { it.type == WorkspaceType.PRIVATE } != null) {
+        if (!ctx.isDefaultLauncher && _workspacesState.value.workspaces.find { it.type == WorkspaceType.PRIVATE }?.enabled ?: false) {
             ctx.showToast(ctx.getString(R.string.need_to_be_default_launcher_to_use_private_space))
             return false
         }
