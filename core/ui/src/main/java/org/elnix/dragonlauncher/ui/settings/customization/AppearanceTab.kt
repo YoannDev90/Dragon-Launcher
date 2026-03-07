@@ -14,9 +14,13 @@ import androidx.compose.material.icons.filled.Palette
 import androidx.compose.material.icons.filled.Polyline
 import androidx.compose.material.icons.filled.SignalCellular4Bar
 import androidx.compose.material.icons.filled.Style
+import androidx.compose.material.icons.filled.TextFields
 import androidx.compose.material.icons.filled.Wallpaper
 import androidx.compose.material.icons.filled.Widgets
+import androidx.compose.material3.Button
+import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
@@ -33,6 +37,7 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.IntSize
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.window.Dialog
 import androidx.navigation.NavController
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
@@ -50,11 +55,15 @@ import org.elnix.dragonlauncher.settings.stores.UiSettingsStore.showLaunchingApp
 import org.elnix.dragonlauncher.ui.components.AppPreviewTitle
 import org.elnix.dragonlauncher.ui.components.ExpandableSection
 import org.elnix.dragonlauncher.ui.components.TextDivider
+import org.elnix.dragonlauncher.ui.components.dragon.DragonButton
 import org.elnix.dragonlauncher.ui.components.dragon.DragonColumnGroup
 import org.elnix.dragonlauncher.ui.components.settings.SettingsSlider
+import androidx.compose.foundation.layout.padding
 import org.elnix.dragonlauncher.ui.components.settings.SettingsSwitchRow
 import org.elnix.dragonlauncher.ui.components.settings.asState
+import org.elnix.dragonlauncher.ui.dialogs.CustomAlertDialog
 import org.elnix.dragonlauncher.ui.helpers.HoldToActivateArc
+import org.elnix.dragonlauncher.ui.helpers.SwitchRow
 import org.elnix.dragonlauncher.ui.helpers.settings.SettingsItem
 import org.elnix.dragonlauncher.ui.helpers.settings.SettingsLazyHeader
 import org.elnix.dragonlauncher.ui.remembers.LocalIcons
@@ -77,6 +86,9 @@ fun AppearanceTab(
     val appLabelOverlaySize by appLabelOverlaySize.asState()
     val appIconOverlaySize by appIconOverlaySize.asState()
     val showAllActionsOnCurrentCircle by UiSettingsStore.showAllActionsOnCurrentCircle.asState()
+
+    var showFontPicker by remember { mutableStateOf(false) }
+    val globalFontName by UiSettingsStore.globalFont.asState()
 
     val topOverlaySettingsState = rememberExpandableSection(stringResource(R.string.app_preview_settings))
     val holdExpandableSectionState = rememberExpandableSection(stringResource(R.string.hold_settings))
@@ -136,6 +148,16 @@ fun AppearanceTab(
                 title = stringResource(R.string.theme_selector),
                 icon = Icons.Default.Style
             ) { navController.navigate(SETTINGS.THEME) }
+        }
+
+        item {
+            SettingsItem(
+                title = stringResource(R.string.font_selector),
+                description = stringResource(R.string.font_selector_desc),
+                icon = Icons.Default.TextFields
+            ) {
+                showFontPicker = true
+            }
         }
 
         item {
@@ -400,5 +422,47 @@ fun AppearanceTab(
             showLabel = showLaunchingAppLabel,
             showIcon = showLaunchingAppIcon
         )
+    }
+
+    if (showFontPicker) {
+        Dialog(onDismissRequest = { showFontPicker = false }) {
+            CustomAlertDialog(
+                onDismissRequest = { showFontPicker = false },
+                confirmButton = {
+                    Button(onClick = { showFontPicker = false }) {
+                        Text(stringResource(R.string.ok))
+                    }
+                },
+                title = { Text(stringResource(R.string.font_selector)) },
+                text = {
+                    DragonColumnGroup {
+                        listOf(
+                            "Default",
+                            "SansSerif",
+                            "Serif",
+                            "Monospace",
+                            "Cursive"
+                        ).forEach { font ->
+                            SwitchRow(
+                                text = font,
+                                state = globalFontName == font,
+                                onCheck = {
+                                    scope.launch {
+                                        UiSettingsStore.globalFont.set(ctx, font)
+                                    }
+                                }
+                            )
+                        }
+
+                        HorizontalDivider(Modifier.padding(vertical = 8.dp))
+                        Text(
+                            text = stringResource(R.string.coming_soon),
+                            style = MaterialTheme.typography.bodySmall,
+                            color = MaterialTheme.colorScheme.primary
+                        )
+                    }
+                }
+            )
+        }
     }
 }

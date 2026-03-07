@@ -98,6 +98,8 @@
     <string name="drawer_actions_width">Drawer Actions Width</string>
     <string name="drawer_actions">Drawer Actions</string>
     <string name="close_app_drawer">Close Drawer</string>
+    <string name="font_selector">Global Font Selector</string>
+    <string name="font_selector_desc">Choose a font for the entire app. More fonts coming soon!</string>
     <string name="toggle_kb">Toggle Keyboard</string>
     <string name="behavior">Behavior</string>
     <string name="workspaces">Workspaces</string>
