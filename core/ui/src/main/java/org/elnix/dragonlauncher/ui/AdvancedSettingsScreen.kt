@@ -65,6 +65,13 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.material.icons.filled.ContentCopy
+import android.app.ActivityManager
+import org.elnix.dragonlauncher.common.utils.detectSystemLauncher
+import androidx.compose.ui.platform.LocalDensity
+import androidx.compose.ui.platform.LocalConfiguration
+import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
@@ -81,6 +88,7 @@ import org.elnix.dragonlauncher.common.utils.getVersionCode
 import org.elnix.dragonlauncher.common.utils.obtainiumPackageName
 import org.elnix.dragonlauncher.common.utils.openUrl
 import org.elnix.dragonlauncher.common.utils.showToast
+import org.elnix.dragonlauncher.ui.components.dragon.DragonIconButton
 import org.elnix.dragonlauncher.enumsui.LockMethod
 import org.elnix.dragonlauncher.settings.SettingsStoreRegistry
 import org.elnix.dragonlauncher.settings.stores.DebugSettingsStore
@@ -297,6 +305,16 @@ fun AdvancedSettingsScreen(
             }
         }
 
+        item {
+            SettingsItem(
+                title = "Logs",
+                icon = Icons.AutoMirrored.Filled.Notes,
+                modifier = Modifier.animateItem()
+            ) {
+                navController.navigate(SETTINGS.LOGS)
+            }
+        }
+
 
         item { TextDivider(stringResource(R.string.about)) }
 
@@ -464,7 +482,7 @@ fun AdvancedSettingsScreen(
                 )
                 Image(
                     painter = painterResource(R.drawable.acress1),
-                    contentDescription = "Across1 profile picture",
+                    contentDescription = "Acress1 profile picture",
                     modifier = Modifier
                         .size(48.dp)
                         .clip(CircleShape)
@@ -478,54 +496,155 @@ fun AdvancedSettingsScreen(
         }
 
         item {
-            Text(
-                text = "${stringResource(R.string.version)} $versionName",
-                style = MaterialTheme.typography.bodySmall,
-                color = MaterialTheme.colorScheme.onBackground,
+            Column(
                 modifier = Modifier
-                    .padding(top = 8.dp, bottom = 16.dp)
-                    .clickable(
-                        indication = null,
-                        interactionSource = remember { MutableInteractionSource() }
+                    .fillMaxWidth()
+                    .padding(top = 16.dp),
+                horizontalAlignment = Alignment.CenterHorizontally
+            ) {
+                val infoModifier = Modifier.padding(vertical = 1.dp)
+                val infoStyle = MaterialTheme.typography.labelSmall
+                val infoColor = MaterialTheme.colorScheme.onBackground.copy(alpha = 0.7f)
+
+                val density = LocalDensity.current
+                val config = LocalConfiguration.current
+                val am = ctx.getSystemService(Context.ACTIVITY_SERVICE) as ActivityManager
+                val memInfo = ActivityManager.MemoryInfo()
+                am.getMemoryInfo(memInfo)
+                
+                val currentLauncher = detectSystemLauncher(ctx)
+                val isDefault = currentLauncher == ctx.packageName
+
+                val deviceDetails = buildString {
+                    appendLine("System: ${Build.MANUFACTURER} ${Build.MODEL} (${Build.PRODUCT})")
+                    appendLine("OS: Android ${Build.VERSION.RELEASE} (SDK ${Build.VERSION.SDK_INT})")
+                    if (Build.VERSION.SECURITY_PATCH.isNotEmpty()) {
+                        appendLine("Security Patch: ${Build.VERSION.SECURITY_PATCH}")
+                    }
+                    appendLine("Arch: ${Build.SUPPORTED_ABIS.firstOrNull() ?: "unknown"}")
+                    appendLine("Display: ${config.screenWidthDp}x${config.screenHeightDp}dp (${ctx.resources.displayMetrics.densityDpi} dpi)")
+                    appendLine("RAM: ${(memInfo.totalMem / 1024 / 1024 / 1024) + 1}GB total")
+                    appendLine("Default Launcher: ${if (isDefault) "Yes" else "No ($currentLauncher)"}")
+                    appendLine("App version: $versionName ($versionCode)")
+                }
+
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.Center,
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    Text(
+                        text = "Device Information",
+                        style = MaterialTheme.typography.titleSmall,
+                        color = MaterialTheme.colorScheme.primary,
+                        modifier = Modifier.padding(bottom = 4.dp)
+                    )
+                    
+                    Spacer(Modifier.width(8.dp))
+
+                    DragonIconButton(
+                        onClick = {
+                            ctx.copyToClipboard(deviceDetails)
+                            ctx.showToast("Device details copied to clipboard")
+                        },
+                        modifier = Modifier.size(24.dp)
                     ) {
-                        toast?.cancel()
+                        Icon(
+                            imageVector = Icons.Default.ContentCopy,
+                            contentDescription = "Copy device info",
+                            modifier = Modifier.size(16.dp),
+                            tint = MaterialTheme.colorScheme.primary
+                        )
+                    }
+                }
 
-                        when {
+                Text(
+                    text = "System: ${Build.MANUFACTURER} ${Build.MODEL} (${Build.PRODUCT})",
+                    style = infoStyle, color = infoColor, modifier = infoModifier
+                )
+                Text(
+                    text = "OS: Android ${Build.VERSION.RELEASE} (SDK ${Build.VERSION.SDK_INT})",
+                    style = infoStyle, color = infoColor, modifier = infoModifier
+                )
+                if (Build.VERSION.SECURITY_PATCH.isNotEmpty()) {
+                    Text(
+                        text = "Security Patch: ${Build.VERSION.SECURITY_PATCH}",
+                        style = infoStyle, color = infoColor, modifier = infoModifier
+                    )
+                }
+                Text(
+                    text = "Arch: ${Build.SUPPORTED_ABIS.firstOrNull() ?: "unknown"}",
+                    style = infoStyle, color = infoColor, modifier = infoModifier
+                )
+                Text(
+                    text = "Display: ${config.screenWidthDp}x${config.screenHeightDp}dp (${ctx.resources.displayMetrics.densityDpi} dpi)",
+                    style = infoStyle, color = infoColor, modifier = infoModifier
+                )
+                Text(
+                    text = "RAM: ${(memInfo.totalMem / 1024 / 1024 / 1024) + 1}GB total",
+                    style = infoStyle, color = infoColor, modifier = infoModifier
+                )
+                Text(
+                    text = "Default Launcher: ${if (isDefault) "Yes" else "No ($currentLauncher)"}",
+                    style = infoStyle, color = infoColor, modifier = infoModifier
+                )
+                Text(
+                    text = "App version: $versionName ($versionCode)",
+                    style = infoStyle,
+                    color = infoColor,
+                    modifier = infoModifier,
+                    textAlign = TextAlign.Center
+                )
 
-                            timesClickedOnVersion == 0 -> {
-                                ctx.copyToClipboard(versionName)
-                                ctx.showToast("Version name copied to clipboard")
-                                timesClickedOnVersion += 1
-                            }
+                Text(
+                    text = stringResource(R.string.version) + " click to copy or enable debug",
+                    style = MaterialTheme.typography.bodySmall,
+                    color = MaterialTheme.colorScheme.onBackground.copy(alpha = 0.5f),
+                    modifier = Modifier
+                        .padding(top = 16.dp, bottom = 16.dp)
+                        .clickable(
+                            indication = null,
+                            interactionSource = remember { MutableInteractionSource() }
+                        ) {
+                            toast?.cancel()
 
-                            isDebugModeEnabled -> {
-                                toast = Toast.makeText(
-                                    ctx,
-                                    "Debug Mode is already enabled",
-                                    Toast.LENGTH_SHORT
-                                )
-                                toast?.show()
-                            }
+                            when {
 
+                                timesClickedOnVersion == 0 -> {
+                                    ctx.copyToClipboard(versionName)
+                                    ctx.showToast("Version name copied to clipboard")
+                                    timesClickedOnVersion += 1
+                                }
 
-                            timesClickedOnVersion < 6 -> {
-                                timesClickedOnVersion++
-                                if (timesClickedOnVersion > 2) {
+                                isDebugModeEnabled -> {
                                     toast = Toast.makeText(
                                         ctx,
-                                        "${7 - timesClickedOnVersion} more times to enable Debug Mode",
+                                        "Debug Mode is already enabled",
                                         Toast.LENGTH_SHORT
                                     )
+                                    toast?.show()
                                 }
-                                toast?.show()
-                            }
 
-                            else -> {
-                                scope.launch { DebugSettingsStore.debugEnabled.set(ctx, true) }
+
+                                timesClickedOnVersion < 6 -> {
+                                    timesClickedOnVersion++
+                                    if (timesClickedOnVersion > 2) {
+                                        toast = Toast.makeText(
+                                            ctx,
+                                            "${7 - timesClickedOnVersion} more times to enable Debug Mode",
+                                            Toast.LENGTH_SHORT
+                                        )
+                                    }
+                                    toast?.show()
+                                }
+
+                                else -> {
+                                    scope.launch { DebugSettingsStore.debugEnabled.set(ctx, true) }
+                                }
                             }
                         }
-                    }
-            )
+                )
+            }
         }
     }
 

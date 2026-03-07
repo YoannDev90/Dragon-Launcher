@@ -1,9 +1,11 @@
 package org.elnix.dragonlauncher.ui
 
 import android.R.attr.versionCode
+import android.Manifest
 import android.annotation.SuppressLint
 import android.content.ComponentName
 import android.content.Intent
+import android.os.Build
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.animation.AnimatedVisibility
@@ -173,6 +175,20 @@ fun MainAppUi(
     val appsViewModel = LocalAppsViewModel.current
     val appLifecycleViewModel = LocalAppLifecycleViewModel.current
     val backupViewModel = LocalBackupViewModel.current
+
+    val notificationLauncher = rememberLauncherForActivityResult(
+        ActivityResultContracts.RequestPermission()
+    ) { isGranted ->
+        if (!isGranted) {
+            ctx.logW(TAG, "Notification permission denied")
+        }
+    }
+
+    LaunchedEffect(Unit) {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+            notificationLauncher.launch(Manifest.permission.POST_NOTIFICATIONS)
+        }
+    }
 
     val result by backupViewModel.result.collectAsState()
 
@@ -800,7 +816,7 @@ fun MainAppUi(
                             onBack = ::goAdvSettingsRoot
                         )
                     }
-                    noAnimComposable(SETTINGS.LOGS) { LogsTab(::goDebug) }
+                    noAnimComposable(SETTINGS.LOGS) { LogsTab(::goAdvSettingsRoot) }
                     noAnimComposable(SETTINGS.SETTINGS_JSON) { SettingsDebugTab(::goDebug) }
                     noAnimComposable(SETTINGS.LANGUAGE) { LanguageTab(::goAdvSettingsRoot) }
                     noAnimComposable(SETTINGS.ANGLE_LINE_EDIT) { AngleLineTab(::goAppearance) }

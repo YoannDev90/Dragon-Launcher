@@ -111,15 +111,6 @@ fun DebugTab(
 
         item {
             SettingsItem(
-                title = "Logs",
-                icon = Icons.AutoMirrored.Filled.Notes
-            ) {
-                navController.navigate(SETTINGS.LOGS)
-            }
-        }
-
-        item {
-            SettingsItem(
                 title = "Settings debug json",
                 icon = Icons.Default.Settings
             ) {

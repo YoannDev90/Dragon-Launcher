@@ -76,7 +76,7 @@ object DebugSettingsStore : MapSettingsStore() {
     val enableLogging = Settings.boolean(
         key = "enableLogging",
         dataStoreName = dataStoreName,
-        default = false
+        default = true
     )
 
     val privateSpaceDebugInfo = Settings.boolean(

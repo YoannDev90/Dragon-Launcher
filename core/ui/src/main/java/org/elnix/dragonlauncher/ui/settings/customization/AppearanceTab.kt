@@ -447,7 +447,6 @@ fun AppearanceTab(
                             "Outfit",
                             "PoiretOne",
                             "Quicksand",
-                            "Rajdhani",
                             "Raleway",
                             "RobotoCondensed",
                             "SpaceGrotesk",
