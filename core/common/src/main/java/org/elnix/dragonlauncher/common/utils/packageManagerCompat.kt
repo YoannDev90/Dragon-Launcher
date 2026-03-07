@@ -22,7 +22,6 @@ import org.elnix.dragonlauncher.common.serializables.AppModel
 import org.elnix.dragonlauncher.common.serializables.mapAppToSection
 import org.elnix.dragonlauncher.common.utils.Constants.Logging.APPS_TAG
 import org.elnix.dragonlauncher.common.utils.Constants.Logging.PM_COMPAT_TAG
-import org.elnix.dragonlauncher.common.utils.Constants.Logging.TAG
 import org.elnix.dragonlauncher.common.utils.ImageUtils.loadDrawableAsBitmap
 
 class PackageManagerCompat(private val pm: PackageManager, private val ctx: Context) {
@@ -135,10 +134,9 @@ class PackageManagerCompat(private val pm: PackageManager, private val ctx: Cont
         val privateCount = result.count { it.isPrivateProfile }
         val workCount = result.count { it.isWorkProfile }
         val userCount = result.count { !it.isPrivateProfile && !it.isWorkProfile }
-        logI(
-            PM_COMPAT_TAG,
+        logI(PM_COMPAT_TAG) {
             "Apps loaded: $userCount user, $workCount work, $privateCount private (total: ${result.size})"
-        )
+        }
 
         return result
     }
@@ -164,41 +162,40 @@ class PackageManagerCompat(private val pm: PackageManager, private val ctx: Cont
      * Used for differential detection when unlocking Private Space: capture before and after
      * and compute the difference.
      */
-    fun snapshotMainProfilePackageNames(): Set<String> {
-        val packages = mutableSetOf<String>()
-        try {
-            val launcherApps = ctx.getSystemService(LauncherApps::class.java)
-            val userHandle = Process.myUserHandle()
-            val activities = launcherApps?.getActivityList(null, userHandle) ?: emptyList()
-            activities.forEach { act -> packages.add(act.applicationInfo.packageName) }
-
-            logD(
-                TAG,
-                "snapshotMainProfilePackageNames: found ${packages.size} launcher-visible packages"
-            )
-        } catch (e: Exception) {
-            logE(TAG, "Error snapshotting main profile packages: ${e.message}")
-        }
-        return packages
-    }
+//    fun snapshotMainProfilePackageNames(): Set<String> {
+//        val packages = mutableSetOf<String>()
+//        try {
+//            val launcherApps = ctx.getSystemService(LauncherApps::class.java)
+//            val userHandle = Process.myUserHandle()
+//            val activities = launcherApps?.getActivityList(null, userHandle) ?: emptyList()
+//            activities.forEach { act -> packages.add(act.applicationInfo.packageName) }
+//
+//            logD(TAG) {
+//                "snapshotMainProfilePackageNames: found ${packages.size} launcher-visible packages"
+//            }
+//        } catch (e: Exception) {
+//            logE(TAG) { "Error snapshotting main profile packages: ${e.message}" }
+//        }
+//        return packages
+//    }
 
     /**
      * Check whether a package is visible/launchable for a given userId.
      * Returns true if LauncherApps reports an activity for that package in the specified user.
      */
-    fun isPackageVisibleForUser(packageName: String, userId: Int): Boolean {
-        try {
-            val launcherApps = ctx.getSystemService(LauncherApps::class.java) ?: return false
-            val userManager = ctx.getSystemService(UserManager::class.java) ?: return false
-            val userHandle =
-                userManager.userProfiles.firstOrNull { it.hashCode() == userId } ?: return false
-            val activities = launcherApps.getActivityList(packageName, userHandle)
-            return !activities.isNullOrEmpty()
-        } catch (e: Exception) {
-            logE(TAG, "Error checking package visibility for user $userId: ${e.message}")
-            return false
-        }
-    }
+//    fun isPackageVisibleForUser(packageName: String, userId: Int): Boolean {
+//        try {
+//            val launcherApps = ctx.getSystemService(LauncherApps::class.java) ?: return false
+//            val userManager = ctx.getSystemService(UserManager::class.java) ?: return false
+//            val userHandle =
+//                userManager.userProfiles.firstOrNull { it.hashCode() == userId } ?: return false
+//            val activities = launcherApps.getActivityList(packageName, userHandle)
+//            return !activities.isNullOrEmpty()
+//        } catch (e: Exception) {
+//            logE(TAG) { "Error checking package visibility for user $userId: ${e.message}" }
+//            return false
+//        }
+//    }
 
     fun getAppIcon(packageName: String, userId: Int, isPrivateProfile: Boolean = false): Drawable {
         val launcherApps = ctx.getSystemService(LauncherApps::class.java)
@@ -235,7 +232,7 @@ class PackageManagerCompat(private val pm: PackageManager, private val ctx: Cont
             appInfo.loadIcon(pm)
 
         } catch (e: Exception) {
-            logD(APPS_TAG, e.toString())
+            logD(APPS_TAG) { e.toString() }
             ContextCompat.getDrawable(ctx, R.drawable.ic_app_default)!!
         }
     }
@@ -264,7 +261,7 @@ class PackageManagerCompat(private val pm: PackageManager, private val ctx: Cont
             return shortcuts ?: emptyList()
 
         } catch (e: Exception) {
-            logD(APPS_TAG, e.toString())
+            logD(APPS_TAG) { e.toString() }
             return emptyList()
         }
     }
