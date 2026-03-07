@@ -1,23 +1,20 @@
 package org.elnix.dragonlauncher
 
+import android.app.NotificationChannel
+import android.app.NotificationManager
+import android.app.PendingIntent
 import android.content.BroadcastReceiver
 import android.content.Context
 import android.content.Intent
 import android.util.Log
-import android.app.Notification
-import android.app.NotificationChannel
-import android.app.NotificationManager
-import android.app.PendingIntent
 import androidx.core.app.NotificationCompat
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
-
 import org.elnix.dragonlauncher.common.logging.logE
 import org.elnix.dragonlauncher.common.utils.Constants.Logging.BROADCAST_TAG
 import org.elnix.dragonlauncher.common.utils.Constants.Logging.TAG
 import org.elnix.dragonlauncher.settings.stores.UiSettingsStore
-import kotlinx.coroutines.flow.first
 
 class PackageReceiver : BroadcastReceiver() {
 
@@ -52,7 +49,7 @@ class PackageReceiver : BroadcastReceiver() {
                         // If a new app is added and the user uses an IPS exported icon pack,
                         // suggest regenerating the pack in Icon Pack Studio.
                         if (action == Intent.ACTION_PACKAGE_ADDED) {
-                            val selectedPack = UiSettingsStore.selectedIconPack.flow(context).first()
+                            val selectedPack = UiSettingsStore.selectedIconPack.get(context)
                             if (selectedPack == "ginlemon.iconpackstudio.exported") {
                                 notifyIpsRegeneration(context)
                             }
@@ -65,13 +62,13 @@ class PackageReceiver : BroadcastReceiver() {
         }
     }
 
-    private fun notifyIpsRegeneration(context: Context) {
+    private fun notifyIpsRegeneration(ctx: Context) {
         try {
-            val ipsIntent = context.packageManager.getLaunchIntentForPackage("ginlemon.iconpackstudio")
+            val ipsIntent = ctx.packageManager.getLaunchIntentForPackage("ginlemon.iconpackstudio")
             if (ipsIntent != null) {
                 ipsIntent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
 
-                val nm = context.getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
+                val nm = ctx.getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
 
                 // Create channel for Android O+
                 nm.createNotificationChannel(
@@ -85,11 +82,11 @@ class PackageReceiver : BroadcastReceiver() {
                 )
 
                 val pendingIntent = PendingIntent.getActivity(
-                    context, 0, ipsIntent,
+                    ctx, 0, ipsIntent,
                     PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE
                 )
 
-                val notification = NotificationCompat.Builder(context, CHANNEL_IPS)
+                val notification = NotificationCompat.Builder(ctx, CHANNEL_IPS)
                     .setSmallIcon(org.elnix.dragonlauncher.common.R.mipmap.ic_launcher_foreground)
                     .setContentTitle("New app installed")
                     .setContentText("Refresh your Icon Pack Studio icons to include this app.")
