@@ -5,13 +5,13 @@ on:
     branches:
       - dev
     paths:
-        - 'app/**'
-        - 'core/**'
-        - 'build.gradle**'
-        - 'gradle/**'
-        - '**.kt'
-        - '**.kts'
-        - '**.java'
+      - 'app/**'
+      - 'core/**'
+      - 'build.gradle**'
+      - 'gradle/**'
+      - '**.kt'
+      - '**.kts'
+      - '**.java'
   workflow_dispatch:
 
 
@@ -30,12 +30,14 @@ jobs:
           java-version: 17
           cache: gradle
 
+
       - name: Extract versionName
         id: version
         run: |
-          VER=$(./gradlew :app:printVersionName --console=plain | grep "VERSION_NAME" | cut -d'=' -f2 | tr -d '[:space:]')
+          VER=$(grep "VERSION_NAME" gradle.properties | cut -d'=' -f2 | tr -d '[:space:]')
           echo "versionName=$VER" >> $GITHUB_ENV
-          echo "Detected versionName: $VER" 
+          echo "Detected versionName: $VER"
+
 
       # Decode keystore
       - name: Decode keystore

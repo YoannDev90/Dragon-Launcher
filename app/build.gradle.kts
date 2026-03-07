@@ -1,3 +1,4 @@
+
 import com.android.build.api.dsl.ApplicationExtension
 import java.util.Properties
 
@@ -33,8 +34,8 @@ extensions.configure<ApplicationExtension> {
         applicationId = "org.elnix.dragonlauncher"
         minSdk = 26
         targetSdk = 36
-        versionCode = 44
-        versionName = "2.6.2"
+        versionName = "${property("VERSION_NAME") as String} (${property("CODE_NAME") as String})"
+        versionCode = (property("VERSION_CODE") as String).toInt()
     }
 
 
@@ -135,15 +136,6 @@ extensions.configure<ApplicationExtension> {
     buildFeatures {
         compose = true
         buildConfig = true
-    }
-
-    tasks.register("printVersionName") {
-        doLast {
-            val androidExt = extensions.getByType<ApplicationExtension>()
-
-            val versionName = androidExt.defaultConfig.versionName
-            println("VERSION_NAME=$versionName")
-        }
     }
 
     dependenciesInfo {
