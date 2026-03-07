@@ -4,14 +4,14 @@
 * Optional release note on
 * bullet points like this
 [NEW]
-* New features organised on
+* New features organized on
 * bullet points like this
 [FIXED]
-* Fixed issues organised on
+* Fixed issues organized on
 * bullet points like this
 [IMPROVED]
-* Improved features organised on
+* Improved features organized on
 * bullet points like this
 [ISSUES]
-* Known issues organised on
+* Known issues organized on
 * bullet points like this
