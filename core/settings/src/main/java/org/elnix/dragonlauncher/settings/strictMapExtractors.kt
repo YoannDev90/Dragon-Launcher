@@ -146,9 +146,14 @@ fun getColorStrict(
 ): Color {
     return when (raw) {
         null -> null
+        // Old storage format
         is Int -> Color(raw)
         is Number -> Color(raw.toInt())
-        is String -> Color (raw.toInt())
+        // New readable format, fallbacks to old format
+        is String -> {
+            raw.toLongOrNull(16)
+                ?.let { Color(it.toInt()) }
+        }
         else -> null
     } ?: def
 }
@@ -158,8 +163,6 @@ fun MutableMap<String, Any>.putIfNonDefault(
     value: Any?,
     def: Any?
 ) {
-//    logI(SETTINGS_TAG, "[PIND] $key -> value: $value;    putting it: ${value != null && value != def}" )
-
     if (value != null && value != def) {
         put(key, value)
     }
