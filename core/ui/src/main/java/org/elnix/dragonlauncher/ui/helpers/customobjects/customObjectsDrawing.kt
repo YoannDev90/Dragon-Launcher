@@ -5,6 +5,7 @@ import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.drawscope.DrawScope
+import androidx.compose.ui.unit.dp
 import org.elnix.dragonlauncher.common.serializables.CustomObjectSerializable
 import org.elnix.dragonlauncher.common.utils.resolveShape
 import org.elnix.dragonlauncher.ui.helpers.nests.glowOverlay
@@ -15,14 +16,14 @@ fun DrawScope.customObject(
     angleColor: Color,
     center: Offset,
 ) {
-    val size = customObject.size ?: default.size!!
+    val size = (customObject.size ?: default.size!!).dp.toPx()
 
     val shape = customObject.shape?.resolveShape() ?: CircleShape
     val baseSize = Size(size, size)
 
     // Apply glow first (background effect)
     customObject.glow?.let { glow ->
-        val glowRadius = glow.radius ?: default.glow!!.radius!!
+        val glowRadius = (glow.radius ?: default.glow!!.radius!!).dp.toPx()
         if (glowRadius > 0f) {
             glowOverlay(
                 center = center,
@@ -34,7 +35,7 @@ fun DrawScope.customObject(
 
     // Main shape
     val shapeColor = customObject.color ?: angleColor
-    val shapeStoke = customObject.stroke ?: default.stroke!!
+    val shapeStroke = (customObject.stroke ?: default.stroke!!).dp.toPx()
 
     // Not zero size
     if (baseSize.width > 0 ) {
@@ -43,7 +44,7 @@ fun DrawScope.customObject(
             center = center,
             size = baseSize,
             color = shapeColor,
-            strokeWidth = shapeStoke,
+            strokeWidth = shapeStroke,
             erase = customObject.eraseBackground ?: default.eraseBackground!!
         )
     }

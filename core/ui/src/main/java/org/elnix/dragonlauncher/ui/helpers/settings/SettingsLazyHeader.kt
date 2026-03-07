@@ -32,6 +32,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import org.burnoutcrew.reorderable.ReorderableLazyListState
@@ -48,6 +49,7 @@ fun SettingsLazyHeader(
     onBack: () -> Unit,
     helpText: String,
     onReset: (() -> Unit)?,
+    vararg otherIcons: Pair<(() -> Unit), ImageVector>,
     modifier: Modifier = Modifier,
     resetTitle: String = stringResource(R.string.reset_default_settings),
     resetText: String? = stringResource(R.string.reset_settings_in_this_tab),
@@ -94,7 +96,8 @@ fun SettingsLazyHeader(
             ) {
                 item {
                     SettingsTitle(
-                        title,
+                        title = title,
+                        otherIcons = otherIcons,
                         helpIcon = { showHelpDialog = true },
                         resetIcon = if (onReset != null) {
                             { showResetDialog = true }

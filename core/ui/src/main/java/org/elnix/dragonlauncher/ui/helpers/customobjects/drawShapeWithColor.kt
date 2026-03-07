@@ -19,7 +19,7 @@ fun DrawScope.drawShapeWithColor(
     center: Offset,
     size: Size,
     color: Color,
-    strokeWidth: Float = 0f,
+    strokeWidth: Float,
     erase: Boolean = false
 ) {
     val outline = shape.createOutline(

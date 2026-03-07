@@ -1,5 +1,6 @@
 package org.elnix.dragonlauncher.settings.stores
 
+import org.elnix.dragonlauncher.enumsui.AngleLineObjects
 import org.elnix.dragonlauncher.settings.DataStoreName
 import org.elnix.dragonlauncher.settings.Settings
 import org.elnix.dragonlauncher.settings.bases.BaseSettingObject
@@ -62,6 +63,13 @@ object AngleLineSettingsStore : MapSettingsStore() {
         default = ""
     )
 
+
+    val angleLineObjectsOrder = Settings.string(
+        key = "angleLineObjectsOrder",
+        dataStoreName = dataStoreName,
+        default = AngleLineObjects.entries.joinToString(",") { it.name }
+    )
+
     override val ALL: List<BaseSettingObject<*,*>> = listOf(
         this.showLineObjectPreview,
         this.showAngleLineObjectPreview,
@@ -71,6 +79,8 @@ object AngleLineSettingsStore : MapSettingsStore() {
         this.lineJson,
         this.angleLineJson,
         this.startLineJson,
-        this.endLineJson
+        this.endLineJson,
+
+        this.angleLineObjectsOrder
     )
 }

@@ -13,6 +13,7 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import org.elnix.dragonlauncher.common.R
@@ -22,12 +23,13 @@ import org.elnix.dragonlauncher.ui.components.dragon.DragonIconButton
 @Composable
 fun SettingsTitle(
     title: String,
-    resetIcon:( () -> Unit)?,
+    vararg otherIcons: Pair<(() -> Unit), ImageVector>,
+    resetIcon: (() -> Unit)?,
     helpIcon: () -> Unit,
     onBack: () -> Unit
 ) {
     Row(
-        verticalAlignment = Alignment.CenterVertically,
+        verticalAlignment = Alignment.Top,
         horizontalArrangement = Arrangement.spacedBy(12.dp),
         modifier = Modifier.fillMaxWidth()
     ) {
@@ -48,6 +50,17 @@ fun SettingsTitle(
             modifier = Modifier.weight(1f)
         )
 
+
+       otherIcons.forEach {
+           DragonIconButton(
+               onClick = { it.first() },
+           ) {
+               Icon(
+                   imageVector = it.second,
+                   contentDescription = null
+               )
+           }
+       }
 
         if (resetIcon != null){
             DragonIconButton(

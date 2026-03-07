@@ -40,17 +40,14 @@ fun DrawScope.drawNeonGlowLine(
     color: Color,
     lineStrokeWidth: Float,
     glowRadius: Float,
-    glowColor: Color,
+    glowColor: Color?,
     erase: Boolean
 ) {
-    val strokePx = lineStrokeWidth.dp.toPx()
-
-    val glowPx = glowRadius.dp.toPx()
 
     // Glow overlay (behind)
-    if (glowPx > 0f) {
+    if (glowRadius > 0f) {
         drawIntoCanvas { canvas ->
-            val frameworkPaint = customGlowPain(glowColor, glowPx)
+            val frameworkPaint = customGlowPain(glowColor ?: color, glowRadius)
 
             canvas.nativeCanvas.drawLine(
                 start.x,
@@ -62,25 +59,27 @@ fun DrawScope.drawNeonGlowLine(
         }
     }
 
-    if (erase) {
+    if (lineStrokeWidth > 0f) {
+        if (erase) {
+            drawLine(
+                color = Color.Transparent,
+                start = start,
+                end = end,
+                strokeWidth = lineStrokeWidth,
+                cap = StrokeCap.Round,
+                blendMode = BlendMode.Clear
+            )
+        }
+
+        // Sharp center line
         drawLine(
-            color = Color.Transparent,
+            color = color,
             start = start,
             end = end,
-            strokeWidth = strokePx,
-            cap = StrokeCap.Round,
-            blendMode = BlendMode.Clear
+            strokeWidth = lineStrokeWidth,
+            cap = StrokeCap.Round
         )
     }
-
-    // Sharp center line
-    drawLine(
-        color = color,
-        start = start,
-        end = end,
-        strokeWidth = strokePx,
-        cap = StrokeCap.Round
-    )
 }
 
 fun DrawScope.drawNeonGlowArc(
@@ -94,8 +93,6 @@ fun DrawScope.drawNeonGlowArc(
     glowColor: Color?,
     erase: Boolean
 ) {
-    val strokePx = lineStrokeWidth.dp.toPx()
-    val glowPx = glowRadius.dp.toPx()
 
     val left = topLeft.x
     val top = topLeft.y
@@ -103,9 +100,9 @@ fun DrawScope.drawNeonGlowArc(
     val bottom = top + size.height
 
     // Glow overlay
-    if (glowPx > 0f) {
+    if (glowRadius > 0f) {
         drawIntoCanvas { canvas ->
-            val frameworkPaint = customGlowPain(glowColor ?: color, glowPx)
+            val frameworkPaint = customGlowPain(glowColor ?: color, glowRadius)
 
             canvas.nativeCanvas.drawArc(
                 left,
@@ -120,35 +117,37 @@ fun DrawScope.drawNeonGlowArc(
         }
     }
 
-    if (erase) {
+    if (lineStrokeWidth > 0f) {
+        if (erase) {
+            drawArc(
+                color = Color.Transparent,
+                startAngle = startAngle,
+                sweepAngle = sweepAngle,
+                useCenter = false,
+                topLeft = topLeft,
+                size = size,
+                style = Stroke(
+                    width = lineStrokeWidth,
+                    cap = StrokeCap.Round
+                ),
+                blendMode = BlendMode.Clear
+            )
+        }
+
+        // Sharp arc
         drawArc(
-            color = Color.Transparent,
+            color = color,
             startAngle = startAngle,
             sweepAngle = sweepAngle,
             useCenter = false,
             topLeft = topLeft,
             size = size,
             style = Stroke(
-                width = strokePx,
+                width = lineStrokeWidth,
                 cap = StrokeCap.Round
-            ),
-            blendMode = BlendMode.Clear
+            )
         )
     }
-
-    // Sharp arc
-    drawArc(
-        color = color,
-        startAngle = startAngle,
-        sweepAngle = sweepAngle,
-        useCenter = false,
-        topLeft = topLeft,
-        size = size,
-        style = Stroke(
-            width = strokePx,
-            cap = StrokeCap.Round
-        )
-    )
 }
 
 

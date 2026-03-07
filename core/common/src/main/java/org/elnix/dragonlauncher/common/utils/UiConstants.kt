@@ -15,10 +15,10 @@ object UiConstants {
     val DragonShape = RoundedCornerShape(DRAGON_SHAPE_CORNER_DP)
 
     val defaultLineCustomObject = CustomObjectSerializable(
-        stroke = 0.3f,
+        stroke = 2f,
         color = null, // RGB Color according to the angle
         glow = CustomGlow(
-            radius = 5f
+            radius = 10f
         ),
 
         /** Not used for the line as it goes from `start` to `end` */
@@ -30,13 +30,13 @@ object UiConstants {
 
 
     val defaultAngleCustomObject = CustomObjectSerializable(
-        stroke = 3f,
+        stroke = 2f,
         color = null, // RGB Color according to the angle
         glow = CustomGlow(
             radius = 20f
         ),
         shape = IconShape.Circle,
-        size = 20f,
+        size = 25f,
         eraseBackground = false
     )
 
@@ -44,22 +44,21 @@ object UiConstants {
         stroke = 4f,
         color = null, // RGB Color according to the angle
         glow = CustomGlow(
-            radius = 40f
+            radius = 12f
         ),
         shape = IconShape.Circle,
-        size = 75f,
+        size = 30f,
         eraseBackground = true
     )
 
     val defaultEndCustomObject = CustomObjectSerializable(
-        stroke = 4f,
+        stroke = 0f,
         color = null, // RGB Color according to the angle
         glow = CustomGlow(
-            color = null,
-            radius = 15f
+            radius = 5f
         ),
         shape = IconShape.Circle,
-        size = 10f,
+        size = 8f,
         eraseBackground = false
     )
 }

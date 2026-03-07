@@ -22,12 +22,9 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.geometry.Rect
-import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.CompositingStrategy
 import androidx.compose.ui.graphics.Paint
-import androidx.compose.ui.graphics.StrokeCap
-import androidx.compose.ui.graphics.drawscope.DrawScope
 import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.graphics.drawscope.drawIntoCanvas
 import androidx.compose.ui.graphics.graphicsLayer
@@ -36,15 +33,11 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import org.elnix.dragonlauncher.base.theme.LocalExtraColors
-import org.elnix.dragonlauncher.common.logging.logD
 import org.elnix.dragonlauncher.common.logging.logI
 import org.elnix.dragonlauncher.common.serializables.CircleNest
-import org.elnix.dragonlauncher.common.serializables.CustomObjectSerializable
 import org.elnix.dragonlauncher.common.serializables.SwipePointSerializable
-import org.elnix.dragonlauncher.common.utils.Constants.Logging.ANGLE_LINE_TAG
 import org.elnix.dragonlauncher.common.utils.Constants.Logging.NESTS_TAG
 import org.elnix.dragonlauncher.common.utils.UiCircle
-import org.elnix.dragonlauncher.common.utils.UiConstants
 import org.elnix.dragonlauncher.common.utils.circles.computePointPosition
 import org.elnix.dragonlauncher.common.utils.vibrate
 import org.elnix.dragonlauncher.settings.stores.AngleLineSettingsStore
@@ -53,11 +46,10 @@ import org.elnix.dragonlauncher.settings.stores.DebugSettingsStore
 import org.elnix.dragonlauncher.settings.stores.UiSettingsStore
 import org.elnix.dragonlauncher.ui.components.AppPreviewTitle
 import org.elnix.dragonlauncher.ui.components.settings.asState
-import org.elnix.dragonlauncher.ui.helpers.customobjects.customObject
+import org.elnix.dragonlauncher.ui.dialogs.rememberLineObjectsOrder
+import org.elnix.dragonlauncher.ui.helpers.customobjects.actionLine
 import org.elnix.dragonlauncher.ui.helpers.nests.actionsInCircle
 import org.elnix.dragonlauncher.ui.helpers.nests.circlesSettingsOverlay
-import org.elnix.dragonlauncher.ui.helpers.nests.drawNeonGlowArc
-import org.elnix.dragonlauncher.ui.helpers.nests.drawNeonGlowLine
 import org.elnix.dragonlauncher.ui.helpers.nests.swipeDefaultParams
 import org.elnix.dragonlauncher.ui.remembers.LocalAngleLineObject
 import org.elnix.dragonlauncher.ui.remembers.LocalEndLineObject
@@ -98,8 +90,11 @@ fun MainScreenOverlay(
 
     val showLineObjectPreview by AngleLineSettingsStore.showLineObjectPreview.asState()
     val showAngleLineObjectPreview by AngleLineSettingsStore.showAngleLineObjectPreview.asState()
-    val showStartObjectPreview by AngleLineSettingsStore.showLineObjectPreview.asState()
-    val showEndObjectPreview by AngleLineSettingsStore.showAngleLineObjectPreview.asState()
+    val showStartObjectPreview by AngleLineSettingsStore.showStartObjectPreview.asState()
+    val showEndObjectPreview by AngleLineSettingsStore.showEndObjectPreview.asState()
+
+    val order by rememberLineObjectsOrder()
+
 
     val showAppPreviewIconCenterStartPosition by UiSettingsStore.showAppPreviewIconCenterStartPosition.asState()
     val linePreviewSnapToAction by UiSettingsStore.linePreviewSnapToAction.asState()
@@ -391,6 +386,8 @@ fun MainScreenOverlay(
                         start = start,
                         end = current,
 
+                        order = order,
+
                         showLineObjectPreview = showLineObjectPreview,
                         showAngleLineObjectPreview = showAngleLineObjectPreview,
                         showStartObjectPreview = showStartObjectPreview,
@@ -400,8 +397,8 @@ fun MainScreenOverlay(
                         angleLineCustomObject = angleLineObject,
                         startCustomObject = startObject,
                         endCustomObject = endObject,
-                        sweepAngle = sweepAngle,
 
+                        sweepAngle = sweepAngle,
                         lineColor = lineColor
                     )
                 }
@@ -447,6 +444,8 @@ fun MainScreenOverlay(
                             start = start,
                             end = end,
 
+                            order = order,
+
                             showLineObjectPreview = showLineObjectPreview,
                             showAngleLineObjectPreview = showAngleLineObjectPreview,
                             showStartObjectPreview = showStartObjectPreview,
@@ -456,8 +455,8 @@ fun MainScreenOverlay(
                             angleLineCustomObject = angleLineObject,
                             startCustomObject = startObject,
                             endCustomObject = endObject,
-                            sweepAngle = sweepAngle,
 
+                            sweepAngle = sweepAngle,
                             lineColor = lineColor
                         )
                     }
@@ -535,121 +534,6 @@ fun MainScreenOverlay(
             showLabel = showLaunchingAppLabel,
             showIcon = showLaunchingAppIcon
         )
-    }
-}
-
-
-fun DrawScope.actionLine(
-    start: Offset,
-    end: Offset,
-
-    showLineObjectPreview: Boolean,
-    showAngleLineObjectPreview: Boolean,
-    showStartObjectPreview: Boolean,
-    showEndObjectPreview: Boolean,
-
-    lineCustomObject: CustomObjectSerializable,
-    angleLineCustomObject: CustomObjectSerializable,
-    startCustomObject: CustomObjectSerializable,
-    endCustomObject: CustomObjectSerializable,
-    sweepAngle: Float,
-    lineColor: Color
-) {
-    logD(ANGLE_LINE_TAG, lineCustomObject.toString())
-    if (showLineObjectPreview) {
-        val lineGlow = lineCustomObject.glow
-        val lineStrokeWidth = (lineCustomObject.stroke ?: UiConstants.defaultLineCustomObject.stroke!!).dp.toPx()
-
-        if (lineGlow != null) {
-            val glowRadius = (lineGlow.radius ?: UiConstants.defaultLineCustomObject.glow!!.radius!!).dp.toPx()
-            if (glowRadius > 0f) {
-                drawNeonGlowLine(
-                    start = start,
-                    end = end,
-                    color = lineCustomObject.color ?: lineColor,
-                    lineStrokeWidth = lineStrokeWidth,
-                    glowRadius = glowRadius,
-                    glowColor = lineGlow.color ?: lineColor,
-                    erase = lineCustomObject.eraseBackground ?: UiConstants.defaultLineCustomObject.eraseBackground!!
-                )
-            }
-        } else if (lineStrokeWidth > 0f) {
-            // Draw the main line from `start` to `end`
-            drawLine(
-                color = lineColor,
-                start = start,
-                end = end,
-                strokeWidth = lineStrokeWidth,
-                cap = StrokeCap.Round
-            )
-        }
-    }
-
-    if (showStartObjectPreview) {
-        customObject(
-            customObject = startCustomObject,
-            default = UiConstants.defaultStartCustomObject,
-            angleColor = lineColor,
-            center = start
-        )
-    }
-
-
-    if (showEndObjectPreview) {
-        customObject(
-            customObject = endCustomObject,
-            default = UiConstants.defaultEndCustomObject,
-            angleColor = lineColor,
-            center = end
-        )
-    }
-
-
-    // The angle rotating around the start point (have to fix that and allow more customization) TODO
-    // The "do you hate it?" thing in settings
-    if (showAngleLineObjectPreview) {
-
-        val arcStroke = (angleLineCustomObject.stroke ?: UiConstants.defaultAngleCustomObject.stroke!!).dp.toPx()
-
-        if (arcStroke > 0f) {
-            val arcRadius =
-                (angleLineCustomObject.size ?: UiConstants.defaultAngleCustomObject.size!!)
-                    .dp.toPx()
-
-            val rect = Rect(
-                start.x - arcRadius,
-                start.y - arcRadius,
-                start.x + arcRadius,
-                start.y + arcRadius
-            )
-
-            val angleGLow = angleLineCustomObject.glow
-
-
-            val glowRadius = if (angleGLow != null ) {
-                angleGLow.radius
-                    ?: UiConstants.defaultAngleCustomObject.glow!!.radius!!
-            } else 0f
-
-            val glowColor = if (angleGLow != null ) {
-                angleGLow.color
-                    ?: UiConstants.defaultAngleCustomObject.glow!!.color
-            } else null
-
-
-            drawNeonGlowArc(
-                topLeft = rect.topLeft,
-                size = Size(rect.width, rect.height),
-                startAngle = -90f,
-                sweepAngle = sweepAngle,
-                color = angleLineCustomObject.color ?: lineColor,
-                lineStrokeWidth = arcStroke,
-                glowRadius = glowRadius,
-                glowColor = glowColor,
-                erase = angleLineCustomObject.eraseBackground
-                    ?: UiConstants.defaultLineCustomObject.eraseBackground!!
-            )
-        }
     }
 }
 

@@ -9,6 +9,8 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.aspectRatio
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.MoreVert
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -39,11 +41,13 @@ import org.elnix.dragonlauncher.common.utils.Constants.Logging.ANGLE_LINE_TAG
 import org.elnix.dragonlauncher.common.utils.UiConstants
 import org.elnix.dragonlauncher.settings.stores.AngleLineSettingsStore
 import org.elnix.dragonlauncher.settings.stores.UiSettingsStore
-import org.elnix.dragonlauncher.ui.actionLine
 import org.elnix.dragonlauncher.ui.components.ExpandableSection
 import org.elnix.dragonlauncher.ui.components.settings.SettingsSwitchRow
 import org.elnix.dragonlauncher.ui.components.settings.asState
+import org.elnix.dragonlauncher.ui.dialogs.AngleLineObjectsOrderDialog
+import org.elnix.dragonlauncher.ui.dialogs.rememberLineObjectsOrder
 import org.elnix.dragonlauncher.ui.helpers.customobjects.EditCustomObjectBlock
+import org.elnix.dragonlauncher.ui.helpers.customobjects.actionLine
 import org.elnix.dragonlauncher.ui.helpers.settings.SettingsLazyHeader
 import org.elnix.dragonlauncher.ui.modifiers.settingsGroup
 import org.elnix.dragonlauncher.ui.remembers.rememberDecodedObject
@@ -68,6 +72,9 @@ fun AngleLineTab(onBack: () -> Unit) {
     val angleObjectExpandableSectionState = rememberExpandableSection(stringResource(R.string.angle_object))
     val startObjectExpandableSectionState = rememberExpandableSection(stringResource(R.string.start_object))
     val endObjectExpandableSectionState = rememberExpandableSection(stringResource(R.string.end_object))
+
+    val order by rememberLineObjectsOrder()
+    var showOrderDialog by remember { mutableStateOf(false) }
 
     val json = Json {
         prettyPrint = true
@@ -127,6 +134,7 @@ fun AngleLineTab(onBack: () -> Unit) {
                 AngleLineSettingsStore.resetAll(ctx)
             }
         },
+        Pair({ showOrderDialog = true }, Icons.Default.MoreVert),
         scrollableContent = true,
         content = {
 
@@ -186,6 +194,8 @@ fun AngleLineTab(onBack: () -> Unit) {
                         start = start,
                         end = dummyEnd,
 
+                        order = order,
+
                         showLineObjectPreview = showLineObjectPreview,
                         showAngleLineObjectPreview = showAngleLineObjectPreview,
                         showStartObjectPreview = showStartObjectPreview,
@@ -216,7 +226,7 @@ fun AngleLineTab(onBack: () -> Unit) {
                         properties = CustomObjectBlockProperties(
                             allowSizeCustomization = false,
                             allowShapeCustomization = false,
-                            allowEraseBackgroundCustomization = false
+                            allowEraseBackgroundCustomization = false // Since drawn first TODO all customize draw order
                         )
                     ) {
                         val newLineJson = json.encodeToString(CustomObjectSerializable.serializer(), it)
@@ -297,4 +307,8 @@ fun AngleLineTab(onBack: () -> Unit) {
             }
         }
     )
+
+    if (showOrderDialog) {
+        AngleLineObjectsOrderDialog { showOrderDialog = false }
+    }
 }
