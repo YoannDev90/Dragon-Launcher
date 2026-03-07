@@ -290,7 +290,7 @@ private fun exportLogFile(ctx: Context, file: File) {
         ctx.logD {" Share opened: ${file.name} (${shareFile.absolutePath})" }
 
     } catch (e: SecurityException) {
-        ctx.logE("LogsTab", "FileProvider not configured: ${e.message}")
+        ctx.logE("LogsTab") { "FileProvider not configured: ${e.message}" }
         val content = DragonLogManager.readLogFile(file)
         val textIntent = Intent().apply {
             action = Intent.ACTION_SEND
@@ -300,6 +300,6 @@ private fun exportLogFile(ctx: Context, file: File) {
         }
         ctx.startActivity(Intent.createChooser(textIntent, "Share logs (text)"))
     } catch (e: Exception) {
-        ctx.logE("LogsTab", "Share failed: ${e.message}", e)
+        ctx.logE("LogsTab") { "Share failed: ${e.message}" }
     }
 }

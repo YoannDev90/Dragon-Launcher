@@ -56,7 +56,7 @@ fun CacheKey.splitCacheKey(): Pair<String, Int> {
             return Pair(split.first(), split.last().toInt())
         }
     } catch (e: Throwable) {
-        logE(Constants.Logging.WORKSPACES_TAG, "Error splitting cacheKey", e)
+        logE(Constants.Logging.WORKSPACES_TAG) { "Error splitting cacheKey" }
     }
     // Fallback if user has still the old storage way, with no cacheKey
     return Pair(cacheKey, 0)

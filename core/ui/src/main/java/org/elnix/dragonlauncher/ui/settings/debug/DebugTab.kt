@@ -469,7 +469,7 @@ fun ActivateDeviceAdminButton() {
     TextButton(
         enabled = !isActive,
         onClick = {
-            ctx.logD("Compose", "Button clicked - context: ${ctx.packageName}")
+            ctx.logD("Compose") { "Button clicked - context: ${ctx.packageName}" }
             activateDeviceAdmin(ctx)
         }
     ) {

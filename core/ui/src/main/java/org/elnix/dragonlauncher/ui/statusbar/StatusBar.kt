@@ -288,7 +288,7 @@ fun EditStatusBar() {
                     elements.add(toIdx, item)
                 }
             } catch (e: Exception) {
-                logger.logE("StatusBarDebug", "Crash avoided during reorder: ${e.message}", e)
+                logger.logE("StatusBarDebug") { "Crash avoided during reorder: ${e.message}" }
             }
         },
         onDragEnd = { _, _ ->

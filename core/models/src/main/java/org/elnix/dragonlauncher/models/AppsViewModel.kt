@@ -129,7 +129,7 @@ class AppsViewModel(
     /**
      * Direct synchronous access to icon cache for UI components
      */
-    fun getIcon(key: String): ImageBitmap? = iconCache.get(key)
+//    fun getIcon(key: String): ImageBitmap? = iconCache.get(key)
 
 
     private val _defaultPoint = MutableStateFlow(defaultSwipePointsValues)
@@ -259,15 +259,13 @@ class AppsViewModel(
                         WorkspaceType.PRIVATE -> {
                             val privateApps =
                                 list.filter { it.isPrivateProfile && it.isLaunchable == true }
-                            logI(
-                                APPS_TAG,
+                            logI(APPS_TAG) {
                                 "Private workspace filter: ${privateApps.size} apps from ${list.size} total (${list.count { it.isPrivateProfile }} private in total)"
-                            )
+                            }
                             if (privateApps.isNotEmpty()) {
-                                logI(
-                                    APPS_TAG,
+                                logI(APPS_TAG) {
                                     "Private apps: ${privateApps.joinToString(", ") { it.name }}"
-                                )
+                                }
                             }
                             privateApps
                         }
@@ -332,7 +330,7 @@ class AppsViewModel(
 
     suspend fun reloadApps() {
         try {
-            logD(APPS_TAG, "========== Starting reloadApps() ==========")
+            logD(APPS_TAG) { "========== Starting reloadApps() ==========" }
 
             val apps = withContext(Dispatchers.IO) {
                 pmCompat.getAllApps()
@@ -346,10 +344,9 @@ class AppsViewModel(
             if (useDifferentialLoadingForPrivateSpace) {
                 if (!pendingPrivateAssignments.isNullOrEmpty()) {
                     val assignments = pendingPrivateAssignments ?: emptyMap()
-                    logI(
-                        APPS_TAG,
+                    logI(APPS_TAG) {
                         "Applying differential Private Space detection: ${assignments.size} app identities"
-                    )
+                    }
 
                     // Persist assignments
                     try {
@@ -367,13 +364,9 @@ class AppsViewModel(
                         }
 
                         PrivateAppsSettingsStore.jsonSetting.set(ctx, gson.toJson(existingMap))
-                        logI(APPS_TAG, "Persisted ${assignments.size} private app assignments")
+                        logI(APPS_TAG) { "Persisted ${assignments.size} private app assignments" }
                     } catch (e: Exception) {
-                        logE(
-                            APPS_TAG,
-                            "Error persisting private package assignments: ${e.message}",
-                            e
-                        )
+                        logE(APPS_TAG) { "Error persisting private package assignments: ${e.message}" }
                     }
 
 
@@ -384,10 +377,9 @@ class AppsViewModel(
 
                         val assignedUserId = assignments[cacheKeyString]
                         if (assignedUserId != null || assignments.containsKey(cacheKeyString)) {
-                            logI(
-                                APPS_TAG,
+                            logI(APPS_TAG) {
                                 "Marking ${app.packageName} as Private Space (diff), assigning userId=${assignedUserId ?: app.userId}"
-                            )
+                            }
                             app.copy(
                                 isPrivateProfile = true,
                                 isWorkProfile = false,
@@ -398,7 +390,7 @@ class AppsViewModel(
                     // Clear pending after consumption
                     pendingPrivateAssignments = null
                 } else {
-                    logI(APPS_TAG, "Pending private assignments is empty : $pendingPrivateAssignments")
+                    logI(APPS_TAG) { "Pending private assignments is empty : $pendingPrivateAssignments" }
                 }
 
                 // Apply persisted private assignments (survives reloads)
@@ -441,18 +433,17 @@ class AppsViewModel(
 //                }
             }
 
-            logD(APPS_TAG, "Total apps loaded: ${finalApps.size}")
-            logD(APPS_TAG, "Private apps: ${finalApps.count { it.isPrivateProfile }}")
-            logD(APPS_TAG, "Work apps: ${finalApps.count { it.isWorkProfile }}")
-            logD(
-                APPS_TAG,
+            logD(APPS_TAG) { "Total apps loaded: ${finalApps.size}" }
+            logD(APPS_TAG) { "Private apps: ${finalApps.count { it.isPrivateProfile }}" }
+            logD(APPS_TAG) { "Work apps: ${finalApps.count { it.isWorkProfile }}" }
+            logD(APPS_TAG) {
                 "User apps: ${finalApps.count { !it.isWorkProfile && !it.isPrivateProfile }}"
-            )
+            }
 
             if (finalApps.count { it.isPrivateProfile } > 0) {
-                logD(APPS_TAG, "Private apps list:")
+                logD(APPS_TAG) { "Private apps list:" }
                 finalApps.filter { it.isPrivateProfile }.forEach {
-                    logD(APPS_TAG, "  - ${it.name} (${it.packageName}, userId=${it.userId})")
+                    logD(APPS_TAG) { "  - ${it.name} (${it.packageName}, userId=${it.userId})" }
                 }
             }
 
@@ -467,14 +458,13 @@ class AppsViewModel(
                 override = true,
             )
 
-            logI(
-                APPS_TAG,
+            logI(APPS_TAG) {
                 "Reloaded packages, ${apps.filter { it.isLaunchable == true }.size} launchable apps, ${apps.size} total apps"
-            )
-            logI(APPS_TAG, "========== Finished reloadApps() ==========")
+            }
+            logI(APPS_TAG) { "========== Finished reloadApps() ==========" }
 
         } catch (e: Exception) {
-            logE(APPS_TAG, "Error in reloadApps: ${e.message}", e)
+            logE(APPS_TAG) { "Error in reloadApps: ${e.message}" }
         }
     }
 
@@ -483,23 +473,23 @@ class AppsViewModel(
      */
     private suspend fun captureMainProfileSnapshotBeforeUnlock() {
         try {
-            logD(APPS_TAG, "Capturing visible app snapshot before Private Space unlock...")
+            logD(APPS_TAG) { "Capturing visible app snapshot before Private Space unlock..." }
             privateSnapshotBefore = withContext(Dispatchers.IO) {
                 pmCompat.getAllApps(skipAnyKnownPrivate = true)
                     .filter { it.isLaunchable == true }
                     .map { it.iconCacheKey.cacheKey }
                     .toSet()
             }
-            logD(APPS_TAG, "Snapshot captured: ${privateSnapshotBefore?.size ?: 0} packages")
+            logD(APPS_TAG) { "Snapshot captured: ${privateSnapshotBefore?.size ?: 0} packages" }
         } catch (e: Exception) {
-            logE(APPS_TAG, "Error capturing main profile snapshot: ${e.message}", e)
+            logE(APPS_TAG) { "Error capturing main profile snapshot: ${e.message}" }
             privateSnapshotBefore = null
         }
     }
 
     private suspend fun detectPrivateAppsDiffAndReload() {
         try {
-            logD(APPS_TAG, "Detecting Private Space apps via differential snapshot...")
+            logD(APPS_TAG) { "Detecting Private Space apps via differential snapshot..." }
             val before = privateSnapshotBefore ?: emptySet()
             val afterApps = withContext(Dispatchers.IO) {
                 pmCompat.getAllApps().filter { it.isLaunchable == true }
@@ -509,12 +499,11 @@ class AppsViewModel(
             val diffKeys = after.subtract(before)
             val diffApps = afterApps.filter { it.iconCacheKey.cacheKey in diffKeys }
 
-            logI(
-                APPS_TAG,
+            logI(APPS_TAG) {
                 "Differential detection: found ${diffApps.size} candidate private apps: ${
                     diffApps.joinToString(", ") { "${it.packageName}@${it.userId}" }
                 }"
-            )
+            }
 
             pendingPrivateAssignments =
                 diffApps.associate { it.iconCacheKey.cacheKey to it.userId }
@@ -528,16 +517,15 @@ class AppsViewModel(
 
                     userWorkspaces.forEach { ws ->
                         if (cacheKey in ws.appIds) {
-                            logI(
-                                APPS_TAG,
+                            logI(APPS_TAG) {
                                 "Removing $cacheKey from USER workspace (${ws.id}) because it's Private"
-                            )
+                            }
                             removeAppFromWorkspace(ws.id, cacheKey)
                         }
                     }
                 }
             } catch (e: Exception) {
-                logE(APPS_TAG, "Error removing packages from USER workspaces: ${e.message}")
+                logE(APPS_TAG) { "Error removing packages from USER workspaces: ${e.message}" }
             }
 
             // Clear the before snapshot
@@ -561,7 +549,7 @@ class AppsViewModel(
             scheduledReloadJob?.join()
 
         } catch (e: Exception) {
-            logE(APPS_TAG, "Error during differential private detection: ${e.message}", e)
+            logE(APPS_TAG) { "Error during differential private detection: ${e.message}" }
             pendingPrivateAssignments = null
             privateSnapshotBefore = null
 
@@ -648,10 +636,10 @@ class AppsViewModel(
 
         if (useDifferentialLoadingForPrivateSpace) {
             detectPrivateAppsDiffAndReload()
-            logI(APPS_TAG, "Available after full private space reload")
+            logI(APPS_TAG) { "Available after full private space reload" }
         } else {
             reloadApps()
-            logI(APPS_TAG, "Available after full apps reload (no differential reload)")
+            logI(APPS_TAG) { "Available after full apps reload (no differential reload)" }
         }
 
         // Finished loading
@@ -989,7 +977,7 @@ class AppsViewModel(
         targetPkg: String
     ): Drawable? {
 
-        logD(ICONS_TAG, "Resolving icon → app=$targetPkg pack=$packPkg resolvedName=$iconName")
+        logD(ICONS_TAG) { "Resolving icon → app=$targetPkg pack=$packPkg resolvedName=$iconName" }
 
         if (packPkg == null) return null
 
@@ -997,7 +985,7 @@ class AppsViewModel(
 
         // 1. Try standard drawable name
         val drawableId = packResources.getIdentifier(iconName, "drawable", packPkg)
-        logD(ICONS_TAG, "Trying drawable: name=$iconName id=$drawableId")
+        logD(ICONS_TAG) { "Trying drawable: name=$iconName id=$drawableId" }
         if (drawableId != 0) {
             return ResourcesCompat.getDrawable(packResources, drawableId, null)
         }
@@ -1051,7 +1039,7 @@ class AppsViewModel(
         val pack = selectedIconPack.value ?: return null
         val cache = getCache(pack.packageName)
 
-        logD(ICONS_TAG, "getCachedIconMapping → app=$pkgName pack=${pack.packageName}")
+        logD(ICONS_TAG) { "getCachedIconMapping → app=$pkgName pack=${pack.packageName}" }
 
         val launchIntent = runCatching {
             pm.getLaunchIntentForPackage(pkgName)
@@ -1073,7 +1061,7 @@ class AppsViewModel(
             return it
         }
 
-        logD(ICONS_TAG, "No mapping found for $pkgName")
+        logD(ICONS_TAG) { "No mapping found for $pkgName" }
         return null
     }
 
@@ -1117,10 +1105,9 @@ class AppsViewModel(
 
                 if (hasAppfilter) {
                     val name = pkgInfo.applicationInfo?.loadLabel(pm).toString()
-                    logD(
-                        ICONS_TAG,
+                    logD(ICONS_TAG) {
                         "FOUND icon pack: $name (${pkgInfo.packageName}"
-                    )
+                    }
 
                     packs.add(
                         IconPackInfo(
@@ -1134,7 +1121,7 @@ class AppsViewModel(
             }
         }
         val uniquePacks = packs.distinctBy { it.packageName }
-        logD(ICONS_TAG, "Total icon packs found: ${uniquePacks.size}")
+        logD(ICONS_TAG) { "Total icon packs found: ${uniquePacks.size}" }
         _iconPacksList.value = uniquePacks
     }
 
@@ -1162,7 +1149,7 @@ class AppsViewModel(
                 componentToDrawable = componentToDrawable
             )
         } catch (e: Exception) {
-            logE(ICONS_TAG, "Failed to load mappings for $packPkg: ${e.message}")
+            logE(ICONS_TAG) { "Failed to load mappings for $packPkg: ${e.message}" }
             IconPackCache(emptyMap(), emptyMap())
         }
     }
@@ -1214,7 +1201,7 @@ class AppsViewModel(
                 }
             }
         } catch (e: Exception) {
-            logE(WORKSPACES_TAG, "Error while loading the workspaces state", e)
+            logE(WORKSPACES_TAG, e) { "Error while loading the workspaces state" }
             _workspacesState.value = WorkspaceState()
         }
     }
@@ -1222,11 +1209,11 @@ class AppsViewModel(
 
     private fun persist() = scope.launch(Dispatchers.IO) {
 
-        logW(WORKSPACES_TAG, "Persisting the state: ${_workspacesState.value}")
+        logW(WORKSPACES_TAG) { "Persisting the state: ${_workspacesState.value}" }
 
         val json = gson.toJson(_workspacesState.value)
 
-        logW(WORKSPACES_TAG, json)
+        logW(WORKSPACES_TAG) { json }
         WorkspaceSettingsStore.setAll(
             ctx,
             JSONObject(json)
@@ -1430,12 +1417,12 @@ class AppsViewModel(
     }
 
     fun setAppIcon(cacheKey: CacheKey, customIcon: CustomIconSerializable?) {
-        logD(WORKSPACES_TAG, "CacheKey: $cacheKey, customIcon: $customIcon")
+        logD(WORKSPACES_TAG) { "CacheKey: $cacheKey, customIcon: $customIcon" }
 
         val prev = _workspacesState.value.appOverrides[cacheKey]
 
-        logD(WORKSPACES_TAG, "prev: $prev")
-        logD(WORKSPACES_TAG, _workspacesState.value.toString())
+        logD(WORKSPACES_TAG) { "prev: $prev" }
+        logD(WORKSPACES_TAG) { _workspacesState.value.toString() }
 
         _workspacesState.value = _workspacesState.value.copy(
             appOverrides = _workspacesState.value.appOverrides +
@@ -1584,11 +1571,11 @@ private fun parseAppFilterXml(ctx: Context, packPkg: String): List<IconMapping>?
             mappings = parseXml(parser)
         }
         if (mappings?.isNotEmpty() == true) {
-            ctx.logD(ICONS_TAG, "Loaded ${mappings.size} mappings from assets/appfilter.xml")
+            ctx.logD(ICONS_TAG) { "Loaded ${mappings.size} mappings from assets/appfilter.xml" }
             return mappings
         }
     } catch (e: Exception) {
-        ctx.logD(ICONS_TAG, "Assets appfilter.xml failed: ${e.message}")
+        ctx.logD(ICONS_TAG) { "Assets appfilter.xml failed: ${e.message}" }
     }
 
     // 2. Fallback to res/xml/appfilter.xml
@@ -1598,9 +1585,9 @@ private fun parseAppFilterXml(ctx: Context, packPkg: String): List<IconMapping>?
     try {
         val parser: XmlResourceParser = packResources.getXml(resId)
         mappings = parseXml(parser)
-        ctx.logD(ICONS_TAG, "Loaded ${mappings.size} mappings from res/xml/appfilter.xml")
+        ctx.logD(ICONS_TAG) { "Loaded ${mappings.size} mappings from res/xml/appfilter.xml" }
     } catch (e: Exception) {
-        ctx.logE(ICONS_TAG, "res/xml/appfilter.xml parse failed: ${e.message}")
+        ctx.logE(ICONS_TAG) { "res/xml/appfilter.xml parse failed: ${e.message}" }
     }
 
     return mappings

@@ -118,7 +118,7 @@ fun MainScreenOverlay(
 
     val isDragging = start != null && current != null
 
-    // Optimization: Calculate geometric values only when dragging and using derivedStateOf 
+    // Optimization: Calculate geometric values only when dragging and using derivedStateOf
     // to avoid recomposing the entire overlay on every pixel move if the end result doesn't change.
     val dragData by remember(start, current) {
         derivedStateOf {
@@ -129,7 +129,7 @@ fun MainScreenOverlay(
                 val angleRadVal = atan2(dxVal.toDouble(), -dyVal.toDouble())
                 val angleDegVal = Math.toDegrees(angleRadVal)
                 val angle360 = if (angleDegVal < 0) angleDegVal + 360 else angleDegVal
-                
+
                 DragData(dxVal, dyVal, distVal, angle360, angleDegVal)
             } else {
                 DragData(0f, 0f, 0f, 0.0, 0.0)
@@ -480,7 +480,7 @@ fun MainScreenOverlay(
                         canvas.saveLayer(bounds, Paint())
 
                         if (showAllActionsOnCurrentCircle || showAllActionsOnCurrentNest) {
-                            logI(NESTS_TAG, "Got circle settings\ncircles: $circles\nfiltered: $filteredCircles")
+                            logI(NESTS_TAG) { "Got circle settings\ncircles: $circles\nfiltered: $filteredCircles" }
                             // If you selected to draw the selected circle / nest
                             circlesSettingsOverlay(
                                 drawParams = drawParams,
@@ -491,7 +491,7 @@ fun MainScreenOverlay(
                                 nestId = nestId
                             )
                         } else if (showAppLaunchPreview) {
-                            logI(NESTS_TAG, "Got action in settings")
+                            logI(NESTS_TAG) { "Got action in settings" }
 
 
                             // Main circle (the selected) drawn before any apps to be behind
@@ -513,7 +513,7 @@ fun MainScreenOverlay(
                                 depth = 1
                             )
                         } else {
-                            logI(NESTS_TAG, "Got else")
+                            logI(NESTS_TAG) { "Got else" }
                         }
 
 

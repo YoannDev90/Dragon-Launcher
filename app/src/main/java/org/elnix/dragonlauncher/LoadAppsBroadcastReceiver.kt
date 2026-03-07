@@ -56,7 +56,7 @@ class PackageReceiver : BroadcastReceiver() {
                         }
                     }
                 } catch (e: Exception) {
-                    logE(TAG, e.toString())
+                    logE(TAG) { e.toString() }
                 }
             }
         }
@@ -103,7 +103,7 @@ class PackageReceiver : BroadcastReceiver() {
                 nm.notify(NOTIF_ID_IPS, notification)
             }
         } catch (e: Exception) {
-            logE(TAG, "Failed to suggest IPS regeneration: ${e.message}")
+            logE(TAG) { "Failed to suggest IPS regeneration: ${e.message}" }
         }
     }
 }

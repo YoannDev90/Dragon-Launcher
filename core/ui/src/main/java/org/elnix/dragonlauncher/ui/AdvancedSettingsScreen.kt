@@ -511,7 +511,7 @@ fun AdvancedSettingsScreen(
                 val am = ctx.getSystemService(Context.ACTIVITY_SERVICE) as ActivityManager
                 val memInfo = ActivityManager.MemoryInfo()
                 am.getMemoryInfo(memInfo)
-                
+
                 val currentLauncher = detectSystemLauncher(ctx)
                 val isDefault = currentLauncher == ctx.packageName
 
@@ -539,7 +539,7 @@ fun AdvancedSettingsScreen(
                         color = MaterialTheme.colorScheme.primary,
                         modifier = Modifier.padding(bottom = 4.dp)
                     )
-                    
+
                     Spacer(Modifier.width(8.dp))
 
                     DragonIconButton(
@@ -785,11 +785,12 @@ fun AdvancedSettingsScreen(
                                     // Test biometric authentication immediately
                                     val activity = ctx.findFragmentActivity()
                                     ctx.logD(
-                                        "AdvSettings",
+                                        "AdvSettings"
+                                    ) {
                                         "DEVICE_UNLOCK selected: activity=$activity, isAvailable=${
                                             SecurityHelper.isDeviceUnlockAvailable(ctx)
                                         }"
-                                    )
+                                    }
                                     if (activity != null && SecurityHelper.isDeviceUnlockAvailable(
                                             ctx
                                         )

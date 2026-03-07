@@ -35,6 +35,9 @@ import kotlinx.coroutines.cancel
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
 import org.elnix.dragonlauncher.common.R
+import org.elnix.dragonlauncher.common.logging.logD
+import org.elnix.dragonlauncher.common.logging.logE
+import org.elnix.dragonlauncher.common.logging.logW
 import org.elnix.dragonlauncher.settings.stores.WellbeingSettingsStore
 
 /**
@@ -67,7 +70,7 @@ class OverlayReminderService : Service() {
             mode: String = "reminder"
         ) {
             if (!Settings.canDrawOverlays(ctx)) {
-                logW(TAG, "Cannot show overlay: permission not granted")
+                Companion.logW(TAG) { "Cannot show overlay: permission not granted" }
                 return
             }
             try {
@@ -81,7 +84,7 @@ class OverlayReminderService : Service() {
                 }
                 ctx.startService(intent)
             } catch (e: Exception) {
-                logE(TAG, "Failed to start overlay service", e)
+                Companion.logE(TAG) { "Failed to start overlay service" }
             }
         }
     }
@@ -114,7 +117,7 @@ class OverlayReminderService : Service() {
     override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
         try {
             if (!Settings.canDrawOverlays(this)) {
-                logW(TAG, "Overlay permission not granted")
+                logW(TAG) { "Overlay permission not granted" }
                 stopSelf()
                 return START_NOT_STICKY
             }
@@ -128,11 +131,11 @@ class OverlayReminderService : Service() {
             val remainingTime = intent?.getStringExtra(EXTRA_REMAINING_TIME) ?: ""
             val hasLimit = intent?.getBooleanExtra(EXTRA_HAS_LIMIT, false) ?: false
 
-            logD(TAG, "onStartCommand: mode=$mode, app=$appName")
+            logD(TAG) { "onStartCommand: mode=$mode, app=$appName" }
 
             showOverlay(appName, sessionTime, todayTime, remainingTime, hasLimit, mode)
         } catch (e: Exception) {
-            logE(TAG, "Error in onStartCommand", e)
+            logE(TAG) { "Error in onStartCommand" }
             stopSelf()
         }
         return START_NOT_STICKY
@@ -154,7 +157,8 @@ class OverlayReminderService : Service() {
                 // Read user preferences (which stats to show)
                 val showSession = WellbeingSettingsStore.popupShowSessionTime.get(this@OverlayReminderService) ?: true
                 val showToday = WellbeingSettingsStore.popupShowTodayTime.flow(this@OverlayReminderService).first()
-                val showRemaining = WellbeingSettingsStore.popupShowRemainingTime.flow(this@OverlayReminderService).first()
+                val showRemaining =
+                    WellbeingSettingsStore.popupShowRemainingTime.flow(this@OverlayReminderService).first()
 
                 val isWarning = mode == "time_warning"
 
@@ -188,7 +192,7 @@ class OverlayReminderService : Service() {
 
                 overlayView = container
                 windowManager?.addView(container, layoutParams)
-                logD(TAG, "Overlay view added successfully")
+                logD(TAG) { "Overlay view added successfully" }
 
                 // Entry animation
                 animateIn(container)
@@ -206,13 +210,13 @@ class OverlayReminderService : Service() {
                             stopSelf()
                         }
                     } catch (e: Exception) {
-                        logE(TAG, "Error in auto-dismiss", e)
+                        logE(TAG) { "Error in auto-dismiss" }
                     }
                 }
                 handler.postDelayed(autoDismissRunnable!!, DISMISS_DELAY)
 
             } catch (e: Exception) {
-                logE(TAG, "Error in showOverlay", e)
+                logE(TAG) { "Error in showOverlay" }
                 stopSelf()
             }
         }
@@ -518,11 +522,11 @@ class OverlayReminderService : Service() {
             overlayView?.let { view ->
                 if (view.isAttachedToWindow) {
                     windowManager?.removeViewImmediate(view)
-                    logD(TAG, "Overlay removed")
+                    logD(TAG) { "Overlay removed" }
                 }
             }
         } catch (e: Exception) {
-            logE(TAG, "Error removing overlay", e)
+            logE(TAG) { "Error removing overlay" }
         } finally {
             overlayView = null
             windowManager = null

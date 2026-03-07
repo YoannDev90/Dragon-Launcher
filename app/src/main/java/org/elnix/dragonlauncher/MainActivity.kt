@@ -118,7 +118,7 @@ class MainActivity : FragmentActivity(), WidgetHostProvider {
 
     private val widgetPickerLauncher =
         registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { result ->
-            logD(WIDGET_TAG, "widgetPickerLauncher resultCode=${result.resultCode}")
+            logD(WIDGET_TAG) { "widgetPickerLauncher resultCode=${result.resultCode}" }
             val widgetId = result.data?.getIntExtra(AppWidgetManager.EXTRA_APPWIDGET_ID, -1)
                 ?: return@registerForActivityResult
 
@@ -128,20 +128,20 @@ class MainActivity : FragmentActivity(), WidgetHostProvider {
 
 
     private fun addWidgetsWithId(widgetId: Int) {
-        logD(WIDGET_TAG, "Picked widgetId=$widgetId")
+        logD(WIDGET_TAG) { "Picked widgetId=$widgetId" }
         val info = widgetHolder.getAppWidgetInfo(widgetId)
         if (info == null) {
-            logW(WIDGET_TAG, "No AppWidgetInfo for widgetId=$widgetId, deleting...")
+            logW(WIDGET_TAG) { "No AppWidgetInfo for widgetId=$widgetId, deleting..." }
             widgetHolder.deleteAppWidgetId(widgetId)
             return
         }
 
         // Try to bind silently
         if (appWidgetManager.bindAppWidgetIdIfAllowed(widgetId, info.provider)) {
-            logD(WIDGET_TAG, "bindAppWidgetIdIfAllowed=true, proceeding")
+            logD(WIDGET_TAG) { "bindAppWidgetIdIfAllowed=true, proceeding" }
             proceedAfterBind(widgetId, info)
         } else {
-            logD(WIDGET_TAG, "bindAppWidgetIdIfAllowed=false, launching bind consent")
+            logD(WIDGET_TAG) { "bindAppWidgetIdIfAllowed=false, launching bind consent" }
             pendingBindWidgetId = widgetId
             pendingBindProvider = info.provider
 
@@ -158,7 +158,7 @@ class MainActivity : FragmentActivity(), WidgetHostProvider {
         widgetId: Int,
         provider: ComponentName
     ) {
-        logD(WIDGET_TAG, "DRAGON_FLOW: Starting bind process from picker for ID $widgetId")
+        logD(WIDGET_TAG) { "DRAGON_FLOW: Starting bind process from picker for ID $widgetId" }
         lifecycleScope.launch {
 //            val forceBinding = DebugSettingsStore.forceAppWidgetsBinding.get(this@MainActivity)
 //            logD(WIDGET_TAG, "DRAGON_FLOW: Force binding setting=$forceBinding")
@@ -186,15 +186,15 @@ class MainActivity : FragmentActivity(), WidgetHostProvider {
 //                    widgetHolder.deleteAppWidgetId(widgetId)
 //                }
 //            } else {
-                // Need user consent to bind
+            // Need user consent to bind
 //                logD(WIDGET_TAG, "DRAGON_FLOW: Binding REJECTED (Wait for consent). Launching ACTION_APPWIDGET_BIND for $widgetId")
-                pendingBindWidgetId = widgetId
-                pendingBindProvider = provider
-                val intent = Intent(AppWidgetManager.ACTION_APPWIDGET_BIND).apply {
-                    putExtra(AppWidgetManager.EXTRA_APPWIDGET_ID, widgetId)
-                    putExtra(AppWidgetManager.EXTRA_APPWIDGET_PROVIDER, provider)
-                }
-                widgetBindLauncher.launch(intent)
+            pendingBindWidgetId = widgetId
+            pendingBindProvider = provider
+            val intent = Intent(AppWidgetManager.ACTION_APPWIDGET_BIND).apply {
+                putExtra(AppWidgetManager.EXTRA_APPWIDGET_ID, widgetId)
+                putExtra(AppWidgetManager.EXTRA_APPWIDGET_PROVIDER, provider)
+            }
+            widgetBindLauncher.launch(intent)
 //            }
         }
     }
@@ -205,10 +205,10 @@ class MainActivity : FragmentActivity(), WidgetHostProvider {
             val widgetId = pendingBindWidgetId
             val provider = pendingBindProvider
 
-            logD(WIDGET_TAG, "DRAGON_FLOW: ActionBind finished with resultCode=${result.resultCode} for ID $widgetId")
+            logD(WIDGET_TAG) { "DRAGON_FLOW: ActionBind finished with resultCode=${result.resultCode} for ID $widgetId" }
 
             if (widgetId == null || provider == null) {
-               logW(WIDGET_TAG, "DRAGON_FLOW: Pending data lost during activity transition!")
+                logW(WIDGET_TAG) { "DRAGON_FLOW: Pending data lost during activity transition!" }
                 return@registerForActivityResult
             }
 
@@ -216,22 +216,21 @@ class MainActivity : FragmentActivity(), WidgetHostProvider {
             pendingBindProvider = null
 
             lifecycleScope.launch {
-                logD(WIDGET_TAG, "DRAGON_FLOW: Waiting for OS to sync bind state...")
+                logD(WIDGET_TAG) { "DRAGON_FLOW: Waiting for OS to sync bind state..." }
                 // Wait a short time for system to finish binding
                 var bound = false
                 repeat(5) { attempt ->
                     val info = try {
                         widgetHolder.getAppWidgetInfo(widgetId)
                     } catch (e: SecurityException) {
-                       logW(
-                            WIDGET_TAG,
+                        logW(WIDGET_TAG) {
                             "DRAGON_FLOW: SecurityException on attempt $attempt for ID $widgetId: ${e.message}"
-                        )
+                        }
                         null
                     }
 
                     if (info != null) {
-                        logD(WIDGET_TAG, "DRAGON_FLOW: Sync successful on attempt $attempt! Info found.")
+                        logD(WIDGET_TAG) { "DRAGON_FLOW: Sync successful on attempt $attempt! Info found." }
                         bound = true
                         return@repeat
                     }
@@ -240,15 +239,15 @@ class MainActivity : FragmentActivity(), WidgetHostProvider {
                 }
 
                 if (bound) {
-                    logD(WIDGET_TAG, "DRAGON_FLOW: Widget bound after consent. Proceeding...")
+                    logD(WIDGET_TAG) { "DRAGON_FLOW: Widget bound after consent. Proceeding..." }
                     widgetHolder.getAppWidgetInfo(widgetId)?.let { info ->
                         proceedAfterBind(widgetId, info)
                     } ?: run {
-                       logW(WIDGET_TAG, "DRAGON_FLOW: Critical - Info missing for bound ID $widgetId")
+                        logW(WIDGET_TAG) { "DRAGON_FLOW: Critical - Info missing for bound ID $widgetId" }
                         widgetHolder.deleteAppWidgetId(widgetId)
                     }
                 } else {
-                   logW(WIDGET_TAG, "DRAGON_FLOW: Bind FAILED after consent. ID $widgetId was not blessed by system.")
+                    logW(WIDGET_TAG) { "DRAGON_FLOW: Bind FAILED after consent. ID $widgetId was not blessed by system." }
                     showToast("Binding failed. Check Xiaomi 'Add Shortcut' permission.")
                     widgetHolder.deleteAppWidgetId(widgetId)
                 }
@@ -260,10 +259,10 @@ class MainActivity : FragmentActivity(), WidgetHostProvider {
      * I struggled so much to achieve to something that works in most cases I don't want to change that
      */
     private fun proceedAfterBind(widgetId: Int, info: AppWidgetProviderInfo) {
-        logD(WIDGET_TAG, "DRAGON_FLOW: proceedAfterBind for ID $widgetId, provider=${info.provider}")
+        logD(WIDGET_TAG) { "DRAGON_FLOW: proceedAfterBind for ID $widgetId, provider=${info.provider}" }
 
         if (info.configure != null) {
-            logD(WIDGET_TAG, "DRAGON_FLOW: Provider requires configuration. Launching via Host Proxy...")
+            logD(WIDGET_TAG) { "DRAGON_FLOW: Provider requires configuration. Launching via Host Proxy..." }
             pendingConfigWidgetId = widgetId
             try {
                 // Use the official AppWidgetHost proxy to launch configuration.
@@ -276,7 +275,7 @@ class MainActivity : FragmentActivity(), WidgetHostProvider {
                     null
                 )
             } catch (e: Exception) {
-                logE(WIDGET_TAG, "DRAGON_FLOW: Proxy launch failed: ${e.message}")
+                logE(WIDGET_TAG) { "DRAGON_FLOW: Proxy launch failed: ${e.message}" }
                 showToast("Failed to launch configuration")
                 // Add it anyway if config fails to launch
                 floatingAppsViewModel.addFloatingApp(
@@ -286,7 +285,7 @@ class MainActivity : FragmentActivity(), WidgetHostProvider {
                 )
             }
         } else {
-            logD(WIDGET_TAG, "DRAGON_FLOW: No configuration needed, adding widget")
+            logD(WIDGET_TAG) { "DRAGON_FLOW: No configuration needed, adding widget" }
             floatingAppsViewModel.addFloatingApp(
                 SwipeActionSerializable.OpenWidget(widgetId, info.provider),
                 info,
@@ -294,14 +293,15 @@ class MainActivity : FragmentActivity(), WidgetHostProvider {
             )
         }
 
-        pendingAddNestId =  null
+        pendingAddNestId = null
     }
 
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
         super.onActivityResult(requestCode, resultCode, data)
         if (requestCode == REQUEST_WIDGET_CONFIG) {
-            val widgetId = data?.getIntExtra(AppWidgetManager.EXTRA_APPWIDGET_ID, pendingConfigWidgetId) ?: pendingConfigWidgetId
-            logD(WIDGET_TAG, "DRAGON_FLOW: Proxy config finished for ID $widgetId, result=$resultCode")
+            val widgetId =
+                data?.getIntExtra(AppWidgetManager.EXTRA_APPWIDGET_ID, pendingConfigWidgetId) ?: pendingConfigWidgetId
+            logD(WIDGET_TAG) { "DRAGON_FLOW: Proxy config finished for ID $widgetId, result=$resultCode" }
 
             if (resultCode == RESULT_OK && widgetId != -1) {
                 val info = widgetHolder.getAppWidgetInfo(widgetId)
@@ -356,7 +356,7 @@ class MainActivity : FragmentActivity(), WidgetHostProvider {
         )
 
         super.onCreate(savedInstanceState)
-        logI("StartupPerf", "MainActivity.onCreate started")
+        logI("StartupPerf") { "MainActivity.onCreate started" }
 
         // Initialize logging & other background tasks asynchronously
         org.elnix.dragonlauncher.common.utils.AsyncInitializer.init(this)
@@ -375,9 +375,13 @@ class MainActivity : FragmentActivity(), WidgetHostProvider {
         // This avoids layout & loading overlap
         lifecycleScope.launch(Dispatchers.Main) {
             yield() // Wait for first frame
-            logI("StartupPerf", "First frame rendered in ${System.currentTimeMillis() - startTime}ms. Starting AppsViewModel.loadAll().")
+            logI("StartupPerf") {
+                "First frame rendered in ${System.currentTimeMillis() - startTime}ms. Starting AppsViewModel.loadAll()."
+            }
             (applicationContext as MyApplication).appsViewModel.loadAll()
-            logI("StartupPerf", "AppsViewModel.loadAll() finished at ${System.currentTimeMillis() - startTime}ms total.")
+            logI("StartupPerf") {
+                "AppsViewModel.loadAll() finished at ${System.currentTimeMillis() - startTime}ms total."
+            }
         }
 
         setContent {
@@ -444,25 +448,27 @@ class MainActivity : FragmentActivity(), WidgetHostProvider {
                 appLifecycleViewModel.privateSpaceUnlockRequestEvents.collect {
 
                     val openPrivateSpace = {
-                        ctx.logI("SamsungIntegration", "Using standard Android Private Space")
+                        ctx.logI("SamsungIntegration") { "Using standard Android Private Space" }
                         ctx.startActivity(
                             Intent(ctx, PrivateSpaceUnlockActivity::class.java)
                         )
                     }
 
                     ctx.logI(
-                        "SamsungIntegration",
+                        "SamsungIntegration"
+                    ) {
                         "Loading Samsung preference: $samsungPreferSecureFolder"
-                    )
+                    }
                     val useSecureFolder = SamsungWorkspaceIntegration.resolveUseSecureFolder(
                         context = ctx,
                         preferenceEnabled = samsungPreferSecureFolder
                     )
 
                     ctx.logI(
-                        "SamsungIntegration",
+                        "SamsungIntegration"
+                    ) {
                         "Using system: ${if (useSecureFolder) "Secure Folder" else "Private Space"}"
-                    )
+                    }
 
                     if (useSecureFolder) {
                         SamsungWorkspaceIntegration.openSecureFolder(
@@ -639,7 +645,7 @@ class MainActivity : FragmentActivity(), WidgetHostProvider {
             intent.hasCategory(Intent.CATEGORY_HOME)
         ) {
             isNewHomeIntent = true
-            logD("HomeAction", "HOME intent received (pending)")
+            logD("HomeAction") { "HOME intent received (pending)" }
         }
     }
 
