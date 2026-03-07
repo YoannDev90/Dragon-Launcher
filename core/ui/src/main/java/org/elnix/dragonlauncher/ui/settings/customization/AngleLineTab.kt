@@ -225,8 +225,7 @@ fun AngleLineTab(onBack: () -> Unit) {
                         default = UiConstants.defaultLineCustomObject,
                         properties = CustomObjectBlockProperties(
                             allowSizeCustomization = false,
-                            allowShapeCustomization = false,
-                            allowEraseBackgroundCustomization = false // Since drawn first TODO all customize draw order
+                            allowShapeCustomization = false
                         )
                     ) {
                         val newLineJson = json.encodeToString(CustomObjectSerializable.serializer(), it)
