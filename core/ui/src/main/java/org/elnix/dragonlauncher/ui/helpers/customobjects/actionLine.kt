@@ -51,7 +51,7 @@ fun DrawScope.actionLine(
                 // The angle rotating around the start point (have to fix that and allow more customization) TODO
                 // The "do you hate it?" thing in settings
                 if (showAngleLineObjectPreview) {
-                    angleoOject(
+                    angleObject(
                         center = start,
                         sweepAngle = sweepAngle,
                         lineColor = lineColor,
@@ -113,7 +113,7 @@ private fun DrawScope.lineObject(
     )
 }
 
-private fun DrawScope.angleoOject(
+private fun DrawScope.angleObject(
     center: Offset,
     sweepAngle: Float,
     lineColor: Color,
