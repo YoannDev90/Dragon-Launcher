@@ -1314,9 +1314,6 @@ class AppsViewModel(
     }
 
     fun deleteWorkspace(id: String) {
-        val target = _workspacesState.value.workspaces.find { it.id == id } ?: return
-        if (target.type != WorkspaceType.CUSTOM) return
-
         _workspacesState.value = _workspacesState.value.copy(
             workspaces = _workspacesState.value.workspaces.filterNot { it.id == id }
         )

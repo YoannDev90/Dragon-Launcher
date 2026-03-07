@@ -30,8 +30,8 @@ import org.burnoutcrew.reorderable.detectReorder
 import org.elnix.dragonlauncher.common.R
 import org.elnix.dragonlauncher.common.serializables.Workspace
 import org.elnix.dragonlauncher.common.serializables.WorkspaceType
-import org.elnix.dragonlauncher.enumsui.WorkspaceAction
 import org.elnix.dragonlauncher.common.utils.UiConstants.DragonShape
+import org.elnix.dragonlauncher.enumsui.WorkspaceAction
 import org.elnix.dragonlauncher.ui.colors.AppObjectsColors
 import org.elnix.dragonlauncher.ui.components.dragon.DragonIconButton
 
@@ -152,18 +152,12 @@ fun WorkspaceRow(
                     modifier = Modifier.padding(8.dp),
                     verticalAlignment = Alignment.CenterVertically
                 ) {
-                    if (workspace.type == WorkspaceType.CUSTOM) {
-                        listOf(
-                            WorkspaceAction.Rename,
-                            WorkspaceAction.Delete
-                        ).forEach { action ->
-                            DragonIconButton(onClick = { onAction(action) }) {
-                                Icon(action.icon, action.label)
-                            }
-                        }
-                    } else {
-                        DragonIconButton(onClick = { onAction(WorkspaceAction.Rename) }) {
-                            Icon(WorkspaceAction.Rename.icon, WorkspaceAction.Rename.label)
+                    listOf(
+                        WorkspaceAction.Rename,
+                        WorkspaceAction.Delete
+                    ).forEach { action ->
+                        DragonIconButton(onClick = { onAction(action) }) {
+                            Icon(action.icon, action.label)
                         }
                     }
                 }
