@@ -6,7 +6,6 @@ import android.content.Context
 import android.content.pm.PackageManager
 import android.content.res.Resources
 import android.content.res.XmlResourceParser
-import android.graphics.Bitmap
 import android.graphics.drawable.Drawable
 import android.os.Build
 import android.util.LruCache
@@ -14,7 +13,6 @@ import android.util.Xml
 import androidx.annotation.RequiresApi
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.ImageBitmap
-import androidx.compose.ui.graphics.asImageBitmap
 import androidx.compose.ui.graphics.toArgb
 import androidx.compose.ui.unit.Density
 import androidx.core.content.res.ResourcesCompat
@@ -118,10 +116,10 @@ class AppsViewModel(
     }
 
     private val _iconsTrigger = MutableStateFlow(0)
-    
+
     /**
-     * Reactive access to icons. 
-     * Note: For high-performance icon rendering (list scrolling), 
+     * Reactive access to icons.
+     * Note: For high-performance icon rendering (list scrolling),
      * use getIcon(key) which hits the LruCache directly.
      */
     val icons: StateFlow<Map<String, ImageBitmap>> = _iconsTrigger
@@ -207,7 +205,7 @@ class AppsViewModel(
         _packTint.value = savedPackTint.toArgb()
 
         val savedPackName = UiSettingsStore.selectedIconPack.get(ctx)
-        
+
         // Wait for basic config before proceeding to icons/apps
         workspacesJob.join()
         recentAppsJob.join()
@@ -898,7 +896,7 @@ class AppsViewModel(
                 useOverrides = useOverride,
                 sizePx = sizePx
             )
-            
+
             iconCache.put(app.iconCacheKey.cacheKey, icon)
 
             if (!app.isWorkProfile && !app.isPrivateProfile) {
@@ -1198,7 +1196,7 @@ class AppsViewModel(
 
             val type = object : TypeToken<WorkspaceState>() {}.type
             val loadedState: WorkspaceState? = gson.fromJson(json, type)
-            
+
             val finalState = loadedState ?: WorkspaceState()
             _workspacesState.value = finalState
 
@@ -1513,10 +1511,12 @@ class AppsViewModel(
 
     fun resetWorkspacesAndOverrides() {
         _workspacesState.value = WorkspaceState(
-            workspaces = defaultWorkspaces,
-            appOverrides = emptyMap()
+            workspaces = defaultWorkspaces
         )
-        persist()
+
+        scope.launch {
+            WorkspaceSettingsStore.resetAll(ctx)
+        }
     }
 
     suspend fun setIconPackTint(tint: Color?) {
