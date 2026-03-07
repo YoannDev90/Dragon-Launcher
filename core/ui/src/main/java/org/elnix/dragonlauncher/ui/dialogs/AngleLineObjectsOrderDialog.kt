@@ -111,7 +111,8 @@ fun AngleLineObjectsOrderDialog(
                             modifier = Modifier
                                 .fillMaxWidth()
                                 .padding(vertical = 4.dp)
-                                .scale(scale),
+                                .scale(scale)
+                                .detectReorder(reorderState),
                             elevation = elevatedCardElevation(elevation),
                             colors = AppObjectsColors.cardColors(),
                             shape = RoundedCornerShape(12.dp)
@@ -136,7 +137,6 @@ fun AngleLineObjectsOrderDialog(
                                 Icon(
                                     imageVector = Icons.Default.DragHandle,
                                     contentDescription = null,
-                                    modifier = Modifier.detectReorder(reorderState),
                                     tint = MaterialTheme.colorScheme.outline
                                 )
                             }

@@ -11,7 +11,6 @@ import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.graphics.drawscope.drawIntoCanvas
 import androidx.compose.ui.graphics.nativeCanvas
 import androidx.compose.ui.graphics.toArgb
-import androidx.compose.ui.unit.dp
 
 
 fun DrawScope.glowOverlay(
@@ -19,17 +18,18 @@ fun DrawScope.glowOverlay(
     color: Color,
     radius: Float
 ) {
-    val radius = radius.coerceAtLeast(1f)
-    drawCircle(
-        brush = Brush.radialGradient(
-            0.0f to color,
-            1.0f to Color.Transparent,
-            center = center,
-            radius = radius.dp.toPx()
+    if (radius > 0f) {
+        drawCircle(
+            brush = Brush.radialGradient(
+                0.0f to color,
+                1.0f to Color.Transparent,
+                center = center,
+                radius = radius
             ),
-        radius = radius.dp.toPx(),
-        center = center
-    )
+            radius = radius,
+            center = center
+        )
+    }
 }
 
 
@@ -47,7 +47,7 @@ fun DrawScope.drawNeonGlowLine(
     // Glow overlay (behind)
     if (glowRadius > 0f) {
         drawIntoCanvas { canvas ->
-            val frameworkPaint = customGlowPain(glowColor ?: color, glowRadius)
+            val frameworkPaint = customGlowPaint(glowColor ?: color, glowRadius)
 
             canvas.nativeCanvas.drawLine(
                 start.x,
@@ -102,7 +102,7 @@ fun DrawScope.drawNeonGlowArc(
     // Glow overlay
     if (glowRadius > 0f) {
         drawIntoCanvas { canvas ->
-            val frameworkPaint = customGlowPain(glowColor ?: color, glowRadius)
+            val frameworkPaint = customGlowPaint(glowColor ?: color, glowRadius)
 
             canvas.nativeCanvas.drawArc(
                 left,
@@ -151,7 +151,7 @@ fun DrawScope.drawNeonGlowArc(
 }
 
 
-private fun customGlowPain(glowColor: Color, glowPx: Float): Paint {
+private fun customGlowPaint(glowColor: Color, glowPx: Float): Paint {
     require(glowPx > 0f) { "Glow px < 0f: $glowPx" }
     return Paint().apply {
         this.color = glowColor.copy(alpha = 0.7f).toArgb()

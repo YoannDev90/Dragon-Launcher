@@ -44,7 +44,7 @@ object UiConstants {
         stroke = 4f,
         color = null, // RGB Color according to the angle
         glow = CustomGlow(
-            radius = 12f
+            radius = 32f
         ),
         shape = IconShape.Circle,
         size = 30f,
@@ -55,7 +55,7 @@ object UiConstants {
         stroke = 0f,
         color = null, // RGB Color according to the angle
         glow = CustomGlow(
-            radius = 5f
+            radius = 12f
         ),
         shape = IconShape.Circle,
         size = 8f,

@@ -820,7 +820,7 @@ fun SettingsScreen(
                         glowOverlay(
                             center = closestHoveredTempOffset!!,
                             color = primaryColor,
-                            radius = hoveredPointRadialGradientProgress
+                            radius = hoveredPointRadialGradientProgress.dp.toPx()
                         )
                     }
                 }
