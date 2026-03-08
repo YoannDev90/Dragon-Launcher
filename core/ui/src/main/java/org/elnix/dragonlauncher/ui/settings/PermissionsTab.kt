@@ -94,6 +94,22 @@ fun PermissionsTab(onBack: () -> Unit) {
 
             item {
                 SwitchRow(
+                    state = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) ctx.packageManager.canRequestPackageInstalls() else true,
+                    onCheck = {
+                        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+                            val intent = Intent(Settings.ACTION_MANAGE_UNKNOWN_APP_SOURCES).apply {
+                                data = Uri.parse("package:${ctx.packageName}")
+                            }
+                            ctx.startActivity(intent)
+                        }
+                    },
+                    text = "Installation d'applications (APK)",
+                    subText = "Nécessaire pour installer les extensions téléchargées."
+                )
+            }
+
+            item {
+                SwitchRow(
                     state = null,
                     onCheck = {
                         val intent = Intent(Settings.ACTION_ACCESSIBILITY_SETTINGS)

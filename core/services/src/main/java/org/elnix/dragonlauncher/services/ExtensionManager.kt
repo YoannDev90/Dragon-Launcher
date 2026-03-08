@@ -3,6 +3,7 @@ package org.elnix.dragonlauncher.services
 import android.content.Context
 import android.content.Intent
 import android.net.Uri
+import android.os.Build
 import org.elnix.dragonlauncher.common.serializables.ExtensionModel
 import org.elnix.dragonlauncher.common.utils.PackageManagerCompat
 import org.elnix.dragonlauncher.common.utils.openUrl
@@ -37,6 +38,16 @@ object ExtensionManager {
 
     fun installApk(context: Context, uri: Uri) {
         try {
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O && !context.packageManager.canRequestPackageInstalls()) {
+                val intent = Intent(android.provider.Settings.ACTION_MANAGE_UNKNOWN_APP_SOURCES).apply {
+                    data = Uri.parse("package:${context.packageName}")
+                    flags = Intent.FLAG_ACTIVITY_NEW_TASK
+                }
+                context.startActivity(intent)
+                context.showToast("Please allow unknown app installs first")
+                return
+            }
+
             val intent = Intent(Intent.ACTION_VIEW).apply {
                 setDataAndType(uri, "application/vnd.android.package-archive")
                 flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_GRANT_READ_URI_PERMISSION
@@ -47,17 +58,22 @@ object ExtensionManager {
         }
     }
 
-    fun isExtensionInstalled(context: Context, packageName: String): Boolean {
+    fun isExtensionInstalled(context: Context, packageNameOrId: String): Boolean {
         val pmCompat = PackageManagerCompat(context.packageManager, context)
         
-        // 1. Direct check with provided packageName
-        if (pmCompat.isPackageInstalled(packageName)) return true
+        // 1. Direct check with provided packageName or ID
+        if (pmCompat.isPackageInstalled(packageNameOrId)) return true
         
-        // 2. Fallback: Scan for any package containing "dragon.launcher" that matches our extension
-        // This is useful if the packageName in the registry is slightly off or if we want to be more flexible
+        // 2. Scan for any package containing "dragon.launcher" that matches the end of the identifier
+        // and also check if those packages are actually extensions (via metadata or specific naming)
         return try {
             val installedPackages = context.packageManager.getInstalledPackages(0)
-            installedPackages.any { it.packageName.contains("dragon.launcher") && it.packageName.contains(packageName.split(".").last()) }
+            val suffix = packageNameOrId.split(".").last()
+            installedPackages.any { pkg -> 
+                val pName = pkg.packageName
+                (pName.contains("dragon.launcher") && pName.endsWith(suffix, ignoreCase = true)) ||
+                (pName.contains("dragonlauncher") && pName.contains(suffix, ignoreCase = true))
+            }
         } catch (e: Exception) {
             false
         }

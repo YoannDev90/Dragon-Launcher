@@ -170,9 +170,28 @@ private fun ExtensionItem(extension: ExtensionModel) {
                 modifier = Modifier
                     .fillMaxWidth()
                     .padding(top = 16.dp),
-                horizontalArrangement = Arrangement.End,
+                horizontalArrangement = Arrangement.spacedBy(8.dp, Alignment.End),
                 verticalAlignment = Alignment.CenterVertically
             ) {
+                if (isInstalled) {
+                    val pkg = extension.packageName ?: extension.id
+                    DragonButton(
+                        onClick = {
+                            val intent = context.packageManager.getLaunchIntentForPackage(pkg)
+                            if (intent != null) {
+                                context.startActivity(intent)
+                            } else {
+                                // Try showing app info instead if no launcher intent
+                                val infoIntent = android.content.Intent(android.provider.Settings.ACTION_APPLICATION_DETAILS_SETTINGS)
+                                    .apply { data = android.net.Uri.parse("package:$pkg") }
+                                context.startActivity(infoIntent)
+                            }
+                        }
+                    ) {
+                        Text(stringResource(R.string.open))
+                    }
+                }
+
                 DragonButton(
                     onClick = { 
                         if (!isInstalled) {
@@ -180,7 +199,7 @@ private fun ExtensionItem(extension: ExtensionModel) {
                         } else {
                             // Uninstall logic (via Intent)
                             val pkg = extension.packageName ?: extension.id
-                            val intent = android.content.Intent(android.provider.Settings.ACTION_APPLICATION_DETAILS_SETTINGS)
+                            val intent = android.content.Intent(android.content.Intent.ACTION_DELETE)
                                 .apply { data = android.net.Uri.parse("package:$pkg") }
                             context.startActivity(intent)
                         }

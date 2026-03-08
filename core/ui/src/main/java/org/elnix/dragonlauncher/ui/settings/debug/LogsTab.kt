@@ -50,7 +50,11 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.core.content.ContextCompat
 import androidx.core.content.FileProvider
+import java.io.InputStreamReader
+import org.elnix.dragonlauncher.common.serializables.ExtensionModel
 import kotlinx.coroutines.delay
+import kotlinx.serialization.json.Json
+import kotlinx.serialization.decodeFromString
 import kotlinx.coroutines.launch
 import org.elnix.dragonlauncher.common.logging.DragonLogManager
 import org.elnix.dragonlauncher.common.logging.logD
@@ -103,6 +107,53 @@ fun LogsTab(
     val versionName = packageInfo.versionName ?: "unknown"
     val versionCode = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P) packageInfo.longVersionCode else packageInfo.versionCode.toLong()
 
+    // Calculate extensions in a completely isolated try-catch
+    var finalExtensionText = "No extensions installed"
+    try {
+        val registryContent = ctx.assets.open("extensions-registry.json").bufferedReader().readText()
+        val extensions: List<ExtensionModel> = Json.decodeFromString(registryContent)
+        
+        val lines = ArrayList<String>()
+        val extensionListSize = extensions.size
+        
+        var idx = 0
+        while (idx < extensionListSize) {
+            val ext = extensions[idx]
+            val labelValue = ext.name
+            val pkgValue = ext.packageName
+            
+            if (pkgValue != null) {
+                try {
+                    val isInstalled = ExtensionManager.isExtensionInstalled(ctx, pkgValue)
+                    if (isInstalled) {
+                        val pkgData = ctx.packageManager.getPackageInfo(pkgValue, 0)
+                        val versionStr = pkgData.versionName ?: "unknown"
+                        lines.add("$labelValue ($versionStr)")
+                    }
+                } catch (ex: Exception) {
+                    // package not found, skip
+                }
+            }
+            
+            idx = idx + 1
+        }
+        
+        if (lines.size > 0) {
+            val sb = StringBuilder()
+            var lineIdx = 0
+            while (lineIdx < lines.size) {
+                sb.append(lines[lineIdx])
+                lineIdx = lineIdx + 1
+                if (lineIdx < lines.size) {
+                    sb.append("\n")
+                }
+            }
+            finalExtensionText = sb.toString()
+        }
+    } catch (ex: Exception) {
+        // registry not available
+    }
+
     val deviceDetails = remember {
         buildString {
             appendLine("--- DEVICE DETAILS ---")
@@ -124,20 +175,7 @@ fun LogsTab(
             appendLine("App version: $versionName ($versionCode)")
 
             appendLine("\n--- EXTENSIONS ---")
-            val extensions = listOf(
-                "org.elnix.dragonlauncher.extension.internet" to "Internet",
-                "org.elnix.dragonlauncher.extension.shizuku" to "Shizuku"
-            ).mapNotNull { (pkg, name) ->
-                if (ExtensionManager.isExtensionInstalled(ctx, pkg)) {
-                    val info = ctx.packageManager.getPackageInfo(pkg, 0)
-                    "$name (${info.versionName})"
-                } else null
-            }
-            if (extensions.isNotEmpty()) {
-                appendLine(extensions.joinToString("\n"))
-            } else {
-                appendLine("No extensions installed")
-            }
+            appendLine(finalExtensionText)
 
             appendLine("\n--- PERMISSIONS ---")
             try {
