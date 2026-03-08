@@ -83,7 +83,10 @@ object ExtensionManager {
                 val mySignatures = myPkgInfo.signatures
                 val targetSignatures = targetPkgInfo.signatures
                 
-                if (mySignatures.firstOrNull()?.toCharsString() != targetSignatures.firstOrNull()?.toCharsString()) {
+                val mySig = mySignatures?.firstOrNull()?.toCharsString()
+                val targetSig = targetSignatures?.firstOrNull()?.toCharsString()
+
+                if (mySig == null || mySig != targetSig) {
                     Log.w("ExtensionManager", "Signature mismatch for $packageNameOrId! Blocking detection. Enable 'Disable extension signature check' in debug to bypass.")
                     return false
                 }
