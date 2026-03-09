@@ -175,10 +175,24 @@ object SettingsBackupManager {
 
         // LEGACY format: fallback for "actions" array
         json.optJSONArray("actions")?.let { actionsArray ->
-            SettingsBackupManager.logD(BACKUP_TAG) { "Fallback to legacy system" }
+            SettingsBackupManager.logD(BACKUP_TAG) { "Fallback to legacy system (actions)" }
             val legacyPoints = SwipeJson.decodeLegacy(actionsArray.toString())
-            SettingsBackupManager.logE(BACKUP_TAG) { legacyPoints.toString() }
             SwipeSettingsStore.savePoints(ctx, legacyPoints)
+        }
+
+        // NEW LEGACY format: fallback for "new_actions" (points and nests)
+        json.optJSONObject("new_actions")?.let { newActionsObj ->
+            SettingsBackupManager.logD(BACKUP_TAG) { "Fallback to legacy system (new_actions)" }
+            
+            newActionsObj.optJSONArray("points")?.let { pointsArray ->
+                val legacyPoints = SwipeJson.decodePoints(pointsArray.toString())
+                SwipeSettingsStore.savePoints(ctx, legacyPoints)
+            }
+            
+            newActionsObj.optJSONArray("nests")?.let { nestsArray ->
+                val legacyNests = SwipeJson.decodeNests(nestsArray.toString())
+                SwipeSettingsStore.saveNests(ctx, legacyNests)
+            }
         }
     }
 }
