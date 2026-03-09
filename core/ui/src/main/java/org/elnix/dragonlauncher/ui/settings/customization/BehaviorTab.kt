@@ -135,73 +135,68 @@ fun BehaviorTab(onBack: () -> Unit) {
                     title = stringResource(R.string.prompt_shortcuts_when_adding_app),
                     description = stringResource(R.string.prompt_shortcuts_when_adding_app_desc)
                 )
-            }
-        }
 
-        item {
-            SettingsSwitchRow(
-                setting = BehaviorSettingsStore.useDifferentialLoadingForPrivateSpace,
-                title = stringResource(R.string.use_differential_loading_private_space),
-                description = stringResource(R.string.use_differential_loading_private_space_desc)
-            ) {
-                if (it) {
-                    scope.launch {
-                        ctx.showToast("Reloading apps")
-                        appLifecycleViewModel.onUnlockPrivateSpace()
+                SettingsSwitchRow(
+                    setting = BehaviorSettingsStore.useDifferentialLoadingForPrivateSpace,
+                    title = stringResource(R.string.use_differential_loading_private_space),
+                    description = stringResource(R.string.use_differential_loading_private_space_desc)
+                ) {
+                    if (it) {
+                        scope.launch {
+                            ctx.showToast("Reloading apps")
+                            appLifecycleViewModel.onUnlockPrivateSpace()
+                        }
+                    } else {
+                        scope.launch {
+                            ctx.showToast("Removing cache")
+                            PrivateAppsSettingsStore.resetAll(ctx)
+                        }
                     }
-                } else {
-                    scope.launch {
-                        ctx.showToast("Removing cache")
-                        PrivateAppsSettingsStore.resetAll(ctx)
-                    }
-                }
-            }
-        }
-
-        item {
-            CustomActionSelector(
-                currentAction = backAction,
-                label = stringResource(R.string.back_action),
-                onToggle = {
-                    scope.launch {
-                        BehaviorSettingsStore.backAction.reset(ctx)
-                    }
-                }
-            ) {
-                scope.launch {
-                    BehaviorSettingsStore.backAction.set(ctx, it)
                 }
             }
         }
 
         item {
-            CustomActionSelector(
-                currentAction = doubleClickAction,
-                label = stringResource(R.string.double_click_action),
-                onToggle = {
+            DragonColumnGroup {
+                CustomActionSelector(
+                    currentAction = backAction,
+                    label = stringResource(R.string.back_action),
+                    onToggle = {
+                        scope.launch {
+                            BehaviorSettingsStore.backAction.reset(ctx)
+                        }
+                    }
+                ) {
                     scope.launch {
-                        BehaviorSettingsStore.doubleClickAction.reset(ctx)
+                        BehaviorSettingsStore.backAction.set(ctx, it)
                     }
                 }
-            ) {
-                scope.launch {
-                    BehaviorSettingsStore.doubleClickAction.set(ctx, it)
-                }
-            }
-        }
 
-        item {
-            CustomActionSelector(
-                currentAction = homeAction,
-                label = stringResource(R.string.home_action),
-                onToggle = {
+                CustomActionSelector(
+                    currentAction = doubleClickAction,
+                    label = stringResource(R.string.double_click_action),
+                    onToggle = {
+                        scope.launch {
+                            BehaviorSettingsStore.doubleClickAction.reset(ctx)
+                        }
+                    }
+                ) {
                     scope.launch {
-                        BehaviorSettingsStore.homeAction.reset(ctx)
+                        BehaviorSettingsStore.doubleClickAction.set(ctx, it)
                     }
                 }
-            ) {
-                scope.launch {
-                    BehaviorSettingsStore.homeAction.set(ctx, it)
+                CustomActionSelector(
+                    currentAction = homeAction,
+                    label = stringResource(R.string.home_action),
+                    onToggle = {
+                        scope.launch {
+                            BehaviorSettingsStore.homeAction.reset(ctx)
+                        }
+                    }
+                ) {
+                    scope.launch {
+                        BehaviorSettingsStore.homeAction.set(ctx, it)
+                    }
                 }
             }
         }
