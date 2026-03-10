@@ -30,7 +30,7 @@ object BackupSettingsStore : MapSettingsStore() {
     val autoBackupEnabled = Settings.boolean(
         key = "autoBackupEnabled",
         dataStoreName = dataStoreName,
-        default = true
+        default = false
     )
 
     val autoBackupUri = Settings.string(
