@@ -15,6 +15,9 @@
 [![Kotlin](https://img.shields.io/badge/Kotlin-a503fc?logo=kotlin&logoColor=white&style=for-the-badge)](https://kotlinlang.org/)
 [![Jetpack Compose](https://img.shields.io/static/v1?style=for-the-badge&message=Jetpack+Compose&color=4285F4&logo=Jetpack+Compose&logoColor=FFFFFF&label=)](https://developer.android.com/compose)
 
+<img src="https://hosted.weblate.org/widgets/dragon-launcher/-/287x66-grey.png" alt="Translation Status">
+
+
 [![GitHub release](https://img.shields.io/github/v/release/Elnix90/Dragon-Launcher.svg?include_prereleases&style=for-the-badge)](https://github.com/Elnix90/Dragon-Launcher/releases/latest)
 [![GitHub stars](https://img.shields.io/github/stars/Elnix90/Dragon-Launcher?style=for-the-badge)](https://github.com/Elnix90/Dragon-Launcher/stargazers)
 [![GitHub issues](https://img.shields.io/github/issues/Elnix90/Dragon-Launcher?style=for-the-badge)](https://github.com/Elnix90/Dragon-Launcher/issues)
@@ -204,6 +207,9 @@ apksigner verify --print-certs DragonLauncher-*.apk
   guidelines
 
 * You may join the [Discord server](https://discord.gg/6UyuP8EBWS) to discuss more easily about changes in the project.
+
+
+If you want to help translating, check out the project on [Weblate](https://hosted.weblate.org/engage/dragon-launcher/).
 
 ---
 
